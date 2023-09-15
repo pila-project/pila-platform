@@ -1,0 +1,209 @@
+/* FONT AWESOME -- TODO: Is there a better way to import?  */
+@import url('font-awesome/css/font-awesome.min.css');
+
+body {
+    margin: 0;
+}
+
+div, p, h1, h2, h3, h4, h5 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+* { font-family: Arial, sans-serif; }
+
+.tab-content {
+    padding: 6px 0 0 12px;
+}
+
+.title-and-button-wrapper {
+    display: flex;
+    margin-bottom: 10px;
+}
+.title-and-button-wrapper h2,
+.title-and-button-wrapper h3 {
+    margin-right: 32px;
+}
+.title-and-button-wrapper button {
+    height: 24px;
+}
+
+/* TABLE STYLES */
+div.table-wrapper
+{
+    display: inline-block;
+    height: 300px;
+    overflow-y: scroll;
+}
+table {
+    border-collapse: collapse;
+}
+tr:nth-of-type(odd)
+{
+    background: #eee;
+}
+th
+{
+    position: sticky;
+    top: 0;
+    background: #5589a2;
+    color: white;
+    font-weight: bold;
+    z-index: 10000;
+}
+td,
+th
+{
+    text-align: center;
+    height: 30px;
+    /* for table, this is essentially a min-height */
+    z-index: 0; /* fix headers appearing over modal, who knew why that was happening*/
+    border: 1px solid #eee;
+    padding: 0 10px;
+}
+tr.selectable
+{
+    cursor: pointer;
+}
+tr.selectable.active
+{
+    background-color: rgba(85, 137, 162, 0.5);
+    color: #5589a2;
+    text-shadow: 0.3px 0px 0px #5589a2, -0.3px 0px 0px #5589a2;
+}
+tr.selectable:not(.active):hover
+{
+    background: rgba(255, 255, 0, 0.4);
+}
+
+/* ROUND THE CORNERS ON THE HEADER ROW */
+th.first {
+    border-top-left-radius: 20px;
+}
+
+th.last {
+    border-top-right-radius: 20px;
+}
+
+.spread-cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cell-div-min-width {
+    min-width: 300px;
+}
+span.space-holder {
+    width: 24px;
+}
+
+/* BUTTON STYLES */
+
+button.active {
+    text-shadow: 0.3px 0px 0px #555, -0.3px 0px 0px #555;
+    border: 3px solid black;
+}
+
+div.active,
+span.active {
+    text-shadow: 0.3px 0px 0px #555, -0.3px 0px 0px #555;
+    background: yellow;
+}
+button.little-blue {
+    padding: 3px 6px;
+    font-style: italic;
+    color: blue;
+    opacity: 0.5;
+    border: none;
+    background: none;
+}
+button.little-blue:hover {
+    cursor: pointer;
+    background: yellow;
+}
+
+/* CARD STYLES */
+.card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #eff0f0;
+    border-radius: 6px;
+    display: flex;
+    margin: 12px;
+    padding: 6px;
+    align-items: center;
+    justify-content: space-evenly;
+    border: 2px solid darkgrey;
+}
+/* FONT AWESOME ICONBUTTON.VUE STYLES */
+button.icon-button {
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 1000px;
+}
+button.icon-button:hover {
+    cursor: pointer;
+    opacity: 0.7;
+}
+button.icon-button i {
+    margin-right: 10px;
+}
+/* FONT AWESOME ICON ONLY CIRCLE BUTTON */
+button.icon-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 1000px;
+    padding: 0;
+    border: none;
+    background: orangered;
+    display: flex;
+    align-items: center;
+    justify-content: center;;
+
+}
+
+button.icon-circle:hover {
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+button.icon-circle i {
+    margin: 0;
+    padding: 4px;
+    color: white;
+}
+
+/* Text Input */
+input.rounded-grey {
+    border-radius: 20px;
+    background: #eee;
+    border: none;
+    padding: 6px 10px;
+    width: 200px;
+}
+
+/* KAREL BUTTON */
+.karel-button {
+    background: green;
+    color: white;
+    user-select: none;
+    cursor: pointer;
+    min-width: 80px;
+    height: 30px;
+    margin: 0 6px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.9em;
+    opacity: 0.72;
+    transition: opacity 250ms;
+}
+  
+.karel-button:hover {
+    opacity: 1;
+}
+.karel-button:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+}

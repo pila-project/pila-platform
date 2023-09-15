@@ -1,0 +1,227 @@
+postgres:
+  tables:
+    role_requests:
+      type: application/json;type=role_request
+      columns:
+        role: TEXT
+    role_assertions:
+      type: application/json;type=role_assertion
+      columns:
+        role: TEXT
+        assignee: TEXT
+    studies:
+      type: application/json;type=study
+      columns: {}
+    assignments:
+      type: application/json;type=assignment
+      columns:
+        group_id: TEXT
+        item_id: TEXT
+        assignment_type: TEXT
+        archived: BOOLEAN
+    groups:
+      type: application/json;type=group
+      columns:
+        name: TEXT
+        group_type: TEXT
+        archived: BOOLEAN
+    group_members:
+      type: application/json;type=group_member
+      columns:
+        user_id: TEXT
+        group_id: TEXT
+        archived: BOOLEAN
+    assignment_scopes:
+      type: application/json;type=assignment_scope
+      columns:
+        scope: TEXT
+        assignment: TEXT
+    tags:
+      type: application/json;type=tag
+      columns:
+        content_id: TEXT
+        tag_type: TEXT
+        archived: BOOLEAN
+  functions:
+    isAdmin:
+      returns: BOOLEAN
+      arguments:
+      - name: user_id
+        type: TEXT
+      language: PLpgSQL
+      body: |
+        BEGIN
+          RETURN user_id IN (
+            'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+            'c0f3a481-d4d5-4133-a198-94a325aa4536'
+          );
+        END;
+    hasAdminTag:
+      returns: BOOLEAN
+      arguments:
+      - name: content_id
+        type: TEXT
+      - name: tag_type
+        type: TEXT
+      language: PLpgSQL
+      body: |
+        BEGIN
+          RETURN EXISTS (
+            WITH cte AS (
+              SELECT DISTINCT ON (t.content_id)
+                md.owner as user_id,
+                t.content_id,
+                t.archived,
+                md.updated
+              FROM tags t
+              LEFT JOIN metadata md ON md.id = t.id
+              WHERE t.content_id = hasAdminTag.content_id
+                AND isAdmin(md.owner)
+                AND t.tag_type = hasAdminTag.tag_type
+              ORDER BY t.content_id, md.updated DESC
+              LIMIT 1
+            )
+            SELECT 1
+            FROM cte
+            WHERE NOT cte.archived
+          );
+        END;
+    role_assignments:
+      returns:
+        assignee: TEXT
+        role: TEXT
+        assigner: TEXT
+        updated: TIMESTAMP
+      arguments:
+      - name: requester_id
+        type: TEXT
+      language: PLpgSQL
+      body: |
+        BEGIN
+          RETURN QUERY
+            SELECT
+              ra.assignee,
+              ra.role,
+              m.owner as assigner,
+              m.updated
+            FROM role_assertions ra
+            JOIN metadata m
+              ON ra.id = m.id
+            WHERE
+              (ra.assignee, m.updated) IN (
+                SELECT ra2.assignee, MAX(m2.updated)
+                FROM role_assertions ra2
+                JOIN metadata m2 ON ra2.id = m2.id
+                WHERE isAdmin(m2.owner)
+                GROUP BY ra2.assignee
+              )
+              AND isAdmin(m.owner)
+              AND (
+                isAdmin(requester_id)
+                OR ra.assignee = requester_id
+              )
+              AND NOT isAdmin(ra.assignee)
+            UNION SELECT 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', 'admin', 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', NULL
+            UNION SELECT 'c0f3a481-d4d5-4133-a198-94a325aa4536', 'admin', 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', NULL
+          ;
+        END;
+  scopes:
+    role-assignments: SELECT * FROM role_assignments($REQUESTER)
+    requested-roles: |
+      SELECT
+        role_requests.role AS role,
+        metadata.owner     AS assignee,
+        metadata.updated   AS updated
+      FROM role_requests
+      LEFT JOIN metadata
+        ON metadata.id = role_requests.id
+      WHERE isAdmin($REQUESTER) OR metadata.owner = $REQUESTER
+    # all groups a user owns, or has been put in
+    groups: |
+      SELECT
+        groups.name,
+        groups.group_type,
+        groups.archived,
+        metadata.owner as owner,
+        metadata.id as id
+      FROM groups
+      LEFT JOIN metadata
+        ON groups.id = metadata.id
+      WHERE metadata.owner = $REQUESTER
+        OR groups.id IN (
+          SELECT group_id
+          FROM groups
+          LEFT JOIN group_members
+            ON groups.id = group_members.group_id
+          WHERE group_members.user_id = $REQUESTER
+        )
+    group_members: |
+      SELECT
+        group_members.group_id,
+        group_members.user_id,
+        group_members.archived,
+        metadata.id as id
+      FROM group_members
+      LEFT JOIN metadata
+        ON group_members.id = metadata.id
+      WHERE metadata.owner = $REQUESTER
+        OR group_members.user_id = $REQUESTER
+    assignments: |
+      SELECT
+        assignments.id,
+        assignments.item_id,
+        assignments.group_id,
+        assignments.assignment_type,
+        assignments.archived,
+        am.owner AS assigner_id
+      FROM assignments
+      LEFT JOIN metadata am ON am.id = assignments.id
+      WHERE am.owner = $REQUESTER
+        OR (
+          assignments.item_id IN (
+            SELECT item_id
+            FROM assignments
+            WHERE group_id IN (
+              SELECT group_id
+              FROM group_members
+              WHERE user_id = $REQUESTER
+            )
+          )
+          AND (
+            assignments.assignment_type = 'teacher-to-student'
+            OR
+            assignments.assignment_type = 'teacher-to-student-research'
+            OR (
+              assignments.assignment_type = 'researcher-to-teacher'
+              AND (
+                assignments.item_id IS NOT NULL
+                AND hasAdminTag(assignments.item_id, 'admin-approved'::text)
+              )
+            )
+          )
+        )
+    tags: |
+      SELECT
+        tags.id as id,
+        md.owner as user_id,
+        content_id,
+        tag_type,
+        archived,
+        updated
+      FROM tags
+      LEFT JOIN metadata md ON md.id = tags.id
+      WHERE md.owner = $REQUESTER
+        AND tag_type != 'expert'
+      UNION
+      SELECT DISTINCT ON (content_id)
+        tags.id as id,
+        md.owner as user_id,
+        content_id,
+        tag_type,
+        archived,
+        updated
+      FROM tags
+      LEFT JOIN metadata md ON md.id = tags.id
+      WHERE isAdmin(md.owner)
+        AND tag_type = 'expert'
+      ORDER BY content_id, updated DESC
