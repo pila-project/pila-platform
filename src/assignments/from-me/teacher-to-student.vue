@@ -22,7 +22,7 @@
     assignment_type="teacher-to-student"
   />
   <div v-if="dashboardScope">
-    <vueContentComponent
+    <vuePersistentComponent
       :id="`https://dashboard.knowlearning.systems/${dashboardScope}`"
     />
   </div>
@@ -30,7 +30,7 @@
 
 <script>
   import { v4 as uuid } from 'uuid'
-  import { vueContentComponent } from '@knowlearning/agents'
+  import { vuePersistentComponent } from '@knowlearning/agents/vue.js'
   import GroupAssigner from '../../components/groups/assigner.vue'
 
   export default {
@@ -39,7 +39,7 @@
     },
     components: {
       GroupAssigner,
-      vueContentComponent
+      vuePersistentComponent
     },
     data() {
       return {

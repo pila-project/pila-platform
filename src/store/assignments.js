@@ -68,7 +68,7 @@ export default {
   },
   actions: {
     async load({commit}) {
-      const assignments = await Agent.state('assignments')
+      const assignments = await Agent.query('assignments')
       assignments.forEach(assignment => commit('addAssignment', assignment))
     },
     async assign({getters, dispatch}, { group_id, item_id, assignment_type }) {

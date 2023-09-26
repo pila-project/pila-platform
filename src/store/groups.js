@@ -85,14 +85,14 @@ export default {
       }
       await Promise.all([
         Agent
-          .state('groups')
+          .query('groups')
           .then(g => g.forEach(group => commit('add', group))),
         loadSpecialGroup('my-students'),
         loadSpecialGroup('my-teachers')
       ])
     },
     async loadMembers({ commit }) {
-      const members = await Agent.state('group_members')
+      const members = await Agent.query('group_members')
       members.forEach(member => commit('addMember', member))
     },
     async add({ dispatch }, { name, type, id=uuid()}) {

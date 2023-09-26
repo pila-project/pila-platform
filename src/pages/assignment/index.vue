@@ -1,6 +1,6 @@
 <template>
   <div v-if="assignment && assignment.content" class="wrapper">
-    <vueContentComponent
+    <vuePersistentComponent
       :id="assignment.content"
       @state="stateListener"
       @mutate="mutateListener"
@@ -17,11 +17,11 @@
 </template>
 
 <script>
-  import { vueContentComponent } from '@knowlearning/agents'
+  import { vuePersistentComponent } from '@knowlearning/agents/vue.js'
 
   export default {
     components: {
-      vueContentComponent
+      vuePersistentComponent
     },
     data() {
       return {

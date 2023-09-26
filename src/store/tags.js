@@ -42,7 +42,7 @@ export default {
   },
   actions: {
     async load({ commit }) {
-      const tags = await Agent.state('tags')
+      const tags = await Agent.query('tags')
       tags.forEach(tag => commit('add', tag))
     },
     async tag({ state, commit, dispatch }, { tag_type, content_id, archived=false }) {

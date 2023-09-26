@@ -42,7 +42,7 @@ export default {
 
       await Promise.all([
         store.dispatch('load'),
-        store.dispatch('tags/load'),
+//        store.dispatch('tags/load'),
         store.dispatch('roles/load'),
         store.dispatch('groups/load'),
         store.dispatch('assignments/load')

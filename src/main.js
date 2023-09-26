@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import router from './router.js'
-import { browserAgent, vuePersistentStore } from '@knowlearning/agents'
+import { browserAgent } from '@knowlearning/agents'
+import { vuePersistentStore } from '@knowlearning/agents/vue.js'
 import storeDef from './store/index.js'
 import App from './pages/App.vue'
 
