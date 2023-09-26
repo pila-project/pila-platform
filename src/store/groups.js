@@ -3,6 +3,8 @@ import { v4 as uuid } from 'uuid'
 const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'
 
+let firstLoad = true
+
 export default {
   scope: null,
   namespaced: true,
@@ -60,7 +62,11 @@ export default {
     }
   },
   actions: {
-    async load({ dispatch }) {
+    async load({ dispatch }, poll) {
+      if (firstLoad || poll === 'do-it') {
+        setTimeout(() => dispatch('load', 'do-it'), 3000)
+        firstLoad = false
+      }
       await Promise.all([
         dispatch('loadGroups'),
         dispatch('loadMembers')
