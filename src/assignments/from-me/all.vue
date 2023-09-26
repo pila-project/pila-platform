@@ -60,7 +60,7 @@
     },
     computed: {
       assignable_items() {
-        return this.$store.getters['tags/withTag'](this.assignable_item_type)
+        return this.$store.getters['pila_tags/withTag'](this.assignable_item_type)
       }
     },
     methods: {
@@ -70,11 +70,11 @@
         const assignableItem = await Agent.state(content_id)
         assignableItem.name = name // TODO: add reasonable defaults based on type
         this.current = content_id
-        this.$store.dispatch('tags/tag', { content_id, tag_type: this.assignable_item_type })
+        this.$store.dispatch('pila_tags/tag', { content_id, tag_type: this.assignable_item_type })
       },
       remove(content_id) {
         const tag_type = this.assignable_item_type
-        this.$store.dispatch('tags/untag', { content_id, tag_type })
+        this.$store.dispatch('pila_tags/untag', { content_id, tag_type })
         if (this.current === content_id) this.current = null
       }
     }

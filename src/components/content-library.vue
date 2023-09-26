@@ -34,7 +34,7 @@
     methods: {
       trackContent(content_id) {
         if (isUUID(content_id)) {
-          this.$store.dispatch('tags/tag', { content_id, tag_type: 'tracked' })
+          this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         }
         else this.showUUIDWarning = true
       }

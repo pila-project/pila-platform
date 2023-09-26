@@ -96,13 +96,13 @@
     },
     computed: {
       isGranted() {
-        return this.$store.getters['tags/hasTag'](this.id, 'admin-approved')
+        return this.$store.getters['pila_tags/hasTag'](this.id, 'admin-approved')
       },
       publishRequested() {
-        return this.$store.getters['tags/hasTag'](this.id, ADMIN_APPROVAL_REQUEST)
+        return this.$store.getters['pila_tags/hasTag'](this.id, ADMIN_APPROVAL_REQUEST)
       },
       files() {
-        return this.$store.getters['tags/withTag']('file')
+        return this.$store.getters['pila_tags/withTag']('file')
       }
     },
     watch: {
@@ -120,14 +120,14 @@
           content_id: this.id,
           tag_type: ADMIN_APPROVAL_REQUEST
         }
-        this.$store.dispatch('tags/tag', tagInfo)
+        this.$store.dispatch('pila_tags/tag', tagInfo)
       },
       undoRequest() {
         const tagInfo = {
           content_id: this.id,
           tag_type: ADMIN_APPROVAL_REQUEST
         }
-        this.$store.dispatch('tags/untag', tagInfo)
+        this.$store.dispatch('pila_tags/untag', tagInfo)
       },
       download(id) {
         Agent.download(id).direct()

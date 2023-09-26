@@ -16,14 +16,14 @@
     <td v-for="tag in tags" :id="tag">
       <input
         type="checkbox"
-        v-if="$store.getters['tags/hasTag'](id, tag)"
-        @click="$store.dispatch('tags/untag', { content_id: id, tag_type: tag })"
+        v-if="$store.getters['pila_tags/hasTag'](id, tag)"
+        @click="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: tag })"
         checked
       />
       <input
         type="checkbox"
         v-else
-        @click="$store.dispatch('tags/tag', { content_id: id, tag_type: tag })"
+        @click="$store.dispatch('pila_tags/tag', { content_id: id, tag_type: tag })"
       />
     </td>
     <td>
@@ -65,7 +65,7 @@
         alert(`Open up ${this.id}`)
       },
       remove(content_id, tag_type) {
-        this.$store.dispatch('tags/untag', { content_id, tag_type })
+        this.$store.dispatch('pila_tags/untag', { content_id, tag_type })
       }
     }
   }

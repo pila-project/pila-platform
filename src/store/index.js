@@ -1,14 +1,14 @@
 import roles from './roles.js'
 import groups from './groups.js'
 import assignments from './assignments.js'
-import tags from './tags.js'
+import pila_tags from './pila_tags.js'
 
 export default {
   modules: {
     assignments,
     groups,
     roles,
-    tags
+    pila_tags
   },
   state: () => ({
     loaded: false,
@@ -42,7 +42,7 @@ export default {
 
       await Promise.all([
         store.dispatch('load'),
-//        store.dispatch('tags/load'),
+        store.dispatch('pila_tags/load'),
         store.dispatch('roles/load'),
         store.dispatch('groups/load'),
         store.dispatch('assignments/load')

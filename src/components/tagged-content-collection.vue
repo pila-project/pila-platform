@@ -35,7 +35,7 @@
     },
     computed: {
       content() {
-        return this.$store.getters['tags/withTag'](this.type)
+        return this.$store.getters['pila_tags/withTag'](this.type)
       }
     }
   }

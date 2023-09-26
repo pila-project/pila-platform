@@ -42,7 +42,7 @@ export default {
   },
   actions: {
     async load({ commit }) {
-      const tags = await Agent.query('tags')
+      const tags = await Agent.query('pila_tags')
       tags.forEach(tag => commit('add', tag))
     },
     async tag({ state, commit, dispatch }, { tag_type, content_id, archived=false }) {
@@ -54,7 +54,7 @@ export default {
         state.archived = false
       }
       else Agent.create({
-        active_type: 'application/json;type=tag',
+        active_type: 'application/json;type=pila_tag',
         active: { tag_type, content_id, archived }
       })
 

@@ -10,22 +10,17 @@
 export default {
   props: {
     scope: String,
-    user: {
-      type: String,
-      required: false
-    },
     path: Array
   },
   data() {
     return { loaded: false, state: {} }
   },
   async created() {
-    const onUpdate = update => {
-      //  TODO: remove hack
-      this.state = JSON.parse(JSON.stringify(update.state))
-    }
-    this.state = await (this.user ? Agent.state(this.scope, this.user).watch(onUpdate) : Agent.state(this.scope).watch(onUpdate))
-    this.loaded = true
+    Agent
+      .watch(this.scope, update => {
+        this.state = update.state
+        this.loaded = true
+      })
   },
   computed: {
     value() {

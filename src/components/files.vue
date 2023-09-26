@@ -28,7 +28,7 @@
         const content_id = await Agent.upload(file.name, file.type, file)
         const metadata = await Agent.metadata(content_id)
         metadata.name = file.name
-        this.$store.dispatch('tags/tag', { content_id, tag_type: 'file' } )
+        this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'file' } )
         e.target.value = ''
       }
     }

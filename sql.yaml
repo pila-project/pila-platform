@@ -36,8 +36,8 @@ postgres:
       columns:
         scope: TEXT
         assignment: TEXT
-    tags:
-      type: application/json;type=tag
+    pila_tags:
+      type: application/json;type=pila_tag
       columns:
         content_id: TEXT
         tag_type: TEXT
@@ -73,7 +73,7 @@ postgres:
                 t.content_id,
                 t.archived,
                 md.updated
-              FROM tags t
+              FROM pila_tags t
               LEFT JOIN metadata md ON md.id = t.id
               WHERE t.content_id = hasAdminTag.content_id
                 AND isAdmin(md.owner)
@@ -200,28 +200,28 @@ postgres:
             )
           )
         )
-    tags: |
+    pila_tags: |
       SELECT
-        tags.id as id,
+        pila_tags.id as id,
         md.owner as user_id,
         content_id,
         tag_type,
         archived,
         updated
-      FROM tags
-      LEFT JOIN metadata md ON md.id = tags.id
+      FROM pila_tags
+      LEFT JOIN metadata md ON md.id = pila_tags.id
       WHERE md.owner = $REQUESTER
         AND tag_type != 'expert'
       UNION
       SELECT DISTINCT ON (content_id)
-        tags.id as id,
+        pila_tags.id as id,
         md.owner as user_id,
         content_id,
         tag_type,
         archived,
         updated
-      FROM tags
-      LEFT JOIN metadata md ON md.id = tags.id
+      FROM pila_tags
+      LEFT JOIN metadata md ON md.id = pila_tags.id
       WHERE isAdmin(md.owner)
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
