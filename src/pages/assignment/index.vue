@@ -1,9 +1,10 @@
 <template>
   <div v-if="assignment && assignment.content" class="wrapper">
-    <vuePersistentComponent
+    <vueEmbedComponent
       :id="assignment.content"
       @state="stateListener"
       @mutate="mutateListener"
+      @close="closeAssignment"
     />
   </div>
   <div v-else-if="assignment">
@@ -17,11 +18,11 @@
 </template>
 
 <script>
-  import { vuePersistentComponent } from '@knowlearning/agents/vue.js'
+  import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
   export default {
     components: {
-      vuePersistentComponent
+      vueEmbedComponent
     },
     data() {
       return {
@@ -31,7 +32,9 @@
     },
     async created() {
       const id = this.$route.params.item_id
-      Agent.state(id).then(state => this.assignment = state)
+      Agent.state(id).then(async state => {
+        this.assignment = await Agent.state(state.item_id)
+      })
       Agent.metadata(id).then(meta => this.assignmentMeta = meta)
     },
     methods: {
@@ -40,6 +43,9 @@
       },
       async mutateListener({ scope }) {
         // TODO: register this scope as part of an assignment
+      },
+      closeAssignment() {
+        window.location = '/'
       }
     }
   }

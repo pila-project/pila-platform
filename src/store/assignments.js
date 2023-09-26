@@ -2,6 +2,8 @@ import { v4 as uuid } from 'uuid'
 
 const ASSIGNMENTS_TYPE = 'application/json;type=assignment'
 
+let firstLoad = true
+
 export default {
   scope: null,
   namespaced: true,
@@ -67,7 +69,11 @@ export default {
     }
   },
   actions: {
-    async load({commit}) {
+    async load({commit, dispatch}, poll) {
+      if (firstLoad || poll === 'do-it') {
+        setTimeout(() => dispatch('load', 'do-it'), 3000)
+        firstLoad = false
+      }
       const assignments = await Agent.query('assignments')
       assignments.forEach(assignment => commit('addAssignment', assignment))
     },

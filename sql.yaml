@@ -225,3 +225,11 @@ postgres:
       WHERE isAdmin(md.owner)
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
+    mutated-in-context: |
+      SELECT DISTINCT
+        context,
+        target
+      FROM tags
+      WHERE
+        $1 = ANY(context)
+        AND tag_type = 'mutated'
