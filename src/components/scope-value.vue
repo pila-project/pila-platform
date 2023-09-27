@@ -24,7 +24,7 @@ export default {
   },
   computed: {
     value() {
-      return this.path.reduce((acc, field) => acc[field], this.state)
+      return this.path.reduce((acc, field) => acc?.[field], this.state)
     }
   }
 }

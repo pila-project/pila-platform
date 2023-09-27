@@ -31,8 +31,22 @@
       <tr v-for="assignee in assignees">
         <td>
           {{ assignee }}
+          <span v-if="lastAssigneeInteractionTimes[assignee]">
+            last activity: {{ Math.round((now - lastAssigneeInteractionTimes[assignee])/1000) }} seconds ago
+          </span>
+          <span v-else> --- </span>
+          <ScopeWatcher
+            v-if="assigneeMapScopes[assignee]"
+            :id="assigneeMapScopes[assignee]"
+          />
         </td>
-        <td v-for="task in orderedTasks">
+        <td
+          v-for="task in orderedTasks"
+        >
+          <ScopeValue
+            :scope="assigneeMapScopes[assignee]"
+            :path="['taskTimes', task]"
+          />
           <ScopeWatcher
             v-if="assigneeTasksToScopes[assignee][task]"
             :id="assigneeTasksToScopes[assignee][task]"
@@ -54,6 +68,7 @@
   import { vuePersistentComponent } from '@knowlearning/agents/vue.js'
   import GroupAssigner from '../../components/groups/assigner.vue'
   import ScopeWatcher from '../../components/scope-watcher.vue'
+  import ScopeValue from '../../components/scope-value.vue'
 
   export default {
     props: {
@@ -62,7 +77,8 @@
     components: {
       GroupAssigner,
       vuePersistentComponent,
-      ScopeWatcher
+      ScopeWatcher,
+      ScopeValue,
     },
     data() {
       return {
@@ -72,13 +88,22 @@
         mutatedScopesInContext: [],
         map: null,
         taskMetadata: {},
-        users: []
+        users: [],
+        now: Date.now(),
+        lastAssigneeInteractionTimes: {}
       }
     },
     async created() {
+      const updateNow = () => {
+        this.now = Date.now()
+        setTimeout(updateNow, 1000)
+      }
+      updateNow()
+
       Agent
         .query('mutated-in-context', [this.id])
         .then(results => this.mutatedScopesInContext = results)
+
       this.assignment = await Agent.state(this.id)
       this.loading = false
 
@@ -88,6 +113,31 @@
         .forEach(async nodeId => {
           this.taskMetadata[nodeId] = await Agent.metadata(nodeId)
         })
+    },
+    watch: {
+      assigneeMapScopes() {
+        // Watch map scope for each user to get last interaction time.
+        // This works since the map implements a heartbeat.
+        Object
+          .entries(this.assigneeMapScopes)
+          .forEach(async ([assignee, scope]) => {
+            if (this.lastAssigneeInteractionTimes[assignee] === undefined) {
+              this.lastAssigneeInteractionTimes[assignee] = null
+              const { updated } = await Agent.metadata(scope)
+              this.lastAssigneeInteractionTimes[assignee] = updated
+              let ignoreFirst = true
+              Agent
+                .watch(scope, () => {
+                  if (ignoreFirst) {
+                    ignoreFirst = false
+                    return
+                  }
+                  console.log('Updating assignee\'s time...', assignee, scope, Date.now())
+                  this.lastAssigneeInteractionTimes[assignee] = Date.now()
+                })
+            }
+          })
+      }
     },
     computed: {
       orderedTasks() {
@@ -105,6 +155,20 @@
             .mutatedScopesInContext
             .map(({ owner }) => owner)
         ))
+      },
+      assigneeMapScopes() {
+        const assigneeMapScopes = {}
+
+        this
+          .mutatedScopesInContext
+          .forEach(({ owner, target, context }) => {
+            if (context.length === 2) {
+              const map = context[1]
+              assigneeMapScopes[owner] = target
+            }
+          })
+
+        return assigneeMapScopes
       },
       assigneeTasksToScopes() {
         const assigneeTasksToScopes = {}
