@@ -16,16 +16,12 @@
       <input v-model="assignment.content" />
     </div>
   </div>
+  <pre>{{ mutatedScopesInContext }}</pre>
   <GroupAssigner
     :id="id"
     :groups="$store.getters['groups/groups']('class')"
     assignment_type="teacher-to-student"
   />
-  <div v-if="dashboardScope">
-    <vuePersistentComponent
-      :id="`https://dashboard.knowlearning.systems/${dashboardScope}`"
-    />
-  </div>
 </template>
 
 <script>
@@ -46,19 +42,16 @@
         loading: true,
         selectedFile: 'UNSELECTED',
         assignment: null,
-        dashboardScope: null
+        mutatedScopesInContext: []
       }
     },
     async created() {
+      console.log(this.id)
+      Agent
+        .query('mutated-in-context', [this.id])
+        .then(results => this.mutatedScopesInContext = results)
       this.assignment = await Agent.state(this.id)
       this.loading = false
-
-      const id = uuid()
-      const ds = await Agent.state(id)
-      ds.scope = this.assignment.content
-      const users = this.$store.getters['assignments/assignedStudents'](this.id, 'teacher-to-student')
-      ds.users = users.reduce((acc, id) => (acc[id] = {}, acc), {})
-      this.dashboardScope = id
     }
   }
 

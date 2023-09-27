@@ -12,7 +12,7 @@
       v-if="playing"
     >
       <vueEmbedComponent
-        :id="this.id"
+        :id="assigned_item_id"
         @close="playing = false"
       />
     </div>
@@ -36,13 +36,13 @@
       return {
         playing: false,
         assignment: null,
-        assigned_item: null
+        assigned_item_id: null
       }
     },
     async created() {
       const assignment = await Agent.state(this.id)
       this.assignment = assignment
-      this.assigned_item = await Agent.state(assignment.item_id)
+      this.assigned_item_id = assignment.item_id
     }
   }
 

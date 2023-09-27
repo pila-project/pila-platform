@@ -30,10 +30,7 @@
     },
     async created() {
       const { id } = this.$route.params
-      Agent.state(id).then(async state => {
-        this.assignment = await Agent.state(state.item_id)
-      })
-      Agent.metadata(id).then(meta => this.assignmentMeta = meta)
+      this.assignment = await Agent.state(id)
     },
     methods: {
       closeAssignment() {
