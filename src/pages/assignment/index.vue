@@ -2,8 +2,6 @@
   <div v-if="assignment && assignment.content" class="wrapper">
     <vueEmbedComponent
       :id="assignment.content"
-      @state="stateListener"
-      @mutate="mutateListener"
       @close="closeAssignment"
     />
   </div>
@@ -31,21 +29,15 @@
       }
     },
     async created() {
-      const id = this.$route.params.item_id
+      const { id } = this.$route.params
       Agent.state(id).then(async state => {
         this.assignment = await Agent.state(state.item_id)
       })
       Agent.metadata(id).then(meta => this.assignmentMeta = meta)
     },
     methods: {
-      async stateListener(event) {
-        console.log('STATE LISTENER!', event)
-      },
-      async mutateListener({ scope }) {
-        // TODO: register this scope as part of an assignment
-      },
       closeAssignment() {
-        window.location = '/'
+        Agent.close()
       }
     }
   }

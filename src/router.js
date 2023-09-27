@@ -30,7 +30,7 @@ export default createRouter({
       component: JoinTeacherView
     },
     {
-      path: '/assignment/:item_id',
+      path: '/:id',
       component: AssignmentView
     }
   ]

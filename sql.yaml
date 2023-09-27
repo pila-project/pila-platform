@@ -228,8 +228,10 @@ postgres:
     mutated-in-context: |
       SELECT DISTINCT
         context,
-        target
+        target,
+        metadata.owner
       FROM tags
+      LEFT JOIN metadata on metadata.id = tags.id
       WHERE
         $1 = ANY(context)
         AND tag_type = 'mutated'
