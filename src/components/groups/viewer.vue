@@ -1,6 +1,10 @@
 <template>
   <h1>Groups</h1>
   <button @click="add">New Group</button>
+  Your student link:
+  <a :href="`https://${host}/join/${user}`">
+    {{`https://${host}/join/${user}`}}
+  </a>
   <table>
     <thead>
       <tr>
@@ -15,7 +19,9 @@
         :class="{ selected: id === current }"
         @click="current = current === id ? null: id"
       >
-        <td>{{ id }}TODO: get name from metadata name...</td>
+        <td>
+          <ScopeWatcher :id="id" :path="['name']" />
+        </td>
         <td>
           <button @click.stop="remove(id)">x</button>
         </td>
@@ -24,13 +30,14 @@
   </table>
   <div v-if="current">
     <hr>
-    <h1>{{ current }} TODO: get name from metadata name...</h1>
+    <h1>
+      <ScopeWatcher :id="current" :path="['name']" />
+    </h1>
     <div class="member-tables">
       <div>
         <table>
           <tr>
             <th>Member</th>
-            <th>Email</th>
             <th></th>
           </tr>
           <tr
@@ -38,7 +45,6 @@
             :key="member"
           >
             <td><UserInfo :user="member" name /></td>
-            <td><UserInfo :user="member" email /></td>
             <td>
               <button @click="removeMember(member, current)">x</button>
             </td>
@@ -49,7 +55,6 @@
         <table>
           <tr>
             <th>Member</th>
-            <th>Email</th>
             <th></th>
           </tr>
           <tr
@@ -60,7 +65,6 @@
               <button @click="addMember(member, current)">+</button>
             </td>
             <td><UserInfo :user="member" name /></td>
-            <td><UserInfo :user="member" email /></td>
           </tr>
         </table>
       </div>
@@ -70,10 +74,12 @@
 
 <script>
   import UserInfo from '../user-info.vue'
+  import ScopeWatcher from '../scope-watcher.vue'
 
   export default {
     components: {
-      UserInfo
+      UserInfo,
+      ScopeWatcher
     },
     props: {
       possibleMembers: Array,
@@ -81,10 +87,14 @@
     },
     data() {
       return {
-        current: null
+        current: null,
+        host: window.location.host
       }
     },
     computed: {
+      user() {
+        return this.$store.state.user
+      },
       groups() {
         return this.$store.getters['groups/groups'](this.type)
       },
