@@ -18,7 +18,7 @@ export default {
 	name: 'default-type-cell',
 	components: { DisplayTime },
 	props: {
-		timeOnTask: String,
+		timeOnTask: Number,
 		taskData: Object,
 		userState: Object
 	}

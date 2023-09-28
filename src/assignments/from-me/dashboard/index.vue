@@ -33,10 +33,10 @@
 
         >
           <TaskCell
-            v-if="assigneeTasksToScopes[assignee][task]"
+            v-if="assigneeMapScopeStates[assignee]"
             :task="task"
             :scope="assigneeTasksToScopes[assignee][task]"
-            :timeOnTask="assigneeMapScopeStates[assignee]?.taskTimes[task]"
+            :timeOnTask="assigneeMapScopeStates[assignee].taskTimes[task]"
           />
           <span v-else> - </span>
         </td>
@@ -107,11 +107,9 @@
               let ignoreFirst = true
               Agent
                 .watch(scope, ({ state }) => {
-                  if (ignoreFirst) {
-                    ignoreFirst = false
-                    return
-                  }
-                  this.lastAssigneeInteractionTimes[assignee] = Date.now()
+                  if (ignoreFirst) ignoreFirst = false
+                  else this.lastAssigneeInteractionTimes[assignee] = Date.now()
+
                   this.assigneeMapScopeStates[assignee] = state
                 })
             }

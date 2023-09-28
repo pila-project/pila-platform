@@ -7,8 +7,7 @@ export default {
 	name: 'display-time',
 	props: {
 		rawTime: {
-			type: Number,
-			required: true
+			type: Number
 		}
 	},
 	computed: {
