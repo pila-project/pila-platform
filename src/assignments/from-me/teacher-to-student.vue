@@ -26,7 +26,7 @@
 
 <script>
   import { v4 as uuid } from 'uuid'
-  import Dashboard from './dashboard.vue'
+  import Dashboard from './dashboard/index.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
 
   export default {

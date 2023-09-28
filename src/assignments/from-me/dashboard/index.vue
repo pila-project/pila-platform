@@ -1,11 +1,13 @@
 <template>
   <div v-if="loading">...</div>
+
   <table v-else>
     <thead>
       <tr>
         <th>
           user
         </th>
+        <th></th><!--placeholder for active -->
         <th v-for="{ name } in orderedTaskMetadata">
           {{ name }}
         </th>
@@ -15,25 +17,26 @@
       <tr v-for="assignee in assignees">
         <td>
           {{ assignee }}
-          <span v-if="lastAssigneeInteractionTimes[assignee]">
-            last activity: {{ Math.round((now - lastAssigneeInteractionTimes[assignee])/1000) }} seconds ago
-          </span>
-          <span v-else> --- </span>
-          <ScopeWatcher
-            v-if="assigneeMapScopes[assignee]"
-            :id="assigneeMapScopes[assignee]"
-          />
+        </td>
+        <td>
+          <div :class="{
+            'active-status': true,
+            'active': userIsActive(assignee)
+          }"></div>
         </td>
         <td
           v-for="task in orderedTasks"
+          :class="{
+            'item-cell' : true,
+            'active' : userIsActive(assignee) && assigneeMapScopeStates[assignee]?.current === task
+          }"
+
         >
-          <ScopeValue
-            :scope="assigneeMapScopes[assignee]"
-            :path="['taskTimes', task]"
-          />
-          <ScopeWatcher
+          <TaskCell
             v-if="assigneeTasksToScopes[assignee][task]"
-            :id="assigneeTasksToScopes[assignee][task]"
+            :task="task"
+            :scope="assigneeTasksToScopes[assignee][task]"
+            :timeOnTask="assigneeMapScopeStates[assignee]?.taskTimes[task]"
           />
           <span v-else> - </span>
         </td>
@@ -43,8 +46,9 @@
 </template>
 
 <script>
-  import ScopeWatcher from '../../components/scope-watcher.vue'
-  import ScopeValue from '../../components/scope-value.vue'
+  import ScopeWatcher from '../../../components/scope-watcher.vue'
+  import ScopeValue from '../../../components/scope-value.vue'
+  import TaskCell from './cell-types/index.vue'
 
   export default {
     props: {
@@ -53,6 +57,7 @@
     components: {
       ScopeWatcher,
       ScopeValue,
+      TaskCell
     },
     data() {
       return {
@@ -63,7 +68,8 @@
         taskMetadata: {},
         users: [],
         now: Date.now(),
-        lastAssigneeInteractionTimes: {}
+        lastAssigneeInteractionTimes: {},
+        assigneeMapScopeStates: {}
       }
     },
     async created() {
@@ -79,8 +85,6 @@
 
       this.assignment = await Agent.state(this.assignmentId)
       this.loading = false
-
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>', this.assignment)
 
       this.map = await Agent.state(this.assignment.content)
       Object
@@ -102,13 +106,13 @@
               this.lastAssigneeInteractionTimes[assignee] = updated
               let ignoreFirst = true
               Agent
-                .watch(scope, () => {
+                .watch(scope, ({ state }) => {
                   if (ignoreFirst) {
                     ignoreFirst = false
                     return
                   }
-                  console.log('Updating assignee\'s time...', assignee, scope, Date.now())
                   this.lastAssigneeInteractionTimes[assignee] = Date.now()
+                  this.assigneeMapScopeStates[assignee] = state
                 })
             }
           })
@@ -163,12 +167,17 @@
         return assigneeTasksToScopes
       }
 
+    },
+    methods: {
+      userIsActive(user) {
+        return this.now - this.lastAssigneeInteractionTimes[user] < 5000
+      }
     }
   }
 
 </script>
 
-<style>
+<style scoped>
 
 .assignment-tables {
   display: flex;
@@ -176,4 +185,21 @@
   align-items: top;
 }
 
+.active-status {
+  width: 12px;
+  height: 12px;
+  border-radius: 10px;
+  margin: 0 10px;
+  background: lightgrey;
+}
+.active-status.active {
+  background: #adff2f;
+}
+.item-cell {
+  border: 2px solid transparent;
+}
+.item-cell.active {
+  border: 2px solid orange;
+}
 </style>
+
