@@ -14,9 +14,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="assignee in assignees">
+      <tr v-for="(assignee,i) in assignees">
         <td>
-          {{ assignee }}
+          Anonymous User {{ i + 1 }}
         </td>
         <td>
           <div :class="{
