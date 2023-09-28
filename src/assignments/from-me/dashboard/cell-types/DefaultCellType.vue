@@ -1,7 +1,10 @@
 <template>
 	<div class="default-type-cell">
-		<div>Type Not Found: Default Cell View:::;</div>
-		<div>Time on Task: {{ timeOnTask }}</div>
+		<h2>Type Not Found: Default Cell View</h2>
+		<DisplayTime
+			v-if="timeOnTask"
+			:rawTime="timeOnTask"
+		/>
 		<h3>Task Data:</h3>
 		<pre>{{ taskData }}</pre>
 		<h3>User Run State:</h3>
@@ -10,8 +13,10 @@
 </template>
 
 <script>
+import DisplayTime from './DisplayTime.vue'
 export default {
 	name: 'default-type-cell',
+	components: { DisplayTime },
 	props: {
 		timeOnTask: String,
 		taskData: Object,
