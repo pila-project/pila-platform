@@ -7,6 +7,7 @@
 			:timeOnTask="timeOnTask"
 			:taskData="taskData"
 			:userState="userState"
+			@click.shift="showDefaultCell = !showDefaultCell"
 		/>
 
 	</div>
@@ -24,24 +25,6 @@ export default {
 		DefaultCellType
 	},
 	props: [ 'task', 'scope', 'timeOnTask' ],
-	data() {
-		return {
-			loading: true,
-			taskData: null,
-			taskMetadata: null,
-			userState: null,
-		}
-	},
-	computed: {
-		taskType() { return this.taskMetadata ? this.taskMetadata.active_type : null },
-		cellType() {
-			const componentMap = {
-				'application/json;type=multiple-choice' : MultipleChoiceCell,
-				'application/json;type=rating' : RatingCell
-			}
-			return componentMap[this.taskType] || DefaultCellType
-		}
-	},
 	async created() {
 		this.taskData = await Agent.state(this.task)
 		this.taskMetadata = await Agent.metadata(this.task)
@@ -51,6 +34,27 @@ export default {
 			this.loading = false
 		})
 
+	},
+	data() {
+		return {
+			loading: true,
+			taskData: null,
+			taskMetadata: null,
+			userState: null,
+			showDefaultCell: false
+		}
+	},
+	computed: {
+		taskType() { return this.taskMetadata ? this.taskMetadata.active_type : null },
+		cellType() {
+			if (this.showDefaultCell) return DefaultCellType
+
+			const componentMap = {
+				'application/json;type=multiple-choice' : MultipleChoiceCell,
+				'application/json;type=rating' : RatingCell
+			}
+			return componentMap[this.taskType] || DefaultCellType
+		}
 	}
 }
 </script>

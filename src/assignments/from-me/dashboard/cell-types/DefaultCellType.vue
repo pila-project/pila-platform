@@ -1,6 +1,6 @@
 <template>
 	<div class="default-type-cell">
-		<h2>Type Not Found: Default Cell View</h2>
+		<h2>Default Cell View</h2>
 		<DisplayTime
 			v-if="timeOnTask"
 			:rawTime="timeOnTask"
@@ -24,3 +24,11 @@ export default {
 	}
 }
 </script>
+
+<style scoped>
+.default-type-cell {
+	text-align: left;
+	background: darkslategrey;
+	color: white;
+}
+</style>
