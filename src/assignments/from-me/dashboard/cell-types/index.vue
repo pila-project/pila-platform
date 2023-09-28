@@ -37,7 +37,7 @@ export default {
 		cellType() {
 			const componentMap = {
 				'application/json;type=multiple-choice' : MultipleChoiceCell,
-				'application/json;type=ratin' : RatingCell
+				'application/json;type=rating' : RatingCell
 			}
 			return componentMap[this.taskType] || DefaultCellType
 		}
