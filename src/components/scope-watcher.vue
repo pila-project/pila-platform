@@ -18,9 +18,18 @@
   	  	state: null
   	  }
   	},
-  	created() {
-  	  Agent.watch(this.id, ({ state }) => this.state = state)
+    watch: {
+      id() {
+        this.stopWatching()
+        this.startWatching()
+      }
+    },
+    mounted() {
+      this.startWatching()
   	},
+    unmounted() {
+      this.stopWatching()
+    },
     computed: {
       value() {
         if (this.path.length === 0) return this.state
@@ -30,6 +39,11 @@
             .path
             .reduce((acc, field) => acc?.[field], this.state)
         )
+      }
+    },
+    methods: {
+      startWatching() {
+        this.stopWatching = Agent.watch(this.id, ({ state }) => this.state = state)
       }
     }
   }
