@@ -9,6 +9,8 @@
   <div v-else-if="isMyTeacher">
     You have joined this teacher!
     <button @click="leave">Leave</button>
+    <br>
+    <button @click="goToAssignments">Go to assignments</button>
   </div>
   <div v-else>
     <button @click="join">Join</button>
@@ -56,6 +58,9 @@
           }
         )
         this.leaving = false
+      },
+      goToAssignments() {
+        this.$router.push('/')
       }
     }
   }
