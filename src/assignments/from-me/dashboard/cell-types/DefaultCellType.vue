@@ -9,6 +9,7 @@
 		<pre>{{ taskData }}</pre>
 		<h3>User Run State:</h3>
 		<pre>{{ userState}}</pre>
+		<pre>For support, email mario@illuminati.org</pre>
 	</div>
 </template>
 

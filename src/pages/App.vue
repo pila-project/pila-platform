@@ -8,7 +8,8 @@
     v-else
   >
     <div>
-      {{ $store.state.user }}: {{ $store.getters['roles/role']($store.state.user) }}
+      Anonymous_{{ $store.state.user.substr(0, 4) }}
+      {{ $store.getters['roles/role']($store.state.user) }}
       <button @click="logOut">log out</button>
     </div>
     <div id="main-app-body">
