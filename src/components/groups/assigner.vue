@@ -11,7 +11,10 @@
           :key="assignment_id"
         >
           <td>
-            {{ groupForAssignment(assignment_id) }}
+            <ScopeWatcher
+              :id="groupForAssignment(assignment_id)"
+              :path="['name']"
+            />
           </td>
           <td>
             <button @click="removeAssignment(assignment_id)">x</button>
@@ -32,7 +35,12 @@
           <td>
             <button @click="makeAssignment(group_id, id, assignment_type)">+</button>
           </td>
-          <td>{{ group_id }}</td>
+          <td>
+            <ScopeWatcher
+              :id="group_id"
+              :path="['name']"
+            />
+          </td>
         </tr>
       </table>
     </div>
@@ -41,7 +49,7 @@
 
 <script>
   import UserInfo from '../user-info.vue'
-  import ScopeValue from '../scope-value.vue'
+  import ScopeWatcher from '../scope-watcher.vue'
 
   export default {
     props: {
@@ -50,7 +58,7 @@
       assignment_type: String
     },
     components: {
-      ScopeValue,
+      ScopeWatcher,
       UserInfo
     },
     methods: {
