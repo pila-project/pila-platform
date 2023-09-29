@@ -2,10 +2,14 @@
   <div class="wrapper">
     <h1>Groups</h1>
     <button @click="add">New Group</button>
+    <br>
+    <br>
     Your student link:
     <a :href="`https://${host}/join/${user}`">
       {{`https://${host}/join/${user}`}}
     </a>
+    <br>
+    <br>
     <table>
       <thead>
         <tr>
