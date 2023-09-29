@@ -5,17 +5,27 @@
   <div v-else>
     <div>
       Name
+      <br>
       <input v-model="assignment.name" />
+      <br>
+      <br>
     </div>
     <div>
       Description
+      <br>
       <textarea v-model="assignment.description" />
+      <br>
+      <br>
     </div>
     <div>
       Content
+      <br>
       <input v-model="assignment.content" />
+      <br>
+      <br>
     </div>
   </div>
+  Dashboard
   <Dashboard
     v-if="hasValidContent"
     :assignmentId="id"

@@ -1,37 +1,43 @@
 <template>
-  <button @click="add">New Assignment</button>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="id in assignable_items"
-        :key="id"
-        :class="{ selected: id === current }"
-        @click="current = current === id ? null: id"
-      >
-        <td><ScopeValue :scope="id" :path="['name']" /></td>
-        <td><ScopeValue :scope="id" :path="['description']" /></td>
-        <td>
-          <button @click.stop="remove(id)">x</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div v-if="current" :key="current">
-    <ResearcherToTeacherAssignment
-      v-if="assignable_item_type === 'researcher-created'"
-      :id="current"
-    />
-    <TeacherToStudentAssignment
-      v-else-if="assignable_item_type === 'teacher-created'"
-      :id="current"
-    />
+  <div class="wrapper">
+    <button @click="add">New Assignment</button>
+    <br>
+    <br>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="id in assignable_items"
+          :key="id"
+          :class="{ selected: id === current }"
+          @click="current = current === id ? null: id"
+        >
+          <td><ScopeValue :scope="id" :path="['name']" /></td>
+          <td><ScopeValue :scope="id" :path="['description']" /></td>
+          <td>
+            <button @click.stop="remove(id)">x</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <br>
+    <div v-if="current" :key="current">
+      <ResearcherToTeacherAssignment
+        v-if="assignable_item_type === 'researcher-created'"
+        :id="current"
+      />
+      <TeacherToStudentAssignment
+        v-else-if="assignable_item_type === 'teacher-created'"
+        :id="current"
+      />
+    </div>
   </div>
 </template>
 
@@ -65,7 +71,9 @@
     },
     methods: {
       async add() {
-        const name = prompt('Study name')
+        const name = prompt(`${this.assignable_item_type === 'teacher-created' ? 'Assignment' : 'Study' } Name`)
+        if (!name) return
+
         const content_id = uuid()
         const assignableItem = await Agent.state(content_id)
         assignableItem.name = name // TODO: add reasonable defaults based on type
@@ -82,6 +90,12 @@
 </script>
 
 <style scoped>
+
+.wrapper
+{
+  max-width: 800px;
+  margin: auto;
+}
 
 .selected {
   background: yellow;

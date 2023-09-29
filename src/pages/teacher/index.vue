@@ -7,6 +7,7 @@
       <button @click="tab = 'assignments-from-me'">Assignments</button>
       <button @click="tab = 'assignments-to-me'">Studies</button>
     </div>
+    <hr>
     <Groups
       v-if="tab === 'classes'"
       type="class"
