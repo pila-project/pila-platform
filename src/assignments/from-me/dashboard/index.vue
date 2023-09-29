@@ -33,7 +33,7 @@
 
         >
           <TaskCell
-            v-if="assigneeMapScopeStates[assignee]"
+            v-if="assigneeMapScopeStates[assignee]?.taskTimes?.[task]"
             :task="task"
             :scope="assigneeTasksToScopes[assignee][task]"
             :timeOnTask="assigneeMapScopeStates[assignee].taskTimes[task]"
