@@ -43,7 +43,6 @@
       </tr>
     </tbody>
   </table>
-  <pre>{{ assigneeMapScopeStates }}</pre>
 </template>
 
 <script>
