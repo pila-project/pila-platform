@@ -4,32 +4,33 @@
   </div>
   <div v-else>
     <div>
-      Name
-      <br>
+      <h3>Name</h3>
       <input v-model="assignment.name" />
       <br>
       <br>
     </div>
     <div>
-      Description
-      <br>
+      <h3>Description</h3>
       <textarea v-model="assignment.description" />
       <br>
       <br>
     </div>
     <div>
-      Content
-      <br>
+      <h3>Content</h3>
       <input v-model="assignment.content" />
       <br>
       <br>
     </div>
   </div>
-  Dashboard
+  <h3>Dashboard</h3>
   <Dashboard
     v-if="hasValidContent"
     :assignmentId="id"
   />
+  <br>
+  <br>
+  <h3>Assigned Groups</h3>
+  <br>
   <GroupAssigner
     :id="id"
     :groups="$store.getters['groups/groups']('class')"
