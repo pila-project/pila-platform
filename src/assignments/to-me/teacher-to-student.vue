@@ -6,16 +6,6 @@
     <p>
       {{ assignment.description }}
     </p>
-    <button @click="playing = true">play</button>
-    <div
-      class="assignment-overlay"
-      v-if="playing"
-    >
-      <vueEmbedComponent
-        :id="assigned_item_id"
-        @close="playing = false"
-      />
-    </div>
   </div>
   <div v-else>
     ...
@@ -47,17 +37,3 @@
   }
 
 </script>
-
-<style scoped>
-
-  .assignment-overlay
-  {
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: white;
-    width: 100vw;
-    height: 100vh;
-  }
-
-</style>

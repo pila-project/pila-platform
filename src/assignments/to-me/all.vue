@@ -6,6 +6,7 @@
         <th>Name</th>
         <th>Description</th>
         <th>Assigner</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -24,6 +25,9 @@
         </td>
         <td>
           TODO: load info from item_id
+        </td>
+        <td>
+          <button @click="play(assignment_id)">play</button>
         </td>
       </tr>
     </tbody>
@@ -47,9 +51,19 @@
     </div>
     <div v-else>Need view for type "{{ type }}"</div>
   </div>
+  <div
+    class="assignment-overlay"
+    v-if="playing"
+  >
+    <vueEmbedComponent
+      :id="playing"
+      @close="playing = null"
+    />
+  </div>
 </template>
 
 <script>
+  import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import ScopeValue from '../../components/scope-value.vue'
   import UserInfo from '../../components/user-info.vue'
   import ResearcherToTeacher from './researcher-to-teacher.vue'
@@ -57,6 +71,7 @@
 
   export default {
     components: {
+      vueEmbedComponent,
       UserInfo,
       ScopeValue,
       TeacherToStudent,
@@ -67,13 +82,20 @@
     },
     data() {
       return {
-        current: null
+        current: null,
+        playing: null
       }
     },
     computed: {
       assignments() {
         const me = this.$store.state.user
         return this.$store.getters['assignments/to'](me, this.type)
+      }
+    },
+    methods: {
+      async play(assignment_id) {
+        const assignment = await Agent.state(assignment_id)
+        this.playing = assignment.item_id
       }
     }
   }
@@ -93,6 +115,16 @@ tr {
   display: flex;
   justify-content: space-around;
   align-items: top;
+}
+
+.assignment-overlay
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: white;
+  width: 100vw;
+  height: 100vh;
 }
 
 </style>
