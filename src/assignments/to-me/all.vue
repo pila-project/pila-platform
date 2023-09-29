@@ -1,55 +1,23 @@
 <template>
-  <table>
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Assigner</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="assignment_id in assignments"
-        :key="assignment_id"
-        :class="{ selected: assignment_id === current }"
-        @click="current = current === assignment_id ? null: assignment_id"
-      >
-        <td>{{ assignment_id }}</td>
-        <td>
-          TODO: load info from item_id
-        </td>
-        <td>
-          TODO: load info from item_id
-        </td>
-        <td>
-          TODO: load info from item_id
-        </td>
-        <td>
-          <button @click="play(assignment_id)">play</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div
-    v-if="current"
-    :key="current"
-  >
-    <ResearcherToTeacher
-      v-if="type === 'researcher-to-teacher'"
-      :id="current"
-    />
-    <TeacherToStudent
-      v-else-if="type === 'teacher-to-student'"
-      :id="current"
-    />
-    <div
-      v-else-if="type === 'teacher-to-student-research'"
-    >
-      TODO: special view for research assignment?
-    </div>
-    <div v-else>Need view for type "{{ type }}"</div>
+  <div class="wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Assigner</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <AssignmentRow
+          v-for="id in assignments"
+          :key="id"
+          :id="id"
+          @play="play(id)"
+        />
+      </tbody>
+    </table>
   </div>
   <div
     class="assignment-overlay"
@@ -64,25 +32,18 @@
 
 <script>
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
-  import ScopeValue from '../../components/scope-value.vue'
-  import UserInfo from '../../components/user-info.vue'
-  import ResearcherToTeacher from './researcher-to-teacher.vue'
-  import TeacherToStudent from './teacher-to-student.vue'
+  import AssignmentRow from './assignment-row.vue'
 
   export default {
     components: {
       vueEmbedComponent,
-      UserInfo,
-      ScopeValue,
-      TeacherToStudent,
-      ResearcherToTeacher
+      AssignmentRow
     },
     props: {
       type: String
     },
     data() {
       return {
-        current: null,
         playing: null
       }
     },
@@ -103,18 +64,8 @@
 
 <style scoped>
 
-.selected {
-  background: yellow;
-}
-
-tr {
-  cursor: pointer;
-}
-
-.member-tables {
-  display: flex;
-  justify-content: space-around;
-  align-items: top;
+.wrapper table {
+  margin: auto;
 }
 
 .assignment-overlay
