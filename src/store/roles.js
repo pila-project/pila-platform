@@ -78,7 +78,7 @@ export default {
       if (metadata.active_type !== ROLE_REQUEST_TYPE) {
         metadata.active_type = ROLE_REQUEST_TYPE
       }
-      const state = await Agent.query('requested-role')
+      const state = await Agent.state('requested-role')
       state.role = role
 
       await Agent.synced()
