@@ -1,6 +1,6 @@
 <template>
   <Splitpanes class="default-theme">
-    <Pane>
+    <Pane max-size="50">
       <div style="padding: 8px">
         <h3 style="color: #2E32DB;">MY CLASSES</h3>
         <div style="display: flex; justify-content: space-between;">
@@ -8,11 +8,13 @@
             icon="plus-circle"
             background="#FFC442"
             text="New Class"
+            @click="add"
           />
           <IconButton
             icon="link"
             background="#FFC442"
-            text="Add Students"
+            text="Link Students to You"
+            @click="linkStudentModal"
           />
         </div>
         <div class="class-list">
@@ -61,35 +63,47 @@
     <Pane v-if="current">
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">CLASS DETAILS</h3>
-        <h4 style="display: inline-block; margin-right: 17px;">
-          <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
-        </h4>
-        <IconButton
-          text="Modify"
-          icon="pencil"
-          background="#FFC442"
-        />
-        <IconButton
-          @click="archive(current)"
-          text="Archive"
-          icon="archive"
-          background="#ccc"
-        />
+        <div> <!-- ROW FOR NAME AND ICONS -->
+          <h4 style="display: inline-block; margin-right: 17px;">
+            <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
+          </h4>
+          <IconButton
+            text="Modify"
+            icon="pencil"
+            background="#FFC442"
+          />
+          <IconButton
+            @click="archive(current)"
+            text="Archive"
+            icon="archive"
+            background="#ccc"
+          />
+        </div>
         <h4 style="color: #2E32DB;">Students in Class:</h4>
-        <table class="member-table">
+        <table style="width: 100%;">
             <tr>
-              <th>Member</th>
-              <th></th>
+              <th>Student</th>
+              <th>Last Login</th>
+              <th>Other Classes</th>
             </tr>
             <tr
               v-for="member in currentGroupMembers"
               :key="member"
             >
-              <td><UserInfo :user="member" name /></td>
-              <td>
-                <button @click="removeMember(member, current)">x</button>
-              </td>
+              <td style="text-align: left;"><UserInfo :user="member" name /></td>
+              <td>-</td>
+              <td>TODO</td>
             </tr>
+            <tr
+              v-if="currentGroupMembers.length < 6"
+              v-for="n in 6 - currentGroupMembers.length"
+              :key="`blank-row-${n}`"
+            >
+              <td style="width: 250px;">-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+
           </table>
 
       </div>
@@ -213,8 +227,13 @@
       }
     },
     methods: {
+      linkStudentModal() {
+        alert(`TODO PUT IN MODAL BEHIDN CHECKBOX::: Your student link: https://${this.host}/join/${this.user}`)
+      },
       async add() {
-        const name = prompt('Group name')
+        let name = prompt('Group name')
+        name = name.trim()
+        if (!name) return
         const { type } = this
         this.current = await this.$store.dispatch('groups/add', { name, type })
       },
@@ -243,18 +262,8 @@
   margin: auto;
 }
 
-.selected {
-  background: yellow;
-}
-
 tr {
   cursor: pointer;
-}
-
-.member-tables {
-  display: flex;
-  justify-content: space-around;
-  align-items: top;
 }
 
 .class-list
