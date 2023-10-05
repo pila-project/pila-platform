@@ -24,6 +24,16 @@ export default {
       )
       else return Object.keys(state)
     },
+    archivedGroups: state => typeFilter => {
+      if (typeFilter) return (
+        Object
+          .entries(state.groups)
+          .filter(([_, { archived }]) => archived )
+          .filter(([_, { group_type }]) => group_type === typeFilter )
+          .map(([id]) => id)
+      )
+      else return Object.keys(state)
+    },
     owner: state => groupId => state.groups[groupId].owner,
     members: state => groupId => (
       Object

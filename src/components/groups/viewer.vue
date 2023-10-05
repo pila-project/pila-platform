@@ -1,4 +1,44 @@
 <template>
+  <Splitpanes class="default-theme">
+    <Pane>
+      <div style="padding: 8px">
+        <h1>MY CLASSES</h1>
+        <div style="display: flex; justify-content: space-between;">
+          <IconButton
+            icon="plus-circle"
+            background="#FFC442"
+            text="New Class"
+          />
+          <IconButton
+            icon="link"
+            background="#FFC442"
+            text="Add Students"
+          />
+        </div>
+        <div class="class-list">
+          <div style="display: flex; justify-content: space-between; align-items: flex-top;">
+            <h2>Class Name</h2>
+            <div style="display: flex; align-items: center; user-select: none; cursor: pointer;">
+              <input v-model="showArchived" type="checkbox" id="show-archived" />
+              <label for="show-archived"><em>show archived</em></label>
+            </div>
+          </div>
+          <div v-for="id in groups">
+            <ScopeWatcher :id="id" :path="['name']" />
+          </div>
+          <div v-if="showArchived">
+            <h3>Archived</h3>
+          <div v-for="id in archivedGroups">
+            <ScopeWatcher :id="id" :path="['name']" />
+          </div>
+          </div>
+        </div>
+      </div>
+    </Pane>
+    <Pane>
+      <h1>CLASS DETAILS</h1>
+    </Pane>
+  </Splitpanes>
   <div class="wrapper">
     <h1>Groups</h1>
     <button @click="add">New Group</button>
@@ -81,10 +121,18 @@
   import UserInfo from '../user-info.vue'
   import ScopeWatcher from '../scope-watcher.vue'
 
+  import { Splitpanes, Pane } from 'splitpanes'
+  import IconButton from '../icon-button.vue'
+
+
+
   export default {
     components: {
       UserInfo,
-      ScopeWatcher
+      ScopeWatcher,
+      Splitpanes,
+      IconButton,
+      Pane
     },
     props: {
       possibleMembers: Array,
@@ -93,7 +141,8 @@
     data() {
       return {
         current: null,
-        host: window.location.host
+        host: window.location.host,
+        showArchived: false
       }
     },
     computed: {
@@ -102,6 +151,9 @@
       },
       groups() {
         return this.$store.getters['groups/groups'](this.type)
+      },
+      archivedGroups() {
+        return this.$store.getters['groups/archivedGroups'](this.type)
       },
       currentGroupMembers() {
         return this.$store.getters['groups/members'](this.current)
@@ -147,6 +199,15 @@ tr {
   display: flex;
   justify-content: space-around;
   align-items: top;
+}
+
+.class-list
+{
+  border: 1px solid #2E9DF9;
+  border-radius: 4px;
+  background: white;
+  margin-top: 8px;
+  padding: 8px;
 }
 
 </style>
