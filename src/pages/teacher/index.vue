@@ -1,30 +1,42 @@
 <template>
   <h1>Teacher</h1>
   <div v-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')">
-    <div>
-      <button @click="tab = 'classes'">Classes</button>
-      <button @click="tab = 'content'">Content</button>
-      <button @click="tab = 'assignments-from-me'">Assignments</button>
-      <button @click="tab = 'assignments-to-me'">Studies</button>
+    <div class="tab-wrapper">
+      <TabMenu
+        :tabs="[
+          { name: 'MY CLASSES', background: tabColors['classes'], id:'classes', color: 'white' },
+          { spacer: true, width: 1 },
+          { name: 'ASSIGNMENTS', background: tabColors['assignments-from-me'], id:'assignments-from-me', color: 'white' },
+          { name: 'ITEM LIBRARY', background: tabColors['content'], id:'content', color: 'white' },
+          { spacer: true, width: 1 },
+          { name: 'PILA STUDIES', background: tabColors['assignments-to-me'], id:'assignments-to-me', color: 'black', icon: '/mascotte.png' }
+        ]"
+        @select="tab = $event"
+      />
     </div>
-    <hr>
-    <Groups
-      v-if="tab === 'classes'"
-      type="class"
-      :possibleMembers="students"
-    />
-    <div v-if="tab === 'content'">
-      <ContentLibrary />
+    <div
+      :style="{
+        borderTop: `8px solid ${tabColors[tab]}`
+      }"
+    >
+      <Groups
+        v-if="tab === 'classes'"
+        type="class"
+        :possibleMembers="students"
+      />
+      <div v-if="tab === 'content'">
+        <ContentLibrary />
+      </div>
+      <AssignmentsFromMe
+        v-if="tab === 'assignments-from-me'"
+        assignable_item_type="teacher-created"
+        assignment_type="teacher-to-student"
+      />
+      <AssignmentsToMe
+        v-if="tab === 'assignments-to-me'"
+        type="researcher-to-teacher"
+      />
     </div>
-    <AssignmentsFromMe
-      v-if="tab === 'assignments-from-me'"
-      assignable_item_type="teacher-created"
-      assignment_type="teacher-to-student"
-    />
-    <AssignmentsToMe
-      v-if="tab === 'assignments-to-me'"
-      type="researcher-to-teacher"
-    />
   </div>
   <RoleRequester v-else role="teacher" />
 </template>
@@ -32,6 +44,7 @@
 <script>
   import RoleRequester from '../../components/roles/requester.vue'
   import Groups from '../../components/groups/viewer.vue'
+  import TabMenu from '../../components/tab-menu.vue'
   import ContentLibrary from '../../components/content-library.vue'
   import AssignmentsToMe from '../../assignments/to-me/all.vue'
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
@@ -42,6 +55,7 @@
       ContentLibrary,
       RoleRequester,
       AssignmentsFromMe,
+      TabMenu,
       AssignmentsToMe
     },
     data() {
@@ -56,6 +70,23 @@
             .map(gid => getters['groups/owner'](gid))
         )
       }
+    },
+    computed: {
+      tabColors() {
+        return {
+          classes: '#2E9DF9',
+          'assignments-from-me': '#2E32DB',
+          content: '#1B1B83',
+          'assignments-to-me': '#6BEAC9',
+        }
+      }
     }
   }
 </script>
+
+<style scoped>
+  .tab-wrapper
+  {
+    font-weight: bold;
+  }
+</style>
