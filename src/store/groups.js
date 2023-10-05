@@ -138,10 +138,16 @@ export default {
       await dispatch('loadMembers')
       return id
     },
-    async remove({ dispatch }, id) {
+    async archive({ dispatch }, id) {
       const state = await Agent.state(id)
       state.archived = true
 
+      await Agent.synced()
+      await dispatch('loadGroups')
+    },
+    async unarchive({ dispatch }, id) {
+      const state = await Agent.state(id)
+      state.archived = false
       await Agent.synced()
       await dispatch('loadGroups')
     },

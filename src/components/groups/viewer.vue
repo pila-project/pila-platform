@@ -23,6 +23,7 @@
               <label for="show-archived"><em>Show archived</em></label>
             </div>
           </div>
+          <div v-if="!groups.length">You currently have no active classes</div>
           <div v-for="id in groups">
             <div
               @click="current = (current === id ? null : id)"
@@ -30,7 +31,7 @@
                 'class-select-item' : true,
                 'active' : current === id
               }">
-              <ScopeWatcher :id="id" :path="['name']" />
+              <vueScopeComponent :id="id" :path="['name']" />
             </div>
           </div>
           <div v-if="showArchived" style="margin-top: 18px;">
@@ -42,17 +43,54 @@
                 'class-select-item' : true,
                 'active' : current === id
               }">
-              <ScopeWatcher :id="id" :path="['name']" />
+              <vueScopeComponent style="padding: 8px;" :id="id" :path="['name']" />
+              <IconButton
+                @click="unarchive(id)"
+                text="Unarchive"
+                icon="archive"
+                background="#ccc"
+              />
             </div>
           </div>
           </div>
         </div>
       </div>
     </Pane>
+
+
     <Pane v-if="current">
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">CLASS DETAILS</h3>
-        <ScopeWatcher :id="current" :path="['name']" />
+        <h4 style="display: inline-block; margin-right: 17px;">
+          <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
+        </h4>
+        <IconButton
+          text="Modify"
+          icon="pencil"
+          background="#FFC442"
+        />
+        <IconButton
+          @click="archive(current)"
+          text="Archive"
+          icon="archive"
+          background="#ccc"
+        />
+        <h4 style="color: #2E32DB;">Students in Class:</h4>
+        <table class="member-table">
+            <tr>
+              <th>Member</th>
+              <th></th>
+            </tr>
+            <tr
+              v-for="member in currentGroupMembers"
+              :key="member"
+            >
+              <td><UserInfo :user="member" name /></td>
+              <td>
+                <button @click="removeMember(member, current)">x</button>
+              </td>
+            </tr>
+          </table>
 
       </div>
     </Pane>
@@ -83,17 +121,17 @@
           @click="current = current === id ? null: id"
         >
           <td>
-            <ScopeWatcher :id="id" :path="['name']" />
+            <vueScopeComponent :id="id" :path="['name']" />
           </td>
           <td>
-            <button @click.stop="remove(id)">x</button>
+            <button @click.stop="archive(id)">x</button>
           </td>
         </tr>
       </tbody>
     </table>
     <div v-if="current">
       <h1>
-        <ScopeWatcher :id="current" :path="['name']" />
+        <vueScopeComponent :id="current" :path="['name']" />
       </h1>
       <div class="member-tables">
         <div>
@@ -137,17 +175,14 @@
 
 <script>
   import UserInfo from '../user-info.vue'
-  import ScopeWatcher from '../scope-watcher.vue'
-
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
-
-
 
   export default {
     components: {
       UserInfo,
-      ScopeWatcher,
+      vueScopeComponent,
       Splitpanes,
       IconButton,
       Pane
@@ -183,9 +218,12 @@
         const { type } = this
         this.current = await this.$store.dispatch('groups/add', { name, type })
       },
-      remove(id) {
-        this.$store.dispatch('groups/remove', id)
+      archive(id) {
+        this.$store.dispatch('groups/archive', id)
         if (this.current === id) this.current = null
+      },
+      unarchive(id) {
+        this.$store.dispatch('groups/unarchive', id)
       },
       addMember(user_id, group_id) {
         this.$store.dispatch('groups/addMember', { user_id, group_id })
@@ -232,10 +270,18 @@ tr {
   border-radius: 8px;
   padding: 6px;
   border: 2px solid transparent;
+  display: flex;
+  justify-content: space-between;
 }
 .class-select-item:hover {
   cursor: pointer;
   background: #eee;
+}
+.class-select-item button {
+  display: none;
+}
+.class-select-item:hover button {
+  display: block;
 }
 .class-select-item.active {
   border: 2px solid blue;
