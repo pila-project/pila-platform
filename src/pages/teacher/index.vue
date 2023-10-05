@@ -1,5 +1,8 @@
 <template>
-  <div v-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')">
+  <div
+    v-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
+    style="display: flex; flex-direction: column; height: 100%;"
+  >
     <div class="tab-wrapper">
       <TabMenu
         :tabs="[
@@ -15,7 +18,8 @@
     </div>
     <div
       :style="{
-        borderTop: `8px solid ${tabColors[tab]}`
+        borderTop: `8px solid ${tabColors[tab]}`,
+        flexGrow: 1
       }"
     >
       <Groups
