@@ -14,7 +14,7 @@
             icon="link"
             background="#FFC442"
             text="Link Students to You"
-            @click="linkStudentModal"
+            @click="showLinkStudentModal = !showLinkStudentModal"
           />
         </div>
         <div class="class-list">
@@ -109,17 +109,16 @@
       </div>
     </Pane>
   </Splitpanes>
+
+  <LinkStudentModal
+    v-if="showLinkStudentModal"
+    @close="showLinkStudentModal = false"
+  />
+
+
+  <div>VVVVVVVVVVVVVVVVVVV</div>
   <div class="wrapper">
-    <h1>Groups</h1>
-    <button @click="add">New Group</button>
-    <br>
-    <br>
-    Your student link:
-    <a :href="`https://${host}/join/${user}`">
-      {{`https://${host}/join/${user}`}}
-    </a>
-    <br>
-    <br>
+
     <table>
       <thead>
         <tr>
@@ -192,6 +191,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
+  import LinkStudentModal from './linkStudentModal.vue'
 
   export default {
     components: {
@@ -199,7 +199,8 @@
       vueScopeComponent,
       Splitpanes,
       IconButton,
-      Pane
+      Pane,
+      LinkStudentModal
     },
     props: {
       possibleMembers: Array,
@@ -209,7 +210,8 @@
       return {
         current: null,
         host: window.location.host,
-        showArchived: false
+        showArchived: false,
+        showLinkStudentModal: false
       }
     },
     computed: {
@@ -227,9 +229,6 @@
       }
     },
     methods: {
-      linkStudentModal() {
-        alert(`TODO PUT IN MODAL BEHIDN CHECKBOX::: Your student link: https://${this.host}/join/${this.user}`)
-      },
       async add() {
         let name = prompt('Group name')
         name = name.trim()
