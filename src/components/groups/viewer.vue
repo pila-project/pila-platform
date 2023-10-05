@@ -2,7 +2,7 @@
   <Splitpanes class="default-theme">
     <Pane>
       <div style="padding: 8px">
-        <h1>MY CLASSES</h1>
+        <h3 style="color: #2E32DB;">MY CLASSES</h3>
         <div style="display: flex; justify-content: space-between;">
           <IconButton
             icon="plus-circle"
@@ -16,27 +16,45 @@
           />
         </div>
         <div class="class-list">
-          <div style="display: flex; justify-content: space-between; align-items: flex-top;">
-            <h2>Class Name</h2>
-            <div style="display: flex; align-items: center; user-select: none; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
+            <h3 style="color: #2E32DB;">Class Name</h3>
+            <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
               <input v-model="showArchived" type="checkbox" id="show-archived" />
-              <label for="show-archived"><em>show archived</em></label>
+              <label for="show-archived"><em>Show archived</em></label>
             </div>
           </div>
           <div v-for="id in groups">
-            <ScopeWatcher :id="id" :path="['name']" />
+            <div
+              @click="current = (current === id ? null : id)"
+              :class="{
+                'class-select-item' : true,
+                'active' : current === id
+              }">
+              <ScopeWatcher :id="id" :path="['name']" />
+            </div>
           </div>
-          <div v-if="showArchived">
-            <h3>Archived</h3>
+          <div v-if="showArchived" style="margin-top: 18px;">
+            <h4 style="color: #888888;"><em>Archived</em></h4>
           <div v-for="id in archivedGroups">
-            <ScopeWatcher :id="id" :path="['name']" />
+            <div
+              @click="current = (current === id ? null : id)"
+              :class="{
+                'class-select-item' : true,
+                'active' : current === id
+              }">
+              <ScopeWatcher :id="id" :path="['name']" />
+            </div>
           </div>
           </div>
         </div>
       </div>
     </Pane>
-    <Pane>
-      <h1>CLASS DETAILS</h1>
+    <Pane v-if="current">
+      <div style="padding: 8px;">
+        <h3 style="color: #2E32DB;">CLASS DETAILS</h3>
+        <ScopeWatcher :id="current" :path="['name']" />
+
+      </div>
     </Pane>
   </Splitpanes>
   <div class="wrapper">
@@ -209,5 +227,17 @@ tr {
   margin-top: 8px;
   padding: 8px;
 }
-
+.class-select-item {
+  user-select: none;
+  border-radius: 8px;
+  padding: 6px;
+  border: 2px solid transparent;
+}
+.class-select-item:hover {
+  cursor: pointer;
+  background: #eee;
+}
+.class-select-item.active {
+  border: 2px solid blue;
+}
 </style>
