@@ -1,5 +1,4 @@
 <template>
-  <h1>Teacher</h1>
   <div v-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')">
     <div class="tab-wrapper">
       <TabMenu

@@ -17,14 +17,34 @@
 		     />
 			{{ spacer ? '' : name }}
 		</div>
+		<div>
+  			Anonymous_{{ $store.state.user.slice(0, 4) }}
+  			<br>
+  			{{ $store.getters['roles/role']($store.state.user) }}
+  		</div>
+		<IconButton
+          @click="logout"
+          icon="sign-out"
+          text="log out"
+		/>
 	</div>
 </template>
 
 <script>
+    import IconButton from './icon-button.vue'
+
 	export default {
+		components: {
+			IconButton
+		},
 		props: {
 			tabs: Array,
 			current: String
+		},
+		methods: {
+			logout() {
+				Agent.logout()
+			}
 		}
 	}
 </script>
@@ -33,6 +53,8 @@
 	.wrapper
 	{
 		display: flex;
+		padding-top: 16px;
+		background: #EEEEEE;
 	}
 
 	.tab

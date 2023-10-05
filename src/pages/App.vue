@@ -7,11 +7,6 @@
     id="main-app"
     v-else
   >
-    <div>
-      Anonymous_{{ $store.state.user.substr(0, 4) }}
-      {{ $store.getters['roles/role']($store.state.user) }}
-      <button @click="logOut">log out</button>
-    </div>
     <div id="main-app-body">
       <router-view></router-view>
     </div>
