@@ -68,9 +68,9 @@ export default {
 
 <style scoped>
 .link-student-modal {
-/*TODO REMOVE BORDER*/
-  border: 2px solid chartreuse;
+  padding: 10px 30px;
   color: #1B1B83;
+  height: 350px;
 }
 .agreement-area {
   display: flex;

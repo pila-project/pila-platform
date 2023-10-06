@@ -111,11 +111,18 @@
       </div>
     </Pane>
   </Splitpanes>
-
-  <LinkStudentModal
+  <PILAModal
     v-if="showLinkStudentModal"
     @close="showLinkStudentModal = false"
-  />
+  >
+    <template v-slot:title>Add Students to Your Student List</template>
+    <template v-slot:body>
+      <LinkStudentModal />
+    </template>
+  </PILAModal>
+
+
+
 
 
   <div>VVVVVVVVVVVVVVVVVVV</div>
@@ -193,6 +200,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
+  import PILAModal from '../PILAModal.vue'
   import LinkStudentModal from './LinkStudentModal.vue'
 
   export default {
@@ -202,7 +210,8 @@
       Splitpanes,
       IconButton,
       Pane,
-      LinkStudentModal
+      LinkStudentModal,
+      PILAModal
     },
     props: {
       possibleMembers: Array,
