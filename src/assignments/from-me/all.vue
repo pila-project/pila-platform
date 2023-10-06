@@ -55,8 +55,22 @@
       </div>
     </Pane>
     <Pane v-if="current" :key="current">
-      <div style="display: flex; flex-direction: column; justify-content: space-between; padding: 16px; height: 100%;">
-        <div style="display: flex; justify-content: space-between;">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 16px;
+          height: calc(100% - 32px);
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 24px;
+          "
+        >
           <h3>ASSIGNMENT DETAILS</h3>
           <div>
             <IconButton
@@ -82,7 +96,7 @@
           </div>
         </div>
         <div style="flex-grow: 1; display: flex;">
-          <div style="flex-grow: 1;">
+          <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <h4>Assignment Name</h4>
               <vueScopeComponent :id="current" :path="['name']" />
@@ -104,10 +118,22 @@
             </div>
           </div>
           <div>
-            <h4>Classes Assigned</h4>
-            <div v-for="id in assignedGroups(current)">
-              <vueScopeComponent :id="id" :path="['name']" />
-            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    Class Assigned
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="id in assignedGroups(current)">
+                  <td>
+                    <vueScopeComponent :id="id" :path="['name']" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
             <ResearcherToTeacherAssignment
               v-if="assignable_item_type === 'researcher-created'"
               :id="current"
@@ -213,15 +239,6 @@ table
 {
   width: 100%;
   margin: auto;
-  max-width: 800px;
-}
-
-table, th, td {
-  border-collapse: collapse;
-}
-
-tr {
-  cursor: pointer;
 }
 
 .member-tables {

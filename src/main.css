@@ -36,9 +36,18 @@ div.table-wrapper
     overflow-y: scroll;
 }
 table {
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    border: 1px solid #2E9DF9;
 }
-tr:nth-of-type(odd)
+
+thead tr
+{
+    background: #1B1B83;
+}
+
+tbody tr:nth-of-type(even)
 {
     /* #2E32DB; */
     background: rgba(46, 50, 219, 0.2);
@@ -59,7 +68,6 @@ th
     height: 30px;
     /* for table, this is essentially a min-height */
     z-index: 0; /* fix headers appearing over modal, who knew why that was happening*/
-    border: 1px solid #eee;
     padding: 0 10px;
 }
 tr.selectable
@@ -77,13 +85,21 @@ tr.selectable:not(.active):hover
     background: rgba(255, 255, 0, 0.4);
 }
 
+tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
 /* ROUND THE CORNERS ON THE HEADER ROW */
 th:first-child {
-    border-top-left-radius: 20px;
+    border-top-left-radius: 8px;
 }
 
 th:last-child {
-    border-top-right-radius: 20px;
+    border-top-right-radius: 8px;
 }
 
 .spread-cell {

@@ -81,11 +81,14 @@
         </div>
         <h4 style="color: #2E32DB;">Students in Class:</h4>
         <table style="width: 100%;">
+          <thead>
             <tr>
               <th>Student</th>
               <th>Last Login</th>
               <th>Other Classes</th>
             </tr>
+          </thead>
+          <tbody>
             <tr
               v-for="member in currentGroupMembers"
               :key="member"
@@ -103,9 +106,8 @@
               <td>-</td>
               <td>-</td>
             </tr>
-
-          </table>
-
+          </tbody>
+        </table>
       </div>
     </Pane>
   </Splitpanes>
@@ -191,7 +193,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
-  import LinkStudentModal from './linkStudentModal.vue'
+  import LinkStudentModal from './LinkStudentModal.vue'
 
   export default {
     components: {
