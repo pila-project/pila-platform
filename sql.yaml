@@ -43,19 +43,6 @@ postgres:
         tag_type: TEXT
         archived: BOOLEAN
   functions:
-    isAdmin:
-      returns: BOOLEAN
-      arguments:
-      - name: user_id
-        type: TEXT
-      language: PLpgSQL
-      body: |
-        BEGIN
-          RETURN user_id IN (
-            'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
-            'c0f3a481-d4d5-4133-a198-94a325aa4536'
-          );
-        END;
     hasAdminTag:
       returns: BOOLEAN
       arguments:
@@ -76,7 +63,10 @@ postgres:
               FROM pila_tags t
               LEFT JOIN metadata md ON md.id = t.id
               WHERE t.content_id = hasAdminTag.content_id
-                AND isAdmin(md.owner)
+                AND md.owner IN (
+                'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+              )
                 AND t.tag_type = hasAdminTag.tag_type
               ORDER BY t.content_id, md.updated DESC
               LIMIT 1
@@ -112,15 +102,27 @@ postgres:
                 SELECT ra2.assignee, MAX(m2.updated)
                 FROM role_assertions ra2
                 JOIN metadata m2 ON ra2.id = m2.id
-                WHERE isAdmin(m2.owner)
+                WHERE m2.owner IN (
+                  'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                  'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                )
                 GROUP BY ra2.assignee
               )
-              AND isAdmin(m.owner)
+              AND m.owner IN (
+                'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+              )
               AND (
-                isAdmin(requester_id)
+                requester_id IN (
+                  'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                  'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                )
                 OR ra.assignee = requester_id
               )
-              AND NOT isAdmin(ra.assignee)
+              AND NOT ra.assignee IN (
+                'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+              )
             UNION SELECT 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', 'admin', 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', NULL
             UNION SELECT 'c0f3a481-d4d5-4133-a198-94a325aa4536', 'admin', 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', NULL
           ;
@@ -135,7 +137,11 @@ postgres:
       FROM role_requests
       LEFT JOIN metadata
         ON metadata.id = role_requests.id
-      WHERE isAdmin($REQUESTER) OR metadata.owner = $REQUESTER
+      WHERE $REQUESTER IN (
+          'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+          'c0f3a481-d4d5-4133-a198-94a325aa4536'
+        )
+        OR metadata.owner = $REQUESTER
     # all groups a user owns, or has been put in
     groups: |
       SELECT
@@ -222,7 +228,10 @@ postgres:
         updated
       FROM pila_tags
       LEFT JOIN metadata md ON md.id = pila_tags.id
-      WHERE isAdmin(md.owner)
+      WHERE md.owner IN (
+          'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+          'c0f3a481-d4d5-4133-a198-94a325aa4536'
+        )
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
     mutated-in-context: |
