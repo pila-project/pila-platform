@@ -7,7 +7,7 @@
       <input type="checkbox" v-model="agreed" :disabled="agreed" >
     </div>
 
-    <div class="agreed" v-if="agreed">
+    <div class="agreed" v-show="agreed">
       <div>
         Share this link with your students:
         <input id="link-input" disabled :placeholder="link">
@@ -70,7 +70,6 @@ export default {
 .link-student-modal {
   padding: 10px 30px;
   color: #1B1B83;
-  height: 350px;
 }
 .agreement-area {
   display: flex;

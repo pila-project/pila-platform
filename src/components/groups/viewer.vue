@@ -71,6 +71,7 @@
             text="Modify"
             icon="pencil"
             background="#FFC442"
+            @click="showEditClassModal = !showEditClassModal"
           />
           <IconButton
             @click="archive(current)"
@@ -120,7 +121,15 @@
       <LinkStudentModal />
     </template>
   </PILAModal>
-
+  <PILAModal
+    v-if="showEditClassModal"
+    @close="showEditClassModal = false"
+  >
+    <template v-slot:title>Modify Your Student List</template>
+    <template v-slot:body>
+      TODO: Modal w/Same Functions as Before
+    </template>
+  </PILAModal>
 
 
 
@@ -222,7 +231,8 @@
         current: null,
         host: window.location.host,
         showArchived: false,
-        showLinkStudentModal: false
+        showLinkStudentModal: false,
+        showEditClassModal: false
       }
     },
     computed: {
