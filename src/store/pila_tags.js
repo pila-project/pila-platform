@@ -26,6 +26,12 @@ export default {
         .filter(({ tag_type, archived }) => tag_type === type && !archived )
         .map(({ content_id }) => content_id)
     ),
+    archivedWithTag: state => type => (
+      Object
+        .values(state)
+        .filter(({ tag_type, archived }) => tag_type === type && archived )
+        .map(({ content_id }) => content_id)
+    ),
     hasTag: state => (content_id, type) => (
       Object
         .values(state)
