@@ -125,83 +125,14 @@
     v-if="showEditClassModal"
     @close="showEditClassModal = false"
   >
-    <template v-slot:title>Modify Your Student List</template>
+    <template v-slot:title>Create / Edit Class</template>
     <template v-slot:body>
-      TODO: Modal w/Same Functions as Before
+      <CreateEditClassModal
+        :id="current"
+        :possibleMembers="possibleMembers"
+      />
     </template>
   </PILAModal>
-
-
-
-
-  <div>VVVVVVVVVVVVVVVVVVV</div>
-  <div class="wrapper">
-
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="id in groups"
-          :key="id"
-          :class="{ selected: id === current }"
-          @click="current = current === id ? null: id"
-        >
-          <td>
-            <vueScopeComponent :id="id" :path="['name']" />
-          </td>
-          <td>
-            <button @click.stop="archive(id)">x</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div v-if="current">
-      <h1>
-        <vueScopeComponent :id="current" :path="['name']" />
-      </h1>
-      <div class="member-tables">
-        <div>
-          <table>
-            <tr>
-              <th>Member</th>
-              <th></th>
-            </tr>
-            <tr
-              v-for="member in currentGroupMembers"
-              :key="member"
-            >
-              <td><UserInfo :user="member" name /></td>
-              <td>
-                <button @click="removeMember(member, current)">x</button>
-              </td>
-            </tr>
-          </table>
-        </div>
-        <div>
-          <table>
-            <tr>
-              <th>Member</th>
-              <th></th>
-            </tr>
-            <tr
-              v-for="member in possibleMembers"
-              :key="member"
-            >
-              <td>
-                <button @click="addMember(member, current)">+</button>
-              </td>
-              <td><UserInfo :user="member" name /></td>
-            </tr>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -211,6 +142,7 @@
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
   import LinkStudentModal from './LinkStudentModal.vue'
+  import CreateEditClassModal from './CreateEditClassModal.vue'
 
   export default {
     components: {
@@ -220,6 +152,7 @@
       IconButton,
       Pane,
       LinkStudentModal,
+      CreateEditClassModal,
       PILAModal
     },
     props: {
@@ -251,11 +184,9 @@
     },
     methods: {
       async add() {
-        let name = prompt('Group name')
-        name = name.trim()
-        if (!name) return
         const { type } = this
-        this.current = await this.$store.dispatch('groups/add', { name, type })
+        this.current = await this.$store.dispatch('groups/add', { name: 'New Class', type })
+        this.showEditClassModal = true
       },
       archive(id) {
         this.$store.dispatch('groups/archive', id)
@@ -263,12 +194,6 @@
       },
       unarchive(id) {
         this.$store.dispatch('groups/unarchive', id)
-      },
-      addMember(user_id, group_id) {
-        this.$store.dispatch('groups/addMember', { user_id, group_id })
-      },
-      removeMember(user_id, group_id) {
-        this.$store.dispatch('groups/removeMember', { user_id, group_id })
       }
     }
   }
