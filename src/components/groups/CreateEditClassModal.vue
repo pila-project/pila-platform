@@ -45,7 +45,11 @@
             	<td style="width: 30px; text-align: center; cursor: pointer;"
             		@click="handleAddRemove(member)"
             	>
-            		{{ userInClass(member) ? 'x' : 'o' }}
+            		<input
+            			type="checkbox"
+            			:checked="userInClass(member)"
+            			@change="handleAddRemove($event, member)"
+            		/>
             	</td>
              	<td style="text-align: left;"><UserInfo :user="member" name /></td>
             </tr>
@@ -114,9 +118,8 @@ export default {
     	}
     },
     methods: {
-    	handleAddRemove(user_id) {
-    		if (this.userInClass(user_id)) this.removeMember(user_id)
-    		else this.addMember(user_id)
+    	handleAddRemove(e, user_id) {
+    		(e.target.checked) ? this.addMember(user_id) : this.removeMember(user_id)
     	},
     	userInClass(user_id) {
     		return this.currentGroupMembers.includes(user_id)
