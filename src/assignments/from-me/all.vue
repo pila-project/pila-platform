@@ -17,7 +17,7 @@
             <label for="show-archived"><em>Show archived</em></label>
           </div>
         </div>
-        <table>
+        <table class="teacher-assignments-table">
           <thead>
             <tr>
               <th>Assignment</th>
@@ -33,7 +33,7 @@
               :class="{ selected: id === current }"
               @click="current = current === id ? null: id"
             >
-              <td><ScopeValue :scope="id" :path="['name']" /></td>
+              <td class="first"><ScopeValue :scope="id" :path="['name']" /></td>
               <td>
                 <span
                   v-for="groupId, index in assignedGroups(id)"
@@ -45,8 +45,8 @@
                   />
                 </span>
               </td>
-              <td>results</td>
-              <td v-if="showArchived">
+              <td :class="showArchived ? '' : 'last'">results</td>
+              <td v-if="showArchived" class="last">
                 <span v-if="archivedIds[id]">✘</span>
               </td>
             </tr>
@@ -231,14 +231,28 @@
   margin: auto;
 }
 
-.selected {
-  background: yellow;
-}
-
-table
+.teacher-assignments-table
 {
   width: 100%;
   margin: auto;
+}
+
+tr.selected td {
+  border-top: 2px solid #1B1B83;
+  border-bottom: 2px solid #1B1B83;
+}
+tr.selected td.first {
+  border: 2px solid #1B1B83;
+  border-right: none;
+  border-bottom-left-radius: 12px;
+  border-top-left-radius: 12px;
+}
+tr.selected td.last {
+  border: 2px solid #1B1B83;
+  border-left: none;
+  border-bottom-right-radius: 12px;
+  border-top-right-radius: 12px;
+
 }
 
 .member-tables {
