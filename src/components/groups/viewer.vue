@@ -26,34 +26,33 @@
             </div>
           </div>
           <div v-if="!groups.length">You currently have no active classes</div>
-          <div v-for="id in groups">
-            <div
-              @click="current = (current === id ? null : id)"
-              :class="{
-                'class-select-item' : true,
-                'active' : current === id
-              }">
-              <vueScopeComponent :id="id" :path="['name']" />
-            </div>
+          <div v-for="id in groups"
+           :class="{
+              'class-select-item' : true,
+              'active' : current === id
+            }"
+            @click="current = (current === id ? null : id)"
+          >
+            <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
-          <div v-if="showArchived" style="margin-top: 18px;">
+          <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>Archived</em></h4>
-          <div v-for="id in archivedGroups">
-            <div
+            <div v-for="id in archivedGroups"
               @click="current = (current === id ? null : id)"
               :class="{
                 'class-select-item' : true,
+                'archived' : true,
                 'active' : current === id
               }">
-              <vueScopeComponent style="padding: 8px;" :id="id" :path="['name']" />
+              <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
               <IconButton
+                class="archive-button"
                 @click="unarchive(id)"
                 text="Unarchive"
                 icon="archive"
                 background="#ccc"
               />
             </div>
-          </div>
           </div>
         </div>
       </div>
@@ -225,7 +224,11 @@ tr {
   padding: 6px;
   border: 2px solid transparent;
   display: flex;
+  margin: 0;
   justify-content: space-between;
+}
+.class-select-item.archived {
+    padding: 0 6px;
 }
 .class-select-item:hover {
   cursor: pointer;
@@ -239,5 +242,8 @@ tr {
 }
 .class-select-item.active {
   border: 2px solid blue;
+}
+.archive-button {
+  margin: 0;
 }
 </style>
