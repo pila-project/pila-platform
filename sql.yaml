@@ -95,13 +95,13 @@ postgres:
               m.owner as assigner,
               m.updated
             FROM role_assertions ra
-            JOIN metadata m
+            LEFT JOIN metadata m
               ON ra.id = m.id
             WHERE
               (ra.assignee, m.updated) IN (
                 SELECT ra2.assignee, MAX(m2.updated)
                 FROM role_assertions ra2
-                JOIN metadata m2 ON ra2.id = m2.id
+                LEFT JOIN metadata m2 ON ra2.id = m2.id
                 WHERE m2.owner IN (
                   'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
                   'c0f3a481-d4d5-4133-a198-94a325aa4536'
