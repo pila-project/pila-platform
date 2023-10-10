@@ -64,7 +64,7 @@ postgres:
               LEFT JOIN metadata md ON md.id = t.id
               WHERE t.content_id = hasAdminTag.content_id
                 AND md.owner IN (
-                'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                 'c0f3a481-d4d5-4133-a198-94a325aa4536'
               )
                 AND t.tag_type = hasAdminTag.tag_type
@@ -103,28 +103,28 @@ postgres:
                 FROM role_assertions ra2
                 LEFT JOIN metadata m2 ON ra2.id = m2.id
                 WHERE m2.owner IN (
-                  'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                   'c0f3a481-d4d5-4133-a198-94a325aa4536'
                 )
                 GROUP BY ra2.assignee
               )
               AND m.owner IN (
-                'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                 'c0f3a481-d4d5-4133-a198-94a325aa4536'
               )
               AND (
                 requester_id IN (
-                  'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                   'c0f3a481-d4d5-4133-a198-94a325aa4536'
                 )
                 OR ra.assignee = requester_id
               )
               AND NOT ra.assignee IN (
-                'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+                'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                 'c0f3a481-d4d5-4133-a198-94a325aa4536'
               )
-            UNION SELECT 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', 'admin', 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', NULL
-            UNION SELECT 'c0f3a481-d4d5-4133-a198-94a325aa4536', 'admin', 'c70ea7bb-da8c-4324-85f6-4980d98af4d8', NULL
+            UNION SELECT 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+            UNION SELECT 'c0f3a481-d4d5-4133-a198-94a325aa4536', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
           ;
         END;
   scopes:
@@ -138,7 +138,7 @@ postgres:
       LEFT JOIN metadata
         ON metadata.id = role_requests.id
       WHERE $REQUESTER IN (
-          'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+          'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
           'c0f3a481-d4d5-4133-a198-94a325aa4536'
         )
         OR metadata.owner = $REQUESTER
@@ -229,7 +229,7 @@ postgres:
       FROM pila_tags
       LEFT JOIN metadata md ON md.id = pila_tags.id
       WHERE md.owner IN (
-          'c70ea7bb-da8c-4324-85f6-4980d98af4d8',
+          'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
           'c0f3a481-d4d5-4133-a198-94a325aa4536'
         )
         AND tag_type = 'expert'
