@@ -65,7 +65,7 @@ postgres:
               WHERE t.content_id = hasAdminTag.content_id
                 AND md.owner IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                '0c9c64fc-559e-40d4-916b-852f6d108a17'
               )
                 AND t.tag_type = hasAdminTag.tag_type
               ORDER BY t.content_id, md.updated DESC
@@ -104,27 +104,27 @@ postgres:
                 LEFT JOIN metadata m2 ON ra2.id = m2.id
                 WHERE m2.owner IN (
                   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                  'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                  '0c9c64fc-559e-40d4-916b-852f6d108a17'
                 )
                 GROUP BY ra2.assignee
               )
               AND m.owner IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                '0c9c64fc-559e-40d4-916b-852f6d108a17'
               )
               AND (
                 requester_id IN (
                   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                  'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                  '0c9c64fc-559e-40d4-916b-852f6d108a17'
                 )
                 OR ra.assignee = requester_id
               )
               AND NOT ra.assignee IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                '0c9c64fc-559e-40d4-916b-852f6d108a17'
               )
             UNION SELECT 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
-            UNION SELECT 'c0f3a481-d4d5-4133-a198-94a325aa4536', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+            UNION SELECT '0c9c64fc-559e-40d4-916b-852f6d108a17', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
           ;
         END;
   scopes:
@@ -139,7 +139,7 @@ postgres:
         ON metadata.id = role_requests.id
       WHERE $REQUESTER IN (
           'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-          'c0f3a481-d4d5-4133-a198-94a325aa4536'
+          '0c9c64fc-559e-40d4-916b-852f6d108a17'
         )
         OR metadata.owner = $REQUESTER
     # all groups a user owns, or has been put in
@@ -230,7 +230,7 @@ postgres:
       LEFT JOIN metadata md ON md.id = pila_tags.id
       WHERE md.owner IN (
           'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-          'c0f3a481-d4d5-4133-a198-94a325aa4536'
+          '0c9c64fc-559e-40d4-916b-852f6d108a17'
         )
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
