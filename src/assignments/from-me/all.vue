@@ -145,6 +145,7 @@
   <PILAModal
     v-if="showEditModal"
     @close="showEditModal = false"
+    showCloseButton
   >
     <template v-slot:title>Create/Modify Assignment</template>
     <template v-slot:body>

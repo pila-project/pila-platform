@@ -13,13 +13,36 @@
           <p>Modal body content goes here.</p>
         </slot>
       </div>
+      <div style="text-align: right; padding: 24px; font-size: 2em;">
+        <IconButton
+          v-if="showCloseButton"
+          background="green"
+          :text="closeButtonText"
+          textColor="white"
+          @click="$emit('close')"
+        />
+    </div>
     </div>
   </div>
 </template>
 
 <script>
+import IconButton from './icon-button.vue'
 export default {
-  name: 'pila-modal'
+  name: 'pila-modal',
+  props: {
+    showCloseButton: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    closeButtonText: {
+      type: String,
+      required: false,
+      default: 'Close'
+    }
+  },
+  components: { IconButton }
 }
 </script>
 
