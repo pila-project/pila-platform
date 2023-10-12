@@ -123,15 +123,9 @@
               />
             </div>
           </div>
-          <div>
+          <div style="flex-grow: 1">
+            <h4>Class Assigned</h4>
             <table>
-              <thead>
-                <tr>
-                  <th>
-                    Class Assigned
-                  </th>
-                </tr>
-              </thead>
               <tbody>
                 <tr v-for="id in assignedGroups(current)">
                   <td>
@@ -248,6 +242,17 @@
 </script>
 
 <style scoped>
+
+h3, h4
+{
+  color: #2E32DB;
+  margin-bottom: 12px;
+}
+
+table
+{
+  width: 100%;
+}
 
 .wrapper
 {
