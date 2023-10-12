@@ -81,7 +81,7 @@
           <div>
             <IconButton
               icon="pencil"
-              @click="edit"
+              @click="showEditModal = true"
               text="Modify"
               background="#FFC442"
             />
@@ -143,23 +143,32 @@
                 </tr>
               </tbody>
             </table>
-            <ResearcherToTeacherAssignment
-              v-if="assignable_item_type === 'researcher-created'"
-              :id="current"
-            />
-            <TeacherToStudentAssignment
-              v-else-if="assignable_item_type === 'teacher-created'"
-              :id="current"
-            />
           </div>
         </div>
       </div>
     </Pane>
   </Splitpanes>
+  <PILAModal
+    v-if="showEditModal"
+    @close="showEditModal = false"
+  >
+    <template v-slot:title>Create/Modify Assignment</template>
+    <template v-slot:body>
+      <ResearcherToTeacherAssignment
+        v-if="assignable_item_type === 'researcher-created'"
+        :id="current"
+      />
+      <TeacherToStudentAssignment
+        v-else-if="assignable_item_type === 'teacher-created'"
+        :id="current"
+      />
+    </template>
+  </PILAModal>
 </template>
 
 <script>
   import { v4 as uuid } from 'uuid'
+  import PILAModal from '../../components/PILAModal.vue'
   import ScopeValue from '../../components/scope-value.vue'
   import UserInfo from '../../components/user-info.vue'
   import IconButton from '../../components/icon-button.vue'
@@ -170,6 +179,7 @@
 
   export default {
     components: {
+      PILAModal,
       UserInfo,
       ScopeValue,
       ResearcherToTeacherAssignment,
@@ -186,6 +196,7 @@
     data() {
       return {
         current: null,
+        showEditModal: false,
         showArchived: false
       }
     },
