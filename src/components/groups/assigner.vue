@@ -1,39 +1,17 @@
 <template>
   <div class="assignment-tables">
-    <div>
-      <table>
-        <tr>
-          <th>Group</th>
-          <th></th>
-        </tr>
-        <tr
-          v-for="assignment_id in assignmentsFor(id)"
-          :key="assignment_id"
-        >
-          <td>
-            <ScopeWatcher
-              :id="groupForAssignment(assignment_id)"
-              :path="['name']"
-            />
-          </td>
-          <td>
-            <button @click="removeAssignment(assignment_id)">x</button>
-          </td>
-        </tr>
-      </table>
-    </div>
-    <div>
-      <table>
-        <tr>
-          <th></th>
-          <th>Group</th>
-        </tr>
+    <table>
+      <tbody>
         <tr
           v-for="group_id in groups"
           :key="group_id"
         >
           <td>
-            <button @click="makeAssignment(group_id, id, assignment_type)">+</button>
+            <input
+              type="checkbox"
+              :checked="!!assignmentForGroup(group_id)"
+              @click="toggleAssignment(group_id)"
+            />
           </td>
           <td>
             <ScopeWatcher
@@ -42,8 +20,15 @@
             />
           </td>
         </tr>
-      </table>
-    </div>
+        <tr
+          v-for="n in (6 - groups.length)"
+          :key="n"
+        >
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -61,19 +46,28 @@
       ScopeWatcher,
       UserInfo
     },
+    computed: {
+      assignments() {
+        return this.$store.getters['assignments/assignments'](this.id, this.assignment_type)
+      }
+    },
     methods: {
-      assignmentsFor(item_id) {
-        return this.$store.getters['assignments/assignments'](item_id, this.assignment_type)
-      },
       groupForAssignment(assignment_id) {
         return this.$store.getters['assignments/get'](assignment_id).group_id
       },
       makeAssignment(group_id, item_id, assignment_type) {
-        console.dir({ group_id, item_id, assignment_type })
         this.$store.dispatch('assignments/assign', { group_id, item_id, assignment_type })
       },
       removeAssignment(assignment_id) {
         this.$store.dispatch('assignments/unassign', assignment_id)
+      },
+      assignmentForGroup(group_id) {
+        return this.assignments.find(id => this.groupForAssignment(id) === group_id)
+      },
+      toggleAssignment(group_id) {
+        const assignment_id = this.assignmentForGroup(group_id)
+        if (assignment_id) this.removeAssignment(assignment_id)
+        else this.makeAssignment(group_id, this.id, this.assignment_type)
       }
     }
 
@@ -84,6 +78,7 @@
 <style>
 
 .assignment-tables {
+  margin: 16px;
   display: flex;
   justify-content: space-around;
   align-items: top;

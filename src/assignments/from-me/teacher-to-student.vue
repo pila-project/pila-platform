@@ -2,30 +2,52 @@
   <div v-if="loading">
     ...
   </div>
-  <div v-else>
+  <div style="margin: 16px;" v-else>
     <div>
       <h4>Give your assignement a name*</h4>
-      <input v-model="assignment.name" />
+      <input
+        v-model="assignment.name"
+        style="
+          padding: 8px 16px;
+          margin: 16px 0;
+          border-radius: 16px;
+          border: none;
+          width: 50%;
+          background: #CCCCCC;
+        "
+      />
       <h4>Give your assignement a description</h4>
-      <textarea v-model="assignment.description" />
+      <textarea
+        v-model="assignment.description"
+        style="
+          padding: 8px 16px;
+          margin: 16px 0;
+          border-radius: 16px;
+          border: none;
+          resize: none;
+          width: 70%;
+          height: 64px;
+          background: #CCCCCC;
+        "
+      />
     </div>
     <div style="display: flex; justify-content: center;">
-      <div>
+      <div style="display: flex; flex-direction: column;">
         <div style="margin: 8px;">
           <h4>Select the content to assign*</h4>
         </div>
         <div style="flex-grow: 1; display: flex;">
-          <div style="display; flex; flex-direction: column; margin: 8px;">
+          <div style="display: flex; flex-direction: column; margin: 8px; margin-left: 32px; margin-bottom: 16px;">
             <div>
               <h4>Your Content</h4>
             </div>
-            <div style="background: #6BEAC9; flex-grow: 1; min-height: 128px; min-width: 192px"></div>
+            <div style="background:  rgba(107, 234, 201, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px"></div>
           </div>
-          <div style="display; flex; flex-direction: column; margin: 8px;">
+          <div style="display: flex; flex-direction: column; margin: 8px; margin-bottom: 16px;">
             <div>
               <h4>Expert Content</h4>
             </div>
-            <div style="background: #2E9DF9; flex-grow: 1; min-height: 128px; min-width: 192px"></div>
+            <div style="background: rgba(46, 157, 249, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px"></div>
           </div>
           <div></div>
         </div>
