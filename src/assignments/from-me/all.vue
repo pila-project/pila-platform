@@ -28,7 +28,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="id in showArchived ? [...assignable_items, ...archived_assignable_items] : assignable_items"
+              v-for="id in assignmentsForActiveTable"
               :key="id"
               :class="{ selected: id === current }"
               @click="current = current === id ? null: id"
@@ -49,6 +49,12 @@
               <td v-if="showArchived" class="last">
                 <span v-if="archivedIds[id]">✘</span>
               </td>
+            </tr>
+            <tr v-for="n in (6-assignmentsForActiveTable.length)"> <!-- PLACHOLDER ROWS -->
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td v-if="showArchived">-</td>
             </tr>
           </tbody>
         </table>
@@ -132,6 +138,9 @@
                     <vueScopeComponent :id="id" :path="['name']" />
                   </td>
                 </tr>
+                <tr v-for="n in 4 - assignedGroups(current).length"> <!-- Placeholder Rows -->
+                  <td>-</td>
+                </tr>
               </tbody>
             </table>
             <ResearcherToTeacherAssignment
@@ -181,6 +190,10 @@
       }
     },
     computed: {
+      assignmentsForActiveTable() {
+        if (this.showArchived) return [...this.assignable_items, ...this.archived_assignable_items]
+        else return this.assignable_items
+      },
       assignable_items() {
         return this.$store.getters['pila_tags/withTag'](this.assignable_item_type)
       },
