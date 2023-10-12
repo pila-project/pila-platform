@@ -4,38 +4,42 @@
   </div>
   <div v-else>
     <div>
-      <h3>Name</h3>
+      <h4>Give your assignement a name*</h4>
       <input v-model="assignment.name" />
-      <br>
-      <br>
-    </div>
-    <div>
-      <h3>Description</h3>
+      <h4>Give your assignement a description</h4>
       <textarea v-model="assignment.description" />
-      <br>
-      <br>
     </div>
-    <div>
-      <h3>Content</h3>
-      <input v-model="assignment.content" />
-      <br>
-      <br>
+    <div style="display: flex; justify-content: center;">
+      <div>
+        <div style="margin: 8px;">
+          <h4>Select the content to assign*</h4>
+        </div>
+        <div style="flex-grow: 1; display: flex;">
+          <div style="display; flex; flex-direction: column; margin: 8px;">
+            <div>
+              <h4>Your Content</h4>
+            </div>
+            <div style="background: #6BEAC9; flex-grow: 1; min-height: 128px; min-width: 192px"></div>
+          </div>
+          <div style="display; flex; flex-direction: column; margin: 8px;">
+            <div>
+              <h4>Expert Content</h4>
+            </div>
+            <div style="background: #2E9DF9; flex-grow: 1; min-height: 128px; min-width: 192px"></div>
+          </div>
+          <div></div>
+        </div>
+      </div>
+      <div style="margin: 8px;">
+        <h4>Select Classes for the Assignment*</h4>
+        <GroupAssigner
+          :id="id"
+          :groups="$store.getters['groups/groups']('class')"
+          assignment_type="teacher-to-student"
+        />
+      </div>
     </div>
   </div>
-  <h3>Dashboard</h3>
-  <Dashboard
-    v-if="hasValidContent"
-    :assignmentId="id"
-  />
-  <br>
-  <br>
-  <h3>Assigned Groups</h3>
-  <br>
-  <GroupAssigner
-    :id="id"
-    :groups="$store.getters['groups/groups']('class')"
-    assignment_type="teacher-to-student"
-  />
 </template>
 
 <script>
