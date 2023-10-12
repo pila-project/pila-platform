@@ -13,6 +13,7 @@
         <input id="link-input" disabled :placeholder="link">
       </div>
       <button @click="copyToClipboard">Copy Link</button>
+      <span style="color: grey; font-size: 0.8em;" v-if="clipped"><em>Link Copied</em></span>
     </div>
    
   </div>
@@ -24,7 +25,8 @@ export default {
   data() {
     return {
       host: window.location.host,
-      agreed: false
+      agreed: false,
+      clipped: false
     }
   },
   computed: {
@@ -32,7 +34,7 @@ export default {
       return this.$store.state.user
     },
     link() {
-      return `https://${this.host}/join/${this. user}`
+      return `https://${this.host}/join/${this.user}`
     }
   },
   methods: {
@@ -53,6 +55,7 @@ export default {
       try {
         // Copy text to clipboard
         document.execCommand("copy");
+        this.clipped = true
       } catch (err) {
         console.error("Unable to copy text: " + err);
       } finally {
