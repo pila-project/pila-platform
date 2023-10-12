@@ -1,7 +1,7 @@
 <template>
   <Splitpanes class="default-theme" style="height: 100%;">
     <Pane>
-      <div style="padding: 16px;">
+      <div class="wrapper">
         <div style="display: flex; justify-content: space-between; margin-bottom: 16px">
           <div>
             <h3 style="display: inline-block; margin-right: 16px;">MY ASSIGNMENTS</h3>
@@ -253,6 +253,7 @@
 {
   max-width: 800px;
   margin: auto;
+  padding: 16px;
 }
 
 .teacher-assignments-table

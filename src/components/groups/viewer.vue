@@ -1,7 +1,7 @@
 <template>
   <Splitpanes class="default-theme">
-    <Pane max-size="50">
-      <div style="padding: 8px">
+    <Pane>
+      <div class="wrapper">
         <h3 style="color: #2E32DB;">MY CLASSES</h3>
         <div style="display: flex; justify-content: space-between;">
           <IconButton
@@ -203,6 +203,7 @@
 .wrapper
 {
   max-width: 800px;
+  padding: 16px;
   margin: auto;
 }
 
