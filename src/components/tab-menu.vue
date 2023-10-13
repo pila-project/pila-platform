@@ -1,33 +1,43 @@
 <template>
-	<div class="wrapper">
-		<div
-		  v-for="{ name, background, color, id, spacer, width, icon } in tabs"
-		  :class="spacer ? 'spacer' : 'tab' "
-		  :style="{
-		  	background,
-		  	color,
-		  	'flex-grow': spacer ? width : 0
-		  }"
-		  @click="$emit('select', id)"
-		 >
-		    <img
-		      v-if="icon"
-		      class="icon"
-		      :src="icon"
-		     />
-			{{ spacer ? '' : name }}
+	<div class="tab-menu">
+		<div class="tabs-wrapper">
+			<div
+			  v-for="{ name, background, color, id, spacer, width, icon } in tabs"
+			  :class="spacer ? 'spacer' : 'tab' "
+			  :style="{
+			  	background,
+			  	color,
+			  	'flex-grow': spacer ? width : 0
+			  }"
+			  @click="$emit('select', id)"
+			 >
+			    <img
+			      v-if="icon"
+			      class="icon"
+			      :src="icon"
+			     />
+				{{ spacer ? '' : name }}
+			</div>
+			<div>
+	  			Anonymous_{{ $store.state.user.slice(0, 4) }}
+	  			<br>
+	  			{{ $store.getters['roles/role']($store.state.user) }}
+	  		</div>
+			<IconButton
+	          @click="logout"
+	          icon="sign-out"
+	          text="log out"
+			/>
 		</div>
-		<div>
-  			Anonymous_{{ $store.state.user.slice(0, 4) }}
-  			<br>
-  			{{ $store.getters['roles/role']($store.state.user) }}
-  		</div>
-		<IconButton
-          @click="logout"
-          icon="sign-out"
-          text="log out"
-		/>
+
+		<div
+	   		:style="{
+	    		borderTop: `8px solid ${tabs.find(t => t.id === current).background}`,
+				flexGrow: 1
+			}"
+		></div>
 	</div>
+    
 </template>
 
 <script>
@@ -50,13 +60,16 @@
 </script>
 
 <style scoped>
-	.wrapper
+	.tab-menu
+	{
+/*		font-weight: bold;*/
+	}
+	.tabs-wrapper
 	{
 		display: flex;
 		padding-top: 16px;
 		background: #EEEEEE;
 	}
-
 	.tab
 	{
 		cursor: pointer;

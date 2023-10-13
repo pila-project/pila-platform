@@ -3,43 +3,37 @@
     v-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
     style="display: flex; flex-direction: column; height: 100%;"
   >
-    <div class="tab-wrapper">
-      <TabMenu
-        :tabs="[
-          { name: 'MY CLASSES', background: tabColors['classes'], id:'classes', color: 'white' },
-          { spacer: true, width: 1 },
-          { name: 'ASSIGNMENTS', background: tabColors['assignments-from-me'], id:'assignments-from-me', color: 'white' },
-          { name: 'ITEM LIBRARY', background: tabColors['content'], id:'content', color: 'white' },
-          { spacer: true, width: 1 },
-          { name: 'PILA STUDIES', background: tabColors['assignments-to-me'], id:'assignments-to-me', color: 'black', icon: '/mascotte.png' }
-        ]"
-        @select="tab = $event"
-      />
+
+    <TabMenu
+      :tabs="[
+        { name: 'MY CLASSES', background: '#2E9DF9', id:'classes', color: 'white' },
+        { spacer: true, width: 1 },
+        { name: 'ASSIGNMENTS', background: '#2E32DB', id:'assignments-from-me', color: 'white' },
+        { name: 'ITEM LIBRARY', background: '#1B1B83', id:'content', color: 'white' },
+        { spacer: true, width: 1 },
+        { name: 'PILA STUDIES', background: '#6BEAC9', id:'assignments-to-me', color: 'black', icon: '/mascotte.png' }
+      ]"
+      :current="tab"
+      @select="tab = $event"
+    />
+
+    <Groups
+      v-if="tab === 'classes'"
+      type="class"
+      :possibleMembers="students"
+    />
+    <div v-if="tab === 'content'">
+      <ContentLibrary />
     </div>
-    <div
-      :style="{
-        borderTop: `8px solid ${tabColors[tab]}`,
-        flexGrow: 1
-      }"
-    >
-      <Groups
-        v-if="tab === 'classes'"
-        type="class"
-        :possibleMembers="students"
-      />
-      <div v-if="tab === 'content'">
-        <ContentLibrary />
-      </div>
-      <AssignmentsFromMe
-        v-if="tab === 'assignments-from-me'"
-        assignable_item_type="teacher-created"
-        assignment_type="teacher-to-student"
-      />
-      <AssignmentsToMe
-        v-if="tab === 'assignments-to-me'"
-        type="researcher-to-teacher"
-      />
-    </div>
+    <AssignmentsFromMe
+      v-if="tab === 'assignments-from-me'"
+      assignable_item_type="teacher-created"
+      assignment_type="teacher-to-student"
+    />
+    <AssignmentsToMe
+      v-if="tab === 'assignments-to-me'"
+      type="researcher-to-teacher"
+    />
   </div>
   <RoleRequester v-else role="teacher" />
 </template>
@@ -72,16 +66,6 @@
             .filter(gid => getters['groups/belongs'](user, gid))
             .map(gid => getters['groups/owner'](gid))
         )
-      }
-    },
-    computed: {
-      tabColors() {
-        return {
-          classes: '#2E9DF9',
-          'assignments-from-me': '#2E32DB',
-          content: '#1B1B83',
-          'assignments-to-me': '#6BEAC9',
-        }
       }
     }
   }

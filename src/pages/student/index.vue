@@ -1,8 +1,17 @@
 <template>
-  <h1>Student</h1>
+  <div class="tab-wrapper">
+    <TabMenu
+      :tabs="[
+        { name: 'ASSIGNMENTS', background: '#2E9DF9', id:'class-assignments', color: 'white' },
+        { name: 'STUDIES', background: '#2E32DB', id:'study-assignments', color: 'white' },
+        { spacer: true, width: 1 }
+      ]"
+      :current="tab"
+      @select="tab = $event"
+    />
+  </div>
+
   <div>
-    <button @click="tab = 'class-assignments'">Assignments</button>
-    <button @click="tab = 'study-assignments'">Studies</button>
     <AssignmentsToMe
       :key="tab"
       :type="assignmentType"
@@ -12,10 +21,11 @@
 
 <script>
   import AssignmentsToMe from '../../assignments/to-me/all.vue'
-
+  import TabMenu from '../../components/tab-menu.vue'
   export default {
     components: {
-      AssignmentsToMe
+      AssignmentsToMe,
+      TabMenu
     },
     data() {
       return {

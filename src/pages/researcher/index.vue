@@ -1,12 +1,17 @@
 <template>
-  <h1>Researcher</h1>
   <div v-if="$store.getters['roles/hasPermission']($store.state.user, 'researcher')">
-    <div>
-      <button @click="tab = 'teacher-groups'">Teacher Groups</button>
-      <button @click="tab = 'content'">Content</button>
-      <button @click="tab = 'files'">Files</button>
-      <button @click="tab = 'studies'">Studies</button>
-    </div>
+    <TabMenu
+      :tabs="[
+        { name: 'TEACHER GROUPS', background: '#2E9DF9', id:'teacher-groups', color: 'white' },
+        { name: 'CONTENT', background: '#2E32DB', id:'content', color: 'white' },
+        { name: 'FILES', background: '#1B1B83', id:'files', color: 'white' },
+        { spacer: true, width: 1 },
+        { name: 'PILA STUDIES', background: '#6BEAC9', id:'studies', color: 'black', icon: '/mascotte.png' }
+      ]"
+      :current="tab"
+      @select="tab = $event"
+    />
+
     <Groups
       v-if="tab === 'teacher-groups'"
       type="teachers"
@@ -28,6 +33,7 @@
 </template>
 
 <script>
+  import TabMenu from '../../components/tab-menu.vue'
   import Groups from '../../components/groups/viewer.vue'
   import RoleRequester from '../../components/roles/requester.vue'
   import Files from '../../components/files.vue'
@@ -37,6 +43,7 @@
 
   export default {
     components: {
+      TabMenu,
       Groups,
       ContentLibrary,
       Files,
