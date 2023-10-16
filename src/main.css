@@ -134,20 +134,7 @@ button.little-blue:hover {
     background: yellow;
 }
 
-/* CARD STYLES */
-.card {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: #eff0f0;
-    border-radius: 6px;
-    display: flex;
-    margin: 12px;
-    padding: 6px;
-    align-items: center;
-    justify-content: space-evenly;
-    border: 2px solid darkgrey;
-}
+
 /* FONT AWESOME ICONBUTTON.VUE STYLES */
 button.icon-button {
     padding: 5px 10px;
