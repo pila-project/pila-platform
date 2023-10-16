@@ -110,15 +110,19 @@
             <div>
               <h4>Content</h4>
               <vueScopeComponent :id="current" :path="['content', 'name']" />
-            </div>
-            <div>
-              <h4>Results</h4>
-            </div>
-            <div>
               <IconButton
                 icon="eye"
                 @click="preview"
                 text="Preview"
+                background="#FFC442"
+              />
+            </div>
+            <div>
+              <h4>Results</h4>
+              <IconButton
+                icon="dashboard"
+                @click="showResultsModal = true"
+                text="See Dashboard"
                 background="#FFC442"
               />
             </div>
@@ -159,6 +163,16 @@
       />
     </template>
   </PILAModal>
+  <PILAModal
+    v-if="showResultsModal"
+    @close="showResultsModal = false"
+    showCloseButton
+  >
+    <template v-slot:title>Assignment Results</template>
+    <template v-slot:body>
+      <Dashboard :assignemntId="current" />
+    </template>
+  </PILAModal>
 </template>
 
 <script>
@@ -171,6 +185,7 @@
   import TeacherToStudentAssignment from './teacher-to-student.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
+  import Dashboard from './dashboard/index.vue'
 
   export default {
     components: {
@@ -182,7 +197,8 @@
       vueScopeComponent,
       IconButton,
       Splitpanes,
-      Pane
+      Pane,
+      Dashboard
     },
     props: {
       assignable_item_type: String,
@@ -192,7 +208,8 @@
       return {
         current: null,
         showEditModal: false,
-        showArchived: false
+        showArchived: false,
+        showResultsModal: false
       }
     },
     computed: {
