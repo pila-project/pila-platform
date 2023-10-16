@@ -109,7 +109,7 @@
             </div>
             <div>
               <h4>Content</h4>
-              <vueScopeComponent :id="current" :path="['content']" />
+              <vueScopeComponent :id="current" :path="['content', 'name']" />
             </div>
             <div>
               <h4>Results</h4>

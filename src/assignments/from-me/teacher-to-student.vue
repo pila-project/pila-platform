@@ -41,13 +41,37 @@
             <div>
               <h4>Your Content</h4>
             </div>
-            <div style="background:  rgba(107, 234, 201, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px"></div>
+            <div style="background:  rgba(107, 234, 201, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
+              <div
+                v-for="id in userContent"
+                :key="id"
+                :class="{
+                  'content-entry': true,
+                  selected: id === assignment.content
+                }"
+                @click="assignment.content = id"
+              >
+                <vueScopeComponent :id="id" :path="['name']" />&nbsp;
+              </div>
+            </div>
           </div>
           <div style="display: flex; flex-direction: column; margin: 8px; margin-bottom: 16px;">
             <div>
               <h4>Expert Content</h4>
             </div>
-            <div style="background: rgba(46, 157, 249, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px"></div>
+            <div style="background: rgba(46, 157, 249, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
+              <div
+                v-for="id in expertContent"
+                :key="id"
+                :class="{
+                  'content-entry': true,
+                  selected: id === assignment.content
+                }"
+                @click="assignment.content = id"
+              >
+                <vueScopeComponent :id="id" :path="['name']" />
+              </div>
+            </div>
           </div>
           <div></div>
         </div>
@@ -68,6 +92,7 @@
   import { v4 as uuid, validate as isUUID } from 'uuid'
   import Dashboard from './dashboard/index.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 
   export default {
     props: {
@@ -75,7 +100,8 @@
     },
     components: {
       Dashboard,
-      GroupAssigner
+      GroupAssigner,
+      vueScopeComponent
     },
     data() {
       return {
@@ -90,8 +116,28 @@
     computed: {
       hasValidContent() {
         return this.assignment && isUUID(this.assignment.content)
+      },
+      expertContent() {
+        return this.$store.getters['pila_tags/withTag']('expert')
+      },
+      userContent() {
+        return this.$store.getters['pila_tags/withTag']('tracked')
       }
     }
   }
 
 </script>
+
+<style>
+  .content-entry
+  {
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+  }
+  .selected
+  {
+    border: 1px solid blue;
+  }
+
+</style>
