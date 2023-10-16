@@ -6,9 +6,6 @@
       text="Add Content"
       background="#FFC442"
     />
-    <span v-if="showUUIDWarning">
-      not a valid UUID!!!
-    </span>
     <div class="card-container">
       <div
         v-for="id in content"
@@ -37,6 +34,9 @@
       <button @click="trackContent(contentId)">
         Add
       </button>
+      <span v-if="showUUIDWarning">
+        not a valid UUID!!!
+      </span>
     </template>
   </PILAModal>
 </template>
