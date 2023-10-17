@@ -73,6 +73,7 @@
       }
     },
     async created() {
+      console.log('assignmentId', this.assignmentId)
       const updateNow = () => {
         this.now = Date.now()
         setTimeout(updateNow, 1000)
@@ -82,13 +83,15 @@
       Agent
         .query('mutated-in-context', [this.assignmentId])
         .then(results => this.mutatedScopesInContext = results)
+        .then(() => console.log('mmmm', this.mutatedScopesInContext))
 
       this.assignment = await Agent.state(this.assignmentId)
+      this.map = await Agent.state(this.assignment.content)
       this.loading = false
 
-      this.map = await Agent.state(this.assignment.content)
+
       Object
-        .keys(this.map.nodes)
+        .keys(this.map.graph.nodes)
         .forEach(async nodeId => {
           this.taskMetadata[nodeId] = await Agent.metadata(nodeId)
         })
@@ -118,7 +121,7 @@
     },
     computed: {
       orderedTasks() {
-        return this.map ? Object.keys(this.map.nodes) : []
+        return this.map ? Object.keys(this.map.graph.nodes) : []
       },
       orderedTaskMetadata() {
         if(this.map) return (

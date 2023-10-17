@@ -170,7 +170,7 @@
   >
     <template v-slot:title>Assignment Results</template>
     <template v-slot:body>
-      <Dashboard :assignemntId="current" />
+      <Dashboard :assignmentId="current" />
     </template>
   </PILAModal>
 </template>
