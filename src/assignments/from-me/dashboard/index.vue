@@ -137,12 +137,15 @@
         ))
       },
       assigneeMapScopes() {
+        if (!this.assignment?.content) return {}
+
         const assigneeMapScopes = {}
+        const { content } = this.assignment
 
         this
           .mutatedScopesInContext
           .forEach(({ owner, target, context }) => {
-            if (context.length === 2) {
+            if (context.length === 2 && context[1] === content) {
               const map = context[1]
               assigneeMapScopes[owner] = target
             }
