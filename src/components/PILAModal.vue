@@ -67,7 +67,7 @@ export default {
   border: 4px solid #1b1b83;
   width: 800px;
   max-width: 90vw;
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .modal-header {

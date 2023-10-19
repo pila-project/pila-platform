@@ -8,7 +8,7 @@
           user
         </th>
         <th></th><!--placeholder for active -->
-        <th v-for="{ name } in orderedTaskMetadata">
+        <th v-for="{ name } in orderedTaskData">
           {{ name }}
         </th>
       </tr>
@@ -65,7 +65,7 @@
         assignment: null,
         mutatedScopesInContext: [],
         map: null,
-        taskMetadata: {},
+        taskData: {},
         users: [],
         now: Date.now(),
         lastAssigneeInteractionTimes: {},
@@ -91,9 +91,9 @@
 
 
       Object
-        .keys(this.map.graph.nodes)
-        .forEach(async nodeId => {
-          this.taskMetadata[nodeId] = await Agent.metadata(nodeId)
+        .values(this.map.graph.nodes)
+        .forEach(async ({ taskId }) => {
+          this.taskData[taskId] = await Agent.state(taskId)
         })
     },
     watch: {
@@ -121,11 +121,11 @@
     },
     computed: {
       orderedTasks() {
-        return this.map ? Object.keys(this.map.graph.nodes) : []
+        return this.map ? Object.values(this.map.graph.nodes).map(({ taskId }) => taskId) : []
       },
-      orderedTaskMetadata() {
+      orderedTaskData() {
         if(this.map) return (
-            this.orderedTasks.map(nodeId => this.taskMetadata[nodeId] || { name: '...' })
+            this.orderedTasks.map(taskId => this.taskData[taskId] || { name: '...' })
         )
         else return []
       },
