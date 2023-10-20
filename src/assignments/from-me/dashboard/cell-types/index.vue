@@ -17,11 +17,16 @@
 import DefaultCellType from './DefaultCellType.vue'
 import RatingCell from './RatingCell.vue'
 import MultipleChoiceCell from './MultipleChoiceCell.vue'
+import KarelCell from './KarelCell.vue'
+import FreeResponseCell from './FreeResponseCell.vue'
+
 export default {
 	name: 'task-cell',
 	components: {
 		MultipleChoiceCell,
 		RatingCell,
+		KarelCell,
+		FreeResponseCell,
 		DefaultCellType
 	},
 	props: [ 'task', 'scope', 'timeOnTask' ],
@@ -50,8 +55,10 @@ export default {
 			if (this.showDefaultCell) return DefaultCellType
 
 			const componentMap = {
+				'application/json;type=karel-task&version=1.0.1' : KarelCell,
 				'application/json;type=multiple-choice' : MultipleChoiceCell,
-				'application/json;type=rating' : RatingCell
+				'application/json;type=rating' : RatingCell,
+				'application/json;type=free-response' : FreeResponseCell
 			}
 			return componentMap[this.taskType] || DefaultCellType
 		}

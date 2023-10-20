@@ -1,17 +1,17 @@
 <template>
-	<div class="multiple-choice-type-cell">
+	<div class="karel-type-cell">
 		<DisplayTime
 			v-if="timeOnTask"
 			:rawTime="timeOnTask"
 		/>
-		{{ isCorrect ? "Woo" : "Boo" }}
+		<p>{{ userState.stepSpeed > 25 ? '🏃' : '🐢' }}</p>
 	</div>
 </template>
 
 <script>
 import DisplayTime from './DisplayTime.vue'
 export default {
-	name: 'multiple-choice-type-cell',
+	name: 'karel-type-cell',
 	components: { DisplayTime },
 	props: {
 		timeOnTask: Number,
@@ -28,18 +28,7 @@ export default {
 	        )
      	},
 		isCorrect() {
-	        const correctAnswers = (
-	          this.taskData.options
-	            .map(({ valid }, index)=> ({ valid, index }))
-	            .filter(({ valid }) => valid)
-	            .map(({ index }) => index)
-	        )
-	        const givenAnswers = this.selectedOptions
-
-	        return (
-	          correctAnswers.every(x => givenAnswers.includes(x))
-	          && givenAnswers.every(x => correctAnswers.includes(x))
-	        )
+	        return true
      	}
 	}
 }

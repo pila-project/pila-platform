@@ -89,7 +89,6 @@
       this.map = await Agent.state(this.assignment.content)
       this.loading = false
 
-
       Object
         .values(this.map.graph.nodes)
         .forEach(async ({ taskId }) => {
