@@ -21,7 +21,7 @@
           </td>
         </tr>
         <tr
-          v-for="n in (6 - groups.length)"
+          v-for="n in Math.max(0, 6 - groups.length)"
           :key="n"
         >
           <td>-</td>
@@ -39,7 +39,7 @@
   export default {
     props: {
       id: String,
-      groups: Object,
+      groups: Array,
       assignment_type: String
     },
     components: {

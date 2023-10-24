@@ -1,0 +1,38 @@
+<template>
+  <PILAModal
+    @close="$emit('close')"
+    showCloseButton
+  >
+    <template v-slot:title>Create/Modify Assignment</template>
+    <template v-slot:body>
+      <ResearcherToTeacherAssignment
+        v-if="researcher"
+        :id="id"
+      />
+      <TeacherToStudentAssignment
+        v-else-if="teacher"
+        :id="id"
+      />
+    </template>
+  </PILAModal>
+</template>
+
+<script>
+  import PILAModal from '../../components/PILAModal.vue'
+  import ResearcherToTeacherAssignment from './researcher-to-teacher.vue'
+  import TeacherToStudentAssignment from './teacher-to-student.vue'
+  
+  export default {
+    components: {
+      PILAModal,
+      ResearcherToTeacherAssignment,
+      TeacherToStudentAssignment
+    },
+    props: {
+      id: String,
+      teacher: Boolean,
+      researcher: Boolean
+    }
+  }
+
+</script>

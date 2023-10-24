@@ -146,23 +146,13 @@
       </div>
     </Pane>
   </Splitpanes>
-  <PILAModal
+  <CreateEditAssignmentModal
     v-if="showEditModal"
     @close="showEditModal = false"
-    showCloseButton
-  >
-    <template v-slot:title>Create/Modify Assignment</template>
-    <template v-slot:body>
-      <ResearcherToTeacherAssignment
-        v-if="assignable_item_type === 'researcher-created'"
-        :id="current"
-      />
-      <TeacherToStudentAssignment
-        v-else-if="assignable_item_type === 'teacher-created'"
-        :id="current"
-      />
-    </template>
-  </PILAModal>
+    :researcher="assignable_item_type === 'researcher-created'"
+    :teacher="assignable_item_type === 'teacher-created'"
+    :id="current"
+  />
   <PILAModal
     v-if="showResultsModal"
     @close="showResultsModal = false"
@@ -181,24 +171,22 @@
   import ScopeValue from '../../components/scope-value.vue'
   import UserInfo from '../../components/user-info.vue'
   import IconButton from '../../components/icon-button.vue'
-  import ResearcherToTeacherAssignment from './researcher-to-teacher.vue'
-  import TeacherToStudentAssignment from './teacher-to-student.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
   import Dashboard from './dashboard/index.vue'
+  import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
 
   export default {
     components: {
       PILAModal,
       UserInfo,
       ScopeValue,
-      ResearcherToTeacherAssignment,
-      TeacherToStudentAssignment,
       vueScopeComponent,
       IconButton,
       Splitpanes,
       Pane,
-      Dashboard
+      Dashboard,
+      CreateEditAssignmentModal
     },
     props: {
       assignable_item_type: String,
@@ -229,14 +217,12 @@
     },
     methods: {
       async add() {
-        const name = prompt(`${this.assignable_item_type === 'teacher-created' ? 'Assignment' : 'Study' } Name`)
-        if (!name) return
-
         const content_id = uuid()
         const assignableItem = await Agent.state(content_id)
-        assignableItem.name = name // TODO: add reasonable defaults based on type
+        assignableItem.name = 'New Assignment' // TODO: add reasonable defaults based on type
         this.current = content_id
         this.$store.dispatch('pila_tags/tag', { content_id, tag_type: this.assignable_item_type })
+        this.showEditModal = true
       },
       async readd(content_id) {
         await this.$store.dispatch('pila_tags/tag', { content_id, tag_type: this.assignable_item_type })
