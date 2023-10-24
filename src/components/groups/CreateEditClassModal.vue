@@ -3,10 +3,14 @@
 		<h3>Give your class a name</h3>
 		<input
 			v-if="classData"
-			class="working-class-name"
+			class="working-class-name rounded-grey"
 			v-model="classData.name"
 		/>
-		<input v-else class="working-class-name" disabled />
+		<input
+		  v-else
+		  class="working-class-name"
+		  disabled
+		 />
 
 		<h3>Select students in the class</h3>
 		<div class="filters">

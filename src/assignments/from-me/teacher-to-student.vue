@@ -7,28 +7,14 @@
       <h4>Give your assignement a name*</h4>
       <input
         v-model="assignment.name"
-        style="
-          padding: 8px 16px;
-          margin: 16px 0;
-          border-radius: 16px;
-          border: none;
-          width: 50%;
-          background: #CCCCCC;
-        "
+        class="rounded-grey"
+        style="width: 50%;"
       />
       <h4>Give your assignement a description</h4>
       <textarea
         v-model="assignment.description"
-        style="
-          padding: 8px 16px;
-          margin: 16px 0;
-          border-radius: 16px;
-          border: none;
-          resize: none;
-          width: 70%;
-          height: 64px;
-          background: #CCCCCC;
-        "
+        class="rounded-grey"
+        style="width: 70%; height: 64px;"
       />
     </div>
     <div style="display: flex; justify-content: center;">

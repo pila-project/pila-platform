@@ -173,35 +173,16 @@ button.icon-circle i {
     color: white;
 }
 
-/* Text Input */
-input.rounded-grey {
+/* Inputs */
+.rounded-grey {
     border-radius: 20px;
-    background: #eee;
+    background: #CCCCCC;
     border: none;
     padding: 6px 10px;
     width: 200px;
+    margin: 16px 0;
 }
 
-/* KAREL BUTTON */
-.karel-button {
-    background: green;
-    color: white;
-    user-select: none;
-    cursor: pointer;
-    min-width: 80px;
-    height: 30px;
-    margin: 0 6px;
-    border-radius: 6px;
-    border: none;
-    font-size: 0.9em;
-    opacity: 0.72;
-    transition: opacity 250ms;
-}
-  
-.karel-button:hover {
-    opacity: 1;
-}
-.karel-button:disabled {
-    opacity: 0.2;
-    cursor: not-allowed;
+textarea.rounded-grey {
+    resize: none;
 }

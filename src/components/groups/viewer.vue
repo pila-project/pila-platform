@@ -123,6 +123,8 @@
   <PILAModal
     v-if="showEditClassModal"
     @close="showEditClassModal = false"
+    showCloseButton
+    closeButtonText="Done"
   >
     <template v-slot:title>Create / Edit Class</template>
     <template v-slot:body>
