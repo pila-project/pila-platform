@@ -49,6 +49,7 @@ export default {
 <style scoped>
 .modal {
   position: fixed;
+  overflow: scroll;
   top: 0;
   left: 0;
   width: 100%;
@@ -56,18 +57,25 @@ export default {
   background: rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
+/* Chrome, Safari and Opera */
+.modal::-webkit-scrollbar {
+  display: none;
+}
+
+
 .modal-content {
+  margin-top: 20vh;
+  margin-bottom: 5vh;
   background: white;
   border-radius: 20px;
   border: 4px solid #1b1b83;
   width: 800px;
   max-width: 90vw;
-  overflow: scroll;
 }
 
 .modal-header {
