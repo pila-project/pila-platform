@@ -42,6 +42,11 @@ postgres:
         content_id: TEXT
         tag_type: TEXT
         archived: BOOLEAN
+    translation_targets:
+      type: application/json;type=translation_target
+      columns:
+        target: TEXT
+        path: TEXT
   functions:
     hasAdminTag:
       returns: BOOLEAN
@@ -244,3 +249,8 @@ postgres:
       WHERE
         $1 = ANY(context)
         AND tag_type = 'mutated'
+  crossDomainQueries:
+    translations-targets:
+      domains: []
+      body: |
+        SELECT target, path FROM translation_targets
