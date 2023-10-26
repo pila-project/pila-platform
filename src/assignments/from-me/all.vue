@@ -33,7 +33,9 @@
               :class="{ selected: id === current }"
               @click="current = current === id ? null: id"
             >
-              <td class="first"><vueScopeComponent :scope="id" :path="['name']" /></td>
+              <td class="first">
+                <vueScopeComponent :id="id" :path="['name']" />
+              </td>
               <td>
                 <span
                   v-for="groupId, index in assignedGroups(id)"
