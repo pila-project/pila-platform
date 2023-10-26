@@ -14,7 +14,7 @@
             />
           </td>
           <td>
-            <ScopeWatcher
+            <vueScopeComponent
               :id="group_id"
               :path="['name']"
             />
@@ -34,7 +34,7 @@
 
 <script>
   import UserInfo from '../user-info.vue'
-  import ScopeWatcher from '../scope-watcher.vue'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 
   export default {
     props: {
@@ -43,7 +43,7 @@
       assignment_type: String
     },
     components: {
-      ScopeWatcher,
+      vueScopeComponent,
       UserInfo
     },
     computed: {

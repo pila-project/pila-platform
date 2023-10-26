@@ -46,8 +46,6 @@
 </template>
 
 <script>
-  import ScopeWatcher from '../../../components/scope-watcher.vue'
-  import ScopeValue from '../../../components/scope-value.vue'
   import TaskCell from './cell-types/index.vue'
 
   export default {
@@ -55,8 +53,6 @@
       assignmentId: String
     },
     components: {
-      ScopeWatcher,
-      ScopeValue,
       TaskCell
     },
     data() {

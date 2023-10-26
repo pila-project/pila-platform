@@ -46,7 +46,7 @@ postgres:
       type: application/json;type=translation_target
       columns:
         target: TEXT
-        path: TEXT
+        path: TEXT[]
   functions:
     hasAdminTag:
       returns: BOOLEAN
@@ -251,6 +251,7 @@ postgres:
         AND tag_type = 'mutated'
   crossDomainQueries:
     translations-targets:
-      domains: []
+      domains:
+        - localhost:5173
       body: |
-        SELECT target, path FROM translation_targets
+        SELECT target, path, id FROM translation_targets

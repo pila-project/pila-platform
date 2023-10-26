@@ -33,7 +33,7 @@
               :class="{ selected: id === current }"
               @click="current = current === id ? null: id"
             >
-              <td class="first"><ScopeValue :scope="id" :path="['name']" /></td>
+              <td class="first"><vueScopeComponent :scope="id" :path="['name']" /></td>
               <td>
                 <span
                   v-for="groupId, index in assignedGroups(id)"
@@ -110,6 +110,7 @@
             <div>
               <h4>Content</h4>
               <vueScopeComponent :id="current" :path="['content', 'name']" />
+              <br>
               <IconButton
                 icon="eye"
                 @click="preview"
@@ -168,7 +169,6 @@
 <script>
   import { v4 as uuid } from 'uuid'
   import PILAModal from '../../components/PILAModal.vue'
-  import ScopeValue from '../../components/scope-value.vue'
   import UserInfo from '../../components/user-info.vue'
   import IconButton from '../../components/icon-button.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
@@ -180,7 +180,6 @@
     components: {
       PILAModal,
       UserInfo,
-      ScopeValue,
       vueScopeComponent,
       IconButton,
       Splitpanes,

@@ -6,8 +6,8 @@
     <td>-</td>
   </tr>
   <tr v-else>
-    <td><ScopeWatcher :id="assignedItemId" :path="['name']" /></td>
-    <td><ScopeWatcher :id="assignedItemId" :path="['description']" /></td>
+    <td><vueScopeComponent :id="assignedItemId" :path="['name']" /></td>
+    <td><vueScopeComponent :id="assignedItemId" :path="['description']" /></td>
     <td><UserInfo :user="assignmentMetadata.owner" /></td>
     <td><button @click="$emit('play')">play</button></td>
   </tr>
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-  import ScopeWatcher from '../../components/scope-watcher.vue'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import UserInfo from '../../components/user-info.vue'
 
   export default {
@@ -23,7 +23,7 @@
       id: String
     },
     components: {
-      ScopeWatcher,
+      vueScopeComponent,
       UserInfo
     },
     data() {
