@@ -3,7 +3,7 @@
     loading...
   </div>
   <LoginMenu v-else-if="isAnonymous" />
-  <AccessCodeScreen v-if="false && !$store.state.codeEntered" />
+  <AccessCodeScreen v-if="!$store.state.codeEntered" />
   <div
     id="main-app"
     v-else
