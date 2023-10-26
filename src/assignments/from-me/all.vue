@@ -166,7 +166,11 @@
     </template>
     <template v-slot:body>
       <div style="height: 60vh; position: relative;">
-        <vueEmbedComponent :id="current" :path="['content']" />
+        <vueEmbedComponent
+          :id="current"
+          :path="['content']"
+          @close="showPreviewModal = false"
+        />
       </div>
     </template>
   </PILAModal>

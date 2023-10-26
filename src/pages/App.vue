@@ -3,6 +3,7 @@
     loading...
   </div>
   <LoginMenu v-else-if="isAnonymous" />
+  <AccessCodeScreen v-if="false && !$store.state.codeEntered" />
   <div
     id="main-app"
     v-else
@@ -15,9 +16,13 @@
 
 <script>
   import LoginMenu from './login/index.vue'
+  import AccessCodeScreen from './login/AccessCodeScreen.vue'
 
   export default {
-    components: { LoginMenu },
+    components: {
+      LoginMenu,
+      AccessCodeScreen
+    },
     computed: {
       isLoaded() { return this.$store.state.loaded },
       isAnonymous() { return this.$store.getters['isAnonymous']() }
