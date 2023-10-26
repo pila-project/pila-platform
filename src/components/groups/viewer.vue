@@ -55,6 +55,15 @@
             </div>
           </div>
         </div>
+        <br>
+        <br>
+        <h3 style="color: #2E32DB;">MY STUDENTS</h3>
+        <div class="class-list">
+          <div v-if="!possibleMembers.length">You currently have no students</div>
+          <div v-for="id in possibleMembers">
+            Anonymous_{{ id.slice(0, 4) }}
+          </div>
+        </div>
       </div>
     </Pane>
 
