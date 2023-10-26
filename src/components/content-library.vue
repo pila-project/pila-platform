@@ -21,22 +21,25 @@
   </div>
   <PILAModal
     v-if="showAddModal"
-    @close="showAddModal = false"
+    @close="trackContent(contentId)"
     showCloseButton
+    :closeButtonText=" showUUIDWarning || contentId === '' ? 'cancel' : 'add'"
   >
     <template v-slot:title>Add Content By Id</template>
     <template v-slot:body>
-      <input
-        type="text"
-        v-model="contentId"
-        @keydown="showUUIDWarning = false"
-      />
-      <button @click="trackContent(contentId)">
-        Add
-      </button>
-      <span v-if="showUUIDWarning">
-        not a valid UUID!!!
-      </span>
+      <div style="text-align: center;">
+        <input
+          style="width: 50%; text-align: center;"
+          type="text"
+          class="rounded-grey"
+          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          v-model="contentId"
+          @keydown="showUUIDWarning = false"
+        />
+        <div v-if="showUUIDWarning">
+          invalid id
+        </div>
+      </div>
     </template>
   </PILAModal>
 </template>
@@ -62,7 +65,6 @@
     data() {
       return {
         contentId: '',
-        showUUIDWarning: false,
         showAddModal: false
       }
     },
@@ -72,6 +74,9 @@
           ...this.$store.getters['pila_tags/withTag']('expert'),
           ...this.$store.getters['pila_tags/withTag']('tracked')
         ]
+      },
+      showUUIDWarning() {
+        return this.contentId !== '' && !isUUID(this.contentId)
       }
     },
     methods: {
@@ -79,7 +84,7 @@
         if (isUUID(content_id)) {
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         }
-        else this.showUUIDWarning = true
+        this.showAddModal = false
       }
     }
   }
