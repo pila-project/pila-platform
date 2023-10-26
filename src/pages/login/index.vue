@@ -1,42 +1,53 @@
 <template>
   <div id="login-page">
-    <div id="login-page-inner">
-      <img src="/logo.svg" />
-      <input
-        type="text"
-        v-model="username"
-        :placeholder="t('username')"
-        @keypress.enter="login()"
-        @keypress="error = null"
-      />
-      <br>
-      <input
-        type="password"
-        v-model="password"
-        :placeholder="t('password')"
-        @keypress.enter="login()"
-        @keypress="error = null"
-      />
-      <br>
-      <IconButton
-        @click="login()"
-        class="login"
-        :text="t('log-in')"
-        icon="sign-in"
-      />
-      <div class="google-and-microsoft-wrapper">
-        <IconButton
+    <div id="login-page-inner" style="max-width: 256px;">
+      <img src="/logo-green.svg" />
+      <div style="margin: 16px;">
+        <div
+          class="login-button"
           @click="login('google')"
-          text="google"
-          icon="google"
-        />
-        <IconButton
+        >
+          <img class="login-button-icon" src="/external-logos/google.png" />
+          <div class="login-button-divider"></div>
+          <div>Log in with Google</div>
+        </div>
+        <div
+          class="login-button"
           @click="login('microsoft')"
-          text="microsoft"
-          icon="windows"
-        />
+        >
+          <img class="login-button-icon" src="/external-logos/microsoft.png" />
+          <div class="login-button-divider"></div>
+          <div>Log in with Microsoft</div>
+        </div>
+        <div
+          class="login-button"
+          @click="login('clever')"
+        >
+          <img class="login-button-icon" src="/external-logos/clever.png" />
+          <div class="login-button-divider"></div>
+          <div>Log in with Clever</div>
+        </div>
+        <div
+          class="login-button"
+          @click="login('classlink')"
+        >
+          <img class="login-button-icon" src="/external-logos/classlink.png" />
+          <div class="login-button-divider"></div>
+          <div>Log in with ClassLink</div>
+        </div>
       </div>
       <div v-if="error" class="error">{{ error }}</div>
+      <div style="display: flex; margin: 16px 0; align-items: center;">
+        <img src="/mascotte.png" style="width: 92px" />
+        <div>
+          <p style="padding: 16px; width: 450px; text-align: left;">
+            Create an account or log in with the Service that
+            you use at your school. If the Service you normally
+            user is not among the options, please ask your
+            teacher to contact edu.pila@oecd.org.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -99,5 +110,27 @@
   }
   .error {
     margin-top: 10px;
+  }
+  .login-button
+  {
+    display: flex;
+    align-items: center;
+    width: 256px;
+    height: 32px;
+    padding: 8px;
+    margin: 8px;
+    border-radius: 8px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  }
+  .login-button-icon
+  {
+    width: 32px;
+  }
+  .login-button-divider
+  {
+    height: 100%;
+    margin: 8px;
+    border-right:
+    1px solid #EEEEEE;
   }
 </style>
