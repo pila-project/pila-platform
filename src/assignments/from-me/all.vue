@@ -115,7 +115,7 @@
               <br>
               <IconButton
                 icon="eye"
-                @click="preview"
+                @click="showPreviewModal = true"
                 text="Preview"
                 background="#FFC442"
               />
@@ -157,6 +157,20 @@
     :id="current"
   />
   <PILAModal
+    v-if="showPreviewModal"
+    @close="showPreviewModal = false"
+    showCloseButton
+  >
+    <template v-slot:title>
+      <span>Previewing "<vueScopeComponent :id="current" :path="['content', 'name']" />"</span>
+    </template>
+    <template v-slot:body>
+      <div style="height: 60vh; position: relative;">
+        <vueEmbedComponent :id="current" :path="['content']" />
+      </div>
+    </template>
+  </PILAModal>
+  <PILAModal
     v-if="showResultsModal"
     @close="showResultsModal = false"
     showCloseButton
@@ -173,7 +187,7 @@
   import PILAModal from '../../components/PILAModal.vue'
   import UserInfo from '../../components/user-info.vue'
   import IconButton from '../../components/icon-button.vue'
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
@@ -183,6 +197,7 @@
       PILAModal,
       UserInfo,
       vueScopeComponent,
+      vueEmbedComponent,
       IconButton,
       Splitpanes,
       Pane,
@@ -198,6 +213,7 @@
         current: null,
         showEditModal: false,
         showArchived: false,
+        showPreviewModal: false,
         showResultsModal: false
       }
     },
@@ -235,12 +251,6 @@
       },
       assignedGroups(id) {
         return this.$store.getters['assignments/assignedGroups'](id, this.assignment_type)
-      },
-      edit(id) {
-        alert('SHOW EDIT MODAL FOR ' + id)
-      },
-      preview(id) {
-        alert('SHOW PREVIEW MODAL FOR ' + id)
       }
     }
   }
