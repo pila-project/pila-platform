@@ -66,6 +66,11 @@ export default {
       return Promise.all(translationPromises)
     },
 
+    async cycleLanguageAndRefetch({ commit, dispatch }) {
+      await dispatch('fetchTranslations')
+      commit('cycleLanguage')
+    }, 
+
     async load({ commit, state }) {
       const language = matchNavigatorLanguage(languageChoices)
       commit('language', language)

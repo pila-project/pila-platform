@@ -18,7 +18,7 @@
 			     />
 				{{ spacer ? '' : name }}
 			</div>
-			<div @click.shift="$store.commit('cycleLanguage')">
+			<div @click="$store.dispatch('cycleLanguageAndRefetch')" >
 	  			Anonymous_{{ $store.state.user.slice(0, 4) }}
 	  			<br>
 	  			{{ $store.getters['roles/role']($store.state.user) }}
