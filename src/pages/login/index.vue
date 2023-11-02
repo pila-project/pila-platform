@@ -1,7 +1,10 @@
 <template>
   <div id="login-page">
     <div id="login-page-inner" style="max-width: 256px;">
-      <img src="/logo-green.svg" />
+      <img
+        src="/logo-green.svg"
+        @click="$store.commit('cycleLanguage')"
+      />
       <div style="margin: 16px;">
         <div
           class="login-button"
@@ -9,7 +12,7 @@
         >
           <img class="login-button-icon" src="/external-logos/google.png" />
           <div class="login-button-divider"></div>
-          <div>Log in with Google</div>
+          <div>{{ t('log-in-with') }} Google</div>
         </div>
         <div
           class="login-button"
@@ -17,7 +20,7 @@
         >
           <img class="login-button-icon" src="/external-logos/microsoft.png" />
           <div class="login-button-divider"></div>
-          <div>Log in with Microsoft</div>
+          <div>{{ t('log-in-with') }}  Microsoft</div>
         </div>
         <div
           class="login-button"
@@ -25,7 +28,7 @@
         >
           <img class="login-button-icon" src="/external-logos/clever.png" />
           <div class="login-button-divider"></div>
-          <div>Log in with Clever</div>
+          <div>{{ t('log-in-with') }}  Clever</div>
         </div>
         <div
           class="login-button"
@@ -33,7 +36,7 @@
         >
           <img class="login-button-icon" src="/external-logos/classlink.png" />
           <div class="login-button-divider"></div>
-          <div>Log in with ClassLink</div>
+          <div>{{ t('log-in-with') }}  ClassLink</div>
         </div>
       </div>
       <div v-if="error" class="error">{{ error }}</div>
@@ -41,10 +44,7 @@
         <img src="/mascotte.png" style="width: 92px" />
         <div>
           <p style="padding: 16px; width: 450px; text-align: left;">
-            Create an account or log in with the Service that
-            you use at your school. If the Service you normally
-            user is not among the options, please ask your
-            teacher to contact edu.pila@oecd.org.
+            {{ t("create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-user-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org") }}
           </p>
         </div>
       </div>
@@ -53,7 +53,7 @@
 </template>
 
 <script>
-  import IconButton from './../../components/icon-button.vue'
+import IconButton from './../../components/icon-button.vue'
 
   export default {
     components: { IconButton },
@@ -70,9 +70,10 @@
         error: null
       }
     },
+
     methods: {
       t(slug) {
-        return slug //this.$store.getters.translate(slug)
+        return this.$store.getters.t(slug)
       },
       async login(provider=this.usernameProvider) {
         const { username, password } = this
@@ -92,6 +93,11 @@
     justify-content: center;
     height: 100vh;
     text-align: center;
+  }
+  #login-page-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   input {
     margin: 6px;

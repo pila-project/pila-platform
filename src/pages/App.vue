@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoaded === false">
+  <div v-if="loaded === false">
     loading...
   </div>
   <LoginMenu v-else-if="isAnonymous" />
@@ -24,13 +24,8 @@
       AccessCodeScreen
     },
     computed: {
-      isLoaded() { return this.$store.state.loaded },
-      isAnonymous() { return this.$store.getters['isAnonymous']() }
-    },
-    methods: {
-      logOut() {
-        Agent.logout()
-      }
+      loaded() { return this.$store.getters.loaded },
+      isAnonymous() { return this.$store.getters.isAnonymous() }
     }
   }
 </script>
