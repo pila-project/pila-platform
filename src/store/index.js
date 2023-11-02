@@ -52,21 +52,24 @@ export default {
     addTranslation(state, { target, value, language }) {
       if (!state.translations[language]) state.translations[language] = {}
       state.translations[language][target] = value
-    },
-    resetTranslations(state) { state.translations = {} }
+    }
   },
   actions: {
     loaded({ commit }, loaded) { commit('loaded', loaded) },
-    addTranslation({ commit }, t) { commit('addTranslation', t) },
-    async load({ commit, dispatch, state }) {
-      const language = matchNavigatorLanguage(languageChoices)
-      commit('language', language)
-      commit('resetTranslations')
 
+    addTranslation({ commit }, t) { commit('addTranslation', t) },
+
+    async fetchTranslations({ dispatch }) {
       const domain ='19188b19-bdaa-4a15-86ee-9bd442a13422.localhost:9899' 
       const translations = await Agent.query('translations', [], domain)
-      const translationPromises = translations.map(t => dispatch('addTranslation', t ))
-      await Promise.all(translationPromises)
+      const translationPromises = translations.map(t => dispatch('addTranslation', t )) //dispatch so we can await
+      return Promise.all(translationPromises)
+    },
+
+    async load({ commit, state }) {
+      const language = matchNavigatorLanguage(languageChoices)
+      commit('language', language)
+
       if (!state.user) {
         const { auth } = await Agent.environment()
         commit('load', auth)
@@ -80,6 +83,7 @@ export default {
 
       await Promise.all([
         store.dispatch('load'),
+        store.dispatch('fetchTranslations'),
         store.dispatch('pila_tags/load'),
         store.dispatch('roles/load'),
         store.dispatch('groups/load'),
