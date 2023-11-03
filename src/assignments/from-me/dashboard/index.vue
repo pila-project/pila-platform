@@ -28,7 +28,7 @@
           v-for="task in orderedTasks"
           :class="{
             'item-cell' : true,
-            'active' : userIsActive(assignee) && taskIdForNode(assigneeMapScopeStates[assignee]?.current) === task
+            'active' : userIsActive(assignee) && taskIdForNode(assigneeMapScopeStates[assignee]?.selected) === task
           }"
 
         >
