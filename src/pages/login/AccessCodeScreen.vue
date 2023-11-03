@@ -2,7 +2,7 @@
   <div style="max-width: 600px; margin: auto; position: relative; padding-top: 32px;">
     <div style="text-align: center; margin: 32px;">
       <img
-        @click="$store.dispatch('cycleLanguageAndRefetch')"
+        @click.shift="$store.dispatch('cycleLanguageAndRefetch')"
         src="/logo-green.svg" style="width: 300px;"
       />
     </div>
