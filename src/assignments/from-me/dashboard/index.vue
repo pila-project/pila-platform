@@ -15,7 +15,7 @@
     </thead>
     <tbody>
       <tr v-for="assignee in assignees">
-        <td>
+        <td @click="logAssigneeState(assignee)">
           Anonymous_{{ assignee.substr(0, 4) }}
         </td>
         <td>
@@ -174,6 +174,9 @@
       taskIdForNode(nodeId) {
         console.log('Looking for Node id', nodeId, ' in ', this.map)
         return this.map.graph.nodes[nodeId]?.taskId
+      },
+      logAssigneeState(assignee) {
+        console.log('ASSIGNEE STATE', this.assigneeMapScopeStates[assignee])
       }
     }
   }
