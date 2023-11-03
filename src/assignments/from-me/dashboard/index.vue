@@ -28,7 +28,7 @@
           v-for="task in orderedTasks"
           :class="{
             'item-cell' : true,
-            'active' : userIsActive(assignee) && assigneeMapScopeStates[assignee]?.current === task
+            'active' : userIsActive(assignee) && taskIdForNode(assigneeMapScopeStates[assignee]?.current) === task
           }"
 
         >
@@ -170,6 +170,9 @@
     methods: {
       userIsActive(user) {
         return this.now - this.lastAssigneeInteractionTimes[user] < 5000
+      },
+      taskIdForNode(nodeId) {
+        return this.map.graph[nodeId]?.taskId
       }
     }
   }
