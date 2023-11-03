@@ -1,9 +1,9 @@
 export default {
-    "enter": "20c0201f-a14d-487a-82ff-542f46cc42fb",
-    "create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-user-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org": "4f637136-2c14-4c55-ac54-bd3c394f7dfa",
-    "dont-have-an-access-code-contact-edu-pila-oecd-org-to-express-interest-in-using-pila-in-your-classroom-or-for-your-research": "7150ff35-b14b-4f48-b149-dd2bc4e095d3",
-    "log-in-with": "766e7c5e-56a0-415b-89ca-b0956445ccde",
-    "welcome-to-your-app": "99aa4f9e-3994-4bc5-b4c0-a53777ca8c47",
-    "access-code": "c2b6cd88-7d57-4893-8e1b-616ad170f874",
-    "to-create-a-teacher-or-researcher-account-please-enter-your-access-code-below": "fe45969d-b670-4ab8-a1a5-b5eaa0130e76"
+    "log-in-with": "004e72b5-69dd-415c-8abd-38db8f21510e",
+    "create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-use-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org": "03fbfc3f-e823-43b8-90ee-e4bb8d3efa1b",
+    "unused": "6f38bc4a-ef50-4f70-aad6-3b97dea4b4a9",
+    "access-code": "84431d2f-35e4-44d4-8fad-444e70970af8",
+    "dont-have-an-access-code-contact-edu-pila-oecd-org-to-express-interest-in-using-pila-in-your-classroom-or-for-your-research": "c55b617c-5d4a-485d-8fa5-a23fef1816c5",
+    "enter": "c78f7471-dc2b-4fbb-bf42-1a75eb01d695",
+    "to-create-a-teacher-or-researcher-account-please-enter-your-access-code-below": "f7364c65-874d-42ef-9dd9-6c3d859fb099"
 }
