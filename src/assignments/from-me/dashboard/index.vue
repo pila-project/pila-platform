@@ -172,7 +172,8 @@
         return this.now - this.lastAssigneeInteractionTimes[user] < 5000
       },
       taskIdForNode(nodeId) {
-        return this.map.graph[nodeId]?.taskId
+        console.log('Looking for Node id', nodeId, ' in ', this.map)
+        return this.map.graph.nodes[nodeId]?.taskId
       }
     }
   }
