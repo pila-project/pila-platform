@@ -15,7 +15,7 @@
         top: 170px;
       "
     />
-    <p>{{ t("create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-user-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org") }}</p>
+    <p>{{ t("create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-use-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org") }}</p>
     <br>
     <p>{{ t('to-create-a-teacher-or-researcher-account-please-enter-your-access-code-below') }}</p>
     <div

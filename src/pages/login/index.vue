@@ -44,7 +44,7 @@
         <img src="/mascotte.png" style="width: 92px" />
         <div>
           <p style="padding: 16px; width: 450px; text-align: left;">
-            {{ t("create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-user-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org") }}
+            {{ t("create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-use-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org") }}
           </p>
         </div>
       </div>
