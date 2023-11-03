@@ -18,13 +18,14 @@
 			     />
 				{{ spacer ? '' : name }}
 			</div>
-			<div>
+			<div @click="$store.dispatch('cycleLanguageAndRefetch')" >
 	  			Anonymous_{{ $store.state.user.slice(0, 4) }}
 	  			<br>
 	  			{{ $store.getters['roles/role']($store.state.user) }}
 	  		</div>
 			<IconButton
 	          @click="logout"
+
 	          icon="sign-out"
 	          text="log out"
 			/>
@@ -53,6 +54,7 @@
 		},
 		methods: {
 			logout() {
+				this.$store.state.codeEntered = false
 				Agent.logout()
 			}
 		}

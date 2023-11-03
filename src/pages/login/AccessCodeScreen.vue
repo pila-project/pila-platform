@@ -1,7 +1,10 @@
 <template>
   <div style="max-width: 600px; margin: auto; position: relative; padding-top: 32px;">
     <div style="text-align: center; margin: 32px;">
-      <img src="/logo-green.svg" style="width: 300px;" />
+      <img
+        @click="$store.dispatch('cycleLanguageAndRefetch')"
+        src="/logo-green.svg" style="width: 300px;"
+      />
     </div>
     <img
       src="/mascotte.png"
@@ -12,9 +15,9 @@
         top: 170px;
       "
     />
-    <p>Welcome to the OECD's Platform for Innovative Learning Assessments (PILA)!</p>
+    <p>{{ t("create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-user-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org") }}</p>
     <br>
-    <p>To create a teacher or researcher account, please enter your access code below:</p>
+    <p>{{ t('to-create-a-teacher-or-researcher-account-please-enter-your-access-code-below') }}}</p>
     <div
       style="
         background: #CCCCCC;
@@ -26,7 +29,7 @@
         justify-content: center;
       "
     >
-      <span>Access Code:</span>
+      <span>{{ t('access-code') }}</span>
       <input
         style="
           border: none;
@@ -42,19 +45,19 @@
       />
       <IconButton
         @click="submitAccessCode"
-        text="Enter"
+        :text="t('enter')"
         background="green"
+        textColor="#f7f7f7"
       />
     </div>
     <p>
-      Don't have an access code? Contact edu.pila@oecd.org to express interest in using PILA in your classroom or for your research.
+    {{ t("dont-have-an-access-code-contact-edu-pila-oecd-org-to-express-interest-in-using-pila-in-your-classroom-or-for-your-research") }}
     </p>
   </div>
 </template>
 
 <script>
   import IconButton from '../../components/icon-button.vue'
-
   export default {
     components: {
       IconButton
@@ -65,6 +68,9 @@
       }
     },
     methods: {
+      t(slug) {
+        return this.$store.getters.t(slug)
+      },
       submitAccessCode() {
         if (this.accessCode === 'ACCESS') {
           this.$store.state.codeEntered = true

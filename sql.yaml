@@ -252,6 +252,6 @@ postgres:
   crossDomainQueries:
     translations-targets:
       domains:
-        - localhost:5173
+        - 19188b19-bdaa-4a15-86ee-9bd442a13422.localhost:5173
       body: |
         SELECT target, path, id FROM translation_targets
