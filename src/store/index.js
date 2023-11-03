@@ -32,7 +32,7 @@ export default {
       const target = translationSlugMap[slug]
       const lang = state.language
       if (!target) return `slug ${slug} not in slug map`
-      if (!state.translations[lang]) return `no translations for ${lang}`
+      if (!state.translations?.[lang]) return `no translations for ${lang}`
       if (!state.translations[lang][target]) return `no translation for slug ${slug} target ${target} in lang ${lang}`
       else return state.translations[lang][target]
     }
@@ -50,6 +50,7 @@ export default {
       console.log(state.language)
     },
     addTranslation(state, { target, value, language }) {
+      if (!state.translations) state.translations = {}
       if (!state.translations[language]) state.translations[language] = {}
       state.translations[language][target] = value
     }
