@@ -1,6 +1,6 @@
 <template>
 	<div class="create-edit-class-modal">
-		<h3>Give your class a name</h3>
+		<h3>{{ t('give-your-class-a-name') }}</h3>
 		<input
 			v-if="classData"
 			class="working-class-name rounded-grey"
@@ -12,23 +12,23 @@
 		  disabled
 		 />
 
-		<h3>Select students in the class</h3>
+		<h3>{{ t('select-students-in-the-class') }}</h3>
 		<div class="filters">
 			<IconButton class="filter-button"
 				@click="filter = 'all'"
-				text="All Students"
+				:text="t('all-students')"
 				:background="filter === 'all' ? '#1b1b83' : undefined"
 				:textColor="filter === 'all' ? 'white' : '#1b1b83'"
 			/>
 			<IconButton class="filter-button"
 				@click="filter = 'members'"
-				text="Members"
+				:text="t('members')"
 				:background="filter === 'members' ? '#1b1b83' : undefined"
 				:textColor="filter === 'members' ? 'white' : '#1b1b83'"
 			/>
 			<IconButton class="filter-button"
 				@click="filter = 'non-members'"
-				text="Non-Members"
+				:text="t('non-Members')"
 				:background="filter === 'non-members' ? '#1b1b83' : undefined"
 				:textColor="filter === 'non-members' ? 'white' : '#1b1b83'"
 			/>
@@ -37,8 +37,8 @@
         <table style="width: 100%;">
           <thead>
             <tr>
-              <th style="text-align: center;">In Class</th>
-              <th style="text-align: left;">Student Name</th>
+              <th style="text-align: center;">{{ t('in-class') }}</th>
+              <th style="text-align: left;">{{ t('student-name') }}</th>
             </tr>
           </thead>
           <tbody>

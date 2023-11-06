@@ -41,6 +41,9 @@
         tab: 'roles'
       }
     },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) } 
+    },
     computed: {
       iAmAnAdmin() {
         return this.$store.getters['roles/role'](this.$store.state.user) === 'admin'

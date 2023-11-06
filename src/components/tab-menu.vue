@@ -27,7 +27,7 @@
 	          @click="logout"
 
 	          icon="sign-out"
-	          text="log out"
+	          :text="t('log-out')"
 			/>
 		</div>
 
@@ -53,6 +53,7 @@
 			current: String
 		},
 		methods: {
+			t(slug) { return this.$store.getters.t(slug) },
 			logout() {
 				this.$store.state.codeEntered = false
 				Agent.logout()

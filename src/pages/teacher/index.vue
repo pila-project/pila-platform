@@ -6,12 +6,12 @@
 
     <TabMenu
       :tabs="[
-        { name: 'MY CLASSES', background: '#2E9DF9', id:'classes', color: 'white' },
+        { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
         { spacer: true, width: 1 },
-        { name: 'ASSIGNMENTS', background: '#2E32DB', id:'assignments-from-me', color: 'white' },
-        { name: 'ITEM LIBRARY', background: '#1B1B83', id:'content', color: 'white' },
+        { name: t('assignments'), background: '#2E32DB', id:'assignments-from-me', color: 'white' },
+        { name: t('item-library'), background: '#1B1B83', id:'content', color: 'white' },
         { spacer: true, width: 1 },
-        { name: 'PILA STUDIES', background: '#6BEAC9', id:'assignments-to-me', color: 'black', icon: '/mascotte.png' }
+        { name: t('pila-studies'), background: '#6BEAC9', id:'assignments-to-me', color: 'black', icon: '/mascotte.png' }
       ]"
       :current="tab"
       @select="tab = $event"
@@ -67,6 +67,9 @@
             .map(gid => getters['groups/owner'](gid))
         )
       }
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) }
     }
   }
 </script>
