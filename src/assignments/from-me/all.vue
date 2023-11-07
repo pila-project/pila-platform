@@ -47,7 +47,7 @@
                   />
                 </span>
               </td>
-              <td :class="showArchived ? '' : 'last'">results</td>
+              <td :class="showArchived ? '' : 'last'">{{ t('results') }}</td>
               <td v-if="showArchived" class="last">
                 <span v-if="archivedIds[id]">✘</span>
               </td>

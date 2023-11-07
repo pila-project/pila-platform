@@ -122,6 +122,7 @@ export default {
     	}
     },
     methods: {
+    	t(slug) { return this.$store.getters.t(slug) },
     	handleAddRemove(e, user_id) {
     		(e.target.checked) ? this.addMember(user_id) : this.removeMember(user_id)
     	},

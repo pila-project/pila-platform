@@ -3,7 +3,7 @@
     <IconButton
       icon="plus-circle"
       @click="showAddModal = true"
-      text="Add Content"
+      :text="t('add-content')"
       background="#FFC442"
     />
     <div class="card-container">
@@ -25,7 +25,7 @@
     showCloseButton
     :closeButtonText=" showUUIDWarning || contentId === '' ? 'cancel' : 'add'"
   >
-    <template v-slot:title>Add Content By Id</template>
+    <template v-slot:title>{{ t('add-content-by-id') }}</template>
     <template v-slot:body>
       <div style="text-align: center;">
         <input
@@ -37,7 +37,7 @@
           @keydown="showUUIDWarning = false"
         />
         <div v-if="showUUIDWarning">
-          invalid id
+          {{ t('invalid-id') }}
         </div>
       </div>
     </template>
@@ -80,6 +80,7 @@
       }
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       trackContent(content_id) {
         if (isUUID(content_id)) {
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })

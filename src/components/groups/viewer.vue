@@ -133,7 +133,7 @@
     v-if="showEditClassModal"
     @close="showEditClassModal = false"
     showCloseButton
-    closeButtonText="Done"
+    :closeButtonText="t('done')"
   >
     <template v-slot:title>{{ t('create-edit-class') }}</template>
     <template v-slot:body>
@@ -196,7 +196,10 @@
       t(slug) { return this.$store.getters.t(slug) },
       async add() {
         const { type } = this
-        this.current = await this.$store.dispatch('groups/add', { name: 'New Class', type })
+        this.current = await this.$store.dispatch('groups/add',{
+          type,
+          name: this.t('new-class')
+        })
         this.showEditClassModal = true
       },
       archive(id) {
