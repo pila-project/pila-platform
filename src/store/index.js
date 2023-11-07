@@ -31,9 +31,9 @@ export default {
     t: state => slug => {
       const target = translationSlugMap[slug]
       const lang = state.language
-      if (!target) return `slug ${slug} not in slug map`
+      if (!target) return `no slug ${slug}`
       if (!state.translations?.[lang]) return `no translations for ${lang}`
-      if (!state.translations[lang][target]) return `no translation for slug ${slug} target ${target} in lang ${lang}`
+      if (!state.translations[lang][target]) return `${lang} ${slug}`
       else return state.translations[lang][target]
     }
   },
