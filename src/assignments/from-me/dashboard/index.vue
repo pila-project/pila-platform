@@ -44,11 +44,12 @@
         </tr>
       </tbody>
     </table>
-    <pre>{{ dashboardConfig }}</pre>
+    <pre><vueScopeComponent v-if="dashboardConfigId" :id="dashboardConfigId" /></pre>
   </div>
 </template>
 
 <script>
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import TaskCell from './cell-types/index.vue'
 
   export default {
@@ -56,7 +57,8 @@
       assignmentId: String
     },
     components: {
-      TaskCell
+      TaskCell,
+      vueScopeComponent
     },
     data() {
       return {
@@ -69,7 +71,7 @@
         now: Date.now(),
         lastAssigneeInteractionTimes: {},
         assigneeMapScopeStates: {},
-        dashboardConfig: null
+        dashboardConfigId: null
       }
     },
     async created() {
@@ -95,7 +97,33 @@
           this.taskData[taskId] = await Agent.state(taskId)
         })
 
-      this.dashboardConfig = await Agent.state(`dashboard-config-for-${this.assignmentId}`)
+      //  construct dashboard data acording to https://docs.knowlearning.systems/embedding/recommended-dashboard-scaffold/
+      this.dashboardConfigId = `dashboard-config-for-${this.assignmentId}`
+      const dashboardConfig = await Agent.state(this.dashboardConfigId)
+      const dcMeta = await Agent.metadata(this.dashboardConfigId)
+      if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
+
+      if (!dashboardConfig.content) dashboardConfig.content = this.assignment.content
+      if (!dashboardConfig.embedded) dashboardConfig.embedded = {}
+      if (!dashboardConfig.states) dashboardConfig.states = {}
+      dashboardConfig.users = this.$store.getters['assignments/assignedStudents'](this.assignmentId, 'teacher-to-student')
+
+      Agent
+        .query('mutated-in-context', [this.assignmentId])
+        .then(results => {
+          results
+            .filter(({ context }) => context[0] === this.assignmentId && context[1] === this.assignment.content)
+            .forEach(({ context, owner, target }) => {
+              let childReference = dashboardConfig
+              context
+                .slice(2) // start after referene to assignment content in context: [ assignmentId, mainContentId, embeddedContentId, ...]
+                .forEach(contentId => {
+                  if (!childReference.embedded[contentId]) childReference.embedded[contentId] = { embedded: {}, states: {} }
+                  childReference = childReference.embedded[contentId]
+                })
+              childReference.states[owner] = target
+            })
+        })
 
     },
     watch: {
