@@ -103,10 +103,19 @@
       const dcMeta = await Agent.metadata(this.dashboardConfigId)
       if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
 
-      if (!dashboardConfig.content) dashboardConfig.content = this.assignment.content
-      if (!dashboardConfig.embedded) dashboardConfig.embedded = {}
-      if (!dashboardConfig.states) dashboardConfig.states = {}
-      dashboardConfig.users = this.$store.getters['assignments/assignedStudents'](this.assignmentId, 'teacher-to-student')
+      if (!dashboardConfig[this.assignment.content]) {
+        dashboardConfig[this.assignment.content] = {
+          states: {},
+          embedded: {}
+        }
+      }
+
+      //  initialize states for all assigned students
+      this
+        .$store
+        .getters['assignments/assignedStudents'](this.assignmentId, 'teacher-to-student')
+        .filter(user => !dashboardConfig[this.assignment.content].states[user])
+        .filter(user => dashboardConfig[this.assignment.content].states[user] = null)
 
       Agent
         .query('mutated-in-context', [this.assignmentId])
@@ -114,14 +123,15 @@
           results
             .filter(({ context }) => context[0] === this.assignmentId && context[1] === this.assignment.content)
             .forEach(({ context, owner, target }) => {
-              let childReference = dashboardConfig
+              let embeddedReference = dashboardConfig
               context
-                .slice(2) // start after referene to assignment content in context: [ assignmentId, mainContentId, embeddedContentId, ...]
-                .forEach(contentId => {
-                  if (!childReference.embedded[contentId]) childReference.embedded[contentId] = { embedded: {}, states: {} }
-                  childReference = childReference.embedded[contentId]
+                .slice(1) // start after referene to assignment
+                .forEach((contentId, index) => {
+                  if (!embeddedReference[contentId]) embeddedReference[contentId] = { states: {}, embedded: {} }
+                  if (index < context.length - 2) embeddedReference = embeddedReference[contentId].embedded
                 })
-              childReference.states[owner] = target
+              const content = context[context.length-1]
+              embeddedReference[content].states[owner] = target
             })
         })
 
