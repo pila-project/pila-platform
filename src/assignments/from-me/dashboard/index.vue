@@ -1,48 +1,51 @@
 <template>
   <div v-if="loading">...</div>
 
-  <table v-else>
-    <thead>
-      <tr>
-        <th>
-          user
-        </th>
-        <th></th><!--placeholder for active -->
-        <th v-for="{ name } in orderedTaskData">
-          {{ name }}
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="assignee in assignees">
-        <td @click="logAssigneeState(assignee)">
-          Anonymous_{{ assignee.substr(0, 4) }}
-        </td>
-        <td>
-          <div :class="{
-            'active-status': true,
-            'active': userIsActive(assignee)
-          }"></div>
-        </td>
-        <td
-          v-for="task in orderedTasks"
-          :class="{
-            'item-cell' : true,
-            'active' : userIsActive(assignee) && taskIdForNode(assigneeMapScopeStates[assignee]?.selected) === task
-          }"
+  <div v-else>
+    <table>
+      <thead>
+        <tr>
+          <th>
+            user
+          </th>
+          <th></th><!--placeholder for active -->
+          <th v-for="{ name } in orderedTaskData">
+            {{ name }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="assignee in assignees">
+          <td @click="logAssigneeState(assignee)">
+            Anonymous_{{ assignee.substr(0, 4) }}
+          </td>
+          <td>
+            <div :class="{
+              'active-status': true,
+              'active': userIsActive(assignee)
+            }"></div>
+          </td>
+          <td
+            v-for="task in orderedTasks"
+            :class="{
+              'item-cell' : true,
+              'active' : userIsActive(assignee) && taskIdForNode(assigneeMapScopeStates[assignee]?.selected) === task
+            }"
 
-        >
-          <TaskCell
-            v-if="assigneeMapScopeStates[assignee]?.taskTimes?.[task]"
-            :task="task"
-            :scope="assigneeTasksToScopes[assignee][task]"
-            :timeOnTask="assigneeMapScopeStates[assignee].taskTimes[task]"
-          />
-          <span v-else> - </span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          >
+            <TaskCell
+              v-if="assigneeMapScopeStates[assignee]?.taskTimes?.[task]"
+              :task="task"
+              :scope="assigneeTasksToScopes[assignee][task]"
+              :timeOnTask="assigneeMapScopeStates[assignee].taskTimes[task]"
+            />
+            <span v-else> - </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <pre>{{ dashboardConfig }}</pre>
+  </div>
 </template>
 
 <script>
@@ -65,7 +68,8 @@
         users: [],
         now: Date.now(),
         lastAssigneeInteractionTimes: {},
-        assigneeMapScopeStates: {}
+        assigneeMapScopeStates: {},
+        dashboardConfig: null
       }
     },
     async created() {
@@ -90,6 +94,9 @@
         .forEach(async ({ taskId }) => {
           this.taskData[taskId] = await Agent.state(taskId)
         })
+
+      this.dashboardConfig = await Agent.state(`dashboard-config-for-${this.assignmentId}`)
+
     },
     watch: {
       assigneeMapScopes() {

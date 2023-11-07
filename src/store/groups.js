@@ -15,6 +15,15 @@ export default {
   }),
   getters: {
     groups: state => typeFilter => {
+      console.log(state.groups, state.members, typeFilter)
+      console.log(        Object
+          .entries(state.groups)
+          .filter(([_, { archived, group_type }]) => {
+            console.log('IS archived?', archived)
+            console.log('uuuuh', group_type, typeFilter)
+            return !archived && group_type === typeFilter
+          })
+          .map(([id]) => id))
       if (typeFilter) return (
         Object
           .entries(state.groups)
