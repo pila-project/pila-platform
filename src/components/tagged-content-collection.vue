@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th></th>
-        <th>Name</th>
+        <th>{{ t('name') }}</th>
         <th v-for="tag in tags" :id="tag">
           {{tag}}
         </th>
@@ -37,6 +37,9 @@
       content() {
         return this.$store.getters['pila_tags/withTag'](this.type)
       }
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) }
     }
   }
 </script>

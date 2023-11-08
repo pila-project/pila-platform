@@ -2,11 +2,11 @@
   <div v-if="$store.getters['roles/hasPermission']($store.state.user, 'researcher')">
     <TabMenu
       :tabs="[
-        { name: 'TEACHER GROUPS', background: '#2E9DF9', id:'teacher-groups', color: 'white' },
-        { name: 'CONTENT', background: '#2E32DB', id:'content', color: 'white' },
-        { name: 'FILES', background: '#1B1B83', id:'files', color: 'white' },
+        { name: t('teacher-groups'), background: '#2E9DF9', id:'teacher-groups', color: 'white' },
+        { name: t('content'), background: '#2E32DB', id:'content', color: 'white' },
+        { name: t('files'), background: '#1B1B83', id:'files', color: 'white' },
         { spacer: true, width: 1 },
-        { name: 'PILA STUDIES', background: '#6BEAC9', id:'studies', color: 'black', icon: '/mascotte.png' }
+        { name: t('pila-studies'), background: '#6BEAC9', id:'studies', color: 'black', icon: '/mascotte.png' }
       ]"
       :current="tab"
       @select="tab = $event"
@@ -59,6 +59,9 @@
       teachers() {
         return this.$store.getters['roles/usersWithRole']('teacher')
       }
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) }
     }
   }
 </script>

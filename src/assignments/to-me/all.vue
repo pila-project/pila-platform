@@ -3,9 +3,9 @@
     <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Assigner</th>
+          <th>{{ t('name') }}</th>
+          <th>{{ t('description') }}</th>
+          <th>{{ t('assigner') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -54,6 +54,7 @@
       }
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       async play(assignment_id) {
         const assignment = await Agent.state(assignment_id)
         this.playing = assignment.item_id

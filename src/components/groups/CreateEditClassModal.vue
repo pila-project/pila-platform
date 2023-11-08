@@ -28,7 +28,7 @@
 			/>
 			<IconButton class="filter-button"
 				@click="filter = 'non-members'"
-				:text="t('non-Members')"
+				:text="t('non-members')"
 				:background="filter === 'non-members' ? '#1b1b83' : undefined"
 				:textColor="filter === 'non-members' ? 'white' : '#1b1b83'"
 			/>

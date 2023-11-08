@@ -1,5 +1,5 @@
 <template>
-  <h1>Files</h1>
+  <h1>{{ t('files') }}</h1>
   <input
     ref="fileInput"
     style="display: none;"
@@ -10,7 +10,7 @@
     class="top-button"
     @click="$refs.fileInput.click()"
   >
-    Upload
+    {{ t('upload') }}
   </button>
   <TaggedContent type="file" />
 </template>
@@ -23,6 +23,7 @@
       TaggedContent
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       async uploadFile(e) {
         const file = e.target.files[0]
         const content_id = await Agent.upload(file.name, file.type, file)

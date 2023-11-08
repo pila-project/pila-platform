@@ -2,8 +2,8 @@
   <div class="tab-wrapper">
     <TabMenu
       :tabs="[
-        { name: 'ASSIGNMENTS', background: '#2E9DF9', id:'class-assignments', color: 'white' },
-        { name: 'STUDIES', background: '#2E32DB', id:'study-assignments', color: 'white' },
+        { name: t('assignments'), background: '#2E9DF9', id:'class-assignments', color: 'white' },
+        { name: t('studies'), background: '#2E32DB', id:'study-assignments', color: 'white' },
         { spacer: true, width: 1 }
       ]"
       :current="tab"
@@ -39,6 +39,9 @@
           'study-assignments': 'teacher-to-student-research'
         }[this.tab]
       }
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) }
     }
   }
 </script>

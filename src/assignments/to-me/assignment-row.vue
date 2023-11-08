@@ -9,7 +9,7 @@
     <td><vueScopeComponent :id="assignedItemId" :path="['name']" /></td>
     <td><vueScopeComponent :id="assignedItemId" :path="['description']" /></td>
     <td><UserInfo :user="assignmentMetadata.owner" /></td>
-    <td><button @click="$emit('play')">play</button></td>
+    <td><button @click="$emit('play')">{{ t('play') }}</button></td>
   </tr>
 
 </template>
@@ -38,6 +38,9 @@
       this.assignmentMetadata = await Agent.metadata(this.id)
       this.assignedItemId = this.assignment.item_id
       this.loading = false
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) }
     }
   }
 </script>
