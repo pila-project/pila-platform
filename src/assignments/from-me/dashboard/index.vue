@@ -16,7 +16,7 @@
     <tbody>
       <tr v-for="assignee in assignees">
         <td @click="logAssigneeState(assignee)">
-          Anonymous_{{ assignee.substr(0, 4) }}
+          {{ t('anonymous') }}_{{ assignee.substr(0, 4) }}
         </td>
         <td>
           <div :class="{
@@ -69,7 +69,6 @@
       }
     },
     async created() {
-      console.log('assignmentId', this.assignmentId)
       const updateNow = () => {
         this.now = Date.now()
         setTimeout(updateNow, 1000)
@@ -168,6 +167,7 @@
 
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       userIsActive(user) {
         return this.now - this.lastAssigneeInteractionTimes[user] < 5000
       },

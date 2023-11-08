@@ -19,7 +19,7 @@
 				{{ spacer ? '' : name }}
 			</div>
 			<div @click.shift="$store.dispatch('cycleLanguageAndRefetch')" >
-	  			Anonymous_{{ $store.state.user.slice(0, 4) }}
+	  			{{ t('anonymous') }}_{{ $store.state.user.slice(0, 4) }}
 	  			<br>
 	  			{{ $store.getters['roles/role']($store.state.user) }}
 	  		</div>

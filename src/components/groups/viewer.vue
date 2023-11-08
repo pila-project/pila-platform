@@ -61,7 +61,7 @@
         <div class="class-list">
           <div v-if="!possibleMembers.length">{{ t('you-currently-have-no-students') }}</div>
           <div v-for="id in possibleMembers">
-            Anonymous_{{ id.slice(0, 4) }}
+            {{ t('anonymous') }}_{{ id.slice(0, 4) }}
           </div>
         </div>
       </div>
