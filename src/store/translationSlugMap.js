@@ -53,6 +53,7 @@ export default {
     "assignment-name": "96d5f5bd-39cb-43b4-b62a-b4f4ae74607b",
     "members": "9bc15f39-7952-4b4f-b41f-87258be722c6",
     "add-content": "9ca6d784-4a17-4c94-ba63-3d37f2d8e1d8",
+    "content-alt": "9d3a53dc-983e-4843-bc92-d65c6730ea36",
     "show-archived": "a930d21d-0119-49f9-bc98-46755bf91f4f",
     "pila-studies": "adeff292-2055-4237-a0b9-e6be4e28258f",
     "archived": "b38524cc-616f-4a83-8c99-b9b1438ad916",
@@ -69,9 +70,11 @@ export default {
     "student": "e51c9583-c1ff-48ba-8a88-68eac01f089f",
     "assignment-results": "e58bbff6-bc47-4195-b45b-0aadec5b8606",
     "invalid-id": "e9a4cca2-dcb0-4ecf-a25f-8d814dc69acf",
+    "files-alt": "ebed5ed0-af1d-4888-a5a3-0303f0b45889",
     "expert-content": "ee00aef5-c413-4a48-a907-6f30f297b158",
     "last-login": "f6a24ec2-02cf-48b6-9d48-e197287a29b4",
     "to-create-a-teacher-or-researcher-account-please-enter-your-access-code-below": "f7364c65-874d-42ef-9dd9-6c3d859fb099",
     "item-library": "fa96171b-eb83-4c7b-a1d1-b4635daa413c",
+    "assignment-alt": "fac631d0-12f2-4430-96b7-20ec1138d6e5",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614"
 }

@@ -1,5 +1,5 @@
 <template>
-  <h1>{{ t('files') }}</h1>
+  <h1>{{ t('files-alt') }}</h1>
   <input
     ref="fileInput"
     style="display: none;"

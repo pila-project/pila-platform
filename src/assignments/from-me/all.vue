@@ -110,7 +110,7 @@
               <vueScopeComponent :id="current" :path="['name']" />
             </div>
             <div>
-              <h4>{{ t('content') }}</h4>
+              <h4>{{ t('content-alt') }}</h4>
               <vueScopeComponent :id="current" :path="['content', 'name']" />
               <br>
               <IconButton
