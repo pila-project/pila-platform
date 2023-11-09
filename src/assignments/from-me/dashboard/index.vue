@@ -1,51 +1,55 @@
 <template>
   <div v-if="loading">...</div>
 
-  <table v-else>
-    <thead>
-      <tr>
-        <th>
-          user
-        </th>
-        <th></th><!--placeholder for active -->
-        <th v-for="{ name } in orderedTaskData">
-          {{ name }}
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="assignee in assignees">
-        <td @click="logAssigneeState(assignee)">
-          Anonymous_{{ assignee.substr(0, 4) }}
-        </td>
-        <td>
-          <div :class="{
-            'active-status': true,
-            'active': userIsActive(assignee)
-          }"></div>
-        </td>
-        <td
-          v-for="task in orderedTasks"
-          :class="{
-            'item-cell' : true,
-            'active' : userIsActive(assignee) && taskIdForNode(assigneeMapScopeStates[assignee]?.selected) === task
-          }"
+  <div v-else>
+    <table>
+      <thead>
+        <tr>
+          <th>
+            user
+          </th>
+          <th></th><!--placeholder for active -->
+          <th v-for="{ name } in orderedTaskData">
+            {{ name }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="assignee in assignees">
+          <td @click="logAssigneeState(assignee)">
+            Anonymous_{{ assignee.substr(0, 4) }}
+          </td>
+          <td>
+            <div :class="{
+              'active-status': true,
+              'active': userIsActive(assignee)
+            }"></div>
+          </td>
+          <td
+            v-for="task in orderedTasks"
+            :class="{
+              'item-cell' : true,
+              'active' : userIsActive(assignee) && taskIdForNode(assigneeMapScopeStates[assignee]?.selected) === task
+            }"
 
-        >
-          <TaskCell
-            v-if="assigneeMapScopeStates[assignee]?.taskTimes?.[task]"
-            :task="task"
-            :scope="assigneeTasksToScopes[assignee][task]"
-            :timeOnTask="assigneeMapScopeStates[assignee].taskTimes[task]"
-          />
-          <span v-else> - </span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          >
+            <TaskCell
+              v-if="assigneeMapScopeStates[assignee]?.taskTimes?.[task]"
+              :task="task"
+              :scope="assigneeTasksToScopes[assignee][task]"
+              :timeOnTask="assigneeMapScopeStates[assignee].taskTimes[task]"
+            />
+            <span v-else> - </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <pre><vueScopeComponent v-if="dashboardConfigId" :id="dashboardConfigId" /></pre>
+  </div>
 </template>
 
 <script>
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import TaskCell from './cell-types/index.vue'
 
   export default {
@@ -53,7 +57,8 @@
       assignmentId: String
     },
     components: {
-      TaskCell
+      TaskCell,
+      vueScopeComponent
     },
     data() {
       return {
@@ -65,7 +70,8 @@
         users: [],
         now: Date.now(),
         lastAssigneeInteractionTimes: {},
-        assigneeMapScopeStates: {}
+        assigneeMapScopeStates: {},
+        dashboardConfigId: null
       }
     },
     async created() {
@@ -90,6 +96,45 @@
         .forEach(async ({ taskId }) => {
           this.taskData[taskId] = await Agent.state(taskId)
         })
+
+      //  construct dashboard data acording to https://docs.knowlearning.systems/embedding/recommended-dashboard-scaffold/
+      this.dashboardConfigId = `dashboard-config-for-${this.assignmentId}`
+      const dashboardConfig = await Agent.state(this.dashboardConfigId)
+      const dcMeta = await Agent.metadata(this.dashboardConfigId)
+      if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
+
+      if (!dashboardConfig[this.assignment.content]) {
+        dashboardConfig[this.assignment.content] = {
+          states: {},
+          embedded: {}
+        }
+      }
+
+      //  initialize states for all assigned students
+      this
+        .$store
+        .getters['assignments/assignedStudents'](this.assignmentId, 'teacher-to-student')
+        .filter(user => !dashboardConfig[this.assignment.content].states[user])
+        .filter(user => dashboardConfig[this.assignment.content].states[user] = null)
+
+      Agent
+        .query('mutated-in-context', [this.assignmentId])
+        .then(results => {
+          results
+            .filter(({ context }) => context[0] === this.assignmentId && context[1] === this.assignment.content)
+            .forEach(({ context, owner, target }) => {
+              let embeddedReference = dashboardConfig
+              context
+                .slice(1) // start after referene to assignment
+                .forEach((contentId, index) => {
+                  if (!embeddedReference[contentId]) embeddedReference[contentId] = { states: {}, embedded: {} }
+                  if (index < context.length - 2) embeddedReference = embeddedReference[contentId].embedded
+                })
+              const content = context[context.length-1]
+              embeddedReference[content].states[owner] = target
+            })
+        })
+
     },
     watch: {
       assigneeMapScopes() {
