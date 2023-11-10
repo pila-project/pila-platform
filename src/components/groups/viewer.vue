@@ -2,30 +2,30 @@
   <Splitpanes class="default-theme">
     <Pane>
       <div class="wrapper">
-        <h3 style="color: #2E32DB;">MY CLASSES</h3>
+        <h3 style="color: #2E32DB;">{{ t('my-classes') }}</h3>
         <div style="display: flex; justify-content: space-between;">
           <IconButton
             icon="plus-circle"
             background="#FFC442"
-            text="New Class"
+            :text="t('new-class')"
             @click="add"
           />
           <IconButton
             icon="link"
             background="#FFC442"
-            text="Link Students to You"
+            :text="t('link-students-to-you')"
             @click="showLinkStudentModal = !showLinkStudentModal"
           />
         </div>
         <div class="class-list">
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
-            <h3 style="color: #2E32DB;">Class Name</h3>
+            <h3 style="color: #2E32DB;">{{ t('class-name') }}</h3>
             <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
               <input v-model="showArchived" type="checkbox" id="show-archived" />
-              <label for="show-archived"><em>Show archived</em></label>
+              <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
             </div>
           </div>
-          <div v-if="!groups.length">You currently have no active classes</div>
+          <div v-if="!groups.length">{{ t('you-currently-have-no-active-classes') }}</div>
           <div v-for="id in groups"
            :class="{
               'class-select-item' : true,
@@ -36,7 +36,7 @@
             <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
           <div v-if="showArchived" style="margin-top: 40px;">
-            <h4 style="color: #888888;"><em>Archived</em></h4>
+            <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
             <div v-for="id in archivedGroups"
               @click="current = (current === id ? null : id)"
               :class="{
@@ -57,11 +57,11 @@
         </div>
         <br>
         <br>
-        <h3 style="color: #2E32DB;">MY STUDENTS</h3>
+        <h3 style="color: #2E32DB;"> {{ t('my-students') }}</h3>
         <div class="class-list">
-          <div v-if="!possibleMembers.length">You currently have no students</div>
+          <div v-if="!possibleMembers.length">{{ t('you-currently-have-no-students') }}</div>
           <div v-for="id in possibleMembers">
-            Anonymous_{{ id.slice(0, 4) }}
+            {{ t('anonymous') }}_{{ id.slice(0, 4) }}
           </div>
         </div>
       </div>
@@ -70,31 +70,31 @@
 
     <Pane v-if="current" :key="current">
       <div style="padding: 8px;">
-        <h3 style="color: #2E32DB;">CLASS DETAILS</h3>
+        <h3 style="color: #2E32DB;">{{ t('class-details') }}</h3>
         <div> <!-- ROW FOR NAME AND ICONS -->
           <h4 style="display: inline-block; margin-right: 17px;">
             <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
           </h4>
           <IconButton
-            text="Modify"
+            :text="t('modify')"
             icon="pencil"
             background="#FFC442"
             @click="showEditClassModal = !showEditClassModal"
           />
           <IconButton
             @click="archive(current)"
-            text="Archive"
+            :text="t('archive')"
             icon="archive"
             background="#ccc"
           />
         </div>
-        <h4 style="color: #2E32DB;">Students in Class:</h4>
+        <h4 style="color: #2E32DB;">{{ t('students-in-class') }}</h4>
         <table style="width: 100%;">
           <thead>
             <tr>
-              <th>Student</th>
-              <th>Last Login</th>
-              <th>Other Classes</th>
+              <th>{{ t('student') }}</th>
+              <th>{{ t('last-login') }}</th>
+              <th>{{ t('other-classes') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -124,7 +124,7 @@
     v-if="showLinkStudentModal"
     @close="showLinkStudentModal = false"
   >
-    <template v-slot:title>Add Students to Your Student List</template>
+    <template v-slot:title>{{ t('add-students-to-your-student-list') }}</template>
     <template v-slot:body>
       <LinkStudentModal />
     </template>
@@ -133,9 +133,9 @@
     v-if="showEditClassModal"
     @close="showEditClassModal = false"
     showCloseButton
-    closeButtonText="Done"
+    :closeButtonText="t('done')"
   >
-    <template v-slot:title>Create / Edit Class</template>
+    <template v-slot:title>{{ t('create-edit-class') }}</template>
     <template v-slot:body>
       <CreateEditClassModal
         :id="current"
@@ -193,9 +193,13 @@
       }
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       async add() {
         const { type } = this
-        this.current = await this.$store.dispatch('groups/add', { name: 'New Class', type })
+        this.current = await this.$store.dispatch('groups/add',{
+          type,
+          name: this.t('new-class')
+        })
         this.showEditClassModal = true
       },
       archive(id) {

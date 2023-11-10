@@ -3,7 +3,7 @@
     @close="$emit('close')"
     showCloseButton
   >
-    <template v-slot:title>Create/Modify Assignment</template>
+    <template v-slot:title>{{ t('create-modify-assignment') }}</template>
     <template v-slot:body>
       <ResearcherToTeacherAssignment
         v-if="researcher"
@@ -32,6 +32,9 @@
       id: String,
       teacher: Boolean,
       researcher: Boolean
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) }
     }
   }
 

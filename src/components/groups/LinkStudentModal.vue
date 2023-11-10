@@ -2,18 +2,18 @@
   <div class="link-student-modal">
     <div class="agreement-area">
       <span>
-        Per the PILA Personal Data Protection Notice, please check this box to confirm you have collected parental/guarding consent from your students as required by your local or national laws.
+        {{ t('per-the-pila-personal-data-protection-notice-please-check-this-box-to-confirm-you-have-collected-parental-guarding-consent-from-your-students-as-required-by-your-local-or-national-laws') }}
       </span>
       <input type="checkbox" v-model="agreed" :disabled="agreed" >
     </div>
 
     <div class="agreed" v-show="agreed">
       <div>
-        Share this link with your students:
+        {{ t('share-this-link-with-your-students') }}
         <input id="link-input" disabled :placeholder="link">
       </div>
-      <button @click="copyToClipboard">Copy Link</button>
-      <span style="color: grey; font-size: 0.8em;" v-if="clipped"><em>Link Copied</em></span>
+      <button @click="copyToClipboard">{{ t('copy-link') }}</button>
+      <span style="color: grey; font-size: 0.8em;" v-if="clipped"><em>{{ t('link-copied') }}</em></span>
     </div>
    
   </div>
@@ -38,8 +38,7 @@ export default {
     }
   },
   methods: {
-
-
+    t(slug) { return this.$store.getters.t(slug) },
     copyToClipboard() {
 
       // Create a temporary textarea element to copy text to clipboard

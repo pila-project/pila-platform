@@ -4,26 +4,26 @@
       <div class="wrapper">
         <div style="display: flex; justify-content: space-between; margin-bottom: 16px">
           <div>
-            <h3 style="display: inline-block; margin-right: 16px;">MY ASSIGNMENTS</h3>
+            <h3 style="display: inline-block; margin-right: 16px;">{{ t('my-assignments') }}</h3>
             <IconButton
               icon="plus-circle"
               @click="add"
-              text="New Assignment"
+              :text="t('new-assignment')"
               background="#FFC442"
             />
           </div>
           <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
             <input v-model="showArchived" type="checkbox" id="show-archived" />
-            <label for="show-archived"><em>Show archived</em></label>
+            <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
           </div>
         </div>
         <table class="teacher-assignments-table">
           <thead>
             <tr>
-              <th>Assignment</th>
-              <th>Classes Assigned</th>
-              <th>Results</th>
-              <th v-if="showArchived">Archived</th>
+              <th>{{ t('assignment') }}</th>
+              <th>{{ t('classes-assigned') }}</th>
+              <th>{{ t('results') }}</th>
+              <th v-if="showArchived">{{ t('archived') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -47,7 +47,7 @@
                   />
                 </span>
               </td>
-              <td :class="showArchived ? '' : 'last'">results</td>
+              <td :class="showArchived ? '' : 'last'">{{ t('results') }}</td>
               <td v-if="showArchived" class="last">
                 <span v-if="archivedIds[id]">✘</span>
               </td>
@@ -79,26 +79,26 @@
             padding-bottom: 24px;
           "
         >
-          <h3>ASSIGNMENT DETAILS</h3>
+          <h3>{{ t('assignment-details') }}</h3>
           <div>
             <IconButton
               icon="pencil"
               @click="showEditModal = true"
-              text="Modify"
+              :text="t('modify')"
               background="#FFC442"
             />
             <IconButton
               v-if="archivedIds[current]"
               icon="archive"
               @click="readd(current)"
-              text="Unarchive"
+              :text="t('unarchive')"
               background="#FFC442"
             />
             <IconButton
               v-else
               icon="archive"
               @click="remove(current)"
-              text="Archive"
+              :text="t('archive')"
               background="#AAAAAA"
             />
           </div>
@@ -106,32 +106,32 @@
         <div style="flex-grow: 1; display: flex;">
           <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <h4>Assignment Name</h4>
+              <h4>{{ t('assignment-name') }}</h4>
               <vueScopeComponent :id="current" :path="['name']" />
             </div>
             <div>
-              <h4>Content</h4>
+              <h4>{{ t('content-alt') }}</h4>
               <vueScopeComponent :id="current" :path="['content', 'name']" />
               <br>
               <IconButton
                 icon="eye"
                 @click="showPreviewModal = true"
-                text="Preview"
+                :text="t('preview')"
                 background="#FFC442"
               />
             </div>
             <div>
-              <h4>Results</h4>
+              <h4>{{ t('results') }}</h4>
               <IconButton
                 icon="dashboard"
                 @click="showResultsModal = true"
-                text="See Dashboard"
+                :text="t('see-dashboard')"
                 background="#FFC442"
               />
             </div>
           </div>
           <div style="flex-grow: 1">
-            <h4>Class Assigned</h4>
+            <h4>{{ t('class-assigned') }}</h4>
             <table>
               <tbody>
                 <tr v-for="id in assignedGroups(current)">
@@ -162,7 +162,7 @@
     showCloseButton
   >
     <template v-slot:title>
-      <span>Previewing "<vueScopeComponent :id="current" :path="['content', 'name']" />"</span>
+      <span>{{ t('previewing') }} "<vueScopeComponent :id="current" :path="['content', 'name']" />"</span>
     </template>
     <template v-slot:body>
       <div style="height: 60vh; position: relative;">
@@ -179,7 +179,7 @@
     @close="showResultsModal = false"
     showCloseButton
   >
-    <template v-slot:title>Assignment Results</template>
+    <template v-slot:title>{{ t('assignment-results') }}</template>
     <template v-slot:body>
       <Dashboard :assignmentId="current" />
     </template>
@@ -237,6 +237,7 @@
       }
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       async add() {
         const content_id = uuid()
         const assignableItem = await Agent.state(content_id)

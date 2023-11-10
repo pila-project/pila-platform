@@ -10,8 +10,11 @@ export default {
   },
   computed: {
     name() {
-      return 'Anonymous_' + this.user.substr(0, 4)
+      return this.t('anonymous') + '_' + this.user.substr(0, 4)
     }
+  },
+  methods: {
+    t(slug) { return this.$store.getters.t(slug) }
   }
 }
 

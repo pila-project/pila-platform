@@ -4,13 +4,13 @@
   </div>
   <div style="margin: 16px;" v-else>
     <div>
-      <h4>Give your assignement a name*</h4>
+      <h4>{{ t('give-your-assignment-a-name') }}</h4>
       <input
         v-model="assignment.name"
         class="rounded-grey"
         style="width: 50%;"
       />
-      <h4>Give your assignement a description</h4>
+      <h4>{{ t('give-your-assignment-a-description') }}</h4>
       <textarea
         v-model="assignment.description"
         class="rounded-grey"
@@ -20,12 +20,12 @@
     <div style="display: flex; justify-content: center;">
       <div style="display: flex; flex-direction: column;">
         <div style="margin: 8px;">
-          <h4>Select the content to assign*</h4>
+          <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
         <div style="flex-grow: 1; display: flex;">
           <div style="display: flex; flex-direction: column; margin: 8px; margin-left: 32px; margin-bottom: 16px;">
             <div>
-              <h4>Your Content</h4>
+              <h4>{{ t('your-content') }}</h4>
             </div>
             <div style="background:  rgba(107, 234, 201, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
               <div
@@ -43,7 +43,7 @@
           </div>
           <div style="display: flex; flex-direction: column; margin: 8px; margin-bottom: 16px;">
             <div>
-              <h4>Expert Content</h4>
+              <h4>{{ t('expert-content') }}</h4>
             </div>
             <div style="background: rgba(46, 157, 249, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
               <div
@@ -63,7 +63,7 @@
         </div>
       </div>
       <div style="margin: 8px;">
-        <h4>Select Classes for the Assignment*</h4>
+        <h4>{{ t('select-classes-for-the-assignment') }}*</h4>
         <GroupAssigner
           :id="id"
           :groups="$store.getters['groups/groups']('class')"
@@ -109,6 +109,9 @@
       userContent() {
         return this.$store.getters['pila_tags/withTag']('tracked')
       }
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) }
     }
   }
 
