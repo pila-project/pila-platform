@@ -3,7 +3,7 @@
     loading...
   </div>
   <LoginMenu v-else-if="isAnonymous" />
-  <AccessCodeScreen v-else-if="!$store.state.codeEntered" />
+  <AccessCodeScreen v-else-if="accessCodeRequired" />
   <div
     id="main-app"
     v-else
@@ -25,7 +25,10 @@
     },
     computed: {
       loaded() { return this.$store.getters.loaded },
-      isAnonymous() { return this.$store.getters.isAnonymous() }
+      isAnonymous() { return this.$store.getters.isAnonymous() },
+      accessCodeRequired() {
+        return !this.$store.state.codeEntered && !Agent.embedded
+      }
     }
   }
 </script>

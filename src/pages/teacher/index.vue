@@ -56,14 +56,19 @@
       AssignmentsToMe
     },
     data() {
-      const { getters, state: { user } } = this.$store
-      console.log('USER', user)
       return {
-        tab: 'classes',
-        // students are anybody who has added you to a group of type "teachers"
-        students: (
-          getters['groups/groups']('my-teachers')
-            .filter(gid => getters['groups/belongs'](user, gid))
+        tab: 'classes'
+      }
+    },
+    computed: {
+      students() {
+        // students are anybody who has added you to a group of type "my-teachers"
+        const { getters, state: { user } } = this.$store
+        return  (
+          this
+            .$store
+            .getters['groups/groups']('my-teachers')
+            .filter(gid => getters['groups/belongs'](this.$store.state.user, gid))
             .map(gid => getters['groups/owner'](gid))
         )
       }
