@@ -2,6 +2,7 @@
   <div v-if="!dashboardConfigId">...</div>
   <div v-else class="dashboard-wrapper">
     <vueEmbedComponent :id="`https://${dashboardDomain}/${dashboardConfigId}`" />
+    }
   </div>
 </template>
 
@@ -25,8 +26,8 @@
       //  construct dashboard data acording to https://docs.knowlearning.systems/embedding/recommended-dashboard-scaffold/
       this.assignment = await Agent.state(this.assignmentId)
       const dashboardConfigName = `dashboard-config-for-${this.assignmentId}`
-      const dashboardConfig = await Agent.state(this.dashboardConfigId)
-      const dcMeta = await Agent.metadata(this.dashboardConfigId)
+      const dashboardConfig = await Agent.state(dashboardConfigName)
+      const dcMeta = await Agent.metadata(dashboardConfigName)
       const acMeta = await Agent.metadata(this.assignment.content)
       if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
 
