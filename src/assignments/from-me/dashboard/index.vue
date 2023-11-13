@@ -1,8 +1,9 @@
 <template>
   <div v-if="!dashboardConfigId">...</div>
   <div v-else class="dashboard-wrapper">
-    <vueEmbedComponent :id="`https://${dashboardDomain}/${dashboardConfigId}`" />
-    }
+    <vueEmbedComponent
+      :id="`https://${dashboardDomain}/${dashboardConfigId}`"
+    />
   </div>
 </template>
 
