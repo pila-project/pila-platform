@@ -8,7 +8,10 @@
 </template>
 
 <script>
+  import { v4 as uuid } from 'uuid'
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
+
+  const POLL_INTERVAL = 2500
 
   export default {
     props: {
@@ -26,20 +29,18 @@
     async created() {
       //  construct dashboard data acording to https://docs.knowlearning.systems/embedding/recommended-dashboard-scaffold/
       this.assignment = await Agent.state(this.assignmentId)
-      const dashboardConfigName = `dashboard-config-for-${this.assignmentId}`
-      const dashboardConfig = await Agent.state(dashboardConfigName)
-      const dcMeta = await Agent.metadata(dashboardConfigName)
+      const dashboardConfigId = uuid()
+      const dashboardConfig = await Agent.state(dashboardConfigId)
+      const dcMeta = await Agent.metadata(dashboardConfigId)
       const acMeta = await Agent.metadata(this.assignment.content)
       if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
 
       this.dashboardDomain = acMeta.domain
 
-      if (!dashboardConfig[this.assignment.content]) {
-        dashboardConfig[this.assignment.content] = {
+      dashboardConfig[this.assignment.content] = {
           states: {},
           embedded: {}
         }
-      }
 
       //  initialize states for all assigned students
       this
@@ -48,27 +49,35 @@
         .filter(user => !dashboardConfig[this.assignment.content].states[user])
         .filter(user => dashboardConfig[this.assignment.content].states[user] = null)
 
-      Agent
-        .query('mutated-in-context', [this.assignmentId])
-        .then(results => {
-          results
-            .filter(({ context }) => context[0] === this.assignmentId && context[1] === this.assignment.content)
-            .forEach(({ context, owner, target }) => {
-              let embeddedReference = dashboardConfig
-              context
-                .slice(1) // start after referene to assignment
-                .forEach((contentId, index) => {
-                  if (!embeddedReference[contentId]) embeddedReference[contentId] = { states: {}, embedded: {} }
-                  if (index < context.length - 2) embeddedReference = embeddedReference[contentId].embedded
-                })
-              const content = context[context.length-1]
-              embeddedReference[content].states[owner] = target
-            })
-        })
+      const pollForContext = () => {
+        Agent
+          .query('mutated-in-context', [this.assignmentId])
+          .then(results => {
+            results
+              .filter(({ context }) => context[0] === this.assignmentId && context[1] === this.assignment.content)
+              .forEach(({ context, owner, target }) => {
+                let embeddedReference = dashboardConfig
+                context
+                  .slice(1) // start after referene to assignment
+                  .forEach((contentId, index) => {
+                    if (!embeddedReference[contentId]) embeddedReference[contentId] = { states: {}, embedded: {} }
+                    if (index < context.length - 2) embeddedReference = embeddedReference[contentId].embedded
+                  })
+                const content = context[context.length-1]
+                embeddedReference[content].states[owner] = target
+              })
+          })
+          .then(() => this.latestPollTimeout = setTimeout(pollForContext, POLL_INTERVAL))
+
+      }
+
+      pollForContext()
       
-      const md = await Agent.metadata(dashboardConfigName)
-      if (md.active_type !== 'application/json;type=dashboard-config') md.active_type = 'application/json;type=dashboard-config'
-      this.dashboardConfigId = md.id
+      if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
+      this.dashboardConfigId = dashboardConfigId
+    },
+    beforeUnmount() {
+      clearTimeout(this.latestPollTimeout)
     }
   }
 
