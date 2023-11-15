@@ -1,6 +1,6 @@
 <template>
-	<div class="create-edit-class-modal">
-		<h3>{{ t('give-your-class-a-name') }}</h3>
+	<div class="create-edit-group-modal">
+		<h3>{{ GET_TEXT.RENAME_LABEL }}</h3>
 		<input
 			v-if="classData"
 			class="working-class-name rounded-grey"
@@ -12,11 +12,11 @@
 		  disabled
 		 />
 
-		<h3>{{ t('select-students-in-the-class') }}</h3>
+		<h3>{{ GET_TEXT.MODAL_SELECT_TABLE_HEADER }}</h3>
 		<div class="filters">
 			<IconButton class="filter-button"
 				@click="filter = 'all'"
-				:text="t('all-students')"
+				:text="GET_TEXT.ALL_FILTER_TEXT"
 				:background="filter === 'all' ? '#1b1b83' : undefined"
 				:textColor="filter === 'all' ? 'white' : '#1b1b83'"
 			/>
@@ -37,8 +37,8 @@
         <table style="width: 100%;">
           <thead>
             <tr>
-              <th style="text-align: center;">{{ t('in-class') }}</th>
-              <th style="text-align: left;">{{ t('student-name') }}</th>
+              <th style="text-align: center;">{{ GET_TEXT.IN_GROUP_TEXT }}</th>
+              <th style="text-align: left;">{{ GET_TEXT.MEMBER_NAME_HEADER }}</th>
             </tr>
           </thead>
           <tbody>
@@ -78,7 +78,7 @@ import LinkStudentModal from './LinkStudentModal.vue'
 import UserInfo from '../user-info.vue'
 import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 export default {
-	name: 'create-edit-class-modal',
+	name: 'create-edit-group-modal',
 	components: {
 		IconButton,
 		LinkStudentModal,
@@ -86,6 +86,10 @@ export default {
 		vueScopeComponent
 	},
 	props: {
+		type: {
+			type: String,
+			required: true
+		},
 		possibleMembers: {
 			type: Array,
 			required: true
@@ -106,6 +110,27 @@ export default {
 		}
 	},
 	computed: {
+	  GET_TEXT() {
+      if (this.type === 'class') {
+        return {
+          RENAME_LABEL: this.t('give-your-class-a-name'),
+          MODAL_SELECT_TABLE_HEADER: this.t('select-students-in-the-class'),
+          ALL_FILTER_TEXT: this.t('all-students'),
+          IN_GROUP_TEXT: this.t('in-class'),
+          MEMBER_NAME_HEADER : this.t('student-name')
+        }
+      } else if (this.type === 'teachers') {
+        return {
+          RENAME_LABEL: this.t('give-your-group-a-name'),
+          MODAL_SELECT_TABLE_HEADER: this.t('select-teachers-in-the-group'),
+          ALL_FILTER_TEXT: this.t('all-teachers'),
+          IN_GROUP_TEXT: this.t('in-group'),
+          MEMBER_NAME_HEADER : this.t('teacher-name')
+        }
+      } else {
+        return {}
+      }
+    },
 		filteredStudentList() {
 			if (this.filter === 'all') {
 				return this.possibleMembers
@@ -140,7 +165,7 @@ export default {
 </script>
 
 <style scoped>
-.create-edit-class-modal {
+.create-edit-group-modal {
 	padding: 20px 60px;
 }
 h3 {
