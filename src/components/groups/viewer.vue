@@ -2,15 +2,16 @@
   <Splitpanes class="default-theme">
     <Pane>
       <div class="wrapper">
-        <h3 style="color: #2E32DB;">{{ t('my-classes') }}</h3>
+        <h3 style="color: #2E32DB;">{{ GET_TEXT.MAIN_HEADER }}</h3>
         <div style="display: flex; justify-content: space-between;">
           <IconButton
             icon="plus-circle"
             background="#FFC442"
-            :text="t('new-class')"
+            :text="GET_TEXT.NEW_GROUP_TEXT"
             @click="add"
           />
           <IconButton
+            v-if="type === 'class'"
             icon="link"
             background="#FFC442"
             :text="t('link-students-to-you')"
@@ -19,13 +20,13 @@
         </div>
         <div class="class-list">
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
-            <h3 style="color: #2E32DB;">{{ t('class-name') }}</h3>
+            <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
             <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
               <input v-model="showArchived" type="checkbox" id="show-archived" />
               <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
             </div>
           </div>
-          <div v-if="!groups.length">{{ t('you-currently-have-no-active-classes') }}</div>
+          <div v-if="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
           <div v-for="id in groups"
            :class="{
               'class-select-item' : true,
@@ -57,9 +58,9 @@
         </div>
         <br>
         <br>
-        <h3 style="color: #2E32DB;"> {{ t('my-students') }}</h3>
+        <h3 style="color: #2E32DB;"> {{ GET_TEXT.MEMBER_LIST_HEADER }}</h3>
         <div class="class-list">
-          <div v-if="!possibleMembers.length">{{ t('you-currently-have-no-students') }}</div>
+          <div v-if="!possibleMembers.length">{{ GET_TEXT.CURRENTLY_NO_MEMBERS }}</div>
           <div v-for="id in possibleMembers">
             {{ t('anonymous') }}_{{ id.slice(0, 4) }}
           </div>
@@ -70,7 +71,7 @@
 
     <Pane v-if="current" :key="current">
       <div style="padding: 8px;">
-        <h3 style="color: #2E32DB;">{{ t('class-details') }}</h3>
+        <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div> <!-- ROW FOR NAME AND ICONS -->
           <h4 style="display: inline-block; margin-right: 17px;">
             <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
@@ -88,13 +89,13 @@
             background="#ccc"
           />
         </div>
-        <h4 style="color: #2E32DB;">{{ t('students-in-class') }}</h4>
+        <h4 style="color: #2E32DB;">{{ GET_TEXT.TABLE_HEADER }}</h4>
         <table style="width: 100%;">
           <thead>
             <tr>
-              <th>{{ t('student') }}</th>
+              <th>{{ GET_TEXT.MEMBER_COL_HEADER }}</th>
               <th>{{ t('last-login') }}</th>
-              <th>{{ t('other-classes') }}</th>
+              <th>{{ GET_TEXT.OTHER_GROUPS_COL_HEADER }}</th>
             </tr>
           </thead>
           <tbody>
@@ -135,9 +136,10 @@
     showCloseButton
     :closeButtonText="t('done')"
   >
-    <template v-slot:title>{{ t('create-edit-class') }}</template>
+    <template v-slot:title>{{ GET_TEXT.MODAL_HEADER }}</template>
     <template v-slot:body>
-      <CreateEditClassModal
+      <CreateEditGroupModal
+        :type="type"
         :id="current"
         :possibleMembers="possibleMembers"
       />
@@ -152,7 +154,7 @@
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
   import LinkStudentModal from './LinkStudentModal.vue'
-  import CreateEditClassModal from './CreateEditClassModal.vue'
+  import CreateEditGroupModal from './CreateEditGroupModal.vue'
 
   export default {
     components: {
@@ -162,7 +164,7 @@
       IconButton,
       Pane,
       LinkStudentModal,
-      CreateEditClassModal,
+      CreateEditGroupModal,
       PILAModal
     },
     props: {
@@ -179,6 +181,39 @@
       }
     },
     computed: {
+      GET_TEXT() {
+        if (this.type === 'class') {
+          return {
+            MAIN_HEADER: this.t('my-classes'),
+            LIST_HEADER: this.t('class-name'),
+            NEW_GROUP_TEXT: this.t('new-class'),
+            MEMBER_LIST_HEADER: this.t('my-students'),
+            SIDE_HEADER: this.t('class-details'),
+            TABLE_HEADER: this.t('students-in-class'),
+            MEMBER_COL_HEADER: this.t('student'),
+            OTHER_GROUPS_COL_HEADER: this.t('other-classes'),
+            CURRENTLY_NO_MEMBERS: this.t('you-currently-have-no-students'),
+            NO_GROUPS: this.t('you-currently-have-no-active-classes'),
+            MODAL_HEADER: this.t('create-edit-class')
+          }
+        } else if (this.type === 'teachers') {
+          return {
+            MAIN_HEADER: this.t('my-teacher-groups'),
+            LIST_HEADER: this.t('group-name'),
+            NEW_GROUP_TEXT: this.t('new-group'),
+            MEMBER_LIST_HEADER: this.t('my-teachers'),
+            SIDE_HEADER: this.t('group-details'),
+            TABLE_HEADER: this.t('teachers-in-group'),
+            MEMBER_COL_HEADER: this.t('teacher'),
+            OTHER_GROUPS_COL_HEADER: this.t('other-groups'),
+            CURRENTLY_NO_MEMBERS: this.t('you-currently-have-no-teachers'),
+            NO_GROUPS: this.t('you-currently-have-no-active-groups'),
+            MODAL_HEADER: this.t('create-edit-group')
+          }
+        } else {
+          return {}
+        }
+      },
       user() {
         return this.$store.state.user
       },
@@ -198,7 +233,7 @@
         const { type } = this
         this.current = await this.$store.dispatch('groups/add',{
           type,
-          name: this.t('new-class')
+          name: this.GET_TEXT.NEW_GROUP_TEXT
         })
         this.showEditClassModal = true
       },
