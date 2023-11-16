@@ -38,6 +38,10 @@
               </td>
               <td>
                 <span
+                  v-if="assignedGroups(id).length === 0"
+                  style="color: grey; font-size: 0.9em;"
+                ><em>{{ t('no-classes-assigned') }}</em></span>
+                <span
                   v-for="groupId, index in assignedGroups(id)"
                   :key="groupId"
                 >
