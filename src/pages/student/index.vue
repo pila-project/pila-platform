@@ -2,9 +2,20 @@
   <div class="tab-wrapper">
     <TabMenu
       :tabs="[
-        { name: t('assignments'), background: '#2E9DF9', id:'class-assignments', color: 'white' },
-        { name: t('studies'), background: '#2E32DB', id:'study-assignments', color: 'white' },
-        { spacer: true, width: 1 }
+        {
+          name: t('assignments'),
+          background: '#2E9DF9',
+          id:'class-assignments',
+          color: 'white'
+        },
+        { spacer: true, width: 1 },
+        {
+          name: t('studies'),
+          background: '#6BEAC9',
+          id:'study-assignments',
+          color: 'black',
+          icon: '/mascotte.png'
+        }
       ]"
       :current="tab"
       @select="tab = $event"
