@@ -221,8 +221,10 @@ postgres:
         updated
       FROM pila_tags
       LEFT JOIN metadata md ON md.id = pila_tags.id
-      WHERE md.owner = $REQUESTER
-        AND tag_type != 'expert'
+      WHERE
+        (md.owner = $REQUESTER AND tag_type != 'expert')
+        OR
+        tag_type = 'admin-approval-request'
       UNION
       SELECT DISTINCT ON (content_id)
         pila_tags.id as id,
