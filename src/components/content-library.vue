@@ -14,7 +14,7 @@
       >
         <vueEmbedComponent
           :id="id"
-          mode="preview"
+          mode="card"
         />
       </div>
     </div>
