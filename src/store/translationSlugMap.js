@@ -42,6 +42,7 @@ export default {
     "my-classes": "585170d7-9793-42b3-ac89-1648fa20b416",
     "done": "5d5c7a94-6add-489b-b5b3-5a20c33209b4",
     "teacher-groups": "60f2b7b8-5b06-466d-9d67-7a737ebbc4c9",
+    "no-classes-assigned": "62467328-6959-40a6-bee2-de278e5e130e",
     "new-assignment": "625df420-cb5c-4c1b-9ad9-8d5751ad7723",
     "assignment": "655967af-c781-4529-8f7f-cd1f1d45054c",
     "join-teacher": "65faee03-a10b-44b9-ad5c-c1bedb2951df",
