@@ -1,24 +1,37 @@
 <template>
-  <h1>Join Teacher</h1>
-  <div v-if="joining">
-    Joining teacher... please hold...
-  </div>
-  <div v-else-if="leaving">
-    Leaving teacher... please hold...
-  </div>
-  <div v-else-if="isMyTeacher">
-    You have joined this teacher!
-    <button @click="leave">Leave</button>
-    <br>
-    <button @click="goToAssignments">Go to assignments</button>
-  </div>
-  <div v-else>
-    <button @click="join">Join</button>
-  </div>
+  <div class="join-teacher">
+    <h2 style="color: rgb(46, 50, 219); margin-bottom: 8px;">{{ t('join-teacher')}}</h2>
+    <div v-if="joining">{{ t('joining-teacher') }}</div>
+    <div v-else-if="leaving">{{ t('leaving-teacher') }}</div>
+    <div class="is-teacher" v-else-if="isMyTeacher">
+      <p>{{ t('you-have-joined-this-teacher')}}</p>
+      <IconButton
+        @click="leave"
+        :text="t('leave')"
+        icon="unlink"
+        background="#FFC442"
+      />
+      <IconButton
+        @click="goToAssignments"
+        :text="t('go-to-assignments')"
+        icon="arrow-right"
+        background="#FFC442"
+      />
+    </div>
+    <IconButton v-else
+      @click="join"
+      :text="t('join')"
+      icon="link"
+      background="#FFC442"
+    />
+</div>
 </template>
 
 <script>
+  import IconButton from '../../components/icon-button.vue'
   export default {
+    name: 'join-teacher',
+    components: { IconButton },
     data() {
       return {
         joining: false,
@@ -37,6 +50,7 @@
       }
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       async join() {
         this.joining = true
         await this.$store.dispatch(
@@ -65,3 +79,20 @@
     }
   }
 </script>
+
+<style scoped>
+  .join-teacher {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .is-teacher {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .is-teacher p {
+    margin: 12px;
+  }
+</style>
