@@ -70,7 +70,8 @@ postgres:
               WHERE t.content_id = hasAdminTag.content_id
                 AND md.owner IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                '0c9c64fc-559e-40d4-916b-852f6d108a17'
+                '0c9c64fc-559e-40d4-916b-852f6d108a17',
+                '25de1f29-28b4-44bd-9942-9f60f1f92447'
               )
                 AND t.tag_type = hasAdminTag.tag_type
               ORDER BY t.content_id, md.updated DESC
@@ -109,27 +110,33 @@ postgres:
                 LEFT JOIN metadata m2 ON ra2.id = m2.id
                 WHERE m2.owner IN (
                   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                  '0c9c64fc-559e-40d4-916b-852f6d108a17'
+                  '0c9c64fc-559e-40d4-916b-852f6d108a17',
+                  '25de1f29-28b4-44bd-9942-9f60f1f92447'
                 )
                 GROUP BY ra2.assignee
               )
               AND m.owner IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                '0c9c64fc-559e-40d4-916b-852f6d108a17'
+                '0c9c64fc-559e-40d4-916b-852f6d108a17',
+                '25de1f29-28b4-44bd-9942-9f60f1f92447'
               )
               AND (
                 requester_id IN (
                   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                  '0c9c64fc-559e-40d4-916b-852f6d108a17'
+                  '0c9c64fc-559e-40d4-916b-852f6d108a17',
+                  '25de1f29-28b4-44bd-9942-9f60f1f92447'
                 )
                 OR ra.assignee = requester_id
               )
               AND NOT ra.assignee IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-                '0c9c64fc-559e-40d4-916b-852f6d108a17'
+                '0c9c64fc-559e-40d4-916b-852f6d108a17',
+                '25de1f29-28b4-44bd-9942-9f60f1f92447'
               )
             UNION SELECT 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT '0c9c64fc-559e-40d4-916b-852f6d108a17', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+            UNION SELECT '25de1f29-28b4-44bd-9942-9f60f1f92447', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+
           ;
         END;
   scopes:
@@ -144,7 +151,8 @@ postgres:
         ON metadata.id = role_requests.id
       WHERE $REQUESTER IN (
           'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-          '0c9c64fc-559e-40d4-916b-852f6d108a17'
+          '0c9c64fc-559e-40d4-916b-852f6d108a17',
+          '25de1f29-28b4-44bd-9942-9f60f1f92447'
         )
         OR metadata.owner = $REQUESTER
     # all groups a user owns, or has been put in
@@ -229,7 +237,8 @@ postgres:
           AND
           $REQUESTER IN (
             'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-            '0c9c64fc-559e-40d4-916b-852f6d108a17'
+            '0c9c64fc-559e-40d4-916b-852f6d108a17',
+            '25de1f29-28b4-44bd-9942-9f60f1f92447'
           )
         )
       UNION
@@ -244,7 +253,8 @@ postgres:
       LEFT JOIN metadata md ON md.id = pila_tags.id
       WHERE md.owner IN (
           'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-          '0c9c64fc-559e-40d4-916b-852f6d108a17'
+          '0c9c64fc-559e-40d4-916b-852f6d108a17',
+          '25de1f29-28b4-44bd-9942-9f60f1f92447'
         )
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
@@ -258,9 +268,4 @@ postgres:
       WHERE
         $1 = ANY(context)
         AND tag_type = 'mutated'
-  crossDomainQueries:
-    translations-targets:
-      domains:
-        - 19188b19-bdaa-4a15-86ee-9bd442a13422.localhost:5173
-      body: |
-        SELECT target, path, id FROM translation_targets
+        
