@@ -74,6 +74,7 @@ export default {
     "assignment-name": "96d5f5bd-39cb-43b4-b62a-b4f4ae74607b",
     "members": "9bc15f39-7952-4b4f-b41f-87258be722c6",
     "add-content": "9ca6d784-4a17-4c94-ba63-3d37f2d8e1d8",
+    "invalid-access-code": "9cb54683-edcc-4fda-92f2-88b06bb32d13",
     "content-alt": "9d3a53dc-983e-4843-bc92-d65c6730ea36",
     "other-groups": "9e541dd7-f02e-4c76-8eea-a8364daf9cc0",
     "show-archived": "a930d21d-0119-49f9-bc98-46755bf91f4f",
