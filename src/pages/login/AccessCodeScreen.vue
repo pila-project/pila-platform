@@ -75,7 +75,7 @@
         if (this.accessCode === 'ACCESS') {
           this.$store.state.codeEntered = true
         }
-        else alert('GO TO HELL!')
+        else alert( this.t('invalid-access-code') )
       }
     }
   }
