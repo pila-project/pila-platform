@@ -16,6 +16,7 @@
           :id="id"
           mode="card"
         />
+        <CardIconsBar />
       </div>
     </div>
   </div>
@@ -47,6 +48,7 @@
 <script>
   import TaggedContent from './tagged-content-collection.vue'
   import IconButton from './icon-button.vue'
+  import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
@@ -58,6 +60,7 @@
     components: {
       TaggedContent,
       PILAModal,
+      CardIconsBar,
       IconButton,
       vueScopeComponent,
       vueEmbedComponent
@@ -104,6 +107,9 @@
   }
 
   .card {
+    display: grid;
+    grid-template-rows: 5fr 1fr;
+    grid-template-columns: 1fr;
     border: 2px solid #ccc;
     width: 33%;
     max-width: 256px;
@@ -115,5 +121,8 @@
     max-width: 300px;
     overflow: hidden;
     position: relative;
+  }
+  card.bottom {
+    color: pink;
   }
 </style>
