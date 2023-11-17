@@ -224,7 +224,14 @@ postgres:
       WHERE
         (md.owner = $REQUESTER AND tag_type != 'expert')
         OR
-        tag_type = 'admin-approval-request'
+        (
+          tag_type = 'admin-approval-request'
+          AND
+          $REQUESTER IN (
+            'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
+            '0c9c64fc-559e-40d4-916b-852f6d108a17'
+          )
+        )
       UNION
       SELECT DISTINCT ON (content_id)
         pila_tags.id as id,
