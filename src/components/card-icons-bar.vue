@@ -1,32 +1,32 @@
 <template>
 <div class="icons">
-  
 
-
-
-  <div class="icon-wrapper" @click="isExpert = !isExpert">
-	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 121" class="pila-svg"
-		:fill="isExpert ? '#2E31DB' : 'grey' ">
-	  <path d="M13.5 120c7.456 0 13.5-6.044 13.5-13.5v-62c0-7.352-5.877-13.332-13.19-13.497L13.5 31C6.044 31 0 37.044 0 44.5v62c0 7.456 6.044 13.5 13.5 13.5z">
-	  </path>
-	  <circle cx="44.5" cy="44.5" r="44.5"></circle>
-	</svg>
+  <div v-if="isAdmin"
+    class="icon-wrapper"
+    @click="toggleExpertStatus"
+  >
+  	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 121" class="pila-svg"
+  		:fill="isExpertTask ? '#2E31DB' : 'grey' ">
+  	  <path d="M13.5 120c7.456 0 13.5-6.044 13.5-13.5v-62c0-7.352-5.877-13.332-13.19-13.497L13.5 31C6.044 31 0 37.044 0 44.5v62c0 7.456 6.044 13.5 13.5 13.5z">
+  	  </path>
+  	  <circle cx="44.5" cy="44.5" r="44.5"></circle>
+  	</svg>
   </div>
 
 
-  <div class="icon-wrapper" @click="$emit('preview')">
+  <div class="icon-wrapper" @click="preview">
     <svg fill="grey" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
     </svg>
   </div>
-  <div class="icon-wrapper" @click="$emit('handleEditRequest')">
+  <div class="icon-wrapper" @click="edit">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="grey">
       <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
     </svg>
   </div>
 
   <!-- UNUSED "FAVORITE" BUTTONS
-  <div class="icon-wrapper" @click="$emit('toggleFavorite')">
+  <div class="icon-wrapper" @click="toggleFavorite">
     <svg v-if="favorite" fill="red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
     </svg>
@@ -42,15 +42,31 @@
 export default {
 	name: 'card-icons-bar',
 	props: {
-		showExpertToggle: {
-			type: Boolean,
-			required: false,
-			default: false
-		}
+    id: {
+      type: String,
+      required: true,
+    }
 	},
-	data: () => ({
-		isExpert: false
-	})
+  computed: {
+    isExpertTask() {
+      return this.$store.getters['pila_tags/hasTag'](this.id, 'expert')
+    },
+    isAdmin() {
+      const user = this.$store.getters.user()
+      const role = this.$store.getters['roles/role'](user)
+      return role === 'admin'
+    }
+  },
+  methods: {
+    toggleExpertStatus() {
+      const tag = {
+        content_id : this.id,
+        tag_type: 'expert'
+      }
+      if (this.isExpertTask) this.$store.dispatch('pila_tags/untag', tag)
+      else this.$store.dispatch('pila_tags/tag', tag)
+    }
+  }
 }
 </script>
 

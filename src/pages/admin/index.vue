@@ -12,10 +12,7 @@
     />
 
     <AdminRoleManager v-if="tab === 'roles'" />
-    <ContentLibrary
-      v-else-if="tab === 'content'"
-      :header_tag_types="['expert']"
-    />
+    <ContentLibrary v-else-if="tab === 'content'" />
     <AdminStudyManager v-else-if="tab === 'studies'" />
   </div>
   <div v-else>

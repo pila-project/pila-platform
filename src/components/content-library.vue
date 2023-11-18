@@ -16,7 +16,7 @@
           :id="id"
           mode="card"
         />
-        <CardIconsBar />
+        <CardIconsBar :id="id" />
       </div>
     </div>
   </div>
@@ -54,9 +54,6 @@
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
   export default {
-    props: {
-      header_tag_types: Array
-    },
     components: {
       TaggedContent,
       PILAModal,
@@ -73,10 +70,9 @@
     },
     computed: {
       content() {
-        return [
-          ...this.$store.getters['pila_tags/withTag']('expert'),
-          ...this.$store.getters['pila_tags/withTag']('tracked')
-        ]
+        const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
+        const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
+        return Array.from( new Set([...expert, ...tracked]) )
       },
       showUUIDWarning() {
         return this.contentId !== '' && !isUUID(this.contentId)
