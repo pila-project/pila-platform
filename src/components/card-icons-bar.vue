@@ -5,8 +5,12 @@
     class="icon-wrapper"
     @click="toggleExpertStatus"
   >
-  	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 121" class="pila-svg"
-  		:fill="isExpertTask ? '#2E31DB' : 'grey' ">
+  	<svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 90 121"
+      class="pila-svg"
+  		:fill="isExpertTask ? '#2E31DB' : 'grey' "
+    >
   	  <path d="M13.5 120c7.456 0 13.5-6.044 13.5-13.5v-62c0-7.352-5.877-13.332-13.19-13.497L13.5 31C6.044 31 0 37.044 0 44.5v62c0 7.456 6.044 13.5 13.5 13.5z">
   	  </path>
   	  <circle cx="44.5" cy="44.5" r="44.5"></circle>

@@ -16,7 +16,7 @@
           :id="id"
           mode="card"
         />
-        <CardIconsBar :id="id" />
+        <CardIconsBar :id="id" :key="`icon-bar-for-${id}`" />
       </div>
     </div>
   </div>
@@ -72,7 +72,7 @@
       content() {
         const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
         const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
-        return Array.from( new Set([...expert, ...tracked]) )
+        return Array.from( new Set([...expert, ...tracked]) ).sort()
       },
       showUUIDWarning() {
         return this.contentId !== '' && !isUUID(this.contentId)

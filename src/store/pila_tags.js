@@ -35,7 +35,7 @@ export default {
     hasTag: state => (content_id, type) => (
       Object
         .values(state)
-        .some(({ tag_type, archived }) => tag_type === type && !archived && content_id === content_id )
+        .some(({ tag_type, content_id : cid, archived }) => tag_type === type && !archived && content_id === cid )
     )
   },
   mutations: {
