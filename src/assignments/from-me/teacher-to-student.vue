@@ -117,7 +117,7 @@
 
 </script>
 
-<style>
+<style scoped>
   .content-entry
   {
     padding: 4px 8px;
