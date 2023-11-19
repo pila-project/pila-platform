@@ -96,6 +96,7 @@ export default {
     "my-students": "d08bf035-89ac-4951-ab10-fd5fdc34d461",
     "create-edit-group": "dbe26871-de3b-476c-8329-3800dd471c1d",
     "studies": "e0d96928-e89e-44f0-90ac-a47b6f912406",
+    "you-will-be-able-to-participate-in-research-studies-on-pila-soon-check-back-in-a-few-months": "e13cfb2f-6ba7-4dbd-9710-9d7c3134398a",
     "student": "e51c9583-c1ff-48ba-8a88-68eac01f089f",
     "assignment-results": "e58bbff6-bc47-4195-b45b-0aadec5b8606",
     "invalid-id": "e9a4cca2-dcb0-4ecf-a25f-8d814dc69acf",
