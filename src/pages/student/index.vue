@@ -23,24 +23,33 @@
   </div>
 
   <div>
-    <AssignmentsToMe
+    <StudiesNotAvailable
+      v-if="tab === 'study-assignments' && hideStudies"
+      @showStudies="hideStudies = false"
+    />
+    <AssignmentsToMe v-else
       :key="tab"
       :type="assignmentType"
     />
+    <!-- TODO Remove Button -->
+    <button v-if="!hideStudies" @click="hideStudies = true">Temp for Dev Only -- Re-Hide Studies Page</button>
   </div>
 </template>
 
 <script>
   import AssignmentsToMe from '../../assignments/to-me/all.vue'
   import TabMenu from '../../components/tab-menu.vue'
+  import StudiesNotAvailable from '../../components/studies-not-available.vue'
   export default {
     components: {
       AssignmentsToMe,
-      TabMenu
+      TabMenu,
+      StudiesNotAvailable
     },
     data() {
       return {
-        tab: 'class-assignments'
+        tab: 'class-assignments',
+        hideStudies: true, // TODO Remove After Demo
       }
     },
     computed: {

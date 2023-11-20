@@ -30,10 +30,19 @@
       assignable_item_type="teacher-created"
       assignment_type="teacher-to-student"
     />
+    <StudiesNotAvailable
+      v-if="tab === 'assignments-to-me' && hideStudies"
+      @showStudies="hideStudies = false"
+    />
     <AssignmentsToMe
-      v-if="tab === 'assignments-to-me'"
+      v-else-if="tab === 'assignments-to-me'"
       type="researcher-to-teacher"
     />
+    <button
+      v-if="tab === 'assignments-to-me' && !hideStudies"
+      @click="hideStudies = true"
+      style="margin-top: 200px; width: 200px; align-self: center;"
+    >Temp for Dev Only, Re-Hide Studies</button>
   </div>
   <RoleRequester v-else role="teacher" />
 </template>
@@ -45,6 +54,7 @@
   import ContentLibrary from '../../components/content-library.vue'
   import AssignmentsToMe from '../../assignments/to-me/all.vue'
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
+  import StudiesNotAvailable from '../../components/studies-not-available.vue'
 
   export default {
     components: {
@@ -53,11 +63,13 @@
       RoleRequester,
       AssignmentsFromMe,
       TabMenu,
-      AssignmentsToMe
+      AssignmentsToMe,
+      StudiesNotAvailable
     },
     data() {
       return {
-        tab: 'classes'
+        tab: 'classes',
+        hideStudies: true // TODO Remove after Demo
       }
     },
     computed: {
