@@ -16,6 +16,11 @@
           :id="id"
           mode="card"
         />
+        <CardIconsBar
+          :id="id"
+          :key="`icon-bar-for-${id}`"
+          :showEdit="false"
+        />
       </div>
     </div>
   </div>
@@ -47,17 +52,16 @@
 <script>
   import TaggedContent from './tagged-content-collection.vue'
   import IconButton from './icon-button.vue'
+  import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
   export default {
-    props: {
-      header_tag_types: Array
-    },
     components: {
       TaggedContent,
       PILAModal,
+      CardIconsBar,
       IconButton,
       vueScopeComponent,
       vueEmbedComponent
@@ -70,10 +74,9 @@
     },
     computed: {
       content() {
-        return [
-          ...this.$store.getters['pila_tags/withTag']('expert'),
-          ...this.$store.getters['pila_tags/withTag']('tracked')
-        ]
+        const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
+        const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
+        return Array.from( new Set([...expert, ...tracked]) ).sort()
       },
       showUUIDWarning() {
         return this.contentId !== '' && !isUUID(this.contentId)
@@ -104,6 +107,9 @@
   }
 
   .card {
+    display: grid;
+    grid-template-rows: 5fr 1fr;
+    grid-template-columns: 1fr;
     border: 2px solid #ccc;
     width: 33%;
     max-width: 256px;
@@ -115,5 +121,8 @@
     max-width: 300px;
     overflow: hidden;
     position: relative;
+  }
+  card.bottom {
+    color: pink;
   }
 </style>
