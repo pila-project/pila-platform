@@ -16,7 +16,11 @@
           :id="id"
           mode="card"
         />
-        <CardIconsBar :id="id" :key="`icon-bar-for-${id}`" />
+        <CardIconsBar
+          :id="id"
+          :key="`icon-bar-for-${id}`"
+          :showEdit="false"
+        />
       </div>
     </div>
   </div>
