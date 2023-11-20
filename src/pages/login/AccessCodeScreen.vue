@@ -72,7 +72,8 @@
         return this.$store.getters.t(slug)
       },
       submitAccessCode() {
-        if (this.accessCode === 'ACCESS') {
+        const CODE_LIST = [ 'ACCESS', 'PILA23' ]
+        if (CODE_LIST.includes(this.accessCode)) {
           this.$store.state.codeEntered = true
         }
         else alert( this.t('invalid-access-code') )
