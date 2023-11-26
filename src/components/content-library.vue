@@ -40,7 +40,7 @@
           style="width: 50%; text-align: center;"
           type="text"
           class="rounded-grey"
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          placeholder="content code OR url"
           v-model="contentId"
           @keydown="showUUIDWarning = false"
         />
@@ -66,6 +66,16 @@
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
+  function isURL(s) {
+    try {
+      const url = new URL(s)
+      return true
+    } catch (error) {
+      console.log(error)
+      return false
+    }
+  }
+
   export default {
     components: {
       TaggedContent,
@@ -90,15 +100,14 @@
         return Array.from( new Set([...expert, ...tracked]) ).sort()
       },
       showUUIDWarning() {
-        return this.contentId !== '' && !isUUID(this.contentId)
+        console.log('IS URL????', isURL(this.contentId))
+        return this.contentId !== '' && !isUUID(this.contentId) && !isURL(this.contentId)
       }
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
       trackContent(content_id) {
-        if (isUUID(content_id)) {
-          this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
-        }
+        this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         this.showAddModal = false
       },
       remove(content_id) {
