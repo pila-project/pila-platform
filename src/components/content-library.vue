@@ -21,7 +21,7 @@
           :key="`icon-bar-for-${id}`"
           :showEdit="false"
           showRemove
-          @preview="preview(id)"
+          @preview="previewing = id"
           @remove="remove(id)"
         />
       </div>
@@ -50,6 +50,11 @@
       </div>
     </template>
   </PILAModal>
+  <PreviewModal
+    v-if="previewing"
+    :id="previewing"
+    @close="previewing = null"
+  />
 </template>
 
 <script>
@@ -57,6 +62,7 @@
   import IconButton from './icon-button.vue'
   import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
+  import PreviewModal from './PreviewModal.vue'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
@@ -64,6 +70,7 @@
     components: {
       TaggedContent,
       PILAModal,
+      PreviewModal,
       CardIconsBar,
       IconButton,
       vueScopeComponent,
@@ -72,7 +79,8 @@
     data() {
       return {
         contentId: '',
-        showAddModal: false
+        showAddModal: false,
+        previewing: null
       }
     },
     computed: {
@@ -92,9 +100,6 @@
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         }
         this.showAddModal = false
-      },
-      preview(id) {
-
       },
       remove(content_id) {
         this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
