@@ -20,6 +20,9 @@
           :id="id"
           :key="`icon-bar-for-${id}`"
           :showEdit="false"
+          showRemove
+          @preview="preview(id)"
+          @remove="remove(id)"
         />
       </div>
     </div>
@@ -89,6 +92,12 @@
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         }
         this.showAddModal = false
+      },
+      preview(id) {
+
+      },
+      remove(content_id) {
+        this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
       }
     }
   }
