@@ -12,6 +12,12 @@
         :key="id"
         class="card"
       >
+        <div
+          v-if="URL_CONTENT_DATA[id]"
+          class="content-name"
+        >
+          {{ URL_CONTENT_DATA[id].name }}
+        </div>
         <div class="preview-image">
           <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
           <img v-else-if="isBettyLink(id)" src="/betty.png" />
@@ -70,6 +76,7 @@
   import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
   import PreviewModal from './PreviewModal.vue'
+  import URL_CONTENT_DATA from '../url-content-data.js'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
@@ -108,6 +115,9 @@
       },
       showUUIDWarning() {
         return this.contentId !== '' && !isUUID(this.contentId) && !isURL(this.contentId)
+      },
+      URL_CONTENT_DATA() {
+        return URL_CONTENT_DATA
       }
     },
     methods: {
@@ -170,7 +180,17 @@
   .preview-image > img
   {
     position: absolute;
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 80%;
+    max-height: 80%;
+  }
+  .content-name
+  {
+    display: block;
+    color: #5d5d5d;
+    font-size: 1.25em;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 8px;
   }
 </style>
