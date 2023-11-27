@@ -119,7 +119,7 @@
               <br>
               <IconButton
                 icon="eye"
-                @click="showPreviewModal = true"
+                @click="preview(current)"
                 :text="t('preview')"
                 background="#FFC442"
               />
@@ -161,9 +161,9 @@
     :id="current"
   />
   <PreviewModal
-    v-if="showPreviewModal"
-    :id="current"
-    @close="showPreviewModal = false"
+    v-if="previewing"
+    :id="previewing"
+    @close="previewing = null"
   />
   <PILAModal
     v-if="showResultsModal"
@@ -209,7 +209,7 @@
         current: null,
         showEditModal: false,
         showArchived: false,
-        showPreviewModal: false,
+        previewing: null,
         showResultsModal: false
       }
     },
@@ -248,6 +248,10 @@
       },
       assignedGroups(id) {
         return this.$store.getters['assignments/assignedGroups'](id, this.assignment_type)
+      },
+      async preview(id) {
+        const { content } = await Agent.state(this.current)
+        this.previewing = content
       }
     }
   }

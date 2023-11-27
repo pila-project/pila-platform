@@ -76,14 +76,12 @@
 import IconButton from '../icon-button.vue'
 import LinkStudentModal from './LinkStudentModal.vue'
 import UserInfo from '../user-info.vue'
-import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 export default {
 	name: 'create-edit-group-modal',
 	components: {
 		IconButton,
 		LinkStudentModal,
-		UserInfo,
-		vueScopeComponent
+		UserInfo
 	},
 	props: {
 		type: {

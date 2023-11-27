@@ -4,7 +4,7 @@
     showCloseButton
   >
     <template v-slot:title>
-      <span>{{ t('previewing') }} "<vueScopeComponent :id="id" :path="['content', 'name']" />"</span>
+      <span>{{ t('previewing') }} "<vueScopeComponent :id="id" :path="['name']" />"</span>
     </template>
     <template v-slot:body>
       <div style="height: 60vh; position: relative;">
