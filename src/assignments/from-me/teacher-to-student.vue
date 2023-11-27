@@ -55,7 +55,10 @@
                 }"
                 @click="assignment.content = id"
               >
-                <vueScopeComponent :id="id" :path="['name']" />
+                <span v-if="URL_CONTENT_DATA[id]">
+                  {{ URL_CONTENT_DATA[id].name }}
+                </span>
+                <vueScopeComponent v-else :id="id" :path="['name']" />
               </div>
             </div>
           </div>
@@ -76,9 +79,10 @@
 
 <script>
   import { v4 as uuid, validate as isUUID } from 'uuid'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import URL_CONTENT_DATA from '../../url-content-data.js'
 
   export default {
     props: {
@@ -108,6 +112,9 @@
       },
       userContent() {
         return this.$store.getters['pila_tags/withTag']('tracked')
+      },
+      URL_CONTENT_DATA() {
+        return URL_CONTENT_DATA
       }
     },
     methods: {

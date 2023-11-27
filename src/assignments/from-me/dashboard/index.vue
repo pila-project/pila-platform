@@ -76,7 +76,7 @@
       if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
 
       if (this.assignment.content.startsWith('https://bettysbrain.knowlearning.systems/')) {
-        const moduleName = this.assignment.content.split('/')[4]
+        const moduleName = this.assignment.content.split('/')[4].split('?')[0]
         this.dashboardReference = `https://bettysbrain-dashboard.knowlearning.systems/bb-dash/${moduleName}/OverviewView?dashboard-config=${dashboardConfigId}`
       }
       else if (this.assignment.content.startsWith('https://pila.cand.li/')) {

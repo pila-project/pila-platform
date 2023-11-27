@@ -1,3 +1,5 @@
+import URL_CONTENT_DATA from '../url-content-data.js'
+
 function existing_tag(state, content_id, tag_type, user) {
   let existing = null
   const entries = Object.entries(state)
@@ -15,15 +17,7 @@ function existing_tag(state, content_id, tag_type, user) {
   return existing
 }
 
-const hardCodedExpertIds = [
-  'https://pila.cand.li/pila.html?tutorial',
-  'https://pila.cand.li/pila.html?level1',
-  'https://pila.cand.li/pila.html?level2',
-  'https://pila.cand.li/pila.html?level3',
-  'https://bettysbrain.knowlearning.systems/bb/practice',
-  'https://bettysbrain.knowlearning.systems/bb/climate-change',
-  'https://bettysbrain.knowlearning.systems/bb/thermoregulation',
-]
+const hardCodedExpertIds = Object.keys(URL_CONTENT_DATA)
 
 export default {
   scope: null,
@@ -48,11 +42,15 @@ export default {
         .filter(({ tag_type, archived }) => tag_type === type && archived )
         .map(({ content_id }) => content_id)
     ),
-    hasTag: state => (content_id, type) => (
-      Object
-        .values(state)
-        .some(({ tag_type, content_id : cid, archived }) => tag_type === type && !archived && content_id === cid )
-    )
+    hasTag: state => (content_id, type) => {
+      if (type === 'expert' && hardCodedExpertIds.includes(content_id)) return true
+
+      return (
+        Object
+          .values(state)
+          .some(({ tag_type, content_id : cid, archived }) => tag_type === type && !archived && content_id === cid )
+        )
+    }
   },
   mutations: {
     add(state, { id, content_id, tag_type, user_id, updated, archived }) {
