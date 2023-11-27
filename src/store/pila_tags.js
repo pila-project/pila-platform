@@ -42,11 +42,15 @@ export default {
         .filter(({ tag_type, archived }) => tag_type === type && archived )
         .map(({ content_id }) => content_id)
     ),
-    hasTag: state => (content_id, type) => (
-      Object
-        .values(state)
-        .some(({ tag_type, content_id : cid, archived }) => tag_type === type && !archived && content_id === cid )
-    )
+    hasTag: state => (content_id, type) => {
+      if (type === 'expert' && hardCodedExpertIds.includes(content_id)) return true
+
+      return (
+        Object
+          .values(state)
+          .some(({ tag_type, content_id : cid, archived }) => tag_type === type && !archived && content_id === cid )
+        )
+    }
   },
   mutations: {
     add(state, { id, content_id, tag_type, user_id, updated, archived }) {
