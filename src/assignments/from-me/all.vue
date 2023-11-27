@@ -115,8 +115,6 @@
             </div>
             <div>
               <h4>{{ t('content-alt') }}</h4>
-              <vueScopeComponent :id="current" :path="['content', 'name']" />
-              <br>
               <IconButton
                 icon="eye"
                 @click="preview(current)"
