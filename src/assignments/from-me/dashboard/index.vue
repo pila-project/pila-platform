@@ -1,9 +1,7 @@
 <template>
-  <div v-if="!dashboardConfigId">...</div>
+  <div v-if="!dashboardReference">...</div>
   <div v-else class="dashboard-wrapper">
-    <vueEmbedComponent
-      :id="`https://${dashboardDomain}/${dashboardConfigId}`"
-    />
+    <vueEmbedComponent :id="dashboardReference" />
   </div>
 </template>
 
@@ -22,8 +20,8 @@
     },
     data() {
       return {
-        dashboardDomain: null,
-        dashboardConfigId: null
+        dashboardReference: null,
+        noContent: false
       }
     },
     async created() {
@@ -32,15 +30,17 @@
       const dashboardConfigId = uuid()
       const dashboardConfig = await Agent.state(dashboardConfigId)
       const dcMeta = await Agent.metadata(dashboardConfigId)
-      const acMeta = await Agent.metadata(this.assignment.content)
       if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
 
-      this.dashboardDomain = acMeta.domain
+      if (!this.assignment.content) {
+        this.noContent = true
+        return
+      }
 
       dashboardConfig[this.assignment.content] = {
-          states: {},
-          embedded: {}
-        }
+        states: {},
+        embedded: {}
+      }
 
       //  initialize states for all assigned students
       this
@@ -74,7 +74,18 @@
       pollForContext()
       
       if (dcMeta.active_type !== 'application/json;type=dashboard-config') dcMeta.active_type = 'application/json;type=dashboard-config'
-      this.dashboardConfigId = dashboardConfigId
+
+      if (this.assignment.content.startsWith('https://bettysbrain.knowlearning.systems/')) {
+        const moduleName = this.assignment.content.split('/')[4]
+        this.dashboardReference = `https://bettysbrain-dashboard.knowlearning.systems/bb-dash/${moduleName}/OverviewView?dashboard-config=${dashboardConfigId}`
+      }
+      else if (this.assignment.content.startsWith('https://pila.cand.li/')) {
+        this.dashboardReference = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${dashboardConfigId}`
+      }
+      else {
+        this.dashboardReference = `https://the-karel-project.netlify.app/${dashboardConfigId}`
+      }
+
     },
     beforeUnmount() {
       clearTimeout(this.latestPollTimeout)

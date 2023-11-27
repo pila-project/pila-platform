@@ -11,10 +11,13 @@
     <div v-else></div> <!-- placeholder -->
 
     <div class="icons">
-      <div class="icon-wrapper" v-if="showPreview" @click="preview">
+      <div class="icon-wrapper" v-if="showPreview" @click="$emit('preview')">
         <svg fill="grey" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
         </svg>
+      </div>
+      <div class="icon-wrapper" v-if="showRemove && !isExpertTask" @click="$emit('remove')">
+        X
       </div>
       <div class="icon-wrapper" v-if="showEdit" @click="edit">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="grey">
@@ -38,6 +41,7 @@
 
 <script>
 import PilaExpertSvg from './pila-expert-svg.vue'
+
 export default {
 	name: 'card-icons-bar',
   components: { PilaExpertSvg },
@@ -55,6 +59,10 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+    showRemove: {
+      type: Boolean,
+      required: false
     }
 	},
   computed: {

@@ -160,24 +160,11 @@
     :teacher="assignable_item_type === 'teacher-created'"
     :id="current"
   />
-  <PILAModal
+  <PreviewModal
     v-if="showPreviewModal"
+    :id="current"
     @close="showPreviewModal = false"
-    showCloseButton
-  >
-    <template v-slot:title>
-      <span>{{ t('previewing') }} "<vueScopeComponent :id="current" :path="['content', 'name']" />"</span>
-    </template>
-    <template v-slot:body>
-      <div style="height: 60vh; position: relative;">
-        <vueEmbedComponent
-          :id="current"
-          :path="['content']"
-          @close="showPreviewModal = false"
-        />
-      </div>
-    </template>
-  </PILAModal>
+  />
   <PILAModal
     v-if="showResultsModal"
     @close="showResultsModal = false"
@@ -195,7 +182,8 @@
   import PILAModal from '../../components/PILAModal.vue'
   import UserInfo from '../../components/user-info.vue'
   import IconButton from '../../components/icon-button.vue'
-  import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
+  import PreviewModal from '../../components/PreviewModal.vue'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Splitpanes, Pane } from 'splitpanes'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
@@ -203,9 +191,9 @@
   export default {
     components: {
       PILAModal,
+      PreviewModal,
       UserInfo,
       vueScopeComponent,
-      vueEmbedComponent,
       IconButton,
       Splitpanes,
       Pane,

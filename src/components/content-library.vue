@@ -12,15 +12,25 @@
         :key="id"
         class="card"
       >
-        <vueEmbedComponent
-          :id="id"
-          mode="card"
-        />
-        <CardIconsBar
-          :id="id"
-          :key="`icon-bar-for-${id}`"
-          :showEdit="false"
-        />
+        <div class="preview-image">
+          <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
+          <img v-else-if="isBettyLink(id)" src="/betty.png" />
+          <vueEmbedComponent
+            v-else
+            :id="id"
+            mode="card"
+          />
+        </div>
+        <div>
+          <CardIconsBar
+            :id="id"
+            :key="`icon-bar-for-${id}`"
+            :showEdit="false"
+            showRemove
+            @preview="previewing = id"
+            @remove="remove(id)"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -37,7 +47,7 @@
           style="width: 50%; text-align: center;"
           type="text"
           class="rounded-grey"
-          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          placeholder="content code OR url"
           v-model="contentId"
           @keydown="showUUIDWarning = false"
         />
@@ -47,6 +57,11 @@
       </div>
     </template>
   </PILAModal>
+  <PreviewModal
+    v-if="previewing"
+    :id="previewing"
+    @close="previewing = null"
+  />
 </template>
 
 <script>
@@ -54,13 +69,25 @@
   import IconButton from './icon-button.vue'
   import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
+  import PreviewModal from './PreviewModal.vue'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
+
+  function isURL(s) {
+    try {
+      const url = new URL(s)
+      return true
+    } catch (error) {
+      console.log(error)
+      return false
+    }
+  }
 
   export default {
     components: {
       TaggedContent,
       PILAModal,
+      PreviewModal,
       CardIconsBar,
       IconButton,
       vueScopeComponent,
@@ -69,7 +96,8 @@
     data() {
       return {
         contentId: '',
-        showAddModal: false
+        showAddModal: false,
+        previewing: null
       }
     },
     computed: {
@@ -79,16 +107,23 @@
         return Array.from( new Set([...expert, ...tracked]) ).sort()
       },
       showUUIDWarning() {
-        return this.contentId !== '' && !isUUID(this.contentId)
+        return this.contentId !== '' && !isUUID(this.contentId) && !isURL(this.contentId)
       }
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
       trackContent(content_id) {
-        if (isUUID(content_id)) {
-          this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
-        }
+        this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         this.showAddModal = false
+      },
+      isCandliLink(id) {
+        return id.startsWith('https://pila.cand.li/')
+      },
+      isBettyLink(id) {
+        return id.startsWith('https://bettysbrain.knowlearning.systems/')
+      },
+      remove(content_id) {
+        this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
       }
     }
   }
@@ -107,9 +142,8 @@
   }
 
   .card {
-    display: grid;
-    grid-template-rows: 5fr 1fr;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     border: 2px solid #ccc;
     width: 33%;
     max-width: 256px;
@@ -124,5 +158,19 @@
   }
   card.bottom {
     color: pink;
+  }
+  .preview-image
+  {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview-image > img
+  {
+    position: absolute;
+    max-width: 100%;
+    max-height: 100%;
   }
 </style>
