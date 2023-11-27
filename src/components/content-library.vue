@@ -12,18 +12,25 @@
         :key="id"
         class="card"
       >
-        <vueEmbedComponent
-          :id="id"
-          mode="card"
-        />
-        <CardIconsBar
-          :id="id"
-          :key="`icon-bar-for-${id}`"
-          :showEdit="false"
-          showRemove
-          @preview="previewing = id"
-          @remove="remove(id)"
-        />
+        <div class="preview-image">
+          <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
+          <img v-else-if="isBettyLink(id)" src="/betty.png" />
+          <vueEmbedComponent
+            v-else
+            :id="id"
+            mode="card"
+          />
+        </div>
+        <div>
+          <CardIconsBar
+            :id="id"
+            :key="`icon-bar-for-${id}`"
+            :showEdit="false"
+            showRemove
+            @preview="previewing = id"
+            @remove="remove(id)"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -100,7 +107,6 @@
         return Array.from( new Set([...expert, ...tracked]) ).sort()
       },
       showUUIDWarning() {
-        console.log('IS URL????', isURL(this.contentId))
         return this.contentId !== '' && !isUUID(this.contentId) && !isURL(this.contentId)
       }
     },
@@ -109,6 +115,12 @@
       trackContent(content_id) {
         this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         this.showAddModal = false
+      },
+      isCandliLink(id) {
+        return id.startsWith('https://pila.cand.li/')
+      },
+      isBettyLink(id) {
+        return id.startsWith('https://bettysbrain.knowlearning.systems/')
       },
       remove(content_id) {
         this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
@@ -130,9 +142,8 @@
   }
 
   .card {
-    display: grid;
-    grid-template-rows: 5fr 1fr;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     border: 2px solid #ccc;
     width: 33%;
     max-width: 256px;
@@ -147,5 +158,19 @@
   }
   card.bottom {
     color: pink;
+  }
+  .preview-image
+  {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview-image > img
+  {
+    position: absolute;
+    max-width: 100%;
+    max-height: 100%;
   }
 </style>

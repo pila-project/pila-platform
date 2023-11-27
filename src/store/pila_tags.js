@@ -15,17 +15,33 @@ function existing_tag(state, content_id, tag_type, user) {
   return existing
 }
 
+const hardCodedExpertIds = [
+  'https://pila.cand.li/pila.html?tutorial',
+  'https://pila.cand.li/pila.html?level1',
+  'https://pila.cand.li/pila.html?level2',
+  'https://pila.cand.li/pila.html?level3',
+  'https://bettysbrain.knowlearning.systems/bb/practice',
+  'https://bettysbrain.knowlearning.systems/bb/climate-change',
+  'https://bettysbrain.knowlearning.systems/bb/thermoregulation',
+]
+
 export default {
   scope: null,
   namespaced: true,
   state: () => ({}),
   getters: {
-    withTag: state => type => (
-      Object
-        .values(state)
-        .filter(({ tag_type, archived }) => tag_type === type && !archived )
-        .map(({ content_id }) => content_id)
-    ),
+    withTag: state => type => {
+      const ids = (
+        Object
+          .values(state)
+          .filter(({ tag_type, archived }) => tag_type === type && !archived )
+          .map(({ content_id }) => content_id)
+      )
+
+      if (type === 'expert') return [...hardCodedExpertIds, ...ids ]
+
+      return ids
+    },
     archivedWithTag: state => type => (
       Object
         .values(state)
