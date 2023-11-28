@@ -94,8 +94,10 @@
           <thead>
             <tr>
               <th>{{ GET_TEXT.MEMBER_COL_HEADER }}</th>
+<!--
               <th>{{ t('last-login') }}</th>
               <th>{{ GET_TEXT.OTHER_GROUPS_COL_HEADER }}</th>
+-->
             </tr>
           </thead>
           <tbody>
@@ -104,8 +106,10 @@
               :key="member"
             >
               <td style="text-align: left;"><UserInfo :user="member" name /></td>
+<!--
               <td>-</td>
               <td>TODO</td>
+-->
             </tr>
             <tr
               v-if="currentGroupMembers.length < 6"
@@ -113,8 +117,10 @@
               :key="`blank-row-${n}`"
             >
               <td style="width: 250px;">-</td>
+<!--
               <td>-</td>
               <td>-</td>
+-->
             </tr>
           </tbody>
         </table>
