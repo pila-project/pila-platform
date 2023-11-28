@@ -11,6 +11,13 @@
     <div v-else></div> <!-- placeholder -->
 
     <div class="icons">
+      <div class="icon-wrapper" v-if="showPlay" @click="$emit('play')">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="green" viewBox="-50 -50 484 612">
+        <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/>
+      </svg>
+
+
+      </div>
       <div class="icon-wrapper" v-if="showPreview" @click="$emit('preview')">
         <svg fill="grey" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
@@ -19,7 +26,7 @@
       <div class="icon-wrapper" v-if="showRemove && !isExpertTask" @click="$emit('remove')">
         X
       </div>
-      <div class="icon-wrapper" v-if="showEdit" @click="edit">
+      <div class="icon-wrapper" v-if="showEdit" @click="$emit('edit')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="grey">
           <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
         </svg>
@@ -50,19 +57,25 @@ export default {
       type: String,
       required: true,
     },
+    showPlay: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     showPreview: {
       type: Boolean,
       required: false,
-      default: true
+      default: false
     },
     showEdit: {
       type: Boolean,
       required: false,
-      default: true
+      default: false
     },
     showRemove: {
       type: Boolean,
-      required: false
+      required: false,
+      default: false
     }
 	},
   computed: {
