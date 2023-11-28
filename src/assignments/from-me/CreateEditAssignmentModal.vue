@@ -2,6 +2,7 @@
   <PILAModal
     @close="$emit('close')"
     showCloseButton
+    :closeButtonText="t('save')"
   >
     <template v-slot:title>{{ t('create-modify-assignment') }}</template>
     <template v-slot:body>
