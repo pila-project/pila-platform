@@ -28,8 +28,8 @@
       isAnonymous() { return this.$store.getters.isAnonymous() },
       accessCodeRequired() {
         const user = this.$store.state.user
-        const isStudent = this.$store.getters['roles/role'](user)
-        if (isStudent || Agent.embedded) return false
+        const role = this.$store.getters['roles/role'](user)
+        if (role === 'student' || Agent.embedded) return false
         else return !this.$store.state.codeEntered
       }
     }
