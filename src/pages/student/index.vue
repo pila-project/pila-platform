@@ -27,22 +27,19 @@
       v-if="tab === 'study-assignments' && hideStudies"
       @showStudies="hideStudies = false"
     />
-    <AssignmentsToMe v-else
-      :key="tab"
-      :type="assignmentType"
-    />
+    <StudentAssignments v-else />
     <!-- TODO Remove Button -->
     <button v-if="!hideStudies" @click="hideStudies = true">Temp for Dev Only -- Re-Hide Studies Page</button>
   </div>
 </template>
 
 <script>
-  import AssignmentsToMe from '../../assignments/to-me/all.vue'
+  import StudentAssignments from './student-assignments.vue'
   import TabMenu from '../../components/tab-menu.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   export default {
     components: {
-      AssignmentsToMe,
+      StudentAssignments,
       TabMenu,
       StudiesNotAvailable
     },
