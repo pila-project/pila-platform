@@ -110,5 +110,6 @@ export default {
     "item-library": "fa96171b-eb83-4c7b-a1d1-b4635daa413c",
     "new-translation": "fac631d0-12f2-4430-96b7-20ec1138d6e5",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
-    "save": "8025821b-e2ba-447b-b84d-a829210ad085"
+    "save": "8025821b-e2ba-447b-b84d-a829210ad085",
+    "close" : "96c18794-0bc7-4db7-b0ff-91cb2280201e"
 }
