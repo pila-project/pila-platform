@@ -77,7 +77,7 @@
 
       if (this.assignment.content.startsWith('https://bettysbrain.knowlearning.systems/')) {
         const moduleName = this.assignment.content.split('/')[4].split('?')[0]
-        this.dashboardReference = `https://bettysbrain-dashboard.knowlearning.systems/bb-dash/${moduleName}/OverviewView?dashboard-config=${dashboardConfigId}`
+        this.dashboardReference = `https://bettysbrain-dashboard.knowlearning.systems/bb-dash/${moduleName}/OverviewView?oecd=true&dashboard-config=${dashboardConfigId}`
       }
       else if (this.assignment.content.startsWith('https://pila.cand.li/')) {
         this.dashboardReference = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${dashboardConfigId}`
