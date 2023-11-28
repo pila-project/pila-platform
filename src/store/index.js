@@ -19,7 +19,6 @@ export default {
     loaded: false,
     user: null,
     provider: null,
-
     language: null,
     translations: {}, // slug => value in language
   }),

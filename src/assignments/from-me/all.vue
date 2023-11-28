@@ -56,7 +56,7 @@
                 <span v-if="archivedIds[id]">✘</span>
               </td>
             </tr>
-            <tr v-for="n in (6-assignmentsForActiveTable.length)"> <!-- PLACHOLDER ROWS -->
+            <tr v-for="n in Math.max(0, 6-assignmentsForActiveTable.length)"> <!-- PLACHOLDER ROWS -->
               <td>-</td>
               <td>-</td>
               <td>-</td>
@@ -141,7 +141,7 @@
                     <vueScopeComponent :id="id" :path="['name']" />
                   </td>
                 </tr>
-                <tr v-for="n in 4 - assignedGroups(current).length"> <!-- Placeholder Rows -->
+                <tr v-for="n in Math.max(0, 4 - assignedGroups(current).length)"> <!-- Placeholder Rows -->
                   <td>-</td>
                 </tr>
               </tbody>

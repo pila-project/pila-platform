@@ -59,7 +59,7 @@
             </tr>
             <tr
               v-if="filteredStudentList.length < 6"
-              v-for="n in 6 - filteredStudentList.length"
+              v-for="n in Math.max(0, 6 - filteredStudentList.length)"
               :key="`blank-row-${n}`"
             >
               <td></td>
