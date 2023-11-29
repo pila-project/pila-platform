@@ -31,7 +31,7 @@
           <CardIconsBar
             :id="id"
             :key="`icon-bar-for-${id}`"
-            :showEdit="false"
+            showPreview
             showRemove
             @preview="previewing = id"
             @remove="remove(id)"
