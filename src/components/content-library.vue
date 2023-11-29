@@ -182,7 +182,7 @@
             window.open('https://the-karel-project.netlify.app/karel-builder?mode=maps', '_blank')
           }
           else if (type === 'bettys-brain') {
-            window.open('https://bettysbrain.teachableagents.org/bb/custom/causal-map?auth=true&oecd=true&custom=true', '_blank')
+            window.open('https://bettysbrain.knowlearning.systems/bb/custom/causal-map?auth=true&oecd=true&custom=true', '_blank')
           }
         }
         this.showCreateModal = false
