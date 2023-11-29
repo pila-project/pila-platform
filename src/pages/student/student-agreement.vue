@@ -2,15 +2,51 @@
 	<div class="student-agreement">
 		<PILAModal
 			showCloseButton
-			:closeButtonText="t('agree')"
+			:closeButtonText="t('create-account')"
 			@close="modalClose"
 		>
 			<template v-slot:title>
-				Todo Student Agreement Header
+				{{ t('your-data') }}
 			</template>
 			<template v-slot:body>
 				<div class="student-agreement-body">
-					Student Agreement Body
+
+					<div>{{ t("by-creating-an-account-and-using-the-platform-for-innovative-learning-assessments-pila-you-are-agreeing-that-know-learning-can-collect-and-store-data-about-your-activity-and-google-analytics-and-google-cloud-platform-can-process-this-data") }}</div>
+
+					<div>
+						<p>{{ t('the-kinds-of-activity-data-include') }}</p>
+						<p class="icon-row">
+							<i class="fa fa-cloud-download"></i>
+							<span>{{ t('your-clicks') }}</span>
+						</p>
+						<p class="icon-row">
+							<i class="fa fa-mouse-pointer"></i>
+							<span>{{ t('information-about-your-screen-and-device') }}</span>
+						</p>
+						<p class="icon-row">
+							<i class="fa fa-desktop"></i>
+							<span>{{ t('all-saved-versions-of-your-answers-solutions') }}</span>
+						</p>
+					</div>
+
+					<div>
+						<p>{{ t('know-learning-will-keep-this-data-safe-and-not-share-it-in-any-way-externally') }}</p>
+						<p>{{ t('thanks-to-the-pila-data-security-system-your-teacher-will-receive-your-data-in-digital-dashboards') }}</p>
+						<p>{{ t('your-teachers-are-the-only-ones-who-will-be-able-to-identify-who-you-are') }}</p>
+					</div>
+
+					<div>
+						<p>{{ t('you-will-be-able-to-access-your-assignments-and-results-in-your-student-account-you-can-read-more-about-how-pila-protects-your-data-in-the-data-protection-notice-for-students') }}</p>
+						<p>
+							<span>{{ t('if-you') }}&nbsp;</span>
+							<span><strong>{{ t('do-not-agree') }}</strong>&nbsp;</span>
+							<span>{{ t('to-know-learning-collecting-and-storing-this-data-please-speak-with-your-teacher-and-do-not-create-a-student-account-on-pila') }}</span>
+						</p>
+					</div>
+
+
+
+
 				</div>
 			</template>
 		</PILAModal>
@@ -35,7 +71,26 @@ export default {
 
 
 <style scoped>
-.student-agreement {
-
+.student-agreement-body {
+	padding: 0 30px;
+	color: #1b1b83;
+}
+.student-agreement-body div {
+	margin: 34px 0;
+}
+.student-agreement-body p {
+	margin: 8px;
+}
+.student-agreement-body i {
+	min-width: 50px;
+	font-size: 2.2rem;
+	margin: 4px 20px 4px 6px;
+}
+p.icon-row {
+	display: flex;
+	align-items: center;
+}
+.fa-mouse-pointer {
+	transform: translateX(10px);
 }
 </style>
