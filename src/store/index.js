@@ -21,6 +21,7 @@ export default {
     provider: null,
     language: null,
     hasAcceptedStudentAgreement: false,
+    hasAcceptedTeacherAgreement: false,
     translations: {}, // slug => value in language
   }),
   getters: {
@@ -29,6 +30,7 @@ export default {
     user: state => () => state.user,
     language: state => () => state.language,
     hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
+    hasAcceptedTeacherAgreement: state => () => state.hasAcceptedTeacherAgreement,
     t: state => slug => {
       const target = translationSlugMap[slug]
       const lang = state.language
@@ -48,6 +50,11 @@ export default {
       // TODO: Remove this as toggle which is for testing. Only set to Date.now
       if (!!state.hasAcceptedStudentAgreement) state.hasAcceptedStudentAgreement = false
       else state.hasAcceptedStudentAgreement = Date.now()
+    },
+    acceptTeacherAgreement(state) {
+      // TODO: Remove this as toggle which is for testing. Only set to Date.now
+      if (!!state.hasAcceptedTeacherAgreement) state.hasAcceptedTeacherAgreement = false
+      else state.hasAcceptedTeacherAgreement = Date.now()
     },
     language(state, val) { state.language = val },
     cycleLanguage(state) {
@@ -89,6 +96,9 @@ export default {
     },
     acceptStudentAgreement({ commit }) {
       commit('acceptStudentAgreement')
+    },
+    acceptTeacherAgreement({ commit }) {
+      commit('acceptTeacherAgreement')
     }
   },
   plugins: [

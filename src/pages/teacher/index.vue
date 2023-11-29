@@ -3,8 +3,14 @@
     v-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
     style="display: flex; flex-direction: column; height: 100%;"
   >
+    <TeacherAgreement v-if="!hasTeacherAgreement" />
+    <!-- TODO Remove Button After Testing -->
+    <button
+      v-else
+      @click="$store.dispatch('acceptTeacherAgreement')"
+    >TEMP Toggle Teacher Agreement</button>
 
-    <TabMenu
+    <TabMenu v-if="hasTeacherAgreement"
       :tabs="[
         { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
         { spacer: true, width: 1 },
@@ -18,36 +24,38 @@
     />
 
     <Groups
-      v-if="tab === 'classes'"
+      v-if="hasTeacherAgreement && tab === 'classes'"
       type="class"
       :possibleMembers="students"
     />
-    <div v-if="tab === 'content'">
+    <div v-if="hasTeacherAgreement && tab === 'content'">
       <ContentLibrary />
     </div>
     <AssignmentsFromMe
-      v-if="tab === 'assignments-from-me'"
+      v-if="hasTeacherAgreement && tab === 'assignments-from-me'"
       assignable_item_type="teacher-created"
       assignment_type="teacher-to-student"
     />
     <StudiesNotAvailable
-      v-if="tab === 'assignments-to-me' && hideStudies"
+      v-if="hasTeacherAgreement && tab === 'assignments-to-me' && hideStudies"
       @showStudies="hideStudies = false"
     />
     <AssignmentsToMe
-      v-else-if="tab === 'assignments-to-me'"
+      v-else-if="hasTeacherAgreement && tab === 'assignments-to-me'"
       type="researcher-to-teacher"
     />
     <button
-      v-if="tab === 'assignments-to-me' && !hideStudies"
+      v-if="hasTeacherAgreement && tab === 'assignments-to-me' && !hideStudies"
       @click="hideStudies = true"
       style="margin-top: 200px; width: 200px; align-self: center;"
     >Temp for Dev Only, Re-Hide Studies</button>
   </div>
-  <RoleRequester v-else role="teacher" />
+  <!-- TODO REMOVE TEMP BUTTON ABOVE -->
+  <RoleRequester v-else-if="hasTeacherAgreement" role="teacher" />
 </template>
 
 <script>
+  import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '../../components/roles/requester.vue'
   import Groups from '../../components/groups/viewer.vue'
   import TabMenu from '../../components/tab-menu.vue'
@@ -58,6 +66,7 @@
 
   export default {
     components: {
+      TeacherAgreement,
       Groups,
       ContentLibrary,
       RoleRequester,
@@ -73,6 +82,9 @@
       }
     },
     computed: {
+      hasTeacherAgreement() {
+        return this.$store.getters.hasAcceptedTeacherAgreement()
+      },
       students() {
         // students are anybody who has added you to a group of type "my-teachers"
         const { getters, state: { user } } = this.$store
