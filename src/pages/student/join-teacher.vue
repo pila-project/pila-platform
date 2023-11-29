@@ -46,7 +46,7 @@
     },
     computed: {
       hasStudentAgreement() {
-        return this.$store.getters['roles/hasAcceptedStudentAgreement']()
+        return this.$store.getters.hasAcceptedStudentAgreement()
       },
       teacherId() {
         return this.$route.params.teacher

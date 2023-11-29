@@ -4,6 +4,7 @@
 			showCloseButton
 			:closeButtonText="t('create-account')"
 			@close="modalClose"
+			class="student-agreement-modal"
 		>
 			<template v-slot:title>
 				{{ t('your-data') }}
@@ -63,34 +64,37 @@ export default {
 		modalClose(e) {
 			// only accept/handle modal close from 'agree' button
 			const agreeBtn = e === 'primary-button'
-			if (agreeBtn) this.$store.dispatch('roles/acceptStudentAgreement')
+			if (agreeBtn) this.$store.dispatch('acceptStudentAgreement')
 		}
 	}
 }
 </script>
 
 
-<style scoped>
-.student-agreement-body {
+<style >
+.student-agreement .student-agreement-modal > .modal-content {
+	margin-top: 5vh;
+}
+.student-agreement .student-agreement-body {
 	padding: 0 30px;
 	color: #1b1b83;
 }
-.student-agreement-body div {
+.student-agreement .student-agreement-body div {
 	margin: 34px 0;
 }
-.student-agreement-body p {
+.student-agreement .student-agreement-body p {
 	margin: 8px;
 }
-.student-agreement-body i {
+.student-agreement .student-agreement-body i {
 	min-width: 50px;
 	font-size: 2.2rem;
 	margin: 4px 20px 4px 6px;
 }
-p.icon-row {
+.student-agreement p.icon-row {
 	display: flex;
 	align-items: center;
 }
-.fa-mouse-pointer {
+.student-agreement .fa-mouse-pointer {
 	transform: translateX(10px);
 }
 </style>

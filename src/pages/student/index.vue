@@ -30,7 +30,7 @@
     class="tab-contents"
   >
     <!-- TODO Remove Button for Testing ONly -->
-    <button @click="this.$store.dispatch('roles/acceptStudentAgreement')">Toggle Agree</button>
+    <button @click="this.$store.dispatch('acceptStudentAgreement')">Toggle Agree</button>
 
     <StudiesNotAvailable
       v-if="tab === 'study-assignments' && hideStudies"
@@ -62,7 +62,7 @@
     },
     computed: {
       hasStudentAgreement() {
-        return this.$store.getters['roles/hasAcceptedStudentAgreement']()
+        return this.$store.getters.hasAcceptedStudentAgreement()
       },
       assignmentType() {
         return {
