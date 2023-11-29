@@ -53,21 +53,6 @@ import URL_CONTENT_DATA from '../../url-content-data.js'
 export default {
   components: { vueEmbedComponent, CardIconsBar },
 
-  created() {
-      const user = this.$store.state.user
-      const type ="teacher-to-student"
-      this.assignmentIds = this.$store.getters['assignments/to'](user, type)
-      this.assignmentIds.forEach(aid => {
-        const unwatch = Agent.watch(
-          [aid,'item_id', 'content'],
-          res => {
-            this.assignmentsToContent[aid] = res
-            unwatch()
-          }
-        )
-      })
-  },
-
   data() {
     return {
       playing: null,
@@ -80,6 +65,29 @@ export default {
     },
     URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
+    },
+    assignmentIds() {
+      const user = this.$store.state.user
+      const type ="teacher-to-student"
+      return this.$store.getters['assignments/to'](user, type)
+    }
+  },
+  watch: {
+    assignmentIds: {
+      immediate: true,
+      handler() {
+        this.assignmentIds.forEach(aid => {
+          if (this.assignmentsToContent[aid]) return
+
+          const unwatch = Agent.watch(
+            [aid,'item_id', 'content'],
+            res => {
+              this.assignmentsToContent[aid] = res
+              unwatch()
+            }
+          )
+        })
+      }
     }
   },
   methods: {
