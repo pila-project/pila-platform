@@ -20,6 +20,7 @@ export default {
     user: null,
     provider: null,
     language: null,
+    hasAcceptedStudentAgreement: false,
     translations: {}, // slug => value in language
   }),
   getters: {
@@ -27,6 +28,7 @@ export default {
     loaded: state => () => state.loaded,
     user: state => () => state.user,
     language: state => () => state.language,
+    hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
     t: state => slug => {
       const target = translationSlugMap[slug]
       const lang = state.language
@@ -41,6 +43,11 @@ export default {
     load(state, { user, provider }) {
       state.user = user
       state.provider = provider
+    },
+    acceptStudentAgreement(state) {
+      // TODO: Remove this as toggle which is for testing. Only set to Date.now
+      if (!!state.hasAcceptedStudentAgreement) state.hasAcceptedStudentAgreement = false
+      else state.hasAcceptedStudentAgreement = Date.now()
     },
     language(state, val) { state.language = val },
     cycleLanguage(state) {
@@ -79,6 +86,9 @@ export default {
         const { auth } = await Agent.environment()
         commit('load', auth)
       }
+    },
+    acceptStudentAgreement({ commit }) {
+      commit('acceptStudentAgreement')
     }
   },
   plugins: [

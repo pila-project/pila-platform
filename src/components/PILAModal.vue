@@ -1,12 +1,12 @@
 <template>
-  <div class="modal" @click="$emit('close')">
+  <div class="modal" @click="$emit('close', 'background')">
     <div class="modal-content" @click.stop > 
       <div class="modal-header">
         <div class="placeholder"></div>
         <slot name="title">
           <h2>Modal Title</h2>
         </slot>
-        <button id="close" @click="$emit('close')">x</button>
+        <button id="close" @click="$emit('close', 'top-x')">x</button>
       </div>
       <div class="modal-body">
         <slot name="body">
@@ -19,7 +19,7 @@
           background="green"
           :text="closeButtonText"
           textColor="white"
-          @click="$emit('close')"
+          @click="$emit('close', 'primary-button')"
         />
     </div>
     </div>
