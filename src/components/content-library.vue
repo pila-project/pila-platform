@@ -1,12 +1,26 @@
 <template>
   <div class="cards-wrapper">
-    <IconButton
-      icon="plus-circle"
-      @click="showAddModal = true"
-      :text="t('add-content')"
-      background="#FFC442"
-    />
     <div class="card-container">
+      <div class="card new-item-card">
+        <div>
+          <div class="content-name">{{t('add-content')}}</div>
+          <div>
+            <IconButton
+              icon="plus-circle"
+              @click="showAddModal = true"
+              :text="t('add-content-by-id')"
+              background="#FFC442"
+            />
+            <br>
+            <IconButton
+              icon="plus-circle"
+              @click="showCreateModal = true"
+              :text="t('create-new-content')"
+              background="#FFC442"
+            />
+          </div>
+        </div>
+      </div>
       <div
         v-for="id in content"
         :key="id"
@@ -42,7 +56,7 @@
   </div>
   <PILAModal
     v-if="showAddModal"
-    @close="trackContent(contentId)"
+    @close="event => trackContent(event, contentId)"
     showCloseButton
     :closeButtonText=" showUUIDWarning || contentId === '' ? 'cancel' : 'add'"
   >
@@ -60,6 +74,29 @@
         <div v-if="showUUIDWarning">
           {{ t('invalid-id') }}
         </div>
+      </div>
+    </template>
+  </PILAModal>
+  <PILAModal
+    v-if="showCreateModal"
+    @close="event => createContent(event, contentToCreate)"
+    showCloseButton
+    :closeButtonText="contentToCreate ? t('create') : t('cancel')"
+  >
+    <template v-slot:title>{{ t('add-content-by-id') }}</template>
+    <template v-slot:body>
+      <div style="padding: 0 32px;">
+        <h3>{{ t('select-content-type') }}</h3>
+        <br>
+        <label>
+          <input type="radio" :checked="contentToCreate === 'karel-map'" @click="contentToCreate = 'karel-map'" />
+          {{t('create-karel-map-block-based-programming')}}
+        </label>
+        <br>
+        <label>
+          <input type="radio" :checked="contentToCreate === 'bettys-brain'" @click="contentToCreate = 'bettys-brain'" />
+          {{t('create-bettys-brain-concept-map-and-virtual-agents')}}
+        </label>
       </div>
     </template>
   </PILAModal>
@@ -104,7 +141,9 @@
       return {
         contentId: '',
         showAddModal: false,
-        previewing: null
+        previewing: null,
+        showCreateModal: false,
+        contentToCreate: ''
       }
     },
     computed: {
@@ -122,8 +161,10 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
-      trackContent(content_id) {
-        this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
+      trackContent(event, content_id) {
+        if (event === 'primary-button') {
+          this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
+        }
         this.showAddModal = false
       },
       isCandliLink(id) {
@@ -134,6 +175,17 @@
       },
       remove(content_id) {
         this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
+      },
+      createContent(event, type) {
+        if (event === 'primary-button') {
+          if (type === 'karel-map') {
+            window.open('https://the-karel-project.netlify.app/karel-builder?mode=maps', '_blank')
+          }
+          else if (type === 'bettys-brain') {
+            window.open('https://bettysbrain.teachableagents.org/bb/custom/causal-map?auth=true&oecd=true&custom=true', '_blank')
+          }
+        }
+        this.showCreateModal = false
       }
     }
   }
@@ -168,6 +220,13 @@
   }
   card.bottom {
     color: pink;
+  }
+  .new-item-card
+  {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   .preview-image
   {
