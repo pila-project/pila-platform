@@ -14,10 +14,12 @@ export default {
   scope: null,
   namespaced: true,
   state: () => ({
+    hasAcceptedStudentAgreement: false,
     assignments: {},
     requests: {}
   }),
   getters: {
+    hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
     assignments: state => () => state.assignments,
     requests: state => () => state.requests,
     usersWithRole: state => role => (
@@ -41,6 +43,11 @@ export default {
     }
   },
   mutations: {
+    acceptStudentAgreement(state) {
+      // TODO: Remove this as toggle which is for testing. Only set to Date.now
+      if (!!state.hasAcceptedStudentAgreement) state.hasAcceptedStudentAgreement = false
+      else state.hasAcceptedStudentAgreement = Date.now()
+    },
     addRequest(state, { assignee, role, updated }) {
       state.requests[assignee] = { role, updated }
     },
@@ -91,6 +98,9 @@ export default {
       })
       await Agent.synced()
       await dispatch('loadAssignments')
+    },
+    acceptStudentAgreement({ commit }) {
+      commit('acceptStudentAgreement')
     }
   }
 }

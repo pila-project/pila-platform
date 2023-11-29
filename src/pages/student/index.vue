@@ -1,5 +1,8 @@
 <template>
-  <div class="tab-wrapper">
+
+  <StudentAgreement v-if="!hasStudentAgreement" />
+  
+  <div v-if="hasStudentAgreement" class="tab-wrapper">
     <TabMenu
       :tabs="[
         {
@@ -22,7 +25,13 @@
     />
   </div>
 
-  <div>
+  <div
+    v-if="hasStudentAgreement"
+    class="tab-contents"
+  >
+    <!-- TODO Remove Button for Testing ONly -->
+    <button @click="this.$store.dispatch('roles/acceptStudentAgreement')">Toggle Agree</button>
+
     <StudiesNotAvailable
       v-if="tab === 'study-assignments' && hideStudies"
       @showStudies="hideStudies = false"
@@ -34,11 +43,13 @@
 </template>
 
 <script>
+  import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
   import TabMenu from '../../components/tab-menu.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   export default {
     components: {
+      StudentAgreement,
       StudentAssignments,
       TabMenu,
       StudiesNotAvailable
@@ -50,6 +61,9 @@
       }
     },
     computed: {
+      hasStudentAgreement() {
+        return this.$store.getters['roles/hasAcceptedStudentAgreement']()
+      },
       assignmentType() {
         return {
           'class-assignments': 'teacher-to-student',

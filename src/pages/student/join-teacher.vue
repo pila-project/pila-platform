@@ -1,5 +1,7 @@
 <template>
-  <div class="join-teacher">
+  <StudentAgreement v-if="!hasStudentAgreement" />
+
+  <div v-else class="join-teacher">
     <h2 style="color: rgb(46, 50, 219); margin-bottom: 8px;">{{ t('join-teacher')}}</h2>
     <div v-if="joining">{{ t('joining-teacher') }}</div>
     <div v-else-if="leaving">{{ t('leaving-teacher') }}</div>
@@ -28,10 +30,14 @@
 </template>
 
 <script>
+  import StudentAgreement from './student-agreement.vue'
   import IconButton from '../../components/icon-button.vue'
   export default {
     name: 'join-teacher',
-    components: { IconButton },
+    components: {
+      StudentAgreement,
+      IconButton
+    },
     data() {
       return {
         joining: false,
@@ -39,6 +45,9 @@
       }
     },
     computed: {
+      hasStudentAgreement() {
+        return this.$store.getters['roles/hasAcceptedStudentAgreement']()
+      },
       teacherId() {
         return this.$route.params.teacher
       },
