@@ -71,7 +71,9 @@ postgres:
                 AND md.owner IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                 '0c9c64fc-559e-40d4-916b-852f6d108a17',
-                '25de1f29-28b4-44bd-9942-9f60f1f92447'
+                '25de1f29-28b4-44bd-9942-9f60f1f92447',
+                '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+                'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
               )
                 AND t.tag_type = hasAdminTag.tag_type
               ORDER BY t.content_id, md.updated DESC
@@ -111,31 +113,41 @@ postgres:
                 WHERE m2.owner IN (
                   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                   '0c9c64fc-559e-40d4-916b-852f6d108a17',
-                  '25de1f29-28b4-44bd-9942-9f60f1f92447'
+                  '25de1f29-28b4-44bd-9942-9f60f1f92447',
+                  '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+                  'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
                 )
                 GROUP BY ra2.assignee
               )
               AND m.owner IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                 '0c9c64fc-559e-40d4-916b-852f6d108a17',
-                '25de1f29-28b4-44bd-9942-9f60f1f92447'
+                '25de1f29-28b4-44bd-9942-9f60f1f92447',
+                '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+                'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
               )
               AND (
                 requester_id IN (
                   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                   '0c9c64fc-559e-40d4-916b-852f6d108a17',
-                  '25de1f29-28b4-44bd-9942-9f60f1f92447'
+                  '25de1f29-28b4-44bd-9942-9f60f1f92447',
+                  '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+                  'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
                 )
                 OR ra.assignee = requester_id
               )
               AND NOT ra.assignee IN (
                 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
                 '0c9c64fc-559e-40d4-916b-852f6d108a17',
-                '25de1f29-28b4-44bd-9942-9f60f1f92447'
+                '25de1f29-28b4-44bd-9942-9f60f1f92447',
+                '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+                'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
               )
             UNION SELECT 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT '0c9c64fc-559e-40d4-916b-852f6d108a17', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT '25de1f29-28b4-44bd-9942-9f60f1f92447', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+            UNION SELECT '4e42c0c7-fe07-4199-b202-bdfe5fd3d975', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+            UNION SELECT 'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
 
           ;
         END;
@@ -152,7 +164,9 @@ postgres:
       WHERE $REQUESTER IN (
           'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
           '0c9c64fc-559e-40d4-916b-852f6d108a17',
-          '25de1f29-28b4-44bd-9942-9f60f1f92447'
+          '25de1f29-28b4-44bd-9942-9f60f1f92447',
+          '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+          'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
         )
         OR metadata.owner = $REQUESTER
     # all groups a user owns, or has been put in
@@ -238,7 +252,9 @@ postgres:
           $REQUESTER IN (
             'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
             '0c9c64fc-559e-40d4-916b-852f6d108a17',
-            '25de1f29-28b4-44bd-9942-9f60f1f92447'
+            '25de1f29-28b4-44bd-9942-9f60f1f92447',
+            '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+            'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
           )
         )
       UNION
@@ -254,7 +270,9 @@ postgres:
       WHERE md.owner IN (
           'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
           '0c9c64fc-559e-40d4-916b-852f6d108a17',
-          '25de1f29-28b4-44bd-9942-9f60f1f92447'
+          '25de1f29-28b4-44bd-9942-9f60f1f92447',
+          '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+          'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b'
         )
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
