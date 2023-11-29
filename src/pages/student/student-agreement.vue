@@ -37,7 +37,17 @@
 					</div>
 
 					<div>
-						<p>{{ t('you-will-be-able-to-access-your-assignments-and-results-in-your-student-account-you-can-read-more-about-how-pila-protects-your-data-in-the-data-protection-notice-for-students') }}</p>
+						<p>
+							{{ t('you-will-be-able-to-access-your-assignments-and-results-in-your-student-account-you-can-read-more-about-how-pila-protects-your-data-in-the-data-protection-notice-for-students') }}
+						</p>
+						<p style="margin: 20px 0; text-align: center;">
+							<a
+								href="https://pilaproject.org/about-pila/data-protection-notice-for-students"
+								target="_blank"
+							>
+								{{ t('data-protection-notice-for-students') }}
+							</a>
+						</p>
 						<p>
 							<span>{{ t('if-you') }}&nbsp;</span>
 							<span><strong>{{ t('do-not-agree') }}</strong>&nbsp;</span>
