@@ -21,7 +21,7 @@
 			<div @click.shift="$store.dispatch('cycleLanguageAndRefetch')" >
 	  			{{ t('anonymous') }}_{{ $store.state.user.slice(0, 4) }}
 	  			<br>
-	  			{{ $store.getters['roles/role']($store.state.user) }}
+	  			{{ t($store.getters['roles/role']($store.state.user)) }}
 	  		</div>
 			<IconButton
 	          @click="logout"
