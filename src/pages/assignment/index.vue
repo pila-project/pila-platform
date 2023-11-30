@@ -6,12 +6,10 @@
     />
   </div>
   <div v-else-if="assignment">
-    There is an issue with your assignment.
-    Please ask your teacher to ensure they have assigned the
-    content they intended to.
+    {{ t('there-is-an-issue-with-your-assignment-please-ask-your-teacher-to-ensure-they-have-assigned-the-intended-content') }}
   </div>
   <div v-else>
-    ...loading...
+    ... {{ t('loading') }} ...
   </div>
 </template>
 
@@ -33,6 +31,7 @@
       this.assignment = await Agent.state(id)
     },
     methods: {
+      t(slug) { return this.$store.getters.t(slug) },
       closeAssignment() {
         Agent.close()
       }
