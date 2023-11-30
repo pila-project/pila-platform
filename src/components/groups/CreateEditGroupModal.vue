@@ -34,39 +34,56 @@
 			/>
 		</div>
 
-        <table style="width: 100%;">
-          <thead>
-            <tr>
-              <th style="text-align: center;">{{ GET_TEXT.IN_GROUP_TEXT }}</th>
-              <th style="text-align: left;">{{ GET_TEXT.MEMBER_NAME_HEADER }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="member in filteredStudentList"
-              :key="member"
-            >
-            	<td style="width: 30px; text-align: center; cursor: pointer;"
-            		@click="handleAddRemove(member)"
-            	>
-            		<input
-            			type="checkbox"
-            			:checked="userInClass(member)"
-            			@change="handleAddRemove($event, member)"
-            		/>
-            	</td>
-             	<td style="text-align: left;"><UserInfo :user="member" name /></td>
-            </tr>
-            <tr
-              v-if="filteredStudentList.length < 6"
-              v-for="n in Math.max(0, 6 - filteredStudentList.length)"
-              :key="`blank-row-${n}`"
-            >
-              <td></td>
-              <td style="width: 250px;"></td>
-            </tr>
-          </tbody>
-        </table>
+		<div class="add-remove-all-buttons-wrapper">
+			<IconButton class="add-all-button"
+				@click="addAll"
+				:text="t('add-all')"
+				icon="plus-circle"
+				background="green"
+				textColor="white"
+			/>
+			<IconButton class="remove-all-button"
+				@click="removeAll"
+				:text="t('remove-all')"
+				icon="minus-circle"
+				background="lightsalmon"
+				textColor="white"
+			/>
+		</div>
+
+    <table style="width: 100%;">
+      <thead>
+        <tr>
+          <th style="text-align: center;">{{ GET_TEXT.IN_GROUP_TEXT }}</th>
+          <th style="text-align: left;">{{ GET_TEXT.MEMBER_NAME_HEADER }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="member in filteredStudentList"
+          :key="member"
+        >
+        	<td style="width: 30px; text-align: center; cursor: pointer;"
+        		@click="handleAddRemove(member)"
+        	>
+        		<input
+        			type="checkbox"
+        			:checked="userInClass(member)"
+        			@change="handleAddRemove($event, member)"
+        		/>
+        	</td>
+         	<td style="text-align: left;"><UserInfo :user="member" name /></td>
+        </tr>
+        <tr
+          v-if="filteredStudentList.length < 6"
+          v-for="n in Math.max(0, 6 - filteredStudentList.length)"
+          :key="`blank-row-${n}`"
+        >
+          <td></td>
+          <td style="width: 250px;"></td>
+        </tr>
+      </tbody>
+    </table>
 
 
 	</div>
@@ -152,6 +169,12 @@ export default {
     	userInClass(user_id) {
     		return this.currentGroupMembers.includes(user_id)
     	},
+    	addAll() {
+    		this.possibleMembers.forEach(this.addMember)
+    	},
+    	removeAll() {
+    		this.possibleMembers.forEach(this.removeMember)
+    	},
      	addMember(user_id) {
     		this.$store.dispatch('groups/addMember', { user_id, group_id: this.id })
     	},
@@ -188,5 +211,8 @@ input.working-class-name {
 }
 .active {
 	background: chartreuse;
+}
+.add-remove-all-buttons-wrapper {
+	margin-bottom: 6px;
 }
 </style>
