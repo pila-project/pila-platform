@@ -1,16 +1,16 @@
 <template>
+  <TeacherAgreement v-if="!hasTeacherAgreement" />
   <div
-    v-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
-    style="display: flex; flex-direction: column; height: 100%;"
+    class="teacher-view"
+    v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
-    <TeacherAgreement v-if="!hasTeacherAgreement" />
+
     <!-- TODO Remove Button After Testing -->
     <button
-      v-else
       @click="$store.dispatch('acceptTeacherAgreement')"
     >TEMP Toggle Teacher Agreement</button>
 
-    <TabMenu v-if="hasTeacherAgreement"
+    <TabMenu
       :tabs="[
         { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
         { spacer: true, width: 1 },
@@ -24,34 +24,35 @@
     />
 
     <Groups
-      v-if="hasTeacherAgreement && tab === 'classes'"
+      v-if="tab === 'classes'"
       type="class"
       :possibleMembers="students"
     />
-    <div v-if="hasTeacherAgreement && tab === 'content'">
+    <div v-if="tab === 'content'">
       <ContentLibrary />
     </div>
     <AssignmentsFromMe
-      v-if="hasTeacherAgreement && tab === 'assignments-from-me'"
+      v-if="tab === 'assignments-from-me'"
       assignable_item_type="teacher-created"
       assignment_type="teacher-to-student"
     />
     <StudiesNotAvailable
-      v-if="hasTeacherAgreement && tab === 'assignments-to-me' && hideStudies"
+      v-if="tab === 'assignments-to-me' && hideStudies"
       @showStudies="hideStudies = false"
     />
     <AssignmentsToMe
-      v-else-if="hasTeacherAgreement && tab === 'assignments-to-me'"
+      v-else-if="tab === 'assignments-to-me'"
       type="researcher-to-teacher"
     />
     <button
-      v-if="hasTeacherAgreement && tab === 'assignments-to-me' && !hideStudies"
+      v-if="tab === 'assignments-to-me' && !hideStudies"
       @click="hideStudies = true"
       style="margin-top: 200px; width: 200px; align-self: center;"
     >Temp for Dev Only, Re-Hide Studies</button>
+    <!-- TODO REMOVE TEMP BUTTON ABOVE -->
   </div>
-  <!-- TODO REMOVE TEMP BUTTON ABOVE -->
-  <RoleRequester v-else-if="hasTeacherAgreement" role="teacher" />
+
+  <RoleRequester v-else role="teacher" />
 </template>
 
 <script>
@@ -65,6 +66,7 @@
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
 
   export default {
+    name: 'teacher',
     components: {
       TeacherAgreement,
       Groups,
@@ -104,8 +106,12 @@
 </script>
 
 <style scoped>
-  .tab-wrapper
-  {
+.teacher-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;  
+}
+.tab-wrapper {
     font-weight: bold;
   }
 </style>

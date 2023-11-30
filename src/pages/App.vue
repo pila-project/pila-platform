@@ -24,7 +24,7 @@
       AccessCodeScreen
     },
     computed: {
-      loaded() { return this.$store.getters.loaded },
+      loaded() { return this.$store.getters.loaded() },
       isAnonymous() { return this.$store.getters.isAnonymous() },
       accessCodeRequired() {
         const user = this.$store.state.user
