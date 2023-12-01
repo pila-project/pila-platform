@@ -42,6 +42,7 @@ export default {
     "admin": "472543ac-8131-4f53-a6e2-8602834fb638",
     "all-teachers": "48ac4359-ff84-48ca-9c0f-03e98f1b9213",
     "new-string-to-translate": "498087be-e325-4aba-a399-e553985b40a9",
+    "cancel": "4d6868d9-d2f6-4e38-b812-1d908c85625b",
     "play": "4de98b26-66ee-4c25-aeed-12872b5a7706",
     "give-your-class-a-name": "4f67c1de-15ed-4007-8c4f-0377975ddae9",
     "terms-of-service-and-data-protection-notice": "501aa9ea-f8d1-4414-bcb7-1b07cd45e2b7",
@@ -95,6 +96,7 @@ export default {
     "members": "9bc15f39-7952-4b4f-b41f-87258be722c6",
     "add-content": "9ca6d784-4a17-4c94-ba63-3d37f2d8e1d8",
     "invalid-access-code": "9cb54683-edcc-4fda-92f2-88b06bb32d13",
+    "add": "9cd8f118-6f0a-418b-b69a-bb7227951889",
     "content-alt": "9d3a53dc-983e-4843-bc92-d65c6730ea36",
     "other-groups": "9e541dd7-f02e-4c76-8eea-a8364daf9cc0",
     "the-kinds-of-activity-data-include": "a5cbbdaf-37c9-468a-bd26-7d2b62b92c6a",
@@ -126,7 +128,7 @@ export default {
     "student": "e51c9583-c1ff-48ba-8a88-68eac01f089f",
     "assignment-results": "e58bbff6-bc47-4195-b45b-0aadec5b8606",
     "your-teachers-are-the-only-ones-who-will-be-able-to-identify-who-you-are": "e9a20903-04a2-4614-a3cd-965960796418",
-    "invalid-id": "e9a4cca2-dcb0-4ecf-a25f-8d814dc69acf",
+    "invalid-id-or-url": "e9a4cca2-dcb0-4ecf-a25f-8d814dc69acf",
     "files-alt": "ebed5ed0-af1d-4888-a5a3-0303f0b45889",
     "joining-teacher": "ec74d7d7-3fcc-47cc-b281-7b0985b323d1",
     "agree": "ec9ba7b3-807d-4c2c-a3ba-7f0e55f1b268",
@@ -140,5 +142,5 @@ export default {
     "your-data": "f8fadeca-2eee-4da2-ae9b-5faf75d85119",
     "item-library": "fa96171b-eb83-4c7b-a1d1-b4635daa413c",
     "new-translation": "fac631d0-12f2-4430-96b7-20ec1138d6e5",
-    "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
+    "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614"
 }

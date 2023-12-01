@@ -58,7 +58,7 @@
     v-if="showAddModal"
     @close="event => trackContent(event, contentId)"
     showCloseButton
-    :closeButtonText=" showUUIDWarning || contentId === '' ? 'cancel' : 'add'"
+    :closeButtonText=" showUUIDOrUrlWarning || contentId === '' ? t('cancel') : t('add')"
   >
     <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
     <template v-slot:body>
@@ -69,10 +69,10 @@
           class="rounded-grey"
           placeholder="content code OR url"
           v-model="contentId"
-          @keydown="showUUIDWarning = false"
+          @keydown="showUUIDOrUrlWarning = false"
         />
-        <div v-if="showUUIDWarning">
-          {{ t('invalid-id') }}
+        <div v-if="showUUIDOrUrlWarning">
+          {{ t('invalid-id-or-url') }}
         </div>
       </div>
     </template>
@@ -152,8 +152,15 @@
         const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
         return Array.from( new Set([...expert, ...tracked]) ).sort()
       },
-      showUUIDWarning() {
-        return this.contentId !== '' && !isUUID(this.contentId) && !isURL(this.contentId)
+      async showUUIDOrUrlWarning() {
+        if (isURL(this.contentId)) { // if url, show warning if not betty
+          return !this.isBettyLink(this.contentId)
+        } else if (isUUID(this.contentId)) { // if uuid, show warning if not karel map
+          const res = await Agent.metadata(this.content)
+          return (res?.active_type?.startsWith('application/json;type=karel-map')) // allow all versions
+        } else { // else show warning
+          return false
+        }
       },
       URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
@@ -161,6 +168,9 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
+      isBettyLink(id) {
+        return id.startsWith('https://bettysbrain.knowlearning.systems/')
+      },
       trackContent(event, content_id) {
         if (event === 'primary-button') {
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
