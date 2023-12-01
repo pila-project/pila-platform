@@ -58,7 +58,7 @@
     v-if="showAddModal"
     @close="event => trackContent(event, contentId)"
     showCloseButton
-    :closeButtonText=" showUUIDOrUrlWarning || contentId === '' ? t('cancel') : t('add')"
+    :closeButtonText="contentIdValidated ? t('add') : t('cancel')"
   >
     <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
     <template v-slot:body>
@@ -69,9 +69,8 @@
           class="rounded-grey"
           placeholder="content code OR url"
           v-model="contentId"
-          @keydown="showUUIDOrUrlWarning = false"
         />
-        <div v-if="showUUIDOrUrlWarning">
+        <div v-if="!contentIdValidated">
           {{ t('invalid-id-or-url') }}
         </div>
       </div>
@@ -140,10 +139,27 @@
     data() {
       return {
         contentId: '',
+        contentIdValidated: null,
         showAddModal: false,
         previewing: null,
         showCreateModal: false,
         contentToCreate: ''
+      }
+    },
+    watch: {
+      async contentId(val) {
+        if (isURL(val)) { // if url, validated if betty link
+          this.contentIdValidated = this.isBettyLink(val)
+        } else if (isUUID(val)) { // if uuid, validated if karel map
+          console.log('in uuid check')
+          const res = await Agent.metadata(this.contentId)
+          console.log(res)
+          this.contentIdValidated = (res?.active_type?.startsWith('application/json;type=karel-map')) // allow all versions
+        } else { // else not validated
+          console.log('in final else')
+
+          this.contentIdValidated = false
+        }
       }
     },
     computed: {
@@ -163,16 +179,6 @@
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
         }
         this.showAddModal = false
-      },
-      async showUUIDOrUrlWarning() {
-        if (isURL(this.contentId)) { // if url, show warning if not betty
-          return !this.isBettyLink(this.contentId)
-        } else if (isUUID(this.contentId)) { // if uuid, show warning if not karel map
-          const res = await Agent.metadata(this.content)
-          return (res?.active_type?.startsWith('application/json;type=karel-map')) // allow all versions
-        } else { // else show warning
-          return false
-        }
       },
       isCandliLink(id) {
         return id.startsWith('https://pila.cand.li/')
