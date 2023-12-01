@@ -103,7 +103,7 @@ export default {
     "go-to-assignments": "aef1484a-66db-4a23-a297-685997c16a96",
     "archived": "b38524cc-616f-4a83-8c99-b9b1438ad916",
     "teacher": "b5a2885e-c9e0-4077-8da6-5cb09af92739",
-    "add-content-by-id": "bb11f58d-f083-44a5-b332-60dcfd5445b4",
+    "add-content-by-id-or-url": "bb11f58d-f083-44a5-b332-60dcfd5445b4",
     "to-know-learning-collecting-and-storing-this-data-please-speak-with-your-teacher-and-do-not-create-a-student-account-on-pila": "bf7af54f-2b69-4e5b-8b48-03d1bc5dd380",
     "all-students": "c4a9216e-7f8c-4c7c-bab4-1dafc214f098",
     "modify": "c505752e-eabe-430e-81ef-1fb30a0331f6",

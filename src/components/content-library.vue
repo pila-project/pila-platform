@@ -8,7 +8,7 @@
             <IconButton
               icon="plus-circle"
               @click="showAddModal = true"
-              :text="t('add-content-by-id')"
+              :text="t('add-content-by-id-or-url')"
               background="#FFC442"
             />
             <br>
@@ -60,7 +60,7 @@
     showCloseButton
     :closeButtonText=" showUUIDWarning || contentId === '' ? 'cancel' : 'add'"
   >
-    <template v-slot:title>{{ t('add-content-by-id') }}</template>
+    <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
     <template v-slot:body>
       <div style="text-align: center;">
         <input
@@ -83,7 +83,7 @@
     showCloseButton
     :closeButtonText="contentToCreate ? t('create') : t('cancel')"
   >
-    <template v-slot:title>{{ t('add-content-by-id') }}</template>
+    <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
     <template v-slot:body>
       <div style="padding: 0 32px;">
         <h3>{{ t('select-content-type') }}</h3>
