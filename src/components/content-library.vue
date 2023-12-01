@@ -152,6 +152,18 @@
         const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
         return Array.from( new Set([...expert, ...tracked]) ).sort()
       },
+      URL_CONTENT_DATA() {
+        return URL_CONTENT_DATA
+      }
+    },
+    methods: {
+      t(slug) { return this.$store.getters.t(slug) },
+      trackContent(event, content_id) {
+        if (event === 'primary-button') {
+          this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
+        }
+        this.showAddModal = false
+      },
       async showUUIDOrUrlWarning() {
         if (isURL(this.contentId)) { // if url, show warning if not betty
           return !this.isBettyLink(this.contentId)
@@ -161,21 +173,6 @@
         } else { // else show warning
           return false
         }
-      },
-      URL_CONTENT_DATA() {
-        return URL_CONTENT_DATA
-      }
-    },
-    methods: {
-      t(slug) { return this.$store.getters.t(slug) },
-      isBettyLink(id) {
-        return id.startsWith('https://bettysbrain.knowlearning.systems/')
-      },
-      trackContent(event, content_id) {
-        if (event === 'primary-button') {
-          this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
-        }
-        this.showAddModal = false
       },
       isCandliLink(id) {
         return id.startsWith('https://pila.cand.li/')
