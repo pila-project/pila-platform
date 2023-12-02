@@ -22,8 +22,8 @@
 			  class="name-and-role"
 			  @click.shift="$store.dispatch('cycleLanguageAndRefetch')"
 			>
-				{{ username }},
-				{{ $store.getters['roles/role']($store.state.user) }}
+				<div>{{ username }}</div>
+				<div>{{ $store.getters['roles/role']($store.state.user) }}</div>
 			</div>
 			<IconButton
 	          @click="logout"
@@ -103,7 +103,11 @@
 
 	.name-and-role
 	{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		padding: 0 16px;
+		font-size: 0.9rem;
 	}
 
 </style>
