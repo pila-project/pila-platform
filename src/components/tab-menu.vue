@@ -18,11 +18,13 @@
 			     />
 				{{ spacer ? '' : name }}
 			</div>
-			<div @click.shift="$store.dispatch('cycleLanguageAndRefetch')" >
-	  			{{ t('anonymous') }}_{{ $store.state.user.slice(0, 4) }}
-	  			<br>
-	  			{{ t($store.getters['roles/role']($store.state.user)) }}
-	  		</div>
+			<div
+			  class="name-and-role"
+			  @click.shift="$store.dispatch('cycleLanguageAndRefetch')"
+			>
+				{{ username }},
+				{{ $store.getters['roles/role']($store.state.user) }}
+			</div>
 			<IconButton
 	          @click="logout"
 
@@ -52,6 +54,15 @@
 			tabs: Array,
 			current: String
 		},
+		data() {
+			return {
+				username: '...'
+			}
+		},
+		async created() {
+			const { auth: { info } } = await Agent.environment()
+			if (info?.name) this.username = info.name
+		},
 		methods: {
 			t(slug) { return this.$store.getters.t(slug) },
 			logout() {
@@ -70,8 +81,9 @@
 	.tabs-wrapper
 	{
 		display: flex;
-		padding-top: 16px;
 		background: #EEEEEE;
+		align-items: end;
+		padding: 8px 8px 0px 8px;
 	}
 	.tab
 	{
@@ -87,6 +99,11 @@
 		margin-right: 4px;
 		margin-top: -8px;
 		margin-bottom: -4px;
+	}
+
+	.name-and-role
+	{
+		padding: 0 16px;
 	}
 
 </style>
