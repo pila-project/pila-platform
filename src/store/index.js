@@ -62,6 +62,11 @@ export default {
   actions: {
     loaded({ commit }, loaded) { commit('loaded', loaded) },
 
+    async cycleLanguageAndRefetch({ commit, dispatch }) {
+      await dispatch('fetchTranslations')
+      commit('cycleLanguage')
+    },
+
     async load({ commit, state }) {
       const language = matchNavigatorLanguage(languageChoices)
       commit('language', language)
@@ -76,11 +81,6 @@ export default {
     },
     acceptTeacherAgreement({ commit }) {
       commit('acceptTeacherAgreement')
-    },
-
-    async cycleLanguageAndRefetch({ commit, dispatch }) {
-      await dispatch('fetchTranslations')
-      commit('cycleLanguage')
     }
   },
   plugins: [
