@@ -21,10 +21,10 @@
       const key = localStorage.getItem(`zkek-${this.$store.state.user}`)
       if (!key) this.setAnonymous()
       else {
-        const encryptedNames = await Agent.state('encrypted-user-info', this.user)
-        const { publicKey, secretKey: mySecretKey } = generateKeyPair(key)
-        if (encryptedNames[publicKey]) {
-          const { publicKey: theirPublicKey, encryptedInfo } = encryptedNames[publicKey]
+        const encryptedUserInfo = await Agent.state('encrypted-user-info', this.user)
+        console.log('ENCRYPTED USER INFO TO USE....', encryptedUserInfo)
+        if (false) {
+          const { publicKey: theirPublicKey, encryptedInfo } = encryptedUserInfo[publicKey]
           try {
             this.info = JSON.parse(
               decrypt(mySecretKey, theirPublicKey, Buffer.from(encryptedInfo, 'base64'))

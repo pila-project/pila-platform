@@ -1,9 +1,25 @@
 import { v4 as uuid } from 'uuid'
+import { encrypt, generateKeyPair } from '../encryption.js'
 
 const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'
 
 let firstLoad = true
+
+function base64ToUint8Array(base64String) {
+  let binaryString = atob(base64String)
+  let uint8Array = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    uint8Array[i] = binaryString.charCodeAt(i)
+  }
+  return uint8Array
+}
+
+function uint8ArrayToBase64(uint8Array) {
+  return btoa(
+    uint8Array.reduce((acc, byte) => acc += String.fromCharCode(byte), '')
+  )
+}
 
 export default {
   scope: null,
@@ -48,7 +64,11 @@ export default {
           return !archived && group_id === gid && user_id === uid
         })
     ),
-    specialGroupId: state => name => state.specialGroupIds[name] || null
+    specialGroupId: state => name => state.specialGroupIds[name] || null,
+    myTeachers: (state, getters) => {
+      const myTeacherGroupId = getters.specialGroupId('my-teachers')
+      return myTeacherGroupId ? getters.members(myTeacherGroupId) : []
+    }
   },
   mutations: {
     add(state, { id, name, owner, group_type, archived }) {
@@ -73,14 +93,35 @@ export default {
   },
   actions: {
     async load({ dispatch }, poll) {
-      if (firstLoad || poll === 'do-it') {
-        setTimeout(() => dispatch('load', 'do-it'), 3000)
-        firstLoad = false
-      }
       await Promise.all([
         dispatch('loadGroups'),
         dispatch('loadMembers')
       ])
+      if (firstLoad) dispatch('encryptMyUserInfo')
+
+      if (firstLoad || poll === 'do-it') {
+        setTimeout(() => dispatch('load', 'do-it'), 3000)
+        firstLoad = false
+      }
+    },
+    async encryptMyUserInfo({ getters }) {
+      const myEncryptedUserInfo = await Agent.state('encrypted-user-info')
+      const serializedInfo = JSON.stringify((await Agent.environment()).auth.info)
+      getters
+        .myTeachers
+        .forEach(async teacherId => {
+          const teacherKey = await Agent.state('user-info-public-keys', teacherId)
+          const teacherPublicKeyBuffer = base64ToUint8Array(teacherKey.public)
+          const { publicKey, secretKey: myEphemeralSecretKey } = generateKeyPair()
+          console.log(teacherPublicKeyBuffer.length, teacherKey.public.length, teacherKey.public)
+          myEncryptedUserInfo[teacherKey.public] = {
+            publicKey: uint8ArrayToBase64(publicKey),
+            encryptedInfo: uint8ArrayToBase64(
+              encrypt(myEphemeralSecretKey, teacherPublicKeyBuffer, new TextEncoder().encode(serializedInfo))
+            )
+          }
+          console.log('encrypted-user-info!!!!!!!!!!!!!!', teacherKey.public.length, myEncryptedUserInfo[teacherKey.public])
+        })
     },
     async loadGroups({ commit }) {
       async function loadSpecialGroup(name) {

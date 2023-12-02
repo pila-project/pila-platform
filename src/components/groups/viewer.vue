@@ -185,6 +185,12 @@
   import DecryptedName from '../decrypted-name.vue'
   import * as encryption from '../../encryption.js'
 
+  function uint8ArrayToBase64(uint8Array) {
+    return btoa(
+      uint8Array.reduce((acc, byte) => acc += String.fromCharCode(byte), '')
+    )
+  }
+
   export default {
     components: {
       UserInfo,
@@ -217,7 +223,10 @@
       async namePassword(val) {
         localStorage.setItem(`zkek-${this.$store.state.user}`, val)
         const publicKeys = await Agent.state('user-info-public-keys')
-        publicKeys.public = encryption.generateKeyPair(val).publicKey
+        const publicKeyBuffer = encryption.generateKeyPair(val).publicKey
+        console.log('pkeybuff', publicKeyBuffer)
+        publicKeys.public = uint8ArrayToBase64(publicKeyBuffer)
+        console.log('stringified length', publicKeys.public.length)
       }
     },
     computed: {
