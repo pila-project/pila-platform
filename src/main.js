@@ -12,7 +12,7 @@ import './main.css'
 window.Agent = browserAgent()
 
 async function initialize() {
-  const store = await vuePersistentStore(storeDef)
+  const store = Agent.embedded ? storeDef : await vuePersistentStore(storeDef)
   const app = createApp(App)
   app.use(createStore(store))
   app.use(router)
