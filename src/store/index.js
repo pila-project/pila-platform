@@ -20,6 +20,7 @@ export default {
     user: null,
     provider: null,
     language: null,
+    codeEntered: false,
     hasAcceptedStudentAgreement: false,
     hasAcceptedTeacherAgreement: false,
     translations: {}, // slug => value in language
@@ -47,14 +48,12 @@ export default {
       state.provider = provider
     },
     acceptStudentAgreement(state) {
-      // TODO: Remove this as toggle which is for testing. Only set to Date.now
-      if (!!state.hasAcceptedStudentAgreement) state.hasAcceptedStudentAgreement = false
-      else state.hasAcceptedStudentAgreement = Date.now()
+      // TODO: Remove this as toggle which is for testing.
+      state.hasAcceptedStudentAgreement =  !state.hasAcceptedStudentAgreement
     },
     acceptTeacherAgreement(state) {
-      // TODO: Remove this as toggle which is for testing. Only set to Date.now
-      if (!!state.hasAcceptedTeacherAgreement) state.hasAcceptedTeacherAgreement = false
-      else state.hasAcceptedTeacherAgreement = Date.now()
+      // TODO: Remove this as toggle which is for testing.
+      state.hasAcceptedTeacherAgreement = !state.hasAcceptedTeacherAgreement
     },
     language(state, val) { state.language = val },
     cycleLanguage(state) {

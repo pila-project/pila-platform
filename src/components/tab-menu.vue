@@ -65,10 +65,7 @@
 		},
 		methods: {
 			t(slug) { return this.$store.getters.t(slug) },
-			logout() {
-				this.$store.state.codeEntered = false
-				Agent.logout()
-			}
+			logout() { Agent.logout() }
 		}
 	}
 </script>
