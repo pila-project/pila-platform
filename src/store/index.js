@@ -2,8 +2,8 @@ import roles from './roles.js'
 import groups from './groups.js'
 import assignments from './assignments.js'
 import pila_tags from './pila_tags.js'
+import translations from './translations.js'
 
-import translationSlugMap from './translationSlugMap.js'
 import languageChoices from './languageChoices.js'
 import { matchNavigatorLanguage } from './matchNavigatorLanguage.js'
 
@@ -13,7 +13,8 @@ export default {
     assignments,
     groups,
     roles,
-    pila_tags
+    pila_tags,
+    translations
   },
   state: () => ({
     loaded: false,
@@ -23,7 +24,6 @@ export default {
     codeEntered: false,
     hasAcceptedStudentAgreement: false,
     hasAcceptedTeacherAgreement: false,
-    translations: {}, // slug => value in language
   }),
   getters: {
     isAnonymous: state => () => state.provider === 'anonymous',
@@ -31,15 +31,7 @@ export default {
     user: state => () => state.user,
     language: state => () => state.language,
     hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
-    hasAcceptedTeacherAgreement: state => () => state.hasAcceptedTeacherAgreement,
-    t: state => slug => {
-      const target = translationSlugMap[slug]
-      const lang = state.language
-      if (!target) return `no slug ${slug}`
-      if (!state.translations?.[lang]) return `no translations for ${lang}`
-      if (!state.translations[lang][target]) return `${lang} ${slug}`
-      else return state.translations[lang][target]
-    }
+    hasAcceptedTeacherAgreement: state => () => state.hasAcceptedTeacherAgreement
   },
   mutations: {
     loaded(state, loaded) { state.loaded = loaded},
@@ -70,19 +62,10 @@ export default {
   actions: {
     loaded({ commit }, loaded) { commit('loaded', loaded) },
 
-    addTranslation({ commit }, t) { commit('addTranslation', t) },
-
-    async fetchTranslations({ dispatch }) {
-      const domain ='translate-pila-alpha.netlify.app' 
-      const translations = await Agent.query('translations', [], domain)
-      const translationPromises = translations.map(t => dispatch('addTranslation', t )) //dispatch so we can await
-      return Promise.all(translationPromises)
-    },
-
     async cycleLanguageAndRefetch({ commit, dispatch }) {
       await dispatch('fetchTranslations')
       commit('cycleLanguage')
-    }, 
+    },
 
     async load({ commit, state }) {
       const language = matchNavigatorLanguage(languageChoices)
