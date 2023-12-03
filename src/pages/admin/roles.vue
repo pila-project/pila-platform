@@ -12,9 +12,9 @@
     </thead>
     <tbody>
       <tr v-for="{ role, assigner, updated }, user in roles">
-        <td><UserInfo :user="user" name /></td>
-        <td><UserInfo :user="user" email /></td>
-        <td><UserInfo :user="assigner" name /></td>
+        <td><DecryptedName :user="user" /></td>
+        <td></td>
+        <td><DecryptedName :user="assigner" /></td>
         <td>{{ updated }}</td>
         <td>
           <select
