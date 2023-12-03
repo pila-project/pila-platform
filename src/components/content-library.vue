@@ -1,5 +1,14 @@
 <template>
   <div class="cards-wrapper">
+
+    <button
+      v-for="x,i in ['all', 'candli', 'betty', 'karel']"
+      :key="'button-' + i"
+      @click="filter = x"
+    >
+      {{ filter === x ? 'x - ' + x : 'o - ' + x }}
+    </button>
+
     <div class="card-container">
       <div class="card new-item-card">
         <div>
@@ -22,7 +31,7 @@
         </div>
       </div>
       <div
-        v-for="id in content"
+        v-for="id in filteredContent"
         :key="id"
         class="card"
       >
@@ -143,13 +152,14 @@
         showAddModal: false,
         previewing: null,
         showCreateModal: false,
-        contentToCreate: ''
+        contentToCreate: '',
+        filter: 'all'
       }
     },
     watch: {
       async contentId(val) {
-        if (isURL(val)) { // if url, validated if betty link
-          this.contentIdValidated = this.isBettyLink(val)
+        if (isURL(val)) { // if url, validated if betty or candli
+          this.contentIdValidated = this.isBettyLink(val) || this.isCandliLink(val)
         } else if (isUUID(val)) { // if uuid, validated if karel map
           console.log('in uuid check')
           const res = await Agent.metadata(this.contentId)
@@ -163,6 +173,17 @@
       }
     },
     computed: {
+      filteredContent() {
+        if (this.filter === 'candli') {
+          return this.content.filter(id => this.isCandliLink(id))
+        } else if (this.filter === 'betty') {
+          return this.content.filter(id => this.isBettyLink(id))
+        } else if (this.filter === 'karel' ) {
+          return this.content.filter(id => isUUID(id))
+        } else {
+          return this.content
+        }
+      },
       content() {
         const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
         const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
