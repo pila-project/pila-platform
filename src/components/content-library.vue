@@ -1,5 +1,12 @@
 <template>
   <div class="cards-wrapper">
+    <ProjectSelector
+      :activeProjects="activeProjects"
+      @select="toggleActive"
+    />
+
+    <hr>
+
     <div class="card-container">
       <div class="card new-item-card">
         <div>
@@ -22,7 +29,7 @@
         </div>
       </div>
       <div
-        v-for="id in content"
+        v-for="id in filteredContent"
         :key="id"
         class="card"
       >
@@ -112,6 +119,7 @@
   import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
   import PreviewModal from './PreviewModal.vue'
+  import ProjectSelector from './project-selector.vue'
   import URL_CONTENT_DATA from '../url-content-data.js'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
@@ -131,6 +139,7 @@
       TaggedContent,
       PILAModal,
       PreviewModal,
+      ProjectSelector,
       CardIconsBar,
       IconButton,
       vueScopeComponent,
@@ -143,13 +152,14 @@
         showAddModal: false,
         previewing: null,
         showCreateModal: false,
-        contentToCreate: ''
+        contentToCreate: '',
+        activeProjects: [ 'karel', 'candli', 'betty' ]
       }
     },
     watch: {
       async contentId(val) {
-        if (isURL(val)) { // if url, validated if betty link
-          this.contentIdValidated = this.isBettyLink(val)
+        if (isURL(val)) { // if url, validated if betty or candli
+          this.contentIdValidated = this.isBettyLink(val) || this.isCandliLink(val)
         } else if (isUUID(val)) { // if uuid, validated if karel map
           console.log('in uuid check')
           const res = await Agent.metadata(this.contentId)
@@ -163,6 +173,12 @@
       }
     },
     computed: {
+      filteredContent() {
+        return this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
+            || (this.activeProjects.includes('candli') && this.isCandliLink(id))
+            || (this.activeProjects.includes('karel') && isUUID(id))
+        )
+      },
       content() {
         const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
         const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
@@ -174,6 +190,13 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
+      toggleActive(e) {
+        if (this.activeProjects.includes(e)) {
+          this.activeProjects = this.activeProjects.filter(p => p !== e)
+        } else {
+          this.activeProjects.push(e)
+        }
+      },
       trackContent(event, content_id) {
         if (event === 'primary-button') {
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
