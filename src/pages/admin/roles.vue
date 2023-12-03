@@ -12,9 +12,9 @@
     </thead>
     <tbody>
       <tr v-for="{ role, assigner, updated }, user in roles">
-        <td><UserInfo :user="user" name /></td>
-        <td><UserInfo :user="user" email /></td>
-        <td><UserInfo :user="assigner" name /></td>
+        <td><DecryptedName :user="user" /></td>
+        <td></td>
+        <td><DecryptedName :user="assigner" /></td>
         <td>{{ updated }}</td>
         <td>
           <select
@@ -46,8 +46,8 @@
     </thead>
     <tbody>
       <tr v-for="{ role, updated }, user in roleRequests">
-        <td><UserInfo :user="user" name /></td>
-        <td><UserInfo :user="user" email /></td>
+        <td><DecryptedName :user="user" /></td>
+        <td></td>
         <td>{{ updated }}</td>
         <td>{{ role }}</td>
         <td>
@@ -59,11 +59,11 @@
 </template>
 
 <script>
-  import UserInfo from '../../components/user-info.vue'
+  import DecryptedName from '../../components/decrypted-name.vue'
 
   export default {
     components: {
-      UserInfo
+      DecryptedName
     },
     state() {
       return {}

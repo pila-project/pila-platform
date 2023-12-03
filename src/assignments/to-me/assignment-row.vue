@@ -8,7 +8,7 @@
   <tr v-else>
     <td><vueScopeComponent :id="assignedItemId" :path="['name']" /></td>
     <td><vueScopeComponent :id="assignedItemId" :path="['description']" /></td>
-    <td><UserInfo :user="assignmentMetadata.owner" /></td>
+    <td><DecryptedName :user="assignmentMetadata.owner" /></td>
     <td><button @click="$emit('play')">{{ t('play') }}</button></td>
   </tr>
 
@@ -16,7 +16,7 @@
 
 <script>
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import UserInfo from '../../components/user-info.vue'
+  import DecryptedName from '../../components/decrypted-name.vue'
 
   export default {
     props: {
@@ -24,7 +24,7 @@
     },
     components: {
       vueScopeComponent,
-      UserInfo
+      DecryptedName
     },
     data() {
       return {
