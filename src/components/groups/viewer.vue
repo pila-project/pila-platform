@@ -21,7 +21,7 @@
             v-if="type === 'class'"
             icon="key"
             background="#FFC442"
-            :text="t('enter-name-password')"
+            :text="t('enter-encryption-key-word')"
             @click="showNamePasswordModal = true"
           />
         </div>
@@ -149,10 +149,10 @@
     showCloseButton
     :closeButtonText="t('done')"
   >
-    <template v-slot:title>{{ t('enter-name-password') }}</template>
+    <template v-slot:title>{{ t('enter-encryption-key-word') }}</template>
     <template v-slot:body>
       <div style="padding: 16px 32px; text-align: center;">
-        {{ t('enter-a-password-you-will-remember-this-password-will-be-used-to-allow-you-to-see-your-students-names-while-preserving-the-anonymity-of-their-data-for-all-other-users') }}
+        {{ t('enter-an-encryption-key-word-you-will-remember-this-key-word-will-be-used-to-allow-you-to-see-your-students-names-while-preserving-the-anonymity-of-their-data-for-all-other-users') }}
         <br>
         <input v-model="namePassword" class="rounded-grey" style="width: 80%; text-align: center;" />
       </div>
