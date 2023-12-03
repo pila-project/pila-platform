@@ -231,7 +231,7 @@
       async add() {
         const content_id = uuid()
         const assignableItem = await Agent.state(content_id)
-        assignableItem.name = 'New Assignment' // TODO: add reasonable defaults based on type
+        assignableItem.name = 'New Assignment'
         this.current = content_id
         this.$store.dispatch('pila_tags/tag', { content_id, tag_type: this.assignable_item_type })
         this.showEditModal = true

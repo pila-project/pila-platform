@@ -5,11 +5,6 @@
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
 
-    <!-- TODO Remove Button After Testing -->
-    <button
-      @click="$store.dispatch('acceptTeacherAgreement')"
-    >TEMP Toggle Teacher Agreement</button>
-
     <TabMenu
       :tabs="[
         { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
@@ -38,18 +33,12 @@
     />
     <StudiesNotAvailable
       v-if="tab === 'assignments-to-me' && hideStudies"
-      @showStudies="hideStudies = false"
     />
     <AssignmentsToMe
       v-else-if="tab === 'assignments-to-me'"
       type="researcher-to-teacher"
     />
-    <button
-      v-if="tab === 'assignments-to-me' && !hideStudies"
-      @click="hideStudies = true"
-      style="margin-top: 200px; width: 200px; align-self: center;"
-    >Temp for Dev Only, Re-Hide Studies</button>
-    <!-- TODO REMOVE TEMP BUTTON ABOVE -->
+
   </div>
 
   <RoleRequester v-else role="teacher" />
@@ -80,7 +69,7 @@
     data() {
       return {
         tab: 'classes',
-        hideStudies: true // TODO Remove after Demo
+        hideStudies: true // For December Demo
       }
     },
     computed: {
