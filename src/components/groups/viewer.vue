@@ -112,7 +112,7 @@
               v-for="member in currentGroupMembers"
               :key="member"
             >
-              <td style="text-align: left;"><UserInfo :user="member" name /></td>
+              <td style="text-align: left;"><DecryptedName :user="member" /></td>
 <!--
               <td>-</td>
               <td>TODO</td>
@@ -178,7 +178,6 @@
 <script>
   import naclUtil from 'tweetnacl-util'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import UserInfo from '../user-info.vue'
   import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
@@ -189,15 +188,14 @@
 
   export default {
     components: {
-      UserInfo,
+      DecryptedName,
       vueScopeComponent,
       Splitpanes,
       IconButton,
       Pane,
       LinkStudentModal,
       CreateEditGroupModal,
-      PILAModal,
-      DecryptedName
+      PILAModal
     },
     props: {
       possibleMembers: Array,

@@ -178,7 +178,6 @@
 <script>
   import { v4 as uuid } from 'uuid'
   import PILAModal from '../../components/PILAModal.vue'
-  import UserInfo from '../../components/user-info.vue'
   import IconButton from '../../components/icon-button.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
@@ -190,7 +189,6 @@
     components: {
       PILAModal,
       PreviewModal,
-      UserInfo,
       vueScopeComponent,
       IconButton,
       Splitpanes,

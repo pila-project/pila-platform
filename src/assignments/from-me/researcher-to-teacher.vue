@@ -63,7 +63,6 @@
 </template>
 
 <script>
-  import UserInfo from '../../components/user-info.vue'
   import ContentName from '../../components/content-name.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
 
@@ -76,7 +75,6 @@
     },
     components: {
       ContentName,
-      UserInfo,
       GroupAssigner
     },
     data() {

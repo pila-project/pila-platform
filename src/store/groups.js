@@ -98,6 +98,8 @@ export default {
         .myTeachers
         .forEach(async teacherId => {
           const teacherKey = await Agent.state('user-info-public-keys', teacherId)
+          if (!teacherKey.public) return
+
           const teacherPublicKeyBuffer = naclUtil.decodeBase64(teacherKey.public)
 
           myEncryptedUserInfo[teacherKey.public] = {

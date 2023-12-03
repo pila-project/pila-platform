@@ -72,7 +72,7 @@
         			@change="handleAddRemove($event, member)"
         		/>
         	</td>
-         	<td style="text-align: left;"><UserInfo :user="member" name /></td>
+         	<td style="text-align: left;"><DecryptedName :user="member" name /></td>
         </tr>
         <tr
           v-if="filteredStudentList.length < 6"
@@ -92,13 +92,13 @@
 <script>
 import IconButton from '../icon-button.vue'
 import LinkStudentModal from './LinkStudentModal.vue'
-import UserInfo from '../user-info.vue'
+import DecryptedName from '../decrypted-name.vue'
 export default {
 	name: 'create-edit-group-modal',
 	components: {
 		IconButton,
 		LinkStudentModal,
-		UserInfo
+		DecryptedName
 	},
 	props: {
 		type: {

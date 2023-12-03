@@ -33,7 +33,6 @@
 </template>
 
 <script>
-  import UserInfo from '../user-info.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 
   export default {
@@ -43,8 +42,7 @@
       assignment_type: String
     },
     components: {
-      vueScopeComponent,
-      UserInfo
+      vueScopeComponent
     },
     computed: {
       assignments() {
