@@ -147,6 +147,7 @@
     v-if="showNamePasswordModal"
     @close="showNamePasswordModal = false"
     showCloseButton
+    :closeButtonText="t('done')"
   >
     <template v-slot:title>{{ t('enter-name-password') }}</template>
     <template v-slot:body>
