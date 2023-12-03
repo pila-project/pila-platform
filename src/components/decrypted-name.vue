@@ -6,7 +6,7 @@
 
 <script>
   import { decrypt, generateKeyPair } from '../encryption.js'
-  import naclUtil from 'tweetnacl-util'
+  import { encodeBase64, decodeBase64, encodeUTF8 } from 'tweetnacl-util'
 
   export default {
     props: {
@@ -24,28 +24,25 @@
       if (!key) this.setAnonymous()
       else {
         const encryptedUserInfo = await Agent.state('encrypted-user-info', this.user)
-        const { publicKey: myPublicKey, secretKey: mySecretKey} = generateKeyPair(key)
-        const serializedPublicKey = naclUtil.encodeBase64(myPublicKey)
-
-        if (encryptedUserInfo[serializedPublicKey]) {
-          const { publicKey: theirPublicKey, encryptedInfo } = encryptedUserInfo[serializedPublicKey]
+        const { secretKey: mySecretKey} = generateKeyPair(key)
+        const toTry = Object.values(encryptedUserInfo)
+        let success = false
+        while (toTry.length && !success) {
+          const { publicKey: theirPublicKey, encryptedInfo } = toTry.pop()
           try {
-            console.log('TRYING TO DECRYPT', theirPublicKey, encryptedInfo)
             this.info = JSON.parse(
-              naclUtil.encodeUTF8(
+              encodeUTF8(
                 decrypt(
-                  mySecretKey.slice(0, 32),
-                  naclUtil.decodeBase64(theirPublicKey),
-                  naclUtil.decodeBase64(encryptedInfo)
+                  mySecretKey,
+                  decodeBase64(theirPublicKey),
+                  decodeBase64(encryptedInfo)
                 )
               )
             )
-          } catch (error) {
-            console.warn(error)
-            this.setAnonymous()
-          }
+            success = true
+          } catch (error) { console.warn(error) }
         }
-        else this.setAnonymous()
+        if (!success) this.setAnonymous()
       }
     },
     methods: {

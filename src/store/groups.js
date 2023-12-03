@@ -99,6 +99,7 @@ export default {
         .forEach(async teacherId => {
           const teacherKey = await Agent.state('user-info-public-keys', teacherId)
           const teacherPublicKeyBuffer = naclUtil.decodeBase64(teacherKey.public)
+
           myEncryptedUserInfo[teacherKey.public] = {
             publicKey: naclUtil.encodeBase64(publicKey),
             encryptedInfo: naclUtil.encodeBase64(
@@ -109,7 +110,6 @@ export default {
               )
             )
           }
-          console.log('encrypted-user-info!!!!!!!!!!!!!!', teacherKey.public.length, myEncryptedUserInfo[teacherKey.public])
         })
     },
     async loadGroups({ commit }) {
