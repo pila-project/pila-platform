@@ -1,6 +1,10 @@
 <template>
   <div class="student-assignments">
+    <div v-if="noAssignments">
+      {{ t('you-currently-have-no-assignments-ask-you-teacher-if-you-expect-an-assignment-here')}}
+    </div>
     <div
+      v-else
       v-for="id, aid in assignmentsToContent"
       :key="id"
       class="card"
@@ -63,6 +67,9 @@ export default {
     assignments() {
       return Object.keys(this.assignmentsToContent)
     },
+    noAssignments() {
+      return this.assignments.length === 0
+    },
     URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
     },
@@ -91,6 +98,7 @@ export default {
     }
   },
   methods: {
+    t(slug) { return this.$store.getters.t(slug) },
     async play(aid) {
       const assignment = await Agent.state(aid)
       this.playing = assignment.item_id

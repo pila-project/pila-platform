@@ -53,6 +53,7 @@ export default {
     "copy-link": "53730068-3277-4b80-b2c0-d2cf2c76ac2d",
     "students-in-class": "573b2241-36d9-42e4-b9f5-edd5ec59fc1d",
     "my-classes": "585170d7-9793-42b3-ac89-1648fa20b416",
+    "you-currently-have-no-assignments-ask-you-teacher-if-you-expect-an-assignment-here": "5b8bfd7a-ad86-46d0-84b8-edeedb1fd30c",
     "done": "5d5c7a94-6add-489b-b5b3-5a20c33209b4",
     "teacher-groups": "60f2b7b8-5b06-466d-9d67-7a737ebbc4c9",
     "no-classes-assigned": "62467328-6959-40a6-bee2-de278e5e130e",
