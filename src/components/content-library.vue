@@ -1,13 +1,11 @@
 <template>
   <div class="cards-wrapper">
+    <ProjectSelector
+      :activeProjects="activeProjects"
+      @select="toggleActive"
+    />
 
-    <button
-      v-for="x,i in ['all', 'candli', 'betty', 'karel']"
-      :key="'button-' + i"
-      @click="filter = x"
-    >
-      {{ filter === x ? 'x - ' + x : 'o - ' + x }}
-    </button>
+    <hr>
 
     <div class="card-container">
       <div class="card new-item-card">
@@ -121,6 +119,7 @@
   import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
   import PreviewModal from './PreviewModal.vue'
+  import ProjectSelector from './project-selector.vue'
   import URL_CONTENT_DATA from '../url-content-data.js'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
@@ -140,6 +139,7 @@
       TaggedContent,
       PILAModal,
       PreviewModal,
+      ProjectSelector,
       CardIconsBar,
       IconButton,
       vueScopeComponent,
@@ -153,7 +153,7 @@
         previewing: null,
         showCreateModal: false,
         contentToCreate: '',
-        filter: 'all'
+        activeProjects: [ 'karel', 'candli', 'betty' ]
       }
     },
     watch: {
@@ -174,15 +174,10 @@
     },
     computed: {
       filteredContent() {
-        if (this.filter === 'candli') {
-          return this.content.filter(id => this.isCandliLink(id))
-        } else if (this.filter === 'betty') {
-          return this.content.filter(id => this.isBettyLink(id))
-        } else if (this.filter === 'karel' ) {
-          return this.content.filter(id => isUUID(id))
-        } else {
-          return this.content
-        }
+        return this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
+            || (this.activeProjects.includes('candli') && this.isCandliLink(id))
+            || (this.activeProjects.includes('karel') && isUUID(id))
+        )
       },
       content() {
         const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
@@ -195,6 +190,13 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
+      toggleActive(e) {
+        if (this.activeProjects.includes(e)) {
+          this.activeProjects = this.activeProjects.filter(p => p !== e)
+        } else {
+          this.activeProjects.push(e)
+        }
+      },
       trackContent(event, content_id) {
         if (event === 'primary-button') {
           this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
