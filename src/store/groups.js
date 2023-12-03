@@ -1,3 +1,4 @@
+import naclUtil from 'tweetnacl-util'
 import { v4 as uuid } from 'uuid'
 import { encrypt, generateKeyPair } from '../encryption.js'
 
@@ -5,21 +6,6 @@ const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'
 
 let firstLoad = true
-
-function base64ToUint8Array(base64String) {
-  let binaryString = atob(base64String)
-  let uint8Array = new Uint8Array(binaryString.length)
-  for (let i = 0; i < binaryString.length; i++) {
-    uint8Array[i] = binaryString.charCodeAt(i)
-  }
-  return uint8Array
-}
-
-function uint8ArrayToBase64(uint8Array) {
-  return btoa(
-    uint8Array.reduce((acc, byte) => acc += String.fromCharCode(byte), '')
-  )
-}
 
 export default {
   scope: null,
@@ -107,17 +93,20 @@ export default {
     async encryptMyUserInfo({ getters }) {
       const myEncryptedUserInfo = await Agent.state('encrypted-user-info')
       const serializedInfo = JSON.stringify((await Agent.environment()).auth.info)
+      const { publicKey, secretKey: myEphemeralSecretKey } = generateKeyPair()
       getters
         .myTeachers
         .forEach(async teacherId => {
           const teacherKey = await Agent.state('user-info-public-keys', teacherId)
-          const teacherPublicKeyBuffer = base64ToUint8Array(teacherKey.public)
-          const { publicKey, secretKey: myEphemeralSecretKey } = generateKeyPair()
-          console.log(teacherPublicKeyBuffer.length, teacherKey.public.length, teacherKey.public)
+          const teacherPublicKeyBuffer = naclUtil.decodeBase64(teacherKey.public)
           myEncryptedUserInfo[teacherKey.public] = {
-            publicKey: uint8ArrayToBase64(publicKey),
-            encryptedInfo: uint8ArrayToBase64(
-              encrypt(myEphemeralSecretKey, teacherPublicKeyBuffer, new TextEncoder().encode(serializedInfo))
+            publicKey: naclUtil.encodeBase64(publicKey),
+            encryptedInfo: naclUtil.encodeBase64(
+              encrypt(
+                myEphemeralSecretKey,
+                teacherPublicKeyBuffer,
+                naclUtil.decodeUTF8(serializedInfo)
+              )
             )
           }
           console.log('encrypted-user-info!!!!!!!!!!!!!!', teacherKey.public.length, myEncryptedUserInfo[teacherKey.public])

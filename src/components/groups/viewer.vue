@@ -175,8 +175,9 @@
 </template>
 
 <script>
-  import UserInfo from '../user-info.vue'
+  import naclUtil from 'tweetnacl-util'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import UserInfo from '../user-info.vue'
   import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
@@ -184,12 +185,6 @@
   import CreateEditGroupModal from './CreateEditGroupModal.vue'
   import DecryptedName from '../decrypted-name.vue'
   import * as encryption from '../../encryption.js'
-
-  function uint8ArrayToBase64(uint8Array) {
-    return btoa(
-      uint8Array.reduce((acc, byte) => acc += String.fromCharCode(byte), '')
-    )
-  }
 
   export default {
     components: {
@@ -225,7 +220,7 @@
         const publicKeys = await Agent.state('user-info-public-keys')
         const publicKeyBuffer = encryption.generateKeyPair(val).publicKey
         console.log('pkeybuff', publicKeyBuffer)
-        publicKeys.public = uint8ArrayToBase64(publicKeyBuffer)
+        publicKeys.public = naclUtil.encodeBase64(publicKeyBuffer)
         console.log('stringified length', publicKeys.public.length)
       }
     },

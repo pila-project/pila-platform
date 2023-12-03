@@ -6,6 +6,8 @@
 
 <script>
   import { decrypt, generateKeyPair } from '../encryption.js'
+  import naclUtil from 'tweetnacl-util'
+
   export default {
     props: {
       user: String
@@ -22,12 +24,21 @@
       if (!key) this.setAnonymous()
       else {
         const encryptedUserInfo = await Agent.state('encrypted-user-info', this.user)
-        console.log('ENCRYPTED USER INFO TO USE....', encryptedUserInfo)
-        if (false) {
-          const { publicKey: theirPublicKey, encryptedInfo } = encryptedUserInfo[publicKey]
+        const { publicKey: myPublicKey, secretKey: mySecretKey} = generateKeyPair(key)
+        const serializedPublicKey = naclUtil.encodeBase64(myPublicKey)
+
+        if (encryptedUserInfo[serializedPublicKey]) {
+          const { publicKey: theirPublicKey, encryptedInfo } = encryptedUserInfo[serializedPublicKey]
           try {
+            console.log('TRYING TO DECRYPT', theirPublicKey, encryptedInfo)
             this.info = JSON.parse(
-              decrypt(mySecretKey, theirPublicKey, Buffer.from(encryptedInfo, 'base64'))
+              naclUtil.encodeUTF8(
+                decrypt(
+                  mySecretKey.slice(0, 32),
+                  naclUtil.decodeBase64(theirPublicKey),
+                  naclUtil.decodeBase64(encryptedInfo)
+                )
+              )
             )
           } catch (error) {
             console.warn(error)
