@@ -17,6 +17,13 @@
             :text="t('link-students-to-you')"
             @click="showLinkStudentModal = !showLinkStudentModal"
           />
+          <IconButton
+            v-if="type === 'class'"
+            icon="key"
+            background="#FFC442"
+            :text="t('enter-name-password')"
+            @click="showNamePasswordModal = true"
+          />
         </div>
         <div class="class-list">
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
@@ -62,7 +69,7 @@
         <div class="class-list">
           <div v-if="!possibleMembers.length">{{ GET_TEXT.CURRENTLY_NO_MEMBERS }}</div>
           <div v-for="id in possibleMembers">
-            {{ t('anonymous') }}_{{ id.slice(0, 4) }}
+            <DecryptedName :user="id" />
           </div>
         </div>
       </div>
@@ -137,6 +144,21 @@
     </template>
   </PILAModal>
   <PILAModal
+    v-if="showNamePasswordModal"
+    @close="showNamePasswordModal = false"
+    showCloseButton
+    :closeButtonText="t('done')"
+  >
+    <template v-slot:title>{{ t('enter-name-password') }}</template>
+    <template v-slot:body>
+      <div style="padding: 16px 32px; text-align: center;">
+        {{ t('enter-a-password-you-will-remember-this-password-will-be-used-to-allow-you-to-see-your-students-names-while-preserving-the-anonymity-of-their-data-for-all-other-users') }}
+        <br>
+        <input v-model="namePassword" class="rounded-grey" style="width: 80%; text-align: center;" />
+      </div>
+    </template>
+  </PILAModal>
+  <PILAModal
     v-if="showEditClassModal"
     @close="showEditClassModal = false"
     showCloseButton
@@ -154,13 +176,16 @@
 </template>
 
 <script>
-  import UserInfo from '../user-info.vue'
+  import naclUtil from 'tweetnacl-util'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import UserInfo from '../user-info.vue'
   import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
   import LinkStudentModal from './LinkStudentModal.vue'
   import CreateEditGroupModal from './CreateEditGroupModal.vue'
+  import DecryptedName from '../decrypted-name.vue'
+  import * as encryption from '../../encryption.js'
 
   export default {
     components: {
@@ -171,19 +196,32 @@
       Pane,
       LinkStudentModal,
       CreateEditGroupModal,
-      PILAModal
+      PILAModal,
+      DecryptedName
     },
     props: {
       possibleMembers: Array,
       type: String
     },
     data() {
+      const namePassword = localStorage.getItem(`zkek-${this.$store.state.user}`) || ''
       return {
         current: null,
         host: window.location.host,
         showArchived: false,
         showLinkStudentModal: false,
-        showEditClassModal: false
+        showEditClassModal: false,
+        showNamePasswordModal: !namePassword,
+        namePassword
+      }
+    },
+    watch: {
+      async namePassword(val) {
+        localStorage.setItem(`zkek-${this.$store.state.user}`, val)
+        const publicKeys = await Agent.state('user-info-public-keys')
+        const { publicKey: publicKeyBuffer } = await encryption.generateKeyPair(val)
+        publicKeys.public = naclUtil.encodeBase64(publicKeyBuffer)
+        console.log('stringified length', publicKeys.public.length)
       }
     },
     computed: {

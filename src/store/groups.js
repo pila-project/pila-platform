@@ -1,4 +1,6 @@
+import naclUtil from 'tweetnacl-util'
 import { v4 as uuid } from 'uuid'
+import { encrypt, generateKeyPair } from '../encryption.js'
 
 const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'
@@ -48,7 +50,11 @@ export default {
           return !archived && group_id === gid && user_id === uid
         })
     ),
-    specialGroupId: state => name => state.specialGroupIds[name] || null
+    specialGroupId: state => name => state.specialGroupIds[name] || null,
+    myTeachers: (state, getters) => {
+      const myTeacherGroupId = getters.specialGroupId('my-teachers')
+      return myTeacherGroupId ? getters.members(myTeacherGroupId) : []
+    }
   },
   mutations: {
     add(state, { id, name, owner, group_type, archived }) {
@@ -73,14 +79,38 @@ export default {
   },
   actions: {
     async load({ dispatch }, poll) {
-      if (firstLoad || poll === 'do-it') {
-        setTimeout(() => dispatch('load', 'do-it'), 3000)
-        firstLoad = false
-      }
       await Promise.all([
         dispatch('loadGroups'),
         dispatch('loadMembers')
       ])
+      if (firstLoad) dispatch('encryptMyUserInfo')
+
+      if (firstLoad || poll === 'do-it') {
+        setTimeout(() => dispatch('load', 'do-it'), 3000)
+        firstLoad = false
+      }
+    },
+    async encryptMyUserInfo({ getters }) {
+      const myEncryptedUserInfo = await Agent.state('encrypted-user-info')
+      const serializedInfo = JSON.stringify((await Agent.environment()).auth.info)
+      const { publicKey, secretKey: myEphemeralSecretKey } = await generateKeyPair()
+      getters
+        .myTeachers
+        .forEach(async teacherId => {
+          const teacherKey = await Agent.state('user-info-public-keys', teacherId)
+          const teacherPublicKeyBuffer = naclUtil.decodeBase64(teacherKey.public)
+
+          myEncryptedUserInfo[teacherKey.public] = {
+            publicKey: naclUtil.encodeBase64(publicKey),
+            encryptedInfo: naclUtil.encodeBase64(
+              encrypt(
+                myEphemeralSecretKey,
+                teacherPublicKeyBuffer,
+                naclUtil.decodeUTF8(serializedInfo)
+              )
+            )
+          }
+        })
     },
     async loadGroups({ commit }) {
       async function loadSpecialGroup(name) {
