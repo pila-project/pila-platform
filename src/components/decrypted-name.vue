@@ -24,7 +24,7 @@
       if (!key) this.setAnonymous()
       else {
         const encryptedUserInfo = await Agent.state('encrypted-user-info', this.user)
-        const { secretKey: mySecretKey} = generateKeyPair(key)
+        const { secretKey: mySecretKey} = await generateKeyPair(key)
         const toTry = Object.values(encryptedUserInfo)
         let success = false
         while (toTry.length && !success) {

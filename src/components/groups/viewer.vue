@@ -218,8 +218,7 @@
       async namePassword(val) {
         localStorage.setItem(`zkek-${this.$store.state.user}`, val)
         const publicKeys = await Agent.state('user-info-public-keys')
-        const publicKeyBuffer = encryption.generateKeyPair(val).publicKey
-        console.log('pkeybuff', publicKeyBuffer)
+        const { publicKey: publicKeyBuffer } = await encryption.generateKeyPair(val)
         publicKeys.public = naclUtil.encodeBase64(publicKeyBuffer)
         console.log('stringified length', publicKeys.public.length)
       }

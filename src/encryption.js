@@ -1,12 +1,10 @@
 import { box, randomBytes } from 'tweetnacl'
 import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
 
-export const generateKeyPair = key => {
+export const generateKeyPair = async key => {
   if (key) {
-    const keyBuffer = new TextEncoder().encode(key)
-    const padding = new Uint8Array(32).fill(0)
-    const paddedBuffer = new Uint8Array([...keyBuffer, ...padding]).subarray(0, 32)
-    return box.keyPair.fromSecretKey(paddedBuffer)
+    const keyBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key))
+    return box.keyPair.fromSecretKey(new Uint8Array(keyBuffer))
   }
   else return box.keyPair()
 }
@@ -32,9 +30,12 @@ export const decrypt = (mySecretKey, theirPublicKey, encryptedMessageBufferWithN
   return decrypted
 }
 
+/*
 
-const { publicKey: myPublicKey, secretKey: mySecretKey } = generateKeyPair()
-const { publicKey: theirPublicKey, secretKey: theirSecretKey } = generateKeyPair('some-super-secret-key')
+const { publicKey: myPublicKey, secretKey: mySecretKey } = await generateKeyPair()
+const { publicKey: theirPublicKey, secretKey: theirSecretKey } = await generateKeyPair('some-super-secret-key')
+console.log('going ahead?')
+
 
 const original = JSON.stringify({ hello: 'world!' })
 
@@ -53,3 +54,5 @@ const decryptedInfo = encodeUTF8(
     decodeBase64(encryptedInfo)
   )
 )
+
+*/
