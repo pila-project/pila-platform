@@ -1,7 +1,10 @@
 <template>
   <div v-if="!dashboardReference">...</div>
   <div v-else class="dashboard-wrapper">
-    <vueEmbedComponent :id="dashboardReference" />
+    <vueEmbedComponent
+      :id="dashboardReference"
+      :environmentProxy="proxyEnvironmentCall"
+    />
   </div>
 </template>
 
@@ -89,6 +92,15 @@
     },
     beforeUnmount() {
       clearTimeout(this.latestPollTimeout)
+    },
+    methods: {
+      proxyEnvironmentCall(user) {
+        if (user) {
+          //  TODO: decrypt student names
+          return { auth: { user, info: { name: 'some decrypted name' } } }
+        }
+        else return Agent.environment()
+      }
     }
   }
 
