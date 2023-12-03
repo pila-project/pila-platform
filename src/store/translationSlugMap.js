@@ -1,4 +1,4 @@
-export default {
+{
     "log-in-with": "004e72b5-69dd-415c-8abd-38db8f21510e",
     "data-protection-notice-for-students": "00c6de4c-251d-43f2-9594-2bcaa8fa40c9",
     "group-name": "03776dee-1e5b-46fe-a866-abbeba6c4561",
@@ -140,6 +140,7 @@ export default {
     "expert-content": "ee00aef5-c413-4a48-a907-6f30f297b158",
     "information-about-your-screen-and-device": "ee7123b7-4908-4313-8612-31bb3652928a",
     "researcher": "ef20dff4-17f0-4359-87e9-42e7bd718c48",
+    "create": "efc18a8e-badd-45d6-9397-d122d8d28251",
     "terms-of-service-for-teachers": "f4580667-d624-42f8-83a4-db80e744145f",
     "last-login": "f6a24ec2-02cf-48b6-9d48-e197287a29b4",
     "to-create-a-teacher-or-researcher-account-please-enter-your-access-code-below": "f7364c65-874d-42ef-9dd9-6c3d859fb099",
