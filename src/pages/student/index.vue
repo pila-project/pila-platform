@@ -29,16 +29,10 @@
     v-if="hasStudentAgreement"
     class="tab-contents"
   >
-    <!-- TODO Remove Button for Testing ONly -->
-    <button @click="this.$store.dispatch('acceptStudentAgreement')">Toggle Agree</button>
-
     <StudiesNotAvailable
       v-if="tab === 'study-assignments' && hideStudies"
-      @showStudies="hideStudies = false"
     />
     <StudentAssignments v-else />
-    <!-- TODO Remove Button -->
-    <button v-if="!hideStudies" @click="hideStudies = true">Temp for Dev Only -- Re-Hide Studies Page</button>
   </div>
 </template>
 
@@ -57,7 +51,7 @@
     data() {
       return {
         tab: 'class-assignments',
-        hideStudies: true, // TODO Remove After Demo
+        hideStudies: true, // Remove After December Demo
       }
     },
     computed: {

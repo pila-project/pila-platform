@@ -39,14 +39,8 @@ export default {
       state.user = user
       state.provider = provider
     },
-    acceptStudentAgreement(state) {
-      // TODO: Remove this as toggle which is for testing.
-      state.hasAcceptedStudentAgreement =  !state.hasAcceptedStudentAgreement
-    },
-    acceptTeacherAgreement(state) {
-      // TODO: Remove this as toggle which is for testing.
-      state.hasAcceptedTeacherAgreement = !state.hasAcceptedTeacherAgreement
-    },
+    acceptStudentAgreement(state) { state.hasAcceptedStudentAgreement = true },
+    acceptTeacherAgreement(state) { state.hasAcceptedTeacherAgreement = true },
     language(state, val) { state.language = val },
     cycleLanguage(state) {
       const i = languageChoices.indexOf(state.language)
