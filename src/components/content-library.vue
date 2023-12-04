@@ -161,13 +161,9 @@
         if (isURL(val)) { // if url, validated if betty or candli
           this.contentIdValidated = this.isBettyLink(val) || this.isCandliLink(val)
         } else if (isUUID(val)) { // if uuid, validated if karel map
-          console.log('in uuid check')
           const res = await Agent.metadata(this.contentId)
-          console.log(res)
           this.contentIdValidated = (res?.active_type?.startsWith('application/json;type=karel-map')) // allow all versions
         } else { // else not validated
-          console.log('in final else')
-
           this.contentIdValidated = false
         }
       }
