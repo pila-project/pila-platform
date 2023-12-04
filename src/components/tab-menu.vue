@@ -71,40 +71,41 @@
 </script>
 
 <style scoped>
-	.tab-menu
-	{
-/*		font-weight: bold;*/
-	}
-	.tabs-wrapper
-	{
-		display: flex;
-		background: #EEEEEE;
-		align-items: end;
-		padding: 8px 8px 0px 8px;
-	}
-	.tab
-	{
-		cursor: pointer;
-		padding: 12px 32px 4px 32px;
-		border-radius: 16px 16px 0 0;
-		margin-right: 4px;
-	}
+@media (max-width: 1000px) {
+  .tab { min-height: 36px; }
+}
 
-	.icon
-	{
-		height: 24px;
-		margin-right: 4px;
-		margin-top: -8px;
-		margin-bottom: -4px;
-	}
 
-	.name-and-role
-	{
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 0 16px;
-		font-size: 0.9rem;
-	}
+.tabs-wrapper
+{
+	display: flex;
+	background: #EEEEEE;
+	align-items: end;
+	padding: 8px 8px 0px 8px;
+}
+.tab
+{
+	cursor: pointer;
+	padding: 12px 32px 4px 32px;
+	border-radius: 16px 16px 0 0;
+	margin-right: 4px;
+	text-align: center;
+}
 
+.icon
+{
+	height: 24px;
+	margin-right: 4px;
+	margin-top: -8px;
+	margin-bottom: -4px;
+}
+
+.name-and-role
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 0 16px;
+	font-size: 0.9rem;
+}
 </style>
