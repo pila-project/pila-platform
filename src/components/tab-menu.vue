@@ -85,6 +85,8 @@
 }
 .tab
 {
+	display: flex;
+	align-items: center;
 	cursor: pointer;
 	padding: 12px 32px 4px 32px;
 	border-radius: 16px 16px 0 0;
@@ -105,6 +107,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	text-align: center;
 	padding: 0 16px;
 	font-size: 0.9rem;
 }
