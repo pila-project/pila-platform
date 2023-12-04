@@ -1,15 +1,21 @@
 <template>
   <div class="card-icons-bar">
     
+    <div class="left-side">
+      <PilaExpertSvg v-if="isAdmin || isExpertTask"
+        id="pila-logo"
+        :selected="isExpertTask"
+        :clickable="isAdmin"
+        @click="toggleExpertStatus"
+      />
 
-    <PilaExpertSvg v-if="isAdmin || isExpertTask"
-      id="pila-logo"
-      :selected="isExpertTask"
-      :clickable="isAdmin"
-      @click="toggleExpertStatus"
-    />
-    <div v-else></div> <!-- placeholder -->
+      <div class="tags-wrapper">
+        <div class="tag" v-for="tag in tags">{{ t(tag) }}</div>
+      </div>
+    </div>
 
+    <div></div> <!-- placeholder if no PILA icon and no tags -->
+  
     <div class="icons">
       <div class="icon-wrapper" v-if="showPlay" @click="$emit('play')">
         <i style="color: green;" class="fa fa-play"></i>
@@ -43,6 +49,11 @@ export default {
     id: {
       type: String,
       required: true,
+    },
+    tags: {
+      type: Array,
+      required: false,
+      default : () => ([])
     },
     showPlay: {
       type: Boolean,
@@ -84,6 +95,7 @@ export default {
     }
   },
   methods: {
+    t(slug) { return this.$store.getters.t(slug) },
     toggleExpertStatus() {
       const tag = {
         content_id : this.id,
@@ -106,6 +118,9 @@ export default {
   height: 20px;
   padding: 5px;
   margin: 2px 4px;
+}
+.left-side {
+  display: flex;
 }
 .icons {
   display: flex;
@@ -136,5 +151,18 @@ export default {
 .icon-wrapper > svg {
   width: 75%;
   height: 75%;
+}
+.tags-wrapper {
+  display: flex;
+  align-items: center;
+}
+.tag {
+  display: inline-block;
+  color: white;
+  background: #2E31DB;
+  border-radius: 1000px;
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  margin: 1px;
 }
 </style>

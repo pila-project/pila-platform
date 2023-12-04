@@ -15,7 +15,7 @@
               'margin-right': text ? undefined : 0
             }"
         ></i>
-        {{ text }}
+        <span>{{ text }}</span>
     </button>
 </template>
 
