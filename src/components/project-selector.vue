@@ -53,6 +53,7 @@ export default {
 	border: 2px solid lightgrey;
 	border-radius: 12px;
 	filter: grayscale(100%);
+	background: none;
 	cursor: pointer;
 
 }
@@ -62,6 +63,7 @@ export default {
 }
 .project.active {
 	border: 2px solid lightseagreen;
+	background: rgba(32, 178, 170, 0.3);
 	filter: grayscale(0%);
 }
 </style>

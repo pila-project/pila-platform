@@ -1,8 +1,35 @@
 <template>
   <div class="cards-wrapper">
-    <ProjectSelector
-      :activeProjects="activeProjects"
-      @select="toggleActive"
+
+    <div class="filters-selector" v-if="showFilters">
+
+      <div style="align-self: flex-start;">
+        <IconButton
+          icon="minus-circle"
+          @click="showFilters = false"
+          :text="t('hide-filters')"
+          :background="'rgb(107, 234, 201)'"
+        />
+      </div>
+
+      <ProjectSelector
+        :activeProjects="activeProjects"
+        @select="toggleActive"
+      />
+      <TagSelector
+        :activeTags="activeTags"
+        :tags="allItemTags"
+        @select="toggleTag"
+      />
+    </div>
+
+    <IconButton
+      v-else
+      style="align-self: flex-start;"
+      icon="plus-circle"
+      @click="showFilters = true"
+      :text="t('show-filters')"
+      :background="'rgb(107, 234, 201)'"
     />
 
     <hr>
@@ -52,6 +79,7 @@
           <CardIconsBar
             :id="id"
             :key="`icon-bar-for-${id}`"
+            :tags="tagsForId(id)"
             showPreview
             showRemove
             @preview="previewing = id"
@@ -120,7 +148,9 @@
   import PILAModal from './PILAModal.vue'
   import PreviewModal from './PreviewModal.vue'
   import ProjectSelector from './project-selector.vue'
+  import TagSelector from './tag-selector.vue'
   import URL_CONTENT_DATA from '../url-content-data.js'
+  import contentTags from '../content-tags.js'
   import { validate as isUUID } from 'uuid'
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
@@ -140,6 +170,7 @@
       PILAModal,
       PreviewModal,
       ProjectSelector,
+      TagSelector,
       CardIconsBar,
       IconButton,
       vueScopeComponent,
@@ -153,7 +184,9 @@
         previewing: null,
         showCreateModal: false,
         contentToCreate: '',
-        activeProjects: [ 'karel', 'candli', 'betty' ]
+        activeProjects: [ 'karel', 'candli', 'betty' ],
+        activeTags: [],
+        showFilters: false
       }
     },
     watch: {
@@ -170,10 +203,18 @@
     },
     computed: {
       filteredContent() {
-        return this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
+        const filteredByType = this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
             || (this.activeProjects.includes('candli') && this.isCandliLink(id))
             || (this.activeProjects.includes('karel') && isUUID(id))
         )
+        const filteredByTypeAndTag = filteredByType.filter(id => {
+          return this.activeTags.every(tag => this.tagsForId(id).includes(tag))
+        })
+        return filteredByTypeAndTag
+      },
+      allItemTags() {
+        const flat = Object.values(contentTags).flat()
+        return Array.from( new Set(flat) )
       },
       content() {
         const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
@@ -186,6 +227,14 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
+      toggleTag(tag) {
+        if (this.activeTags.includes(tag)) {
+          this.activeTags = this.activeTags.filter(t => t !== tag)
+        } else {
+          this.activeTags.push(tag)
+        }
+      },
+      tagsForId(id) { return contentTags[id] || [] },
       toggleActive(e) {
         if (this.activeProjects.includes(e)) {
           this.activeProjects = this.activeProjects.filter(p => p !== e)
@@ -283,5 +332,11 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: 8px;
+  }
+  .filters-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+
   }
 </style>

@@ -5,7 +5,8 @@
             background,
             border: `1px solid ${background === 'none' ? '#ccc' : background }`,
             color: textColor,
-            margin: '2px'
+            margin: '2px',
+            'user-select': 'none'
         }"
     >
         <i
@@ -15,7 +16,7 @@
               'margin-right': text ? undefined : 0
             }"
         ></i>
-        {{ text }}
+        <span>{{ text }}</span>
     </button>
 </template>
 
