@@ -94,10 +94,10 @@
       clearTimeout(this.latestPollTimeout)
     },
     methods: {
-      proxyEnvironmentCall(user) {
+      async proxyEnvironmentCall(user) {
         if (user) {
-          //  TODO: decrypt student names
-          return { auth: { user, info: { name: 'some decrypted name' } } }
+          const info = await this.$store.getters.decryptUserInfo(user)
+          return { auth: { user, info } }
         }
         else return Agent.environment()
       }
