@@ -1,6 +1,6 @@
 <template>
   <div class="modal" @click="$emit('close', 'background')">
-    <div class="modal-content" @click.stop > 
+    <div class="modal-content" @click.stop :style="{ width, height }" >
       <div class="modal-header">
         <div class="placeholder"></div>
         <slot name="title">
@@ -40,6 +40,14 @@ export default {
       type: String,
       required: false,
       default: 'Close'
+    },
+    width: {
+      type: String,
+      default: '800px'
+    },
+    height: {
+      type: String,
+      default: '800px'
     }
   },
   components: { IconButton }

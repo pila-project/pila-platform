@@ -167,6 +167,8 @@
     v-if="showResultsModal"
     @close="showResultsModal = false"
     showCloseButton
+    width="90vw"
+    height="90vw"
   >
     <template v-slot:title>{{ t('assignment-results') }}</template>
     <template v-slot:body>
