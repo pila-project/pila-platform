@@ -39,6 +39,16 @@
         >
           {{ URL_CONTENT_DATA[id].name }}
         </div>
+        <div
+          v-else-if="isBettyLink(id)"
+          class="content-name"
+        >
+          <vueScopeComponent
+            :id="id.split('/')[4]"
+            metadata
+            :path="['name']"
+          />
+        </div>
         <div class="preview-image">
           <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
           <img v-else-if="isBettyLink(id)" src="/betty.png" />
