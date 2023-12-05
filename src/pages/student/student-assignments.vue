@@ -10,10 +10,9 @@
       class="card"
     >
       <div
-        v-if="URL_CONTENT_DATA[id]"
         class="content-name"
       >
-        {{ URL_CONTENT_DATA[id].name }}
+        <vueScopeComponent :id="assignmentsToAssignableItem[aid]" :path="['name']" />
       </div>
       <div class="preview-image">
         <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
@@ -21,7 +20,7 @@
         <vueEmbedComponent
           v-else
           :id="id"
-          mode="card"
+          mode="card-image"
         />
       </div>
       <div>
@@ -51,16 +50,17 @@
 
 <script>
 import CardIconsBar from '../../components/card-icons-bar.vue'
-import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
+import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.js'
 import URL_CONTENT_DATA from '../../url-content-data.js'
 
 export default {
-  components: { vueEmbedComponent, CardIconsBar },
+  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar },
 
   data() {
     return {
       playing: null,
-      assignmentsToContent: {}
+      assignmentsToContent: {},
+      assignmentsToAssignableItem: {}
     }
   },
   computed: {
@@ -86,11 +86,19 @@ export default {
         this.assignmentIds.forEach(aid => {
           if (this.assignmentsToContent[aid]) return
 
-          const unwatch = Agent.watch(
+          const unwatch1 = Agent.watch(
+            [aid,'item_id'],
+            res => {
+              this.assignmentsToAssignableItem[aid] = res
+              unwatch1()
+            }
+          )
+
+          const unwatch2 = Agent.watch(
             [aid,'item_id', 'content'],
             res => {
               this.assignmentsToContent[aid] = res
-              unwatch()
+              unwatch2()
             }
           )
         })
@@ -151,6 +159,7 @@ card.bottom {
 {
   position: relative;
   flex-grow: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
