@@ -5,6 +5,7 @@
 
       <div style="align-self: flex-start;">
         <IconButton
+          class="filter-button"
           icon="minus-circle"
           @click="showFilters = false"
           :text="t('hide-filters')"
@@ -17,6 +18,7 @@
         @select="toggleActive"
       />
       <TagSelector
+        style="width: 550px;"
         :activeTags="activeTags"
         :tags="allItemTags"
         @select="toggleTag"
@@ -283,6 +285,13 @@
   
 </script>
 
+<style>
+  button.icon-button.tag-select {
+    height: 38px;
+    display: inline-flex;
+  }
+</style>
+
 <style scoped>
   .cards-wrapper
   {
@@ -345,8 +354,6 @@
   }
   .filters-selector {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    align-items: center;
-
+    grid-template-columns: 2fr 2fr 5fr;
   }
 </style>

@@ -113,16 +113,42 @@ export default {
 .card-icons-bar {
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
-#pila-logo {
+
+.left-side {
+  display: flex;
+  overflow: hidden;
+  margin-right: 10px;
+}
+.left-side #pila-logo {
+  flex: 0 0 40px;
   height: 20px;
   padding: 5px;
   margin: 2px 4px;
 }
-.left-side {
-  display: flex;
+.left-side .tags-wrapper {
+  flex: 1 0 0;
+  line-height: 1.0;
 }
+.left-side .tags-wrapper .tag {
+  display: inline-block;
+  color: white;
+  background: #2E31DB;
+  border-radius: 1000px;
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  margin: 0 1px;
+
+  max-width: 95px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 .icons {
+  flex-grow: 0;
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
@@ -152,17 +178,5 @@ export default {
   width: 75%;
   height: 75%;
 }
-.tags-wrapper {
-  display: flex;
-  align-items: center;
-}
-.tag {
-  display: inline-block;
-  color: white;
-  background: #2E31DB;
-  border-radius: 1000px;
-  font-size: 0.7rem;
-  padding: 2px 5px;
-  margin: 1px;
-}
+
 </style>
