@@ -70,7 +70,8 @@
                 embeddedReference[content].states[owner] = target
               })
           })
-          .then(() => this.latestPollTimeout = setTimeout(pollForContext, POLL_INTERVAL))
+          .catch(error => console.warn('Error in poll call', error))
+          .finally(() => this.latestPollTimeout = setTimeout(pollForContext, POLL_INTERVAL))
 
       }
 
