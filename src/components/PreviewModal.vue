@@ -2,6 +2,8 @@
   <PILAModal
     @close="$emit('close')"
     showCloseButton
+    width="90vw"
+    height="90vw"
   >
     <template v-slot:title>
       <span>{{ t('previewing') }}
