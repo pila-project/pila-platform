@@ -112,10 +112,10 @@ export default {
       this.playing = assignment.item_id
     },
     isCandliLink(id) {
-      return id.startsWith('https://pila.cand.li/')
+      return id && id.startsWith('https://pila.cand.li/')
     },
     isBettyLink(id) {
-      return id.startsWith('https://bettysbrain.knowlearning.systems/')
+      return id && id.startsWith('https://bettysbrain.knowlearning.systems/')
     },
   }
 }
