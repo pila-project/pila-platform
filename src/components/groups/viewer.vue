@@ -119,7 +119,6 @@
 -->
             </tr>
             <tr
-              v-if="currentGroupMembers.length < 6"
               v-for="n in Math.max(0, 6 - currentGroupMembers.length)"
               :key="`blank-row-${n}`"
             >

@@ -56,7 +56,10 @@
                 <span v-if="archivedIds[id]">✘</span>
               </td>
             </tr>
-            <tr v-for="n in Math.max(0, 6-assignmentsForActiveTable.length)"> <!-- PLACHOLDER ROWS -->
+            <tr
+              v-for="n in Math.max(0, 6-assignmentsForActiveTable.length)"
+              :key="n"
+            > <!-- PLACHOLDER ROWS -->
               <td>-</td>
               <td>-</td>
               <td>-</td>
