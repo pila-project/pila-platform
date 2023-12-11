@@ -41,6 +41,7 @@
         "
         placeholder="- - - - -"
         v-model="accessCode"
+        type="password"
         @keypress.enter="submitAccessCode"
       />
       <IconButton
