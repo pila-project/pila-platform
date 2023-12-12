@@ -348,6 +348,7 @@
     color: #5d5d5d;
     font-size: 1.25em;
     font-weight: 700;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: 8px;

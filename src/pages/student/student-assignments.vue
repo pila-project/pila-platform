@@ -172,6 +172,8 @@ card.bottom {
 }
 .content-name
 {
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: block;
   color: #5d5d5d;
   font-size: 1.25em;
