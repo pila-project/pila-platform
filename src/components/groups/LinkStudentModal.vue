@@ -70,7 +70,7 @@ export default {
 
 <style scoped>
 .link-student-modal {
-  padding: 10px 30px;
+  padding: 10px 30px 0 30px;
   color: #1B1B83;
 }
 .agreement-area {
