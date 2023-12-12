@@ -83,7 +83,7 @@
         const moduleName = this.assignment.content.split('/')[4].split('?')[0]
         this.dashboardReference = `https://bettysbrain-dashboard.knowlearning.systems/bb-dash/${moduleName}/OverviewView?oecd=true&dashboard-config=${dashboardConfigId}`
       }
-      else if (this.assignment.content.startsWith('https://pila.cand.li/')) {
+      else if (this.assignment.content === '1d77b2e0-f214-4c28-a06e-2186b7f1e0b2' || this.assignment.content.startsWith('https://pila.cand.li/')) {
         this.dashboardReference = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${dashboardConfigId}`
       }
       else {
