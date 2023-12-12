@@ -3,12 +3,11 @@
     @close="$emit('close')"
     showCloseButton
     width="90vw"
-    height="90vw"
+    height="800px"
   >
     <template v-slot:title>
       <span>{{ t('previewing') }}
-        "<span v-if="URL_CONTENT_DATA[id]">{{ URL_CONTENT_DATA[id].name }}</span>
-        <vueScopeComponent v-else :id="id" :path="['name']" />"
+        <span v-if="URL_CONTENT_DATA[id]">"{{ URL_CONTENT_DATA[id].name }}"</span>
       </span>
     </template>
     <template v-slot:body>

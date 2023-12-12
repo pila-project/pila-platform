@@ -13,7 +13,7 @@
           <p>Modal body content goes here.</p>
         </slot>
       </div>
-      <div style="text-align: right; padding: 24px; font-size: 2em;">
+      <div class="modal-footer">
         <IconButton
           v-if="showCloseButton"
           background="green"
@@ -43,11 +43,13 @@ export default {
     },
     width: {
       type: String,
+      required: false,
       default: '800px'
     },
     height: {
       type: String,
-      default: '800px'
+      required: false,
+      default: 'auto'
     }
   },
   components: { IconButton }
@@ -77,8 +79,9 @@ export default {
 
 
 .modal-content {
-  margin-top: 20vh;
-  margin-bottom: 5vh;
+  margin-top: 5vh;
+  display: flex;
+  flex-direction: column;
   background: white;
   border-radius: 20px;
   border: 4px solid #1b1b83;
@@ -87,6 +90,8 @@ export default {
 }
 
 .modal-header {
+  flex-grow: 0;
+  flex-shrink: 0;
   width: 100%;
   background: #1b1b83;
   color: white;
@@ -101,7 +106,14 @@ export default {
 }
 
 .modal-body {
-  margin-top: 20px;
+
+}
+.modal-footer {
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-align: right;
+  padding: 0 12px 12px 0;
+  font-size: 2em;
 }
 button#close {
   background: red;
