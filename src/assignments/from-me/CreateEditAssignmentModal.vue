@@ -1,7 +1,7 @@
 <template>
   <PILAModal
     @close="$emit('close')"
-    showCloseButton
+    :showCloseButton="showCloseButton"
     :closeButtonText="t('save')"
     width="90vw"
     height="90vh"
@@ -14,6 +14,7 @@
       />
       <TeacherToStudentAssignment
         v-else-if="teacher"
+        @setCloseButton="showCloseButton = $event"
         :id="id"
       />
     </template>
@@ -35,6 +36,11 @@
       id: String,
       teacher: Boolean,
       researcher: Boolean
+    },
+    data() {
+      return {
+        showCloseButton: true
+      }
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) }
