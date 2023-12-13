@@ -21,13 +21,13 @@
       <input
         v-model="assignment.name"
         class="rounded-grey"
-        style="width: 50%;"
+        style="width: 70%;"
       />
       <h4>{{ t('give-your-assignment-a-description') }}</h4>
       <textarea
         v-model="assignment.description"
         class="rounded-grey"
-        style="width: 70%; height: 64px;"
+        style="width: 70%; height: 44px;"
       />
     </div>
     <div style="display: flex; justify-content: center;">
@@ -114,6 +114,11 @@
   .selected
   {
     border: 1px solid blue;
+  }
+  textarea,
+  input {
+    width: 70%;
+    margin: 2px 0 6px 0;
   }
 
 </style>
