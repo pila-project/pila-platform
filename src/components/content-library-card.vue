@@ -34,9 +34,9 @@
         :key="`icon-bar-for-${id}`"
         :tags="tagsForId(id)"
         showPreview
-        showRemove
+        :showRemove="removable"
         @preview="$emit('preview')"
-        @remove="remove(id)"
+        @remove="$emit('remove')"
       />
     </div>
   </div>
@@ -64,6 +64,11 @@
         type: Boolean,
         required: false,
         default: false
+      },
+      removable: {
+        type: Boolean,
+        required: false,
+        default: true
       }
     },
     computed: {
@@ -79,9 +84,6 @@
       },
       isBettyLink(id) {
         return id && id.startsWith('https://bettysbrain.knowlearning.systems/')
-      },
-      remove(content_id) {
-        this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
       }
     }
   }
@@ -111,7 +113,6 @@
     display: flex;
     flex-direction: column;
     border: 2px solid #ccc;
-    width: 33%;
     max-width: 256px;
     height: 33vw;
     max-height: 192px;

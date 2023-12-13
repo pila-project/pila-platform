@@ -64,6 +64,7 @@
         :selected="selectable && selected === id"
         @click="$emit('select', id)"
         @preview="previewing = id"
+        @remove="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: 'tracked' })"
       />
     </div>
   </div>
@@ -97,6 +98,7 @@
   >
     <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
     <template v-slot:body>
+      {{previewing}}
       <div style="padding: 0 32px;">
         <h3>{{ t('select-content-type') }}</h3>
         <br>

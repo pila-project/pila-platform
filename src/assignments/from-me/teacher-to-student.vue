@@ -36,10 +36,15 @@
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
         <div style="flex-grow: 1;">
-          content: {{ assignment.content }}
           <button @click="selectingContent = true">
             Select Content
           </button>
+          <ContentLibraryCard
+            v-if="assignment.content"
+            :id="assignment.content"
+            :removable="false"
+            @preview="previewing = assignment.content"
+          />
         </div>
       </div>
       <div style="margin: 8px;">
@@ -52,6 +57,11 @@
       </div>
     </div>
   </div>
+  <PreviewModal
+    v-if="previewing"
+    :id="previewing"
+    @close="previewing = null"
+  />
 </template>
 
 <script>
@@ -60,7 +70,9 @@
   import Dashboard from './dashboard/index.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
   import ContentLibrary from '../../components/content-library.vue'
+  import ContentLibraryCard from '../../components/content-library-card.vue'
   import URL_CONTENT_DATA from '../../url-content-data.js'
+  import PreviewModal from '../../components/PreviewModal.vue'
 
   export default {
     props: {
@@ -70,12 +82,15 @@
       Dashboard,
       GroupAssigner,
       vueScopeComponent,
-      ContentLibrary
+      ContentLibraryCard,
+      ContentLibrary,
+      PreviewModal
     },
     data() {
       return {
         loading: true,
         assignment: null,
+        previewing: null,
         selectingContent: false
       }
     },
