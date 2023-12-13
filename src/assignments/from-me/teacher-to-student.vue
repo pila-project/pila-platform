@@ -45,24 +45,22 @@
       />
     </div>
     <div style="display: flex; justify-content: center;">
-      <div style="display: flex; flex-direction: column; margin-right: 64px;">
+      <div style="display: flex; flex-direction: column; align-items: center; margin-right: 64px;">
         <div style="margin: 8px;">
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
-        <div style="flex-grow: 1;">
-          <ContentLibraryCard
-            v-if="assignment.content"
-            :id="assignment.content"
-            :removable="false"
-            @preview="previewing = assignment.content"
-          />
-          <IconButton
-            icon="bolt"
-            :text="t('select-new')"
-            @click="selectingContent = true"
-            background="#FFC442"
-          />
-        </div>
+        <ContentLibraryCard
+          v-if="assignment.content"
+          :id="assignment.content"
+          :removable="false"
+          @preview="previewing = assignment.content"
+        />
+        <IconButton
+          icon="bolt"
+          :text="t('select-new')"
+          @click="selectingContent = true"
+          background="#FFC442"
+        />
       </div>
       <div style="margin: 8px;">
         <h4>{{ t('select-classes-for-the-assignment') }}*</h4>
