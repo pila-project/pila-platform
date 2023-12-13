@@ -11,12 +11,10 @@
       </span>
     </template>
     <template v-slot:body>
-      <div style="height: 60vh; position: relative;">
-        <vueEmbedComponent
-          :id="id"
-          @close="$emit('close')"
-        />
-      </div>
+      <vueEmbedComponent
+        :id="id"
+        @close="$emit('close')"
+      />
     </template>
   </PILAModal>
 </template>
