@@ -4,10 +4,16 @@
   </div>
   <div v-else-if="selectingContent">
     <div>
-      <div style="text-align: center; padding-top: 16px;">
+      <div style="height: 48px;">
         <IconButton
           icon="bolt"
-          style="transform: scale(1.3);"
+          style="
+            z-index: 1;
+            position: absolute;
+            top: 48px;
+            left: 32px;
+            transform: scale(1.5);
+          "
           :text="t('select')"
           @click="selectingContent = false"
           background="#FFC442"

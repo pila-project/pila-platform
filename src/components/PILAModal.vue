@@ -73,7 +73,8 @@ export default {
 }
 
 /* Chrome, Safari and Opera */
-.modal::-webkit-scrollbar {
+.modal::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
   display: none;
 }
 
@@ -84,9 +85,11 @@ export default {
   flex-direction: column;
   background: white;
   border-radius: 20px;
+  overflow: hidden;
   border: 4px solid #1b1b83;
   width: 800px;
   max-width: 90vw;
+  position: relative;
 }
 
 .modal-header {
@@ -107,6 +110,7 @@ export default {
 
 .modal-body {
   flex-grow: 1;
+  overflow: scroll;
 }
 .modal-footer {
   flex-grow: 0;
@@ -114,6 +118,8 @@ export default {
   text-align: right;
   padding: 0 12px 12px 0;
   font-size: 2em;
+  background: #F2F2F2;
+  border-top: 2px solid #EEEEEE;
 }
 button#close {
   background: red;
