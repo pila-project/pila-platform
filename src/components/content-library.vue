@@ -60,7 +60,11 @@
       <div
         v-for="id in filteredContent"
         :key="id"
-        class="card"
+        :class="{
+          card: true,
+          selected: selectable && selected === id
+        }"
+        @click="$emit('select', id)"
       >
         <div
           v-if="URL_CONTENT_DATA[id]"
@@ -201,6 +205,18 @@
         showFilters: false
       }
     },
+    props: {
+      selectable: {
+        type: Boolean,
+        required: false,
+        default: false
+      },
+      selected: {
+        type: String,
+        required: false,
+        default: null
+      }
+    },
     watch: {
       async contentId(val) {
         if (isURL(val)) { // if url, validated if betty or candli
@@ -304,6 +320,7 @@
   }
 
   .card {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     border: 2px solid #ccc;
@@ -318,9 +335,11 @@
     overflow: hidden;
     position: relative;
   }
-  card.bottom {
-    color: pink;
+  .card.selected {
+    border: 2px solid lightseagreen;
+    background: rgba(32, 178, 170, 0.3);
   }
+
   .new-item-card
   {
     display: flex;
@@ -330,6 +349,7 @@
   }
   .preview-image
   {
+    pointer-events: none;
     position: relative;
     flex-grow: 1;
     display: flex;
