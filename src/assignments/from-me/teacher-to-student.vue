@@ -4,7 +4,15 @@
   </div>
   <div v-else-if="selectingContent">
     <div>
-      <button @click="selectingContent = false">done</button>
+      <div style="text-align: center; padding-top: 16px;">
+        <IconButton
+          icon="bolt"
+          style="transform: scale(1.3);"
+          :text="t('select')"
+          @click="selectingContent = false"
+          background="#FFC442"
+        />
+      </div>
       <ContentLibrary
         selectable
         :selected="assignment.content"
@@ -36,14 +44,17 @@
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
         <div style="flex-grow: 1;">
-          <button @click="selectingContent = true">
-            Select Content
-          </button>
           <ContentLibraryCard
             v-if="assignment.content"
             :id="assignment.content"
             :removable="false"
             @preview="previewing = assignment.content"
+          />
+          <IconButton
+            icon="bolt"
+            :text="t('select-new')"
+            @click="selectingContent = true"
+            background="#FFC442"
           />
         </div>
       </div>
@@ -73,12 +84,14 @@
   import ContentLibraryCard from '../../components/content-library-card.vue'
   import URL_CONTENT_DATA from '../../url-content-data.js'
   import PreviewModal from '../../components/PreviewModal.vue'
+  import IconButton from '../../components/icon-button.vue'
 
   export default {
     props: {
       id: String
     },
     components: {
+      IconButton,
       Dashboard,
       GroupAssigner,
       vueScopeComponent,
