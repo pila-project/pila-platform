@@ -35,17 +35,17 @@
       <input
         v-model="assignment.name"
         class="rounded-grey"
-        style="width: 70%;"
+        style="width: 50%;"
       />
       <h4>{{ t('give-your-assignment-a-description') }}</h4>
       <textarea
         v-model="assignment.description"
         class="rounded-grey"
-        style="width: 70%; height: 44px;"
+        style="width: 50%; height: 44px;"
       />
     </div>
     <div style="display: flex; justify-content: center;">
-      <div style="display: flex; flex-direction: column;">
+      <div style="display: flex; flex-direction: column; margin-right: 64px;">
         <div style="margin: 8px;">
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
