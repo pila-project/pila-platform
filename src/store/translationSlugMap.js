@@ -165,4 +165,6 @@ export default {
     "item-library": "fa96171b-eb83-4c7b-a1d1-b4635daa413c",
     "new-translation": "fac631d0-12f2-4430-96b7-20ec1138d6e5",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
+    "select-new" : "784c871c-5605-447a-a7fc-0469d65667d4",
+    "select" : "6ce15629-cfd3-4d6c-a3ae-04b6a08f2a14",
 }

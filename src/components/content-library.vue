@@ -57,48 +57,15 @@
           </div>
         </div>
       </div>
-      <div
-        v-for="id in filteredContent"
+      <ContentLibraryCard
+         v-for="id in filteredContent"
         :key="id"
-        class="card"
-      >
-        <div
-          v-if="URL_CONTENT_DATA[id]"
-          class="content-name"
-        >
-          {{ URL_CONTENT_DATA[id].name }}
-        </div>
-        <div
-          v-else-if="isBettyLink(id)"
-          class="content-name"
-        >
-          <vueScopeComponent
-            :id="id.split('/')[4]"
-            metadata
-            :path="['name']"
-          />
-        </div>
-        <div class="preview-image">
-          <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
-          <img v-else-if="isBettyLink(id)" src="/betty.png" />
-          <vueEmbedComponent
-            v-else
-            :id="id"
-            mode="card"
-          />
-        </div>
-        <div>
-          <CardIconsBar
-            :id="id"
-            :key="`icon-bar-for-${id}`"
-            :tags="tagsForId(id)"
-            showPreview
-            showRemove
-            @preview="previewing = id"
-            @remove="remove(id)"
-          />
-        </div>
-      </div>
+        :id="id"
+        :selected="selectable && selected === id"
+        @click="$emit('select', id)"
+        @preview="previewing = id"
+        @remove="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: 'tracked' })"
+      />
     </div>
   </div>
   <PILAModal
@@ -131,6 +98,7 @@
   >
     <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
     <template v-slot:body>
+      {{previewing}}
       <div style="padding: 0 32px;">
         <h3>{{ t('select-content-type') }}</h3>
         <br>
@@ -154,9 +122,8 @@
 </template>
 
 <script>
-  import TaggedContent from './tagged-content-collection.vue'
+  import ContentLibraryCard from './content-library-card.vue'
   import IconButton from './icon-button.vue'
-  import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
   import PreviewModal from './PreviewModal.vue'
   import ProjectSelector from './project-selector.vue'
@@ -164,7 +131,6 @@
   import URL_CONTENT_DATA from '../url-content-data.js'
   import contentTags from '../content-tags.js'
   import { validate as isUUID } from 'uuid'
-  import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
   function isURL(s) {
     try {
@@ -178,16 +144,14 @@
 
   export default {
     components: {
-      TaggedContent,
+      ContentLibraryCard,
       PILAModal,
       PreviewModal,
       ProjectSelector,
       TagSelector,
-      CardIconsBar,
-      IconButton,
-      vueScopeComponent,
-      vueEmbedComponent
+      IconButton
     },
+    emits: ['select'],
     data() {
       return {
         contentId: '',
@@ -199,6 +163,18 @@
         activeProjects: [ 'karel', 'candli', 'betty' ],
         activeTags: [],
         showFilters: false
+      }
+    },
+    props: {
+      selectable: {
+        type: Boolean,
+        required: false,
+        default: false
+      },
+      selected: {
+        type: String,
+        required: false,
+        default: null
       }
     },
     watch: {
@@ -297,6 +273,7 @@
   {
     padding: 16px;
   }
+
   .card-container {
     display: flex;
     flex-wrap: wrap;
@@ -304,6 +281,7 @@
   }
 
   .card {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     border: 2px solid #ccc;
@@ -318,29 +296,13 @@
     overflow: hidden;
     position: relative;
   }
-  card.bottom {
-    color: pink;
-  }
+
   .new-item-card
   {
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-  }
-  .preview-image
-  {
-    position: relative;
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .preview-image > img
-  {
-    position: absolute;
-    max-width: 80%;
-    max-height: 80%;
   }
   .content-name
   {

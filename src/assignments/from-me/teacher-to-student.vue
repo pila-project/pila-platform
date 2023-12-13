@@ -2,6 +2,33 @@
   <div v-if="loading">
     ...
   </div>
+  <div v-else-if="selectingContent">
+    <div>
+      <div style="height: 48px;">
+        <IconButton
+          icon="bolt"
+          style="
+            z-index: 1;
+            position: absolute;
+            top: 48px;
+            left: 32px;
+            transform: scale(1.5);
+          "
+          :text="t('select')"
+          @click="selectingContent = false"
+          background="#FFC442"
+        />
+      </div>
+      <ContentLibrary
+        selectable
+        :selected="assignment.content"
+        @select="assignment.content = $event"
+      />
+    </div>
+    <div>
+      
+    </div>
+  </div>
   <div style="margin: 16px;" v-else>
     <div>
       <h4>{{ t('give-your-assignment-a-name') }}</h4>
@@ -14,55 +41,27 @@
       <textarea
         v-model="assignment.description"
         class="rounded-grey"
-        style="width: 70%; height: 64px;"
+        style="width: 50%; height: 44px;"
       />
     </div>
     <div style="display: flex; justify-content: center;">
-      <div style="display: flex; flex-direction: column;">
+      <div style="display: flex; flex-direction: column; margin-right: 64px;">
         <div style="margin: 8px;">
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
-        <div style="flex-grow: 1; display: flex;">
-          <div style="display: flex; flex-direction: column; margin: 8px; margin-left: 32px; margin-bottom: 16px;">
-            <div>
-              <h4>{{ t('your-content') }}</h4>
-            </div>
-            <div style="background:  rgba(107, 234, 201, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
-              <div
-                v-for="id in userContent"
-                :key="id"
-                :class="{
-                  'content-entry': true,
-                  selected: id === assignment.content
-                }"
-                @click="assignment.content = id"
-              >
-                <vueScopeComponent :id="id" :path="['name']" />&nbsp;
-              </div>
-            </div>
-          </div>
-          <div style="display: flex; flex-direction: column; margin: 8px; margin-bottom: 16px;">
-            <div>
-              <h4>{{ t('expert-content') }}</h4>
-            </div>
-            <div style="background: rgba(46, 157, 249, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
-              <div
-                v-for="id in expertContent"
-                :key="id"
-                :class="{
-                  'content-entry': true,
-                  selected: id === assignment.content
-                }"
-                @click="assignment.content = id"
-              >
-                <span v-if="URL_CONTENT_DATA[id]">
-                  {{ URL_CONTENT_DATA[id].name }}
-                </span>
-                <vueScopeComponent v-else :id="id" :path="['name']" />
-              </div>
-            </div>
-          </div>
-          <div></div>
+        <div style="flex-grow: 1;">
+          <ContentLibraryCard
+            v-if="assignment.content"
+            :id="assignment.content"
+            :removable="false"
+            @preview="previewing = assignment.content"
+          />
+          <IconButton
+            icon="bolt"
+            :text="t('select-new')"
+            @click="selectingContent = true"
+            background="#FFC442"
+          />
         </div>
       </div>
       <div style="margin: 8px;">
@@ -75,6 +74,11 @@
       </div>
     </div>
   </div>
+  <PreviewModal
+    v-if="previewing"
+    :id="previewing"
+    @close="previewing = null"
+  />
 </template>
 
 <script>
@@ -82,21 +86,31 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
+  import ContentLibrary from '../../components/content-library.vue'
+  import ContentLibraryCard from '../../components/content-library-card.vue'
   import URL_CONTENT_DATA from '../../url-content-data.js'
+  import PreviewModal from '../../components/PreviewModal.vue'
+  import IconButton from '../../components/icon-button.vue'
 
   export default {
     props: {
       id: String
     },
     components: {
+      IconButton,
       Dashboard,
       GroupAssigner,
-      vueScopeComponent
+      vueScopeComponent,
+      ContentLibraryCard,
+      ContentLibrary,
+      PreviewModal
     },
     data() {
       return {
         loading: true,
-        assignment: null
+        assignment: null,
+        previewing: null,
+        selectingContent: false
       }
     },
     async created() {
@@ -134,6 +148,11 @@
   .selected
   {
     border: 1px solid blue;
+  }
+  textarea,
+  input {
+    width: 70%;
+    margin: 2px 0 6px 0;
   }
 
 </style>
