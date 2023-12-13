@@ -57,52 +57,14 @@
           </div>
         </div>
       </div>
-      <div
-        v-for="id in filteredContent"
+      <ContentLibraryCard
+         v-for="id in filteredContent"
         :key="id"
-        :class="{
-          card: true,
-          selected: selectable && selected === id
-        }"
+        :id="id"
+        :selected="selectable && selected === id"
         @click="$emit('select', id)"
-      >
-        <div
-          v-if="URL_CONTENT_DATA[id]"
-          class="content-name"
-        >
-          {{ URL_CONTENT_DATA[id].name }}
-        </div>
-        <div
-          v-else-if="isBettyLink(id)"
-          class="content-name"
-        >
-          <vueScopeComponent
-            :id="id.split('/')[4]"
-            metadata
-            :path="['name']"
-          />
-        </div>
-        <div class="preview-image">
-          <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
-          <img v-else-if="isBettyLink(id)" src="/betty.png" />
-          <vueEmbedComponent
-            v-else
-            :id="id"
-            mode="card"
-          />
-        </div>
-        <div>
-          <CardIconsBar
-            :id="id"
-            :key="`icon-bar-for-${id}`"
-            :tags="tagsForId(id)"
-            showPreview
-            showRemove
-            @preview="previewing = id"
-            @remove="remove(id)"
-          />
-        </div>
-      </div>
+        @preview="previewing = id"
+      />
     </div>
   </div>
   <PILAModal
@@ -158,9 +120,8 @@
 </template>
 
 <script>
-  import TaggedContent from './tagged-content-collection.vue'
+  import ContentLibraryCard from './content-library-card.vue'
   import IconButton from './icon-button.vue'
-  import CardIconsBar from './card-icons-bar.vue'
   import PILAModal from './PILAModal.vue'
   import PreviewModal from './PreviewModal.vue'
   import ProjectSelector from './project-selector.vue'
@@ -168,7 +129,6 @@
   import URL_CONTENT_DATA from '../url-content-data.js'
   import contentTags from '../content-tags.js'
   import { validate as isUUID } from 'uuid'
-  import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
   function isURL(s) {
     try {
@@ -182,16 +142,14 @@
 
   export default {
     components: {
-      TaggedContent,
+      ContentLibraryCard,
       PILAModal,
       PreviewModal,
       ProjectSelector,
       TagSelector,
-      CardIconsBar,
-      IconButton,
-      vueScopeComponent,
-      vueEmbedComponent
+      IconButton
     },
+    emits: ['select'],
     data() {
       return {
         contentId: '',
@@ -313,6 +271,7 @@
   {
     padding: 16px;
   }
+
   .card-container {
     display: flex;
     flex-wrap: wrap;
@@ -335,10 +294,6 @@
     overflow: hidden;
     position: relative;
   }
-  .card.selected {
-    border: 2px solid lightseagreen;
-    background: rgba(32, 178, 170, 0.3);
-  }
 
   .new-item-card
   {
@@ -346,21 +301,6 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-  }
-  .preview-image
-  {
-    pointer-events: none;
-    position: relative;
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .preview-image > img
-  {
-    position: absolute;
-    max-width: 80%;
-    max-height: 80%;
   }
   .content-name
   {
