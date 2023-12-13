@@ -105,6 +105,7 @@
       ContentLibrary,
       PreviewModal
     },
+    emits: ['setCloseButton'],
     data() {
       return {
         loading: true,
@@ -129,6 +130,11 @@
       },
       URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
+      }
+    },
+    watch: {
+      selectingContent(selecting) {
+        this.$emit('setCloseButton', !selecting)
       }
     },
     methods: {
