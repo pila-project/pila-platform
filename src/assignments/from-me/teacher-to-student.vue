@@ -2,6 +2,19 @@
   <div v-if="loading">
     ...
   </div>
+  <div v-else-if="selectingContent">
+    <div>
+      <button @click="selectingContent = false">done</button>
+      <ContentLibrary
+        selectable
+        :selected="assignment.content"
+        @select="assignment.content = $event"
+      />
+    </div>
+    <div>
+      
+    </div>
+  </div>
   <div style="margin: 16px;" v-else>
     <div>
       <h4>{{ t('give-your-assignment-a-name') }}</h4>
@@ -22,47 +35,11 @@
         <div style="margin: 8px;">
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
-        <div style="flex-grow: 1; display: flex;">
-          <div style="display: flex; flex-direction: column; margin: 8px; margin-left: 32px; margin-bottom: 16px;">
-            <div>
-              <h4>{{ t('your-content') }}</h4>
-            </div>
-            <div style="background:  rgba(107, 234, 201, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
-              <div
-                v-for="id in userContent"
-                :key="id"
-                :class="{
-                  'content-entry': true,
-                  selected: id === assignment.content
-                }"
-                @click="assignment.content = id"
-              >
-                <vueScopeComponent :id="id" :path="['name']" />&nbsp;
-              </div>
-            </div>
-          </div>
-          <div style="display: flex; flex-direction: column; margin: 8px; margin-bottom: 16px;">
-            <div>
-              <h4>{{ t('expert-content') }}</h4>
-            </div>
-            <div style="background: rgba(46, 157, 249, 0.33); flex-grow: 1; min-height: 128px; min-width: 192px">
-              <div
-                v-for="id in expertContent"
-                :key="id"
-                :class="{
-                  'content-entry': true,
-                  selected: id === assignment.content
-                }"
-                @click="assignment.content = id"
-              >
-                <span v-if="URL_CONTENT_DATA[id]">
-                  {{ URL_CONTENT_DATA[id].name }}
-                </span>
-                <vueScopeComponent v-else :id="id" :path="['name']" />
-              </div>
-            </div>
-          </div>
-          <div></div>
+        <div style="flex-grow: 1;">
+          content: {{ assignment.content }}
+          <button @click="selectingContent = true">
+            Select Content
+          </button>
         </div>
       </div>
       <div style="margin: 8px;">
@@ -82,6 +59,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
+  import ContentLibrary from '../../components/content-library.vue'
   import URL_CONTENT_DATA from '../../url-content-data.js'
 
   export default {
@@ -91,12 +69,14 @@
     components: {
       Dashboard,
       GroupAssigner,
-      vueScopeComponent
+      vueScopeComponent,
+      ContentLibrary
     },
     data() {
       return {
         loading: true,
-        assignment: null
+        assignment: null,
+        selectingContent: false
       }
     },
     async created() {

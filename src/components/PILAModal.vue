@@ -106,7 +106,7 @@ export default {
 }
 
 .modal-body {
-
+  flex-grow: 1;
 }
 .modal-footer {
   flex-grow: 0;
