@@ -12,5 +12,5 @@ export default {
   'https://bettysbrain.knowlearning.systems/bb/practice?oecd=true&disable-guide=true': [ 'beginner', 'causal-reasoning', 'systems-thinking', 'self-regulated-learning' ],
   'https://bettysbrain.knowlearning.systems/bb/climate-change?oecd=true&disable-guide=true': [ 'intermediate', 'causal-reasoning', 'systems-thinking', 'self-regulated-learning' ],
   'https://bettysbrain.knowlearning.systems/bb/thermoregulation?oecd=true&disable-guide=true': [ 'challenge', 'causal-reasoning', 'systems-thinking', 'self-regulated-learning' ],
-  '1d77b2e0-f214-4c28-a06e-2186b7f1e0b2': [ 'game-design', 'self-regulated-learning', 'challenge'],
+  '1d77b2e0-f214-4c28-a06e-2186b7f1e0b2': [ 'game-design', 'self-regulated-learning', 'computational-problem-solving'],
 }
