@@ -65,7 +65,16 @@
         </div>
         <br>
         <br>
-        <h3 style="color: #2E32DB;"> {{ GET_TEXT.MEMBER_LIST_HEADER }}</h3>
+        <div style="display: flex; justify-content: space-between;">
+          <h3 style="color: #2E32DB;"> {{ GET_TEXT.MEMBER_LIST_HEADER }}</h3>
+          <IconButton
+            v-if="type === 'class'"
+            :text="t('manage-data')"
+            background="rgb(220 220 220)"
+            textColor="grey"
+            @click="showDeleteDataModal = !showDeleteDataModal"
+          />
+        </div>
         <div class="class-list">
           <div v-if="!possibleMembers.length">{{ GET_TEXT.CURRENTLY_NO_MEMBERS }}</div>
           <div v-for="id in possibleMembers">
@@ -133,6 +142,7 @@
       </div>
     </Pane>
   </Splitpanes>
+
   <PILAModal
     v-if="showLinkStudentModal"
     @close="showLinkStudentModal = false"
@@ -173,6 +183,19 @@
       />
     </template>
   </PILAModal>
+  <PILAModal
+    v-if="showDeleteDataModal"
+    @close="showDeleteDataModal = false"
+    showCloseButton
+    :closeButtonText="t('done')"
+  >
+    <template v-slot:title>{{ t('manage-data') }}</template>
+    <template v-slot:body>
+      <div style="margin: 40px 32px;">
+        {{ t('to-request-deletion-of-data-please-email-data-requests-knowlearning-org') }}
+      </div>
+    </template>
+  </PILAModal>
 </template>
 
 <script>
@@ -209,6 +232,7 @@
         showArchived: false,
         showLinkStudentModal: false,
         showEditClassModal: false,
+        showDeleteDataModal: false,
         showNamePasswordModal: !namePassword,
         namePassword
       }
