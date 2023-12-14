@@ -237,7 +237,7 @@
         this.showAddModal = false
       },
       isCandliLink(id) {
-        return id && id.startsWith('https://pila.cand.li/')
+        return id && (id.startsWith('https://pila.cand.li/') || id === '1d77b2e0-f214-4c28-a06e-2186b7f1e0b2')
       },
       isBettyLink(id) {
         return id && id.startsWith('https://bettysbrain.knowlearning.systems/')
