@@ -93,7 +93,7 @@
     <Pane v-if="current" :key="current">
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
-        <div> <!-- ROW FOR NAME AND ICONS -->
+        <div>
           <h4 style="display: inline-block; margin-right: 17px;">
             <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
           </h4>
@@ -123,12 +123,6 @@
               :key="member"
             >
               <td style="text-align: left;"><DecryptedName :user="member" /></td>
-            </tr>
-            <tr
-              v-for="n in Math.max(0, 6 - currentGroupMembers.length)"
-              :key="`blank-row-${n}`"
-            >
-              <td style="width: 250px;">-</td>
             </tr>
           </tbody>
         </table>
