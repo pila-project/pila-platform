@@ -280,6 +280,7 @@
         return this.$store.getters['groups/groups'](this.type)
       },
       archivedGroups() {
+        console.log('ARCHIVED GROUPS', this.$store.getters['groups/archivedGroups'](this.type))
         return this.$store.getters['groups/archivedGroups'](this.type)
       },
       currentGroupMembers() {
