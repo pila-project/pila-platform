@@ -43,7 +43,7 @@
             }"
             @click="current = (current === id ? null : id)"
           >
-            {{ id }}
+            <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
           <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
@@ -56,7 +56,7 @@
                 'archived' : true,
                 'active' : current === id
               }">
-              {{id}}
+              <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
               <IconButton
                 class="archive-button"
                 @click="unarchive(id)"
@@ -95,7 +95,7 @@
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div> <!-- ROW FOR NAME AND ICONS -->
           <h4 style="display: inline-block; margin-right: 17px;">
-            {{ current }}
+            <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
           </h4>
           <IconButton
             :text="t('modify')"
