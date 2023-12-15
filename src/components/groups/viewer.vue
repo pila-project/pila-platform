@@ -124,6 +124,12 @@
             >
               <td style="text-align: left;"><DecryptedName :user="member" /></td>
             </tr>
+            <tr
+              v-for="n in Math.max(0, 6 - currentGroupMembers.length)"
+              :key="`blank-row-${n}`"
+            >
+              <td style="width: 250px;">-</td>
+            </tr>
           </tbody>
         </table>
       </div>
