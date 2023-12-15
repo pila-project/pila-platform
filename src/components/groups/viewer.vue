@@ -36,7 +36,6 @@
           <div v-show="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
           <div
             v-for="id in groups"
-            :key="`group-list-${id}`"
             :class="{
               'class-select-item' : true,
               'active' : current === id
@@ -49,7 +48,6 @@
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
             <div
               v-for="id in archivedGroups"
-              :key="`archived-group-list-${id}`"
               @click="current = (current === id ? null : id)"
               :class="{
                 'class-select-item' : true,
