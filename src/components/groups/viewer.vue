@@ -34,8 +34,10 @@
             </div>
           </div>
           <div v-if="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
-          <div v-for="id in groups"
-           :class="{
+          <div
+            v-for="id in groups"
+            :key="id"
+            :class="{
               'class-select-item' : true,
               'active' : current === id
             }"
