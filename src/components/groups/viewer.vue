@@ -81,7 +81,10 @@
         </div>
         <div class="class-list">
           <div v-if="!possibleMembers.length">{{ GET_TEXT.CURRENTLY_NO_MEMBERS }}</div>
-          <div v-for="id in possibleMembers">
+          <div
+            v-for="id in possibleMembers"
+            :key="`possible-member-id-${id}`"
+          >
             <DecryptedName :user="id" />
           </div>
         </div>
