@@ -28,7 +28,7 @@ export default {
 
     async fetchTranslations({ dispatch }) {
       const domain ='translate-pila-alpha.netlify.app' 
-      const translations = await Agent.query('translations', [], domain)
+      const translations = await Agent.query('translations', [], domain) || []
       const translationPromises = translations.map(t => dispatch('addTranslation', t )) //dispatch so we can await
       return Promise.all(translationPromises)
     }
