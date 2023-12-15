@@ -73,7 +73,7 @@
         return this.$store.getters.t(slug)
       },
       submitAccessCode() {
-        const CODE_LIST = [ 'ACCESS', 'PILA23' ]
+        const CODE_LIST = [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ]
         if (CODE_LIST.includes(this.accessCode)) {
           this.$store.state.codeEntered = true
         }
