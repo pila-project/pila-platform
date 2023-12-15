@@ -22,7 +22,11 @@
 			  class="name-and-role"
 			  @click.shift="$store.dispatch('cycleLanguageAndRefetch')"
 			>
-				<div>{{ username }}</div>
+				<div
+					@click="alertUserId"
+				>
+					{{ username }}
+				</div>
 				<div>{{ $store.getters['roles/role']($store.state.user) }}</div>
 			</div>
 			<IconButton
@@ -65,7 +69,11 @@
 		},
 		methods: {
 			t(slug) { return this.$store.getters.t(slug) },
-			logout() { Agent.logout() }
+			logout() { Agent.logout() },
+			alertUserId() {
+				const message = this.t('user-id') + ' :: ' + this.$store.getters.user()
+				alert(message)
+			}
 		}
 	}
 </script>

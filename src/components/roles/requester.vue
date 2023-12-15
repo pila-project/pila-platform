@@ -5,7 +5,17 @@
       v-if="requestedRole"
       class="requested-role"
     >
-      <p>{{ headerText }}</p> 
+      <div class="message-wrapper">
+        <p>
+          {{ headerText }}
+          {{ t('please-email-pila-administrators-at-edu-pila-oecd-org-and-they-will-process-your-request') }}
+          {{ t('include-your-pila-user-id') }}
+        </p>
+        <p class="user-id">
+          {{ t('user-id') }} :: {{ $store.getters.user() }}
+        </p>
+      </div>
+
       <IconButton v-if="requestedRole === role"
         @click="requestRole(null)"
         :text="t('undo-request')"
@@ -38,7 +48,6 @@
         output += ' '
         output += this.t(this.role)
         output += '. '
-        output += this.t('please-wait-for-admin-approval')
         return output
       },
       buttonText() {
@@ -68,6 +77,19 @@
   flex-direction: column;
   align-items: center;
 }
+.requested-role .message-wrapper {
+  width: 500px;
+  border: 2px solid grey;
+  border-radius: 12px;
+  background: #EEE;
+  padding: 20px 30px;
+  margin-bottom: 20px;
+}
+
+p.user-id {
+  margin: 20px 0;
+}
+
 .role-requester h2 {
   color: #2E32DB;
   margin: 14px;
