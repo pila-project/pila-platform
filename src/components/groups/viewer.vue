@@ -60,7 +60,7 @@
               <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
               <IconButton
                 class="archive-button"
-                @click="unarchive(id)"
+                @click.stop="unarchive(id)"
                 text="Unarchive"
                 icon="archive"
                 background="#ccc"
