@@ -45,27 +45,6 @@
           >
             <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
-          <div v-if="showArchived" style="margin-top: 40px;">
-            <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
-            <div
-              v-for="id in archivedGroups"
-              :key="`archived-group-list-${id}`"
-              @click="current = (current === id ? null : id)"
-              :class="{
-                'class-select-item' : true,
-                'archived' : true,
-                'active' : current === id
-              }">
-              <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
-              <IconButton
-                class="archive-button"
-                @click="unarchive(id)"
-                text="Unarchive"
-                icon="archive"
-                background="#ccc"
-              />
-            </div>
-          </div>
         </div>
         <br>
         <br>
