@@ -85,64 +85,6 @@
         </div>
       </div>
     </Pane>
-
-
-    <Pane v-if="current" :key="current">
-      <div style="padding: 8px;">
-        <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
-        <div> <!-- ROW FOR NAME AND ICONS -->
-          <h4 style="display: inline-block; margin-right: 17px;">
-            <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
-          </h4>
-          <IconButton
-            :text="t('modify')"
-            icon="pencil"
-            background="#FFC442"
-            @click="showEditClassModal = !showEditClassModal"
-          />
-          <IconButton
-            @click="archive(current)"
-            :text="t('archive')"
-            icon="archive"
-            background="#ccc"
-          />
-        </div>
-        <h4 style="color: #2E32DB;">{{ GET_TEXT.TABLE_HEADER }}</h4>
-        <table style="width: 100%;">
-          <thead>
-            <tr>
-              <th>{{ GET_TEXT.MEMBER_COL_HEADER }}</th>
-<!--
-              <th>{{ t('last-login') }}</th>
-              <th>{{ GET_TEXT.OTHER_GROUPS_COL_HEADER }}</th>
--->
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="member in currentGroupMembers"
-              :key="member"
-            >
-              <td style="text-align: left;"><DecryptedName :user="member" /></td>
-<!--
-              <td>-</td>
-              <td>TODO</td>
--->
-            </tr>
-            <tr
-              v-for="n in Math.max(0, 6 - currentGroupMembers.length)"
-              :key="`blank-row-${n}`"
-            >
-              <td style="width: 250px;">-</td>
-<!--
-              <td>-</td>
-              <td>-</td>
--->
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </Pane>
   </Splitpanes>
 
   <PILAModal
