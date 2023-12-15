@@ -33,7 +33,7 @@
               <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
             </div>
           </div>
-          <div v-if="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
+          <div v-show="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
           <div
             v-for="id in groups"
             :key="`group-list-${id}`"
@@ -47,7 +47,6 @@
           </div>
           <div v-show="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
-            {{ archivedGroups }}
             <div
               v-for="id in archivedGroups"
               :key="`archived-group-list-${id}`"
