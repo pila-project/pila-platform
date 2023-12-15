@@ -18,20 +18,13 @@
 			     />
 				{{ spacer ? '' : name }}
 			</div>
-			<div
-			  class="name-and-role"
-			  @click.shift="$store.dispatch('cycleLanguageAndRefetch')"
-			>
-				<div
-					@click="alertUserId"
-				>
-					{{ username }}
+			<div class="name-and-role">
+				<div @click="alertUserId"> {{ username }} </div>
+				<div @click.shift="$store.dispatch('cycleLanguageAndRefetch')">
+					{{ $store.getters['roles/role']($store.state.user) }}</div>
 				</div>
-				<div>{{ $store.getters['roles/role']($store.state.user) }}</div>
-			</div>
 			<IconButton
 	          @click="logout"
-
 	          icon="sign-out"
 	          :text="t('log-out')"
 			/>
