@@ -8,8 +8,7 @@
       <div class="message-wrapper">
         <p>
           {{ headerText }}
-          {{ t('please-email-pila-administrators-at-edu-pila-oecd-org-and-they-will-process-your-request') }}
-          {{ t('include-your-pila-user-id') }}
+          {{ t('please-send-your-full-name-school-institution-and-this-anonymous-id-to-edu-pila-oecd-org-in-order-to-obtain-access-to-pila') }}
         </p>
         <p class="user-id">
           {{ t('user-id') }} :: {{ $store.getters.user() }}

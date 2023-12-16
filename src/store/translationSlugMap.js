@@ -34,7 +34,7 @@ export default {
     "new-class": "294a8311-f5ac-4f3d-b820-808ba8b0fbd9",
     "description": "2e1514cd-9651-4b76-8591-aa1851ddd36f",
     "teachers-in-group": "32204083-ca5c-4967-8212-b3635ff9fa0e",
-    "please-email-pila-administrators-at-edu-pila-oecd-org-and-they-will-process-your-request": "32cd6659-6998-42e3-8c8a-7089d1f511cd",
+    "please-send-your-full-name-school-institution-and-this-anonymous-id-to-edu-pila-oecd-org-in-order-to-obtain-access-to-pila": "32cd6659-6998-42e3-8c8a-7089d1f511cd",
     "link-students-to-you": "332b677b-51c0-4e0b-b6a1-a7993d90e0e3",
     "my-assignments": "33bcae36-13b9-4d83-9ee7-ce814f487687",
     "teacher-name": "3847b12b-cdd2-41c2-a6a0-ba864ee2b440",
