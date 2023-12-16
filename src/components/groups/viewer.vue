@@ -29,7 +29,13 @@
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
             <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
             <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
-              <input v-model="showArchived" type="checkbox" id="show-archived" />
+              <div
+                id="show-archived-test-not-v-model show-archived"
+                @click="showArchived = !showArchived"
+              >
+                {{ showArchived ? 'hide archived' : 'show archived' }}
+              </div>
+              <!-- <input v-model="showArchived" type="checkbox" id="show-archived" /> -->
               <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
             </div>
           </div>
@@ -127,20 +133,12 @@
               :key="member"
             >
               <td style="text-align: left;"><DecryptedName :user="member" /></td>
-<!--
-              <td>-</td>
-              <td>TODO</td>
--->
             </tr>
             <tr
               v-for="n in Math.max(0, 6 - currentGroupMembers.length)"
               :key="`blank-row-${n}`"
             >
               <td style="width: 250px;">-</td>
-<!--
-              <td>-</td>
-              <td>-</td>
--->
             </tr>
           </tbody>
         </table>
