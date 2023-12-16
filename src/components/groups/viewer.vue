@@ -45,6 +45,8 @@
           >
             <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
+
+          <!-- START WHAT"S TOGGLED -->
           <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
             <div
@@ -55,8 +57,9 @@
                 'class-select-item' : true,
                 'archived' : true,
                 'active' : current === id
-              }">
-              <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
+              }"
+            >
+              <!-- <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" /> -->
               <IconButton
                 class="archive-button"
                 @click="unarchive(id)"
@@ -66,6 +69,8 @@
               />
             </div>
           </div>
+          <!-- END WHAT'S TOGGLED -->
+
         </div>
         <br>
         <br>
@@ -90,7 +95,7 @@
         </div>
       </div>
     </Pane>
-    <Pane v-if="current" :key="current">
+    <Pane v-if="current" :key="`current-group-${current}`">
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div> <!-- ROW FOR NAME AND ICONS -->
