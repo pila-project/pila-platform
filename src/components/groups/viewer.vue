@@ -47,9 +47,9 @@
           </div>
 
           <!-- START WHAT"S TOGGLED -->
-          <div v-if="showArchived" style="margin-top: 40px;">
+<!--           <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
-<!--             <div
+            <div
               v-for="id in archivedGroups"
               :key="`archived-group-list-${id}`"
               @click="current = (current === id ? null : id)"
@@ -67,8 +67,8 @@
                 icon="archive"
                 background="#ccc"
               />
-            </div> -->
-          </div>
+            </div>
+          </div> -->
           <!-- END WHAT'S TOGGLED -->
 
         </div>
