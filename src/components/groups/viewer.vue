@@ -29,8 +29,9 @@
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
             <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
             <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
-              <input v-model="showArchived" type="checkbox" id="show-archived" />
-              <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
+              <!-- <input v-model="showArchived" type="checkbox" id="show-archived" /> -->
+              <div @click="showArchived = !showArchived"> Show/Hide </div>
+              <!-- <label for="show-archived"><em>{{ t('show-archived') }}</em></label> -->
             </div>
           </div>
           <div v-if="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
