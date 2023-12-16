@@ -46,7 +46,9 @@
             <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
 
-          <!-- START WHAT"S TOGGLED -->
+          <div v-if="showArchived">  showArchived: {{ showArchived}} </div>
+
+          <!-- START WHAT"S TOGGLED WITH showArchived STATUS -->
 <!--           <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
             <div
