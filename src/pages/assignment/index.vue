@@ -3,6 +3,7 @@
     <vueEmbedComponent
       :id="assignment.content"
       @close="closeAssignment"
+      :namespace="$route.params.id"
     />
   </div>
   <div v-else-if="assignment">

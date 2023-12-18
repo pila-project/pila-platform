@@ -4,6 +4,7 @@
     <vueEmbedComponent
       :id="dashboardReference"
       :environmentProxy="proxyEnvironmentCall"
+      :namespace="assignmentId"
     />
   </div>
 </template>
