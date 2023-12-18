@@ -1,5 +1,5 @@
 <template>
-  <Splitpanes class="default-theme">
+  <Splitpanes class="default-theme" :key="Math.random()">
     <Pane>
       <div class="wrapper">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.MAIN_HEADER }}</h3>
