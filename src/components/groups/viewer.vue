@@ -36,27 +36,27 @@
           <div v-show="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
           <div
             v-for="id in groups"
+            :key="`group-id-${id}`"
             :class="{
               'class-select-item' : true,
               'active' : current === id
             }"
             @click="current = (current === id ? null : id)"
           >
-            <div>Active {{ id }} </div>
-            <!-- <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" /> -->
+            <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
           <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
             <div
               v-for="id in archivedGroups"
               @click="current = (current === id ? null : id)"
+              :key="`archived-group-${id}`"
               :class="{
                 'class-select-item' : true,
                 'archived' : true,
                 'active' : current === id
               }">
-              <div>Archived {{ id }} </div>
-              <!-- <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" /> -->
+              <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
               <IconButton
                 class="archive-button"
                 @click.stop="unarchive(id)"
@@ -94,9 +94,8 @@
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div>
-          <h4 style="display: inline-block; margin-right: 17px;">
-            <div>Side Header {{ current }} </div>
-            <!-- <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" /> -->
+          <h4 style="display: inline-block; margin-right: 17px;" :key="`groups-side-header-${current}`">
+            <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
           </h4>
           <IconButton
             :text="t('modify')"
