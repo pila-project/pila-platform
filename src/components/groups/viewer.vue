@@ -91,7 +91,7 @@
         </div>
       </div>
   </div>
-  <div>
+  <div v-if="current" :key="current">
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div>
