@@ -1,6 +1,6 @@
 <template>
-  <Splitpanes class="default-theme" style="height: 100%;">
-    <Pane>
+  <div class="split-panes">
+    <div class="pane">
       <div class="wrapper">
         <div style="display: flex; justify-content: space-between; margin-bottom: 16px">
           <div>
@@ -68,8 +68,8 @@
           </tbody>
         </table>
       </div>
-    </Pane>
-    <Pane v-if="current" :key="current">
+    </div>
+    <div class="pane" v-if="current" :key="current">
       <div
         style="
           display: flex;
@@ -152,8 +152,8 @@
           </div>
         </div>
       </div>
-    </Pane>
-  </Splitpanes>
+    </div>
+  </div>
   <CreateEditAssignmentModal
     v-if="showEditModal"
     @close="showEditModal = false"
@@ -186,7 +186,6 @@
   import IconButton from '../../components/icon-button.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import { Splitpanes, Pane } from 'splitpanes'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
 
@@ -196,8 +195,6 @@
       PreviewModal,
       vueScopeComponent,
       IconButton,
-      Splitpanes,
-      Pane,
       Dashboard,
       CreateEditAssignmentModal
     },

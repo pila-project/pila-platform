@@ -1,6 +1,6 @@
 <template>
-  <Splitpanes class="default-theme">
-    <Pane>
+  <div class="split-panes">
+    <div class="pane">
       <div class="wrapper">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.MAIN_HEADER }}</h3>
         <div style="display: flex; justify-content: space-between;">
@@ -89,8 +89,8 @@
           </div>
         </div>
       </div>
-    </Pane>
-    <Pane v-if="current" :key="current">
+    </div>
+    <div class="pane" v-if="current" :key="current">
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div> <!-- ROW FOR NAME AND ICONS -->
@@ -115,10 +115,6 @@
           <thead>
             <tr>
               <th>{{ GET_TEXT.MEMBER_COL_HEADER }}</th>
-<!--
-              <th>{{ t('last-login') }}</th>
-              <th>{{ GET_TEXT.OTHER_GROUPS_COL_HEADER }}</th>
--->
             </tr>
           </thead>
           <tbody>
@@ -127,26 +123,18 @@
               :key="member"
             >
               <td style="text-align: left;"><DecryptedName :user="member" /></td>
-<!--
-              <td>-</td>
-              <td>TODO</td>
--->
             </tr>
             <tr
               v-for="n in Math.max(0, 6 - currentGroupMembers.length)"
               :key="`blank-row-${n}`"
             >
               <td style="width: 250px;">-</td>
-<!--
-              <td>-</td>
-              <td>-</td>
--->
             </tr>
           </tbody>
         </table>
       </div>
-    </Pane>
-  </Splitpanes>
+    </div>
+  </div>
 
   <PILAModal
     v-if="showLinkStudentModal"
@@ -206,7 +194,6 @@
 <script>
   import naclUtil from 'tweetnacl-util'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import { Splitpanes, Pane } from 'splitpanes'
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
   import LinkStudentModal from './LinkStudentModal.vue'
@@ -218,9 +205,7 @@
     components: {
       DecryptedName,
       vueScopeComponent,
-      Splitpanes,
       IconButton,
-      Pane,
       LinkStudentModal,
       CreateEditGroupModal,
       PILAModal
