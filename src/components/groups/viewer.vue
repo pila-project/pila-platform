@@ -29,9 +29,8 @@
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
             <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
             <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
-              <!-- <input v-model="showArchived" type="checkbox" id="show-archived" /> -->
-              <div @click="showArchived = !showArchived"> Show/Hide </div>
-              <!-- <label for="show-archived"><em>{{ t('show-archived') }}</em></label> -->
+              <input v-model="showArchived" type="checkbox" id="show-archived" />
+              <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
             </div>
           </div>
           <div v-if="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
@@ -46,11 +45,7 @@
           >
             <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
           </div>
-
-          <div v-if="showArchived">  showArchived: {{ showArchived}} </div>
-
-          <!-- START WHAT"S TOGGLED WITH showArchived STATUS -->
-<!--           <div v-if="showArchived" style="margin-top: 40px;">
+          <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
             <div
               v-for="id in archivedGroups"
@@ -60,8 +55,7 @@
                 'class-select-item' : true,
                 'archived' : true,
                 'active' : current === id
-              }"
-            >
+              }">
               <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
               <IconButton
                 class="archive-button"
@@ -71,9 +65,7 @@
                 background="#ccc"
               />
             </div>
-          </div> -->
-          <!-- END WHAT'S TOGGLED -->
-
+          </div>
         </div>
         <br>
         <br>
@@ -98,7 +90,7 @@
         </div>
       </div>
     </Pane>
-    <Pane v-if="current" :key="`current-group-${current}`">
+    <Pane v-if="current" :key="current">
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div> <!-- ROW FOR NAME AND ICONS -->
@@ -135,12 +127,20 @@
               :key="member"
             >
               <td style="text-align: left;"><DecryptedName :user="member" /></td>
+<!--
+              <td>-</td>
+              <td>TODO</td>
+-->
             </tr>
             <tr
               v-for="n in Math.max(0, 6 - currentGroupMembers.length)"
               :key="`blank-row-${n}`"
             >
               <td style="width: 250px;">-</td>
+<!--
+              <td>-</td>
+              <td>-</td>
+-->
             </tr>
           </tbody>
         </table>
