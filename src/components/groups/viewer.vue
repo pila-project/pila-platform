@@ -42,9 +42,10 @@
             }"
             @click="current = (current === id ? null : id)"
           >
-            <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" />
+            <div>Active {{ id }} </div>
+            <!-- <vueScopeComponent :id="id" :path="['name']" placeholder="(( unnamed class ))" /> -->
           </div>
-          <div v-show="showArchived" style="margin-top: 40px;">
+          <div v-if="showArchived" style="margin-top: 40px;">
             <h4 style="color: #888888;"><em>{{ t('archived') }}</em></h4>
             <div
               v-for="id in archivedGroups"
@@ -54,7 +55,8 @@
                 'archived' : true,
                 'active' : current === id
               }">
-              <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" />
+              <div>Archived {{ id }} </div>
+              <!-- <vueScopeComponent placeholder="(( unnamed class ))" style="padding: 8px;" :id="id" :path="['name']" /> -->
               <IconButton
                 class="archive-button"
                 @click.stop="unarchive(id)"
@@ -93,7 +95,8 @@
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div>
           <h4 style="display: inline-block; margin-right: 17px;">
-            <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" />
+            <div>Side Header {{ current }} </div>
+            <!-- <vueScopeComponent :id="current" :path="['name']" style="color: #2E32DB;" /> -->
           </h4>
           <IconButton
             :text="t('modify')"
