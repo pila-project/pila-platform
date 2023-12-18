@@ -1,6 +1,5 @@
 <template>
-  <Splitpanes class="default-theme" :key="Math.random()">
-    <Pane>
+  <div>
       <div class="wrapper">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.MAIN_HEADER }}</h3>
         <div style="display: flex; justify-content: space-between;">
@@ -28,7 +27,12 @@
         <div class="class-list">
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
             <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
-            <button @click="showArchived = !showArchived">archive...</button>
+            <div
+              style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;"
+            >
+              <input v-model="showArchived" type="checkbox" id="show-archived" />
+              <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
+            </div>
           </div>
           <div v-show="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
           <div
@@ -86,8 +90,8 @@
           </div>
         </div>
       </div>
-    </Pane>
-    <Pane v-if="current" :key="current">
+  </div>
+  <div>
       <div style="padding: 8px;">
         <h3 style="color: #2E32DB;">{{ GET_TEXT.SIDE_HEADER }}</h3>
         <div>
@@ -130,8 +134,7 @@
           </tbody>
         </table>
       </div>
-    </Pane>
-  </Splitpanes>
+  </div>
 
   <PILAModal
     v-if="showLinkStudentModal"
