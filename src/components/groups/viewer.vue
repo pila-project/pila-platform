@@ -28,7 +28,10 @@
         <div class="class-list">
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
             <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
-            <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
+            <div
+              :key="Math.random()"
+              style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;"
+            >
               <input v-model="showArchived" type="checkbox" id="show-archived" />
               <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
             </div>
