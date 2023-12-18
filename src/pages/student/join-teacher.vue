@@ -69,6 +69,7 @@
             group_id: this.teacherGroupId
           }
         )
+        await this.$store.dispatch('groups/encryptMyUserInfo')
         this.joining = false
       },
       async leave() {
