@@ -3,6 +3,8 @@ import { watch } from 'vue'
 import { createStore } from 'vuex'
 import storeDef from '../store/index.js'
 
+import basicContentTaggingTests from './basic-content-tagging.js'
+
 
 export default function runTests() {
   window.Agent = browserAgent()
@@ -36,32 +38,16 @@ function waitForStoreLoadThenRunTests (store) {
         window.pause = ms => new Promise(r => setTimeout(r, ms))
         chai.config.truncateThreshold = 0; // disable truncating
 
-        startAdminTests(store)
+        document.body.innerHTML = '<div id="mocha"></div>'
+
+        mocha.setup({ ui: 'bdd', reporter: 'HTML' })
+        mocha.run()
+
+        describe('PILA Platform Tests', function () {
+          basicContentTaggingTests(store)
+        })
       }
       unwatch()
     }
-  })
-}
-
-function startAdminTests(store) {
-  document.body.innerHTML = '<div id="mocha"></div>'
-
-  mocha
-    .setup({
-      ui: 'bdd',
-      reporter: 'HTML'
-    })
-
-  mocha.run()
-
-  describe('We can start tests', function () {
-    describe('We can start inner tests', function () {
-      it('Can run a passing test', function () {
-        console.log('yeah, we\'re good')
-      })
-      it('Can run another passing test', function () {
-        console.log('yeah, we\'re really good')
-      })
-    })
   })
 }
