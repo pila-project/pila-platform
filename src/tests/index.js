@@ -7,13 +7,18 @@ export default function runTests() {
   window.Agent = browserAgent()
   if (Agent.embedded) document.body.innerHTML = 'Cannot run tests in embedded mode.'
   else {
-    document.body.innerHTML = 'Loading store...'
-    storeDef.plugins.push(waitForStoreLoadThenRunTests)
-    createStore(storeDef)
+    createStore({
+      ...storeDef,
+      plugins: [
+        ...storeDef.plugins,
+        waitForStoreLoadThenRunTests
+      ]
+    })
   }
 }
 
 function waitForStoreLoadThenRunTests (store) {
+  document.body.innerHTML = 'Loading store...'
   const unwatch = watch(() => store.getters.loaded(), loaded => {
     if (loaded) {
       const user = store.getters.user()
