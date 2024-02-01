@@ -3,7 +3,7 @@ import { watch } from 'vue'
 import { createStore } from 'vuex'
 import storeDef from '../store/index.js'
 
-import basicContentTaggingTests from './basic-content-tagging.js'
+import basicContentManagementTests from './basic-content-management.js'
 
 
 export default function runTests() {
@@ -44,7 +44,7 @@ function waitForStoreLoadThenRunTests (store) {
         mocha.run()
 
         describe('PILA Platform Tests', function () {
-          basicContentTaggingTests(store)
+          basicContentManagementTests(store)
         })
       }
       unwatch()
