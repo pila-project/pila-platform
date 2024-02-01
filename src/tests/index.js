@@ -3,6 +3,7 @@ import { watch } from 'vue'
 import { createStore } from 'vuex'
 import storeDef from '../store/index.js'
 
+
 export default function runTests() {
   window.Agent = browserAgent()
   if (Agent.embedded) document.body.innerHTML = 'Cannot run tests in embedded mode.'
@@ -19,17 +20,48 @@ export default function runTests() {
 
 function waitForStoreLoadThenRunTests (store) {
   document.body.innerHTML = 'Loading store...'
-  const unwatch = watch(() => store.getters.loaded(), loaded => {
+  const unwatch = watch(() => store.getters.loaded(), async loaded => {
     if (loaded) {
       const user = store.getters.user()
       const role = store.getters['roles/role'](user)
       if (role !== 'admin') document.body.innerHTML = 'Tests must be run by an admin.'
-      else startAdminTests(store)
+      else {
+        const [chai] = await Promise.all([
+          import('chai/chai.js'),
+          import('mocha/mocha.js'),
+          import('mocha/mocha.css')
+        ])
+        //  set up some globals for ease of use in test files
+        window.expect = chai.expect
+        window.pause = ms => new Promise(r => setTimeout(r, ms))
+        chai.config.truncateThreshold = 0; // disable truncating
+
+        startAdminTests(store)
+      }
       unwatch()
     }
   })
 }
 
 function startAdminTests(store) {
-  document.body.innerHTML = 'Run tests!'
+  document.body.innerHTML = '<div id="mocha"></div>'
+
+  mocha
+    .setup({
+      ui: 'bdd',
+      reporter: 'HTML'
+    })
+
+  mocha.run()
+
+  describe('We can start tests', function () {
+    describe('We can start inner tests', function () {
+      it('Can run a passing test', function () {
+        console.log('yeah, we\'re good')
+      })
+      it('Can run another passing test', function () {
+        console.log('yeah, we\'re really good')
+      })
+    })
+  })
 }
