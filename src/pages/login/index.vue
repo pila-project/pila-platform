@@ -23,18 +23,19 @@
           <div>{{ t('log-in-with') }}  Microsoft</div>
         </div>
         <div
-          class="login-button clever"
-        >
-          <img class="login-button-icon" src="/external-logos/clever.png" />
-          <div class="login-button-divider"></div>
-          <div>{{ t('log-in-with') }}  Clever</div>
-        </div>
-        <div
-          class="login-button classlink"
+          class="login-button"
+          @click="login('classlink')"
         >
           <img class="login-button-icon" src="/external-logos/classlink.png" />
           <div class="login-button-divider"></div>
           <div>{{ t('log-in-with') }}  ClassLink</div>
+        </div>
+        <div
+          class="login-button disabled"
+        >
+          <img class="login-button-icon" src="/external-logos/clever.png" />
+          <div class="login-button-divider"></div>
+          <div>{{ t('log-in-with') }}  Clever</div>
         </div>
       </div>
       <div v-if="error" class="error">{{ error }}</div>
@@ -127,8 +128,7 @@ import IconButton from './../../components/icon-button.vue'
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     cursor: pointer;
   }
-  .login-button.classlink,
-  .login-button.clever {
+  .login-button.disabled {
     filter: grayscale(100%);
     color: darkgrey;
     cursor: unset;
