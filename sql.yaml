@@ -1,3 +1,8 @@
+authorize:
+  sameDomain:
+    postgres: same_domain_authorization
+  crossDomain:
+    postgres: cross_domain_authorization
 postgres:
   tables:
     role_requests:
@@ -48,6 +53,32 @@ postgres:
         target: TEXT
         path: TEXT[]
   functions:
+    same_domain_authorization:
+      returns: BOOLEAN
+      language: PLpgSQL
+      body: |
+        BEGIN
+          RETURN TRUE;
+        END;
+      arguments:
+      - name: requestingUser
+        type: TEXT
+      - name: requestedScope
+        type: TEXT
+    cross_domain_authorization:
+      returns: BOOLEAN
+      language: PLpgSQL
+      body: |
+        BEGIN
+          RETURN TRUE;
+        END;
+      arguments:
+      - name: requestingDomain
+        type: TEXT
+      - name: requestingUser
+        type: TEXT
+      - name: requestedScope
+        type: TEXT
     hasAdminTag:
       returns: BOOLEAN
       arguments:
