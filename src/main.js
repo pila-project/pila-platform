@@ -1,14 +1,14 @@
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import router from './router.js'
-import { browserAgent } from '@knowlearning/agents'
+import Agent from '@knowlearning/agents/browser.js'
 import { vuePersistentStore } from '@knowlearning/agents/vue.js'
 import storeDef from './store/index.js'
 import App from './pages/App.vue'
 
 import './main.css'
 
-window.Agent = browserAgent()
+window.Agent = Agent
 
 async function initialize() {
   const store = Agent.embedded ? storeDef : await vuePersistentStore(storeDef)
