@@ -196,3 +196,8 @@ button.icon-circle i {
 textarea.rounded-grey {
     resize: none;
 }
+
+/* Mocha tests */
+.test.pass {
+  color: green;
+}

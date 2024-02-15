@@ -45,7 +45,7 @@ function waitForStoreLoadThenRunTests (store) {
 
         document.body.innerHTML = '<div id="mocha"></div>'
 
-        mocha.setup({ ui: 'bdd', reporter: 'HTML' })
+        mocha.setup({ ui: 'bdd', reporter: 'HTML',  slow: 1000 })
         mocha.run()
 
         describe('PILA Platform Tests', function () {

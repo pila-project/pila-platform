@@ -22,6 +22,12 @@ export default function basicContentManagementTests(store) {
       expect(myStudents).to.include(adminUser)
     })
 
+    it('Ensure student sees teacher in group of teachers after joining', async function () {
+      const { auth: { user: adminUser } } = await Agent.environment()
+      const myTeachers = await store.getters['groups/myTeachers']()
+      expect(myTeachers).to.include(adminUser)
+    })
+
     it('Ensure student agent can leave teacher', async function () {
       const { auth: { user: adminUser } } = await Agent.environment()
       await store.dispatch(

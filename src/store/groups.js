@@ -51,7 +51,7 @@ export default {
         })
     ),
     specialGroupId: state => name => state.specialGroupIds[name] || null,
-    myTeachers: (state, getters) => {
+    myTeachers: (state, getters) => () => {
       const myTeacherGroupId = getters.specialGroupId('my-teachers')
       return myTeacherGroupId ? getters.members(myTeacherGroupId) : []
     },
@@ -104,7 +104,7 @@ export default {
       const serializedInfo = JSON.stringify((await Agent.environment()).auth.info)
       const { publicKey, secretKey: myEphemeralSecretKey } = await generateKeyPair()
       getters
-        .myTeachers
+        .myTeachers()
         .forEach(async teacherId => {
           const teacherKey = await Agent.state('user-info-public-keys', teacherId)
           if (!teacherKey.public) return
