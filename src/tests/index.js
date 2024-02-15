@@ -5,10 +5,13 @@ import storeDef from '../store/index.js'
 
 import basicContentManagementTests from './basic-content-management.js'
 import adminContentManagementTests from './admin-content-management.js'
+import studentsJoiningTeachersTests from './students-joining-teachers.js'
 
 export default function runTests() {
   window.Agent = browserAgent()
-  window.Agent2 = browserAgent({ unique: true, getToken: () => 'anonymous-ephemeral', root: true})
+  window.TeacherAgent = browserAgent({ unique: true, getToken: () => 'anonymous-ephemeral', root: true})
+  window.StudentAgent1 = browserAgent({ unique: true, getToken: () => 'anonymous-ephemeral', root: true})
+  window.StudentAgent2 = browserAgent({ unique: true, getToken: () => 'anonymous-ephemeral', root: true})
 
   if (Agent.embedded) document.body.innerHTML = 'Cannot run tests in embedded mode.'
   else {
@@ -48,6 +51,7 @@ function waitForStoreLoadThenRunTests (store) {
         describe('PILA Platform Tests', function () {
           basicContentManagementTests(store)
           adminContentManagementTests(store)
+          studentsJoiningTeachersTests(store)
         })
       }
       unwatch()

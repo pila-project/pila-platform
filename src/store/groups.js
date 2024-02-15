@@ -54,6 +54,15 @@ export default {
     myTeachers: (state, getters) => {
       const myTeacherGroupId = getters.specialGroupId('my-teachers')
       return myTeacherGroupId ? getters.members(myTeacherGroupId) : []
+    },
+    myStudents: (state, getters, { user }) => () => {
+      // students are anybody who has added you to a group of type "my-teachers"
+      return  (
+        getters
+          .groups('my-teachers')
+          .filter(gid => getters.belongs(user, gid))
+          .map(gid => getters.owner(gid))
+      )
     }
   },
   mutations: {

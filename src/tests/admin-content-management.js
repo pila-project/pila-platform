@@ -13,7 +13,7 @@ export default function adminContentManagementTests(store) {
     })
 
     it('To surface admin created expert content to student users', async function () {
-      expect(await activeRemoteExpertContent(Agent2)).to.include(testContentId)
+      expect(await activeRemoteExpertContent(TeacherAgent)).to.include(testContentId)
     })
 
     it('Can remove content from expert recommendations', async function () {
@@ -24,7 +24,7 @@ export default function adminContentManagementTests(store) {
     })
 
     it('To not surface admin removed expert content to student users', async function () {
-      expect(await activeRemoteExpertContent(Agent2)).to.not.include(testContentId)
+      expect(await activeRemoteExpertContent(TeacherAgent)).to.not.include(testContentId)
     })
   })
 }
