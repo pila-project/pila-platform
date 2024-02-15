@@ -18,7 +18,21 @@ export default function basicContentManagementTests(store) {
         }
       )
       await store.dispatch('groups/encryptMyUserInfo')
+      const myStudents = await store.getters['groups/myStudents']()
+      expect(myStudents).to.include(adminUser)
     })
 
+    it('Ensure student agent can leave teacher', async function () {
+      const { auth: { user: adminUser } } = await Agent.environment()
+      await store.dispatch(
+        'groups/removeMember',
+        {
+          user_id: adminUser,
+          group_id: store.getters['groups/specialGroupId']('my-teachers')
+        }
+      )
+      const myStudents = await store.getters['groups/myStudents']()
+      expect(myStudents).to.not.include(adminUser)
+    })
   })
 }
