@@ -73,11 +73,12 @@ export default {
         const state = await Agent.state(existing)
         state.archived = false
       }
-      else Agent.create({
+      else await Agent.create({
         active_type: 'application/json;type=pila_tag',
         active: { tag_type, content_id, archived }
       })
 
+      await Agent.synced()
       await dispatch('load')
     },
     async untag({ state, dispatch }, { content_id, tag_type }) {
@@ -87,6 +88,8 @@ export default {
       if (existing) {
         const state = await Agent.state(existing)
         state.archived = true
+
+        await Agent.synced()
         await dispatch('load')
       }
       else await dispatch('tag', {content_id, tag_type, archived: true })
