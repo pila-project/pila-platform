@@ -4,7 +4,6 @@ import ResearcherView from './pages/researcher/index.vue'
 import TeacherView from './pages/teacher/index.vue'
 import StudentView from './pages/student/index.vue'
 import JoinTeacherView from './pages/student/join-teacher.vue'
-import AssignmentView from './pages/assignment/index.vue'
 import CandliStates from './pages/candli-states.vue'
 
 export default createRouter({
@@ -29,10 +28,6 @@ export default createRouter({
     {
       path: '/join/:teacher',
       component: JoinTeacherView
-    },
-    {
-      path: '/:id',
-      component: AssignmentView
     },
     {
       path: '/candli-states',

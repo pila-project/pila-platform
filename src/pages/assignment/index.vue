@@ -1,16 +1,16 @@
 <template>
-  <div v-if="assignment && assignment.content" class="wrapper">
+  <div v-if="assignment?.content" class="wrapper">
     <vueEmbedComponent
       :id="assignment.content"
       @close="closeAssignment"
-      :namespace="$route.params.id"
+      :namespace="id"
     />
   </div>
   <div v-else-if="assignment">
-    {{ t('there-is-an-issue-with-your-assignment-please-ask-your-teacher-to-ensure-they-have-assigned-the-intended-content') }}
+    There is an issue with your assignment. Please ask your teacher to ensure they have assigned the intended content.
   </div>
   <div v-else>
-    ... {{ t('loading') }} ...
+    ... loading ...
   </div>
 </template>
 
@@ -18,21 +18,21 @@
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 
   export default {
+    props: {
+      id: String
+    },
     components: {
       vueEmbedComponent
     },
     data() {
       return {
-        assignment: null,
-        metadata: null
+        assignment: null
       }
     },
     async created() {
-      const { id } = this.$route.params
-      this.assignment = await Agent.state(id)
+      this.assignment = await Agent.state(this.id)
     },
     methods: {
-      t(slug) { return this.$store.getters.t(slug) },
       closeAssignment() {
         Agent.close()
       }
