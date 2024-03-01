@@ -1,6 +1,11 @@
 <template>
   <div class="cards-wrapper">
-    <div class="tag-container">
+
+    <div v-if="selectedContent" class="tag-container">
+      <button @click="selectedContent = null">close</button>
+      <pre><vueScopeComponent metadata :id="selectedContent" /></pre>
+    </div>
+    <div v-else class="tag-container">
       <div
         v-for="_, id in selectedTags"
         :key="id"
@@ -26,7 +31,10 @@
       </div>
     </div>
     <div v-if="tagFilters" class="tagging-match-container">
-      <div v-for="match in taggingMatches">
+      <div
+        v-for="match in taggingMatches"
+        @click="selectedContent = selectedContent === match.content_id ? null : match.content_id"
+      >
         {{ match }}
       </div>
     </div>
@@ -163,6 +171,7 @@
         tagMatches: [],
         taggingMatches: [],
         selectedTags: {},
+        selectedContent: null
       }
     },
     props: {
