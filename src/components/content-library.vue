@@ -1,41 +1,30 @@
 <template>
   <div class="cards-wrapper">
-
-    <div class="filters-selector" v-if="showFilters">
-
-      <div style="align-self: flex-start;">
-        <IconButton
-          class="filter-button"
-          icon="minus-circle"
-          @click="showFilters = false"
-          :text="t('hide-filters')"
-          :background="'rgb(107, 234, 201)'"
-        />
+    <div class="tag-container">
+      <div
+        v-for="_, id in selectedTags"
+        :key="id"
+        @click="delete selectedTags[id]"
+      >
+        <vueScopeComponent :id="id" :path="['name']" />
       </div>
-
-      <ProjectSelector
-        :activeProjects="activeProjects"
-        @select="toggleActive"
-      />
-      <TagSelector
-        style="width: 550px;"
-        :activeTags="activeTags"
-        :tags="allItemTags"
-        @select="toggleTag"
-      />
+      <input v-model="tagSearchQuery" placeholder="Search Tags" />
+      <div
+        v-for="{ id } in tagMatches"
+        class="tag-match"
+        @click="() => {
+          if (selectedTags[id]) delete selectedTags[id]
+          else selectedTags[id] = true
+        }"
+        :class="{
+          'tag-match': true,
+          selected: !!selectedTags[id]
+        }"
+      >
+        <h2><vueScopeComponent :id="id" :path="['name']" /></h2>
+        <p><vueScopeComponent :id="id" :path="['description']" /></p>
+      </div>
     </div>
-
-    <IconButton
-      v-else
-      style="align-self: flex-start;"
-      icon="plus-circle"
-      @click="showFilters = true"
-      :text="t('show-filters')"
-      :background="'rgb(107, 234, 201)'"
-    />
-
-    <hr>
-
     <div class="card-container">
       <div class="card new-item-card">
         <div>
@@ -131,6 +120,7 @@
   import URL_CONTENT_DATA from '../url-content-data.js'
   import contentTags from '../content-tags.js'
   import { validate as isUUID } from 'uuid'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 
   function isURL(s) {
     try {
@@ -145,6 +135,7 @@
   export default {
     components: {
       ContentLibraryCard,
+      vueScopeComponent,
       PILAModal,
       PreviewModal,
       ProjectSelector,
@@ -162,7 +153,10 @@
         contentToCreate: '',
         activeProjects: [ 'karel', 'candli', 'betty' ],
         activeTags: [],
-        showFilters: false
+        showFilters: false,
+        tagSearchQuery: '',
+        tagMatches: [],
+        selectedTags: {}
       }
     },
     props: {
@@ -187,6 +181,13 @@
         } else { // else not validated
           this.contentIdValidated = false
         }
+      },
+      tagSearchQuery(val) {
+        clearTimeout(this.lastTagSearchTimeout)
+        this.lastTagSearchTimeout = setTimeout(async () => {
+          const response = await Agent.query('search-tags', [val], 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:5222')
+          if (val === this.tagSearchQuery) this.tagMatches = response
+        }, 500)
       }
     },
     computed: {
@@ -269,12 +270,15 @@
 </style>
 
 <style scoped>
+
   .cards-wrapper
   {
+    display: flex;
     padding: 16px;
   }
 
   .card-container {
+    flex-grow: 1;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -318,5 +322,10 @@
   .filters-selector {
     display: grid;
     grid-template-columns: 2fr 2fr 5fr;
+  }
+
+  .tag-match.selected
+  {
+    background: chartreuse;
   }
 </style>
