@@ -25,7 +25,12 @@
         <p><vueScopeComponent :id="id" :path="['description']" /></p>
       </div>
     </div>
-    <div class="card-container">
+    <div v-if="tagFilters" class="tagging-match-container">
+      <div v-for="match in taggingMatches">
+        {{ match }}
+      </div>
+    </div>
+    <div v-else class="card-container">
       <div class="card new-item-card">
         <div>
           <div class="content-name">{{t('add-content')}}</div>
@@ -156,7 +161,8 @@
         showFilters: false,
         tagSearchQuery: '',
         tagMatches: [],
-        selectedTags: {}
+        taggingMatches: [],
+        selectedTags: {},
       }
     },
     props: {
@@ -188,9 +194,20 @@
           const response = await Agent.query('search-tags', [val], 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:5222')
           if (val === this.tagSearchQuery) this.tagMatches = response
         }, 500)
+      },
+      async tagFilters(val) {
+        if (!val) return this.taggingMatches = []
+
+        const response = await Agent.query('taggings', [val], 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:5222')
+        //  TODO: invalidate if does not match
+        this.taggingMatches = response
       }
     },
     computed: {
+      tagFilters() {
+        const selected = Object.keys(this.selectedTags)
+        return selected.length ? selected : null
+      },
       filteredContent() {
         const filteredByType = this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
             || (this.activeProjects.includes('candli') && this.isCandliLink(id))
@@ -275,6 +292,11 @@
   {
     display: flex;
     padding: 16px;
+  }
+
+  .tagging-match-container
+  {
+    flex-grow: 1;    
   }
 
   .card-container {
