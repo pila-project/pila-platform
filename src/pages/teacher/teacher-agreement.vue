@@ -16,7 +16,7 @@
 					</p>
 					<p>
 						<a
-							href="https://pilaproject.org/about-pila/terms-of-service-for-teachers"
+							:href="teacherTermsOfServiceLink"
 							target="_blank"
 						>
 							{{ t('terms-of-service-for-teachers') }}
@@ -24,7 +24,7 @@
 					</p>
 					<p>
 						<a
-							href="https://pilaproject.org/about-pila/data-protection-notice-for-teachers"
+							:href="teacherDataProtectionLink"
 							target="_blank"
 						>
 							{{ t('data-protection-notice-for-teachers') }}
@@ -47,6 +47,21 @@ export default {
 			// only accept/handle modal close from 'agree' button
 			const agreeBtn = e === 'primary-button'
 			if (agreeBtn) this.$store.dispatch('acceptTeacherAgreement')
+		}
+	},
+	computed: {
+		teacherTermsOfServiceLink() {
+			if (location.host === 'thailand.pilaproject.org') {
+				return 'https://pilaproject.org/about-pila/thailand-terms-of-service-for-teachers'
+			}
+			return 'https://pilaproject.org/about-pila/terms-of-service-for-teachers'
+		},
+		teacherDataProtectionLink() {
+			if (location.host === 'thailand.pilaproject.org') {
+				return 'https://pilaproject.org/about-pila/thailand-data-protection-notice-for-teachers'
+			}
+
+			return 'https://pilaproject.org/about-pila/data-protection-notice-for-teachers'
 		}
 	}
 }
