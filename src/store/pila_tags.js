@@ -9,6 +9,7 @@ function existing_tag(state, content_id, tag_type, user) {
     if ( entry.content_id === content_id
       && entry.tag_type === tag_type
       && entry.user_id === user
+      && !entry.archived
     ) {
       existing = id
       break
@@ -82,6 +83,7 @@ export default {
     },
     async untag({ state, dispatch }, { content_id, tag_type }) {
       const { auth: { user } } = await Agent.environment()
+
       const existing = await existing_tag(state, content_id, tag_type, user)
 
       if (existing) {
