@@ -4,11 +4,10 @@
     class="teacher-view"
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
-
     <TabMenu
       :tabs="[
         { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
-        { spacer: true, width: 1 },
+        { name: t('DASHBOARD'), background: '#1E6DB8', id:'dashboard', color: 'white' },
         { name: t('assignments'), background: '#2E32DB', id:'assignments-from-me', color: 'white' },
         { name: t('item-library'), background: '#1B1B83', id:'content', color: 'white' },
         { spacer: true, width: 1 },
@@ -17,7 +16,6 @@
       :current="tab"
       @select="tab = $event"
     />
-
     <Groups
       v-if="tab === 'classes'"
       type="class"
@@ -38,9 +36,7 @@
       v-else-if="tab === 'assignments-to-me'"
       type="researcher-to-teacher"
     />
-
   </div>
-
   <RoleRequester v-else role="teacher" />
 </template>
 
@@ -76,6 +72,7 @@
       hasTeacherAgreement() {
         return this.$store.getters.hasAcceptedTeacherAgreement()
       },
+      
       students() {
         // students are anybody who has added you to a group of type "my-teachers"
         const { getters, state: { user } } = this.$store
@@ -89,7 +86,7 @@
       }
     },
     methods: {
-      t(slug) { return this.$store.getters.t(slug) }
+      t(slug) { return this.$store.getters.t(slug) },
     }
   }
 </script>
