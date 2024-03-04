@@ -7,9 +7,8 @@
 
     <TabMenu
       :tabs="[
-        { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
-        // { spacer: true, width: 1 },
-        { name: t('dashboard') === 'no slug dashboard' ? 'DASHBOARD' : t('dashboard'), background: '#1E6DB8', id:'dashboard', color: 'white' },
+        { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },// { spacer: true, width: 1 },
+        { name: t('DASHBOARD'), background: '#1E6DB8', id:'dashboard', color: 'white' },
         { name: t('assignments'), background: '#2E32DB', id:'assignments-from-me', color: 'white' },
         { name: t('item-library'), background: '#1B1B83', id:'content', color: 'white' },
         { spacer: true, width: 1 },
@@ -39,9 +38,7 @@
       v-else-if="tab === 'assignments-to-me'"
       type="researcher-to-teacher"
     />
-
   </div>
-
   <RoleRequester v-else role="teacher" />
 </template>
 
@@ -92,7 +89,6 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
-      
     }
   }
 </script>
