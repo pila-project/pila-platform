@@ -77,10 +77,7 @@
       hasTeacherAgreement() {
         return this.$store.getters.hasAcceptedTeacherAgreement()
       },
-      currentTabName() {
-        const tab = this.tabs.find(tab => tab.id === this.tab);
-        return tab ? tab.name : '';
-      },
+      
       students() {
         // students are anybody who has added you to a group of type "my-teachers"
         const { getters, state: { user } } = this.$store
@@ -95,9 +92,7 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
-      getTabDisplayName(tab) {
-        return tab.name === 'dashboard' ? 'DASHBOARD' : tab.name;
-    },
+      
     }
   }
 </script>
