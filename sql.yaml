@@ -106,7 +106,8 @@ postgres:
                 '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
                 'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
                 'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                'c0f3a481-d4d5-4133-a198-94a325aa4536',
+                '86ede41d-9397-4ac6-b025-67aaaa888022'
               )
                 AND t.tag_type = hasAdminTag.tag_type
               ORDER BY t.content_id, md.updated DESC
@@ -150,7 +151,8 @@ postgres:
                   '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
                   'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
                   'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-                  'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                  'c0f3a481-d4d5-4133-a198-94a325aa4536',
+                  '86ede41d-9397-4ac6-b025-67aaaa888022'
                 )
                 GROUP BY ra2.assignee
               )
@@ -161,7 +163,8 @@ postgres:
                 '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
                 'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
                 'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                'c0f3a481-d4d5-4133-a198-94a325aa4536',
+                '86ede41d-9397-4ac6-b025-67aaaa888022'
               )
               AND (
                 requester_id IN (
@@ -171,7 +174,8 @@ postgres:
                   '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
                   'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
                   'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-                  'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                  'c0f3a481-d4d5-4133-a198-94a325aa4536',
+                  '86ede41d-9397-4ac6-b025-67aaaa888022'
                 )
                 OR ra.assignee = requester_id
               )
@@ -182,7 +186,8 @@ postgres:
                 '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
                 'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
                 'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-                'c0f3a481-d4d5-4133-a198-94a325aa4536'
+                'c0f3a481-d4d5-4133-a198-94a325aa4536',
+                '86ede41d-9397-4ac6-b025-67aaaa888022'
               )
             UNION SELECT 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT '0c9c64fc-559e-40d4-916b-852f6d108a17', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
@@ -191,6 +196,7 @@ postgres:
             UNION SELECT 'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT 'aabc6c9c-a4f8-405b-9de3-76588997d52f', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT 'c0f3a481-d4d5-4133-a198-94a325aa4536', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+            UNION SELECT '86ede41d-9397-4ac6-b025-67aaaa888022', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
 
           ;
         END;
@@ -211,7 +217,8 @@ postgres:
           '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
           'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
           'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-          'c0f3a481-d4d5-4133-a198-94a325aa4536'
+          'c0f3a481-d4d5-4133-a198-94a325aa4536',
+          '86ede41d-9397-4ac6-b025-67aaaa888022'
         )
         OR metadata.owner = $REQUESTER
     # all groups a user owns, or has been put in
@@ -301,7 +308,8 @@ postgres:
             '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
             'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
             'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-            'c0f3a481-d4d5-4133-a198-94a325aa4536'
+            'c0f3a481-d4d5-4133-a198-94a325aa4536',
+            '86ede41d-9397-4ac6-b025-67aaaa888022'
           )
         )
       UNION
@@ -321,7 +329,8 @@ postgres:
           '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
           'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
           'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-          'c0f3a481-d4d5-4133-a198-94a325aa4536'
+          'c0f3a481-d4d5-4133-a198-94a325aa4536',
+          '86ede41d-9397-4ac6-b025-67aaaa888022'
         )
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
@@ -335,4 +344,3 @@ postgres:
       WHERE
         $1 = ANY(context)
         AND tag_type = 'mutated'
-        
