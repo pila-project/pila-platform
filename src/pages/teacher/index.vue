@@ -4,10 +4,9 @@
     class="teacher-view"
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
-
     <TabMenu
       :tabs="[
-        { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },// { spacer: true, width: 1 },
+        { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
         { name: t('DASHBOARD'), background: '#1E6DB8', id:'dashboard', color: 'white' },
         { name: t('assignments'), background: '#2E32DB', id:'assignments-from-me', color: 'white' },
         { name: t('item-library'), background: '#1B1B83', id:'content', color: 'white' },
@@ -17,7 +16,6 @@
       :current="tab"
       @select="tab = $event"
     />
-
     <Groups
       v-if="tab === 'classes'"
       type="class"
