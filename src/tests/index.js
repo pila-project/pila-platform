@@ -1,4 +1,4 @@
-import { browserAgent } from '@knowlearning/agents'
+import browserAgent from '@knowlearning/agents/agents/browser/initialize.js'
 import { watch } from 'vue'
 import { createStore } from 'vuex'
 import storeDef from '../store/index.js'

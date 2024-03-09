@@ -9,13 +9,11 @@ import runTests from './tests/index.js'
 
 import './main.css'
 
-window.Agent = Agent
-
 if (window.location.pathname === '/test') runTests()
 else initializeApp()
 
 async function initializeApp() {
-  window.Agent = browserAgent()
+  window.Agent = Agent
   const store = Agent.embedded ? storeDef : await vuePersistentStore(storeDef)
   const app = createApp(App)
   app.use(createStore(store))
