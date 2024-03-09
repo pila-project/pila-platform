@@ -77,15 +77,7 @@
         return this.$store.getters.hasAcceptedTeacherAgreement()
       },
       students() {
-        // students are anybody who has added you to a group of type "my-teachers"
-        const { getters, state: { user } } = this.$store
-        return  (
-          this
-            .$store
-            .getters['groups/groups']('my-teachers')
-            .filter(gid => getters['groups/belongs'](this.$store.state.user, gid))
-            .map(gid => getters['groups/owner'](gid))
-        )
+        return this.$store.getters['groups/myStudents']()
       }
     },
     methods: {
