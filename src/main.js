@@ -1,13 +1,15 @@
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import router from './router.js'
-import { browserAgent } from '@knowlearning/agents'
+import Agent from '@knowlearning/agents/browser.js'
 import { vuePersistentStore } from '@knowlearning/agents/vue.js'
 import storeDef from './store/index.js'
 import App from './pages/App.vue'
 import runTests from './tests/index.js'
 
 import './main.css'
+
+window.Agent = Agent
 
 if (window.location.pathname === '/test') runTests()
 else initializeApp()

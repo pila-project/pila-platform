@@ -59,6 +59,13 @@
 
 <script>
   import IconButton from '../../components/icon-button.vue'
+
+  const DEFAULT_CODE_LIST = [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ]
+  const DOMAIN_CODE_LISTS = {
+    'thailand.pilaproject.org': ['THAI_ACCESS'],
+    'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason']
+  }
+
   export default {
     components: {
       IconButton
@@ -73,8 +80,7 @@
         return this.$store.getters.t(slug)
       },
       submitAccessCode() {
-        const CODE_LIST = [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ]
-        if (CODE_LIST.includes(this.accessCode)) {
+        if ((DOMAIN_CODE_LISTS[location.host] || DEFAULT_CODE_LIST).includes(this.accessCode)) {
           this.$store.state.codeEntered = true
         }
         else alert( this.t('invalid-access-code') )
