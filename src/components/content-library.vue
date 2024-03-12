@@ -1,40 +1,53 @@
 <template>
-  <div class="cards-wrapper">
+  <div
+    :class="{
+      'cards-wrapper': true,
+      'thailand-cards-wrapper': isThailandDomain
+    }"
+  >
 
-    <div class="filters-selector" v-if="showFilters">
+    <div v-if="isThailandDomain">
+      <TagInfoPanel
+        :key="selfSelected"
+        :content="selfSelected"
+      />
+    </div>
+    <div v-else>
+      <div class="filters-selector" v-if="showFilters">
 
-      <div style="align-self: flex-start;">
-        <IconButton
-          class="filter-button"
-          icon="minus-circle"
-          @click="showFilters = false"
-          :text="t('hide-filters')"
-          :background="'rgb(107, 234, 201)'"
+        <div style="align-self: flex-start;">
+          <IconButton
+            class="filter-button"
+            icon="minus-circle"
+            @click="showFilters = false"
+            :text="t('hide-filters')"
+            :background="'rgb(107, 234, 201)'"
+          />
+        </div>
+
+        <ProjectSelector
+          :activeProjects="activeProjects"
+          @select="toggleActive"
+        />
+        <TagSelector
+          style="width: 550px;"
+          :activeTags="activeTags"
+          :tags="allItemTags"
+          @select="toggleTag"
         />
       </div>
 
-      <ProjectSelector
-        :activeProjects="activeProjects"
-        @select="toggleActive"
+      <IconButton
+        v-else
+        style="align-self: flex-start;"
+        icon="plus-circle"
+        @click="showFilters = true"
+        :text="t('show-filters')"
+        :background="'rgb(107, 234, 201)'"
       />
-      <TagSelector
-        style="width: 550px;"
-        :activeTags="activeTags"
-        :tags="allItemTags"
-        @select="toggleTag"
-      />
+
+      <hr>
     </div>
-
-    <IconButton
-      v-else
-      style="align-self: flex-start;"
-      icon="plus-circle"
-      @click="showFilters = true"
-      :text="t('show-filters')"
-      :background="'rgb(107, 234, 201)'"
-    />
-
-    <hr>
 
     <div class="card-container">
       <div class="card new-item-card">
@@ -61,8 +74,12 @@
          v-for="id in filteredContent"
         :key="id"
         :id="id"
-        :selected="selectable && selected === id"
-        @click="$emit('select', id)"
+        :selected="selfSelected === id"
+        @click="() => {
+          if (selfSelected === id) selfSelected = null
+          else selfSelected = id
+          $emit('select', selfSelected)
+        }"
         @preview="previewing = id"
         @remove="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: 'tracked' })"
       />
@@ -128,9 +145,12 @@
   import PreviewModal from './PreviewModal.vue'
   import ProjectSelector from './project-selector.vue'
   import TagSelector from './tag-selector.vue'
+  import TagInfoPanel from './tag-info-panel.vue'
   import URL_CONTENT_DATA from '../url-content-data.js'
   import contentTags from '../content-tags.js'
   import { validate as isUUID } from 'uuid'
+
+  const THAILAND_DOMAINS = ['thailand.pilaproject.org', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898']
 
   function isURL(s) {
     try {
@@ -144,6 +164,7 @@
 
   export default {
     components: {
+      TagInfoPanel,
       ContentLibraryCard,
       PILAModal,
       PreviewModal,
@@ -162,7 +183,8 @@
         contentToCreate: '',
         activeProjects: [ 'karel', 'candli', 'betty' ],
         activeTags: [],
-        showFilters: false
+        showFilters: false,
+        selfSelected: this.selected
       }
     },
     props: {
@@ -211,6 +233,9 @@
       },
       URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
+      },
+      isThailandDomain() {
+        return THAILAND_DOMAINS.includes(location.host)
       }
     },
     methods: {
@@ -272,6 +297,11 @@
   .cards-wrapper
   {
     padding: 16px;
+  }
+
+  .thailand-cards-wrapper
+  {
+    display: flex;
   }
 
   .card-container {
