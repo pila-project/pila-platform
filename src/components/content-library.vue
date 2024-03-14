@@ -144,7 +144,6 @@
   import { validate as isUUID } from 'uuid'
 
   const THAILAND_DOMAINS = ['thailand.pilaproject.org', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898']
-  const PILA_CONTENT_TAG_ID = '1a53db50-e248-11ee-ab5f-07f4a7408770'
 
   function isURL(s) {
     try {
