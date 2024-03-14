@@ -1,5 +1,8 @@
 <template>
-  <div class="cards-wrapper">
+  <div :class="{
+    'cards-wrapper': true,
+    'thailand-cards-wrapper': isThailandDomain
+  }">
     <div v-if="isThailandDomain">
       <TagInfoPanel
         :key="selfSelected"
@@ -291,6 +294,10 @@
   .cards-wrapper
   {
     padding: 16px;
+  }
+
+  .thailand-cards-wrapper
+  {
     display: flex;
   }
 
