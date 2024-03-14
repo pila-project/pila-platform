@@ -1,11 +1,5 @@
 <template>
-  <div
-    :class="{
-      'cards-wrapper': true,
-      'thailand-cards-wrapper': isThailandDomain
-    }"
-  >
-
+  <div class="cards-wrapper">
     <div v-if="isThailandDomain">
       <TagInfoPanel
         :key="selfSelected"
@@ -146,11 +140,11 @@
   import ProjectSelector from './project-selector.vue'
   import TagSelector from './tag-selector.vue'
   import TagInfoPanel from './tag-info-panel.vue'
-  import URL_CONTENT_DATA from '../url-content-data.js'
   import contentTags from '../content-tags.js'
   import { validate as isUUID } from 'uuid'
 
   const THAILAND_DOMAINS = ['thailand.pilaproject.org', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898']
+  const PILA_CONTENT_TAG_ID = '1a53db50-e248-11ee-ab5f-07f4a7408770'
 
   function isURL(s) {
     try {
@@ -213,6 +207,10 @@
     },
     computed: {
       filteredContent() {
+        if (this.isThailandDomain) return this.$store.getters['content/contentToShow']()
+        else return this.oldFilteredContent
+      },
+      oldFilteredContent() {
         const filteredByType = this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
             || (this.activeProjects.includes('candli') && this.isCandliLink(id))
             || (this.activeProjects.includes('karel') && isUUID(id))
@@ -230,9 +228,6 @@
         const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
         const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
         return Array.from( new Set([...expert, ...tracked]) ).sort()
-      },
-      URL_CONTENT_DATA() {
-        return URL_CONTENT_DATA
       },
       isThailandDomain() {
         return THAILAND_DOMAINS.includes(location.host)
@@ -297,10 +292,6 @@
   .cards-wrapper
   {
     padding: 16px;
-  }
-
-  .thailand-cards-wrapper
-  {
     display: flex;
   }
 

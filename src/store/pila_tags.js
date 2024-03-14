@@ -1,3 +1,10 @@
+/************************************
+ * 
+ * THIS IS THE OOOOOOLD CONTENT APPROACH
+ * TO BE DEPRECATED (DO NOT USE)
+ * 
+ * **********************************/
+
 import URL_CONTENT_DATA from '../url-content-data.js'
 
 function existing_tag(state, content_id, tag_type, user) {

@@ -5,6 +5,7 @@ import roles from './roles.js'
 import groups from './groups.js'
 import assignments from './assignments.js'
 import pila_tags from './pila_tags.js'
+import content from './content.js'
 import translations from './translations.js'
 
 import languageChoices from './languageChoices.js'
@@ -17,7 +18,8 @@ export default {
     groups,
     roles,
     pila_tags,
-    translations
+    translations,
+    content
   },
   state: () => ({
     loaded: false,
@@ -112,6 +114,7 @@ export default {
       await Promise.all([
         store.dispatch('load'),
         store.dispatch('fetchTranslations'),
+        store.dispatch('content/load'),
         store.dispatch('pila_tags/load'),
         store.dispatch('roles/load'),
         store.dispatch('groups/load'),
