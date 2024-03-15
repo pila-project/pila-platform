@@ -5,9 +5,16 @@
   }">
     <div v-if="isThailandDomain">
       <TagInfoPanel
+        v-if="selfSelected"
         :key="selfSelected"
         :content="selfSelected"
       />
+      <div v-else>
+        <h1>Tags</h1>
+        <ul>
+          <li>list of default tags to filter by</li>
+        </ul>
+      </div>
     </div>
     <div v-else>
       <div class="filters-selector" v-if="showFilters">

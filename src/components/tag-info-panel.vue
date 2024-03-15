@@ -11,12 +11,20 @@
     </div>
     <h1>Metadata</h1>
     <div>
+      Created By:
+      <vueScopeComponent
+        :id="content"
+        metadata
+        :path="['owner']"
+      />
+      <br>
       Created:
       <vueScopeComponent
         :id="content"
         metadata
         :path="['created']"
       />
+      <br>
       Updated:
       <vueScopeComponent
         :id="content"
