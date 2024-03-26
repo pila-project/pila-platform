@@ -124,7 +124,7 @@ postgres:
             'aabc6c9c-a4f8-405b-9de3-76588997d52f',
             'c0f3a481-d4d5-4133-a198-94a325aa4536'
           ];
-      END;
+        END;
     role_assignments:
       returns:
         assignee: TEXT
