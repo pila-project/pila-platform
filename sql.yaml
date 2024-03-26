@@ -99,7 +99,7 @@ postgres:
               FROM pila_tags t
               LEFT JOIN metadata md ON md.id = t.id
               WHERE t.content_id = hasAdminTag.content_id
-                AND md.owner IN admin_ids()
+                AND md.owner IN (SELECT unnest(admin_ids()))
                 AND t.tag_type = hasAdminTag.tag_type
               ORDER BY t.content_id, md.updated DESC
               LIMIT 1
@@ -151,15 +151,15 @@ postgres:
                 SELECT ra2.assignee, MAX(m2.updated)
                 FROM role_assertions ra2
                 LEFT JOIN metadata m2 ON ra2.id = m2.id
-                WHERE m2.owner IN admin_ids()
+                WHERE m2.owner IN (SELECT unnest(admin_ids()))
                 GROUP BY ra2.assignee
               )
-              AND m.owner IN admin_ids()
+              AND m.owner IN (SELECT unnest(admin_ids()))
               AND (
-                requester_id IN admin_ids()
+                requester_id IN (SELECT unnest(admin_ids()))
                 OR ra.assignee = requester_id
               )
-              AND NOT ra.assignee IN admin_ids()
+              AND NOT ra.assignee IN (SELECT unnest(admin_ids()))
             UNION SELECT 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT '0c9c64fc-559e-40d4-916b-852f6d108a17', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
             UNION SELECT '25de1f29-28b4-44bd-9942-9f60f1f92447', 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
@@ -180,7 +180,7 @@ postgres:
       FROM role_requests
       LEFT JOIN metadata
         ON metadata.id = role_requests.id
-      WHERE $REQUESTER IN admin_ids()
+      WHERE $REQUESTER IN (SELECT unnest(admin_ids()))
         OR metadata.owner = $REQUESTER
     # all groups a user owns, or has been put in
     groups: |
@@ -262,7 +262,7 @@ postgres:
         (
           tag_type = 'admin-approval-request'
           AND
-          $REQUESTER IN admin_ids()
+          $REQUESTER IN (SELECT unnest(admin_ids()))
         )
       UNION
       SELECT DISTINCT ON (content_id)
@@ -274,7 +274,7 @@ postgres:
         updated
       FROM pila_tags
       LEFT JOIN metadata md ON md.id = pila_tags.id
-      WHERE md.owner IN admin_ids()
+      WHERE md.owner IN (SELECT unnest(admin_ids()))
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
     mutated-in-context: |
