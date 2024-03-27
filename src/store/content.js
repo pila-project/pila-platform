@@ -14,7 +14,8 @@ const isThailandDomain = [
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
 ].includes(location.host)
 
-const CONTENT_TAG = isThailandDomain ? PILA_THAILAND_CONTENT_TAG_ID : PILA_CONTENT_TAG_ID
+const CONTENT_TAG = 'expert-content'
+const TAG_PARTITION = isThailandDomain ? 'PILA-Thailand' : 'PILA-International'
 
 export default {
   scope: null,
@@ -35,7 +36,7 @@ export default {
     async load({ commit }) {
       const tags = await Agent.query(
         'taggings-intersection',
-        [[CONTENT_TAG]],
+        [[CONTENT_TAG], TAG_PARTITION],
         'tags.knowlearning.systems'
       )
       tags.forEach(c => {
