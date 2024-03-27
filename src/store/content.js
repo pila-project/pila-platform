@@ -34,7 +34,7 @@ export default {
   actions: {
     async load({ commit }) {
       const tags = await Agent.query(
-        'taggings',
+        'taggings-intersection',
         [[CONTENT_TAG]],
         'tags.knowlearning.systems'
       )
