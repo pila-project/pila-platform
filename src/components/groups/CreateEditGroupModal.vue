@@ -51,7 +51,7 @@
 			/>
 		</div>
 
-    <table style="width: 100%;">
+    <table class="old-table" style="width: 100%;">
       <thead>
         <tr>
           <th style="text-align: center;">{{ GET_TEXT.IN_GROUP_TEXT }}</th>

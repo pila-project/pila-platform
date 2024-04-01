@@ -1,6 +1,6 @@
 <template>
   <h1>Role Assignments</h1>
-  <table>
+  <table class="old-table">
     <thead>
       <tr>
         <th>Name</th>
@@ -34,7 +34,7 @@
     </tbody>
   </table>
   <h1>Role Requests</h1>
-  <table>
+  <table class="old-table">
     <thead>
       <tr>
         <th>Name</th>

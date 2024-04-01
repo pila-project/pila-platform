@@ -1,6 +1,6 @@
 <template>
   <div class="assignment-tables">
-    <table style="min-width: 250px;">
+    <table class="old-table" style="min-width: 250px;">
       <tbody>
         <tr
           v-for="group_id in groups"

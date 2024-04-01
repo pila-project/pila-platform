@@ -111,7 +111,7 @@
           />
         </div>
         <h4 style="color: #2E32DB;">{{ GET_TEXT.TABLE_HEADER }}</h4>
-        <table style="width: 100%;">
+        <table class="old-table" style="width: 100%;">
           <thead>
             <tr>
               <th>{{ GET_TEXT.MEMBER_COL_HEADER }}</th>

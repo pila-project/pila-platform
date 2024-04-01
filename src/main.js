@@ -9,14 +9,36 @@ import runTests from './tests/index.js'
 
 import './main.css'
 
+import 'vuetify/styles'
+import '@fortawesome/fontawesome-free/css/all.css'
+import { createVuetify } from 'vuetify'
+import { aliases, fa } from 'vuetify/iconsets/fa'
+//  TODO: trim down imports
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+
+
 if (window.location.pathname === '/test') runTests()
 else initializeApp()
 
 async function initializeApp() {
   window.Agent = Agent
+
+  const vuetify = createVuetify({
+    components,
+    directives,
+    icons: {
+      defaultSet: 'fa',
+      aliases,
+      sets: { fa }
+    }
+  })
+
   const store = Agent.embedded ? storeDef : await vuePersistentStore(storeDef)
-  const app = createApp(App)
-  app.use(createStore(store))
-  app.use(router)
-  app.mount('#app')
+
+  createApp(App)
+    .use(createStore(store))
+    .use(vuetify)
+    .use(router)
+    .mount('#app')
 }

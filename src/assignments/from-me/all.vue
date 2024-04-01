@@ -17,7 +17,7 @@
             <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
           </div>
         </div>
-        <table class="teacher-assignments-table">
+        <table class="old-table teacher-assignments-table">
           <thead>
             <tr>
               <th>{{ t('assignment') }}</th>
@@ -137,7 +137,7 @@
           </div>
           <div style="flex-grow: 1">
             <h4>{{ t('class-assigned') }}</h4>
-            <table>
+            <table class="old-table">
               <tbody>
                 <tr v-for="id in assignedGroups(current)">
                   <td>

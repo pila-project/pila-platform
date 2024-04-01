@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@fortawesome/fontawesome-free':
+    specifier: ^6.5.1
+    version: 6.5.1
   '@knowlearning/agents':
     specifier: ^0.9.125
     version: 0.9.125
@@ -35,6 +38,9 @@ dependencies:
   vue-router:
     specifier: ^4.2.5
     version: 4.2.5(vue@3.3.4)
+  vuetify:
+    specifier: ^3.5.13
+    version: 3.5.13(vue@3.3.4)
   vuex:
     specifier: ^4.1.0
     version: 4.1.0(vue@3.3.4)
@@ -247,6 +253,12 @@ packages:
     os: [win32]
     requiresBuild: true
     optional: true
+
+  /@fortawesome/fontawesome-free@6.5.1:
+    resolution: {integrity: sha512-CNy5vSwN3fsUStPRLX7fUYojyuzoEMSXPl7zSLJ8TgtRfjv24LOnOWKT2zYwaHZCJGkdyRnTmstR0P+Ah503Gw==}
+    engines: {node: '>=6'}
+    requiresBuild: true
+    dev: false
 
   /@jridgewell/sourcemap-codec@1.4.15:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
@@ -999,6 +1011,28 @@ packages:
       '@vue/runtime-dom': 3.3.4
       '@vue/server-renderer': 3.3.4(vue@3.3.4)
       '@vue/shared': 3.3.4
+
+  /vuetify@3.5.13(vue@3.3.4):
+    resolution: {integrity: sha512-3ZyIoHgB2GR87ojIpqNwkkRXlUNTEKh83fjUuQ1hOKdTXzEuZXBgtfUt9kp4WOVnYILGdZKWTJ6gv8nXOa/tZA==}
+    engines: {node: ^12.20 || >=14.13}
+    peerDependencies:
+      typescript: '>=4.7'
+      vite-plugin-vuetify: '>=1.0.0'
+      vue: ^3.3.0
+      vue-i18n: ^9.0.0
+      webpack-plugin-vuetify: '>=2.0.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      vite-plugin-vuetify:
+        optional: true
+      vue-i18n:
+        optional: true
+      webpack-plugin-vuetify:
+        optional: true
+    dependencies:
+      vue: 3.3.4
+    dev: false
 
   /vuex@4.1.0(vue@3.3.4):
     resolution: {integrity: sha512-hmV6UerDrPcgbSy9ORAtNXDr9M4wlNP4pEFKye4ujJF8oqgFFuxDCdOLS3eNoRTtq5O3hoBDh9Doj1bQMYHRbQ==}
