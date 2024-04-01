@@ -1,39 +1,16 @@
 <template>
   <v-container v-if="isThailandDomain">
+    <div class="text-h3">Admins</div>
     <v-data-table
       sticky
-      :items="tagsAndContributors"
-      :loading="loading"
+      :items="admins"
+      :loading="loadingAdmins"
     >
-      <template v-slot:item.user="data">
-        {{ data.item.user }}
+      <template v-slot:item.target="data">
+        {{ data.item.target }}
       </template>
-      <template v-slot:item.isAdmin="data">
-        <v-checkbox
-          v-model="data.item.isAdmin"
-          disabled
-        />
-      </template>
-      <template v-slot:item.adminContributor="data">
-        {{ data.item.adminContributor }}
-      </template>
-      <template v-slot:item.isTrainer="data">
-        <v-checkbox
-          v-model="data.item.isTrainer"
-          disabled
-        />
-      </template>
-      <template v-slot:item.trainerContributor="data">
-        {{ data.item.trainerContributor }}
-      </template>
-      <template v-slot:item.isTeacher="data">
-        <v-checkbox
-          v-model="data.item.isTeacher"
-          disabled
-        />
-      </template>
-      <template v-slot:item.teacherContributor="data">
-        {{ data.item.teacherContributor }}
+      <template v-slot:item.contributor="data">
+        {{ data.item.contributor }}
       </template>
     </v-data-table>
   </v-container>
@@ -46,18 +23,16 @@
   import OldRoles from './old-roles.vue'
 
   const store = useStore()
-  const { isThailandDomain } = store.state
-  const loading = ref(false)
+  const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
+  const { tagPartition, isThailandDomain } = store.getters
 
-  const tagsAndContributors = [
-    {
-      user: 'user-id',
-      isAdmin: false,
-      adminContributor: null,
-      isTrainer: false,
-      trainerContributor: null,
-      isTeacher: true,
-      teacherContributor: 'some-other-user'
-    }
-  ]
+  const loadingAdmins = ref(true)
+  const admins = ref([])
+
+  Agent
+    .query('taggings-for-tag', [tagPartition, ADMIN_TAG], 'tags.knowlearning.systems')
+    .then(result => {
+      admins.value = result.map(({ target, contributor }) => ({ target, contributor }))
+      loadingAdmins.value = false
+    })
 </script>

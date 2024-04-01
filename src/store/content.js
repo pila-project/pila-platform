@@ -32,7 +32,7 @@ export default {
 
       const tags = await Agent.query(
         'taggings-intersection',
-        [[CONTENT_TAG], TAG_PARTITION],
+        [TAG_PARTITION, [CONTENT_TAG]],
         'tags.knowlearning.systems'
       )
       tags.forEach(c => {
