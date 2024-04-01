@@ -20,32 +20,24 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { computed, ref } from 'vue'
+  import { useStore } from 'vuex'
   import TabMenu from '../../components/tab-menu.vue'
   import AdminRoleManager from './roles.vue'
   import AdminStudyManager from './studies.vue'
   import ContentLibrary from '../../components/content-library.vue'
 
-  export default {
-    components: {
-      TabMenu,
-      AdminRoleManager,
-      AdminStudyManager,
-      ContentLibrary
-    },
-    data() {
-      return {
-        tab: 'roles'
-      }
-    },
-    methods: {
-      t(slug) { return this.$store.getters.t(slug) } 
-    },
-    computed: {
-      iAmAnAdmin() {
-        return this.$store.getters['roles/role'](this.$store.state.user) === 'admin'
-      }
-    }
+  const store = useStore()
+  const { user, isThailandDomain } = store.state
+
+  const tab = ref('roles')
+
+  function oldRolesIsAdmin() { return store.getters['roles/role'](user) === 'admin' }
+
+  async function newRolesIsAdmin() {
+    return await new Promise(r => r(true))
   }
 
+  const iAmAnAdmin = await isThailandDomain ? newRolesIsAdmin() : oldRolesIsAdmin()
 </script>

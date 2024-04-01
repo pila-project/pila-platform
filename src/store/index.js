@@ -12,6 +12,11 @@ import languageChoices from './languageChoices.js'
 import { matchNavigatorLanguage } from './matchNavigatorLanguage.js'
 
 
+const isThailandDomain = [
+  'thailand.pilaproject.org',
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
+].includes(location.host)
+
 export default {
   modules: {
     assignments,
@@ -29,6 +34,7 @@ export default {
     codeEntered: false,
     hasAcceptedStudentAgreement: false,
     hasAcceptedTeacherAgreement: false,
+    isThailandDomain
   }),
   getters: {
     isAnonymous: state => () => state.provider === 'anonymous',
