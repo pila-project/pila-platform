@@ -11,7 +11,6 @@ import translations from './translations.js'
 import languageChoices from './languageChoices.js'
 import { matchNavigatorLanguage } from './matchNavigatorLanguage.js'
 
-
 const isThailandDomain = [
   'thailand.pilaproject.org',
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
@@ -33,10 +32,11 @@ export default {
     language: null,
     codeEntered: false,
     hasAcceptedStudentAgreement: false,
-    hasAcceptedTeacherAgreement: false,
-    isThailandDomain
+    hasAcceptedTeacherAgreement: false
   }),
   getters: {
+    isThailandDomain: state => isThailandDomain,
+    tagPartition: state => isThailandDomain ? 'PILA Thailand' : 'PILA International',
     isAnonymous: state => () => state.provider === 'anonymous',
     loaded: state => () => state.loaded,
     user: state => () => state.user,
