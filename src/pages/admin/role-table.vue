@@ -5,6 +5,7 @@
     :items="taggings"
     :loading="loading"
     :headers="headers"
+    no-data-text="No one has been assigned this role"
   >
     <template v-slot:item.target="data">
       {{ data.item.target }}
