@@ -303,7 +303,7 @@ agent: |
             const [ tagId, contentId ] = path
             const { value, partition=user } = patchValue
             if (!agentTags[tagId]) agentTags[tagId] = {}
-            agentTags[tagId][contentId] = { user, partition, value }
+            agentTags[tagId][contentId] = { contributor: user, partition, value }
           }
         })
       }

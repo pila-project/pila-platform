@@ -82,6 +82,9 @@
     const myTags  = await Agent.state('tags')
     if (!myTags[tag]) myTags[tag] = {}
     myTags[tag][target] = { value: true, partition }
+    loading.value = true
+    await Agent.synced()
+    await new Promise(r => setTimeout(r, 500))
     fetchTaggings()
   }
 
