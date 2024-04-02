@@ -13,6 +13,9 @@
     <template v-slot:item.contributor="data">
       {{ data.item.contributor }}
     </template>
+    <template v-slot:item.edit="data">
+      <v-btn @click="setTagging(data.item.target, null)">x</v-btn>
+    </template>
   </v-data-table>
   <v-dialog max-width="500">
     <template v-slot:activator="{ props: activatorProps }">
@@ -26,7 +29,7 @@
             v-model="newRoleUser"
             label="Name"
             @keypress.enter="() => {
-              addTagging(newRoleUser)
+              setTagging(newRoleUser, true)
               isActive.value = false
             }"
           />
@@ -36,7 +39,7 @@
           <v-btn
             text="Add"
             @click="() => {
-              addTagging(newRoleUser)
+              setTagging(newRoleUser, true)
               isActive.value = false
             }"
           />
@@ -61,7 +64,8 @@
 
   const headers = [
     { key: 'target', title: 'User' },
-    { key: 'contributor', title: 'Assigned By' }
+    { key: 'contributor', title: 'Assigned By' },
+    { key: 'edit', title: '' }
   ]
 
   fetchTaggings()
@@ -76,12 +80,12 @@
     loading.value = false
    }
 
-  async function addTagging(target) {
+  async function setTagging(target, value) {
     const { tag, partition } = props
 
     const myTags  = await Agent.state('tags')
     if (!myTags[tag]) myTags[tag] = {}
-    myTags[tag][target] = { value: true, partition }
+    myTags[tag][target] = { value, partition }
     loading.value = true
     await Agent.synced()
     await new Promise(r => setTimeout(r, 500))
