@@ -9,7 +9,9 @@
     v-else
   >
     <div id="main-app-body">
-      <router-view></router-view>
+      <Suspense>
+        <router-view></router-view>
+      </Suspense>
     </div>
   </div>
 </template>

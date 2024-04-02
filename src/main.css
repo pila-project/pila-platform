@@ -39,30 +39,30 @@ div, p, h1, h2, h3, h4, h5 {
 }
 
 /* TABLE STYLES */
-div.table-wrapper
+table.old-table div.table-wrapper
 {
     display: inline-block;
     height: 300px;
     overflow-y: scroll;
 }
-table {
+table.old-table  {
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 8px;
     border: 1px solid #2E9DF9;
 }
 
-thead tr
+table.old-table thead tr
 {
     background: #1B1B83;
 }
 
-tbody tr:nth-of-type(even)
+table.old-table tbody tr:nth-of-type(even)
 {
     /* #2E32DB; */
     background: rgba(46, 50, 219, 0.2);
 }
-th
+table.old-table th
 {
     position: sticky;
     top: 0;
@@ -71,8 +71,8 @@ th
     font-weight: bold;
     z-index: 10000;
 }
-td,
-th
+table.old-table td,
+table.old-table th
 {
     text-align: center;
     height: 30px;
@@ -80,35 +80,35 @@ th
     z-index: 0; /* fix headers appearing over modal, who knew why that was happening*/
     padding: 0 10px;
 }
-tr.selectable
+table.old-table tr.selectable
 {
     cursor: pointer;
 }
-tr.selectable.active
+table.old-table tr.selectable.active
 {
     background-color: rgba(85, 137, 162, 0.5);
     color: #5589a2;
     text-shadow: 0.3px 0px 0px #5589a2, -0.3px 0px 0px #5589a2;
 }
-tr.selectable:not(.active):hover
+table.old-table tr.selectable:not(.active):hover
 {
     background: rgba(255, 255, 0, 0.4);
 }
 
-tr:last-child td:first-child {
+table.old-table tr:last-child td:first-child {
     border-bottom-left-radius: 8px;
 }
 
-tr:last-child td:last-child {
+table.old-table tr:last-child td:last-child {
     border-bottom-right-radius: 8px;
 }
 
 /* ROUND THE CORNERS ON THE HEADER ROW */
-th:first-child {
+table.old-table th:first-child {
     border-top-left-radius: 8px;
 }
 
-th:last-child {
+table.old-table th:last-child {
     border-top-right-radius: 8px;
 }
 

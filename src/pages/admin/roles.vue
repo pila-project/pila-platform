@@ -1,92 +1,32 @@
 <template>
-  <h1>Role Assignments</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Assigner</th>
-        <th>Assigned</th>
-        <th>Role</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="{ role, assigner, updated }, user in roles">
-        <td><DecryptedName :user="user" /></td>
-        <td></td>
-        <td><DecryptedName :user="assigner" /></td>
-        <td>{{ updated }}</td>
-        <td>
-          <select
-            v-if="role !== 'admin'"
-            @change="({ target: { value } }) => grantRole(user, value)"
-          >
-            <option
-              v-for="roleName in availableRoles"
-              :selected="roleName === role"
-            >
-              {{ roleName }}
-            </option>
-          </select>
-          <span v-else>admin</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <h1>Role Requests</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Requested</th>
-        <th>Role</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="{ role, updated }, user in roleRequests">
-        <td><DecryptedName :user="user" /></td>
-        <td></td>
-        <td>{{ updated }}</td>
-        <td>{{ role }}</td>
-        <td>
-          <button @click="grantRole(user, role)">grant</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <v-container v-if="isThailandDomain">
+    <RoleTable
+      header="Admins"
+      :partition="tagPartition"
+      :tag="ADMIN_TAG"
+    />
+    <RoleTable
+      header="Trainers"
+      :partition="tagPartition"
+      :tag="TRAINER_TAG"
+    />
+    <RoleTable
+      header="Teachers"
+      :partition="tagPartition"
+      :tag="TEACHER_TAG"
+    />
+  </v-container>
+  <OldRoles v-else />
 </template>
 
-<script>
-  import DecryptedName from '../../components/decrypted-name.vue'
+<script setup>
+  import { useStore } from 'vuex'
+  import RoleTable from './role-table.vue'
+  import OldRoles from './old-roles.vue'
 
-  export default {
-    components: {
-      DecryptedName
-    },
-    state() {
-      return {}
-    },
-    computed: {
-      availableRoles() {
-        return ['researcher', 'teacher', 'student']
-      },
-      roleRequests() {
-        return this.$store.getters['roles/requests']()
-      },
-      roles() {
-        return this.$store.getters['roles/assignments']()
-      },
-      iAmAnAdmin() {
-        return this.$store.getters['roles/role'](this.$store.state.user) === 'admin'
-      }
-    },
-    methods: {
-      grantRole(user, role) {
-        this.$store.dispatch('roles/assign', { user, role })
-      }
-    }
-  }
-
+  const store = useStore()
+  const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
+  const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
+  const TRAINER_TAG = "8ae541e0-ed49-11ee-be89-5b04faf266ea"
+  const { tagPartition, isThailandDomain } = store.getters
 </script>

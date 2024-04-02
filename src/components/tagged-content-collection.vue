@@ -1,5 +1,5 @@
 <template>
-  <table>
+  <table class="old-table">
     <thead>
       <tr>
         <th></th>

@@ -20,32 +20,35 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { computed, ref } from 'vue'
+  import { useStore } from 'vuex'
   import TabMenu from '../../components/tab-menu.vue'
   import AdminRoleManager from './roles.vue'
   import AdminStudyManager from './studies.vue'
   import ContentLibrary from '../../components/content-library.vue'
 
-  export default {
-    components: {
-      TabMenu,
-      AdminRoleManager,
-      AdminStudyManager,
-      ContentLibrary
-    },
-    data() {
-      return {
-        tab: 'roles'
-      }
-    },
-    methods: {
-      t(slug) { return this.$store.getters.t(slug) } 
-    },
-    computed: {
-      iAmAnAdmin() {
-        return this.$store.getters['roles/role'](this.$store.state.user) === 'admin'
-      }
-    }
+  const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
+  const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
+  const TRAINER_TAG = "8ae541e0-ed49-11ee-be89-5b04faf266ea"
+  const PILA_CONTENT_TAG = "1a53db50-e248-11ee-ab5f-07f4a7408770"
+
+  const store = useStore()
+  const user = store.getters.user()
+  const { isThailandDomain, tagPartition } = store.getters
+
+  const tab = ref('roles')
+
+  function oldRolesIsAdmin() { return store.getters['roles/role'](user) === 'admin' }
+
+  async function newRolesIsAdmin() {
+    const adminTagging = await Agent.query(
+      'tagging-for-target',
+      [tagPartition, ADMIN_TAG, user],
+      'tags.knowlearning.systems'
+    )
+    return !!adminTagging.length
   }
 
+  const iAmAnAdmin = await (isThailandDomain ? newRolesIsAdmin() : oldRolesIsAdmin())
 </script>

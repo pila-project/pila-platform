@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <table>
+    <table class="old-table">
       <thead>
         <tr>
           <th>{{ t('name') }}</th>
