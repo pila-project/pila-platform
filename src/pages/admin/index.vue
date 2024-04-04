@@ -12,6 +12,7 @@
     />
 
     <AdminRoleManager v-if="tab === 'roles'" />
+    <AdminContentLibrary v-else-if="tab === 'content' && store.getters.isThailandDomain" />
     <ContentLibrary v-else-if="tab === 'content'" />
     <AdminStudyManager v-else-if="tab === 'studies'" />
   </div>
@@ -27,6 +28,7 @@
   import AdminRoleManager from './roles.vue'
   import AdminStudyManager from './studies.vue'
   import ContentLibrary from '../../components/content-library.vue'
+  import AdminContentLibrary from './admin-content-library.vue'
 
   const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
   const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
