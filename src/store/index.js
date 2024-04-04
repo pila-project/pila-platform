@@ -44,6 +44,9 @@ export default {
     hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
     hasAcceptedTeacherAgreement: state => () => state.hasAcceptedTeacherAgreement,
     decryptUserInfo: (state, getters) => async user => {
+      const userInfo = await Agent.state('user-info', user)
+      if (userInfo?.name) return userInfo
+
       const key = localStorage.getItem(`zkek-${state.user}`)
       let info = { name: `${getters.t('anonymous')}_${user.slice(0,4)}`, picture: null }
       const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
