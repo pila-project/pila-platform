@@ -1,33 +1,49 @@
 <template>
-  <div class="tagged-content-card-wrapper">
-    <ContentLibraryCard
-      v-for="{ target: id } in taggedContent"
-      :key="id"
-      :id="id"
-      :selected="selfSelected === id"
-      @click="() => {
-        if (selfSelected === id) selfSelected = null
-        else selfSelected = id
-        $emit('select', selfSelected)
-      }"
-      @preview="previewing = id"
-      @remove="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: 'tracked' })"
-    />
+  <div class="content-wrapper">
+    <div app :width="233">
+      <v-list-item title="My Application" subtitle="Vuetify" />
+      <v-divider></v-divider>
+      <v-list-item
+        v-for="id in competencies"
+        link
+      >
+        <vueScopeComponent :id="id" :path="['name']" />
+      </v-list-item>
+    </div>
+    <div class="tagged-content-card-wrapper">
+      <ContentLibraryCard
+        v-for="{ target: id } in taggedContent"
+        :key="id"
+        :id="id"
+        :selected="selfSelected === id"
+        @click="() => {
+          if (selfSelected === id) selfSelected = null
+          else selfSelected = id
+          $emit('select', selfSelected)
+        }"
+        @preview="previewing = id"
+        @remove="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: 'tracked' })"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
   import { ref } from 'vue'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import ContentLibraryCard from './content-library-card.vue'
 
   const partition = store.getters.tagPartition
-  const tag = 'f760dad0-f133-11ee-804e-27f76a81958c'
+  const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
+  const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
 
   const loading = ref(true)
   const taggedContent = ref([])
   const selfSelected = ref(null)
+  const competencies = ref([])
 
   fetchTaggings()
+  fetchComptetencies()
 
   async function fetchTaggings() {
     loading.value = true
@@ -38,11 +54,28 @@
     )
     loading.value = false
   }
+
+  async function fetchComptetencies() {
+    await (
+      Agent
+        .query('taggings-for-tag', [partition, competencyTag], 'tags.knowlearning.systems')
+        .then(result => competencies.value = result.map(r => r.target))
+    )
+  }
 </script>
 
 <style>
-    .tagged-content-card-wrapper
-    {
-        display: flex;
-    }
+  .content-wrapper,
+  .tagged-content-card-wrapper
+  {
+    display: flex;
+  }
+  .content-wrapper
+  {
+    flex-grow: 1;
+  }
+  .tagged-content-card-wrapper
+  {
+    flex-grow: 2;
+  }
 </style>
