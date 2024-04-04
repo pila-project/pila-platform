@@ -1,14 +1,31 @@
 <template>
   <div class="content-wrapper">
-    <div app :width="233">
-      <v-list-item title="My Application" subtitle="Vuetify" />
-      <v-divider></v-divider>
-      <v-list-item
-        v-for="id in competencies"
-        link
-      >
-        <vueScopeComponent :id="id" :path="['name']" />
-      </v-list-item>
+    <div v-if="selfSelected">
+      <ContentMetadataPanel
+        @back="selfSelected = null"
+        :id="selfSelected"
+        :partition="partition"
+      />
+    </div>
+    <div v-else>
+      <v-list>
+        <v-list-item title="PILA Competencies" subtitle="" />
+        <v-divider></v-divider>
+        <v-list-item
+          v-for="id in competencies"
+          @click="toggleCompetency(id)"
+          link
+        >
+          <v-list-item-title>
+            <vueScopeComponent :id="id" :path="['name']" />
+          </v-list-item-title>
+          <template v-slot:prepend>
+            <v-icon
+              :icon="selectedCompetencies.includes(id) ? 'fa-solid fa-check-square' : 'fa-regular fa-square'"
+            />
+          </template>
+        </v-list-item>
+      </v-list>
     </div>
     <div class="tagged-content-card-wrapper">
       <ContentLibraryCard
@@ -29,9 +46,10 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, reactive } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import ContentLibraryCard from './content-library-card.vue'
+  import ContentMetadataPanel from './content-metadata-panel.vue'
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
@@ -41,17 +59,34 @@
   const taggedContent = ref([])
   const selfSelected = ref(null)
   const competencies = ref([])
+  const selectedCompetencies = reactive([])
 
   fetchTaggings()
   fetchComptetencies()
 
+  function toggleCompetency(id) {
+    const index = selectedCompetencies.indexOf(id)
+    if (index > -1) selectedCompetencies.splice(index, 1)
+    else selectedCompetencies.push(id)
+    fetchTaggings()
+  }
+
   async function fetchTaggings() {
     loading.value = true
-    await (
-      Agent
-        .query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
-        .then(result => taggedContent.value = result)
-    )
+    if (selectedCompetencies.length) {
+      await (
+        Agent
+          .query('taggings-intersection', [partition, selectedCompetencies], 'tags.knowlearning.systems')
+          .then(result => taggedContent.value = result)
+      )
+    }
+    else {
+      await (
+        Agent
+          .query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
+          .then(result => taggedContent.value = result)
+      )
+    }
     loading.value = false
   }
 
