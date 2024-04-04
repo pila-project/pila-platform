@@ -6,7 +6,7 @@
       :items="taggings"
       :loading="loading"
       :headers="headers"
-      no-data-text="No one has been assigned this role"
+      no-data-text="No content published"
     >
       <template v-slot:item.preview="data">
         <v-btn>
