@@ -1,22 +1,10 @@
 <template>
-  <div :class="{
-    'cards-wrapper': true,
-    'thailand-cards-wrapper': isThailandDomain
-  }">
-    <div v-if="isThailandDomain">
-      <TagInfoPanel
-        v-if="selfSelected"
-        :key="selfSelected"
-        :content="selfSelected"
-      />
-      <div v-else>
-        <h1>Tags</h1>
-        <ul>
-          <li>list of default tags to filter by</li>
-        </ul>
-      </div>
-    </div>
-    <div v-else>
+  <TaggedContentCards v-if="isThailandDomain" />
+  <div
+    v-else
+    class="cards-wrapper"
+  >
+    <div>
       <div class="filters-selector" v-if="showFilters">
 
         <div style="align-self: flex-start;">
@@ -143,6 +131,7 @@
 </template>
 
 <script>
+  import TaggedContentCards from './tagged-content-cards.vue'
   import ContentLibraryCard from './content-library-card.vue'
   import IconButton from './icon-button.vue'
   import PILAModal from './PILAModal.vue'
@@ -168,6 +157,7 @@
   export default {
     components: {
       TagInfoPanel,
+      TaggedContentCards,
       ContentLibraryCard,
       PILAModal,
       PreviewModal,
