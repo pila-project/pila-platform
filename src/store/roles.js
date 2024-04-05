@@ -55,7 +55,7 @@ export default {
         dispatch('loadRequests')
       ])
     },
-    async loadAssignments({ commit }) {
+    async loadAssignments({ commit, getters }) {
       await (
         Agent
           .query('role-assignments')
@@ -63,6 +63,10 @@ export default {
             assignments.forEach(assignment => commit('addAssignment', assignment))
           })
       )
+      const { auth: { user } } = await Agent.environment()
+      if (getters.role(user) !== 'student') {
+        await storeUserInfo()
+      }
     },
     async loadRequests({ commit }) {
       await (
@@ -80,7 +84,7 @@ export default {
       }
       const state = await Agent.state('requested-role')
       state.role = role
-
+      await storeUserInfo()
       await Agent.synced()
       await dispatch('loadRequests')
     },
@@ -93,4 +97,11 @@ export default {
       await dispatch('loadAssignments')
     }
   }
+}
+
+async function storeUserInfo() {
+  const { auth: { user, info: { name, picture } } } = await Agent.environment()
+  const myUserInfo = await Agent.state('user-info')
+  myUserInfo.name = name
+  myUserInfo.picture = picture
 }

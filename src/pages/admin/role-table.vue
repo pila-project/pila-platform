@@ -8,10 +8,10 @@
     no-data-text="No one has been assigned this role"
   >
     <template v-slot:item.target="data">
-      {{ data.item.target }}
+      <DecryptedName :user="data.item.target" />
     </template>
     <template v-slot:item.contributor="data">
-      {{ data.item.contributor }}
+      <DecryptedName :user="data.item.contributor" />
     </template>
     <template v-slot:item.edit="data">
       <v-btn @click="setTagging(data.item.target, null)">x</v-btn>
@@ -55,6 +55,7 @@
 
 <script setup>
   import { ref } from 'vue'
+  import DecryptedName from '../../components/decrypted-name.vue'
 
   const props = defineProps({ partition: String, tag: String, header: String })
 
