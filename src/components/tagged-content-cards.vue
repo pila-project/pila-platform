@@ -8,24 +8,12 @@
       />
     </div>
     <div v-else>
-      <v-list>
-        <v-list-item title="PILA Competencies" subtitle="" />
-        <v-divider></v-divider>
-        <v-list-item
-          v-for="id in competencies"
-          @click="toggleCompetency(id)"
-          link
-        >
-          <v-list-item-title>
-            <vueScopeComponent :id="id" :path="['name']" />
-          </v-list-item-title>
-          <template v-slot:prepend>
-            <v-icon
-              :icon="selectedCompetencies.includes(id) ? 'fa-solid fa-check-square' : 'fa-regular fa-square'"
-            />
-          </template>
-        </v-list-item>
-      </v-list>
+      <TagTaggingsList
+        :tags="competencies"
+        :partition="partition"
+        :selected="selectedCompetencies"
+        @select="tag => toggleCompetency(tag)"
+      />
     </div>
     <div class="tagged-content-card-wrapper">
       <ContentLibraryCard
@@ -50,6 +38,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import ContentLibraryCard from './content-library-card.vue'
   import ContentMetadataPanel from './content-metadata-panel.vue'
+  import TagTaggingsList from './tag-taggings-list.vue'
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
@@ -62,7 +51,10 @@
   const selectedCompetencies = reactive([])
 
   fetchTaggings()
-  fetchComptetencies()
+
+  Agent
+    .query('taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems')
+    .then(r => competencies.value = r.map(t => t.target))
 
   function toggleCompetency(id) {
     const index = selectedCompetencies.indexOf(id)
@@ -90,13 +82,6 @@
     loading.value = false
   }
 
-  async function fetchComptetencies() {
-    await (
-      Agent
-        .query('taggings-for-tag', [partition, competencyTag], 'tags.knowlearning.systems')
-        .then(result => competencies.value = result.map(r => r.target))
-    )
-  }
 </script>
 
 <style>
