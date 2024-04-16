@@ -11,7 +11,7 @@
       />
       <v-icon
         v-if="childTags.length"
-        :style="{ marginLeft: `${ depth * 48 }px`}"
+        :style="{ marginLeft: `${ Math.max(depth-1, 0) * 48 }px`}"
         @click.stop="open = !open"
         :icon="`fa-solid fa-chevron-${ open ? 'down' : 'right'}`"
       />
