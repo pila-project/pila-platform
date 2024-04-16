@@ -1,5 +1,8 @@
 <template>
-  <TaggedContentCards v-if="isThailandDomain" />
+  <TaggedContentCards
+    v-if="isThailandDomain"
+    @select="$emit('select', $event)"
+  />
   <div
     v-else
     class="cards-wrapper"
