@@ -43,9 +43,6 @@
       Created By: <DecryptedName :user="contentMetadata.owner" />
     </v-list-item>
     <v-list-item v-if="contentMetadata">
-      Created By: <DecryptedName :user="contentMetadata.owner" />
-    </v-list-item>
-    <v-list-item v-if="contentMetadata">
       Created: {{ contentCreated }}
     </v-list-item>
     <v-list-item v-if="contentMetadata">
