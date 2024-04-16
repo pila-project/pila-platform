@@ -49,10 +49,7 @@
       Updated: {{ contentUpdated }}
     </v-list-item>
     <v-list-item v-if="contentMetadata">
-      Source Language: ...
-    </v-list-item>
-    <v-list-item v-if="contentMetadata">
-      Translations: ...
+      Available Languages: ...
     </v-list-item>
   </v-list>
 </template>
