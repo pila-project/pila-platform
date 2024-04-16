@@ -11,6 +11,10 @@ import translations from './translations.js'
 import languageChoices from './languageChoices.js'
 import { matchNavigatorLanguage } from './matchNavigatorLanguage.js'
 
+const EXPERT_LIST = [
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f'
+]
+
 const isThailandDomain = [
   'thailand.pilaproject.org',
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
@@ -43,7 +47,11 @@ export default {
     language: state => () => state.language,
     hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
     hasAcceptedTeacherAgreement: state => () => state.hasAcceptedTeacherAgreement,
-    decryptUserInfo: (state, getters) => async user => {
+    decryptUserInfo: (state, getters) => async (user, useAlias) => {
+      if (useAlias && EXPERT_LIST.includes(user)) {
+        return { name: 'PILA Expert', picture: null }
+      }
+
       const userInfo = await Agent.state('user-info', user)
       if (userInfo?.name) return userInfo
 

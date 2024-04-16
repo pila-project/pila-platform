@@ -7,7 +7,11 @@
 <script>
   export default {
     props: {
-      user: String
+      user: String,
+      alias: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
@@ -17,7 +21,7 @@
       }
     },
     async created() {
-      this.info = await this.$store.getters.decryptUserInfo(this.user)
+      this.info = await this.$store.getters.decryptUserInfo(this.user, this.alias)
     }
   }
 </script>
