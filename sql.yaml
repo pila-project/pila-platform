@@ -164,7 +164,7 @@ postgres:
               SELECT unnest(admin_ids()), 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
           ;
         END;
-  scopes:
+  queries:
     role-assignments: SELECT * FROM role_assignments($REQUESTER)
     requested-roles: |
       SELECT
