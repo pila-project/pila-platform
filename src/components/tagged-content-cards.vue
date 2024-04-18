@@ -2,6 +2,7 @@
   <div class="content-wrapper">
     <div v-if="selfSelected">
       <ContentMetadataPanel
+        :key="selfSelected"
         @back="selfSelected = null"
         :id="selfSelected"
         :partition="partition"
