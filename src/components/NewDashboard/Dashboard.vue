@@ -6,83 +6,44 @@
           <th></th>
           <th></th>
           <th
-            v-for="itemDisplayName, i in itemDisplayStrings"
-            :key="`item-name-${i}`"
+            v-for="id in items"
+            :key="`item-name-${id}`"
             class="rotate"
             >
-              <div><span>{{ itemDisplayName }}</span></div>
+              <div>
+                <vueScopeComponent
+                  :id="id"
+                  :path="['name']"
+                />
+              </div>
             </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="infoArray, name in studentInfo" :key="`student-${name}`">
-          <td style="white-space: nowrap;">{{ name }}</td>
-          <td>
-            <StudentSummary :info="infoArray" />
-          </td>
-          <td
-            v-for="(info, i) in infoArray"
-            :key="`cell-${i}`"
-            class="item-cell"
-          >
-            <ItemInfo :info="info" />
-          </td>
-        </tr>
+        <StudentResultsRow
+          v-for="id in props.users"
+          :key="`student-${id}`"
+          :items="items"
+          :user="id"
+        />
       </tbody>
     </table>
   </div>
 </template>
 
-<script>
-import ItemInfo from './ItemInfo.vue'
-import StudentSummary from './StudentSummary.vue'
-import spoofItemInfo from '../spoofItemInfo.js'
+<script setup>
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import StudentResultsRow from './student-results-row.vue'
 
-export default {
-  name: 'dashboard-wow',
-  components: { ItemInfo, StudentSummary },
-  data() {
-    const itemNames = [
-      'United States of America',
-      'Peoples Republic of China',
-      'The United Kingdom',
-      'Islamic Republic of Afghanistan',
-      'Kingdom of Saudi Arabia',
-      'Republic of Trinidad and Tobago',
-      'Republic of South Africa',
-      'Kingdom of the Netherlands'
-    ]
-    const studentNames = [
-      'Francesca Untersteher',
-      'Some Very Very Long Name Here',
-      'Some Shoter Name',
-      'John Wick',
-      'Alexander Johnson',
-      'Elizabeth Thompson',
-      'Christopher Williams',
-      'Victoria Anderson',
-      'Nathaniel Martinez'
-    ]
-    const studentInfo = studentNames.reduce((acc, cur) => {
-      const itemResults = itemNames.map(el => spoofItemInfo(el))
-      return { ...acc, [cur]: itemResults }
-    }, {})
+  const props = defineProps({
+    users: Array,
+    content: String
+  })
 
-    return {
-      itemNames,
-      studentInfo
-    }
-  },
-  computed: {
-    itemDisplayStrings() {
-      return this.itemNames.map((name,i) => {
-        let n = i+1
-        n = (n<10 ? '0'+n : ''+n)
-        return `${n}. ${name}`
-      })
-    }
-  }
-}
+  const items = await Agent.state(props.content).then(content => {
+    return Object.values(content.items).map(({ id }) => id)
+  })
+
 </script>
 
 <style scoped>
