@@ -82,7 +82,6 @@
 <script>
   import { v4 as uuid, validate as isUUID } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import Dashboard from './dashboard/index.vue'
   import GroupAssigner from '../../components/groups/assigner.vue'
   import ContentLibrary from '../../components/content-library.vue'
   import ContentLibraryCard from '../../components/content-library-card.vue'
@@ -96,7 +95,6 @@
     },
     components: {
       IconButton,
-      Dashboard,
       GroupAssigner,
       vueScopeComponent,
       ContentLibraryCard,
