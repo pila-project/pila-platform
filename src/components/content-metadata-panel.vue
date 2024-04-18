@@ -19,21 +19,11 @@
     <v-list-item>
       <div class="text-h4 pt-6">PILA Competencies</div>
     </v-list-item>
-    <v-list-item
-      v-for="path in ancestorPaths"
-      class="mt-2"
-    >
-      <span v-for="ancestor, index in path">
-        <v-icon
-          v-if="index > 0"
-          icon="fa-solid fa-chevron-right"
-        />
-        <v-chip
-          variant="outlined"
-        >
-          <vueScopeComponent :id="ancestor" :path="['name']" />
-        </v-chip>
-      </span>
+    <v-list-item>
+      <TagAncestorTree
+        :target="props.id"
+        :partition="props.partition"
+      />
     </v-list-item>
     <v-divider></v-divider>
     <v-list-item>
@@ -62,12 +52,11 @@
   import { ref, watch, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import DecryptedName from './decrypted-name.vue'
+  import TagAncestorTree from './tag-ancestor-tree.vue'
 
   const props = defineProps({ id: String, partition: String })
   const emit = defineEmits(['back'])
 
-  const loading = ref(true)
-  const ancestorPaths = ref([])
   const contentMetadata = ref(null)
 
   Agent
@@ -84,16 +73,4 @@
     else return new Date(contentMetadata.value.updated).toLocaleDateString()
   })
 
-  fetchCompetencies()
-  watch(() => props.id, fetchCompetencies)
-
-  function fetchCompetencies() {
-    loading.value = true
-    Agent
-      .query('tag-ancestor-paths', [props.partition, props.id], 'tags.knowlearning.systems')
-      .then(r => {
-        ancestorPaths.value = r.map(({ path }) => path)
-        loading.value = false
-      })
-  }
 </script>
