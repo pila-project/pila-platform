@@ -6,13 +6,15 @@
           <th></th>
           <th></th>
           <th
-            v-for="id in items"
+            v-for="id,i in items"
             :key="`item-name-${id}`"
             class="rotate"
             >
               <div>
                 <span class="vue-scope-span-wrapper">
+                  {{ `${i<10 ? '0' : ''}${i+1}. ` }}
                   <vueScopeComponent :id="id" :path="['name']" />
+                  
                 </span>
               </div>
             </th>
@@ -55,7 +57,6 @@
   overflow: scroll;
 }
 .new-dashboard table {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   margin: auto;
   border-collapse: collapse;
   color: #2c3e50;
@@ -67,7 +68,7 @@
 }
 .new-dashboard th {
   font-weight: normal;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   white-space: nowrap;
 }
 .new-dashboard td {
@@ -75,7 +76,7 @@
 }
 .new-dashboard th.rotate {
   padding: 0;
-  height: 140px;
+  height: 170px;
   white-space: nowrap;
 }
 .new-dashboard th.rotate > div {
@@ -122,7 +123,7 @@
 .new-dashboard .vue-scope-span-wrapper {
   display: inline-block;
   text-overflow: ellipsis;
-  width: 140px;
+  width: 170px;
   overflow: hidden;
 }
 </style>
