@@ -6,7 +6,14 @@
         <slot name="title">
           <h2>Modal Title</h2>
         </slot>
-        <button id="close" @click="$emit('close', 'top-x')">x</button>
+        <v-btn
+          @click="$emit('close', 'top-x')"
+          class="mr-2"
+          size="x-small"
+          density="comfortable"
+          icon="fa fa-xmark"
+          color="red"
+        />
       </div>
       <div class="modal-body">
         <slot name="body">
@@ -78,7 +85,6 @@ export default {
   display: none;
 }
 
-
 .modal-content {
   margin-top: 5vh;
   display: flex;
@@ -86,7 +92,7 @@ export default {
   background: white;
   border-radius: 20px;
   overflow: hidden;
-  border: 4px solid #1b1b83;
+  border: 4px solid rgb(46, 157, 249);
   width: 800px;
   max-width: 90vw;
   position: relative;
@@ -96,7 +102,7 @@ export default {
   flex-grow: 0;
   flex-shrink: 0;
   width: 100%;
-  background: #1b1b83;
+  background: rgb(46, 157, 249);
   color: white;
   display: flex;
   justify-content: space-between;
@@ -116,21 +122,8 @@ export default {
   flex-grow: 0;
   flex-shrink: 0;
   text-align: right;
-  padding: 0 12px 12px 0;
-  font-size: 2em;
+  padding: 4px;
   background: #F2F2F2;
   border-top: 2px solid #EEEEEE;
-}
-button#close {
-  background: red;
-  border-radius: 1000px;
-  cursor: pointer;
-  color: white;
-  width: 26px;
-  height: 26px;
-  border: none;
-  margin: 5px;
-  font-size: 1.2em;
-  cursor: pointer;
 }
 </style>
