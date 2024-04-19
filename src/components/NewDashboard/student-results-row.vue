@@ -47,7 +47,6 @@
 
   const userIsActive = ref(null)
 
-  const performanceId = `${props.assignment}/sequence-${props.sequence}`
   const performance = ref(null)
 
   const startCountdown = () => setTimeout(() => userIsActive.value = false, 3000)
@@ -55,17 +54,22 @@
 
   let initialLoad = true
   await new Promise(r => {
-    Agent.watch(performanceId, ({ state }) => {
-      performance.value = state
-      clearTimeout(countdown)
-      countdown = startCountdown()
-      if (initialLoad) {
-        r()
-        initialLoad = false
-      } else {
-        userIsActive.value = true
-      }
-    })
+    Agent
+      .watch(
+        `${props.assignment}/sequence-${props.sequence}`,
+        ({ state }) => {
+          performance.value = state
+          clearTimeout(countdown)
+          countdown = startCountdown()
+          if (initialLoad) {
+            r()
+            initialLoad = false
+          } else {
+            userIsActive.value = true
+          }
+        },
+        props.user
+      )
   })
 
 </script>
