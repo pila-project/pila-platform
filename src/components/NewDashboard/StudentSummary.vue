@@ -1,6 +1,6 @@
 <template>
   <div class="student-summary">
-    <span>{{ correctnessString }}</span>
+    <span>{{ `${props.numCorrect} / ${props.numItems}` }}</span>
     <span>{{ timeString }}</span>
   </div>
 </template>
@@ -11,28 +11,16 @@
   const o = x => ( x<10 ? '0'+x : ''+x )
 
   const props = defineProps({
-    performance: Object
+    totalTime: Number,
+    numItems: Number,
+    numCorrect: Number
   })
 
   const timeString = computed(() => {
-    if (!props.performance.totalTime) return '00:00'
-
-    const mins = Math.floor(props.performance.totalTime/60)
-    const secs = props.performance.totalTime % 60
+    if (!props.totalTime) return '00:00'
+    const mins = Math.floor(props.totalTime/60)
+    const secs = props.totalTime % 60
     return `${o(mins)}:${o(secs)}`
-  })
-
-  const correctnessString = computed(() => {
-    if (!props.performance.isCorrectArray) return '0 / 0'
-
-    const numItems = props.performance.isCorrectArray.length
-    const numCorrect = (
-      props
-        .performance
-        .isCorrectArray
-        .reduce((acc, correct) => correct ? acc + 1 : acc, 0)
-    )
-    return `${numCorrect} / ${numItems}`
   })
 
 </script>

@@ -6,7 +6,7 @@
           <th></th>
           <th></th>
           <th
-            v-for="id,i in items"
+            v-for="id,i in sequenceItems"
             :key="`item-name-${id}`"
             class="rotate"
             >
@@ -25,8 +25,8 @@
           v-for="id in props.users"
           :key="`student-${id}`"
           :assignment="assignment"
-          :sequence="content"
-          :items="items"
+          :sequenceId="content"
+          :sequenceItems="sequenceItems"
           :user="id"
         />
       </tbody>
@@ -45,7 +45,7 @@
 
   const { content } = await Agent.state(props.assignment)
 
-  const items = await (
+  const sequenceItems = await (
     Agent
       .state(content)
       .then(c => Object.values(c.items).map(({ id }) => id))

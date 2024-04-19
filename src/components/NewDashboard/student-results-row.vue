@@ -12,10 +12,14 @@
       <DecryptedName :user="user" />
     </td>
     <td>
-      <StudentSummary :performance="performance" />
+      <StudentSummary
+        :totalTime="performance.totalTime"
+        :numItems="numItems"
+        :numCorrect="numCorrect"
+      />
     </td>
     <td
-      v-for="(id, i) in props.items"
+      v-for="(id, i) in props.sequenceItems"
       :key="`cell-${id}-${i}`"
       :class="{
         'item-cell' : true,
@@ -24,8 +28,8 @@
     >
       <ItemInfo
         :info="{
-          isCorrect: performance?.isCorrectArray?.[i],
-          timeOnTask: performance?.timeOnTasks?.[i]
+          isCorrect: activeItemInfoArray?.[i]?.correct,
+          timeOnTask: activeItemInfoArray?.[i]?.time || 0
         }"
       />
     </td>
@@ -33,16 +37,16 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
   import ItemInfo from './ItemInfo.vue'
   import StudentSummary from './StudentSummary.vue'
   import DecryptedName from '../decrypted-name.vue'
 
   const props = defineProps({
     user: String,
-    items: Array,
+    sequenceItems: Array,
     assignment: String,
-    sequence: String
+    sequenceId: String
   })
 
   const userIsActive = ref(null)
@@ -58,7 +62,7 @@
   await new Promise(r => {
     Agent
       .watch(
-        `${props.assignment}/sequence-${props.sequence}`,
+        `${props.assignment}/sequence-${props.sequenceId}`,
         ({ state }) => {
           performance.value = state
           clearTimeout(countdown)
@@ -74,6 +78,22 @@
       )
   })
 
+// gross. build only for "active items" [ { time, correct}, ... ]
+  const activeItemInfoArray = computed(() => {
+    const userItemInfo = performance?.value?.itemInfo
+    if (userItemInfo) {
+      return props.sequenceItems.map((_,i) => userItemInfo[key(i)])
+    } else {
+      return props.sequenceItems.map(() => ({ correct: null, time: 0 }))
+    }
+  })
+
+  const numItems = computed(() => activeItemInfoArray.value.length)
+  const numCorrect = computed(() => activeItemInfoArray.value.filter(obj => obj?.correct).length)
+
+  function key(i) {
+    return `${i}/${props.sequenceItems[i]}`
+  }
 </script>
 
 <style scoped>
