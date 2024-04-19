@@ -2,7 +2,7 @@
   <div class="dashboard-wrapper">
     <Dashboard
       :users="users"
-      :content="assignment.content"
+      :assignment="props.assignmentId"
     />
   </div>
 </template>
@@ -12,7 +12,6 @@
 
   const props = defineProps({ assignmentId: String })
 
-  const assignment = await Agent.state(props.assignmentId)
   const users = store.getters['assignments/assignedStudents'](props.assignmentId, 'teacher-to-student')
 
 </script>
