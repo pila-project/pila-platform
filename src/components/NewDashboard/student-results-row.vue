@@ -1,20 +1,31 @@
 <template>
   <tr>
     <td style="white-space: nowrap;">
+      <i
+        :class="{
+          'fas': true,
+          'fa-circle': true,
+          'mr-2': true,
+          'active': userIsActive
+        }"
+      />
       <DecryptedName :user="user" />
     </td>
     <td>
       <StudentSummary :performance="performance" />
     </td>
     <td
-      v-for="(id, index) in props.items"
-      :key="`cell-${id}-${index}`"
-      class="item-cell"
+      v-for="(id, i) in props.items"
+      :key="`cell-${id}-${i}`"
+      :class="{
+        'item-cell' : true,
+        'active' : userIsActive && performance.activeItemIndex === i
+      }"
     >
       <ItemInfo
         :info="{
-          isCorrect: performance?.isCorrectArray?.[index],
-          timeOnTask: performance?.timeOnTasks?.[index]
+          isCorrect: performance?.isCorrectArray?.[i],
+          timeOnTask: performance?.timeOnTasks?.[i]
         }"
       />
     </td>
@@ -34,27 +45,35 @@
     sequence: String
   })
 
-  const performanceId = `${props.assignment}/sequence-${props.sequence}`
+  const userIsActive = ref(null)
 
+  const performanceId = `${props.assignment}/sequence-${props.sequence}`
   const performance = ref(null)
 
+  const startCountdown = () => setTimeout(() => userIsActive.value = false, 3000)
+  let countdown = startCountdown()
+
+  let initialLoad = true
   await new Promise(r => {
     Agent.watch(performanceId, ({ state }) => {
       performance.value = state
-      r()
+      clearTimeout(countdown)
+      countdown = startCountdown()
+      if (initialLoad) {
+        r()
+        initialLoad = false
+      } else {
+        userIsActive.value = true
+      }
     })
   })
 
-  function inventItemInfo() {
-    let isCorrect
-    let rando = Math.random()
-    if (rando < 0.7) isCorrect = true
-    else if (rando < 0.85) isCorrect = false
-    else isCorrect = undefined
-
-    return {
-      isCorrect,
-      timeOnTask: Math.floor(Math.random() * 200)
-    }
-  }
 </script>
+
+<style scoped>
+i { color: #ccc; }
+i.active { color: limegreen; }
+td.active {
+  background: rgba(255, 255, 0, 0.3);;
+}
+</style>
