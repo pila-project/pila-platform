@@ -14,7 +14,7 @@
       <DecryptedName :user="data.item.contributor" />
     </template>
     <template v-slot:item.edit="data">
-      <v-btn @click="setTagging(data.item.target, null)">x</v-btn>
+      <v-btn @click="tag(data.item.target, null)">x</v-btn>
     </template>
   </v-data-table>
   <v-dialog max-width="500">
@@ -29,7 +29,7 @@
             v-model="newRoleUser"
             label="Name"
             @keypress.enter="() => {
-              setTagging(newRoleUser, true)
+              tag(newRoleUser, true)
               isActive.value = false
             }"
           />
@@ -39,7 +39,7 @@
           <v-btn
             text="Add"
             @click="() => {
-              setTagging(newRoleUser, true)
+              tag(newRoleUser, true)
               isActive.value = false
             }"
           />
@@ -58,6 +58,7 @@
   import DecryptedName from '../../components/decrypted-name.vue'
 
   const props = defineProps({ partition: String, tag: String, header: String })
+  const emit = defineEmits(['tag'])
 
   const loading = ref(true)
   const taggings = ref([])
@@ -71,6 +72,14 @@
 
   fetchTaggings()
 
+  async function tag(target, value) {
+    loading.value = true
+    emit('tag', { tag: props.tag, target, value })
+    await Agent.synced()
+    await new Promise(r => setTimeout(r, 500))
+    fetchTaggings()
+  }
+
   async function fetchTaggings() {
     loading.value = true
     await (
@@ -80,17 +89,5 @@
     )
     loading.value = false
    }
-
-  async function setTagging(target, value) {
-    const { tag, partition } = props
-
-    const myTags  = await Agent.state('tags')
-    if (!myTags[tag]) myTags[tag] = {}
-    myTags[tag][target] = { value, partition }
-    loading.value = true
-    await Agent.synced()
-    await new Promise(r => setTimeout(r, 500))
-    fetchTaggings()
-  }
 
 </script>
