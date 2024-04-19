@@ -52,6 +52,8 @@
   const startCountdown = () => setTimeout(() => userIsActive.value = false, 3000)
   let countdown = startCountdown()
 
+  const { auth } = await Agent.environment()
+
   let initialLoad = true
   await new Promise(r => {
     Agent
@@ -68,7 +70,7 @@
             userIsActive.value = true
           }
         },
-        props.user
+        props.user === auth.user ? undefined : props.user
       )
   })
 
