@@ -22,6 +22,8 @@ export default {
 	},
 	computed: {
 		timeString() {
+			if (!this.info.timeOnTask) return "00:00"
+
 			const t = this.info.timeOnTask
 			const mins = Math.floor(t/60)
 			const secs = t % 60
@@ -35,21 +37,3 @@ export default {
 	},
 }
 </script>
-
-<style scoped>
-.item-info {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-
-}
-.item-info i {
-	font-size: 18px;
-}
-.item-info span {
-	font-size: 10px;
-}
-.item-info > * {
-	padding: 1px;
-}
-</style>

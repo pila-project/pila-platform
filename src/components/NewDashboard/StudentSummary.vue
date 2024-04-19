@@ -15,12 +15,16 @@
   })
 
   const timeString = computed(() => {
+    if (!props.performance.totalTime) return '00:00'
+
     const mins = Math.floor(props.performance.totalTime/60)
     const secs = props.performance.totalTime % 60
     return `${o(mins)}:${o(secs)}`
   })
 
   const correctnessString = computed(() => {
+    if (!props.performance.isCorrectArray) return '0 / 0'
+
     const numItems = props.performance.isCorrectArray.length
     const numCorrect = (
       props
@@ -32,18 +36,3 @@
   })
 
 </script>
-
-<style scoped>
-  .student-summary {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0 5px;
-  }
-  .student-summary span {
-    font-size: 12px;
-  }
-  .student-summary > * {
-    padding: 1px;
-  }
-</style>

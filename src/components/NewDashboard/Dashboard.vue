@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="new-dashboard">
     <table>
       <thead>
         <tr>
@@ -11,10 +11,9 @@
             class="rotate"
             >
               <div>
-                <vueScopeComponent
-                  :id="id"
-                  :path="['name']"
-                />
+                <span class="vue-scope-span-wrapper">
+                  <vueScopeComponent :id="id" :path="['name']" />
+                </span>
               </div>
             </th>
         </tr>
@@ -49,39 +48,81 @@
       .state(content)
       .then(c => Object.values(c.items).map(({ id }) => id))
   )
-
 </script>
 
-<style scoped>
-table {
-  border-collapse: collapse;
+<style>
+.new-dashboard {
+  overflow: scroll;
 }
-th, td {
-  padding: 4px;
+.new-dashboard table {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  margin: auto;
+  border-collapse: collapse;
+  color: #2c3e50;
+}
+.new-dashboard th, .new-dashboard td {
+  padding: 4px 8px;
   text-align: left;
   position: relative;
 }
-th {
+.new-dashboard th {
   font-weight: normal;
   font-size: 0.8rem;
   white-space: nowrap;
 }
-td {
+.new-dashboard td {
   border-right: 1px solid #ddd; /* Only vertical borders */
 }
-th.rotate {
+.new-dashboard th.rotate {
   padding: 0;
   height: 140px;
   white-space: nowrap;
 }
-th.rotate > div {
+.new-dashboard th.rotate > div {
   transform: rotate(-45deg); /* Adjusted rotation direction */
   width: 30px;
   position: absolute;
   bottom: 6px;
   left: 16px;
 }
-td.item-cell {
+.new-dashboard td.item-cell {
   min-width: 40px;
+}
+
+/* for item info sub component */
+.new-dashboard  .item-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+.new-dashboard .item-info i {
+  font-size: 18px;
+}
+.new-dashboard  .item-info span {
+  font-size: 10px;
+}
+.new-dashboard  .item-info > * {
+  padding: 1px;
+}
+
+/* for student summary sub component */
+.new-dashboard .student-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 5px;
+}
+.new-dashboard .student-summary span {
+  font-size: 12px;
+}
+.new-dashboard .student-summary > * {
+  padding: 1px;
+}
+.new-dashboard .vue-scope-span-wrapper {
+  display: inline-block;
+  text-overflow: ellipsis;
+  width: 140px;
+  overflow: hidden;
 }
 </style>
