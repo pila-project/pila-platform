@@ -22,7 +22,7 @@ export default {
           })
       )
     },
-    assignedGroups: state => (item_id, assignment_type) => {
+    assignedGroups: (state, getters, rootState) => (item_id, assignment_type, all=true) => {
       return (
         Object
           .values(state)
@@ -30,6 +30,7 @@ export default {
             a.item_id === item_id
             && a.assignment_type === assignment_type
             && !a.archived
+            && (all || rootState.user === a.assigner_id)
           ))
           .map(({ group_id }) => group_id)
       )
@@ -58,12 +59,12 @@ export default {
     }
   },
   mutations: {
-    addAssignment(state, { id, group_id, item_id, assignment_type, assigner, archived }) {
+    addAssignment(state, { id, group_id, item_id, assignment_type, assigner_id, archived }) {
       state[id] = {
         group_id,
         item_id,
         assignment_type,
-        assigner,
+        assigner_id,
         archived
       }
     }

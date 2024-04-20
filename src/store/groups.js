@@ -16,11 +16,12 @@ export default {
     members: {}
   }),
   getters: {
-    groups: state => typeFilter => {
+    groups: (state, _getters, rootState) => (typeFilter, mine=false) => {
       if (typeFilter) return (
         Object
           .entries(state.groups)
           .filter(([_, { archived }]) => !archived )
+          .filter(([_, { owner }]) => !mine || owner === rootState.user)
           .filter(([_, { group_type }]) => group_type === typeFilter )
           .map(([id]) => id)
       )

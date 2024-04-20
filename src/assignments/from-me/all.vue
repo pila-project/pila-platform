@@ -245,7 +245,7 @@
         if (this.current === content_id) this.current = null
       },
       assignedGroups(id) {
-        return this.$store.getters['assignments/assignedGroups'](id, this.assignment_type)
+        return this.$store.getters['assignments/assignedGroups'](id, this.assignment_type, false)
       },
       async preview(id) {
         const { content } = await Agent.state(this.current)

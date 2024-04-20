@@ -274,7 +274,7 @@
         return this.$store.state.user
       },
       groups() {
-        return this.$store.getters['groups/groups'](this.type)
+        return this.$store.getters['groups/groups'](this.type, true)
       },
       archivedGroups() {
         return this.$store.getters['groups/archivedGroups'](this.type)

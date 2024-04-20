@@ -66,7 +66,7 @@
         <h4>{{ t('select-classes-for-the-assignment') }}*</h4>
         <GroupAssigner
           :id="id"
-          :groups="$store.getters['groups/groups']('class')"
+          :groups="$store.getters['groups/groups']('class', true)"
           assignment_type="teacher-to-student"
         />
       </div>
