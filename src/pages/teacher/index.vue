@@ -5,12 +5,16 @@
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
 
-    <v-toolbar
+    <v-app-bar
       color="primary"
+      :title="store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
     >
-      <v-toolbar-title>
-        PILA
-      </v-toolbar-title>
+      <template v-slot:prepend>
+        <img
+          src="/logo-green.svg"
+          height="32"
+        />
+      </template>
       <v-spacer />
       <v-avatar
         class="ms-4 me-4"
@@ -20,6 +24,7 @@
         <template v-slot:activator="{ props }">
           <v-icon
             v-bind="props"
+            class="mr-4"
             icon="fa-solid fa-gear"
           />
         </template>
@@ -32,8 +37,8 @@
           </v-list-item>
         </v-list>
       </v-menu>
-    </v-toolbar>
-    <v-content>
+    </v-app-bar>
+    <v-main>
       <TabMenu
         :tabs="[
           { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
@@ -67,7 +72,7 @@
         v-else-if="tab === 'assignments-to-me'"
         type="researcher-to-teacher"
       />
-    </v-content>
+    </v-main>
   </v-app>
 
   <RoleRequester v-else role="teacher" />
@@ -85,13 +90,12 @@
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
 
+  const store = useStore()
   const hideStudies = true
   const tab = ref('classes')
   const avatarImage = ref(null)
 
   Agent.environment().then(({ auth:{info:{picture}}}) => avatarImage.value = picture)
-
-  const store = useStore()
 
   const hasTeacherAgreement = computed(() => {
     return store.getters.hasAcceptedTeacherAgreement()
