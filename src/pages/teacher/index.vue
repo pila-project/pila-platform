@@ -105,6 +105,36 @@
         type="researcher-to-teacher"
       />
     </v-main>
+    <v-footer
+      style="flex-grow: 0; background: #CCCCCC"
+    >
+      <v-row justify="center" no-gutters>
+        <v-btn
+          @click="openLink('https://oecd.org')"
+          variant="text"
+          text="visit oecd.org"
+        />
+        <v-btn
+          variant="text"
+          text="© OECD"
+        />
+        <v-btn
+          @click="openLink('https://pilaproject.org/about-pila/terms-of-service-for-teachers')"
+          variant="text"
+          :text="t('terms-and-condititons')"
+        />
+        <v-btn
+          @click="openLink('https://pilaproject.org/about-pila/data-protection-notice-for-teachers')"
+          variant="text"
+          :text="t('privacy-policy')"
+        />
+        <v-btn
+          @click="openLink('https://pilaproject.org/contact-us-pila')"
+          variant="text"
+          :text="t('contact-us')"
+        />
+      </v-row>
+    </v-footer>
   </v-app>
 
   <RoleRequester v-else role="teacher" />
@@ -142,6 +172,10 @@
 
   function logout() {
     Agent.logout()
+  }
+
+  function openLink(link) {
+    window.open(link, '_blank')
   }
 </script>
 
