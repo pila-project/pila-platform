@@ -133,6 +133,13 @@
                 :text="t('see-dashboard')"
                 background="#FFC442"
               />
+              <IconButton
+                icon="dashboard"
+                v-if="assignmentContainsCandli"
+                @click="showCandliResultsModal = true"
+                :text="t('see-dashboard') + ' (Candli)'"
+                background="rgb(107, 234, 201)"
+              />
             </div>
           </div>
           <div style="flex-grow: 1">
@@ -178,6 +185,20 @@
       <Dashboard :assignmentId="current" />
     </template>
   </PILAModal>
+  <PILAModal
+    v-if="showCandliResultsModal"
+    @close="showCandliResultsModal = false"
+    showCloseButton
+    width="90vw"
+    height="90vw"
+  >
+    <template v-slot:title>{{ t('assignment-results') + ' (Candli)' }}</template>
+    <template v-slot:body>
+      <vueEmbedComponent
+        id="https://competency-dashboard.pilaproject.org/"
+      />
+    </template>
+  </PILAModal>
 </template>
 
 <script>
@@ -185,15 +206,22 @@
   import PILAModal from '../../components/PILAModal.vue'
   import IconButton from '../../components/icon-button.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
+
+  const CANDLI_SEQUENCES = {
+    'c90ac500-01fb-11ef-9cf9-678347001f44': [],
+    'db94dd00-01fb-11ef-9cf9-678347001f44': [],
+    'ec33ede0-01fb-11ef-9cf9-678347001f44': []
+  }
 
   export default {
     components: {
       PILAModal,
       PreviewModal,
       vueScopeComponent,
+      vueEmbedComponent,
       IconButton,
       Dashboard,
       CreateEditAssignmentModal
@@ -208,7 +236,9 @@
         showEditModal: false,
         showArchived: false,
         previewing: null,
-        showResultsModal: false
+        showResultsModal: false,
+        showCandliResultsModal: false,
+        assignmentContainsCandli: null
       }
     },
     computed: {
@@ -224,6 +254,18 @@
       },
       archivedIds() {
         return Object.fromEntries(this.archived_assignable_items.map(id => [id, true]))
+      }
+    },
+    watch: {
+      async current(value) {
+        this.assignmentContainsCandli = null
+        if (value) {
+          this.assignmentContainsCandli = await (
+            Agent
+              .state(this.current)
+              .then(({ content }) => !!CANDLI_SEQUENCES[content])
+          )
+        }
       }
     },
     methods: {
