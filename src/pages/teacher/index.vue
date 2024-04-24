@@ -10,6 +10,8 @@
       :title="store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
     >
       <template v-slot:prepend>
+        <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+        <v-icon class="fa-solid fa-menue" />
         <img
           src="/logo-green.svg"
           height="32"
@@ -35,6 +37,8 @@
       </v-menu>
     </v-app-bar>
     <v-navigation-drawer
+      v-model="drawer"
+      peristent
       rail
       expand-on-hover
     >
@@ -114,6 +118,7 @@
   const hideStudies = true
   const tab = ref('classes')
   const userInfo = ref({})
+  const drawer = ref(true)
 
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
