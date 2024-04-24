@@ -39,10 +39,10 @@
     <v-navigation-drawer
       v-model="drawer"
       peristent
-      rail
       expand-on-hover
     >
       <v-list-item
+        class="mt-3 mb-2"
         :title="userInfo.name"
         :subtitle="store.getters['roles/role']()"
         nav
@@ -57,25 +57,33 @@
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home-city" title="Home" value="home"></v-list-item>
-        <v-list-item prepend-icon="mdi-account" title="My Account" value="account"></v-list-item>
-        <v-list-item prepend-icon="mdi-account-group-outline" title="Users" value="users"></v-list-item>
+        <v-list-item
+          prepend-icon="fa-solid fa-users-gear"
+          :title="t('admin')"
+          :active="tab === 'classes'"
+          @click="tab = 'classes'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-clipboard-check"
+          :title="t('assign-and-manage')"
+          :active="tab === 'assignments-from-me'"
+          @click="tab = 'assignments-from-me'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-folder"
+          :title="t('explore-and-create')"
+          :active="tab === 'content'"
+          @click="tab = 'content'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-flask"
+          :title="t('join-studies')"
+          :active="tab === 'assignments-to-me'"
+          @click="tab = 'assignments-to-me'"
+        />
       </v-list>
     </v-navigation-drawer>
     <v-main>
-      <TabMenu
-        :tabs="[
-          { name: t('my-classes'), background: '#2E9DF9', id:'classes', color: 'white' },
-          { spacer: true, width: 1 },
-          { name: t('assignments'), background: '#2E32DB', id:'assignments-from-me', color: 'white' },
-          { name: t('item-library'), background: '#1B1B83', id:'content', color: 'white' },
-          { spacer: true, width: 1 },
-          { name: t('pila-studies'), background: '#6BEAC9', id:'assignments-to-me', color: 'black', icon: '/mascotte.png' }
-        ]"
-        :current="tab"
-        @select="tab = $event"
-      />
-
       <Groups
         v-if="tab === 'classes'"
         type="class"
@@ -144,6 +152,6 @@
   height: 100%;  
 }
 .tab-wrapper {
-    font-weight: bold;
-  }
+  font-weight: bold;
+}
 </style>
