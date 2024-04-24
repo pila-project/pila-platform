@@ -1,6 +1,6 @@
 <template>
   <TaggedContentCards
-    v-if="isThailandDomain"
+    v-if="$store.getters.isThailandDomain"
     @select="$emit('select', $event)"
   />
   <div
@@ -145,8 +145,6 @@
   import contentTags from '../content-tags.js'
   import { validate as isUUID } from 'uuid'
 
-  const THAILAND_DOMAINS = ['thailand.pilaproject.org', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898']
-
   function isURL(s) {
     try {
       const url = new URL(s)
@@ -209,7 +207,7 @@
     },
     computed: {
       filteredContent() {
-        if (this.isThailandDomain) return this.$store.getters['content/contentToShow']()
+        if (this.$store.getters.isThailandDomain) return this.$store.getters['content/contentToShow']()
         else return this.oldFilteredContent
       },
       oldFilteredContent() {
@@ -230,9 +228,6 @@
         const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
         const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
         return Array.from( new Set([...expert, ...tracked]) ).sort()
-      },
-      isThailandDomain() {
-        return THAILAND_DOMAINS.includes(location.host)
       }
     },
     methods: {
