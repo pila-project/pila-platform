@@ -35,10 +35,8 @@
       </v-menu>
     </v-app-bar>
     <v-navigation-drawer
-      v-model="drawer"
-      :rail="rail"
-      permanent
-      @click="rail = !rail"
+      rail
+      expand-on-hover
     >
       <v-list-item
         :title="userInfo.name"
@@ -116,8 +114,6 @@
   const hideStudies = true
   const tab = ref('classes')
   const userInfo = ref({})
-  const drawer = ref(true)
-  const rail = ref(true)
 
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
