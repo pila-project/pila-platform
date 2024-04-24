@@ -26,7 +26,7 @@ export default {
         .filter(([_user, {role: r}]) => r === role)
         .map(([user]) => user)
     ),
-    role: state => user => {
+    role: (state, getters, rootState) => (user=rootState.user) => {
       const assignment = state.assignments[user]
       return assignment ? assignment.role : 'student'
     },
