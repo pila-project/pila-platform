@@ -31,8 +31,10 @@
   const metadata = await Agent.metadata(props.id)
 
   let name, image
-
-  if (isUUID(content.name)) name = `TRANSLATE: ${content.name}`
+  if (isUUID(content.name)) {
+    // TODO: don't just rely on source_string fallback
+    name = (await Agent.state(content.name)).source_string
+  }
   else if (content.name) name = content.name
 
   if (isUUID(content.image)) image = Agent.download(content.image).url()
