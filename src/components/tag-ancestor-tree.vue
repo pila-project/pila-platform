@@ -29,10 +29,8 @@
       'tags.knowlearning.systems'
     )
     .then(r => {
-      console.log('ap', r, props)
-      ancestorPaths.value = r.map(
-        ({ path }) => [...path, props.target] //  add tag to end of each path to render it
-      )
+      //  add tag to end of each path to render it
+      ancestorPaths.value = r.map(({ path }) => [...path, props.target])
     })
 
   const tree = computed(() => {

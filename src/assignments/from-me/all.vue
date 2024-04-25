@@ -209,12 +209,7 @@
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
-
-  const CANDLI_SEQUENCES = {
-    'c90ac500-01fb-11ef-9cf9-678347001f44': [],
-    'db94dd00-01fb-11ef-9cf9-678347001f44': [],
-    'ec33ede0-01fb-11ef-9cf9-678347001f44': []
-  }
+  import { CANDLI_SEQUENCES } from '../../constants.js'
 
   export default {
     components: {

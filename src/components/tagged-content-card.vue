@@ -1,7 +1,7 @@
 <template>
   <v-card
     :elevation="props.selected ? 10 : 3"
-    :variant="props.selected ? 'tonal' : ''"
+    :variant="props.selected ? 'tonal' : 'elevated'"
     :title="name"
   >
     <template v-slot:text>
@@ -22,6 +22,7 @@
   import { ref } from 'vue'
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
+  import { CANDLI_SEQUENCES } from '../constants.js'
 
   const store = useStore()
 
@@ -37,17 +38,26 @@
   if (isUUID(content.image)) image = Agent.download(content.image).url()
   else if (content.image) image = content.image
   else {
-    if (content.id?.includes('cand.li')) {
-      image = '/candi-logo.svg'
+    if (metadata.active_type?.startsWith('application/json;type=sequence')) {
+      image = '/sequence-placeholder.png'
     }
-    else image = '/logo-green.svg'
+    else if (metadata.active_type?.startsWith('application/json;type=karel-map')) {
+      image = '/karelSide.png'
+    }
+    else if (content.id?.includes('betty')) {
+      image = '/betty.png'
+    }
+    else {
+      image = '/logo-green.svg'
+      console.log('cccccccccccccccccc', content, metadata)
+    }
   }
 
   function t(slug) { return store.getters.t(slug)}
 </script>
 
 <style scoped>
-  .container {
+  .image-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -55,7 +65,7 @@
     overflow: hidden;
   }
 
-  .container img {
+  .image-container img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
