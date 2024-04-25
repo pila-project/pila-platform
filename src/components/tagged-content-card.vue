@@ -49,7 +49,6 @@
     }
     else {
       image = '/logo-green.svg'
-      console.log('cccccccccccccccccc', content, metadata)
     }
   }
 
