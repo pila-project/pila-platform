@@ -16,30 +16,38 @@
         @select="tag => toggleCompetency(tag)"
       />
     </div>
-    <div class="tagged-content-card-wrapper">
-      <ContentLibraryCard
-        v-for="{ target: id } in taggedContent"
-        :key="id"
-        :id="id"
-        :selected="selfSelected === id"
-        @click="() => {
-          if (selfSelected === id) selfSelected = null
-          else selfSelected = id
-          $emit('select', selfSelected)
-        }"
-        @preview="previewing = id"
-        @remove="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: 'tracked' })"
-      />
-    </div>
+    <v-container>
+      <v-row>
+        <v-col
+          v-for="({ target: id }, index) in taggedContent"
+          :key="id + index"
+          cols="12"
+          lg="4"
+          md="6"
+          sm="12"
+        >
+          <TaggedContentCard
+            :id="id"
+            :selected="selfSelected === id"
+            @click="() => {
+              if (selfSelected === id) selfSelected = null
+              else selfSelected = id
+              $emit('select', selfSelected)
+            }"
+            @preview="previewing = id"
+          />
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script setup>
   import { ref, reactive } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import ContentLibraryCard from './content-library-card.vue'
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import TagTaggingsList from './tag-taggings-list.vue'
+  import TaggedContentCard from './tagged-content-card.vue'
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
