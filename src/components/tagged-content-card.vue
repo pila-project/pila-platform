@@ -5,11 +5,14 @@
     :title="name"
   >
     <template v-slot:text>
-      <div style="height: 128px" />
+      <div class="image-container">
+        <img :src="image" />
+      </div>
     </template>
     <template v-slot:actions>
       <v-btn
         :text="t('preview')"
+        @click.stop
       />
     </template>
   </v-card>
@@ -33,6 +36,28 @@
 
   if (isUUID(content.image)) image = Agent.download(content.image).url()
   else if (content.image) image = content.image
+  else {
+    if (content.id?.includes('cand.li')) {
+      image = '/candi-logo.svg'
+    }
+    else image = '/logo-green.svg'
+  }
 
   function t(slug) { return store.getters.t(slug)}
 </script>
+
+<style scoped>
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 128px;
+    overflow: hidden;
+  }
+
+  .container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+</style>
