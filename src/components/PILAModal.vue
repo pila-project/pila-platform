@@ -1,6 +1,6 @@
 <template>
-  <div class="modal" @click="$emit('close', 'background')">
-    <div class="modal-content" @click.stop :style="{ width, height }" >
+  <v-dialog v-model="open" max-width="800px">
+    <template v-slot:default="{ isActive }"><v-card>
       <div class="modal-header">
         <div class="placeholder"></div>
         <slot name="title">
@@ -28,9 +28,9 @@
           textColor="white"
           @click="$emit('close', 'primary-button')"
         />
-    </div>
-    </div>
-  </div>
+      </div>
+    </v-card></template>
+  </v-dialog>
 </template>
 
 <script>
@@ -57,9 +57,17 @@ export default {
       type: String,
       required: false,
       default: 'auto'
-    }
+    },
   },
-  components: { IconButton }
+  components: { IconButton },
+  computed: {
+    open: {
+      get() { return true },
+      set(value) {
+        if (!value) this.$emit('close', 'outside')
+      }
+    }
+  }
 }
 </script>
 
