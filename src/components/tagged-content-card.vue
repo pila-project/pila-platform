@@ -37,7 +37,7 @@
   }
   else if (content.name) name = content.name
 
-  if (isUUID(content.image)) image = Agent.download(content.image).url()
+  if (isUUID(content.image)) image = await Agent.download(content.image).url()
   else if (content.image) image = content.image
   else {
     if (metadata.active_type?.startsWith('application/json;type=sequence')) {
