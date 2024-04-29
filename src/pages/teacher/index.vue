@@ -18,23 +18,6 @@
         />
       </template>
       <v-spacer />
-      <v-menu>
-        <template v-slot:activator="{ props }">
-          <v-icon
-            v-bind="props"
-            class="mr-4"
-            icon="fa-solid fa-gear"
-          />
-        </template>
-        <v-list>
-          <v-list-item
-            @click="logout"
-            append-icon="fa-solid fa-arrow-right-from-bracket"
-            :title="t('log-out')"
-          >
-          </v-list-item>
-        </v-list>
-      </v-menu>
     </v-app-bar>
     <v-navigation-drawer
       v-model="drawer"
@@ -82,6 +65,26 @@
           @click="tab = 'assignments-to-me'"
         />
       </v-list>
+
+      <template v-slot:append>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-icon
+              v-bind="props"
+              class="ma-4"
+              icon="fa-solid fa-gear"
+            />
+          </template>
+          <v-list>
+            <v-list-item
+              @click="logout"
+              append-icon="fa-solid fa-arrow-right-from-bracket"
+              :title="t('log-out')"
+            >
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
     </v-navigation-drawer>
     <v-main>
       <Groups
