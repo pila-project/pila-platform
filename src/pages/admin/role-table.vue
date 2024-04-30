@@ -22,12 +22,12 @@
       <v-btn v-bind="activatorProps">Add {{ props.header }}</v-btn>
     </template>
     <template v-slot:default="{ isActive }">
-      <v-card title="New Tag">
+      <v-card :title="`Add ${props.header}`">
         <v-card-text>
           <v-text-field
             autofocus
             v-model="newRoleUser"
-            label="Name"
+            label="User Id"
             @keypress.enter="() => {
               tag(newRoleUser, true)
               isActive.value = false
