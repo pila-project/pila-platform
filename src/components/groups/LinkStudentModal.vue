@@ -39,31 +39,16 @@ export default {
   },
   methods: {
     t(slug) { return this.$store.getters.t(slug) },
-    copyToClipboard() {
-
-      // Create a temporary textarea element to copy text to clipboard
-      const textarea = document.createElement("textarea");
-      textarea.value = this.link;
-      textarea.style.position = "absolute";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-
-      // Select the text within the textarea
-      textarea.select();
-
+    async copyToClipboard() {
       try {
         // Copy text to clipboard
-        document.execCommand("copy");
+        await navigator.clipboard.writeText(this.link)
         this.clipped = true
       } catch (err) {
+        alert('Error copying text: ' + this.link)
         console.error("Unable to copy text: " + err);
-      } finally {
-        // Clean up: remove the temporary textarea
-        document.body.removeChild(textarea);
       }
-    },
-
-
+    }
   }
 }
 </script>
