@@ -140,7 +140,20 @@
               @click="openLink('https://create.pilaproject.org')"
             />
           </div>
-      </div>
+            <br>
+            <br>
+            <h3>{{ t('add-content-by-id-or-url') }}</h3>
+            <div style="text-align: center;">
+              <v-text-field
+                placeholder="content code OR url"
+                v-model="contentId"
+              />
+              <v-btn
+                :text="t('add-content')"
+                @click="addContent(contentId)"
+              />
+            </div>
+        </div>
       </div>
     </v-main>
     <v-footer
@@ -195,6 +208,7 @@
   const tab = ref('classes')
   const userInfo = ref({})
   const drawer = ref(true)
+  const contentId = ref('')
 
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
@@ -214,6 +228,31 @@
 
   function openLink(link) {
     window.open(link, '_blank')
+  }
+
+  async function addContent(id) {
+    alert('Not yet implemented')
+  }
+
+  async function isValidContentId(id) {
+    if (isURL(val)) { // if url, validated if betty or candli
+      return !!(this.isBettyLink(val) || this.isCandliLink(val))
+    }
+    else if (isUUID(val)) { // if uuid, validated if karel map
+      const res = await Agent.metadata(this.contentId)
+      return !!res.domain
+    }
+    else return false
+  }
+
+  function isURL(s) {
+    try {
+      const url = new URL(s)
+      return true
+    } catch (error) {
+      console.log(error)
+      return false
+    }
   }
 </script>
 
