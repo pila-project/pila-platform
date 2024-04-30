@@ -49,11 +49,10 @@
         <div style="margin: 8px;">
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
-        <ContentLibraryCard
+        <vueScopeComponent
           v-if="assignment.content"
           :id="assignment.content"
-          :removable="false"
-          @preview="previewing = assignment.content"
+          :path="['name']"
         />
         <IconButton
           icon="bolt"
