@@ -36,15 +36,16 @@
 
 
 <!-- Overlay Playing Assignment -->
-  <div
-    class="assignment-overlay"
-    v-if="playing"
+  <v-overlay
+    :model-value="overlayActive"
   >
-    <vueEmbedComponent
-      :id="playing"
-      @close="playing = null"
-    />
-  </div>
+    <div class="assignment-overlay">
+      <vueEmbedComponent
+        :id="playing"
+        @close="playing = false"
+      />
+    </div>
+  </v-overlay>
 
 </template>
 
@@ -77,6 +78,11 @@ export default {
       const user = this.$store.state.user
       const type ="teacher-to-student"
       return this.$store.getters['assignments/to'](user, type)
+    },
+    overlayActive: {
+      get() {
+        return !!this.playing
+      }
     }
   },
   watch: {
@@ -133,6 +139,7 @@ export default {
   top: 0;
   left: 0;
   background: white;
+  overflow: hidden;
   width: 100vw;
   height: 100vh;
 }
