@@ -35,11 +35,9 @@
   import RoleTable from './role-table.vue'
   import RoleRequestTable from './role-request-table.vue'
   import OldRoles from './old-roles.vue'
+  import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '../../constants.js'
 
   const store = useStore()
-  const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
-  const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
-  const TRAINER_TAG = "8ae541e0-ed49-11ee-be89-5b04faf266ea"
 
   const { tagPartition, isThailandDomain } = store.getters
 

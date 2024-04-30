@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid'
+import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '../constants.js'
 
 const ROLE_ASSERTION_TYPE = 'application/json;type=role_assertion'
 const ROLE_REQUEST_TYPE = 'application/json;type=role_request'
@@ -55,14 +56,30 @@ export default {
         dispatch('loadRequests')
       ])
     },
-    async loadAssignments({ commit, getters }) {
-      await (
-        Agent
-          .query('role-assignments')
-          .then(assignments => {
-            assignments.forEach(assignment => commit('addAssignment', assignment))
-          })
-      )
+    async loadAssignments({ commit, getters, rootGetters }) {
+      if (rootGetters.isThailandDomain) {
+        await Promise.all(
+          [
+            ['admin', ADMIN_TAG],
+            ['teacher', TEACHER_TAG]
+          ].map(([role, tag]) => (
+            Agent
+              .query('taggings-for-tag', [rootGetters.tagPartition, tag], 'tags.knowlearning.systems')
+              .then(result => result.forEach(({ contributor: assigner, target: assignee }) => {
+                commit('addAssignment', { assigner, assignee, role })
+              }))
+          ))
+        )
+      }
+      else {
+        await (
+          Agent
+            .query('role-assignments')
+            .then(assignments => {
+              assignments.forEach(assignment => commit('addAssignment', assignment))
+            })
+        )
+      }
       const { auth: { user } } = await Agent.environment()
       if (getters.role(user) !== 'student') {
         await storeUserInfo()
