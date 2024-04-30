@@ -14,10 +14,18 @@
       <DecryptedName :user="data.item.contributor" />
     </template>
     <template v-slot:item.edit="data">
-      <v-btn @click="tag(data.item.target, null)">x</v-btn>
+      <v-btn
+        v-if="editable"
+        variant="plain"
+        icon="fa-solid fa-xmark"
+        @click="tag(data.item.target, null)"
+      />
     </template>
   </v-data-table>
-  <v-dialog max-width="500">
+  <v-dialog
+    v-if="editable"
+    max-width="500"
+  >
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn v-bind="activatorProps">Add {{ props.header }}</v-btn>
     </template>
@@ -57,7 +65,15 @@
   import { ref } from 'vue'
   import DecryptedName from '../../components/decrypted-name.vue'
 
-  const props = defineProps({ partition: String, tag: String, header: String })
+  const props = defineProps({
+    partition: String,
+    tag: String,
+    header: String,
+    editable: {
+      type: Boolean,
+      default: true
+    }
+  })
   const emit = defineEmits(['tag'])
 
   const loading = ref(true)

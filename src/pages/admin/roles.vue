@@ -5,6 +5,7 @@
       :partition="tagPartition"
       :tag="ADMIN_TAG"
       @tag="setTagging"
+      :editable="false"
     />
     <RoleTable
       header="Trainers"
