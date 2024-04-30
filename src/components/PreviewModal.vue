@@ -2,8 +2,8 @@
   <PILAModal
     @close="$emit('close')"
     showCloseButton
-    width="90vw"
-    height="800px"
+    :width="width"
+    :height="height"
   >
     <template v-slot:title>
       <span>{{ t('previewing') }}
@@ -13,6 +13,7 @@
     <template v-slot:body>
       <vueEmbedComponent
         :id="id"
+        style="position: absolute;"
         @close="$emit('close')"
       />
     </template>
@@ -26,7 +27,15 @@
 
   export default {
     props: {
-      id: String
+      id: String,
+      width: {
+        type: String,
+        default: '90vw'
+      },
+      height: {
+        type: String,
+        default: '90vh'
+      }
     },
     components: {
       PILAModal,

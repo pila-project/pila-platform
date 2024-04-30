@@ -12,7 +12,7 @@
     <template v-slot:actions>
       <v-btn
         :text="t('preview')"
-        @click.stop
+        @click.stop="$emit('preview')"
       />
     </template>
   </v-card>

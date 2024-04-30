@@ -38,6 +38,13 @@
           />
         </v-col>
       </v-row>
+      <PreviewModal
+        v-if="previewing"
+        :id="previewing"
+        width="90vw"
+        height="90vh"
+        @close="previewing = null"
+      />
     </v-container>
   </div>
 </template>
@@ -48,6 +55,7 @@
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import TagTaggingsList from './tag-taggings-list.vue'
   import TaggedContentCard from './tagged-content-card.vue'
+  import PreviewModal from './PreviewModal.vue'
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
@@ -57,6 +65,7 @@
   const taggedContent = ref([])
   const selfSelected = ref(null)
   const competencies = ref([])
+  const previewing = ref(null)
   const selectedCompetencies = reactive([])
 
   fetchTaggings()

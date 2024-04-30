@@ -178,7 +178,7 @@
     @close="showResultsModal = false"
     showCloseButton
     width="90vw"
-    height="90vw"
+    height="90vh"
   >
     <template v-slot:title>{{ t('assignment-results') }}</template>
     <template v-slot:body>
@@ -192,7 +192,7 @@
     @close="showCandliResultsModal = false"
     showCloseButton
     width="90vw"
-    height="90vw"
+    height="90vh"
   >
     <template v-slot:title>{{ t('assignment-results') + ' (Candli)' }}</template>
     <template v-slot:body>

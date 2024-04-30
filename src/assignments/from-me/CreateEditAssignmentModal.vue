@@ -3,8 +3,6 @@
     @close="$emit('close')"
     :showCloseButton="showCloseButton"
     :closeButtonText="t('save')"
-    width="90vw"
-    height="90vh"
   >
     <template v-slot:title>{{ t('create-modify-assignment') }}</template>
     <template v-slot:body>

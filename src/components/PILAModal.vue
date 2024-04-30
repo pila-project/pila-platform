@@ -1,6 +1,6 @@
 <template>
-  <v-dialog v-model="open" max-width="800px">
-    <template v-slot:default="{ isActive }"><v-card>
+  <v-dialog v-model="open" :width="width" :min-height="height">
+    <template v-slot:default="{ isActive }"><v-card :min-height="height">
       <div class="modal-header">
         <div class="placeholder"></div>
         <slot name="title">
@@ -125,6 +125,7 @@ export default {
 .modal-body {
   flex-grow: 1;
   overflow: scroll;
+  position: relative;
 }
 .modal-footer {
   flex-grow: 0;
