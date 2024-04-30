@@ -22,6 +22,12 @@
     },
     async created() {
       this.info = await this.$store.getters.decryptUserInfo(this.user, this.alias)
+    },
+    watch: {
+      async user() {
+        this.info = {}
+        this.info = await this.$store.getters.decryptUserInfo(this.user, this.alias)
+      }
     }
   }
 </script>
