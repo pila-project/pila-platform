@@ -49,10 +49,9 @@
         <div style="margin: 8px;">
           <h4>{{ t('select-the-content-to-assign') }}*</h4>
         </div>
-        <vueScopeComponent
+        <NameOrTranslatedNameFromItemId
           v-if="assignment.content"
-          :id="assignment.content"
-          :path="['name']"
+          :itemId="assignment.content"
         />
         <IconButton
           icon="bolt"
@@ -87,6 +86,7 @@
   import URL_CONTENT_DATA from '../../url-content-data.js'
   import PreviewModal from '../../components/PreviewModal.vue'
   import IconButton from '../../components/icon-button.vue'
+  import NameOrTranslatedNameFromItemId from '../../components/NameOrTranslatedNameFromItemId.vue'
 
   export default {
     props: {
@@ -98,7 +98,8 @@
       vueScopeComponent,
       ContentLibraryCard,
       ContentLibrary,
-      PreviewModal
+      PreviewModal,
+      NameOrTranslatedNameFromItemId
     },
     emits: ['setCloseButton'],
     data() {
