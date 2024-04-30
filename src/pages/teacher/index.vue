@@ -53,10 +53,16 @@
           @click="tab = 'assignments-from-me'"
         />
         <v-list-item
-          prepend-icon="fa-solid fa-folder"
-          :title="t('explore-and-create')"
+          prepend-icon="fa-solid fa-magnifying-glass"
+          :title="t('explore')"
           :active="tab === 'content'"
           @click="tab = 'content'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-folder-plus"
+          :title="t('create')"
+          :active="tab === 'create'"
+          @click="tab = 'create'"
         />
         <v-list-item
           prepend-icon="fa-solid fa-flask"
@@ -107,6 +113,35 @@
         v-else-if="tab === 'assignments-to-me'"
         type="researcher-to-teacher"
       />
+      <div
+        v-else-if="tab === 'create'"
+      >
+        <div style="margin: auto; width: 600px; padding-top: 64px;">
+          <h3>{{ t('select-content-type') }}</h3>
+          <br>
+          <div class="mt-4">
+            <v-btn
+              prepend-icon="fa-solid fa-arrow-up-right-from-square"
+              :text="t('create-karel-block-based-programming-task')"
+              @click="openLink('https://the-karel-project.netlify.app/karel-builder')"
+            />
+          </div>
+          <div class="mt-4">
+            <v-btn
+              prepend-icon="fa-solid fa-arrow-up-right-from-square"
+              :text="t('create-bettys-brain-concept-map-and-virtual-agents')"
+              @click="openLink('https://bettysbrain.knowlearning.systems/bb/custom/causal-map?auth=true&oecd=true&custom=true')"
+            />
+          </div>
+          <div class="mt-4">
+            <v-btn
+              prepend-icon="fa-solid fa-arrow-up-right-from-square"
+              :text="t('create-sequences-and-custom-question-types')"
+              @click="openLink('https://create.pilaproject.org')"
+            />
+          </div>
+      </div>
+      </div>
     </v-main>
     <v-footer
       style="flex-grow: 0; background: #CCCCCC"
