@@ -13,7 +13,7 @@
               <div>
                 <span class="vue-scope-span-wrapper">
                   {{ `${i<10 ? '0' : ''}${i+1}. ` }}
-                  <vueScopeComponent :id="id" :path="['name']" />
+                  <NameOrTranslatedNameFromItemId :itemId="id" />
                   
                 </span>
               </div>
@@ -35,8 +35,8 @@
 </template>
 
 <script setup>
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import StudentResultsRow from './student-results-row.vue'
+  import NameOrTranslatedNameFromItemId from '../NameOrTranslatedNameFromItemId.vue'
 
   const props = defineProps({
     users: Array,
