@@ -3,59 +3,40 @@
     <div v-if="noAssignments">
       {{ t('you-currently-have-no-assignments-ask-you-teacher-if-you-expect-an-assignment-here')}}
     </div>
-    <div
-      v-else
-      v-for="id, aid in assignmentsToContent"
-      :key="id"
-      class="card"
-    >
-      <div
-        class="content-name"
+    <v-row v-else>
+      <v-col
+        v-for="contentId, assignmentId in assignmentsToContent"
+        :key="contentId + assignmentId"
+        cols="12"
+        lg="4"
+        md="6"
+        sm="12"
       >
-        <vueScopeComponent :id="assignmentsToAssignableItem[aid]" :path="['name']" />
-      </div>
-      <div class="preview-image">
-        <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
-        <img v-else-if="isBettyLink(id)" src="/betty.png" />
+        <AssignmentCard
+          :assignment="assignmentId"
+          @play="play(assignmentId)"
+        />
+      </v-col>
+    </v-row>
+    <v-overlay :model-value="overlayActive">
+      <div class="assignment-overlay">
         <vueEmbedComponent
-          v-else
-          :id="id"
-          mode="card-image"
+          :id="playing"
+          @close="playing = null"
         />
       </div>
-      <div>
-        <CardIconsBar
-          :id="id"
-          :key="`icon-bar-for-${id}`"
-          showPlay
-          @play="play(aid)"
-        />
-      </div>
-    </div>
+    </v-overlay>
   </div>
-
-
-<!-- Overlay Playing Assignment -->
-  <v-overlay
-    :model-value="overlayActive"
-  >
-    <div class="assignment-overlay">
-      <vueEmbedComponent
-        :id="playing"
-        @close="playing = false"
-      />
-    </div>
-  </v-overlay>
-
 </template>
 
 <script>
 import CardIconsBar from '../../components/card-icons-bar.vue'
 import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.js'
 import URL_CONTENT_DATA from '../../url-content-data.js'
+import AssignmentCard from './assignment-card.vue'
 
 export default {
-  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar },
+  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard },
 
   data() {
     return {
