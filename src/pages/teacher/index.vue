@@ -122,7 +122,7 @@
           <div class="mt-4">
             <v-btn
               prepend-icon="fa-solid fa-arrow-up-right-from-square"
-              :text="t('create-karel-block-based-programming-task')"
+              :text="t('create-karel-block-based-programming-tasks')"
               @click="openLink('https://the-karel-project.netlify.app/karel-builder')"
             />
           </div>

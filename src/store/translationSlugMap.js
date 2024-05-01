@@ -151,7 +151,7 @@ export default {
     "link-copied": "cef84cd5-9646-4989-b1d0-ce8c5a407c3f",
     "my-students": "d08bf035-89ac-4951-ab10-fd5fdc34d461",
     "create-new-content": "d099e0f5-2ea4-4088-bef4-4394133779b2",
-    "create-sequence-and-custom-question-types": "d505e809-0800-4cf0-a5e7-788895ba88fc",
+    "create-sequences-and-custom-question-types": "d505e809-0800-4cf0-a5e7-788895ba88fc",
     "primary": "d99fc54a-35b8-489d-8d93-a3b8a14f1a58",
     "create-edit-group": "dbe26871-de3b-476c-8329-3800dd471c1d",
     "do-not-agree": "dddddf89-1caf-4660-ae49-011439fd4d0e",
