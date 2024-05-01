@@ -172,7 +172,7 @@
         <v-btn
           @click="openLink('https://pilaproject.org/about-pila/terms-of-service-for-teachers')"
           variant="text"
-          :text="t('terms-and-condititons')"
+          :text="t('terms-and-conditions')"
         />
         <v-btn
           @click="openLink('https://pilaproject.org/about-pila/data-protection-notice-for-teachers')"
