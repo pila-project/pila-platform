@@ -47,7 +47,7 @@
       image = '/karelSide.png'
     }
     else if (content.id?.includes('betty')) {
-      image = '/betty.png'
+      image = '/betty.jpg'
     }
     else {
       image = '/logo-green.svg'
