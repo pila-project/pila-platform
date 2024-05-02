@@ -4,26 +4,26 @@
   </div>
   <div v-else-if="selectingContent">
     <div>
-      <div style="height: 48px;">
-        <IconButton
-          icon="bolt"
-          style="
-            z-index: 1;
-            position: absolute;
-            top: 48px;
-            left: 32px;
-            transform: scale(1.5);
-          "
-          :text="t('select')"
-          @click="selectingContent = false"
-          background="#FFC442"
-        />
-      </div>
+      <v-btn
+        prepend-icon="fa-solid fa-bolt"
+        style="
+          z-index: 1;
+          position: fixed;
+          bottom: 32px;
+          right: 32px;
+        "
+        color="rgb(255, 196, 66)"
+        size="x-large"
+        :text="t('select')"
+        @click="selectingContent = false"
+        background="#FFC442"
+      />
       <ContentLibrary
         selectable
         :selected="assignment.content"
         @select="assignment.content = $event"
       />
+      <div style="height: 96px" />
     </div>
     <div>
       
