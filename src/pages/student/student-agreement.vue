@@ -1,15 +1,15 @@
 <template>
-	<div class="student-agreement">
-		<PILAModal
-			showCloseButton
-			:closeButtonText="t('create-account')"
-			@close="modalClose"
-			class="student-agreement-modal"
-		>
-			<template v-slot:title>
-				{{ t('your-data') }}
-			</template>
-			<template v-slot:body>
+	<PILAModal
+		showCloseButton
+		:closeButtonText="t('create-account')"
+		@close="modalClose"
+		class="student-agreement-modal"
+	>
+		<template v-slot:title>
+			{{ t('your-data') }}
+		</template>
+		<template v-slot:body>
+			<div class="student-agreement">
 				<div class="student-agreement-body">
 
 					<div>{{ t("by-creating-an-account-and-using-the-platform-for-innovative-learning-assessments-pila-you-are-agreeing-that-know-learning-can-collect-and-store-data-about-your-activity-and-google-analytics-and-google-cloud-platform-can-process-this-data") }}</div>
@@ -59,9 +59,9 @@
 
 
 				</div>
-			</template>
-		</PILAModal>
-	</div>
+			</div>
+		</template>
+	</PILAModal>
 </template>
 
 <script>

@@ -1,15 +1,15 @@
 <template>
-	<div class="teacher-agreement">
-		<PILAModal
-			showCloseButton
-			:closeButtonText="t('create-account')"
-			@close="modalClose"
-			class="teacher-agreement-modal"
-		>
-			<template v-slot:title>
-				{{ t('terms-of-service-and-data-protection-notice') }}
-			</template>
-			<template v-slot:body>
+	<PILAModal
+		showCloseButton
+		:closeButtonText="t('create-account')"
+		@close="modalClose"
+		class="teacher-agreement-modal"
+	>
+		<template v-slot:title>
+			{{ t('terms-of-service-and-data-protection-notice') }}
+		</template>
+		<template v-slot:body>
+			<div class="teacher-agreement">
 				<div class="teacher-agreement-body">
 					<p style="margin-bottom: 24px;">
 						{{ t('by-creating-my-teacher-account-i-agree-to-the-terms-of-service-and-the-processing-of-my-personal-data-as-described-in-the-data-protection-notice') }}
@@ -31,9 +31,9 @@
 						</a>
 					</p>
 				</div>
-			</template>
-		</PILAModal>
-	</div>
+			</div>
+		</template>
+	</PILAModal>
 </template>
 
 <script>
