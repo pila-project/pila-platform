@@ -13,7 +13,7 @@
     </template>
     <v-list-item-title>
       <v-chip>
-        <vueScopeComponent :id="props.id" :path="['name']" />
+        <TagTranslation :id="props.id" />
       </v-chip>
       <v-icon
         v-if="node[props.target]"
@@ -35,7 +35,7 @@
 
 <script setup>
   import { computed, defineProps } from 'vue'
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import TagTranslation from './tag-translation.vue'
   import TreeNode from './tag-ancestor-tree-node.vue'
 
   const props = defineProps({
