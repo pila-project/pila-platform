@@ -3,7 +3,12 @@
     <vueEmbedComponent
       :id="assignment.content"
       @close="closeAssignment"
-      :namespace="$route.params.id"
+      :namespace="{
+        prefix: $route.params.id,
+        allow: [
+          'pila/competencies'
+        ]
+      }"
     />
   </div>
   <div v-else-if="assignment">

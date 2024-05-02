@@ -1,6 +1,11 @@
 <template>
   <vueEmbedComponent
-    :namespace="props.assignment"
+    :namespace="{
+      prefix: props.assignment,
+      allow: [
+        'pila/competencies'
+      ]
+    }"
     :id="`https://competency-dashboard.pilaproject.org/?domain=${domain}&${params}`"
   />
 </template>
