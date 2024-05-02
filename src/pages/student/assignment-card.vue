@@ -43,7 +43,7 @@
   else if (content.image) image = content.image
   else {
     if (metadata.active_type?.startsWith('application/json;type=sequence')) {
-      image = '/sequence-placeholder.png'
+      image = '/pila_sequence.png'
     }
     else if (metadata.active_type?.startsWith('application/json;type=karel-map')) {
       image = '/karelSide.png'
