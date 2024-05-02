@@ -21,7 +21,7 @@
       @dragstart="$event.dataTransfer.setData('text', props.tag)"
       @dragover.prevent
     >
-      <vueScopeComponent :id="props.tag" :path="['name']" />
+      <TagTranslation :id="props.tag" />
     </v-list-item-title>
   </v-list-item>
   <TagTaggingsList
@@ -37,7 +37,7 @@
 <script setup>
   import { ref } from 'vue'
   import TagTaggingsList from './tag-taggings-list.vue'
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import TagTranslation from './tag-translation.vue'
 
   const emit = defineEmits(['select'])
 
