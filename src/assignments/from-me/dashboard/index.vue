@@ -20,8 +20,9 @@
 
   .dashboard-wrapper
   {
-    position: relative;
-    height: 75vh;
+    position: absolute;
+    width: 100%;
+    height: 100%;
   }
 
 </style>

@@ -196,9 +196,11 @@
   >
     <template v-slot:title>{{ t('assignment-results') + ' (Candli)' }}</template>
     <template v-slot:body>
-      <vueEmbedComponent
-        id="https://competency-dashboard.pilaproject.org/"
-      />
+      <div style="position: absolute; width: 100%; height: 100%;">
+        <CandliDashboard
+          :assignment="current"
+        />
+      </div>
     </template>
   </PILAModal>
 </template>
@@ -208,9 +210,10 @@
   import PILAModal from '../../components/PILAModal.vue'
   import IconButton from '../../components/icon-button.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
-  import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
+  import CandliDashboard from './candli-dashboard.vue'
   import { CANDLI_SEQUENCES } from '../../constants.js'
 
   export default {
@@ -218,9 +221,9 @@
       PILAModal,
       PreviewModal,
       vueScopeComponent,
-      vueEmbedComponent,
       IconButton,
       Dashboard,
+      CandliDashboard,
       CreateEditAssignmentModal
     },
     props: {
