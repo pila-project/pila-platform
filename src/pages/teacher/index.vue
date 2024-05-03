@@ -48,7 +48,7 @@
         />
         <v-list-item
           prepend-icon="fa-solid fa-clipboard-check"
-          :title="t('assign-and-manage')"
+          :title="t('assign-and-monitor')"
           :active="tab === 'assignments-from-me'"
           @click="tab = 'assignments-from-me'"
         />

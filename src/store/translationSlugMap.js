@@ -1,5 +1,5 @@
 export default {
-    "assign-and-manage": "000835de-e632-4945-ae0c-9f4d4abd28d1",
+    "assign-and-monitor": "000835de-e632-4945-ae0c-9f4d4abd28d1",
     "log-in-with": "004e72b5-69dd-415c-8abd-38db8f21510e",
     "data-protection-notice-for-students": "00c6de4c-251d-43f2-9594-2bcaa8fa40c9",
     "group-name": "03776dee-1e5b-46fe-a866-abbeba6c4561",
