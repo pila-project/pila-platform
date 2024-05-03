@@ -22,7 +22,7 @@ export default {
     "there-is-an-issue-with-your-assignment-please-ask-your-teacher-to-ensure-they-have-assigned-the-intended-content": "15179139-79bc-49e5-8cf2-2ab57432a64e",
     "undo-request": "15a49ec3-7d5a-40f0-ba7e-31e68f7bcdcb",
     "in-class": "16743e08-e34f-42bd-8bb7-241a6c512bdc",
-    "do-not-use": "168f9d54-9f78-4a1d-ad43-01fd411b9507",
+    "it-looks-like-you-do-not-have-any-assignments-please-speak-to-your-teacher": "168f9d54-9f78-4a1d-ad43-01fd411b9507",
     "assignment-details": "169745be-e7be-40de-8194-9a7cca52f9d4",
     "by-creating-an-account-and-using-the-platform-for-innovative-learning-assessments-pila-you-are-agreeing-that-know-learning-can-collect-and-store-data-about-your-activity-and-google-analytics-and-google-cloud-platform-can-process-this-data": "19e34649-83e5-4bd2-ab60-521987c8e24e",
     "join-studies": "1cce499c-3b12-421f-9354-8448c7ce265a",
