@@ -20,6 +20,7 @@
               <vueEmbedComponent
                 namespace="preview"
                 :id="data.item.target"
+                allow="camera;microphone;fullscreen"
               />
             </v-card>
           </v-overlay>

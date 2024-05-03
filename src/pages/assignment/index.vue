@@ -9,6 +9,7 @@
           'pila/competencies'
         ]
       }"
+      allow="camera;microphone;fullscreen"
     />
   </div>
   <div v-else-if="assignment">

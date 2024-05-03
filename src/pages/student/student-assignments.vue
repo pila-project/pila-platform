@@ -23,6 +23,7 @@
         <vueEmbedComponent
           :id="playing"
           @close="playing = null"
+          allow="camera;microphone;fullscreen"
         />
       </div>
     </v-overlay>

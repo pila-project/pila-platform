@@ -15,6 +15,7 @@
         :id="id"
         style="position: absolute;"
         @close="$emit('close')"
+        allow="camera;microphone;fullscreen"
       />
     </template>
   </PILAModal>
