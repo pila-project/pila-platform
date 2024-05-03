@@ -1,7 +1,7 @@
 <template>
   <div class="student-assignments">
     <div v-if="noAssignments">
-      {{ t('you-currently-have-no-assignments-ask-you-teacher-if-you-expect-an-assignment-here')}}
+      {{ t('it-looks-like-you-do-not-have-any-assignments-please-speak-to-your-teacher')}}
     </div>
     <v-row v-else>
       <v-col
