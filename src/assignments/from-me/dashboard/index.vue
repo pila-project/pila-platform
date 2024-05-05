@@ -4,6 +4,7 @@
       v-if="isBettyDashboard"
       :users="users"
       :assignment="props.assignment"
+      :module="bettyModuleId"
     />
     <Dashboard
       v-else
@@ -22,7 +23,9 @@
   const users = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
 
   const content = (await Agent.state(props.assignment)).content
-  const isBettyDashboard = (await Agent.state(content)).id?.startsWith?.('https://bettysbrain.knowlearning.systems/')
+  const id = (await Agent.state(content)).id
+  const isBettyDashboard = id?.startsWith?.('https://bettysbrain.knowlearning.systems/')
+  const bettyModuleId = isBettyDashboard ? (new URL(id)).pathname.split('/')[2] : null
 </script>
 
 <style scoped>
