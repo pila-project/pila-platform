@@ -1,19 +1,28 @@
 <template>
   <div class="dashboard-wrapper">
-    <Dashboard
+    <BettyDashboard
+      v-if="isBettyDashboard"
       :users="users"
-      :assignment="props.assignmentId"
+      :assignment="props.assignment"
+    />
+    <Dashboard
+      v-else
+      :users="users"
+      :assignment="props.assignment"
     />
   </div>
 </template>
 
 <script setup>
   import Dashboard from '../../../components/NewDashboard/Dashboard.vue'
+  import BettyDashboard from './betty-dashboard.vue'
 
-  const props = defineProps({ assignmentId: String })
+  const props = defineProps({ assignment: String })
 
-  const users = store.getters['assignments/assignedStudents'](props.assignmentId, 'teacher-to-student')
+  const users = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
 
+  const content = (await Agent.state(props.assignment)).content
+  const isBettyDashboard = (await Agent.state(content)).id?.startsWith?.('https://bettysbrain.knowlearning.systems/')
 </script>
 
 <style scoped>

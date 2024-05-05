@@ -183,7 +183,7 @@
     <template v-slot:title>{{ t('assignment-results') }}</template>
     <template v-slot:body>
       <suspense>
-        <Dashboard :assignmentId="current" />
+        <Dashboard :assignment="current" />
       </suspense>
     </template>
   </PILAModal>
