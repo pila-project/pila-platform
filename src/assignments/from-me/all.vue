@@ -130,14 +130,14 @@
               <IconButton
                 icon="dashboard"
                 @click="showResultsModal = true"
-                :text="t('see-dashboard')"
+                :text="t('live-monitoring-dashboard')"
                 background="#FFC442"
               />
               <IconButton
                 icon="dashboard"
                 v-if="assignmentContainsCandli"
                 @click="showCandliResultsModal = true"
-                :text="t('see-dashboard') + ' (Candli)'"
+                :text="t('competency-dashboard')"
                 background="rgb(107, 234, 201)"
               />
             </div>
