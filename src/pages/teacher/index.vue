@@ -26,14 +26,16 @@
     >
       <v-list-item
         class="my-2"
-        :title="showRail ? '' : userInfo.name"
-        :subtitle="showRail ? '' : store.getters['roles/role']()"
+        style="white-space: nowrap;"
+        :title="userInfo.name"
+        :subtitle="store.getters['roles/role']()"
         nav
       >
 
         <template v-slot:prepend>
           <v-avatar
             :image="userInfo.picture"
+            class="mx-2"
           />
         </template>
       </v-list-item>
@@ -268,5 +270,15 @@
 }
 .tab-wrapper {
   font-weight: bold;
+}
+
+/*
+  This is to prevent name and role wrapping and overflowing
+  making there appear to be too much padding around the avatar
+  in the nav bar.
+*/
+.v-list-item__content
+{
+  white-space: nowrap !important;
 }
 </style>
