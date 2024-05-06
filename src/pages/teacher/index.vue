@@ -231,7 +231,9 @@
   }
 
   async function addContent(id) {
-    alert('Not yet implemented')
+    const myContent = await Agent.state('my-content')
+    myContent[id] = {}
+    contentId.value = ''
   }
 
   async function isValidContentId(id) {

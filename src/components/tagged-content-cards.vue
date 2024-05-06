@@ -19,7 +19,7 @@
     <v-container>
       <v-row>
         <v-col
-          v-for="({ target: id }, index) in taggedContent"
+          v-for="(id, index) in currentContentList"
           :key="id + index"
           cols="12"
           lg="4"
@@ -29,12 +29,14 @@
           <TaggedContentCard
             :id="id"
             :selected="selfSelected === id"
+            :removable="myContent[id]"
             @click="() => {
               if (selfSelected === id) selfSelected = null
               else selfSelected = id
               $emit('select', selfSelected)
             }"
             @preview="previewing = id"
+            @remove="delete myContent[id]"
           />
         </v-col>
       </v-row>
@@ -50,7 +52,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive } from 'vue'
+  import { ref, reactive, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import TagTaggingsList from './tag-taggings-list.vue'
@@ -67,12 +69,25 @@
   const competencies = ref([])
   const previewing = ref(null)
   const selectedCompetencies = reactive([])
+  const myContent = ref({})
+
+  const currentContentList = computed(() => {
+    let l = taggedContent.value.map(t => t.target)
+    if (selectedCompetencies.length === 0) {
+      l = [...Object.keys(myContent.value), ...l]
+    }
+    return l
+  })
 
   fetchTaggings()
 
   Agent
     .query('taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems')
     .then(r => competencies.value = r.map(t => t.target))
+
+  Agent
+    .state('my-content')
+    .then(state => myContent.value = state)
 
   function toggleCompetency(id) {
     const index = selectedCompetencies.indexOf(id)
