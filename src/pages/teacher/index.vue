@@ -10,7 +10,6 @@
       :title="store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
     >
       <template v-slot:prepend>
-        <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
         <v-icon class="fa-solid fa-menue" />
         <img
           src="/logo-green.svg"
@@ -20,16 +19,18 @@
       <v-spacer />
     </v-app-bar>
     <v-navigation-drawer
-      v-model="drawer"
-      peristent
+      v-model:rail="showRail"
+      permanent
+      rail
       expand-on-hover
     >
       <v-list-item
-        class="mt-3 mb-2"
-        :title="userInfo.name"
-        :subtitle="store.getters['roles/role']()"
+        class="my-2"
+        :title="showRail ? '' : userInfo.name"
+        :subtitle="showRail ? '' : store.getters['roles/role']()"
         nav
       >
+
         <template v-slot:prepend>
           <v-avatar
             :image="userInfo.picture"
@@ -53,7 +54,7 @@
           @click="tab = 'assignments-from-me'"
         />
         <v-list-item
-          prepend-icon="fa-solid fa-magnifying-glass"
+          prepend-icon="fa-solid fa-magnifying-glass-plus"
           :title="t('explore')"
           :active="tab === 'content'"
           @click="tab = 'content'"
@@ -207,8 +208,9 @@
   const hideStudies = true
   const tab = ref('classes')
   const userInfo = ref({})
-  const drawer = ref(true)
   const contentId = ref('')
+
+  const showRail = ref(true)
 
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
