@@ -180,7 +180,12 @@
     width="90vw"
     height="90vh"
   >
-    <template v-slot:title>{{ t('assignment-results') }}</template>
+    <template v-slot:title>
+      <span>
+        {{ t('live-monitoring-dashboard') }} -
+        <vueScopeComponent :id="current" :path="['name']" />
+      </span>
+    </template>
     <template v-slot:body>
       <suspense>
         <Dashboard :assignment="current" />
@@ -194,7 +199,12 @@
     width="90vw"
     height="90vh"
   >
-    <template v-slot:title>{{ t('assignment-results') + ' (Candli)' }}</template>
+    <template v-slot:title>
+      <span>
+        {{ t('competency-dashboard') }} -
+        <vueScopeComponent :id="current" :path="['name']" />
+      </span>
+    </template>
     <template v-slot:body>
       <div style="position: absolute; width: 100%; height: 100%;">
         <CandliDashboard
