@@ -172,6 +172,7 @@ export default {
     "joining-teacher": "ec74d7d7-3fcc-47cc-b281-7b0985b323d1",
     "agree": "ec9ba7b3-807d-4c2c-a3ba-7f0e55f1b268",
     "enter-encryption-key-word": "ed53a571-b06e-46eb-a561-9db34c6b91a7",
+    "remove": "edb42907-4df6-4e7a-afa2-3a2249a11449",
     "expert-content": "ee00aef5-c413-4a48-a907-6f30f297b158",
     "information-about-your-screen-and-device": "ee7123b7-4908-4313-8612-31bb3652928a",
     "researcher": "ef20dff4-17f0-4359-87e9-42e7bd718c48",
