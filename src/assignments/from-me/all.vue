@@ -22,7 +22,7 @@
             <tr>
               <th>{{ t('assignment') }}</th>
               <th>{{ t('classes-assigned') }}</th>
-              <th>{{ t('results') }}</th>
+              <th></th>
               <th v-if="showArchived">{{ t('archived') }}</th>
             </tr>
           </thead>
@@ -51,7 +51,17 @@
                   />
                 </span>
               </td>
-              <td :class="showArchived ? '' : 'last'">{{ t('results') }}</td>
+              <td :class="showArchived ? '' : 'last'">
+                <vueScopeComponent
+                  metadata
+                  :id="id"
+                  :path="['created']"
+                >
+                  <template v-slot="data">
+                    {{ data.loading ? '-' : (new Date(data.value)).toLocaleString() }}
+                  </template>
+                </vueScopeComponent>
+              </td>
               <td v-if="showArchived" class="last">
                 <span v-if="archivedIds[id]">✘</span>
               </td>
@@ -86,7 +96,13 @@
             padding-bottom: 24px;
           "
         >
-          <h3>{{ t('assignment-details') }}</h3>
+          <h3 style="display: inline-block; margin-right: 17px;">
+            <vueScopeComponent
+              :id="current"
+              :path="['name']"
+              style="color: #2E32DB;"
+            />
+          </h3>
           <div>
             <IconButton
               icon="pencil"
@@ -113,26 +129,20 @@
         <div style="flex-grow: 1; display: flex;">
           <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <h4>{{ t('assignment-name') }}</h4>
-              <vueScopeComponent :id="current" :path="['name']" />
-            </div>
-            <div>
-              <h4>{{ t('content-alt') }}</h4>
               <IconButton
                 icon="eye"
                 @click="preview(current)"
                 :text="t('preview')"
                 background="#FFC442"
               />
-            </div>
-            <div>
-              <h4>{{ t('results') }}</h4>
+              <br>
               <IconButton
                 icon="dashboard"
                 @click="showResultsModal = true"
                 :text="t('live-monitoring-dashboard')"
                 background="#FFC442"
               />
+              <br>
               <IconButton
                 icon="dashboard"
                 v-if="assignmentContainsCandli"
