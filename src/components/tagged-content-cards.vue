@@ -16,7 +16,10 @@
         @select="tag => toggleCompetency(tag)"
       />
     </div>
-    <v-container>
+    <NoResultsFound
+      v-if="!currentContentList.length"
+    />
+    <v-container v-else>
       <v-row>
         <v-col
           v-for="(id, index) in currentContentList"
@@ -56,6 +59,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import TagTaggingsList from './tag-taggings-list.vue'
+  import NoResultsFound from './no-results-found.vue'
   import TaggedContentCard from './tagged-content-card.vue'
   import PreviewModal from './PreviewModal.vue'
 
