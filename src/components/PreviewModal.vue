@@ -14,6 +14,7 @@
       <vueEmbedComponent
         :id="id"
         style="position: absolute;"
+        namespace="preview"
         @close="$emit('close')"
         allow="camera;microphone;fullscreen"
       />

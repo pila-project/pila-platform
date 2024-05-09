@@ -3,12 +3,7 @@
     <vueEmbedComponent
       :id="assignment.content"
       @close="closeAssignment"
-      :namespace="{
-        prefix: $route.params.id,
-        allow: [
-          'pila/competencies'
-        ]
-      }"
+      :namespace="$route.params.id"
       allow="camera;microphone;fullscreen"
     />
   </div>

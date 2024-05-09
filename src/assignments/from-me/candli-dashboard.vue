@@ -1,11 +1,6 @@
 <template>
   <vueEmbedComponent
-    :namespace="{
-      prefix: props.assignment,
-      allow: [
-        'pila/competencies'
-      ]
-    }"
+    :namespace="props.assignment"
     :id="`https://competency-dashboard.pilaproject.org/?domain=${domain}&${params}`"
     :environmentProxy="proxyEnvironmentCall"
   />
