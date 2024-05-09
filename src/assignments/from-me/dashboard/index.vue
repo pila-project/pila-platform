@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-wrapper">
     <BettyDashboard
-      v-if="isBettyDashboard"
+      v-if="bettyModuleId"
       :users="users"
       :assignment="props.assignment"
       :module="bettyModuleId"
@@ -24,8 +24,14 @@
 
   const content = (await Agent.state(props.assignment)).content
   const id = (await Agent.state(content)).id
-  const isBettyDashboard = id?.startsWith?.('https://bettysbrain.knowlearning.systems/')
-  const bettyModuleId = isBettyDashboard ? (new URL(id)).pathname.split('/')[2] : null
+  //  Betty assignment content might be embedded, or a direct link
+  const isBettyLink = str => str?.startsWith?.('https://bettysbrain.knowlearning.systems/')
+
+  let bettyLink
+  if (isBettyLink(id)) bettyLink = id
+  else if (isBettyLink(content)) bettyLink = content
+
+  const bettyModuleId = bettyLink ? (new URL(bettyLink)).pathname.split('/')[2] : null
 </script>
 
 <style scoped>
