@@ -28,7 +28,7 @@
         class="my-2"
         style="white-space: nowrap;"
         :title="userInfo.name"
-        :subtitle="store.getters['roles/role']()"
+        :subtitle="t(store.getters['roles/role']())"
         nav
       >
 
