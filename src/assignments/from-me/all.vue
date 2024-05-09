@@ -293,7 +293,7 @@
       async add() {
         const content_id = uuid()
         const assignableItem = await Agent.state(content_id)
-        assignableItem.name = t('new-assignment')
+        assignableItem.name = this.t('new-assignment')
         this.current = content_id
         this.$store.dispatch('pila_tags/tag', { content_id, tag_type: this.assignable_item_type })
         this.showEditModal = true
