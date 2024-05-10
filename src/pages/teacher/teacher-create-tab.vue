@@ -1,5 +1,5 @@
 <template>
-  <div class="create-tab"> 
+  <div class="create-tab">
     <h3>{{ t('create-your-own-content') }}</h3>
     <button
       class="custom-button"
@@ -39,7 +39,23 @@
       <v-text-field
         :placeholder="t('add-content-by-id-or-url')"
         v-model="userIdOrURL"
-        @keydown.enter="attemptAddContent(userIdOrUrl)"
+        @keydown="() => {
+          showInvalidMessage = false
+          showSuccessMessage = false
+        }"
+        @keydown.enter="attemptAddContent(userIdOrURL)"
+      />
+      <v-alert
+        v-model="showInvalidMessage"
+        :text="t('invalid-id-or-url')"
+        type="error"
+        closable
+      />
+      <v-alert
+        v-model="showSuccessMessage"
+        :text="t('success')"
+        type="success"
+        closable
       />
     </div>
   </div>
@@ -47,6 +63,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
 
 const store = useStore()
@@ -54,47 +71,31 @@ function t(slug) { return store.getters.t(slug) }
 
 const userIdOrURL = ref('')
 
+const showInvalidMessage = ref(false)
+const showSuccessMessage = ref(false)
+
 async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {
     const myContent = await Agent.state('my-content')
     myContent[userInput] = {}
     userIdOrURL.value = ''
+    showSuccessMessage.value = true
   } else {
-    alert( t('invalid-id-or-url') )
+    showInvalidMessage.value = true
   }
 }
 
 async function isValidInput(input) {
-  // TODO: actually validate
-  return true
+  if (input.startsWith('https://bettysbrain.knowlearning.systems/bb/')) {
+    const possibleModuleId = input.slice(44, 80)
+    return isUUID(possibleModuleId)
+  }
+  else return isUUID(input)
 }
-
-
-// async function isValidContentId(id) {
-//   if (isURL(val)) { // if url, validated if betty or candli
-//     return !!(this.isBettyLink(val) || this.isCandliLink(val))
-//   }
-//   else if (isUUID(val)) { // if uuid, validated if karel map
-//     const res = await Agent.metadata(this.contentId)
-//     return !!res.domain
-//   }
-//   else return false
-// }
-
-// function isURL(s) {
-//   try {
-//     const url = new URL(s)
-//     return true
-//   } catch (error) {
-//     console.log(error)
-//     return false
-//   }
-// }
 
 function openLink(link) {
   window.open(link, '_blank')
 }
-
 
 </script>
 
@@ -123,7 +124,7 @@ h3 {
 
 }
 .custom-button .left {
-  flex: 0 0 50px;
+  flex: 0 0 55px;
   background: rgb(134, 236, 206);
   height: 100%;
   padding: 4px 12px;
