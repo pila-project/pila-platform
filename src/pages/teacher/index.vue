@@ -95,6 +95,7 @@
         </v-menu>
       </template>
     </v-navigation-drawer>
+    
     <v-main>
       <Groups
         v-if="tab === 'classes'"
@@ -116,49 +117,9 @@
         v-else-if="tab === 'assignments-to-me'"
         type="researcher-to-teacher"
       />
-      <div
-        v-else-if="tab === 'create'"
-      >
-        <div style="margin: auto; width: 600px; padding-top: 64px;">
-          <h3>{{ t('select-content-type') }}</h3>
-          <br>
-          <div class="mt-4">
-            <v-btn
-              prepend-icon="fa-solid fa-arrow-up-right-from-square"
-              :text="t('create-karel-block-based-programming-tasks')"
-              @click="openLink('https://the-karel-project.netlify.app/karel-builder')"
-            />
-          </div>
-          <div class="mt-4">
-            <v-btn
-              prepend-icon="fa-solid fa-arrow-up-right-from-square"
-              :text="t('create-bettys-brain-concept-map-and-virtual-agents')"
-              @click="openLink('https://bettysbrain.knowlearning.systems/bb/custom/causal-map?auth=true&oecd=true&custom=true')"
-            />
-          </div>
-          <div class="mt-4">
-            <v-btn
-              prepend-icon="fa-solid fa-arrow-up-right-from-square"
-              :text="t('create-sequences-and-custom-question-types')"
-              @click="openLink('https://create.pilaproject.org')"
-            />
-          </div>
-            <br>
-            <br>
-            <h3>{{ t('add-content-by-id-or-url') }}</h3>
-            <div style="text-align: center;">
-              <v-text-field
-                placeholder="content code OR url"
-                v-model="contentId"
-              />
-              <v-btn
-                :text="t('add-content')"
-                @click="addContent(contentId)"
-              />
-            </div>
-        </div>
-      </div>
+      <TeacherCreateTab v-else-if="tab === 'create'" />
     </v-main>
+
     <v-footer
       style="flex-grow: 0; background: #CCCCCC"
     >
@@ -205,12 +166,13 @@
   import AssignmentsToMe from '../../assignments/to-me/all.vue'
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
+  import TeacherCreateTab from './teacher-create-tab.vue'
 
   const store = useStore()
   const hideStudies = true
   const tab = ref('classes')
   const userInfo = ref({})
-  const contentId = ref('')
+
 
   const showRail = ref(true)
 
@@ -234,32 +196,6 @@
     window.open(link, '_blank')
   }
 
-  async function addContent(id) {
-    const myContent = await Agent.state('my-content')
-    myContent[id] = {}
-    contentId.value = ''
-  }
-
-  async function isValidContentId(id) {
-    if (isURL(val)) { // if url, validated if betty or candli
-      return !!(this.isBettyLink(val) || this.isCandliLink(val))
-    }
-    else if (isUUID(val)) { // if uuid, validated if karel map
-      const res = await Agent.metadata(this.contentId)
-      return !!res.domain
-    }
-    else return false
-  }
-
-  function isURL(s) {
-    try {
-      const url = new URL(s)
-      return true
-    } catch (error) {
-      console.log(error)
-      return false
-    }
-  }
 </script>
 
 <style scoped>
@@ -281,4 +217,5 @@
 {
   white-space: nowrap !important;
 }
+
 </style>

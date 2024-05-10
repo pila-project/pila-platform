@@ -21,7 +21,7 @@
     </div>
     <div class="preview-image">
       <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
-      <img v-else-if="isBettyLink(id)" src="/betty.jpg" />
+      <img v-else-if="isBettyLink(id)" src="/betty.png" />
       <vueEmbedComponent
         v-else
         :id="id"
