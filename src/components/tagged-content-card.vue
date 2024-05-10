@@ -54,7 +54,7 @@
         image = '/karelSide.png'
       }
       else if (content.id?.includes('betty')) {
-        image = '/betty.jpg'
+        image = '/betty.png'
       }
       else {
         image = '/logo-green.svg'
@@ -64,7 +64,7 @@
   else {
     name = props.id
     if (props.id.includes('bettysbrain')) {
-      image = '/betty.jpg'
+      image = '/betty.png'
     }
     else if (props.id.inclides('karel')) {
       image = '/karelSide.png'
