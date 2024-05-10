@@ -318,9 +318,6 @@ tr {
 
 .class-list
 {
-  border: 1px solid #2E9DF9;
-  border-radius: 4px;
-  background: white;
   margin-top: 8px;
   padding: 8px;
 }
