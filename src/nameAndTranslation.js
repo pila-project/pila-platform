@@ -43,25 +43,31 @@ export async function translateNameFromTaskId (
     if (!name) {
         console.warn(`task name not found for ${taskId}`)
         return `task name not found for ${taskId}`
-    }
-    if (!isUUID(name)) {
-        console.warn(`cannot translate non-uuid name ${name} at id ${taskId}`)
-        return name
+    } else if (isUUID(name)) {
+        return await translateId(name, lang, domain)
     } else {
-        return await translateId(name, lang)
+        return name
     }
 }
 
 async function translateId(id, lang, domain = DEFAULT_TRANSLATION_DOMAIN) {
+    // order of return preference is this:
+    // - no translation needed, return source_string (breadcrumb)
+    // - translation in lang found, return
+    // - translation in lang NOT found, return fallback with warning if exists
+    // - neither translation nor fallback, return something is wrong
+    const {
+        source_string: fallback,
+        language: srcLanguage
+    } = await Agent.state(id)
+    if (lang === srcLanguage && fallback) return fallback 
     const translation = await attemptTranslation(id, lang, domain)
-    if (translation) return translation
-
-    console.warn(`translation for ${id} in ${lang} not found`)
-
-    const { source_string: fallback } = await Agent.state(id)
-    if (fallback) return fallback
-
-    console.warn(`translation fallback for ${id} not found`)
+    if (translation) return translation // translation found
+    if (fallback) { // no translation found, use fallback with warning
+        console.warn(`translation for ${id} in ${lang} not found, using fallback`)
+        return fallback 
+    }
+    console.warn(`neither translation nor fallback found for ${id}found`)
     return undefined
 }
 

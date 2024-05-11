@@ -29,22 +29,19 @@
   import { ref } from 'vue'
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
-  import { CANDLI_SEQUENCES } from '../constants.js'
+  import { displayTranslatedContent } from '../nameAndTranslation.js'
 
   const store = useStore()
 
   const props = defineProps(['id', 'selected', 'removable'])
 
-  let name, image
+  const name = await displayTranslatedContent(props.id, store.getters.language())
 
+  // image setting stuff... maybe can be cleaned up now that name stuff simplified
+  let image
   if (isUUID(props.id)) {
     const content = await Agent.state(props.id)
     const metadata = await Agent.metadata(props.id)
-    if (isUUID(content.name)) {
-      // TODO: don't just rely on source_string fallback
-      name = (await Agent.state(content.name)).source_string
-    }
-    else if (content.name) name = content.name
 
     if (isUUID(content.image)) image = await Agent.download(content.image).url()
     else if (content.image) image = content.image
@@ -64,15 +61,8 @@
     }
   }
   else {
-    name = props.id
     if (props.id.includes('bettysbrain')) {
       image = '/betty.png'
-      if (props.id.startsWith('https://bettysbrain.knowlearning.systems/bb/')) {
-        const possibleModuleId = props.id.slice(44, 80)
-        if (isUUID(possibleModuleId)) {
-          name = (await Agent.metadata(possibleModuleId)).name
-        }
-      }
     }
     else if (props.id.includes('karel')) {
       image = '/karelSide.png'
