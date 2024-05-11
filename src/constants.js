@@ -17,6 +17,25 @@ export const CANDLI_SEQUENCES = {
     'd145b0ae50ad557ebb6e91931ec42ce8', // Mushroom Mayhem
     '943efee423d75be3bdf761f1e81c7e37', // Gravity Experimentation
     '7160574dc9ec52938f23011a4bcd698f'  // Paper Planes
+  ],
+  // Thai Leveling Up With Math
+  'f93c2f40-0ee7-11ef-bbd8-13a3d43c1666': [
+    "4a95faed0b105822adc1d90c96c4b645",
+    "237d32dc23cc59e680ed47ec2e3a4fb5",
+    "de6a2f6f709e57a1b3aa6358a5a8d0bb"
+  ],
+  // Thai Math underwater, on land & in the air!
+  '87f37b90-0ee7-11ef-bbd8-13a3d43c1666': [
+    "f4cb3e4fe72355f58e6b58d458d31205",
+    "6f48841b58af5d8aa450ae5f9258f1ec",
+    "5f4092d3956e53c98ccec3da0a2f3925",
+    "e8d0ab2438765c1c9dd9962d10444a0c"
+  ],
+  // Thai Be a Scientist
+  'b56c1100-0ee6-11ef-bbd8-13a3d43c1666': [
+    "a1c31030facc58d688a07040e25771db",
+    "93690465d42f52058c92404e329651be",
+    "ba07adc0589f5f3a990f995cc54b8efd"
   ]
 }
 
