@@ -20,6 +20,12 @@
         :text="t('undo-request')"
         background="orange"
       />
+
+      <IconButton v-if="requestedRole === role"
+        @click="reload"
+        :text="t('click-here-to-reload-once-you-receive-approval-confirmation')"
+        background="orange"
+      />
     </div>
 
     <div v-if="requestedRole !== role">
@@ -63,6 +69,9 @@
       t(slug) { return this.$store.getters.t(slug) },
       requestRole(role) {
         this.$store.dispatch('roles/request', role)
+      },
+      reload() {
+        location.reload()
       }
     }
   }
