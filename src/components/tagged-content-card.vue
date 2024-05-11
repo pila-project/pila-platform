@@ -3,10 +3,12 @@
     :elevation="props.selected ? 10 : 3"
     :variant="props.selected ? 'tonal' : 'elevated'"
     :title="name"
+    draggable="true"
+    @dragstart="$event.dataTransfer.setData('text', props.id)"
   >
     <template v-slot:text>
       <div class="image-container">
-        <img :src="image" />
+        <img style="pointer-events: none;" :src="image" />
       </div>
     </template>
     <template v-slot:actions>
