@@ -67,8 +67,14 @@
     name = props.id
     if (props.id.includes('bettysbrain')) {
       image = '/betty.png'
+      if (props.id.startsWith('https://bettysbrain.knowlearning.systems/bb/')) {
+        const possibleModuleId = props.id.slice(44, 80)
+        if (isUUID(possibleModuleId)) {
+          name = (await Agent.metadata(possibleModuleId)).name
+        }
+      }
     }
-    else if (props.id.inclides('karel')) {
+    else if (props.id.includes('karel')) {
       image = '/karelSide.png'
     }
     else {
