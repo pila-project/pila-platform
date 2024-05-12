@@ -1,16 +1,18 @@
 <template>
   <div class="content-wrapper">
-    <NoResultsFound
-      v-if="!currentContentList.length"
-    />
-    <v-container v-else>
+    <v-container>
       <TagFilters
-        v-model="selectedTags"
+        v-model="selectedCompetencies"
         :partition="partition"
         :roots="competencies"
         select-leaves-only
       />
-      <v-row>
+      <NoResultsFound
+        v-if="!currentContentList.length"
+      />
+      <v-row
+        v-else
+      >
         <v-col
           v-for="(id, index) in currentContentList"
           :key="id + index"
@@ -53,7 +55,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed } from 'vue'
+  import { ref, watch, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Filters as TagFilters } from '@knowlearning/tags'
   import ContentMetadataPanel from './content-metadata-panel.vue'
@@ -70,17 +72,18 @@
   const selfSelected = ref(null)
   const competencies = ref([])
   const previewing = ref(null)
-  const selectedCompetencies = reactive([])
+  const selectedCompetencies = ref([])
   const myContent = ref({})
-  const selectedTags = ref([])
 
   const currentContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
-    if (selectedCompetencies.length === 0) {
+    if (selectedCompetencies.value.length === 0) {
       l = [...Object.keys(myContent.value), ...l]
     }
     return l
   })
+
+  watch(selectedCompetencies, fetchTaggings)
 
   fetchTaggings()
 
@@ -92,19 +95,12 @@
     .state('my-content')
     .then(state => myContent.value = state)
 
-  function toggleCompetency(id) {
-    const index = selectedCompetencies.indexOf(id)
-    if (index > -1) selectedCompetencies.splice(index, 1)
-    else selectedCompetencies.push(id)
-    fetchTaggings()
-  }
-
   async function fetchTaggings() {
     loading.value = true
-    if (selectedCompetencies.length) {
+    if (selectedCompetencies.value.length) {
       await (
         Agent
-          .query('taggings-intersection', [partition, selectedCompetencies], 'tags.knowlearning.systems')
+          .query('taggings-intersection', [partition, selectedCompetencies.value], 'tags.knowlearning.systems')
           .then(result => taggedContent.value = result)
       )
     }
