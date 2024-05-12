@@ -1,24 +1,15 @@
 <template>
-  <v-container>
-    <TagFilters
-      v-model="selectedTags"
-      :roots="competencies"
-      select-leaves-only
-    />
-  </v-container>
   <div class="content-wrapper">
-    <div v-if="selfSelected">
-      <ContentMetadataPanel
-        :key="selfSelected"
-        @back="selfSelected = null"
-        :id="selfSelected"
-        :partition="partition"
-      />
-    </div>
     <NoResultsFound
       v-if="!currentContentList.length"
     />
     <v-container v-else>
+      <TagFilters
+        v-model="selectedTags"
+        :partition="partition"
+        :roots="competencies"
+        select-leaves-only
+      />
       <v-row>
         <v-col
           v-for="(id, index) in currentContentList"
@@ -50,6 +41,14 @@
         @close="previewing = null"
       />
     </v-container>
+    <div v-if="selfSelected">
+      <ContentMetadataPanel
+        :key="selfSelected"
+        @back="selfSelected = null"
+        :id="selfSelected"
+        :partition="partition"
+      />
+    </div>
   </div>
 </template>
 

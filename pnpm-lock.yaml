@@ -12,8 +12,8 @@ dependencies:
     specifier: ^0.9.142
     version: 0.9.142
   '@knowlearning/tags':
-    specifier: ^1.0.0
-    version: 1.0.0(vue@3.3.4)(vuetify@3.5.13)
+    specifier: ^1.0.1
+    version: 1.0.1(vue@3.3.4)(vuetify@3.5.13)
   '@vitejs/plugin-basic-ssl':
     specifier: ^1.0.1
     version: 1.0.1(vite@4.4.11)
@@ -280,8 +280,8 @@ packages:
     resolution: {integrity: sha512-m1f+dDCMw2dnKoLXgh4ViaAuGyAmgfevy+vDo4zDLuSv5W/bGdDwyB9epp+8nlqUVG9yCyvC+XU9s+5PmsB9vQ==}
     dev: false
 
-  /@knowlearning/tags@1.0.0(vue@3.3.4)(vuetify@3.5.13):
-    resolution: {integrity: sha512-8J9ps7nYSdfJlK5gDpSvjqwNZj+uKJW2KsjZgg1hoS7nmFhU20k2vXvmWfw8NU4rNl47fLwIaECKqHSV614eyQ==}
+  /@knowlearning/tags@1.0.1(vue@3.3.4)(vuetify@3.5.13):
+    resolution: {integrity: sha512-tgqnV/lASELeDEBgGpamKLUVq9q1NcjqW3ozEjeKJJd8ZDw39rP/wK7p4k5M8xdG3TbC6YXxqk5cdvdj0qWgDw==}
     peerDependencies:
       vue: 3.x
       vuetify: 3.x
