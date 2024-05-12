@@ -1,4 +1,11 @@
 <template>
+  <v-container>
+    <TagFilters
+      v-model="selectedTags"
+      :roots="competencies"
+      select-leaves-only
+    />
+  </v-container>
   <div class="content-wrapper">
     <div v-if="selfSelected">
       <ContentMetadataPanel
@@ -6,14 +13,6 @@
         @back="selfSelected = null"
         :id="selfSelected"
         :partition="partition"
-      />
-    </div>
-    <div v-else>
-      <TagTaggingsList
-        :tags="competencies"
-        :partition="partition"
-        :selected="selectedCompetencies"
-        @select="tag => toggleCompetency(tag)"
       />
     </div>
     <NoResultsFound
@@ -57,8 +56,8 @@
 <script setup>
   import { ref, reactive, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { Filters as TagFilters } from '@knowlearning/tags'
   import ContentMetadataPanel from './content-metadata-panel.vue'
-  import TagTaggingsList from './tag-taggings-list.vue'
   import NoResultsFound from './no-results-found.vue'
   import TaggedContentCard from './tagged-content-card.vue'
   import PreviewModal from './PreviewModal.vue'
@@ -74,6 +73,7 @@
   const previewing = ref(null)
   const selectedCompetencies = reactive([])
   const myContent = ref({})
+  const selectedTags = ref([])
 
   const currentContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
