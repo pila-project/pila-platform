@@ -1,26 +1,18 @@
 <template>
   <div class="content-wrapper">
-    <div v-if="selfSelected">
-      <ContentMetadataPanel
-        :key="selfSelected"
-        @back="selfSelected = null"
-        :id="selfSelected"
+    <v-container>
+      <TagFilters
+        v-model="selectedCompetencies"
         :partition="partition"
+        :roots="competencies"
+        select-leaves-only
       />
-    </div>
-    <div v-else>
-      <TagTaggingsList
-        :tags="competencies"
-        :partition="partition"
-        :selected="selectedCompetencies"
-        @select="tag => toggleCompetency(tag)"
+      <NoResultsFound
+        v-if="!currentContentList.length"
       />
-    </div>
-    <NoResultsFound
-      v-if="!currentContentList.length"
-    />
-    <v-container v-else>
-      <v-row>
+      <v-row
+        v-else
+      >
         <v-col
           v-for="(id, index) in currentContentList"
           :key="id + index"
@@ -51,14 +43,22 @@
         @close="previewing = null"
       />
     </v-container>
+    <div v-if="selfSelected">
+      <ContentMetadataPanel
+        :key="selfSelected"
+        @back="selfSelected = null"
+        :id="selfSelected"
+        :partition="partition"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, reactive, computed } from 'vue'
+  import { ref, watch, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { Filters as TagFilters } from '@knowlearning/tags'
   import ContentMetadataPanel from './content-metadata-panel.vue'
-  import TagTaggingsList from './tag-taggings-list.vue'
   import NoResultsFound from './no-results-found.vue'
   import TaggedContentCard from './tagged-content-card.vue'
   import PreviewModal from './PreviewModal.vue'
@@ -72,16 +72,18 @@
   const selfSelected = ref(null)
   const competencies = ref([])
   const previewing = ref(null)
-  const selectedCompetencies = reactive([])
+  const selectedCompetencies = ref([])
   const myContent = ref({})
 
   const currentContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
-    if (selectedCompetencies.length === 0) {
+    if (selectedCompetencies.value.length === 0) {
       l = [...Object.keys(myContent.value), ...l]
     }
     return l
   })
+
+  watch(selectedCompetencies, fetchTaggings)
 
   fetchTaggings()
 
@@ -93,19 +95,12 @@
     .state('my-content')
     .then(state => myContent.value = state)
 
-  function toggleCompetency(id) {
-    const index = selectedCompetencies.indexOf(id)
-    if (index > -1) selectedCompetencies.splice(index, 1)
-    else selectedCompetencies.push(id)
-    fetchTaggings()
-  }
-
   async function fetchTaggings() {
     loading.value = true
-    if (selectedCompetencies.length) {
+    if (selectedCompetencies.value.length) {
       await (
         Agent
-          .query('taggings-intersection', [partition, selectedCompetencies], 'tags.knowlearning.systems')
+          .query('taggings-intersection', [partition, selectedCompetencies.value], 'tags.knowlearning.systems')
           .then(result => taggedContent.value = result)
       )
     }

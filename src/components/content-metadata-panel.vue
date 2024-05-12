@@ -1,23 +1,13 @@
 <template>
   <v-list>
     <v-list-item>
-      <template v-slot:prepend>
+      <template v-slot:append>
         <v-btn
           variant="plain"
           @click="emit('back')"
-          icon="fa-solid fa-chevron-left"
+          icon="fa-solid fa-xmark"
         />
       </template>
-      <v-list-item-title>
-        <vueScopeComponent :id="props.id" :path="['name']"/>
-      </v-list-item-title>
-      <v-list-item-subtitle>
-        metadata
-      </v-list-item-subtitle>
-    </v-list-item>
-    <v-divider></v-divider>
-    <v-list-item>
-      <div class="text-h4 pt-6">PILA Competencies</div>
     </v-list-item>
     <v-list-item>
       <TagAncestorTree
