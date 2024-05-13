@@ -50,6 +50,7 @@
     Object
       .entries(store.getters['roles/requests']())
       .map(([user, { role, updated }]) => ({ user, role, updated }))
+      .filter(({ user, role }) => !store.getters['roles/hasPermission'](user, role))
   ))
 
   async function grantRole(role, user) {
@@ -57,5 +58,7 @@
     const target = user
     const value = true
     emit('tag', { tag, target, value })
+    store.dispatch('roles/loadAssignments')
+    store.dispatch('roles/removeRequest', user)
   }
 </script>

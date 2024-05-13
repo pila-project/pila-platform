@@ -48,6 +48,9 @@ export default {
     addAssignment(state, { assignee, role, assigner, updated }) {
       state.assignments[assignee] = { role, assigner, updated }
     },
+    removeRequest(state, assignee) {
+      delete state.requests[assignee]
+    }
   },
   actions: {
     async load({ dispatch }) {
@@ -93,6 +96,9 @@ export default {
             requests.forEach(request => commit('addRequest', request))
           })
       )
+    },
+    async removeRequest({ commit }, user) {
+      commit('removeRequest', user)
     },
     async request({ dispatch }, role) {
       const metadata = await Agent.metadata('requested-role')
