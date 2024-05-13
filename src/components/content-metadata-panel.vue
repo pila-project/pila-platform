@@ -16,9 +16,6 @@
       />
     </v-list-item>
     <v-divider></v-divider>
-    <v-list-item>
-      <div class="text-h4 pt-6">Metadata</div>
-    </v-list-item>
     <v-list-item v-if="contentMetadata">
       Created By:
       <DecryptedName

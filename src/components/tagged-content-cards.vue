@@ -1,5 +1,10 @@
 <template>
-  <div class="content-wrapper">
+  <div
+    :class="{
+      'content-wrapper': true,
+      'metadata-open': !!selfSelected
+    }"
+  >
     <v-container>
       <TagFilters
         v-model="selectedCompetencies"
@@ -44,7 +49,19 @@
         @close="previewing = null"
       />
     </v-container>
-    <div v-if="selfSelected">
+    <div
+      v-if="selfSelected"
+      style="
+        position: fixed;
+        right: 0;
+        height: 100%;
+        padding-bottom: 100px;
+        overflow: scroll;
+        min-width: 200px;
+        max-width: 30%;
+        border-left: 1px solid #EEEEEE;
+      "
+    >
       <ContentMetadataPanel
         :key="selfSelected"
         @back="selfSelected = null"
@@ -127,6 +144,10 @@
   .content-wrapper
   {
     flex-grow: 1;
+  }
+  .content-wrapper.metadata-open
+  {
+    margin-right: calc(30% + 32px);
   }
   .tagged-content-card-wrapper
   {
