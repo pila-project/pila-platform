@@ -6,6 +6,7 @@
         :partition="partition"
         :roots="competencies"
         select-leaves-only
+        :LabelComponent="TagTranslation"
       />
       <NoResultsFound
         v-if="!currentContentList.length"
@@ -62,6 +63,7 @@
   import NoResultsFound from './no-results-found.vue'
   import TaggedContentCard from './tagged-content-card.vue'
   import PreviewModal from './PreviewModal.vue'
+  import TagTranslation from './tag-translation.vue'
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
