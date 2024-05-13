@@ -10,7 +10,7 @@
       </template>
     </v-list-item>
     <v-list-item>
-      <TagAncestorTree
+      <TagCloud
         :target="props.id"
         :partition="props.partition"
       />
@@ -39,7 +39,7 @@
   import { ref, watch, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import DecryptedName from './decrypted-name.vue'
-  import TagAncestorTree from './tag-ancestor-tree.vue'
+  import TagCloud from './tag-cloud.vue'
 
   const props = defineProps({ id: String, partition: String })
   const emit = defineEmits(['back'])
