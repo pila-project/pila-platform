@@ -41,6 +41,7 @@
         <th>Email</th>
         <th>Requested</th>
         <th>Role</th>
+        <th>User Id</th>
         <th></th>
       </tr>
     </thead>
@@ -50,6 +51,7 @@
         <td></td>
         <td>{{ updated }}</td>
         <td>{{ role }}</td>
+        <td>{{ user }}</td>
         <td>
           <button @click="grantRole(user, role)">grant</button>
         </td>

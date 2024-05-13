@@ -12,6 +12,9 @@
       <template v-slot:item.user="data">
         <DecryptedName :user="data.item.user" />
       </template>
+      <template v-slot:item.id="data">
+       {{ data.item.user }}
+      </template>
       <template v-slot:item.granted="data">
         <v-btn
           @click="grantRole(data.item.role, data.item.user)"
@@ -37,6 +40,7 @@
     { key: 'user', title: 'User' },
     { key: 'role', title: 'Role' },
     { key: 'updated', title: 'Requested' },
+    { key: 'id', title: 'User Id' },
     { key: 'granted', title: '' }
   ]
 
