@@ -1,6 +1,7 @@
 <template>
   <v-container v-if="isThailandDomain">
     <RoleTable
+      v-if="props.role === 'admins'"
       header="Admins"
       :partition="tagPartition"
       :tag="ADMIN_TAG"
@@ -8,18 +9,21 @@
       :editable="false"
     />
     <RoleTable
+      v-else-if="props.role === 'trainers'"
       header="Trainers"
       :partition="tagPartition"
       :tag="TRAINER_TAG"
       @tag="setTagging"
     />
     <RoleTable
+      v-else-if="props.role === 'teachers'"
       header="Teachers"
       :partition="tagPartition"
       :tag="TEACHER_TAG"
       @tag="setTagging"
     />
     <RoleRequestTable
+      v-else-if="props.role === 'role-requests'"
       :roleToTagMap="{
         admin: ADMIN_TAG,
         trainer: TRAINER_TAG,
@@ -37,6 +41,8 @@
   import RoleRequestTable from './role-request-table.vue'
   import OldRoles from './old-roles.vue'
   import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '../../constants.js'
+
+  const props = defineProps({ role: String })
 
   const store = useStore()
 

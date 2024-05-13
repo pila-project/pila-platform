@@ -4,7 +4,6 @@
     class="teacher-view"
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
-
     <v-app-bar
       color="primary"
       :title="store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"

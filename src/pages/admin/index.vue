@@ -1,21 +1,97 @@
 <template>
-  <div v-if="iAmAnAdmin">
-    <TabMenu
-      :tabs="[
-        { name: 'USER ROLES', background: '#2E9DF9', id:'roles', color: 'white' },
-        { name: 'ITEM LIBRARY', background: '#1B1B83', id:'content', color: 'white' },
-        { spacer: true, width: 1 },
-        { name: 'PILA STUDIES', background: '#6BEAC9', id:'studies', color: 'black', icon: '/mascotte.png' }
-      ]"
-      :current="tab"
-      @select="tab = $event"
-    />
+  <v-app
+    v-if="iAmAnAdmin"
+    class="teacher-view"
+  >
+    <v-app-bar
+      color="primary"
+      :title="store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
+    >
+      <template v-slot:prepend>
+        <v-icon class="fa-solid fa-menue" />
+        <img
+          src="/logo-green.svg"
+          height="32"
+        />
+      </template>
+      <v-spacer />
+    </v-app-bar>
+    <v-navigation-drawer permanent>
+      <v-list-item
+        class="my-2"
+        style="white-space: nowrap;"
+        :title="userInfo.name"
+        :subtitle="t(store.getters['roles/role']())"
+        nav
+      >
 
-    <AdminRoleManager v-if="tab === 'roles'" />
-    <AdminContentLibrary v-else-if="tab === 'content' && store.getters.isThailandDomain" />
-    <ContentLibrary v-else-if="tab === 'content'" />
-    <AdminStudyManager v-else-if="tab === 'studies'" />
-  </div>
+        <template v-slot:prepend>
+          <v-avatar
+            :image="userInfo.picture"
+            class="mx-2"
+          />
+        </template>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <v-list density="compact" nav>
+        <v-list-item
+          prepend-icon="fa-solid fa-chalkboard-user"
+          :title="t('trainers')"
+          :active="tab === 'trainers'"
+          @click="tab = 'trainers'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-person-chalkboard"
+          :title="t('teachers')"
+          :active="tab === 'teachers'"
+          @click="tab = 'teachers'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-clipboard-check"
+          :title="t('role-requests')"
+          :active="tab === 'role-requests'"
+          @click="tab = 'role-requests'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-flask"
+          :title="t('studies')"
+          :active="tab === 'studies'"
+          @click="tab = 'studies'"
+        />
+      </v-list>
+
+      <template v-slot:append>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-icon
+              v-bind="props"
+              class="ma-4"
+              icon="fa-solid fa-gear"
+            />
+          </template>
+          <v-list>
+            <v-list-item
+              @click="logout"
+              append-icon="fa-solid fa-arrow-right-from-bracket"
+              :title="t('log-out')"
+            >
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
+    </v-navigation-drawer>
+    <v-main>
+      <RoleManager
+        v-if="['admins', 'teachers', 'trainers', 'role-requests'].includes(tab)"
+        :role="tab"
+      />
+      <AdminContentLibrary v-else-if="tab === 'content' && store.getters.isThailandDomain" />
+      <ContentLibrary v-else-if="tab === 'content'" />
+      <AdminStudyManager v-else-if="tab === 'studies'" />
+    </v-main>
+  </v-app>
   <div v-else>
     Admin Role Required
   </div>
@@ -24,8 +100,7 @@
 <script setup>
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
-  import TabMenu from '../../components/tab-menu.vue'
-  import AdminRoleManager from './roles.vue'
+  import RoleManager from './roles.vue'
   import AdminStudyManager from './studies.vue'
   import ContentLibrary from '../../components/content-library.vue'
   import AdminContentLibrary from './admin-content-library.vue'
@@ -37,9 +112,12 @@
 
   const store = useStore()
   const user = store.getters.user()
+  const { auth: { info: userInfo } } = await Agent.environment()
   const { isThailandDomain, tagPartition } = store.getters
 
-  const tab = ref('roles')
+  const tab = ref('teachers')
+
+  const iAmAnAdmin = await (isThailandDomain ? newRolesIsAdmin() : oldRolesIsAdmin())
 
   function oldRolesIsAdmin() { return store.getters['roles/role'](user) === 'admin' }
 
@@ -52,5 +130,11 @@
     return !!adminTagging.length
   }
 
-  const iAmAnAdmin = await (isThailandDomain ? newRolesIsAdmin() : oldRolesIsAdmin())
+  function t(slug) {
+    return store.getters.t(slug)
+  }
+
+  function logout() {
+    Agent.logout()
+  }
 </script>
