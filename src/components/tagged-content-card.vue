@@ -2,10 +2,14 @@
   <v-card
     :elevation="props.selected ? 10 : 3"
     :variant="props.selected ? 'tonal' : 'elevated'"
-    :title="name"
     draggable="true"
     @dragstart="$event.dataTransfer.setData('text', props.id)"
   >
+    <template v-slot:title>
+      <NameOrTranslatedNameFromItemId
+        :itemId="props.id"
+      />
+    </template>
     <template v-slot:text>
       <div class="image-container">
         <img style="pointer-events: none;" :src="image" />
@@ -29,7 +33,7 @@
   import { ref } from 'vue'
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
-  import { displayTranslatedContent } from '../nameAndTranslationForContent.js'
+  import NameOrTranslatedNameFromItemId from './NameOrTranslatedNameFromItemId.vue'
   import displayContentImage from '../imageRefForContent.js'
 
   const store = useStore()
@@ -37,7 +41,6 @@
 
   const props = defineProps(['id', 'selected', 'removable'])
 
-  const name = await displayTranslatedContent(props.id, store.getters.language())
   const image = await displayContentImage(props.id)
 
 </script>

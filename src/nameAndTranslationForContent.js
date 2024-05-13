@@ -3,7 +3,7 @@ import { validate as isUUID } from 'uuid'
 const DEFAULT_TRANSLATION_DOMAIN = 'translate-karel-alpha.netlify.app'
 const isBettyURL = url => url?.startsWith?.('https://bettysbrain.knowlearning.systems/')
 
-export async function displayTranslatedContent(
+export default async function displayTranslatedContent(
     content,
     lang,
     domain = DEFAULT_TRANSLATION_DOMAIN
