@@ -86,7 +86,7 @@
   import URL_CONTENT_DATA from '../../url-content-data.js'
   import PreviewModal from '../../components/PreviewModal.vue'
   import IconButton from '../../components/icon-button.vue'
-  import NameOrTranslatedNameFromItemId from '../../components/NameOrTranslatedNameFromItemId.vue'
+  import NameOrTranslatedNameFromItemId from '../../components/name-or-translated-name-from-item-id.vue'
 
   export default {
     props: {

@@ -36,7 +36,7 @@
 
 <script setup>
   import StudentResultsRow from './student-results-row.vue'
-  import NameOrTranslatedNameFromItemId from '../NameOrTranslatedNameFromItemId.vue'
+  import NameOrTranslatedNameFromItemId from '../name-or-translated-name-from-item-id.vue'
 
   const props = defineProps({
     users: Array,
