@@ -4,7 +4,7 @@
 
 <script setup>
   import { useStore } from 'vuex'
-  import getName from '../nameAndTranslationForContent.js'
+  import getName from '../name-and-translation-for-content.js'
 
   const props = defineProps({ itemId: String })
   const store = useStore()

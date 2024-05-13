@@ -33,8 +33,8 @@
   import { ref } from 'vue'
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
-  import NameOrTranslatedNameFromItemId from './NameOrTranslatedNameFromItemId.vue'
-  import displayContentImage from '../imageRefForContent.js'
+  import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
+  import displayContentImage from '../image-ref-for-content.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug)}
