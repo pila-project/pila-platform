@@ -93,7 +93,7 @@
           style="width: 50%; text-align: center;"
           type="text"
           class="rounded-grey"
-          placeholder="content code OR url"
+          :placeholder="t('content-code-or-url')"
           v-model="contentId"
         />
         <div v-if="!contentIdValidated">

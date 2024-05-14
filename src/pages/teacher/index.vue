@@ -126,7 +126,7 @@
         <v-btn
           @click="openLink('https://oecd.org')"
           variant="text"
-          text="visit oecd.org"
+          :text="`${t('visit')} (OECD.org)`"
         />
         <v-btn
           variant="text"
