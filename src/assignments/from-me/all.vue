@@ -277,18 +277,24 @@
       }
     },
     watch: {
-      async current(value) {
+      current(value) {
+        this.reassessCandliContent()
+      },
+      showEditModal(value) {
+        if (!value) this.reassessCandliContent()
+      }
+    },
+    methods: {
+      async reassessCandliContent() {
         this.assignmentContainsCandli = null
-        if (value) {
+        if (this.current) {
           this.assignmentContainsCandli = await (
             Agent
               .state(this.current)
               .then(({ content }) => !!CANDLI_SEQUENCES[content])
           )
         }
-      }
-    },
-    methods: {
+      },
       t(slug) { return this.$store.getters.t(slug) },
       async add() {
         const content_id = uuid()
