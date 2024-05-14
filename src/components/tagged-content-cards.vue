@@ -13,12 +13,9 @@
         select-leaves-only
         :LabelComponent="TagTranslation"
       />
-      <NoResultsFound
-        v-if="!currentContentList.length"
-      />
-      <v-row
-        v-else
-      >
+      <v-progress-linear v-if="loading" indeterminate />
+      <NoResultsFound v-else-if="!currentContentList.length" />
+      <v-row v-else>
         <v-col
           v-for="(id, index) in currentContentList"
           :key="id + index"
