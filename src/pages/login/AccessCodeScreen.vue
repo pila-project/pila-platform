@@ -41,7 +41,7 @@
         "
         placeholder="- - - - -"
         v-model="accessCode"
-        type="password"
+        type="text"
         @keypress.enter="submitAccessCode"
       />
       <IconButton
@@ -62,8 +62,8 @@
 
   const DEFAULT_CODE_LIST = [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ]
   const DOMAIN_CODE_LISTS = {
-    'thailand.pilaproject.org': ['THAI_ACCESS'],
-    'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason']
+    'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
+    'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access']
   }
 
   export default {
