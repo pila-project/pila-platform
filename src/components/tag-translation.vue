@@ -150,6 +150,9 @@ function getTranslation(id, language) {
         },
         "6c0cc210-021c-11ef-bc7d-677157795d4f": {
             th: "ระดับยาก" // Difficult
+        },
+        "1a53db50-e248-11ee-ab5f-07f4a7408770": {
+            th: "เนื้อหา PILA" // PILA Content
         }
     }[id]?.[language]
 }
