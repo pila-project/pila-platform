@@ -99,7 +99,7 @@
     </v-main>
   </v-app>
   <div v-else>
-    Admin Role Required
+    {{ t('admin-role-required') }}
   </div>
 </template>
 

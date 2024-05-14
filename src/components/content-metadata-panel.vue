@@ -17,20 +17,20 @@
     </v-list-item>
     <v-divider></v-divider>
     <v-list-item v-if="contentMetadata">
-      Created By:
+      {{ t('created-by') }}:
       <DecryptedName
         :user="contentMetadata.owner"
         alias
       />
     </v-list-item>
     <v-list-item v-if="contentMetadata">
-      Created: {{ contentCreated }}
+      {{ t('created') }}: {{ contentCreated }}
     </v-list-item>
     <v-list-item v-if="contentMetadata">
-      Updated: {{ contentUpdated }}
+      {{ t('updated') }}: {{ contentUpdated }}
     </v-list-item>
     <v-list-item v-if="contentMetadata">
-      Available Languages: ...
+      {{ t('available-languages') }}: ...
     </v-list-item>
   </v-list>
 </template>
@@ -40,6 +40,10 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import DecryptedName from './decrypted-name.vue'
   import TagCloud from './tag-cloud.vue'
+  
+  import { useStore } from 'vuex'
+  const store = useStore()
+  function t(slug) { return store.getters.t(slug) }
 
   const props = defineProps({ id: String, partition: String })
   const emit = defineEmits(['back'])
