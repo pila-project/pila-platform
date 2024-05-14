@@ -55,6 +55,12 @@
           @click="tab = 'role-requests'"
         />
         <v-list-item
+          prepend-icon="fa-solid fa-magnifying-glass-chart"
+          :title="t('reports')"
+          :active="tab === 'reports'"
+          @click="tab = 'reports'"
+        />
+        <v-list-item
           prepend-icon="fa-solid fa-flask"
           :title="t('studies')"
           :active="tab === 'studies'"
