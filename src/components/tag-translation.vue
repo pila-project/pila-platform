@@ -19,6 +19,9 @@ if (translation) {
 
 function getTranslation(id, language) {
     return {
+        "8188b820-15cb-11ef-bc70-79185abca486": {
+            th: "เกรดขั้นต่ำ" // Minimum Grade
+        },
         "35f68410-0d69-11ef-913a-ff0b6c1d82ea": {
             th: "ภาษาศาสตร์" // Linguistics
         },
