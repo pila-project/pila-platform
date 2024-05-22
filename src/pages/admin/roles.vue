@@ -19,6 +19,7 @@
       v-else-if="props.role === 'teachers'"
       header="Teachers"
       :partition="tagPartition"
+      :relatedTags="[{ id: TRAINER_TAG, editable: true }]"
       :tag="TEACHER_TAG"
       @tag="setTagging"
     />
