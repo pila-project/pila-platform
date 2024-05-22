@@ -8,12 +8,16 @@
       @tag="setTagging"
       :editable="true"
     />
+    <RoleRequestTable
+      @tag="setTagging"
+    />
   </v-container>
 </template>
 
 <script setup>
   import { useStore } from 'vuex'
   import RoleTable from '../../components/role-table.vue'
+  import RoleRequestTable from '../../components/role-request-table.vue'
   import { TEACHER_TAG, TRAINER_TAG } from '../../constants.js'
 
   const store = useStore()
