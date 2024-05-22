@@ -74,7 +74,7 @@
 
 <script setup>
   import { ref, reactive, computed } from 'vue'
-  import DecryptedName from '../../components/decrypted-name.vue'
+  import DecryptedName from './decrypted-name.vue'
 
   const props = defineProps({
     partition: String,

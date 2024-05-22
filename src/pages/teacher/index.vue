@@ -68,7 +68,7 @@
         />
         <v-list-item
           prepend-icon="fa-solid fa-chalkboard-user"
-          :title="t('trainers')"
+          :title="t('trainer')"
           :active="tab === 'trainer'"
           @click="tab = 'trainer'"
         />

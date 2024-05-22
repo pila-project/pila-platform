@@ -42,3 +42,4 @@ export const CANDLI_SEQUENCES = {
 export const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
 export const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
 export const TRAINER_TAG = "8ae541e0-ed49-11ee-be89-5b04faf266ea"
+export const PILA_CONTENT_TAG = "1a53db50-e248-11ee-ab5f-07f4a7408770"

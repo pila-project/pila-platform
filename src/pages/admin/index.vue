@@ -109,12 +109,13 @@
   import RoleManager from './roles.vue'
   import AdminStudyManager from './studies.vue'
   import ContentLibrary from '../../components/content-library.vue'
+  import {
+    ADMIN_TAG,
+    TEACHER_TAG,
+    TRAINER_TAG,
+    PILA_CONTENT_TAG
+  } from '../../constants.js'
   import AdminContentLibrary from './admin-content-library.vue'
-
-  const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
-  const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
-  const TRAINER_TAG = "8ae541e0-ed49-11ee-be89-5b04faf266ea"
-  const PILA_CONTENT_TAG = "1a53db50-e248-11ee-ab5f-07f4a7408770"
 
   const store = useStore()
   const user = store.getters.user()
