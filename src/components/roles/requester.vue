@@ -15,20 +15,24 @@
         </p>
       </div>
 
-      <IconButton v-if="requestedRole === role"
+      <div v-if="requestedRole.trainer">
+        {{ t('selected-trainer-for-role-request') }}: <DecryptedName :user="requestedRole.trainer" />
+      </div>
+
+      <IconButton v-if="requestedRole.role === role"
         @click="requestRole(null)"
         :text="t('undo-request')"
         background="orange"
       />
 
-      <IconButton v-if="requestedRole === role"
+      <IconButton v-if="requestedRole.role === role"
         @click="reload"
         :text="t('click-here-to-reload-once-you-receive-approval-confirmation')"
         background="orange"
       />
     </div>
 
-    <div v-if="requestedRole !== role">
+    <div v-if="requestedRole.role !== role">
       <v-select
         :items="trainers"
         :label="t('select-your-trainer')"
