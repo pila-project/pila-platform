@@ -24,6 +24,6 @@
   async function setTagging({ tag, target, value }) {
     const myTags  = await Agent.state('tags')
     if (!myTags[tag]) myTags[tag] = {}
-    myTags[tag][target] = { value, partition: tagPartition }
+    myTags[tag][target] = { value, partition }
   }
 </script>
