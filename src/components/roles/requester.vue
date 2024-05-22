@@ -29,6 +29,21 @@
     </div>
 
     <div v-if="requestedRole !== role">
+      <v-select
+        :items="trainers"
+        :label="t('select-your-trainer')"
+      >
+        <template v-slot:selection="{ item: { value } }">
+          <DecryptedName :user="value" />
+        </template>
+        <template v-slot:item="{ item: { value }, props }">
+          <v-list-item v-bind="props">
+            <template v-slot:title>
+              <DecryptedName :user="value" />
+            </template>
+          </v-list-item>
+        </template>
+      </v-select>
       <IconButton
         @click="requestRole(role)"
         :text="buttonText"
@@ -41,11 +56,31 @@
 
 <script>
   import IconButton from '../icon-button.vue'
+  import { TRAINER_TAG } from '../../constants.js'
+  import DecryptedName from '../decrypted-name.vue'
+
   export default {
     name: 'role-requester',
-    components: { IconButton },
+    components: { IconButton, DecryptedName },
     props: {
       role: String
+    },
+    data() {
+      return {
+        trainers: []
+      }
+    },
+    async created() {
+      this.trainers = await (
+        Agent
+          .query(
+            'taggings-for-tag',
+            [this.$store.getters.tagPartition, TRAINER_TAG],
+            'tags.knowlearning.systems'
+          ).then(
+            taggings => taggings.map(t => t.target)
+          )
+      )
     },
     computed: {
       headerText() {
