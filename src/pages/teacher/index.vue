@@ -67,6 +67,12 @@
           @click="tab = 'create'"
         />
         <v-list-item
+          prepend-icon="fa-solid fa-chalkboard-user"
+          :title="t('trainers')"
+          :active="tab === 'trainer'"
+          @click="tab = 'trainer'"
+        />
+        <v-list-item
           prepend-icon="fa-solid fa-flask"
           :title="t('join-studies')"
           :active="tab === 'assignments-to-me'"
@@ -108,6 +114,9 @@
         v-if="tab === 'assignments-from-me'"
         assignable_item_type="teacher-created"
         assignment_type="teacher-to-student"
+      />
+      <TrainerPage
+        v-if="tab === 'trainer'"
       />
       <StudiesNotAvailable
         v-if="tab === 'assignments-to-me' && hideStudies"
@@ -166,6 +175,7 @@
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   import TeacherCreateTab from './teacher-create-tab.vue'
+  import TrainerPage from './trainer-page.vue'
 
   const store = useStore()
   const hideStudies = true
