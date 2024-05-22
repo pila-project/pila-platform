@@ -32,6 +32,7 @@
       <v-select
         :items="trainers"
         :label="t('select-your-trainer')"
+        v-model="trainer"
       >
         <template v-slot:selection="{ item: { value } }">
           <DecryptedName :user="value" />
@@ -67,7 +68,8 @@
     },
     data() {
       return {
-        trainers: []
+        trainers: [],
+        trainer: null
       }
     },
     async created() {
@@ -103,7 +105,7 @@
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
       requestRole(role) {
-        this.$store.dispatch('roles/request', role)
+        this.$store.dispatch('roles/request', { role, trainer: this.trainer })
       },
       reload() {
         location.reload()

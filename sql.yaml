@@ -9,6 +9,7 @@ postgres:
       type: application/json;type=role_request
       columns:
         role: TEXT
+        trainer: TEXT
     role_assertions:
       type: application/json;type=role_assertion
       columns:
@@ -169,6 +170,7 @@ postgres:
     requested-roles: |
       SELECT
         role_requests.role AS role,
+        role_requests.trainer AS trainer,
         metadata.owner     AS assignee,
         metadata.updated   AS updated
       FROM role_requests
@@ -176,6 +178,7 @@ postgres:
         ON metadata.id = role_requests.id
       WHERE $REQUESTER IN (SELECT unnest(admin_ids()))
         OR metadata.owner = $REQUESTER
+        OR role_requests.trainer = $REQUESTER
     # all groups a user owns, or has been put in
     groups: |
       SELECT

@@ -100,13 +100,14 @@ export default {
     async removeRequest({ commit }, user) {
       commit('removeRequest', user)
     },
-    async request({ dispatch }, role) {
+    async request({ dispatch }, { role, trainer }) {
       const metadata = await Agent.metadata('requested-role')
       if (metadata.active_type !== ROLE_REQUEST_TYPE) {
         metadata.active_type = ROLE_REQUEST_TYPE
       }
       const state = await Agent.state('requested-role')
       state.role = role
+      state.trainer = trainer
       await storeUserInfo()
       await Agent.synced()
       await dispatch('loadRequests')
