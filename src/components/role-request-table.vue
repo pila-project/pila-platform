@@ -1,13 +1,13 @@
 <template>
   <v-container>
     <div class="text-h3">
-      Role Requests
+      {{ t('role-requests') }}
     </div>
     <v-data-table
       sticky
       :items="roleRequests"
       :headers="headers"
-      no-data-text="No role requests yet"
+      :no-data-text="t('no-role-requests-yet')"
     >
       <template v-slot:item.user="data">
         <DecryptedName
@@ -27,7 +27,7 @@
       <template v-slot:item.granted="data">
         <v-btn
           @click="grantRole(data.item.role, data.item.user)"
-          text="Grant"
+          :text="t('grant')"
         />
       </template>
     </v-data-table>
@@ -46,6 +46,10 @@
     teacher: TEACHER_TAG
   }
 
+  const store = useStore()
+
+  function t(slug) { return store.getters.t(slug) }
+
   const emit = defineEmits(['tag'])
   const props = defineProps({
     showTrainer: {
@@ -55,17 +59,15 @@
   })
 
   const headers = [
-    { key: 'user', title: 'User' },
-    { key: 'role', title: 'Role' },
-    { key: 'updated', title: 'Requested' },
-    { key: 'id', title: 'User Id' }
+    { key: 'user', title: t('user') },
+    { key: 'role', title: t('role') },
+    { key: 'updated', title: t('requested') },
+    { key: 'id', title: t('user-id') }
   ]
 
-  if (props.showTrainer) headers.push({ key: 'trainer', title: 'Trainer' })
+  if (props.showTrainer) headers.push({ key: 'trainer', title: t('trainer') })
 
   headers.push({ key: 'granted', title: '' })
-
-  const store = useStore()
 
   const roleRequests = computed(() => (
     Object
