@@ -10,10 +10,19 @@
       no-data-text="No role requests yet"
     >
       <template v-slot:item.user="data">
-        <DecryptedName :user="data.item.user" />
+        <DecryptedName
+          avatar
+          :user="data.item.user"
+        />
       </template>
       <template v-slot:item.id="data">
        {{ data.item.user }}
+      </template>
+      <template v-slot:item.trainer="data">
+       <DecryptedName
+          avatar
+          :user="data.item.trainer"
+        />
       </template>
       <template v-slot:item.granted="data">
         <v-btn
@@ -38,14 +47,23 @@
   }
 
   const emit = defineEmits(['tag'])
+  const props = defineProps({
+    showTrainer: {
+      type: Boolean,
+      default: false
+    }
+  })
 
   const headers = [
     { key: 'user', title: 'User' },
     { key: 'role', title: 'Role' },
     { key: 'updated', title: 'Requested' },
-    { key: 'id', title: 'User Id' },
-    { key: 'granted', title: '' }
+    { key: 'id', title: 'User Id' }
   ]
+
+  if (props.showTrainer) headers.push({ key: 'trainer', title: 'Trainer' })
+
+  headers.push({ key: 'granted', title: '' })
 
   const store = useStore()
 

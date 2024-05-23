@@ -26,6 +26,7 @@
     <RoleRequestTable
       v-else-if="props.role === 'role-requests'"
       @tag="setTagging"
+      showTrainer
     />
   </v-container>
   <OldRoles v-else />
