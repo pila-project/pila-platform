@@ -32,7 +32,7 @@
       />
     </div>
 
-    <div v-if="requestedRole.role !== role">
+    <div v-if="requestedRole?.role !== role">
       <v-select
         :items="trainers"
         :label="t('select-your-trainer')"
