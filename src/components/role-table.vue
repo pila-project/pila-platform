@@ -5,7 +5,7 @@
     :items="taggings"
     :loading="loading"
     :headers="headers"
-    no-data-text="No one has been assigned this role"
+    :no-data-text="t('no-one-has-been-assigned-this-role')"
   >
     <template v-slot:item.target="data">
       <DecryptedName
@@ -35,10 +35,31 @@
         v-if="editable"
         variant="plain"
         icon="fa-solid fa-xmark"
-        @click="tag(data.item.target, null)"
+        @click="potentialRemoval = data.item.target"
       />
     </template>
   </v-data-table>
+  <v-dialog
+    max-width="500"
+    v-model="potentialRemoval"
+  >
+    <template v-slot:default="{ isActive }">
+      <v-card :title="t('are-you-sure')">
+        <template v-slot:actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="potentialRemoval = null">
+            {{t('cancel')}}
+          </v-btn>
+          <v-btn @click="() => {
+            tag(potentialRemoval, null)
+            potentialRemoval = null
+          }">
+            {{t('remove')}}
+          </v-btn>
+        </template>
+      </v-card>
+    </template>
+  </v-dialog>
   <v-dialog
     v-if="editable"
     max-width="500"
@@ -47,12 +68,12 @@
       <v-btn v-bind="activatorProps">Add {{ props.header }}</v-btn>
     </template>
     <template v-slot:default="{ isActive }">
-      <v-card :title="`Add ${props.header}`">
+      <v-card :title="`${t('add')} ${props.header}`">
         <v-card-text>
           <v-text-field
             autofocus
             v-model="newRoleUser"
-            label="User Id"
+            :label="t('user-id')"
             @keypress.enter="() => {
               tag(newRoleUser, true)
               isActive.value = false
@@ -62,14 +83,14 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            text="Add"
+            :text="t('add')"
             @click="() => {
               tag(newRoleUser, true)
               isActive.value = false
             }"
           />
           <v-btn
-            text="Cancel"
+            :text="t('cancel')"
             @click="isActive.value = false"
           />
         </v-card-actions>
@@ -81,6 +102,11 @@
 <script setup>
   import { ref, reactive, computed } from 'vue'
   import DecryptedName from './decrypted-name.vue'
+  import { useStore } from 'vuex'
+
+  const store = useStore()
+
+  function t(slug) { return store.getters.t(slug) }
 
   const props = defineProps({
     partition: String,
@@ -104,9 +130,10 @@
   const loading = ref(true)
   const taggings = ref([])
   const newRoleUser = ref('')
+  const potentialRemoval = ref(null)
 
   const headers = [
-    { key: 'target', title: 'User' }
+    { key: 'target', title: t('user') }
   ]
 
   fetchTaggings()
@@ -137,10 +164,10 @@
 
   await Promise.all(relatedTagTemplateData.value.map(async ({ id, key }, index) => {
     const { name } = await Agent.state(id)
-    headers.push({ key, title: name })
+    headers.push({ key, title: t(name) })
   }))
 
-  headers.push({ key: 'contributor', title: 'Assigned By' })
+  headers.push({ key: 'contributor', title: t('assigned-by') })
   headers.push({ key: 'edit', title: '' })
 
 
