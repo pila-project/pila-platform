@@ -4,6 +4,7 @@
       :header="t('your-teachers')"
       :partition="partition"
       :tag="TEACHER_TAG"
+      descendentTaggings
       :relatedTags="[{ id: TRAINER_TAG, editable: true }]"
       @tag="setTagging"
       :editable="true"

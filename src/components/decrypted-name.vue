@@ -1,5 +1,15 @@
 <template>
-  <span>
+  <span
+      draggable
+      @dragstart="$event.dataTransfer.setData('text', user)"
+      @dragover.prevent
+  >
+    <v-avatar
+      v-if="avatar"
+      size="small"
+      class="mr-2"
+      :image="info.picture"
+    />
     {{ info.name }}
   </span>
 </template>
@@ -9,6 +19,10 @@
     props: {
       user: String,
       alias: {
+        type: Boolean,
+        default: false
+      },
+      avatar: {
         type: Boolean,
         default: false
       }
