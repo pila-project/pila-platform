@@ -8,7 +8,10 @@
     no-data-text="No one has been assigned this role"
   >
     <template v-slot:item.target="data">
-      <DecryptedName :user="data.item.target" />
+      <DecryptedName
+        avatar
+        :user="data.item.target"
+      />
     </template>
     <template
       v-for="{ id, key, templateSlot } in relatedTagTemplateData"
@@ -22,7 +25,10 @@
       />
     </template>
     <template v-slot:item.contributor="data">
-      <DecryptedName :user="data.item.contributor" />
+      <DecryptedName
+        avatar
+        :user="data.item.contributor"
+      />
     </template>
     <template v-slot:item.edit="data">
       <v-btn
@@ -74,12 +80,16 @@
 
 <script setup>
   import { ref, reactive, computed } from 'vue'
-  import DecryptedName from '../../components/decrypted-name.vue'
+  import DecryptedName from './decrypted-name.vue'
 
   const props = defineProps({
     partition: String,
     tag: String,
     header: String,
+    descendentTaggings: {
+      type: Boolean,
+      default: false
+    },
     relatedTags: {
       type: Array,
       default: () => []
@@ -150,9 +160,10 @@
 
   async function fetchTaggings() {
     loading.value = true
+    const query = props.descendentTaggings ? 'my-descendent-taggings-for-tag' : 'taggings-for-tag'
     await (
       Agent
-        .query('taggings-for-tag', [props.partition, props.tag], 'tags.knowlearning.systems')
+        .query(query, [props.partition, props.tag], 'tags.knowlearning.systems')
         .then(result => {
           result.forEach(
             o => relatedTagTemplateData.value.forEach(({ key }) => o[key] = true)

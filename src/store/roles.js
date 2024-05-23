@@ -37,13 +37,13 @@ export default {
       else return !!rolePermissions[role][permission]
     },
     request: state => user => {
-      if (state.requests[user]) return state.requests[user].role
+      if (state.requests[user]) return state.requests[user]
       return null
     }
   },
   mutations: {
-    addRequest(state, { assignee, role, updated }) {
-      state.requests[assignee] = { role, updated }
+    addRequest(state, { assignee, role, trainer, updated }) {
+      state.requests[assignee] = { role, trainer, updated }
     },
     addAssignment(state, { assignee, role, assigner, updated }) {
       state.assignments[assignee] = { role, assigner, updated }
@@ -100,13 +100,14 @@ export default {
     async removeRequest({ commit }, user) {
       commit('removeRequest', user)
     },
-    async request({ dispatch }, role) {
+    async request({ dispatch }, { role, trainer }) {
       const metadata = await Agent.metadata('requested-role')
       if (metadata.active_type !== ROLE_REQUEST_TYPE) {
         metadata.active_type = ROLE_REQUEST_TYPE
       }
       const state = await Agent.state('requested-role')
       state.role = role
+      state.trainer = trainer
       await storeUserInfo()
       await Agent.synced()
       await dispatch('loadRequests')

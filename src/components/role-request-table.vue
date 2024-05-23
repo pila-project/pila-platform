@@ -28,11 +28,14 @@
 <script setup>
   import { computed } from 'vue'
   import { useStore } from 'vuex'
-  import DecryptedName from '../../components/decrypted-name.vue'
+  import DecryptedName from './decrypted-name.vue'
+  import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '../constants.js'
 
-  const props = defineProps({
-    roleToTagMap: Object
-  })
+  const roleToTagMap = {
+    admin: ADMIN_TAG,
+    trainer: TRAINER_TAG,
+    teacher: TEACHER_TAG
+  }
 
   const emit = defineEmits(['tag'])
 
@@ -54,7 +57,7 @@
   ))
 
   async function grantRole(role, user) {
-    const tag = props.roleToTagMap[role]
+    const tag = roleToTagMap[role]
     const target = user
     const value = true
     emit('tag', { tag, target, value })

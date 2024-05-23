@@ -67,6 +67,13 @@
           @click="tab = 'create'"
         />
         <v-list-item
+          v-if="userIsTrainer"
+          prepend-icon="fa-solid fa-chalkboard-user"
+          :title="t('trainer')"
+          :active="tab === 'trainer'"
+          @click="tab = 'trainer'"
+        />
+        <v-list-item
           prepend-icon="fa-solid fa-flask"
           :title="t('join-studies')"
           :active="tab === 'assignments-to-me'"
@@ -108,6 +115,9 @@
         v-if="tab === 'assignments-from-me'"
         assignable_item_type="teacher-created"
         assignment_type="teacher-to-student"
+      />
+      <TrainerPage
+        v-if="tab === 'trainer'"
       />
       <StudiesNotAvailable
         v-if="tab === 'assignments-to-me' && hideStudies"
@@ -166,12 +176,28 @@
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   import TeacherCreateTab from './teacher-create-tab.vue'
+  import TrainerPage from './trainer-page.vue'
+  import { TRAINER_TAG } from '../../constants.js'
 
   const store = useStore()
   const hideStudies = true
   const tab = ref('classes')
   const userInfo = ref({})
+  const userIsTrainer= ref(null)
 
+  Agent
+    .query(
+      'tagging-for-target',
+      [
+        store.getters.tagPartition,
+        TRAINER_TAG,
+        store.state.user
+      ],
+      'tags.knowlearning.systems'
+    )
+    .then(result => {
+      userIsTrainer.value = !!result.length
+    })
 
   const showRail = ref(true)
 
