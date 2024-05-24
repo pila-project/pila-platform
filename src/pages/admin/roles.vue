@@ -2,7 +2,7 @@
   <v-container v-if="isThailandDomain">
     <RoleTable
       v-if="props.role === 'admins'"
-      header="Admins"
+      :header="t('admins')"
       :partition="tagPartition"
       :tag="ADMIN_TAG"
       @tag="setTagging"
@@ -10,14 +10,14 @@
     />
     <RoleTable
       v-else-if="props.role === 'trainers'"
-      header="Trainers"
+      :header="t('trainers')"
       :partition="tagPartition"
       :tag="TRAINER_TAG"
       @tag="setTagging"
     />
     <RoleTable
       v-else-if="props.role === 'teachers'"
-      header="Teachers"
+      :header="t('teachers')"
       :partition="tagPartition"
       :relatedTags="[{ id: TRAINER_TAG, editable: true }]"
       :tag="TEACHER_TAG"
@@ -50,4 +50,6 @@
     if (!myTags[tag]) myTags[tag] = {}
     myTags[tag][target] = { value, partition: tagPartition }
   }
+
+  function t(slug) { return store.getters.t(slug) }
 </script>
