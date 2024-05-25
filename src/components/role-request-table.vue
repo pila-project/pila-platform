@@ -81,7 +81,7 @@
   const roleRequests = computed(() => (
     Object
       .entries(store.getters['roles/requests']())
-      .map(([user, { role, updated }]) => ({ user, role, updated }))
+      .map(([user, { trainer, role, updated }]) => ({ user, trainer, role, updated }))
       .filter(({ user, role }) => !store.getters['roles/hasPermission'](user, role))
   ))
 
