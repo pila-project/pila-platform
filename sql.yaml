@@ -243,6 +243,13 @@ postgres:
             )
           )
         )
+    assignment-report: |
+      SELECT
+        COUNT(assignments.id) as num_groups_assigned,
+        am.owner AS assigner_id
+      FROM assignments
+      LEFT JOIN metadata am ON am.id = assignments.id
+      GROUP BY am.owner
     pila_tags: |
       SELECT
         pila_tags.id as id,
