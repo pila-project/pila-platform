@@ -73,7 +73,7 @@
     max-width="500"
   >
     <template v-slot:activator="{ props: activatorProps }">
-      <v-btn v-bind="activatorProps">Add {{ props.header }}</v-btn>
+      <v-btn v-bind="activatorProps">{{ t('add-new') }}</v-btn>
     </template>
     <template v-slot:default="{ isActive }">
       <v-card :title="`${t('add')} ${props.header}`">
