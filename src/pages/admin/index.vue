@@ -95,9 +95,9 @@
       />
       <AdminContentLibrary v-else-if="tab === 'content' && store.getters.isThailandDomain" />
       <ContentLibrary v-else-if="tab === 'content'" />
+      <AdminReports v-else-if="tab === 'reports'" />
       <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
       <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
-
     </v-main>
   </v-app>
   <div v-else>
@@ -109,6 +109,7 @@
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
   import RoleManager from './roles.vue'
+  import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   import ContentLibrary from '../../components/content-library.vue'

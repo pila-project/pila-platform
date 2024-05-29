@@ -8,7 +8,7 @@
       v-if="avatar"
       size="small"
       class="mr-2"
-      :image="info.picture"
+      :image="info.picture || '/mascotte.png'"
     />
     {{ info.name }}
   </span>
@@ -45,3 +45,9 @@
     }
   }
 </script>
+
+<style scoped>
+  span {
+    white-space: nowrap;
+  }
+</style>

@@ -8,7 +8,6 @@
       :items="roleRequests"
       :headers="headers"
       :no-data-text="t('no-role-requests-yet')"
-      :footerProps="{itemsPerPageText: 'hello world'}"
       :items-per-page-text="t('items-per-page')"
       :items-per-page-options="[
         {value: 10, title: '10'},
