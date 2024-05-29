@@ -32,8 +32,8 @@
       <template v-slot:item.owner="data">
         <DecryptedName avatar :user="data.item.owner" />
       </template>
-      <template v-slot:item.assigner_id="data">
-        <DecryptedName avatar :user="data.item.assigner_id" />
+      <template v-slot:item.assigner-id="data">
+        <DecryptedName avatar :user="data.item['assigner-id']" />
       </template>
     </v-data-table>
     <v-btn
