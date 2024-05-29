@@ -20,6 +20,7 @@
       :loading="loading"
       :items="results"
       :headers="headers"
+      :no-data-text="t('no-data-available')"
       :items-per-page-text="t('items-per-page')"
       :items-per-page-options="[
         {value: 10, title: '10'},
