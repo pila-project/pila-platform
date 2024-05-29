@@ -36,6 +36,13 @@
         <DecryptedName avatar :user="data.item.assigner_id" />
       </template>
     </v-data-table>
+    <v-btn
+      class="ma-2"
+      @click="download"
+      v-if="results[0]"
+    >
+      {{ t('download') }}
+    </v-btn>
 
   </v-container>
 </template>
@@ -44,6 +51,7 @@
   import { ref } from 'vue'
   import { useStore } from 'vuex'
   import DecryptedName from '../../components/decrypted-name.vue'
+  import { json2csv } from 'json-2-csv'
 
   const store = useStore()
 
@@ -67,6 +75,23 @@
       )
     }
     loading.value = false
+  }
+
+  async function download() {
+    const csv = await json2csv(results.value)
+    const file = new File([csv], `${selected.value}-${(new Date()).toLocaleString()}.csv`, {
+      type: 'text/plain',
+    })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(file)
+
+    link.href = url
+    link.download = file.name
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   }
 
 </script>
