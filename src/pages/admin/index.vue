@@ -95,7 +95,9 @@
       />
       <AdminContentLibrary v-else-if="tab === 'content' && store.getters.isThailandDomain" />
       <ContentLibrary v-else-if="tab === 'content'" />
-      <AdminStudyManager v-else-if="tab === 'studies'" />
+      <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
+      <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
+
     </v-main>
   </v-app>
   <div v-else>
@@ -108,6 +110,7 @@
   import { useStore } from 'vuex'
   import RoleManager from './roles.vue'
   import AdminStudyManager from './studies.vue'
+  import StudiesNotAvailable from '../../components/studies-not-available.vue'
   import ContentLibrary from '../../components/content-library.vue'
   import {
     ADMIN_TAG,
@@ -122,6 +125,7 @@
   const { auth: { info: userInfo } } = await Agent.environment()
   const { isThailandDomain, tagPartition } = store.getters
 
+  const hideStudies = true
   const tab = ref('teachers')
 
   const iAmAnAdmin = await (isThailandDomain ? newRolesIsAdmin() : oldRolesIsAdmin())
