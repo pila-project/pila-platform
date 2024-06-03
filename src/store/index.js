@@ -115,6 +115,19 @@ export default {
         const { auth } = await Agent.environment()
         commit('load', auth)
       }
+
+      if (state.user && state.provider !== 'anonymous') {
+        const start = Date.now()
+        const pilaSession = await Agent.state(await Agent.create({
+          active_type: 'application/json;type=pila_sessions',
+          active: { start, ping: start }
+        }))
+        function pingSession() {
+          pilaSession.ping = Date.now()
+          setTimeout(pingSession, 5000)
+        }
+        pingSession()
+      }
     },
     acceptStudentAgreement({ commit }) {
       commit('acceptStudentAgreement')

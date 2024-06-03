@@ -2,6 +2,13 @@
   <v-container>
     <v-btn
       class="ma-2"
+      :color="selected === 'login-report' ? 'primary' : ''"
+      @click="pullReport('login-report')"
+    >
+      {{ t('login-report') }}
+    </v-btn>
+    <v-btn
+      class="ma-2"
       :color="selected === 'assignment-report' ? 'primary' : ''"
       @click="pullReport('assignment-report')"
     >
@@ -35,6 +42,9 @@
       </template>
       <template v-slot:item.assigner-id="data">
         <DecryptedName avatar :user="data.item['assigner-id']" />
+      </template>
+      <template v-slot:item.user="data">
+        <DecryptedName avatar :user="data.item.user" />
       </template>
     </v-data-table>
     <v-btn

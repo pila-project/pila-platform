@@ -42,6 +42,11 @@ postgres:
       columns:
         scope: TEXT
         assignment: TEXT
+    pila_sessions:
+      type: application/json;type=pila_sessions
+      columns:
+        start: BIGINT
+        ping: BIGINT
     pila_tags:
       type: application/json;type=pila_tag
       columns:
@@ -250,6 +255,14 @@ postgres:
       FROM assignments
       LEFT JOIN metadata am ON am.id = assignments.id
       GROUP BY am.owner
+    login-report: |
+      SELECT
+          owner AS user,
+          COUNT(*) AS num_logins,
+          SUM(ping - start) AS total_time_ms
+      FROM pila_sessions
+      LEFT JOIN metadata ON metadata.id = pila_sessions.id
+      GROUP BY owner
     pila_tags: |
       SELECT
         pila_tags.id as id,
