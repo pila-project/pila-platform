@@ -82,6 +82,16 @@
       </v-list>
 
       <template v-slot:append>
+        <v-list>
+          <v-list-item
+            @click="tab = 'support'"
+          >
+            <v-avatar
+              image="/support-icon.svg"
+              rounded="0"
+            />
+          </v-list-item>
+        </v-list>
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-icon
@@ -126,6 +136,11 @@
         v-else-if="tab === 'assignments-to-me'"
         type="researcher-to-teacher"
       />
+      <v-container v-if="tab === 'support'">
+        <div style="width: 400px; margin: auto; text-align: center; margin-top: 32px;">
+          <p>{{ t('for-support-please-email-your-trainer') }}</p>
+        </div>
+      </v-container>
       <TeacherCreateTab v-else-if="tab === 'create'" />
     </v-main>
 
