@@ -76,6 +76,7 @@ export default {
     "you-currently-have-no-assignments-ask-your-teacher-if-you-expect-an-assignment-here": "5b8bfd7a-ad86-46d0-84b8-edeedb1fd30c",
     "done": "5d5c7a94-6add-489b-b5b3-5a20c33209b4",
     "creative-thinking": "60294f45-0811-4fd6-91ba-7a4c03bff561",
+    "total-time-seconds": "60c2e732-ba81-4b58-af09-5c13e5359227",
     "teacher-groups": "60f2b7b8-5b06-466d-9d67-7a737ebbc4c9",
     "no-classes-assigned": "62467328-6959-40a6-bee2-de278e5e130e",
     "new-assignment": "625df420-cb5c-4c1b-9ad9-8d5751ad7723",
@@ -91,6 +92,7 @@ export default {
     "pila-create": "6c7111db-e67e-4c83-a893-03577f56e558",
     "select": "6ce15629-cfd3-4d6c-a3ae-04b6a08f2a14",
     "create-your-own-content": "6f38bc4a-ef50-4f70-aad6-3b97dea4b4a9",
+    "login-report": "70532ac9-6448-416c-a583-3278dea65b6e",
     "you-will-be-able-to-participate-in-research-studies-on-pila-soon-check-back-in-a-few-months": "7086209f-12a0-4368-8fdd-f0f6054d1a9e",
     "name": "718504ad-e26c-4063-85a6-03e089509141",
     "select-students-in-the-class": "71e337b2-0f49-4879-9945-a3800c736109",
@@ -132,7 +134,7 @@ export default {
     "request-role": "900bca65-e088-401d-a0b4-0846cdb7e99f",
     "files": "906a6b61-67cc-459a-a9c2-439a631b2b95",
     "know-learning-will-keep-this-data-safe-and-not-share-it-in-any-way-externally": "917ef00b-beb6-4b71-8ecf-b8d9e133cee2",
-    "unused": "9323cb5f-5f25-4765-b8c9-9244cf125535",
+    "num-logins": "9323cb5f-5f25-4765-b8c9-9244cf125535",
     "if-you": "956d40e7-da21-44a6-a7c3-ff83069357bc",
     "close": "96c18794-0bc7-4db7-b0ff-91cb2280201e",
     "assignment-name": "96d5f5bd-39cb-43b4-b62a-b4f4ae74607b",
@@ -159,7 +161,7 @@ export default {
     "owner": "b7159c28-c9c0-476f-a80a-4ba0a6a6a770",
     "success": "b71871dc-0c98-480d-afdd-a18ca990527d",
     "computational-problem-solving": "b7e440eb-983f-49fa-abc7-4d66a54e899f",
-    "unused-alt": "b94ec24a-1ac4-486f-8552-0581275472c5",
+    "for-support-please-email-your-trainer": "b94ec24a-1ac4-486f-8552-0581275472c5",
     "sequence": "b992529f-2dcb-480e-804c-5496ff39a81e",
     "updated": "ba1310cf-f17e-40f4-93b2-b0a610c0d5ac",
     "add-content-by-id-or-url": "bb11f58d-f083-44a5-b332-60dcfd5445b4",
@@ -221,6 +223,5 @@ export default {
     "total": "fac631d0-12f2-4430-96b7-20ec1138d6e5",
     "created-by": "fc15495e-fc19-4f7e-9d91-1cfea8d56bf2",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
-    "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d",
-    "for-support-please-email-your-trainer": "b94ec24a-1ac4-486f-8552-0581275472c5"
+    "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d"
 }
