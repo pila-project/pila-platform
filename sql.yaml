@@ -257,9 +257,9 @@ postgres:
       GROUP BY am.owner
     login-report: |
       SELECT
-          owner AS user,
-          COUNT(*) AS num_logins,
-          SUM(ping - start) AS total_time_ms
+        owner AS user,
+        COUNT(*) AS "num-logins",
+        SUM((ping - start) / 1000) AS "total-time-seconds"
       FROM pila_sessions
       LEFT JOIN metadata ON metadata.id = pila_sessions.id
       GROUP BY owner
