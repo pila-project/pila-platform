@@ -88,11 +88,6 @@ export default {
     acceptStudentAgreement(state) { state.hasAcceptedStudentAgreement = true },
     acceptTeacherAgreement(state) { state.hasAcceptedTeacherAgreement = true },
     language(state, val) { state.language = val },
-    cycleLanguage(state) {
-      const i = languageChoices.indexOf(state.language)
-      state.language = (i === -1) ? 'en' : languageChoices[(i + 1) % languageChoices.length]
-      console.log(state.language)
-    },
     addTranslation(state, { target, value, language }) {
       if (!state.translations) state.translations = {}
       if (!state.translations[language]) state.translations[language] = {}
@@ -101,12 +96,10 @@ export default {
   },
   actions: {
     loaded({ commit }, loaded) { commit('loaded', loaded) },
-
-    async cycleLanguageAndRefetch({ commit, dispatch }) {
+    async language({ commit, dispatch }, value) {
       await dispatch('fetchTranslations')
-      commit('cycleLanguage')
+      commit('language', value)
     },
-
     async load({ commit, state }) {
       const language = matchNavigatorLanguage(languageChoices)
       commit('language', language)

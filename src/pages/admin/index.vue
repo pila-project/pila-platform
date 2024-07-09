@@ -3,19 +3,7 @@
     v-if="iAmAnAdmin"
     class="teacher-view"
   >
-    <v-app-bar
-      color="primary"
-      :title="store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
-    >
-      <template v-slot:prepend>
-        <v-icon class="fa-solid fa-menue" />
-        <img
-          src="/logo-green.svg"
-          height="32"
-        />
-      </template>
-      <v-spacer />
-    </v-app-bar>
+    <Navbar />
     <v-navigation-drawer permanent>
       <v-list-item
         class="my-2"
@@ -108,6 +96,7 @@
 <script setup>
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
+  import Navbar from '../Navbar.vue'
   import RoleManager from './roles.vue'
   import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'

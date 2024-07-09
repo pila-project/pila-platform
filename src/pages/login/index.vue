@@ -3,7 +3,6 @@
     <div id="login-page-inner" style="max-width: 256px;">
       <img
         src="/logo-green.svg"
-        @click.shift="$store.dispatch('cycleLanguageAndRefetch')"
       />
       <div style="margin: 16px;">
         <div
