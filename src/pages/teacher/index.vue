@@ -4,19 +4,7 @@
     class="teacher-view"
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
-    <v-app-bar
-      color="primary"
-      :title="store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
-    >
-      <template v-slot:prepend>
-        <v-icon class="fa-solid fa-menue" />
-        <img
-          src="/logo-green.svg"
-          height="32"
-        />
-      </template>
-      <v-spacer />
-    </v-app-bar>
+    <Navbar />
     <v-navigation-drawer
       v-model:rail="showRail"
       permanent
@@ -182,6 +170,7 @@
 <script setup>
   import { ref, computed } from 'vue'
   import { useStore } from 'vuex'
+  import Navbar from '../Navbar.vue'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '../../components/roles/requester.vue'
   import Groups from '../../components/groups/viewer.vue'

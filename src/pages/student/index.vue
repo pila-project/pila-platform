@@ -4,19 +4,8 @@
     class="student-view"
     v-else
   >
-    <v-app-bar
-      color="primary"
-      :title="$store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
-    >
-      <template v-slot:prepend>
-        <v-icon class="fa-solid fa-menue" />
-        <img
-          src="/logo-green.svg"
-          height="32"
-        />
-      </template>
-      <v-spacer />
-    </v-app-bar>
+    <Navbar />
+
     <v-navigation-drawer rail>
       <v-list-item
         :title="userInfo.name"
@@ -58,12 +47,14 @@
 </template>
 
 <script>
+  import Navbar from '../Navbar.vue'
   import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
   import TabMenu from '../../components/tab-menu.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   export default {
     components: {
+      Navbar,
       StudentAgreement,
       StudentAssignments,
       TabMenu,

@@ -20,7 +20,7 @@
 			</div>
 			<div class="name-and-role">
 				<div @click="alertUserId"> {{ username }} </div>
-				<div @click.shift="$store.dispatch('cycleLanguageAndRefetch')">
+				<div>
 					{{ $store.getters['roles/role']($store.state.user) }}</div>
 				</div>
 			<IconButton
