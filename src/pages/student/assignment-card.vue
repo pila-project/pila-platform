@@ -3,10 +3,14 @@
     :elevation="props.selected ? 10 : 3"
     :variant="props.selected ? 'tonal' : 'elevated'"
     density="compact"
-    :title="name"
   >
+    <template v-slot:title>
+      {{ name }}
+    </template>
+    <template v-slot:subtitle>
+      {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
+    </template>
     <template v-slot:text>
-      <p>{{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}</p>
       <div class="image-container">
         <v-img :src="image" height="80px" />
       </div>
