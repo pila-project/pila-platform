@@ -8,9 +8,9 @@
         v-for="contentId, assignmentId in assignmentsToContent"
         :key="contentId + assignmentId"
         cols="12"
-        lg="4"
-        md="6"
-        sm="12"
+        lg="3"
+        md="4"
+        sm="6"
       >
         <AssignmentCard
           :assignment="assignmentId"
