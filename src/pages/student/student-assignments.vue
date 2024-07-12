@@ -1,17 +1,19 @@
 <template>
   <div class="student-assignments">
-    <div v-if="noAssignments">
+    <div v-if="noAssignments" style="width: 100%;">
       {{ t('it-looks-like-you-do-not-have-any-assignments-please-speak-to-your-teacher')}}
     </div>
-    <div v-else>
-      <div class="teacher-select">
+    <div v-else style="width: 100%;">
+      <div class="teacher-select" style="min-height:80px;">
+        <span><strong>{{ t('your-teachers') }}:</strong></span>
         <DecryptedName
           v-for="assigner in allAssigners"
           :key="assigner"
           :user="assigner"
           avatar
+          :size="activeAssigner === assigner ? 'large' : 'small'"
+          :showName="false"
           @click="activeAssigner = assigner"
-          :class="{ active: activeAssigner === assigner}"
         />
       </div>
       <v-row>
@@ -66,7 +68,7 @@ export default {
       return Object.keys(this.assignmentsToContent)
     },
     noAssignments() {
-      return this.assignments.length === 0
+      return this.assignmentIds.length === 0
     },
     URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
@@ -142,13 +144,11 @@ export default {
 .teacher-select {
   padding: 4px 0 12px 0;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
 }
 .teacher-select > span {
   margin: 0 12px;
-}
-.teacher-select > span.active {
-  background: chartreuse;
 }
 .student-assignments {
   display: flex;

@@ -7,9 +7,6 @@
     <template v-slot:title>
       {{ name }}
     </template>
-    <template v-slot:append>
-      <decrypted-name avatar :showName="false" :user="assignmentMetadata.owner" />
-    </template>
     <template v-slot:subtitle>
       {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
     </template>
