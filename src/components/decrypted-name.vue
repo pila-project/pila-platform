@@ -6,11 +6,13 @@
   >
     <v-avatar
       v-if="avatar"
-      size="small"
+      :size="size"
       class="mr-2"
       :image="info.picture || '/mascotte.png'"
     />
-    {{ info.name }}
+    <span v-if="showName">
+      {{ info.name }}
+    </span>
   </span>
 </template>
 
@@ -25,6 +27,15 @@
       avatar: {
         type: Boolean,
         default: false
+      },
+      showName: {
+        type: Boolean,
+        default: true
+      },
+      size: {
+        type: String,
+        default: 'small',
+        validator: val => ['x-small', 'small', 'default', 'large', 'x-large'].includes(val)
       }
     },
     data() {

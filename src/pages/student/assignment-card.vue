@@ -2,12 +2,17 @@
   <v-card
     :elevation="props.selected ? 10 : 3"
     :variant="props.selected ? 'tonal' : 'elevated'"
-    :title="name"
+    density="compact"
   >
+    <template v-slot:title>
+      {{ name }}
+    </template>
+    <template v-slot:subtitle>
+      {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
+    </template>
     <template v-slot:text>
-      <p>{{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}</p>
       <div class="image-container">
-        <v-img :src="image" height="150px" />
+        <v-img :src="image" height="80px" />
       </div>
     </template>
     <template v-slot:actions>
@@ -25,7 +30,7 @@
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
   import { CANDLI_SEQUENCES } from '../../constants.js'
-
+  import DecryptedName from '../../components/decrypted-name.vue'
   const store = useStore()
 
   const props = defineProps(['assignment', 'selected'])
@@ -35,8 +40,6 @@
   const name = assignmentItem.name
   const content = await Agent.state(assignmentItem.content)
   const metadata = await Agent.metadata(assignmentItem.content)
-
-  console.log('asssfdasdfasdfa', assignment, content)
   let image = ref('')
 
   if (isUUID(content.image)) image = await Agent.download(content.image).url()
