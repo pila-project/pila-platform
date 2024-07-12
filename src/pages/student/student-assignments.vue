@@ -3,21 +3,33 @@
     <div v-if="noAssignments">
       {{ t('it-looks-like-you-do-not-have-any-assignments-please-speak-to-your-teacher')}}
     </div>
-    <v-row v-else>
-      <v-col
-        v-for="contentId, assignmentId in assignmentsToContent"
-        :key="contentId + assignmentId"
-        cols="12"
-        lg="3"
-        md="4"
-        sm="6"
-      >
-        <AssignmentCard
-          :assignment="assignmentId"
-          @play="play(assignmentId)"
+    <div v-else>
+      <div class="teacher-select">
+        <DecryptedName
+          v-for="assigner in allAssigners"
+          :key="assigner"
+          :user="assigner"
+          avatar
+          @click="activeAssigner = assigner"
+          :class="{ active: activeAssigner === assigner}"
         />
-      </v-col>
-    </v-row>
+      </div>
+      <v-row>
+        <v-col
+          v-for="assignmentId in filteredAssignmentIds"
+          :key="assignmentId"
+          cols="12"
+          lg="3"
+          md="4"
+          sm="6"
+        >
+          <AssignmentCard
+            :assignment="assignmentId"
+            @play="play(assignmentId)"
+          />
+        </v-col>
+      </v-row>
+    </div>
     <v-overlay :model-value="overlayActive">
       <div class="assignment-overlay">
         <vueEmbedComponent
@@ -32,18 +44,21 @@
 
 <script>
 import CardIconsBar from '../../components/card-icons-bar.vue'
+import DecryptedName from '../../components/decrypted-name.vue'
 import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.js'
 import URL_CONTENT_DATA from '../../url-content-data.js'
 import AssignmentCard from './assignment-card.vue'
 
 export default {
-  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard },
+  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName },
 
   data() {
     return {
       playing: null,
       assignmentsToContent: {},
-      assignmentsToAssignableItem: {}
+      assignmentsToAssignableItem: {},
+      assignmentsToAssigner: {},
+      activeAssigner: null
     }
   },
   computed: {
@@ -65,13 +80,27 @@ export default {
       get() {
         return !!this.playing
       }
+    },
+    allAssigners() {
+      return Object.values(this.assignmentsToAssigner)
+        .reduce((acc, cur) => acc.includes(cur) ? acc : [ ...acc, cur ], [])
+    },
+    filteredAssignmentIds() {
+      return this.assignmentIds.filter(aid =>  this.assignmentsToAssigner[aid] === this.activeAssigner)
     }
+
   },
   watch: {
     assignmentIds: {
       immediate: true,
-      handler() {
-        this.assignmentIds.forEach(aid => {
+      async handler(val) {
+        val.forEach(async aid => {
+
+          // happens every time, but i don't care
+          const { owner } = await Agent.metadata(aid)
+          this.assignmentsToAssigner[aid] = owner
+          if (!this.activeAssigner) this.activeAssigner = owner
+
           if (this.assignmentsToContent[aid]) return
 
           const unwatch1 = Agent.watch(
@@ -110,6 +139,17 @@ export default {
 </script>
 
 <style scoped>
+.teacher-select {
+  padding: 4px 0 12px 0;
+  display: flex;
+  justify-content: center;
+}
+.teacher-select > span {
+  margin: 0 12px;
+}
+.teacher-select > span.active {
+  background: chartreuse;
+}
 .student-assignments {
   display: flex;
   flex-wrap: wrap;

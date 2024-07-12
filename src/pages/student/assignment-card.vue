@@ -7,6 +7,9 @@
     <template v-slot:title>
       {{ name }}
     </template>
+    <template v-slot:append>
+      <decrypted-name avatar :showName="false" :user="assignmentMetadata.owner" />
+    </template>
     <template v-slot:subtitle>
       {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
     </template>
@@ -30,7 +33,7 @@
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
   import { CANDLI_SEQUENCES } from '../../constants.js'
-
+  import DecryptedName from '../../components/decrypted-name.vue'
   const store = useStore()
 
   const props = defineProps(['assignment', 'selected'])
@@ -40,8 +43,6 @@
   const name = assignmentItem.name
   const content = await Agent.state(assignmentItem.content)
   const metadata = await Agent.metadata(assignmentItem.content)
-
-  console.log('asssfdasdfasdfa', assignment, content)
   let image = ref('')
 
   if (isUUID(content.image)) image = await Agent.download(content.image).url()
