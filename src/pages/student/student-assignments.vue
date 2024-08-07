@@ -4,17 +4,35 @@
       {{ t('it-looks-like-you-do-not-have-any-assignments-please-speak-to-your-teacher')}}
     </div>
     <div v-else style="width: 100%;">
-      <div class="teacher-select" style="min-height:80px;">
-        <span><strong>{{ t('your-teachers') }}:</strong></span>
-        <DecryptedName
-          v-for="assigner in allAssigners"
-          :key="assigner"
-          :user="assigner"
-          avatar
-          :size="activeAssigner === assigner ? 'large' : 'small'"
-          :showName="false"
-          @click="activeAssigner = assigner"
-        />
+      <div class="teacher-select">
+        <div>
+          <span><strong>{{ t('your-teachers') }}:</strong></span>
+          <DecryptedName
+            v-for="assigner in allAssigners"
+            :key="assigner"
+            :user="assigner"
+            avatar
+            :size="activeAssigner === assigner ? 'large' : 'small'"
+            :showName="false"
+            @click="activeAssigner = assigner"
+          />
+        </div>
+        <div
+          style="cursor: pointer; margin: 4px 24px 12px 0px;"
+          @click="oldestFirst = !oldestFirst"
+        >
+          <v-icon
+            size="x-small"
+            color="grey"
+            :icon="`fa-solid fa-arrow-${oldestFirst ? 'down' : 'up'}`"    
+          />
+          <v-icon
+            class="ml-2"
+            color="grey"
+            icon="fa-solid fa-calendar"
+          />
+        </div>
+
       </div>
       <v-row>
         <v-col
@@ -59,8 +77,9 @@ export default {
       playing: null,
       assignmentsToContent: {},
       assignmentsToAssignableItem: {},
-      assignmentsToAssigner: {},
-      activeAssigner: null
+      assignmentsToAssignerAndCreated: {},
+      activeAssigner: null,
+      oldestFirst: false
     }
   },
   computed: {
@@ -84,11 +103,22 @@ export default {
       }
     },
     allAssigners() {
-      return Object.values(this.assignmentsToAssigner)
+      return Object.values(this.assignmentsToAssignerAndCreated)
+        .map(aid => aid.owner)
         .reduce((acc, cur) => acc.includes(cur) ? acc : [ ...acc, cur ], [])
     },
     filteredAssignmentIds() {
-      return this.assignmentIds.filter(aid =>  this.assignmentsToAssigner[aid] === this.activeAssigner)
+      const compareCreated = (id1, id2) => {
+        const ts1 = this.assignmentsToAssignerAndCreated[id1].created
+        const ts2 = this.assignmentsToAssignerAndCreated[id2].created
+        return ts1 > ts2 ? 1 : -1
+      }
+
+      const aidsFromActiveAssigner = this.assignmentIds.filter(aid => this.assignmentsToAssignerAndCreated[aid]?.owner === this.activeAssigner)
+      const oldestFirst = aidsFromActiveAssigner.sort(compareCreated)
+      return this.oldestFirst ? oldestFirst : oldestFirst.reverse()
+
+
     }
 
   },
@@ -99,8 +129,8 @@ export default {
         val.forEach(async aid => {
 
           // happens every time, but i don't care
-          const { owner } = await Agent.metadata(aid)
-          this.assignmentsToAssigner[aid] = owner
+          const { owner, created } = await Agent.metadata(aid)
+          this.assignmentsToAssignerAndCreated[aid] = { owner, created }
           if (!this.activeAssigner) this.activeAssigner = owner
 
           if (this.assignmentsToContent[aid]) return
@@ -142,12 +172,13 @@ export default {
 
 <style scoped>
 .teacher-select {
-  padding: 4px 0 12px 0;
+  padding: 4px 0 0 0;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
+  min-height: 80px;
 }
-.teacher-select > span {
+.teacher-select > div > span {
   margin: 0 12px;
 }
 .student-assignments {
