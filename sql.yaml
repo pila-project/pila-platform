@@ -187,33 +187,47 @@ postgres:
     # all groups a user owns, or has been put in
     groups: |
       SELECT
-        groups.name,
-        groups.group_type,
-        groups.archived,
-        metadata.owner as owner,
-        metadata.id as id
+          groups.name,
+          groups.group_type,
+          groups.archived,
+          metadata.owner as owner,
+          metadata.id as id
       FROM groups
-      LEFT JOIN metadata
-        ON groups.id = metadata.id
+      LEFT JOIN metadata ON groups.id = metadata.id
       WHERE metadata.owner = $REQUESTER
-        OR groups.id IN (
-          SELECT group_id
-          FROM groups
-          LEFT JOIN group_members
-            ON groups.id = group_members.group_id
-          WHERE group_members.user_id = $REQUESTER
-        )
+
+      UNION
+
+      SELECT
+          groups.name,
+          groups.group_type,
+          groups.archived,
+          metadata.owner as owner,
+          metadata.id as id
+      FROM groups
+      LEFT JOIN metadata ON groups.id = metadata.id
+      JOIN group_members ON groups.id = group_members.group_id
+      WHERE group_members.user_id = $REQUESTER
     group_members: |
       SELECT
-        group_members.group_id,
-        group_members.user_id,
-        group_members.archived,
-        metadata.id as id
-      FROM group_members
-      LEFT JOIN metadata
-        ON group_members.id = metadata.id
-      WHERE metadata.owner = $REQUESTER
-        OR group_members.user_id = $REQUESTER
+          gm.group_id,
+          gm.user_id,
+          gm.archived,
+          m.id AS id
+      FROM group_members gm
+      LEFT JOIN metadata m ON gm.id = m.id
+      WHERE gm.user_id = $REQUESTER
+
+      UNION
+
+      SELECT
+          gm.group_id,
+          gm.user_id,
+          gm.archived,
+          m.id AS id
+      FROM group_members gm
+      JOIN metadata m ON gm.id = m.id
+      WHERE m.owner = $REQUESTER
     assignments: |
       SELECT
         assignments.id,
