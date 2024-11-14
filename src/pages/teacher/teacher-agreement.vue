@@ -16,7 +16,7 @@
 					</p>
 					<p>
 						<a
-							:href="teacherTermsOfServiceLink"
+							href="https://pilaproject.org/about-pila/terms-and-conditions-for-teachers"
 							target="_blank"
 						>
 							{{ t('terms-of-service-for-teachers') }}
@@ -50,12 +50,6 @@ export default {
 		}
 	},
 	computed: {
-		teacherTermsOfServiceLink() {
-			if (location.host === 'thailand.pilaproject.org') {
-				return 'https://pilaproject.org/about-pila/thailand-terms-of-service-for-teachers'
-			}
-			return 'https://pilaproject.org/about-pila/terms-of-service-for-teachers'
-		},
 		teacherDataProtectionLink() {
 			if (location.host === 'thailand.pilaproject.org') {
 				return 'https://pilaproject.org/about-pila/thailand-data-protection-notice-for-teachers'

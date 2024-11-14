@@ -45,7 +45,7 @@
     </div>
 
     <div class="card-container">
-      <div class="card new-item-card">
+<!--       <div class="card new-item-card">
         <div>
           <div class="content-name">{{t('add-content')}}</div>
           <div>
@@ -64,7 +64,7 @@
             />
           </div>
         </div>
-      </div>
+      </div> -->
       <ContentLibraryCard
          v-for="id in filteredContent"
         :key="id"
