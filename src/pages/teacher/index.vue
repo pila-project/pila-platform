@@ -126,7 +126,7 @@
       />
       <v-container v-if="tab === 'support'">
         <div style="width: 400px; margin: auto; text-align: center; margin-top: 32px;">
-          <p>{{ t('for-support-please-email-your-trainer') }}</p>
+          <p>{{ t('for-support-please-email-edu-pila-oecd-org') }}</p>
         </div>
       </v-container>
       <TeacherCreateTab v-else-if="tab === 'create'" />
@@ -146,7 +146,7 @@
           text="© OECD"
         />
         <v-btn
-          @click="openLink('https://pilaproject.org/about-pila/terms-of-service-for-teachers')"
+          @click="openLink('https://pilaproject.org/about-pila/terms-and-conditions-for-teachers')"
           variant="text"
           :text="t('terms-and-conditions')"
         />
@@ -156,7 +156,7 @@
           :text="t('privacy-policy')"
         />
         <v-btn
-          @click="openLink('https://pilaproject.org/contact-us-pila')"
+          @click="openLink('https://pilaproject.org/contact-us')"
           variant="text"
           :text="t('contact-us')"
         />
