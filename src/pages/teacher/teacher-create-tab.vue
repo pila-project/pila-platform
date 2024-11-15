@@ -76,8 +76,16 @@ const showSuccessMessage = ref(false)
 
 async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {
-    const myContent = await Agent.state('my-content')
-    myContent[userInput] = {}
+    if (this.$store.getters.isThailandDomain) { // new tagging approach for Thai
+      const myContent = await Agent.state('my-content')
+      myContent[userInput] = {}
+    } else { // old tagging approach for Intl
+      this.$store.dispatch('pila_tags/tag', {
+        content_id: userInput,
+        tag_type: 'tracked'
+      })
+    }
+    // for either tagging approach, interface reset for this successful uuid
     userIdOrURL.value = ''
     showSuccessMessage.value = true
   } else {
