@@ -10,6 +10,12 @@
       {{ URL_CONTENT_DATA[id].name }}
     </div>
     <div
+      v-else-if="sequenceTitle"
+      class="content-name"
+    >
+      {{ sequenceTitle }}
+    </div>
+    <div
       v-else-if="isBettyLink(id)"
       class="content-name"
     >
@@ -22,6 +28,7 @@
     <div class="preview-image">
       <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
       <img v-else-if="isBettyLink(id)" src="/betty.png" />
+      <img v-else-if="isSequenceId" src="/pila_sequence.png" />
       <vueEmbedComponent
         v-else
         :id="id"
@@ -71,9 +78,24 @@
         default: true
       }
     },
+    created() {
+      Agent.metadata(this.id).then(async ({ active_type }) => {
+        this.isSequenceId = active_type === 'application/json;type=sequence'
+        if (this.isSequenceId) {
+          const s = await Agent.state(this.id)
+          this.sequenceTitle = s.name
+        }
+      })
+    },
     computed: {
       URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
+      }
+    },
+    data() {
+      return {
+        isSequenceId: false,
+        sequenceTitle: false
       }
     },
     methods: {
