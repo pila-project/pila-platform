@@ -80,6 +80,13 @@ async function attemptAddContent(userInput) {
       const myContent = await Agent.state('my-content')
       myContent[userInput] = {}
     } else { // old tagging approach for Intl
+      const { active_type } = await Agent.metadata(userInput)
+      if (active_type !== 'application/json;type=sequence') {
+        showInvalidMessage.value = true
+        userIdOrURL.value = ''
+        return
+      }
+
       store.dispatch('pila_tags/tag', {
         content_id: userInput,
         tag_type: 'tracked'
