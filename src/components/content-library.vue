@@ -45,26 +45,6 @@
     </div>
 
     <div class="card-container">
-<!--       <div class="card new-item-card">
-        <div>
-          <div class="content-name">{{t('add-content')}}</div>
-          <div>
-            <IconButton
-              icon="plus-circle"
-              @click="showAddModal = true"
-              :text="t('add-content-by-id-or-url')"
-              background="#FFC442"
-            />
-            <br>
-            <IconButton
-              icon="plus-circle"
-              @click="showCreateModal = true"
-              :text="t('create-new-content')"
-              background="#FFC442"
-            />
-          </div>
-        </div>
-      </div> -->
       <ContentLibraryCard
          v-for="id in filteredContent"
         :key="id"
@@ -80,52 +60,6 @@
       />
     </div>
   </div>
-  <PILAModal
-    v-if="showAddModal"
-    @close="event => trackContent(event, contentId)"
-    showCloseButton
-    :closeButtonText="contentIdValidated ? t('add') : t('cancel')"
-  >
-    <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
-    <template v-slot:body>
-      <div style="text-align: center;">
-        <input
-          style="width: 50%; text-align: center;"
-          type="text"
-          class="rounded-grey"
-          :placeholder="t('content-code-or-url')"
-          v-model="contentId"
-        />
-        <div v-if="!contentIdValidated">
-          {{ t('invalid-id-or-url') }}
-        </div>
-      </div>
-    </template>
-  </PILAModal>
-  <PILAModal
-    v-if="showCreateModal"
-    @close="event => createContent(event, contentToCreate)"
-    showCloseButton
-    :closeButtonText="contentToCreate ? t('create') : t('cancel')"
-  >
-    <template v-slot:title>{{ t('add-content-by-id-or-url') }}</template>
-    <template v-slot:body>
-      {{previewing}}
-      <div style="padding: 0 32px;">
-        <h3>{{ t('select-content-type') }}</h3>
-        <br>
-        <label>
-          <input type="radio" :checked="contentToCreate === 'karel-map'" @click="contentToCreate = 'karel-map'" />
-          {{t('create-karel-map-block-based-programming')}}
-        </label>
-        <br>
-        <label>
-          <input type="radio" :checked="contentToCreate === 'bettys-brain'" @click="contentToCreate = 'bettys-brain'" />
-          {{t('create-bettys-brain-concept-map-and-virtual-agents')}}
-        </label>
-      </div>
-    </template>
-  </PILAModal>
   <PreviewModal
     v-if="previewing"
     :id="previewing"
@@ -169,12 +103,7 @@
     emits: ['select'],
     data() {
       return {
-        contentId: '',
-        contentIdValidated: null,
-        showAddModal: false,
         previewing: null,
-        showCreateModal: false,
-        contentToCreate: '',
         activeProjects: [ 'karel', 'candli', 'betty' ],
         activeTags: [],
         showFilters: false,
@@ -193,18 +122,6 @@
         default: null
       }
     },
-    watch: {
-      async contentId(val) {
-        if (isURL(val)) { // if url, validated if betty or candli
-          this.contentIdValidated = this.isBettyLink(val) || this.isCandliLink(val)
-        } else if (isUUID(val)) { // if uuid, validated if karel map
-          const res = await Agent.metadata(this.contentId)
-          this.contentIdValidated = (res?.active_type?.startsWith('application/json;type=karel-map')) // allow all versions
-        } else { // else not validated
-          this.contentIdValidated = false
-        }
-      }
-    },
     computed: {
       filteredContent() {
         if (this.$store.getters.isThailandDomain) return this.$store.getters['content/contentToShow']()
@@ -213,7 +130,8 @@
       oldFilteredContent() {
         const filteredByType = this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
             || (this.activeProjects.includes('candli') && this.isCandliLink(id))
-            || (this.activeProjects.includes('karel') && isUUID(id))
+            || (this.activeProjects.includes('karel') && isUUID(id)
+          )
         )
         const filteredByTypeAndTag = filteredByType.filter(id => {
           return this.activeTags.every(tag => this.tagsForId(id).includes(tag))
@@ -247,12 +165,6 @@
           this.activeProjects.push(e)
         }
       },
-      trackContent(event, content_id) {
-        if (event === 'primary-button') {
-          this.$store.dispatch('pila_tags/tag', { content_id, tag_type: 'tracked' })
-        }
-        this.showAddModal = false
-      },
       isCandliLink(id) {
         return id && (id.startsWith('https://pila.cand.li/') || id === '1d77b2e0-f214-4c28-a06e-2186b7f1e0b2')
       },
@@ -261,17 +173,6 @@
       },
       remove(content_id) {
         this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
-      },
-      createContent(event, type) {
-        if (event === 'primary-button') {
-          if (type === 'karel-map') {
-            window.open('https://the-karel-project.netlify.app/karel-builder?mode=maps', '_blank')
-          }
-          else if (type === 'bettys-brain') {
-            window.open('https://bettysbrain.knowlearning.systems/bb/custom/causal-map?auth=true&oecd=true&custom=true', '_blank')
-          }
-        }
-        this.showCreateModal = false
       }
     }
   }
