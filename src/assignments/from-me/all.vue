@@ -263,7 +263,7 @@
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
   import CandliDashboard from './candli-dashboard.vue'
   import GenAIDashboard from './gen-ai-dashboard.vue'
-  import { CANDLI_SEQUENCES } from '../../constants.js'
+  import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '../../constants.js'
 
   export default {
     components: {
@@ -324,7 +324,7 @@
             .state(this.current)
             .then(({ content }) => {
               this.assignmentContainsCandli = !!CANDLI_SEQUENCES[content]
-              this.assignmentContainsGenAI = content === '085f62f0-87a4-11ef-861e-a9ea128200f7'
+              this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
             })
         }
       },

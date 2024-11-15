@@ -39,6 +39,10 @@ export const CANDLI_SEQUENCES = {
   ]
 }
 
+export const GEN_AI_SEQUENCES = {
+  '085f62f0-87a4-11ef-861e-a9ea128200f7': true
+}
+
 export const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
 export const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
 export const TRAINER_TAG = "8ae541e0-ed49-11ee-be89-5b04faf266ea"
