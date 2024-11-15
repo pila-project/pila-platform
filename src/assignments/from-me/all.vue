@@ -142,13 +142,21 @@
                 :text="t('live-monitoring-dashboard')"
                 background="#FFC442"
               />
-              <br>
+              <br v-if="assignmentContainsCandli">
               <IconButton
                 icon="dashboard"
                 v-if="assignmentContainsCandli"
                 @click="showCandliResultsModal = true"
                 :text="t('competency-dashboard')"
                 background="rgb(107, 234, 201)"
+              />
+              <br v-if="assignmentContainsGenAI">
+              <IconButton
+                icon="dashboard"
+                v-if="assignmentContainsGenAI"
+                @click="showGenAIDashboardModal = true"
+                :text="t('generative-ai-module-dashboard')"
+                background="#FFC442"
               />
             </div>
           </div>
@@ -223,6 +231,26 @@
       </div>
     </template>
   </PILAModal>
+  <PILAModal
+    v-if="showGenAIDashboardModal"
+    @close="showGenAIDashboardModal = false"
+    showCloseButton
+    width="90vw"
+    height="90vh"
+  >
+    <template v-slot:title>
+      <span>
+        {{ t('generative-ai-module-dashboard') }}
+      </span>
+    </template>
+    <template v-slot:body>
+      <div style="position: absolute; width: 100%; height: 100%;">
+        <GenAIDashboard
+          :assignment="current"
+        />
+      </div>
+    </template>
+  </PILAModal>
 </template>
 
 <script>
@@ -234,6 +262,7 @@
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
   import CandliDashboard from './candli-dashboard.vue'
+  import GenAIDashboard from './gen-ai-dashboard.vue'
   import { CANDLI_SEQUENCES } from '../../constants.js'
 
   export default {
@@ -244,6 +273,7 @@
       IconButton,
       Dashboard,
       CandliDashboard,
+      GenAIDashboard,
       CreateEditAssignmentModal
     },
     props: {
@@ -258,7 +288,9 @@
         previewing: null,
         showResultsModal: false,
         showCandliResultsModal: false,
-        assignmentContainsCandli: null
+        assignmentContainsCandli: null,
+        assignmentContainsGenAI: false,
+        showGenAIDashboardModal: false
       }
     },
     computed: {
@@ -278,21 +310,22 @@
     },
     watch: {
       current(value) {
-        this.reassessCandliContent()
+        this.reassessContents()
       },
       showEditModal(value) {
-        if (!value) this.reassessCandliContent()
+        if (!value) this.reassessContents()
       }
     },
     methods: {
-      async reassessCandliContent() {
+      async reassessContents() {
         this.assignmentContainsCandli = null
         if (this.current) {
-          this.assignmentContainsCandli = await (
-            Agent
-              .state(this.current)
-              .then(({ content }) => !!CANDLI_SEQUENCES[content])
-          )
+          Agent
+            .state(this.current)
+            .then(({ content }) => {
+              this.assignmentContainsCandli = !!CANDLI_SEQUENCES[content]
+              this.assignmentContainsGenAI = content === '085f62f0-87a4-11ef-861e-a9ea128200f7'
+            })
         }
       },
       t(slug) { return this.$store.getters.t(slug) },
