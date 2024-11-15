@@ -21,7 +21,10 @@
   const assignmentUsers = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
 
   const params = new URLSearchParams(
-    assignmentUsers.map(id => ['user', id])
+    [
+      ...assignmentUsers.map(id => ['user', id]),
+      ['content', 'my-state']
+]
   )
 
   async function proxyEnvironmentCall(user) {
