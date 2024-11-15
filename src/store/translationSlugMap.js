@@ -55,6 +55,7 @@ export default {
     "select-the-content-to-assign": "3eda342d-dcd4-4812-a514-850d9745f56d",
     "create-modify-assignment": "3fc6c79b-0b0c-4306-a8a3-8dffae71a78e",
     "previewing": "42694527-581f-449a-a712-722dd0629acb",
+    "generative-ai-module-dashboard": "42d2c47e-cf88-45b2-a210-e11ce44737d8",
     "assigned-by": "43dd0195-19d2-4499-81f5-b70948f653be",
     "user": "43fe3d4d-8267-4846-b271-7e8b807d365d",
     "role-requests": "44308b2c-092f-41ec-afb4-92e9b46b51d8",
@@ -224,5 +225,5 @@ export default {
     "created-by": "fc15495e-fc19-4f7e-9d91-1cfea8d56bf2",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
     "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d",
-    "for-support-please-email-edu-pila-oecd-org" : "6e3a0bba-2ac5-4ed3-aefd-336d7de670e8",
+    "for-support-please-email-edu-pila-oecd-org": "6e3a0bba-2ac5-4ed3-aefd-336d7de670e8",
 }
