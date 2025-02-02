@@ -1,14 +1,14 @@
 export const CANDLI_SEQUENCES = {
   // Save our Oceans Level 1
   '4973bff0-dfb2-11ef-a1e9-837249714301': [
-    'd177750e-8212-4e98-9423-f4fc42afd45b', 
-    'e139b792-5128-4680-bdf9-81d0511fba1e'
+    '6f48841b58af5d8aa450ae5f9258f1ec', 
+    '237d32dc23cc59e680ed47ec2e3a4fb5'
   ],
   // Chirpy’s Adventure levels 1-3
   'bee89880-dfaf-11ef-ba63-d9b747d8f3d8' : [ 
-    'b8ab5d62-d9e3-4e88-b98f-c6955047134c',
-    'ebaff135-05fd-419f-96c2-8b8dc1c5c52d',
-    '1a0e048b-0239-45f0-9c12-4a3511893b58'
+    'f4cb3e4fe72355f58e6b58d458d31205',
+    'e8d0ab2438765c1c9dd9962d10444a0c'
+    '4a95faed0b105822adc1d90c96c4b645'
   ],
   // Math underwater, on land & in the air!
   '1d764820-05c2-11ef-86c1-15e3e190b62a': [
