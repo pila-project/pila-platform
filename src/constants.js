@@ -7,7 +7,7 @@ export const CANDLI_SEQUENCES = {
   // Chirpy’s Adventure levels 1-3
   'bee89880-dfaf-11ef-ba63-d9b747d8f3d8' : [ 
     'f4cb3e4fe72355f58e6b58d458d31205',
-    'e8d0ab2438765c1c9dd9962d10444a0c'
+    'e8d0ab2438765c1c9dd9962d10444a0c',
     '4a95faed0b105822adc1d90c96c4b645'
   ],
   // Math underwater, on land & in the air!
