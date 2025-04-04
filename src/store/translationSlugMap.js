@@ -228,5 +228,6 @@ export default {
     "total": "fac631d0-12f2-4430-96b7-20ec1138d6e5",
     "created-by": "fc15495e-fc19-4f7e-9d91-1cfea8d56bf2",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
-    "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d"
+    "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d",
+    "resources" : "54bf1633-846d-4a23-91ae-46e32cbb0d46"
 }
