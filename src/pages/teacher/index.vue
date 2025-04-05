@@ -55,6 +55,12 @@
           @click="tab = 'create'"
         />
         <v-list-item
+          prepend-icon="fa-solid fa-file-alt"
+          :title="t('resources')"
+          :active="tab === 'resources'"
+          @click="tab = 'resources'"
+        />
+        <v-list-item
           v-if="userIsTrainer"
           prepend-icon="fa-solid fa-chalkboard-user"
           :title="t('trainer')"
@@ -116,6 +122,9 @@
       />
       <TrainerPage
         v-if="tab === 'trainer'"
+      />
+      <ResourcesPage
+        v-if="tab === 'resources'"
       />
       <StudiesNotAvailable
         v-if="tab === 'assignments-to-me' && hideStudies"
@@ -181,6 +190,7 @@
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   import TeacherCreateTab from './teacher-create-tab.vue'
   import TrainerPage from './trainer-page.vue'
+  import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG } from '../../constants.js'
 
   const store = useStore()

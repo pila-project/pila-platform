@@ -58,3 +58,6 @@ export const ADMIN_TAG = "36e1b060-ed49-11ee-be89-5b04faf266ea"
 export const TEACHER_TAG = "49bf66a0-ed49-11ee-be89-5b04faf266ea"
 export const TRAINER_TAG = "8ae541e0-ed49-11ee-be89-5b04faf266ea"
 export const PILA_CONTENT_TAG = "1a53db50-e248-11ee-ab5f-07f4a7408770"
+export const MANDATORY_RESOURCES_TAG = "24af6b80-1174-11f0-9b08-0156640831c5"
+export const OPTIONAL_RESOURCES_TAG = "e5e89470-11ab-11f0-bd10-df9c846cb093"
+
