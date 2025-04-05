@@ -18,6 +18,7 @@
 					prepend-icon="fa-solid fa-download"
 					:title="name"
 					:value="name"
+					@click="download(id)"
 				></v-list-item>
 			</v-list-group>
 			<v-list-group value="Optional Resources">
@@ -34,6 +35,7 @@
 					prepend-icon="fa-solid fa-download"
 					:title="name"
 					:value="name"
+					@click="download(id)"
 				></v-list-item>
 			</v-list-group>
 		</v-list>
