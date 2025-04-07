@@ -162,7 +162,7 @@
         <v-btn
           @click="openLink('https://pilaproject.org/about-pila/data-protection-notice-for-teachers')"
           variant="text"
-          :text="t('privacy-policy')"
+          :text="t('data-protection')"
         />
         <v-btn
           @click="openLink('https://pilaproject.org/contact-us')"

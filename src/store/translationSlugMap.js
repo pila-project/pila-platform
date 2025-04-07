@@ -49,6 +49,7 @@ export default {
     "teacher-name": "3847b12b-cdd2-41c2-a6a0-ba864ee2b440",
     "join": "394e3174-39bb-4751-b66d-188dd1e81e33",
     "privacy-policy": "396f9e91-afce-46bb-8c62-e25e8eb9b950",
+    "data-protection": "9bc5ecfe-359b-4c8b-982b-75e68becd5ee",
     "explore": "3a7f3fe6-f1c3-4306-b870-b3b1b5c7e3c5",
     "visit": "3c6fe9b4-b90d-4d2a-8297-5f47f475e1fa",
     "my-teacher-groups": "3ce29235-f8c8-43c4-b15d-599ce5c03586",
