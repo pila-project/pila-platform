@@ -2,7 +2,7 @@
   <div class="split-panes">
     <div class="pane">
       <div class="wrapper">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 16px">
+        <div style="display: flex; justify-content: space-between; padding: 16px">
           <div>
             <h3 style="display: inline-block; margin-right: 16px;">{{ t('my-assignments') }}</h3>
             <IconButton
@@ -17,66 +17,54 @@
             <label for="show-archived"><em>{{ t('show-archived') }}</em></label>
           </div>
         </div>
-        <table class="old-table teacher-assignments-table">
-          <thead>
-            <tr>
-              <th>{{ t('assignment') }}</th>
-              <th>{{ t('classes-assigned') }}</th>
-              <th></th>
-              <th v-if="showArchived">{{ t('archived') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="id in assignmentsForActiveTable"
-              :key="id"
-              :class="{ selected: id === current }"
-              @click="current = current === id ? null: id"
+
+        <v-data-table
+          :headers="headers"
+          :items="assignmentsForActiveTable"
+          :items-per-page="-1"
+          fixed-header
+          @click:row="handleRowClick"
+          :row-props="item => {
+            if (item.item === current) {
+              return { style: { background: '#EEEEEE' } }
+            }
+            else return {}
+          }"
+        >
+          <template #bottom></template>
+          <template v-slot:item.assignment_name="{ item }">
+            <vueScopeComponent :id="item" :path="['name']" />
+          </template>
+          <template v-slot:item.classes_assigned="{ item }">
+            <span
+              v-if="assignedGroups(item).length === 0"
+              style="color: grey; font-size: 0.9em;"
+            ><em>{{ t('no-classes-assigned') }}</em></span>
+            <span
+              v-for="groupId, index in assignedGroups(item)"
+              :key="groupId"
             >
-              <td class="first">
-                <vueScopeComponent :id="id" :path="['name']" />
-              </td>
-              <td>
-                <span
-                  v-if="assignedGroups(id).length === 0"
-                  style="color: grey; font-size: 0.9em;"
-                ><em>{{ t('no-classes-assigned') }}</em></span>
-                <span
-                  v-for="groupId, index in assignedGroups(id)"
-                  :key="groupId"
-                >
-                  {{ index > 0 ? ', ' : '' }}
-                  <vueScopeComponent
-                    :id="groupId" :path="['name']"
-                  />
-                </span>
-              </td>
-              <td :class="showArchived ? '' : 'last'">
-                <vueScopeComponent
-                  metadata
-                  :id="id"
-                  :path="['created']"
-                >
-                  <template v-slot="data">
-                    {{ data.loading ? '-' : (new Date(data.value)).toLocaleString() }}
-                  </template>
-                </vueScopeComponent>
-              </td>
-              <td v-if="showArchived" class="last">
-                <span v-if="archivedIds[id]">✘</span>
-              </td>
-            </tr>
-            <tr
-              v-for="n in Math.max(0, 6-assignmentsForActiveTable.length)"
-              :key="n"
-            > <!-- PLACHOLDER ROWS -->
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td v-if="showArchived">-</td>
-            </tr>
-          </tbody>
-        </table>
+              {{ index > 0 ? ', ' : '' }}
+              <vueScopeComponent
+                :id="groupId" :path="['name']"
+              />
+            </span>
+          </template>
+          <template v-slot:item.assignment_date="{ item }">
+            <vueScopeComponent
+              metadata
+              :id="item"
+              :path="['created']"
+            >
+              <template v-slot="data">
+                {{ data.loading ? '-' : (new Date(data.value)).toLocaleString() }}
+              </template>
+            </vueScopeComponent>
+          </template>
+          <template v-slot:item.archived="{ item }">
+            <span v-if="archivedIds[item]">✘</span>
+          </template>
+        </v-data-table>
       </div>
     </div>
     <div class="pane" v-if="current" :key="current">
@@ -306,6 +294,19 @@
       },
       archivedIds() {
         return Object.fromEntries(this.archived_assignable_items.map(id => [id, true]))
+      },
+      headers() {
+        const headers = [
+          { title: this.t('assignment'), key: 'assignment_name' },
+          { title: this.t('classes-assigned'), key: 'classes_assigned' },
+          { title: this.t('assignment-date'), key: 'assignment_date' }
+        ]
+
+        if (this.showArchived) headers.push({
+          title: this.t('archived'), key: 'archived'
+        })
+
+        return headers
       }
     },
     watch: {
@@ -317,6 +318,9 @@
       }
     },
     methods: {
+      handleRowClick(event, item) {
+        this.current = this.current === item.item ? null : item.item
+      },
       async reassessContents() {
         this.assignmentContainsCandli = null
         if (this.current) {
@@ -367,37 +371,6 @@ h3, h4
 table
 {
   width: 100%;
-}
-
-.wrapper
-{
-  max-width: 800px;
-  margin: auto;
-  padding: 16px;
-}
-
-.teacher-assignments-table
-{
-  width: 100%;
-  margin: auto;
-}
-
-tr.selected td {
-  border-top: 2px solid #1B1B83;
-  border-bottom: 2px solid #1B1B83;
-}
-tr.selected td.first {
-  border: 2px solid #1B1B83;
-  border-right: none;
-  border-bottom-left-radius: 12px;
-  border-top-left-radius: 12px;
-}
-tr.selected td.last {
-  border: 2px solid #1B1B83;
-  border-left: none;
-  border-bottom-right-radius: 12px;
-  border-top-right-radius: 12px;
-
 }
 
 .member-tables {
