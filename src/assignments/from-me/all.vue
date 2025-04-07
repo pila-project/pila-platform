@@ -253,6 +253,8 @@
   import GenAIDashboard from './gen-ai-dashboard.vue'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '../../constants.js'
 
+  let idToCreated = {}
+
   export default {
     components: {
       PILAModal,
@@ -281,6 +283,11 @@
         showGenAIDashboardModal: false
       }
     },
+    mounted() {
+      this.assignable_items.forEach(async id => {
+        idToCreated[id] = await Agent.metadata(id).then(md => md.created)
+      })
+    },
     computed: {
       assignmentsForActiveTable() {
         if (this.showArchived) return [...this.assignable_items, ...this.archived_assignable_items]
@@ -297,9 +304,13 @@
       },
       headers() {
         const headers = [
-          { title: this.t('assignment'), key: 'assignment_name' },
-          { title: this.t('classes-assigned'), key: 'classes_assigned' },
-          { title: this.t('assignment-date'), key: 'assignment_date' }
+          { title: this.t('assignment'), key: 'assignment_name', sortable: false },
+          { title: this.t('classes-assigned'), key: 'classes_assigned', sortable: false },
+          {
+            title: this.t('assignment-date'),
+            key: 'assignment_date',
+            sortRaw: (a, b) => idToCreated[a] - idToCreated[b]
+          }
         ]
 
         if (this.showArchived) headers.push({
