@@ -13,7 +13,7 @@
             :user="assigner"
             avatar
             :size="activeAssigner === assigner ? 'large' : 'small'"
-            :showName="false"
+            showName
             @click="activeAssigner = assigner"
           />
         </div>
