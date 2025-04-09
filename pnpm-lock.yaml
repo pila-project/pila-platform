@@ -12,11 +12,11 @@ importers:
         specifier: ^6.5.1
         version: 6.5.1
       '@knowlearning/agents':
-        specifier: ^0.9.159
-        version: 0.9.159
+        specifier: ^0.9.173
+        version: 0.9.173
       '@knowlearning/tags':
         specifier: ^1.1.0
-        version: 1.1.0(@knowlearning/agents@0.9.159)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))
+        version: 1.1.0(@knowlearning/agents@0.9.173)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))
       '@vitejs/plugin-basic-ssl':
         specifier: ^1.0.1
         version: 1.0.1(vite@4.4.11)
@@ -219,11 +219,11 @@ packages:
   '@jridgewell/sourcemap-codec@1.4.15':
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
 
-  '@knowlearning/agents@0.9.159':
-    resolution: {integrity: sha512-TsQBWemSY97N5dxu2AFlbDVhczw27m0i4LeesgjoDQNSAzw0CCQau0F0SKweu65NkMLSsuJnqnqRbiZJc/9q1Q==}
+  '@knowlearning/agents@0.9.173':
+    resolution: {integrity: sha512-STm5NNGiU0tzNXxot2tN9sjkupiAV8IyuZ7sbq46BNMIgySS8Ea4xlXhWLxId/jza8cUTdtb8YTKu/PmpVW0RQ==}
 
-  '@knowlearning/patch-proxy@1.3.2':
-    resolution: {integrity: sha512-m1f+dDCMw2dnKoLXgh4ViaAuGyAmgfevy+vDo4zDLuSv5W/bGdDwyB9epp+8nlqUVG9yCyvC+XU9s+5PmsB9vQ==}
+  '@knowlearning/patch-proxy@1.3.4':
+    resolution: {integrity: sha512-F1ay1UaPXsEJfTm6IX6NvEvorVXI3qXabQGCDeyDSu9qZmETqubgOYqx6B6wImCxGL9TgrB6ZC4QLF0tJHYwng==}
 
   '@knowlearning/tags@1.1.0':
     resolution: {integrity: sha512-uPLthvzzWc5wk4xRqiYOn+iK1XQd+7zv+u6S5sKWxWCeISvcBt3DD4VwnBSCOTkQOEd8P+3iD9r2toUNhojMfA==}
@@ -823,19 +823,17 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.4.15': {}
 
-  '@knowlearning/agents@0.9.159':
+  '@knowlearning/agents@0.9.173':
     dependencies:
-      '@knowlearning/patch-proxy': 1.3.2
+      '@knowlearning/patch-proxy': 1.3.4
       fast-json-patch: 3.1.1
       uuid: 8.3.2
-      vue: 3.3.4
-      vuex: 4.1.0(vue@3.3.4)
 
-  '@knowlearning/patch-proxy@1.3.2': {}
+  '@knowlearning/patch-proxy@1.3.4': {}
 
-  '@knowlearning/tags@1.1.0(@knowlearning/agents@0.9.159)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))':
+  '@knowlearning/tags@1.1.0(@knowlearning/agents@0.9.173)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))':
     dependencies:
-      '@knowlearning/agents': 0.9.159
+      '@knowlearning/agents': 0.9.173
       vue: 3.3.4
       vuetify: 3.5.13(vue@3.3.4)
 
