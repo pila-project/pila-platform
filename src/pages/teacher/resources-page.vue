@@ -8,7 +8,7 @@
 				<template v-slot:activator="{ props }">
 					<v-list-item
 						v-bind="props"
-						:title="t('mandatory-resources')"
+						:title="t('required-resources')"
 					></v-list-item>
 				</template>
 
@@ -25,7 +25,7 @@
 				<template v-slot:activator="{ props }">
 					<v-list-item
 						v-bind="props"
-						:title="t('optional-resources')"
+						:title="t('recommended-resources')"
 					></v-list-item>
 				</template>
 
