@@ -15,7 +15,7 @@ export default {
     "select-teachers-in-the-group": "0e8987df-634e-4c5d-827d-9dca0d250ebd",
     "admin-role-required": "0ead46f7-0382-4141-a2f2-43bc1b09aa22",
     "create-edit-class": "0eefed28-cda4-4a38-9459-8e442edf3ae6",
-    "per-the-pila-personal-data-protection-notice-please-check-this-box-to-confirm-you-have-collected-parental-guarding-consent-from-your-students-as-required-by-your-local-or-national-laws": "0f8f32ff-f987-4566-bf1c-04ac9922d8cb",
+    "per-the-pila-personal-data-protection-notice-or-the-specific-consent-requirements-if-you-are-participating-in-a-research-study-through-pila-please-check-this-box-to-confirm-you-have-collected-parental-guardian-and-student-consent-as-required-by-your-local-or-national-laws": "0f8f32ff-f987-4566-bf1c-04ac9922d8cb",
     "new-group": "0fb62717-4151-40c2-9ed3-86f4241804e2",
     "matching": "104f2371-a1d2-49be-999c-ae6f0059f8dd",
     "live-monitoring-dashboard": "1109d648-360a-4aac-86f0-1737e1c569c9",
