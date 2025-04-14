@@ -126,6 +126,6 @@ export default {
 async function storeUserInfo() {
   const { auth: { user, info: { name, picture } } } = await Agent.environment()
   const myUserInfo = await Agent.state('user-info')
-  myUserInfo.name = name
-  myUserInfo.picture = picture
+  myUserInfo.name = name || null
+  myUserInfo.picture = picture || null
 }
