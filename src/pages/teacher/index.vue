@@ -262,7 +262,7 @@
           user_cred_encrypted_name: naclUtil.encodeBase64(encrypt(
             ephemeralKeys.secretKey,
             userKeys.publicKey,
-            naclUtil.decodeUTF8('New User')
+            naclUtil.decodeUTF8('New User ' + Date.now())
           )),
           encrypted_user_cred: naclUtil.encodeBase64(encrypt(
             ephemeralKeys.secretKey,
