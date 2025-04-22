@@ -107,6 +107,11 @@
     </v-navigation-drawer>
     
     <v-main>
+      <UserInfoModal
+        v-if="userModalUser"
+        :id="userModalUser"
+        @close="userModalUser = null"
+      />
       <Groups
         v-if="tab === 'classes'"
         type="class"
@@ -172,11 +177,6 @@
         />
       </v-row>
     </v-footer>
-    <UserInfoModal
-      v-if="userModalUser"
-      :user="userModalUser"
-      @close="userModalUser = null"
-    />
   </v-app>
 
   <RoleRequester v-else role="teacher" />
@@ -199,6 +199,8 @@
   import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG } from '../../constants.js'
   import UserInfoModal from '../../components/user-info-modal.vue'
+  import { encrypt, generateKeyPair } from '../../encryption.js'
+  import naclUtil from 'tweetnacl-util'
 
   const store = useStore()
   const hideStudies = true
@@ -250,9 +252,26 @@
   }
 
   async function createUser() {
+    const userKeys = await generateKeyPair()
+    const ephemeralKeys = await generateKeyPair()
+    const myPublicKey = await Agent.state('user-info-public-keys').then(k => k.public)
+
     const id = await Agent.create({
       active: {
-        credentials: []
+        credentials: [{
+          user_cred_encrypted_name: naclUtil.encodeBase64(encrypt(
+            ephemeralKeys.secretKey,
+            userKeys.publicKey,
+            naclUtil.decodeUTF8('New User')
+          )),
+          encrypted_user_cred: naclUtil.encodeBase64(encrypt(
+            ephemeralKeys.secretKey,
+            naclUtil.decodeBase64(myPublicKey),
+            naclUtil.decodeUTF8(naclUtil.encodeBase64(userKeys.secretKey))
+          )),
+          user_public_key: naclUtil.encodeBase64(userKeys.publicKey),
+          public_key: naclUtil.encodeBase64(ephemeralKeys.publicKey)
+        }]
       }
     })
     userModalUser.value = id
