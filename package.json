@@ -17,6 +17,7 @@
     "font-awesome": "^4.7.0",
     "json-2-csv": "^5.5.1",
     "mocha": "^10.2.0",
+    "qrcode": "^1.5.4",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "uuid": "^9.0.1",

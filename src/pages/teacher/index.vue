@@ -274,6 +274,7 @@
         }]
       }
     })
+    await Agent.synced()
     userModalUser.value = id
     users[id] = {}
   }

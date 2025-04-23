@@ -3,6 +3,7 @@
   import { useStore } from 'vuex'
   import { decrypt, generateKeyPair } from '../encryption.js'
   import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
+  import QRCode from './qrcode.vue'
 
   const store = useStore()
 
@@ -52,12 +53,12 @@
       </v-card-title>
 
       <v-card-text>
-        {{ qrCodePayload }}
         <v-text-field
           v-model="editUserInfo.name"
           label="Name"
           required
         />
+        <QRCode :data="qrCodePayload" />
       </v-card-text>
 
       <v-card-actions>
