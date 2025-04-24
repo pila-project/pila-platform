@@ -116,7 +116,7 @@
         v-if="tab === 'classes'"
         type="class"
         :possibleMembers="students"
-        @createUser="createUser"
+        @createUser="createUserAndLaunchModal"
       />
       <div v-if="tab === 'content'">
         <ContentLibrary />
@@ -199,8 +199,7 @@
   import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG } from '../../constants.js'
   import UserInfoModal from '../../components/user-info-modal.vue'
-  import { encrypt, generateKeyPair } from '../../encryption.js'
-  import naclUtil from 'tweetnacl-util'
+  import createUser from '../../create-user.js'
 
   const store = useStore()
   const hideStudies = true
@@ -251,32 +250,10 @@
     window.open(link, '_blank')
   }
 
-  async function createUser() {
-    const userKeys = await generateKeyPair()
-    const ephemeralKeys = await generateKeyPair()
-    const myPublicKey = await Agent.state('user-info-public-keys').then(k => k.public)
-
-    const id = await Agent.create({
-      active: {
-        credentials: [{
-          user_cred_encrypted_name: naclUtil.encodeBase64(encrypt(
-            ephemeralKeys.secretKey,
-            userKeys.publicKey,
-            naclUtil.decodeUTF8('New User ' + Date.now())
-          )),
-          encrypted_user_cred: naclUtil.encodeBase64(encrypt(
-            ephemeralKeys.secretKey,
-            naclUtil.decodeBase64(myPublicKey),
-            naclUtil.decodeUTF8(naclUtil.encodeBase64(userKeys.secretKey))
-          )),
-          user_public_key: naclUtil.encodeBase64(userKeys.publicKey),
-          public_key: naclUtil.encodeBase64(ephemeralKeys.publicKey)
-        }]
-      }
-    })
-    await Agent.synced()
-    userModalUser.value = id
+  async function createUserAndLaunchModal() {
+    const id = await createUser()
     users[id] = {}
+    userModalUser.value = id
   }
 
 </script>

@@ -24,7 +24,7 @@
       decrypt(
         mySecretKey,
         decodeBase64(userInfo.credentials[0].public_key),
-        decodeBase64(userInfo.credentials[0].encrypted_user_cred)
+        decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
       )
     )
   }
