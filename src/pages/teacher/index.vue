@@ -118,6 +118,7 @@
         :possibleMembers="students"
         @createUser="createUserAndLaunchModal"
         @selectUser="id => userModalUser = id"
+        :key="userModalUser || 'default' /* to ensure name load on change */"
       />
       <div v-if="tab === 'content'">
         <ContentLibrary />
