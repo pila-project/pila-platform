@@ -71,13 +71,21 @@
         <br>
         <div style="display: flex; justify-content: space-between;">
           <h3 style="color: #2E32DB;"> {{ GET_TEXT.MEMBER_LIST_HEADER }}</h3>
-          <IconButton
-            v-if="type === 'class'"
-            :text="t('manage-data')"
-            background="rgb(220 220 220)"
-            textColor="grey"
-            @click="showDeleteDataModal = !showDeleteDataModal"
-          />
+          <div>
+            <IconButton
+              icon="plus-circle"
+              background="#FFC442"
+              :text="t('add-student')"
+              @click="$emit('createUser')"
+            />
+            <IconButton
+              v-if="type === 'class'"
+              :text="t('manage-data')"
+              background="rgb(220 220 220)"
+              textColor="grey"
+              @click="showDeleteDataModal = !showDeleteDataModal"
+            />
+          </div>
         </div>
         <div class="class-list">
           <div v-if="!possibleMembers.length">{{ GET_TEXT.CURRENTLY_NO_MEMBERS }}</div>
@@ -85,6 +93,11 @@
             v-for="id in possibleMembers"
             :key="`possible-member-id-${id}`"
           >
+            <v-icon
+              @click="$emit('selectUser', id)"
+              class="ma-4"
+              icon="fa-solid fa-pencil"
+            />
             <DecryptedName :user="id" />
           </div>
         </div>
@@ -133,61 +146,60 @@
         </table>
       </div>
     </div>
+    <PILAModal
+      v-if="showLinkStudentModal"
+      @close="showLinkStudentModal = false"
+    >
+      <template v-slot:title>{{ t('add-students-to-your-student-list') }}</template>
+      <template v-slot:body>
+        <LinkStudentModal />
+      </template>
+    </PILAModal>
+    <PILAModal
+      v-if="showNamePasswordModal"
+      @close="showNamePasswordModal = false"
+      showCloseButton
+      width="600px"
+      :closeButtonText="t('done')"
+    >
+      <template v-slot:title>{{ t('enter-encryption-key-word') }}</template>
+      <template v-slot:body>
+        <div style="padding: 20px 42px; text-align: center;">
+          {{ t('enter-an-encryption-key-word-you-will-remember-this-key-word-will-be-used-to-allow-you-to-see-your-students-names-while-preserving-the-anonymity-of-their-data-for-all-other-users') }}
+          <br>
+          <input v-model="namePassword" class="rounded-grey" style="width: 60%; text-align: center;" />
+        </div>
+      </template>
+    </PILAModal>
+    <PILAModal
+      v-if="showEditClassModal"
+      @close="showEditClassModal = false"
+      showCloseButton
+      :closeButtonText="t('done')"
+    >
+      <template v-slot:title>{{ GET_TEXT.MODAL_HEADER }}</template>
+      <template v-slot:body>
+        <CreateEditGroupModal
+          :type="type"
+          :id="current"
+          :possibleMembers="possibleMembers"
+        />
+      </template>
+    </PILAModal>
+    <PILAModal
+      v-if="showDeleteDataModal"
+      @close="showDeleteDataModal = false"
+      showCloseButton
+      :closeButtonText="t('done')"
+    >
+      <template v-slot:title>{{ t('manage-data') }}</template>
+      <template v-slot:body>
+        <div style="margin: 40px 32px;">
+          {{ t('to-request-deletion-of-data-please-email-data-requests-knowlearning-org') }}
+        </div>
+      </template>
+    </PILAModal>
   </div>
-
-  <PILAModal
-    v-if="showLinkStudentModal"
-    @close="showLinkStudentModal = false"
-  >
-    <template v-slot:title>{{ t('add-students-to-your-student-list') }}</template>
-    <template v-slot:body>
-      <LinkStudentModal />
-    </template>
-  </PILAModal>
-  <PILAModal
-    v-if="showNamePasswordModal"
-    @close="showNamePasswordModal = false"
-    showCloseButton
-    width="600px"
-    :closeButtonText="t('done')"
-  >
-    <template v-slot:title>{{ t('enter-encryption-key-word') }}</template>
-    <template v-slot:body>
-      <div style="padding: 20px 42px; text-align: center;">
-        {{ t('enter-an-encryption-key-word-you-will-remember-this-key-word-will-be-used-to-allow-you-to-see-your-students-names-while-preserving-the-anonymity-of-their-data-for-all-other-users') }}
-        <br>
-        <input v-model="namePassword" class="rounded-grey" style="width: 60%; text-align: center;" />
-      </div>
-    </template>
-  </PILAModal>
-  <PILAModal
-    v-if="showEditClassModal"
-    @close="showEditClassModal = false"
-    showCloseButton
-    :closeButtonText="t('done')"
-  >
-    <template v-slot:title>{{ GET_TEXT.MODAL_HEADER }}</template>
-    <template v-slot:body>
-      <CreateEditGroupModal
-        :type="type"
-        :id="current"
-        :possibleMembers="possibleMembers"
-      />
-    </template>
-  </PILAModal>
-  <PILAModal
-    v-if="showDeleteDataModal"
-    @close="showDeleteDataModal = false"
-    showCloseButton
-    :closeButtonText="t('done')"
-  >
-    <template v-slot:title>{{ t('manage-data') }}</template>
-    <template v-slot:body>
-      <div style="margin: 40px 32px;">
-        {{ t('to-request-deletion-of-data-please-email-data-requests-knowlearning-org') }}
-      </div>
-    </template>
-  </PILAModal>
 </template>
 
 <script>

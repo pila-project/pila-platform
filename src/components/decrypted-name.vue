@@ -16,45 +16,48 @@
   </span>
 </template>
 
-<script>
-  export default {
-    props: {
-      user: String,
-      alias: {
-        type: Boolean,
-        default: false
-      },
-      avatar: {
-        type: Boolean,
-        default: false
-      },
-      showName: {
-        type: Boolean,
-        default: true
-      },
-      size: {
-        type: String,
-        default: 'small',
-        validator: val => ['x-small', 'small', 'default', 'large', 'x-large'].includes(val)
-      }
+<script setup>
+  import { reactive, watch } from 'vue'
+  import { useStore } from 'vuex'
+
+  const store = useStore()
+
+  const props = defineProps({
+    user: String,
+    alias: {
+      type: Boolean,
+      default: false
     },
-    data() {
-      return {
-        info: {
-          name: '...'
-        }
-      }
+    avatar: {
+      type: Boolean,
+      default: false
     },
-    async created() {
-      this.info = await this.$store.getters.decryptUserInfo(this.user, this.alias)
+    showName: {
+      type: Boolean,
+      default: true
     },
-    watch: {
-      async user() {
-        this.info = {}
-        this.info = await this.$store.getters.decryptUserInfo(this.user, this.alias)
-      }
+    size: {
+      type: String,
+      default: 'small',
+      validator: val => ['x-small', 'small', 'default', 'large', 'x-large'].includes(val)
     }
-  }
+  })
+
+  const info = reactive({
+    name: '...'
+  })
+
+  watch(
+    () => props.user,
+    async () => {
+      const i = await store.getters.decryptUserInfo(props.user, props.alias)
+      Object.assign(info, i)
+    },
+    {
+      immediate: true
+    }
+  )
+
 </script>
 
 <style scoped>

@@ -107,10 +107,17 @@
     </v-navigation-drawer>
     
     <v-main>
+      <UserInfoModal
+        v-if="userModalUser"
+        :id="userModalUser"
+        @close="userModalUser = null"
+      />
       <Groups
         v-if="tab === 'classes'"
         type="class"
         :possibleMembers="students"
+        @createUser="createUserAndLaunchModal"
+        @selectUser="id => userModalUser = id"
       />
       <div v-if="tab === 'content'">
         <ContentLibrary />
@@ -177,7 +184,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, reactive, computed } from 'vue'
   import { useStore } from 'vuex'
   import Navbar from '../Navbar.vue'
   import TeacherAgreement from './teacher-agreement.vue'
@@ -192,6 +199,8 @@
   import TrainerPage from './trainer-page.vue'
   import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG } from '../../constants.js'
+  import UserInfoModal from '../../components/user-info-modal.vue'
+  import createUser from '../../create-user.js'
 
   const store = useStore()
   const hideStudies = true
@@ -217,11 +226,18 @@
 
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
+  const userModalUser = ref(null)
+  const users = reactive(await Agent.state('users'))
+  const myPILAUsers = computed(() => Object.keys(users))
+
   const hasTeacherAgreement = computed(() => {
     return store.getters.hasAcceptedTeacherAgreement()
   })
 
-  const students = computed(() => store.getters['groups/myStudents']())
+  const students = computed(() => [
+    ...myPILAUsers.value,
+    ...store.getters['groups/myStudents']()
+  ])
 
   function t(slug) {
     return store.getters.t(slug)
@@ -233,6 +249,12 @@
 
   function openLink(link) {
     window.open(link, '_blank')
+  }
+
+  async function createUserAndLaunchModal() {
+    const id = await createUser()
+    users[id] = {}
+    userModalUser.value = id
   }
 
 </script>
