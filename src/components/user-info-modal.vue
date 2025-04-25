@@ -1,11 +1,11 @@
 <script setup>
   import { ref, reactive } from 'vue'
   import { useStore } from 'vuex'
-  import { decrypt, generateKeyPair } from '../encryption.js'
+  import { encrypt, decrypt, generateKeyPair } from '../encryption.js'
   import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
   import QRCode from './qrcode.vue'
 
-  let editUserInfo, qrCodePayload
+  let editUserInfo, qrCodePayload, studentSecretKey, teacherKeys
 
   const store = useStore()
 
@@ -19,10 +19,10 @@
 
   if (teacherOwnedUserAccount) {
     const key = localStorage.getItem(`zkek-${store.state.user}`)
-    const teacherKeys = await generateKeyPair(key)
+    teacherKeys = await generateKeyPair(key)
     const ephemeralPublicKey = decodeBase64(userInfo.credentials[0].public_key)
 
-    const studentSecretKey = decrypt(
+    studentSecretKey = decrypt(
       teacherKeys.secretKey,
       ephemeralPublicKey,
       decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
@@ -46,8 +46,24 @@
     open.value = false
   }
 
-  function save() {
-    Object.assign(userInfo, editUserInfo)
+  async function save() {
+    if (teacherOwnedUserAccount) {
+      const ephemeralKeys = await generateKeyPair()
+
+      userInfo.credentials[0].owner_cred_encrypted_user_cred = encodeBase64(encrypt(
+        ephemeralKeys.secretKey,
+        teacherKeys.publicKey,
+        studentSecretKey
+      ))
+
+      userInfo.credentials[0].user_cred_encrypted_name = encodeBase64(encrypt(
+        studentSecretKey,
+        ephemeralKeys.publicKey,
+        decodeUTF8(editUserInfo.name)
+      ))
+
+      userInfo.credentials[0].public_key = encodeBase64(ephemeralKeys.publicKey)
+    }
     open.value = false
   }
 
