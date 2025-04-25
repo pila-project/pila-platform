@@ -5,6 +5,8 @@
   import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
   import QRCode from './qrcode.vue'
 
+  let editUserInfo, qrCodePayload
+
   const store = useStore()
 
   const props = defineProps({ id: String })
@@ -13,23 +15,25 @@
   const open = ref(true)
 
   const userInfo = reactive(await Agent.state(props.id))
+  const teacherOwnedUserAccount = !!userInfo.credentials
 
+  if (teacherOwnedUserAccount) {
+    const key = localStorage.getItem(`zkek-${store.state.user}`)
+    const { secretKey: mySecretKey } = await generateKeyPair(key)
 
-  const key = localStorage.getItem(`zkek-${store.state.user}`)
-  const { secretKey: mySecretKey } = await generateKeyPair(key)
-
-  const qrCodePayload = {
-    user: props.id,
-    cred: encodeUTF8(
-      decrypt(
-        mySecretKey,
-        decodeBase64(userInfo.credentials[0].public_key),
-        decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
+    qrCodePayload = {
+      user: props.id,
+      cred: encodeUTF8(
+        decrypt(
+          mySecretKey,
+          decodeBase64(userInfo.credentials[0].public_key),
+          decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
+        )
       )
-    )
+    }
+    editUserInfo = reactive(JSON.parse(JSON.stringify(userInfo)))
+    console.log('hmmm', editUserInfo)
   }
-
-  const editUserInfo = reactive(JSON.parse(JSON.stringify(userInfo)))
 
   function cancel() {
     open.value = false
@@ -38,6 +42,10 @@
   function save() {
     Object.assign(userInfo, editUserInfo)
     open.value = false
+  }
+
+  function t(slug) {
+    return store.getters.t(slug)
   }
 </script>
 
@@ -49,22 +57,24 @@
   >
     <v-card>
       <v-card-title>
-        <span class="text-h6">User Info</span>
+        <span class="text-h6">{{t('student-info')}}</span>
       </v-card-title>
 
-      <v-card-text>
+      <v-card-text v-if="teacherOwnedUserAccount && editUserInfo">
         <v-text-field
           v-model="editUserInfo.name"
-          label="Name"
+          :label="t('name')"
           required
         />
         <QRCode :data="qrCodePayload" />
       </v-card-text>
+      <v-card-text v-else>
+      </v-card-text>
 
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" @click="cancel">Cancel</v-btn>
-        <v-btn color="primary" @click="save">Save</v-btn>
+        <v-btn color="primary" @click="cancel">{{t('cancel')}}</v-btn>
+        <v-btn color="primary" @click="save">{{t('save')}}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

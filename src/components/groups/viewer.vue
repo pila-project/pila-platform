@@ -93,6 +93,11 @@
             v-for="id in possibleMembers"
             :key="`possible-member-id-${id}`"
           >
+            <v-icon
+              @click="$emit('selectUser', id)"
+              class="ma-4"
+              icon="fa-solid fa-pencil"
+            />
             <DecryptedName :user="id" />
           </div>
         </div>

@@ -117,6 +117,7 @@
         type="class"
         :possibleMembers="students"
         @createUser="createUserAndLaunchModal"
+        @selectUser="id => userModalUser = id"
       />
       <div v-if="tab === 'content'">
         <ContentLibrary />
