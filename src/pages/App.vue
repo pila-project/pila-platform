@@ -1,11 +1,6 @@
 <template>
   <div v-if="loaded === false">
     loading...
-    <!--
-    <Suspense>
-      <UserTest />
-    </Suspense>
-    -->
   </div>
   <LoginMenu v-else-if="isAnonymous" />
   <AccessCodeScreen v-else-if="accessCodeRequired" />
@@ -24,12 +19,10 @@
 <script>
   import LoginMenu from './login/index.vue'
   import AccessCodeScreen from './login/AccessCodeScreen.vue'
-  import UserTest from '../user-test.vue'
 
   export default {
     components: {
       LoginMenu,
-      UserTest,
       AccessCodeScreen
     },
     computed: {
