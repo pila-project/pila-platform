@@ -1,4 +1,4 @@
-import { decrypt, generateKeyPair } from '../encryption.js'
+import { encrypt, decrypt, generateKeyPair } from '../encryption.js'
 import { encodeBase64, decodeBase64, encodeUTF8 } from 'tweetnacl-util'
 
 import roles from './roles.js'
@@ -56,6 +56,11 @@ export default {
       if (userInfo?.name) return userInfo
 
       const key = localStorage.getItem(`zkek-${state.user}`)
+
+      const createdUserInfo = await getTeacherCreatedUserInfo(user, key)
+
+      if (createdUserInfo) return createdUserInfo
+
       let info = { name: `${getters.t('anonymous')}_${user.slice(0,4)}`, picture: null }
       const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
       const { secretKey: mySecretKey} = await generateKeyPair(key)
@@ -147,4 +152,33 @@ export default {
       store.dispatch('loaded', true)
     }
   ]
+}
+
+async function getTeacherCreatedUserInfo(id, key) {
+
+  let editUserInfo
+
+  const userInfo = await Agent.state(id)
+
+  if (!userInfo.credentials) return
+
+  try {
+    const teacherKeys = await generateKeyPair(key)
+    const ephemeralPublicKey = decodeBase64(userInfo.credentials[0].public_key)
+
+    const studentSecretKey = decrypt(
+      teacherKeys.secretKey,
+      ephemeralPublicKey,
+      decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
+    )
+
+    return JSON.parse(encodeUTF8(decrypt(
+      studentSecretKey,
+      ephemeralPublicKey,
+      decodeBase64(userInfo.credentials[0].user_cred_encrypted_info)
+    )))
+  }
+  catch (error) {
+    console.log('ERROR decrypting user creds', error)
+  }
 }
