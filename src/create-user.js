@@ -9,10 +9,12 @@ export default async function createUser() {
   const id = await Agent.create({
     active: {
       credentials: [{
-        user_cred_encrypted_name: naclUtil.encodeBase64(encrypt(
+        user_cred_encrypted_info: naclUtil.encodeBase64(encrypt(
           ephemeralKeys.secretKey,
           userKeys.publicKey,
-          naclUtil.decodeUTF8('New User ' + Date.now())
+          naclUtil.decodeUTF8(JSON.stringify({
+            name: 'New User ' + Date.now()
+          }))
         )),
         owner_cred_encrypted_user_cred: naclUtil.encodeBase64(encrypt(
           ephemeralKeys.secretKey,

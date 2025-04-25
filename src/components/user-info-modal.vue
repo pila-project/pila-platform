@@ -33,13 +33,13 @@
       cred: encodeBase64(studentSecretKey)
     }
 
-    editUserInfo = reactive(JSON.parse(JSON.stringify(userInfo)))
+    editUserInfo = reactive({})
 
-    editUserInfo.name = encodeUTF8(decrypt(
+    Object.assign(editUserInfo, JSON.parse(encodeUTF8(decrypt(
       studentSecretKey,
       ephemeralPublicKey,
-      decodeBase64(userInfo.credentials[0].user_cred_encrypted_name)
-    ))
+      decodeBase64(userInfo.credentials[0].user_cred_encrypted_info)
+    ))))
   }
 
   function cancel() {
@@ -56,10 +56,10 @@
         studentSecretKey
       ))
 
-      userInfo.credentials[0].user_cred_encrypted_name = encodeBase64(encrypt(
+      userInfo.credentials[0].user_cred_encrypted_info = encodeBase64(encrypt(
         studentSecretKey,
         ephemeralKeys.publicKey,
-        decodeUTF8(editUserInfo.name)
+        decodeUTF8(JSON.stringify(editUserInfo))
       ))
 
       userInfo.credentials[0].public_key = encodeBase64(ephemeralKeys.publicKey)
