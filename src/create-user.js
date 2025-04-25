@@ -17,7 +17,7 @@ export default async function createUser() {
         owner_cred_encrypted_user_cred: naclUtil.encodeBase64(encrypt(
           ephemeralKeys.secretKey,
           naclUtil.decodeBase64(myPublicKey),
-          naclUtil.decodeUTF8(naclUtil.encodeBase64(userKeys.secretKey))
+          userKeys.secretKey
         )),
         user_public_key: naclUtil.encodeBase64(userKeys.publicKey),
         public_key: naclUtil.encodeBase64(ephemeralKeys.publicKey)

@@ -19,20 +19,27 @@
 
   if (teacherOwnedUserAccount) {
     const key = localStorage.getItem(`zkek-${store.state.user}`)
-    const { secretKey: mySecretKey } = await generateKeyPair(key)
+    const teacherKeys = await generateKeyPair(key)
+    const ephemeralPublicKey = decodeBase64(userInfo.credentials[0].public_key)
+
+    const studentSecretKey = decrypt(
+      teacherKeys.secretKey,
+      ephemeralPublicKey,
+      decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
+    )
 
     qrCodePayload = {
       user: props.id,
-      cred: encodeUTF8(
-        decrypt(
-          mySecretKey,
-          decodeBase64(userInfo.credentials[0].public_key),
-          decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
-        )
-      )
+      cred: encodeBase64(studentSecretKey)
     }
+
     editUserInfo = reactive(JSON.parse(JSON.stringify(userInfo)))
-    console.log('hmmm', editUserInfo)
+
+    editUserInfo.name = encodeUTF8(decrypt(
+      studentSecretKey,
+      ephemeralPublicKey,
+      decodeBase64(userInfo.credentials[0].user_cred_encrypted_name)
+    ))
   }
 
   function cancel() {
