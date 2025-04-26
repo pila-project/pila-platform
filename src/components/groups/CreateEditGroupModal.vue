@@ -60,16 +60,14 @@
       </thead>
       <tbody>
         <tr
-          v-for="member in filteredStudentList"
-          :key="member"
+          v-for="member, index in filteredStudentList"
+          :key="member + index"
         >
-        	<td style="width: 30px; text-align: center; cursor: pointer;"
-        		@click="handleAddRemove(member)"
-        	>
+        	<td style="width: 30px; text-align: center; cursor: pointer;">
         		<input
         			type="checkbox"
         			:checked="userInClass(member)"
-        			@change="handleAddRemove($event, member)"
+        			@click="handleAddRemove($event, member)"
         		/>
         	</td>
          	<td style="text-align: left;"><DecryptedName :user="member" name /></td>
@@ -163,7 +161,8 @@ export default {
     methods: {
     	t(slug) { return this.$store.getters.t(slug) },
     	handleAddRemove(e, user_id) {
-    		(e.target.checked) ? this.addMember(user_id) : this.removeMember(user_id)
+    		if (e.target.checked) this.addMember(user_id)
+    		else this.removeMember(user_id)
     	},
     	userInClass(user_id) {
     		return this.currentGroupMembers.includes(user_id)
