@@ -5,7 +5,7 @@
   import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
   import QRCode from './qrcode.vue'
 
-  let editUserInfo, qrCodePayload, studentSecretKey, teacherKeys
+  let editUserInfo, qrCodePayload, studentSecretKey, teacherKeys, decryptionError
 
   const store = useStore()
 
@@ -22,24 +22,30 @@
     teacherKeys = await generateKeyPair(key)
     const ephemeralPublicKey = decodeBase64(userInfo.credentials[0].public_key)
 
-    studentSecretKey = decrypt(
-      teacherKeys.secretKey,
-      ephemeralPublicKey,
-      decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
-    )
+    try {
+      editUserInfo = reactive({})
 
-    qrCodePayload = {
-      user: props.id,
-      cred: encodeBase64(studentSecretKey)
+      studentSecretKey = decrypt(
+        teacherKeys.secretKey,
+        ephemeralPublicKey,
+        decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
+      )
+
+      qrCodePayload = {
+        user: props.id,
+        cred: encodeBase64(studentSecretKey)
+      }
+
+      Object.assign(editUserInfo, JSON.parse(encodeUTF8(decrypt(
+        studentSecretKey,
+        ephemeralPublicKey,
+        decodeBase64(userInfo.credentials[0].user_cred_encrypted_info)
+      ))))
     }
-
-    editUserInfo = reactive({})
-
-    Object.assign(editUserInfo, JSON.parse(encodeUTF8(decrypt(
-      studentSecretKey,
-      ephemeralPublicKey,
-      decodeBase64(userInfo.credentials[0].user_cred_encrypted_info)
-    ))))
+    catch (error) {
+      console.log('decryption error', error)
+      decryptionError = true
+    }
   }
 
   function cancel() {
@@ -49,6 +55,12 @@
   async function save() {
     if (teacherOwnedUserAccount) {
       const ephemeralKeys = await generateKeyPair()
+
+      if (decryptionError) {
+        const { secretKey, publicKey } = await generateKeyPair()
+        studentSecretKey = secretKey
+        userInfo.credentials[0].user_public_key = encodeBase64(publicKey)
+      }
 
       userInfo.credentials[0].owner_cred_encrypted_user_cred = encodeBase64(encrypt(
         ephemeralKeys.secretKey,
@@ -84,12 +96,20 @@
       </v-card-title>
 
       <v-card-text v-if="teacherOwnedUserAccount && editUserInfo">
+        <p v-if="decryptionError">
+          Your current encryption key could not decrypt the user's name.
+          Please input your original encryption key or you will need to set new names.
+        </p>
+        <br>
         <v-text-field
           v-model="editUserInfo.name"
           :label="t('name')"
           required
         />
-        <QRCode :data="qrCodePayload" />
+        <QRCode
+          v-if="qrCodePayload"
+          :data="qrCodePayload"
+        />
       </v-card-text>
       <v-card-text v-else>
       </v-card-text>
