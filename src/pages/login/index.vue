@@ -7,6 +7,14 @@
       <div style="margin: 16px;">
         <div
           class="login-button"
+          @click="login('login.pilaproject.org')"
+        >
+          <img class="login-button-icon" src="/favicon.png" />
+          <div class="login-button-divider"></div>
+          <div>{{ t('log-in-with')}} PILA</div>
+        </div>
+        <div
+          class="login-button"
           @click="login('google')"
         >
           <img class="login-button-icon" src="/external-logos/google.png" />
