@@ -237,7 +237,9 @@
 
   const students = computed(() => [
     ...myPILAUsers.value,
-    ...store.getters['groups/myStudents']()
+    ...store
+      .getters['groups/myStudents']()
+      .filter(id => !myPILAUsers.value.includes(id))
   ])
 
   function t(slug) {
