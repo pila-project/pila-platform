@@ -2,7 +2,7 @@
   import { ref } from 'vue'
   import QRCode from 'qrcode'
 
-  const { data } = defineProps(['data'])
+  const { data } = defineProps(['data', 'size'])
 
   const qrCodeSVG = ref(await generateQRCodeFromJSON(data))
 
@@ -17,7 +17,7 @@
 </script>
 
 <template>
-  <div>
+  <div :style="{ width: size, height: size, display: 'inline-block' }">
     <div v-html="qrCodeSVG"></div>
   </div>
 </template>

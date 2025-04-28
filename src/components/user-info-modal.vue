@@ -3,7 +3,6 @@
   import { useStore } from 'vuex'
   import { encrypt, decrypt, generateKeyPair } from '../encryption.js'
   import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
-  import QRCode from './qrcode.vue'
 
   let editUserInfo, studentSecretKey, teacherKeys, decryptionError
 

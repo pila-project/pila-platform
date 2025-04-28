@@ -52,26 +52,33 @@
 </script>
 
 <template>
-  <div class="no-break">
-    <div v-if="teacherOwnedUserAccount">
-      <p v-if="decryptionError">
-        Your current encryption key could not decrypt the user's name.
-        Please input your original encryption key or you will need to set new names.
-      </p>
-      <div v-else>
-        <div>{{t('name')}}: {{decryptedUserInfo.name}}</div>
-        <QRCode
-          v-if="qrCodePayload"
-          :data="qrCodePayload"
-        />
-      </div>
+  <div
+    v-if="teacherOwnedUserAccount"
+    class="wrapper"
+  >
+    <div v-if="decryptionError">
+      Your current encryption key could not decrypt this user's name.
+      Please input your original encryption key or you will need to set new names.
+    </div>
+    <div v-else>
+      <div>{{decryptedUserInfo.name}}</div>
+      <QRCode
+        size="2in"
+        v-if="qrCodePayload"
+        :data="qrCodePayload"
+      />
+      <div>{{id}}</div>
     </div>
   </div>
+  <div v-else></div>
 </template>
 
 <style scoped>
-  .no-break {
+  .wrapper {
     page-break-inside: avoid;
     break-inside: avoid;
+    padding: 0.25in;
+    border-bottom: 0.025in dashed #CCCCCC;
+    text-align: center;
   }
 </style>
