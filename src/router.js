@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AdminView from './pages/admin/index.vue'
 import ResearcherView from './pages/researcher/index.vue'
 import TeacherView from './pages/teacher/index.vue'
+import TeacherCodesView from './pages/teacher/codes.vue'
 import StudentView from './pages/student/index.vue'
 import JoinTeacherView from './pages/student/join-teacher.vue'
 import AssignmentView from './pages/assignment/index.vue'
@@ -21,6 +22,10 @@ export default createRouter({
     {
       path: '/teacher',
       component: TeacherView
+    },
+    {
+      path: '/teacher/codes',
+      component: TeacherCodesView
     },
     {
       path: '/',

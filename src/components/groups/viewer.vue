@@ -73,6 +73,12 @@
           <h3 style="color: #2E32DB;"> {{ GET_TEXT.MEMBER_LIST_HEADER }}</h3>
           <div>
             <IconButton
+              icon="print"
+              background="#FFC442"
+              :text="t('print-login-codes')"
+              @click="printLoginCodes"
+            />
+            <IconButton
               icon="plus-circle"
               background="#FFC442"
               :text="t('add-student')"
@@ -310,6 +316,9 @@
       },
       unarchive(id) {
         this.$store.dispatch('groups/unarchive', id)
+      },
+      printLoginCodes() {
+        window.open('/teacher/codes')
       }
     }
   }
