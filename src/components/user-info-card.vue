@@ -33,40 +33,6 @@
         user: props.id,
         cred: encodeBase64(studentSecretKey)
       }
-    }
-    catch (error) {
-      console.log('decryption error', error)
-      decryptionError = true
-    }
-  }
-
-  function cancel() {
-    open.value = false
-  }
-
-  async function save() {
-    if (teacherOwnedUserAccount) {
-      const ephemeralKeys = await generateKeyPair()
-
-      if (decryptionError) {
-        const { secretKey, publicKey } = await generateKeyPair()
-        studentSecretKey = secretKey
-        userInfo.credentials[0].user_public_key = encodeBase64(publicKey)
-      }
-
-      userInfo.credentials[0].owner_cred_encrypted_user_cred = encodeBase64(encrypt(
-        ephemeralKeys.secretKey,
-        teacherKeys.publicKey,
-        studentSecretKey
-      ))
-
-      userInfo.credentials[0].user_cred_encrypted_info = encodeBase64(encrypt(
-        studentSecretKey,
-        ephemeralKeys.publicKey,
-        decodeUTF8(JSON.stringify(userInfo))
-      ))
-
-      userInfo.credentials[0].public_key = encodeBase64(ephemeralKeys.publicKey)
 
       decryptedUserInfo = JSON.parse(encodeUTF8(decrypt(
         studentSecretKey,
@@ -74,7 +40,10 @@
         decodeBase64(userInfo.credentials[0].user_cred_encrypted_info)
       )))
     }
-    open.value = false
+    catch (error) {
+      console.log('decryption error', error)
+      decryptionError = true
+    }
   }
 
   function t(slug) {
@@ -83,18 +52,26 @@
 </script>
 
 <template>
-  <div>
+  <div class="no-break">
     <div v-if="teacherOwnedUserAccount">
       <p v-if="decryptionError">
         Your current encryption key could not decrypt the user's name.
         Please input your original encryption key or you will need to set new names.
       </p>
-      <br>
-      <QRCode
-        v-if="qrCodePayload"
-        :data="qrCodePayload"
-      />
-      <div v-if="decryptedUserInfo">{{decryptedUserInfo.name}}</div>
+      <div v-else>
+        <div>{{t('name')}}: {{decryptedUserInfo.name}}</div>
+        <QRCode
+          v-if="qrCodePayload"
+          :data="qrCodePayload"
+        />
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+  .no-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+</style>

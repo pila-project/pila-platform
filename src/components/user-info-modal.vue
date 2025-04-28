@@ -5,7 +5,7 @@
   import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
   import QRCode from './qrcode.vue'
 
-  let editUserInfo, qrCodePayload, studentSecretKey, teacherKeys, decryptionError
+  let editUserInfo, studentSecretKey, teacherKeys, decryptionError
 
   const store = useStore()
 
@@ -30,11 +30,6 @@
         ephemeralPublicKey,
         decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
       )
-
-      qrCodePayload = {
-        user: props.id,
-        cred: encodeBase64(studentSecretKey)
-      }
 
       Object.assign(editUserInfo, JSON.parse(encodeUTF8(decrypt(
         studentSecretKey,
@@ -105,10 +100,6 @@
           v-model="editUserInfo.name"
           :label="t('name')"
           required
-        />
-        <QRCode
-          v-if="qrCodePayload"
-          :data="qrCodePayload"
         />
       </v-card-text>
       <v-card-text v-else>
