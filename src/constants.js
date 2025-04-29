@@ -58,15 +58,15 @@ export const CANDLI_SEQUENCES = {
   ],
   // Incredible Machines
   "61b84150-0959-11f0-9713-5b1a5f06cc0f": [
-    "incredible_machine0",
-    "incredible_machine1",
-    "incredible_machine2"
+    "candli_editor/incredible_machine0",
+    "candli_editor/incredible_machine1",
+    "candli_editor/incredible_machine2"
   ],
   // Thai Incredible Machines
   "d153bd60-1f56-11f0-9fb8-9370197aa135": [
-    "incredible_machine0",
-    "incredible_machine1",
-    "incredible_machine2"
+    "candli_editor/incredible_machine0",
+    "candli_editor/incredible_machine1",
+    "candli_editor/incredible_machine2"
   ],
 }
 
