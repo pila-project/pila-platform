@@ -47,7 +47,27 @@ export const CANDLI_SEQUENCES = {
     "a1c31030facc58d688a07040e25771db",
     "93690465d42f52058c92404e329651be",
     "ba07adc0589f5f3a990f995cc54b8efd"
-  ]
+  ],
+  // Pethematicians
+  "e7bd0050-1bb1-11f0-a107-d7050efaf0bb": [
+    "97c9ab96e9c75cd485d50d0c51fa7004"
+  ],
+  // Thai Pethematicians
+  "f73759d0-24d1-11f0-a6bf-e576da95b533": [
+    "97c9ab96e9c75cd485d50d0c51fa7004"
+  ],
+  // Incredible Machines
+  "61b84150-0959-11f0-9713-5b1a5f06cc0f": [
+    "incredible_machine0",
+    "incredible_machine1",
+    "incredible_machine2"
+  ],
+  // Thai Incredible Machines
+  "d153bd60-1f56-11f0-9fb8-9370197aa135": [
+    "incredible_machine0",
+    "incredible_machine1",
+    "incredible_machine2"
+  ],
 }
 
 export const GEN_AI_SEQUENCES = {
