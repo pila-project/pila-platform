@@ -34,6 +34,17 @@
       <i class="right fa-solid fa-pen-to-square" />
     </button>
 
+    <button
+      class="custom-button"
+      @click="openLink('https://chirpy-bird.pilaproject.org')"
+    >
+      <div class="left">
+        <img src="/Chirpy.png" alt="chirpy-image" class="btn-image">
+      </div>
+      <div class="center">{{ t('chirpys-adventure') }}</div>
+      <i class="right fa-solid fa-pen-to-square" />
+    </button>
+
     <div class="id-or-url-input-wrapper">
       <h3>{{ t('import-content') }}</h3>
       <v-text-field
