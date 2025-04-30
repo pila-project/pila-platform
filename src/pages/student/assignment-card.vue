@@ -55,7 +55,7 @@
       image = '/betty.png'
     }
     else {
-      image = '/logo-green.svg'
+      image = '/mascotte.png'
     }
   }
 
