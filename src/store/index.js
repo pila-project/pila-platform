@@ -92,7 +92,14 @@ export default {
     },
     acceptStudentAgreement(state) { state.hasAcceptedStudentAgreement = true },
     acceptTeacherAgreement(state) { state.hasAcceptedTeacherAgreement = true },
-    language(state, val) { state.language = val },
+    language(state, val) {
+      state.language = val
+      Agent
+        .environment()
+        .then(({ variables }) => {
+          variables.LANGUAGES?.unshift(val)
+        })
+    },
     addTranslation(state, { target, value, language }) {
       if (!state.translations) state.translations = {}
       if (!state.translations[language]) state.translations[language] = {}
