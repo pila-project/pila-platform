@@ -1,4 +1,4 @@
-import { encrypt, decrypt, generateKeyPair } from '../encryption.js'
+import { generateKeyPair, encrypt, decrypt, decryptSymmetric } from '../encryption.js'
 import { encodeBase64, decodeBase64, encodeUTF8 } from 'tweetnacl-util'
 
 import roles from './roles.js'
@@ -162,30 +162,16 @@ export default {
 }
 
 async function getTeacherCreatedUserInfo(id, key) {
+  const { providerEncryptedInfo } = await Agent.state(id)
 
-  let editUserInfo
+  if (!providerEncryptedInfo) return
 
-  const userInfo = await Agent.state(id)
-
-  if (!userInfo.credentials) return
-
-  try {
-    const teacherKeys = await generateKeyPair(key)
-    const ephemeralPublicKey = decodeBase64(userInfo.credentials[0].public_key)
-
-    const studentSecretKey = decrypt(
-      teacherKeys.secretKey,
-      ephemeralPublicKey,
-      decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
+  const { info } = JSON.parse(
+    decryptSymmetric(
+      await generateKeyPair(key).then(p => p.secretKey),
+      providerEncryptedInfo
     )
+  )
 
-    return JSON.parse(encodeUTF8(decrypt(
-      studentSecretKey,
-      ephemeralPublicKey,
-      decodeBase64(userInfo.credentials[0].user_cred_encrypted_info)
-    )))
-  }
-  catch (error) {
-    console.log('ERROR decrypting user creds', error)
-  }
+  return info
 }

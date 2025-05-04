@@ -201,7 +201,7 @@
   import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG } from '../../constants.js'
   import UserInfoModal from '../../components/user-info-modal.vue'
-  import createUser from '../../create-user.js'
+  import { createUser } from '../../user-utils.js'
 
   const store = useStore()
   const hideStudies = true
@@ -254,8 +254,19 @@
     window.open(link, '_blank')
   }
 
+  const codeCharacterSet = 'abcdefghijklmnopqrstuvwxy'
+
+  function randomString(length, chars) {
+    const arr = new Uint8Array(length)
+    crypto.getRandomValues(arr)
+    return [...arr].map(i => chars[i % chars.length]).join('')
+  }
+
   async function createUserAndLaunchModal() {
-    const id = await createUser()
+    const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+    const userSecret = randomString(8, codeCharacterSet)
+    const info = { name: t('student') }
+    const id = await createUser(userSecret, providerSecret, info)
     users[id] = {}
     userModalUser.value = id
   }

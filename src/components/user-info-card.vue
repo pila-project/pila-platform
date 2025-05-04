@@ -1,11 +1,8 @@
 <script setup>
   import { ref, reactive } from 'vue'
   import { useStore } from 'vuex'
-  import { encrypt, decrypt, generateKeyPair } from '../encryption.js'
-  import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
+  import { generateKeyPair, decryptSymmetric } from '../encryption.js'
   import QRCode from './qrcode.vue'
-
-  let decryptedUserInfo, qrCodePayload, studentSecretKey, teacherKeys, decryptionError
 
   const store = useStore()
 
@@ -14,37 +11,56 @@
 
   const open = ref(true)
 
-  const userInfo = reactive(await Agent.state(props.id))
-  const teacherOwnedUserAccount = !!userInfo.credentials
-
-  if (teacherOwnedUserAccount) {
-    const key = localStorage.getItem(`zkek-${store.state.user}`)
-    teacherKeys = await generateKeyPair(key)
-    const ephemeralPublicKey = decodeBase64(userInfo.credentials[0].public_key)
-
-    try {
-      studentSecretKey = decrypt(
-        teacherKeys.secretKey,
-        ephemeralPublicKey,
-        decodeBase64(userInfo.credentials[0].owner_cred_encrypted_user_cred)
-      )
-
-      qrCodePayload = {
-        user: props.id,
-        cred: encodeBase64(studentSecretKey)
-      }
-
-      decryptedUserInfo = JSON.parse(encodeUTF8(decrypt(
-        studentSecretKey,
-        ephemeralPublicKey,
-        decodeBase64(userInfo.credentials[0].user_cred_encrypted_info)
-      )))
-    }
-    catch (error) {
-      console.log('decryption error', error)
-      decryptionError = true
-    }
+  const codeCharToIcon = {
+    a: "star",
+    b: "heart",
+    c: "bell",
+    d: "moon",
+    e: "sun",
+    f: "cloud",
+    g: "umbrella",
+    h: "dove",
+    i: "mug-hot",
+    j: "key",
+    k: "eye",
+    l: "fish",
+    m: "feather",
+    n: "bolt",
+    o: "phone",
+    p: "smile",
+    q: "thumbs-up",
+    r: "paw",
+    s: "tree",
+    t: "bug",
+    u: "music",
+    v: "fire",
+    w: "car",
+    x: "lightbulb",
+    y: "snowflake"
   }
+
+  const userData = await Agent.state(props.id)
+
+  const teacherOwnedUserAccount = !!userData.providerEncryptedKey
+
+  const {
+    providerEncryptedKey,
+    providerEncryptedInfo,
+    publicKey
+  } = userData
+
+  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+  const providerKeyPair = await generateKeyPair(providerSecret)
+
+  const { info } = JSON.parse(decryptSymmetric(
+    providerKeyPair.secretKey,
+    providerEncryptedInfo
+  ))
+
+  const userSecret = decryptSymmetric(
+    providerKeyPair.secretKey,
+    userData.providerEncryptedKey
+  )
 
   function t(slug) {
     return store.getters.t(slug)
@@ -56,18 +72,16 @@
     v-if="teacherOwnedUserAccount"
     class="wrapper"
   >
-    <div v-if="decryptionError">
-      Your current encryption key could not decrypt this user's name.
-      Please input your original encryption key or you will need to set new names.
-    </div>
-    <div v-else>
-      <div>{{decryptedUserInfo.name}}</div>
-      <QRCode
-        size="2in"
-        v-if="qrCodePayload"
-        :data="qrCodePayload"
-      />
-      <div>{{id}}</div>
+    <div>
+      <div>{{info.name}}</div>
+      <QRCode size="2in" :data="userSecret" />
+      <div>
+        <v-icon
+          v-for="char in userSecret"
+          style="margin: 4px;"
+          :icon="`fa-solid fa-${codeCharToIcon[char]}`"
+        />
+      </div>
     </div>
   </div>
   <div v-else></div>
