@@ -2,8 +2,6 @@
   import { ref, reactive } from 'vue'
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '../encryption.js'
-  import { encodeUTF8 } from 'tweetnacl-util'
-  import { createUser } from '../user-utils.js'
   import QRCode from './qrcode.vue'
 
   const store = useStore()
@@ -13,7 +11,35 @@
 
   const open = ref(true)
 
-  const userData = reactive(await Agent.state(props.id))
+  const codeCharToIcon = {
+    a: "star",
+    b: "heart",
+    c: "bell",
+    d: "moon",
+    e: "sun",
+    f: "cloud",
+    g: "umbrella",
+    h: "dove",
+    i: "mug-hot",
+    j: "key",
+    k: "eye",
+    l: "fish",
+    m: "feather",
+    n: "bolt",
+    o: "phone",
+    p: "smile",
+    q: "thumbs-up",
+    r: "paw",
+    s: "tree",
+    t: "bug",
+    u: "music",
+    v: "fire",
+    w: "car",
+    x: "lightbulb",
+    y: "snowflake"
+  }
+
+  const userData = await Agent.state(props.id)
 
   const teacherOwnedUserAccount = !!userData.providerEncryptedKey
 
@@ -47,12 +73,15 @@
     class="wrapper"
   >
     <div>
-      <div>{{t('name')}}: {{info.name}}</div>
-      <QRCode
-        size="2in"
-        :data="userSecret"
-      />
-      <div>id: {{id}}</div>
+      <div>{{info.name}}</div>
+      <QRCode size="2in" :data="userSecret" />
+      <div>
+        <v-icon
+          v-for="char in userSecret"
+          style="margin: 4px;"
+          :icon="`fa-solid fa-${codeCharToIcon[char]}`"
+        />
+      </div>
     </div>
   </div>
   <div v-else></div>

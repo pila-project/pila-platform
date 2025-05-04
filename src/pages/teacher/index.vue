@@ -254,11 +254,18 @@
     window.open(link, '_blank')
   }
 
+  const codeCharacterSet = 'abcdefghijklmnopqrstuvwxy'
+
+  function randomString(length, chars) {
+    const arr = new Uint8Array(length)
+    crypto.getRandomValues(arr)
+    return [...arr].map(i => chars[i % chars.length]).join('')
+  }
+
   async function createUserAndLaunchModal() {
     const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-    const userSecret = 'test-user-secret-' + Date.now()
-    console.log('USER SECRET FOR LOGIN!', userSecret)
-    const info = { name: 'new user!' + Math.random() }
+    const userSecret = randomString(8, codeCharacterSet)
+    const info = { name: t('student') }
     const id = await createUser(userSecret, providerSecret, info)
     users[id] = {}
     userModalUser.value = id
