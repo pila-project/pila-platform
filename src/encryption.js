@@ -1,4 +1,4 @@
-import { box, randomBytes } from 'tweetnacl'
+import { box, randomBytes, secretbox } from 'tweetnacl'
 import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from 'tweetnacl-util'
 
 export const generateKeyPair = async key => {
@@ -28,6 +28,25 @@ export const decrypt = (mySecretKey, theirPublicKey, encryptedMessageBufferWithN
   if (!decrypted) throw new Error('Could not decrypt message')
 
   return decrypted
+}
+
+export function encryptSymmetric(key, message) {
+  const nonce = randomBytes(secretbox.nonceLength)
+  const messageUint8 = decodeUTF8(message)
+  const box = secretbox(messageUint8, nonce, key)
+  const fullMessage = new Uint8Array(nonce.length + box.length)
+  fullMessage.set(nonce)
+  fullMessage.set(box, nonce.length)
+  return encodeBase64(fullMessage)
+}
+
+export function decryptSymmetric(key, encoded) {
+  const fullMessage = decodeBase64(encoded)
+  const nonce = fullMessage.slice(0, secretbox.nonceLength)
+  const box = fullMessage.slice(secretbox.nonceLength)
+  const messageUint8 = secretbox.open(box, nonce, key)
+  if (!messageUint8) throw new Error('Decryption failed')
+  return encodeUTF8(messageUint8)
 }
 
 /*

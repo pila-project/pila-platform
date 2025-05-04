@@ -201,7 +201,7 @@
   import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG } from '../../constants.js'
   import UserInfoModal from '../../components/user-info-modal.vue'
-  import createUser from '../../create-user.js'
+  import { createUser } from '../../user-utils.js'
 
   const store = useStore()
   const hideStudies = true
