@@ -18,7 +18,14 @@ export async function createUser(userSecret, providerSecret, info) {
   const userId = credentialData.user ??= uuid()
   const userData = await Agent.state(userId)
 
+  const userInfo = JSON.stringify({
+    user: userId,
+    info
+  })
+
   userData.providerEncryptedKey = encryptSymmetric(providerKeyPair.secretKey, userSecret)
+  userData.providerEncryptedInfo = encryptSymmetric(providerKeyPair.secretKey, userInfo)
+  userData.publicKey = encodeBase64(userKeyPair.publicKey)
 
   credentialData.user ??= userId
   credentialData.providerPublicKey = encodeBase64(providerKeyPair.publicKey)
@@ -28,10 +35,7 @@ export async function createUser(userSecret, providerSecret, info) {
     encrypt(
       providerKeyPair.secretKey,
       decodeBase64(serverPublicKey),
-      decodeUTF8(JSON.stringify({
-        user: userId,
-        info
-      }))
+      decodeUTF8(userInfo)
     )
   ))
 
