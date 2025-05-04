@@ -4,8 +4,6 @@ import { encrypt, generateKeyPair, encryptSymmetric } from './encryption.js'
 
 const BASE64_PUBLIC_KEY_NAMESPACE = '1b4555f2-a89c-4633-834a-a064c195ab22'
 
-window.createUser = createUser
-
 export async function createUser(userSecret, providerSecret, info) {
   const { serverPublicKey } = await Agent.environment()
   const userKeyPair = await generateKeyPair(userSecret)

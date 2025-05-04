@@ -255,7 +255,11 @@
   }
 
   async function createUserAndLaunchModal() {
-    const id = await createUser()
+    const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+    const userSecret = 'test-user-secret-' + Date.now()
+    console.log('USER SECRET FOR LOGIN!', userSecret)
+    const info = { name: 'new user!' + Math.random() }
+    const id = await createUser(userSecret, providerSecret, info)
     users[id] = {}
     userModalUser.value = id
   }
