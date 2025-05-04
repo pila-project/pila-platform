@@ -47,7 +47,7 @@
     class="wrapper"
   >
     <div>
-      <div>{{info.name}}</div>
+      <div>{{t('name')}}: {{info.name}}</div>
       <QRCode
         size="2in"
         :data="userSecret"
