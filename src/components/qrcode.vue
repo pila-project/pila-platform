@@ -8,7 +8,7 @@
 
   async function generateQRCodeFromJSON(data) {
     try {
-      return await QRCode.toString(typeof data === ' string' ? data : JSON.stringify(data), { type: 'svg' })
+      return await QRCode.toString(data, { type: 'svg' })
     } catch (err) {
       console.error('Failed to generate QR code:', err)
     }
