@@ -4,6 +4,7 @@
   import { generateKeyPair, decryptSymmetric } from '../encryption.js'
   import { encodeUTF8 } from 'tweetnacl-util'
   import { createUser } from '../user-utils.js'
+  import DecryptedName from './decrypted-name.vue'
 
   const store = useStore()
 
@@ -25,22 +26,31 @@
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
   const providerKeyPair = await generateKeyPair(providerSecret)
 
-  const editUserInfo = reactive(JSON.parse(decryptSymmetric(
-    providerKeyPair.secretKey,
-    providerEncryptedInfo
-  )).info)
+  let editUserInfo, userSecret
 
-  const userSecret = decryptSymmetric(
-    providerKeyPair.secretKey,
-    userData.providerEncryptedKey
-  )
+  try {
+    editUserInfo = reactive(JSON.parse(decryptSymmetric(
+      providerKeyPair.secretKey,
+      providerEncryptedInfo
+    )).info)
+
+    userSecret = decryptSymmetric(
+      providerKeyPair.secretKey,
+      userData.providerEncryptedKey
+    )
+  }
+  catch (error) {
+
+  }
 
   function cancel() {
     open.value = false
   }
 
   async function save() {
-    if (teacherOwnedUserAccount) await createUser(userSecret, providerSecret, editUserInfo)
+    if (teacherOwnedUserAccount && userSecret) {
+      await createUser(userSecret, providerSecret, editUserInfo)
+    }
     open.value = false
   }
 
@@ -68,6 +78,7 @@
         />
       </v-card-text>
       <v-card-text v-else>
+        <DecryptedName :user="id" />
       </v-card-text>
 
       <v-card-actions>
