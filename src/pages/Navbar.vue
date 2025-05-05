@@ -11,6 +11,17 @@
             />
         </template>
         <v-spacer />
+        <span
+          v-if="teacherViewButton"
+          style="margin-right: 1em"
+        >
+            <IconButton
+                icon="chalkboard-teacher"
+                @click="goToTeacherView"
+                text="Teacher View"
+                background="#FFC442"
+            />
+        </span>
         <v-select
             class="pr-4"
             density="compact"
@@ -28,5 +39,12 @@
 <script setup>
 import languageChoices from '../store/languageChoices.js'
 import { useStore } from 'vuex'
+import IconButton from '../components/icon-button.vue'
 const store = useStore()
+
+defineProps(['teacherViewButton'])
+
+function goToTeacherView() {
+  window.location = '/teacher'
+}
 </script>

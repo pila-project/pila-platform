@@ -4,7 +4,9 @@
     class="student-view"
     v-else
   >
-    <Navbar />
+    <Navbar
+      :teacherViewButton="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
+    />
 
     <v-navigation-drawer rail>
       <v-list-item
@@ -51,6 +53,7 @@
   import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
   import TabMenu from '../../components/tab-menu.vue'
+  import IconButton from '../../components/icon-button.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   export default {
     components: {
@@ -58,6 +61,7 @@
       StudentAgreement,
       StudentAssignments,
       TabMenu,
+      IconButton,
       StudiesNotAvailable
     },
     data() {
