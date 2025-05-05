@@ -228,7 +228,15 @@
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
   const userModalUser = ref(null)
-  const users = reactive(await Agent.state('users'))
+  const users = reactive({})
+  await new Promise(resolve => {
+    Agent.watch('users', ({ state }) => {
+      resolve()
+      Object
+        .entries(state)
+        .forEach(([key, value]) => users[key] = value)
+    })
+  })
   const myPILAUsers = computed(() => Object.keys(users))
 
   const hasTeacherAgreement = computed(() => {
@@ -236,7 +244,7 @@
   })
 
   const students = computed(() => [
-    ...myPILAUsers.value,
+    ...myPILAUsers.value.filter(id => !users[id]?.archived),
     ...store
       .getters['groups/myStudents']()
       .filter(id => !myPILAUsers.value.includes(id))
@@ -267,6 +275,7 @@
     const userSecret = randomString(8, codeCharacterSet)
     const info = { name: t('student') }
     const id = await createUser(userSecret, providerSecret, info)
+    const users = await Agent.state('users')
     users[id] = {}
     userModalUser.value = id
   }

@@ -14,6 +14,9 @@
   const open = ref(true)
 
   const userData = reactive(await Agent.state(props.id))
+  const users = reactive(await Agent.state('users'))
+
+  const archived = ref(!!users[props.id]?.archived)
 
   const teacherOwnedUserAccount = !!userData.providerEncryptedKey
 
@@ -51,6 +54,9 @@
     if (teacherOwnedUserAccount && userSecret) {
       await createUser(userSecret, providerSecret, editUserInfo)
     }
+    if (users[props.id] && archived.value !== !!users[props.id]?.archived) {
+      users[props.id].archived = archived.value
+    }
     open.value = false
   }
 
@@ -70,15 +76,25 @@
         <span class="text-h6">{{t('student-info')}}</span>
       </v-card-title>
 
-      <v-card-text v-if="teacherOwnedUserAccount && editUserInfo">
-        <v-text-field
-          v-model="editUserInfo.name"
-          :label="t('name')"
-          required
-        />
-      </v-card-text>
-      <v-card-text v-else>
-        <DecryptedName :user="id" />
+      <v-card-text>
+        <div v-if="teacherOwnedUserAccount && editUserInfo">
+          <v-text-field
+            v-model="editUserInfo.name"
+            :label="t('name')"
+            required
+          />
+        </div>
+        <div v-else>
+          <DecryptedName :user="id" />
+        </div>
+
+        <div v-if="users[id]">
+          <v-checkbox
+            v-model="archived"
+            :label="t('archive')"
+          ></v-checkbox>
+        </div>
+
       </v-card-text>
 
       <v-card-actions>
