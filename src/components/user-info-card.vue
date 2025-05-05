@@ -25,15 +25,21 @@
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
   const providerKeyPair = await generateKeyPair(providerSecret)
 
-  const { info } = JSON.parse(decryptSymmetric(
-    providerKeyPair.secretKey,
-    providerEncryptedInfo
-  ))
+  let info, userSecret
 
-  const userSecret = decryptSymmetric(
-    providerKeyPair.secretKey,
-    userData.providerEncryptedKey
-  )
+  try {
+    info = JSON.parse(decryptSymmetric(
+      providerKeyPair.secretKey,
+      providerEncryptedInfo
+    )).info
+
+    userSecret = decryptSymmetric(
+      providerKeyPair.secretKey,
+      userData.providerEncryptedKey
+    )
+  } catch (error) {
+    console.log(error)
+  }
 
   function t(slug) {
     return store.getters.t(slug)
@@ -42,7 +48,7 @@
 
 <template>
   <div
-    v-if="teacherOwnedUserAccount"
+    v-if="teacherOwnedUserAccount && userSecret"
     class="wrapper"
   >
     <div>
