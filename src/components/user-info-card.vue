@@ -3,6 +3,7 @@
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '../encryption.js'
   import QRCode from './qrcode.vue'
+  import codeCharToIcon from '../code-char-to-icon.js'
 
   const store = useStore()
 
@@ -10,34 +11,6 @@
   const emit = defineEmits(['close'])
 
   const open = ref(true)
-
-  const codeCharToIcon = {
-    a: "star",
-    b: "heart",
-    c: "bell",
-    d: "moon",
-    e: "sun",
-    f: "cloud",
-    g: "umbrella",
-    h: "dove",
-    i: "mug-hot",
-    j: "key",
-    k: "eye",
-    l: "fish",
-    m: "feather",
-    n: "bolt",
-    o: "phone",
-    p: "smile",
-    q: "thumbs-up",
-    r: "paw",
-    s: "tree",
-    t: "bug",
-    u: "music",
-    v: "fire",
-    w: "car",
-    x: "lightbulb",
-    y: "snowflake"
-  }
 
   const userData = await Agent.state(props.id)
 
@@ -79,7 +52,7 @@
         <v-icon
           v-for="char in userSecret"
           style="margin: 4px;"
-          :icon="`fa-solid fa-${codeCharToIcon[char]}`"
+          :icon="codeCharToIcon[char]"
         />
       </div>
     </div>
