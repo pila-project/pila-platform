@@ -8,7 +8,7 @@
       :teacherViewButton="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
     />
 
-    <v-navigation-drawer rail>
+    <v-navigation-drawer rail permanent>
       <v-list-item
         :title="userInfo.name"
         :subtitle="$store.getters['roles/role']()"
