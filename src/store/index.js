@@ -116,10 +116,8 @@ export default {
       const language = matchNavigatorLanguage(languageChoices)
       commit('language', language)
 
-      if (!state.user) {
-        const { auth } = await Agent.environment()
-        commit('load', auth)
-      }
+      const { auth } = await Agent.environment()
+      commit('load', auth)
 
       if (state.user && state.provider !== 'anonymous') {
         const start = Date.now()
