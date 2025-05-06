@@ -40,7 +40,7 @@ export default {
   }),
   getters: {
     isThailandDomain: state => isThailandDomain,
-    tagPartition: state => isThailandDomain ? 'PILA Thailand' : 'PILA International',
+    tagPartition: state => isThailandDomain ? 'PILA Thailand' : 'PILA',
     isAnonymous: state => () => state.provider === 'anonymous',
     loaded: state => () => state.loaded,
     user: state => () => state.user,
