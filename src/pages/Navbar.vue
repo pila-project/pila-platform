@@ -18,7 +18,7 @@
             <IconButton
                 icon="chalkboard-teacher"
                 @click="goToTeacherView"
-                text="Teacher View"
+                :text="t('teacher-view')"
                 background="#FFC442"
             />
         </span>
@@ -43,6 +43,10 @@ import IconButton from '../components/icon-button.vue'
 const store = useStore()
 
 defineProps(['teacherViewButton'])
+
+function t(slug) {
+  return store.getters.t(slug)
+}
 
 function goToTeacherView() {
   window.location = '/teacher'

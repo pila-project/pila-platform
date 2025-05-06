@@ -234,5 +234,6 @@ export default {
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
     "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d",
     "print-login-codes" : "828892be-b9ca-406f-8053-7ad9c7ce5492",
+    "teacher-view" : "71fb6f6e-3c09-44f9-bce2-9139f4ccb3b4",
     "chirpys-adventure" : "d9c8eb0b-b693-4fa7-b179-732a01bd9201"
 }
