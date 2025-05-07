@@ -107,22 +107,8 @@
     </v-navigation-drawer>
     
     <v-main>
-      <UserInfoModal
-        v-if="userModalUser"
-        :id="userModalUser"
-        @close="userModalUser = null"
-      />
-      <Groups
-        v-if="tab === 'classes'"
-        type="class"
-        :possibleMembers="students"
-        @createUser="createUserAndLaunchModal"
-        @selectUser="id => userModalUser = id"
-        :key="userModalUser || 'default' /* to ensure name load on change */"
-      />
-      <div v-if="tab === 'content'">
-        <ContentLibrary />
-      </div>
+      <ManageClasses v-if="tab === 'classes'" />
+      <ContentLibrary v-if="tab === 'content'" />
       <AssignmentsFromMe
         v-if="tab === 'assignments-from-me'"
         assignable_item_type="teacher-created"
@@ -190,8 +176,8 @@
   import Navbar from '../Navbar.vue'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '../../components/roles/requester.vue'
-  import Groups from '../../components/groups/viewer.vue'
   import TabMenu from '../../components/tab-menu.vue'
+  import ManageClasses from './manage-classes.vue'
   import ContentLibrary from '../../components/content-library.vue'
   import AssignmentsToMe from '../../assignments/to-me/all.vue'
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
@@ -200,8 +186,7 @@
   import TrainerPage from './trainer-page.vue'
   import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG } from '../../constants.js'
-  import UserInfoModal from '../../components/user-info-modal.vue'
-  import { createUser } from '../../user-utils.js'
+
 
   const store = useStore()
   const hideStudies = true
@@ -227,58 +212,15 @@
 
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
-  const userModalUser = ref(null)
-  const users = reactive({})
-  await new Promise(resolve => {
-    Agent.watch('users', ({ state }) => {
-      resolve()
-      Object
-        .entries(state)
-        .forEach(([key, value]) => users[key] = value)
-    })
-  })
-  const myPILAUsers = computed(() => Object.keys(users))
-
   const hasTeacherAgreement = computed(() => {
     return store.getters.hasAcceptedTeacherAgreement()
   })
 
-  const students = computed(() => [
-    ...myPILAUsers.value.filter(id => !users[id]?.archived),
-    ...store
-      .getters['groups/myStudents']()
-      .filter(id => !myPILAUsers.value.includes(id))
-  ])
+  function t(slug) { return store.getters.t(slug) }
 
-  function t(slug) {
-    return store.getters.t(slug)
-  }
+  function logout() { Agent.logout() }
 
-  function logout() {
-    Agent.logout()
-  }
-
-  function openLink(link) {
-    window.open(link, '_blank')
-  }
-
-  const codeCharacterSet = 'abcdefghijklmnopqrstuvwxy'
-
-  function randomString(length, chars) {
-    const arr = new Uint8Array(length)
-    crypto.getRandomValues(arr)
-    return [...arr].map(i => chars[i % chars.length]).join('')
-  }
-
-  async function createUserAndLaunchModal() {
-    const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-    const userSecret = randomString(8, codeCharacterSet)
-    const info = { name: t('student') }
-    const id = await createUser(userSecret, providerSecret, info)
-    const users = await Agent.state('users')
-    users[id] = {}
-    userModalUser.value = id
-  }
+  function openLink(link) { window.open(link, '_blank') }
 
 </script>
 
