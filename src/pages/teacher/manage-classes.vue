@@ -13,7 +13,9 @@
             @selectUser="id => userModalUser = id"
             :key="userModalUser || 'default' /* to ensure name load on change */"
         />
-        <ShowArchivedToggle v-model="showArchived" />
+        <v-container>
+            <ShowArchivedToggle v-model="showArchived" />
+        </v-container>
     </div>
 </template>
 
