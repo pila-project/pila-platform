@@ -1,27 +1,34 @@
 <template>
-    <UserInfoModal
-        v-if="userModalUser"
-        :id="userModalUser"
-        @close="userModalUser = null"
-    />
-    <Groups
-        type="class"
-        :possibleMembers="students"
-        @createUser="createUserAndLaunchModal"
-        @selectUser="id => userModalUser = id"
-        :key="userModalUser || 'default' /* to ensure name load on change */"
-    />
+    <div class="manage-classes">
+
+        <UserInfoModal
+            v-if="userModalUser"
+            :id="userModalUser"
+            @close="userModalUser = null"
+        />
+        <Groups
+            type="class"
+            :possibleMembers="students"
+            @createUser="createUserAndLaunchModal"
+            @selectUser="id => userModalUser = id"
+            :key="userModalUser || 'default' /* to ensure name load on change */"
+        />
+        <ShowArchivedToggle v-model="showArchived" /> {{ showArchived }}
+    </div>
 </template>
 
 <script setup>
 import Groups from '../../components/groups/viewer.vue'
 import UserInfoModal from '../../components/user-info-modal.vue'
+import ShowArchivedToggle from '../../components/show-archived-toggle.vue'
+
 import { ref, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { createUser } from '../../user-utils.js'
 
 const userModalUser = ref(null)
 const users = reactive({})
+const showArchived = ref(false)
 
 await new Promise(resolve => {
     Agent.watch('users', ({ state }) => {

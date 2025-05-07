@@ -28,10 +28,7 @@
         <div class="class-list">
           <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
             <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
-            <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
-              <input v-model="showArchived" type="checkbox" id="show-archived" />
-              <label style="margin-left: 4px;" for="show-archived"><em>{{ t('show-archived') }}</em></label>
-            </div>
+            <ShowArchivedToggle v-model="showArchived" />
           </div>
           <div v-if="!groups.length">{{ GET_TEXT.NO_GROUPS }}</div>
           <div
@@ -213,6 +210,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
+  import ShowArchivedToggle from '../show-archived-toggle.vue'
   import LinkStudentModal from './LinkStudentModal.vue'
   import CreateEditGroupModal from './CreateEditGroupModal.vue'
   import DecryptedName from '../decrypted-name.vue'
@@ -225,6 +223,7 @@
       IconButton,
       LinkStudentModal,
       CreateEditGroupModal,
+      ShowArchivedToggle,
       PILAModal
     },
     props: {

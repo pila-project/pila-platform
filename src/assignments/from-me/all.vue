@@ -12,10 +12,7 @@
               background="#FFC442"
             />
           </div>
-          <div style="color: #888888; display: flex; align-items: center; user-select: none; cursor: pointer;">
-            <input v-model="showArchived" type="checkbox" id="show-archived" />
-            <label style="margin-left: 4px;" for="show-archived"><em>{{ t('show-archived') }}</em></label>
-          </div>
+          <ShowArchivedToggle v-model="showArchived" />
         </div>
 
         <v-data-table
@@ -246,6 +243,7 @@
   import PILAModal from '../../components/PILAModal.vue'
   import IconButton from '../../components/icon-button.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
+  import showArchivedToggle from '../../components/show-archived-toggle.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
@@ -264,7 +262,8 @@
       Dashboard,
       CandliDashboard,
       GenAIDashboard,
-      CreateEditAssignmentModal
+      CreateEditAssignmentModal,
+      showArchivedToggle
     },
     props: {
       assignable_item_type: String,
