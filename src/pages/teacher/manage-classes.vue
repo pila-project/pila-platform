@@ -13,7 +13,7 @@
             @selectUser="id => userModalUser = id"
             :key="userModalUser || 'default' /* to ensure name load on change */"
         />
-        <ShowArchivedToggle v-model="showArchived" /> {{ showArchived }}
+        <ShowArchivedToggle v-model="showArchived" />
     </div>
 </template>
 
@@ -46,7 +46,7 @@ function t(slug) { return store.getters.t(slug) }
 const myPILAUsers = computed(() => Object.keys(users))
 
 const students = computed(() => [
-    ...myPILAUsers.value.filter(id => !users[id]?.archived),
+    ...myPILAUsers.value.filter(id => showArchived.value || !users[id]?.archived),
     ...store
         .getters['groups/myStudents']()
         .filter(id => !myPILAUsers.value.includes(id))
