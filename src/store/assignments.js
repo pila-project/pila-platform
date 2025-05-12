@@ -72,7 +72,7 @@ export default {
   actions: {
     async load({commit, dispatch}, poll) {
       if (firstLoad || poll === 'do-it') {
-        setTimeout(() => dispatch('load', 'do-it'), 3000)
+        setTimeout(() => dispatch('load', 'do-it'), 7000 + Math.random()*4000)
         firstLoad = false
       }
       const assignments = await Agent.query('assignments')
