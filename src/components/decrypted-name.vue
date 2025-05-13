@@ -9,6 +9,7 @@
       :size="size"
       class="mr-2"
       :image="info.picture || '/mascotte.png'"
+      @click="logUser"
     />
     <span v-if="showName">
       {{ info.name }}
@@ -57,6 +58,10 @@
       immediate: true
     }
   )
+
+  function logUser() {
+    console.log(props.user)
+  }
 
 </script>
 
