@@ -65,3 +65,14 @@ async function initializeApp() {
     })
   }
 }
+
+// Use --vh variable for older browsers to support dvh like behavior
+function setDynamicVH() {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--vh', `${vh}px`)
+}
+
+setDynamicVH()
+
+window.addEventListener('resize', setDynamicVH)
+window.addEventListener('orientationchange', setDynamicVH)

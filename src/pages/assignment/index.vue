@@ -46,8 +46,8 @@
 .wrapper {
   position: absolute;
   background: white;
-  width: 100svw;
-  height: 100svh;
+  width: 100vw;
+  height: calc(var(--vh, 1vh) * 100);
   top: 0;
   left: 0;
 }
