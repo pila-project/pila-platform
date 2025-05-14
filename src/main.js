@@ -58,7 +58,7 @@ async function initializeApp() {
           }
         )
       }
-      if ( provider === 'anonymous' && true
+      if ( provider === 'anonymous'
         && location.hostname === 'thailand.pilaproject.org'
         && location.pathname === '/'
       ) Agent.login('login.pilaproject.org')

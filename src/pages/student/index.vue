@@ -71,8 +71,14 @@
       }
     },
     async created() {
-      const { auth: { info } } = await Agent.environment()
+      const { auth: { user, provider, info } } = await Agent.environment()
       this.userInfo = info
+
+      if ( provider !== 'anonymous'
+        && this.$store.getters['roles/hasPermission'](user, 'teacher')
+        && document.referrer.startsWith('https://pilaproject.org/')
+        && location.pathname === '/'
+      ) window.location = '/teacher'
     },
     computed: {
       hasStudentAgreement() {
