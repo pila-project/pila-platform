@@ -25,6 +25,17 @@
 
     <button
       class="custom-button"
+      @click="openLink('https://create.pilaproject.org/sequence-builder')"
+    >
+      <div class="left">
+        <img src="/mascotte.png" alt="sequence-image" class="btn-image">
+      </div>
+      <div class="center">{{ t('pila-sequences') }}</div>
+      <i class="right fa-solid fa-pen-to-square" />
+    </button>
+
+    <button
+      class="custom-button"
       @click="openLink('https://create.pilaproject.org')"
     >
       <div class="left">
