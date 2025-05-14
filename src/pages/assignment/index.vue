@@ -46,8 +46,8 @@
 .wrapper {
   position: absolute;
   background: white;
-  width: 100dvw;
-  height: 100dvh;
+  width: 100svw;
+  height: 100svh;
   top: 0;
   left: 0;
 }
