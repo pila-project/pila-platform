@@ -50,11 +50,11 @@
         </v-col>
       </v-row>
     </div>
-    <v-overlay :model-value="overlayActive">
+    <v-overlay v-if="id" :model-value="true"  persistent>
       <div class="assignment-overlay">
         <vueEmbedComponent
-          :id="playing"
-          @close="playing = null"
+          :id="id"
+          @close="$router.push('/')"
           allow="camera;microphone;fullscreen"
         />
       </div>
@@ -71,10 +71,9 @@ import AssignmentCard from './assignment-card.vue'
 
 export default {
   components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName },
-
+  props: ['id'],
   data() {
     return {
-      playing: null,
       assignmentsToContent: {},
       assignmentsToAssignableItem: {},
       assignmentsToAssignerAndCreated: {},
@@ -96,11 +95,6 @@ export default {
       const user = this.$store.state.user
       const type ="teacher-to-student"
       return this.$store.getters['assignments/to'](user, type)
-    },
-    overlayActive: {
-      get() {
-        return !!this.playing
-      }
     },
     allAssigners() {
       return Object.values(this.assignmentsToAssignerAndCreated)
@@ -156,9 +150,12 @@ export default {
   },
   methods: {
     t(slug) { return this.$store.getters.t(slug) },
-    async play(aid) {
-      const assignment = await Agent.state(aid)
-      this.playing = assignment.item_id
+    play(aid) {
+      Agent
+        .state(aid)
+        .then(({ item_id }) => {
+          this.$router.push(`/assignment/${item_id}`)
+        })
     },
     isCandliLink(id) {
       return id && id.startsWith('https://pila.cand.li/')

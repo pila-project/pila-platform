@@ -32,6 +32,11 @@ export default createRouter({
       component: StudentView
     },
     {
+      path: '/assignment/:id',
+      component: StudentView,
+      props: true
+    },
+    {
       path: '/join/:teacher',
       component: JoinTeacherView
     },

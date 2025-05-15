@@ -43,7 +43,7 @@
     </v-navigation-drawer>
 
     <v-main>
-      <StudentAssignments />
+      <StudentAssignments :id="id" />
     </v-main>
   </v-app>
 </template>
@@ -64,6 +64,7 @@
       IconButton,
       StudiesNotAvailable
     },
+    props: ['id'],
     data() {
       return {
         tab: 'class-assignments',
