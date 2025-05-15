@@ -79,7 +79,7 @@
         && this.$store.getters['roles/hasPermission'](user, 'teacher')
         && document.referrer.startsWith('https://pilaproject.org/')
         && location.pathname === '/'
-      ) window.location = '/teacher'
+      ) this.$router.push('/teacher')
     },
     computed: {
       hasStudentAgreement() {
