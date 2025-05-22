@@ -12,11 +12,11 @@ importers:
         specifier: ^6.5.1
         version: 6.5.1
       '@knowlearning/agents':
-        specifier: ^0.9.173
-        version: 0.9.173
+        specifier: ^0.9.177
+        version: 0.9.177
       '@knowlearning/tags':
         specifier: ^1.1.0
-        version: 1.1.0(@knowlearning/agents@0.9.173)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))
+        version: 1.1.0(@knowlearning/agents@0.9.177)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))
       '@vitejs/plugin-basic-ssl':
         specifier: ^1.0.1
         version: 1.0.1(vite@4.4.11)
@@ -222,8 +222,8 @@ packages:
   '@jridgewell/sourcemap-codec@1.4.15':
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
 
-  '@knowlearning/agents@0.9.173':
-    resolution: {integrity: sha512-STm5NNGiU0tzNXxot2tN9sjkupiAV8IyuZ7sbq46BNMIgySS8Ea4xlXhWLxId/jza8cUTdtb8YTKu/PmpVW0RQ==}
+  '@knowlearning/agents@0.9.177':
+    resolution: {integrity: sha512-5V7+6cduei5m5zDdq0kf+5huWP95/S9jjcIGrxApDff6Iqyoc8xEsmKHfX4vXVEwMsngwMMPhhgiMF5ppVMjpQ==}
 
   '@knowlearning/patch-proxy@1.3.4':
     resolution: {integrity: sha512-F1ay1UaPXsEJfTm6IX6NvEvorVXI3qXabQGCDeyDSu9qZmETqubgOYqx6B6wImCxGL9TgrB6ZC4QLF0tJHYwng==}
@@ -893,7 +893,7 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.4.15': {}
 
-  '@knowlearning/agents@0.9.173':
+  '@knowlearning/agents@0.9.177':
     dependencies:
       '@knowlearning/patch-proxy': 1.3.4
       fast-json-patch: 3.1.1
@@ -901,9 +901,9 @@ snapshots:
 
   '@knowlearning/patch-proxy@1.3.4': {}
 
-  '@knowlearning/tags@1.1.0(@knowlearning/agents@0.9.173)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))':
+  '@knowlearning/tags@1.1.0(@knowlearning/agents@0.9.177)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))':
     dependencies:
-      '@knowlearning/agents': 0.9.173
+      '@knowlearning/agents': 0.9.177
       vue: 3.3.4
       vuetify: 3.5.13(vue@3.3.4)
 
