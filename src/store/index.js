@@ -15,10 +15,10 @@ const EXPERT_LIST = [
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f'
 ]
 
-const isThailandDomain = [
-  'thailand.pilaproject.org',
-  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
-].includes(location.host)
+const HOST_TO_PARTITION = {
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA',
+  'thailand.pilaproject.org': 'PILA Thailand'
+}
 
 export default {
   modules: {
@@ -39,8 +39,8 @@ export default {
     hasAcceptedTeacherAgreement: false
   }),
   getters: {
-    isThailandDomain: state => isThailandDomain,
-    tagPartition: state => isThailandDomain ? 'PILA Thailand' : 'PILA',
+    isThailandDomain: state => true,
+    tagPartition: state => HOST_TO_PARTITION[location.host],
     isAnonymous: state => () => state.provider === 'anonymous',
     loaded: state => () => state.loaded,
     user: state => () => state.user,

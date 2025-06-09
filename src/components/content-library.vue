@@ -1,246 +1,153 @@
 <template>
-  <TaggedContentCards
-    v-if="$store.getters.isThailandDomain"
-    @select="$emit('select', $event)"
-  />
   <div
-    v-else
-    class="cards-wrapper"
+    :class="{
+      'content-wrapper': true,
+      'metadata-open': !!selfSelected
+    }"
   >
-    <div>
-      <div class="filters-selector" v-if="showFilters">
-
-        <div style="align-self: flex-start;">
-          <IconButton
-            class="filter-button"
-            icon="minus-circle"
-            @click="showFilters = false"
-            :text="t('hide-filters')"
-            :background="'rgb(107, 234, 201)'"
-          />
-        </div>
-
-        <ProjectSelector
-          :activeProjects="activeProjects"
-          @select="toggleActive"
-        />
-        <TagSelector
-          style="width: 550px;"
-          :activeTags="activeTags"
-          :tags="allItemTags"
-          @select="toggleTag"
-        />
-      </div>
-
-      <IconButton
-        v-else
-        style="align-self: flex-start;"
-        icon="plus-circle"
-        @click="showFilters = true"
-        :text="t('show-filters')"
-        :background="'rgb(107, 234, 201)'"
+    <v-container>
+      <TagFilters
+        v-model="selectedCompetencies"
+        :partition="partition"
+        :roots="competencies"
+        select-leaves-only
+        :LabelComponent="TagTranslation"
       />
-
-      <hr>
-    </div>
-
-    <div class="card-container">
-      <ContentLibraryCard
-         v-for="id in filteredContent"
-        :key="id"
-        :id="id"
-        :selected="selfSelected === id"
-        @click="() => {
-          if (selfSelected === id) selfSelected = null
-          else selfSelected = id
-          $emit('select', selfSelected)
-        }"
-        @preview="previewing = id"
-        @remove="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: 'tracked' })"
+      <v-progress-linear v-if="loading" indeterminate />
+      <NoResultsFound v-else-if="!currentContentList.length" />
+      <v-row v-else>
+        <v-col
+          v-for="(id, index) in currentContentList"
+          :key="id + index"
+          cols="12"
+          lg="4"
+          md="6"
+          sm="12"
+        >
+          <TaggedContentCard
+            :id="id"
+            :selected="selfSelected === id"
+            :removable="myContent[id]"
+            @click="() => {
+              if (selfSelected === id) selfSelected = null
+              else selfSelected = id
+              $emit('select', selfSelected)
+            }"
+            @preview="previewing = id"
+            @remove="delete myContent[id]"
+          />
+        </v-col>
+      </v-row>
+      <PreviewModal
+        v-if="previewing"
+        :id="previewing"
+        width="90vw"
+        height="90vh"
+        @close="previewing = null"
+      />
+    </v-container>
+    <div
+      v-if="selfSelected"
+      style="
+        position: fixed;
+        right: 0;
+        height: 100%;
+        padding-bottom: 100px;
+        overflow: scroll;
+        min-width: 200px;
+        max-width: 30%;
+        border-left: 1px solid #EEEEEE;
+      "
+    >
+      <ContentMetadataPanel
+        :key="selfSelected"
+        @back="selfSelected = null"
+        :id="selfSelected"
+        :partition="partition"
       />
     </div>
   </div>
-  <PreviewModal
-    v-if="previewing"
-    :id="previewing"
-    @close="previewing = null"
-  />
 </template>
 
-<script>
-  import TaggedContentCards from './tagged-content-cards.vue'
-  import ContentLibraryCard from './content-library-card.vue'
-  import IconButton from './icon-button.vue'
-  import PILAModal from './PILAModal.vue'
+<script setup>
+  import { ref, watch, computed } from 'vue'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { Filters as TagFilters } from '@knowlearning/tags'
+  import ContentMetadataPanel from './content-metadata-panel.vue'
+  import NoResultsFound from './no-results-found.vue'
+  import TaggedContentCard from './tagged-content-card.vue'
   import PreviewModal from './PreviewModal.vue'
-  import ProjectSelector from './project-selector.vue'
-  import TagSelector from './tag-selector.vue'
-  import TagInfoPanel from './tag-info-panel.vue'
-  import contentTags from '../content-tags.js'
-  import { validate as isUUID } from 'uuid'
+  import TagTranslation from './tag-translation.vue'
 
-  function isURL(s) {
-    try {
-      const url = new URL(s)
-      return true
-    } catch (error) {
-      console.log(error)
-      return false
+  const partition = store.getters.tagPartition
+  const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
+  const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
+
+  const loading = ref(true)
+  const taggedContent = ref([])
+  const selfSelected = ref(null)
+  const competencies = ref([])
+  const previewing = ref(null)
+  const selectedCompetencies = ref([])
+  const myContent = ref({})
+
+  const currentContentList = computed(() => {
+    let l = taggedContent.value.map(t => t.target)
+    if (selectedCompetencies.value.length === 0) {
+      l = [...Object.keys(myContent.value), ...l]
     }
+    return l
+  })
+
+  watch(selectedCompetencies, fetchTaggings)
+
+  fetchTaggings()
+
+  Agent
+    .query('taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems')
+    .then(r => competencies.value = r.map(t => t.target))
+
+  Agent
+    .state('my-content')
+    .then(state => myContent.value = state)
+
+  async function fetchTaggings() {
+    loading.value = true
+    if (selectedCompetencies.value.length) {
+      await (
+        Agent
+          .query('taggings-intersection', [partition, selectedCompetencies.value], 'tags.knowlearning.systems')
+          .then(result => taggedContent.value = result)
+      )
+    }
+    else {
+      await (
+        Agent
+          .query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
+          .then(result => taggedContent.value = result)
+      )
+    }
+    loading.value = false
   }
 
-  export default {
-    components: {
-      TagInfoPanel,
-      TaggedContentCards,
-      ContentLibraryCard,
-      PILAModal,
-      PreviewModal,
-      ProjectSelector,
-      TagSelector,
-      IconButton
-    },
-    emits: ['select'],
-    data() {
-      return {
-        previewing: null,
-        activeProjects: [ 'karel', 'candli', 'betty' ],
-        activeTags: [],
-        showFilters: false,
-        selfSelected: this.selected
-      }
-    },
-    props: {
-      selectable: {
-        type: Boolean,
-        required: false,
-        default: false
-      },
-      selected: {
-        type: String,
-        required: false,
-        default: null
-      }
-    },
-    computed: {
-      filteredContent() {
-        if (this.$store.getters.isThailandDomain) return this.$store.getters['content/contentToShow']()
-        else return this.oldFilteredContent
-      },
-      oldFilteredContent() {
-        const filteredByType = this.content.filter(id => (this.activeProjects.includes('betty') && this.isBettyLink(id))
-            || (this.activeProjects.includes('candli') && this.isCandliLink(id))
-            || (this.activeProjects.includes('karel') && isUUID(id)
-          )
-        )
-        const filteredByTypeAndTag = filteredByType.filter(id => {
-          return this.activeTags.every(tag => this.tagsForId(id).includes(tag))
-        })
-        return filteredByTypeAndTag
-      },
-      allItemTags() {
-        const flat = Object.values(contentTags).flat()
-        return Array.from( new Set(flat) )
-      },
-      content() {
-        const expert = [ ...this.$store.getters['pila_tags/withTag']('expert') ]
-        const tracked = [ ...this.$store.getters['pila_tags/withTag']('tracked') ]
-        return Array.from( new Set([...expert, ...tracked]) ).sort()
-      }
-    },
-    methods: {
-      t(slug) { return this.$store.getters.t(slug) },
-      toggleTag(tag) {
-        if (this.activeTags.includes(tag)) {
-          this.activeTags = this.activeTags.filter(t => t !== tag)
-        } else {
-          this.activeTags.push(tag)
-        }
-      },
-      tagsForId(id) { return contentTags[id] || [] },
-      toggleActive(e) {
-        if (this.activeProjects.includes(e)) {
-          this.activeProjects = this.activeProjects.filter(p => p !== e)
-        } else {
-          this.activeProjects.push(e)
-        }
-      },
-      isCandliLink(id) {
-        return id && (id.startsWith('https://pila.cand.li/') || id === '1d77b2e0-f214-4c28-a06e-2186b7f1e0b2')
-      },
-      isBettyLink(id) {
-        return id && id.startsWith('https://bettysbrain.knowlearning.systems/')
-      },
-      remove(content_id) {
-        this.$store.dispatch('pila_tags/untag', { content_id, tag_type: 'tracked' })
-      }
-    }
-  }
-  
 </script>
 
 <style>
-  button.icon-button.tag-select {
-    height: 38px;
-    display: inline-flex;
-  }
-</style>
-
-<style scoped>
-  .cards-wrapper
-  {
-    padding: 16px;
-  }
-
-  .thailand-cards-wrapper
+  .content-wrapper,
+  .tagged-content-card-wrapper
   {
     display: flex;
   }
-
-  .card-container {
+  .content-wrapper
+  {
     flex-grow: 1;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
   }
-
-  .card {
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    border: 2px solid #ccc;
-    width: 33%;
-    max-width: 256px;
-    height: 33vw;
-    max-height: 192px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 10px;
-    max-width: 300px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .new-item-card
+  .content-wrapper.metadata-open
   {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    margin-right: calc(30% + 32px);
   }
-  .content-name
+  .tagged-content-card-wrapper
   {
-    display: block;
-    color: #5d5d5d;
-    font-size: 1.25em;
-    font-weight: 700;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 8px;
-  }
-  .filters-selector {
-    display: grid;
-    grid-template-columns: 2fr 2fr 5fr;
+    flex-grow: 2;
   }
 </style>
