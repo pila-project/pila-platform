@@ -81,8 +81,6 @@
         v-if="['admins', 'teachers', 'trainers', 'role-requests'].includes(tab)"
         :role="tab"
       />
-      <AdminContentLibrary v-else-if="tab === 'content' && store.getters.isThailandDomain" />
-      <ContentLibrary v-else-if="tab === 'content'" />
       <AdminReports v-else-if="tab === 'reports'" />
       <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
       <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
@@ -101,14 +99,12 @@
   import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
-  import ContentLibrary from '../../components/content-library.vue'
   import {
     ADMIN_TAG,
     TEACHER_TAG,
     TRAINER_TAG,
     PILA_CONTENT_TAG
   } from '../../constants.js'
-  import AdminContentLibrary from './admin-content-library.vue'
 
   const store = useStore()
   const user = store.getters.user()

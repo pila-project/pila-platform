@@ -1,7 +1,7 @@
 <template>
     <v-app-bar
         color="primary"
-        :title="$store.getters.isThailandDomain ? 'ประเทศไทย' : 'International'"
+        :title="$store.getters.domainTitle"
     >
         <template v-slot:prepend>
             <v-icon class="fa-solid fa-menue" />

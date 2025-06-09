@@ -15,6 +15,12 @@ const EXPERT_LIST = [
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f'
 ]
 
+const HOST_TO_TITLE = {
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': 'International',
+  'app.pilaproject.org': 'International',
+  'thailand.pilaproject.org': 'ประเทศไทย'
+}
+
 const HOST_TO_PARTITION = {
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA',
   'thailand.pilaproject.org': 'PILA Thailand'
@@ -40,6 +46,7 @@ export default {
   }),
   getters: {
     isThailandDomain: state => true,
+    domainTitle: () => HOST_TO_TITLE[location.host],
     tagPartition: state => HOST_TO_PARTITION[location.host],
     isAnonymous: state => () => state.provider === 'anonymous',
     loaded: state => () => state.loaded,
