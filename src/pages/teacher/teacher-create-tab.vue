@@ -98,23 +98,10 @@ const showSuccessMessage = ref(false)
 
 async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {
-    if (store.getters.isThailandDomain) { // new tagging approach for Thai
-      const myContent = await Agent.state('my-content')
-      myContent[userInput] = {}
-    } else { // old tagging approach for Intl
-      const { active_type } = await Agent.metadata(userInput)
-      if (active_type !== 'application/json;type=sequence') {
-        showInvalidMessage.value = true
-        userIdOrURL.value = ''
-        return
-      }
+    const myContent = await Agent.state('my-content')
+    myContent[userInput] = {}
 
-      store.dispatch('pila_tags/tag', {
-        content_id: userInput,
-        tag_type: 'tracked'
-      })
-    }
-    // for either tagging approach, interface reset for this successful uuid
+    // reset interface for this successful uuid
     userIdOrURL.value = ''
     showSuccessMessage.value = true
   } else {

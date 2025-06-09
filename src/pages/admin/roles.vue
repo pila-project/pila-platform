@@ -41,7 +41,7 @@
 
   const store = useStore()
 
-  const { tagPartition, isThailandDomain } = store.getters
+  const { tagPartition } = store.getters
 
   async function setTagging({ tag, target, value }) {
     const myTags  = await Agent.state('tags')

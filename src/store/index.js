@@ -5,7 +5,6 @@ import roles from './roles.js'
 import groups from './groups.js'
 import assignments from './assignments.js'
 import pila_tags from './pila_tags.js'
-import content from './content.js'
 import translations from './translations.js'
 
 import languageChoices from './languageChoices.js'
@@ -23,6 +22,7 @@ const HOST_TO_TITLE = {
 
 const HOST_TO_PARTITION = {
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA',
+  'app.pilaproject.org': 'PILA',
   'thailand.pilaproject.org': 'PILA Thailand'
 }
 
@@ -32,8 +32,7 @@ export default {
     groups,
     roles,
     pila_tags,
-    translations,
-    content
+    translations
   },
   state: () => ({
     loaded: false,
@@ -45,7 +44,6 @@ export default {
     hasAcceptedTeacherAgreement: false
   }),
   getters: {
-    isThailandDomain: state => true,
     domainTitle: () => HOST_TO_TITLE[location.host],
     tagPartition: state => HOST_TO_PARTITION[location.host],
     isAnonymous: state => () => state.provider === 'anonymous',
@@ -154,7 +152,6 @@ export default {
       await Promise.all([
         store.dispatch('load'),
         store.dispatch('fetchTranslations'),
-        store.dispatch('content/load'),
         store.dispatch('pila_tags/load'),
         store.dispatch('roles/load'),
         store.dispatch('groups/load'),
