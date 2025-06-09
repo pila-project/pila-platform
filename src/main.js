@@ -58,10 +58,9 @@ async function initializeApp() {
           }
         )
       }
-      if ( provider === 'anonymous'
-        && location.hostname === 'thailand.pilaproject.org'
-        && location.pathname === '/'
-      ) Agent.login('login.pilaproject.org')
+      if (provider === 'anonymous' && location.pathname === '/') {
+        Agent.login('login.pilaproject.org')
+      }
     })
   }
 }
