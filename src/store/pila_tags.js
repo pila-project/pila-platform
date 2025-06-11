@@ -6,6 +6,9 @@
  * **********************************/
 
 import URL_CONTENT_DATA from '../url-content-data.js'
+import setTagging from '../set-tagging.js'
+
+const MY_CONTENT_TAG = '8e6cb070-ec84-11ee-825b-edbc0a87ecf3'
 
 function existing_tag(state, content_id, tag_type, user) {
   let existing = null
@@ -68,9 +71,23 @@ export default {
     }
   },
   actions: {
-    async load({ commit }) {
+    async load({ commit, getters }) {
       const tags = await Agent.query('pila_tags')
       tags.forEach(tag => commit('add', tag))
+
+      const myPILATaggedContent = getters.withTag('tracked')
+      const myContent = await Agent.state('my-content')
+
+      // TODO: remove this section of code after an appropriate ammount of time
+      if (!myContent.migrated) {
+        myPILATaggedContent.forEach(id => myContent[id] = true)
+        await Promise.all(
+          Object
+            .keys(myContent)
+            .map(id => setTagging({ tag: MY_CONTENT_TAG, target: id, value: true }))
+        )
+        myContent.migrated = true
+      }
     },
     async tag({ state, commit, dispatch }, { tag_type, content_id, archived=false }) {
       const { auth: { user } } = await Agent.environment()

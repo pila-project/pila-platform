@@ -10,7 +10,10 @@
       :editable="true"
     />
     <RoleRequestTable
-      @tag="setTagging"
+      @tag="data => {
+        lastRefresh = Date.now()
+        setTagging(data, partition)
+      }"
     />
   </v-container>
 </template>
@@ -21,18 +24,11 @@
   import RoleTable from '../../components/role-table.vue'
   import RoleRequestTable from '../../components/role-request-table.vue'
   import { TEACHER_TAG, TRAINER_TAG } from '../../constants.js'
+  import setTagging from '../../set-tagging.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
 
   const partition = store.getters.tagPartition
   const lastRefresh = ref(0)
-
-  async function setTagging({ tag, target, value }) {
-    const myTags  = await Agent.state('tags')
-    if (!myTags[tag]) myTags[tag] = {}
-    myTags[tag][target] = { value, partition }
-    await Agent.synced()
-    lastRefresh.value++
-  }
 </script>
