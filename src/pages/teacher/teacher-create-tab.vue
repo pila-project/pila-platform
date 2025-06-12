@@ -87,6 +87,9 @@
 import { ref } from 'vue'
 import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
+import setTagging from '../../set-tagging.js'
+
+const MY_CONTENT_TAG = '8e6cb070-ec84-11ee-825b-edbc0a87ecf3'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -98,8 +101,7 @@ const showSuccessMessage = ref(false)
 
 async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {
-    const myContent = await Agent.state('my-content')
-    myContent[userInput] = {}
+    await setTagging({ tag: MY_CONTENT_TAG, target: userInput, value: true })
 
     // reset interface for this successful uuid
     userIdOrURL.value = ''
