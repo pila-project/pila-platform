@@ -27,14 +27,17 @@
           <TaggedContentCard
             :id="id"
             :selected="selfSelected === id"
-            :removable="myContent[id]"
+            :removable="myContent.includes(id)"
             @click="() => {
               if (selfSelected === id) selfSelected = null
               else selfSelected = id
               $emit('select', selfSelected)
             }"
             @preview="previewing = id"
-            @remove="delete myContent[id]"
+            @remove="() => {
+              setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
+              myContent.splice(myContent.indexOf(id), 1)
+            }"
           />
         </v-col>
       </v-row>
@@ -70,7 +73,7 @@
 </template>
 
 <script setup>
-  import { ref, watch, computed } from 'vue'
+  import { ref, reactive, watch, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Filters as TagFilters } from '@knowlearning/tags'
   import ContentMetadataPanel from './content-metadata-panel.vue'
@@ -78,10 +81,13 @@
   import TaggedContentCard from './tagged-content-card.vue'
   import PreviewModal from './PreviewModal.vue'
   import TagTranslation from './tag-translation.vue'
+  import setTagging from '../set-tagging.js'
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
   const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
+  const MY_CONTENT_TAG = '8e6cb070-ec84-11ee-825b-edbc0a87ecf3'
+  const { auth: { user } } = await Agent.environment()
 
   const loading = ref(true)
   const taggedContent = ref([])
@@ -89,12 +95,19 @@
   const competencies = ref([])
   const previewing = ref(null)
   const selectedCompetencies = ref([])
-  const myContent = ref({})
+
+  const myContent = reactive(
+    await (
+      Agent
+        .query('taggings-for-tag', [user, MY_CONTENT_TAG], 'tags.knowlearning.systems')
+        .then(r => r.map(t => t.target))
+    )
+  )
 
   const currentContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
     if (selectedCompetencies.value.length === 0) {
-      l = [...Object.keys(myContent.value), ...l]
+      l = [...myContent, ...l]
     }
     return l
   })
@@ -106,10 +119,6 @@
   Agent
     .query('taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems')
     .then(r => competencies.value = r.map(t => t.target))
-
-  Agent
-    .state('my-content')
-    .then(state => myContent.value = state)
 
   async function fetchTaggings() {
     loading.value = true
