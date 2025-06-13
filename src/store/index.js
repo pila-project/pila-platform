@@ -9,24 +9,7 @@ import translations from './translations.js'
 
 import languageChoices from './languageChoices.js'
 import { matchNavigatorLanguage } from './matchNavigatorLanguage.js'
-
-const EXPERT_LIST = [
-  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f'
-]
-
-const HOST_TO_TITLE = {
-  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': 'International',
-  'app.pilaproject.org': 'International',
-  'cambodia.pilaproject.org': 'កម្ពុជា',
-  'thailand.pilaproject.org': 'ประเทศไทย'
-}
-
-const HOST_TO_PARTITION = {
-  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA',
-  'app.pilaproject.org': 'PILA',
-  'cambodia.pilaproject.org': 'PILA Cambodia',
-  'thailand.pilaproject.org': 'PILA Thailand'
-}
+import { EXPERT_LIST, HOST_TO_TITLE, HOST_TO_PARTITION } from '../constants.js'
 
 export default {
   modules: {

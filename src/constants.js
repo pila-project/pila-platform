@@ -81,3 +81,32 @@ export const PILA_CONTENT_TAG = "1a53db50-e248-11ee-ab5f-07f4a7408770"
 export const MANDATORY_RESOURCES_TAG = "24af6b80-1174-11f0-9b08-0156640831c5"
 export const OPTIONAL_RESOURCES_TAG = "e5e89470-11ab-11f0-bd10-df9c846cb093"
 export const MY_CONTENT_TAG = '86220090-480f-11f0-a2e7-298d7c5ad755'
+
+export const EXPERT_LIST = [
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f'
+]
+
+export const DEFAULT_CODE_LIST = [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ]
+export const DOMAIN_CODE_LISTS = {
+  'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access']
+}
+
+export const DOMAIN_DATA_PROTECTION_LINKS = {
+  'thailand.pilaproject.org': 'https://pilaproject.org/about-pila/thailand-data-protection-notice-for-teachers',
+  default: 'https://pilaproject.org/about-pila/data-protection-notice-for-teachers'
+}
+
+export const HOST_TO_TITLE = {
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': 'International',
+  'app.pilaproject.org': 'International',
+  'cambodia.pilaproject.org': 'កម្ពុជា',
+  'thailand.pilaproject.org': 'ประเทศไทย'
+}
+
+export const HOST_TO_PARTITION = {
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA',
+  'app.pilaproject.org': 'PILA',
+  'cambodia.pilaproject.org': 'PILA Cambodia',
+  'thailand.pilaproject.org': 'PILA Thailand'
+}
