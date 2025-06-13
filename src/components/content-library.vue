@@ -82,11 +82,11 @@
   import PreviewModal from './PreviewModal.vue'
   import TagTranslation from './tag-translation.vue'
   import setTagging from '../set-tagging.js'
+  import { MY_CONTENT_TAG } from '../constants.js'
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
   const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
-  const MY_CONTENT_TAG = '8e6cb070-ec84-11ee-825b-edbc0a87ecf3'
   const { auth: { user } } = await Agent.environment()
 
   const loading = ref(true)
@@ -107,7 +107,7 @@
   const currentContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
     if (selectedCompetencies.value.length === 0) {
-      l = [...myContent, ...l]
+      l = [...l, ...myContent]
     }
     return l
   })

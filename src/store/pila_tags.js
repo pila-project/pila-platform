@@ -7,8 +7,7 @@
 
 import URL_CONTENT_DATA from '../url-content-data.js'
 import setTagging from '../set-tagging.js'
-
-const MY_CONTENT_TAG = '8e6cb070-ec84-11ee-825b-edbc0a87ecf3'
+import { MY_CONTENT_TAG } from '../constants.js'
 
 function existing_tag(state, content_id, tag_type, user) {
   let existing = null

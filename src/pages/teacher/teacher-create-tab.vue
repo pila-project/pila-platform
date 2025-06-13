@@ -88,8 +88,7 @@ import { ref } from 'vue'
 import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
 import setTagging from '../../set-tagging.js'
-
-const MY_CONTENT_TAG = '8e6cb070-ec84-11ee-825b-edbc0a87ecf3'
+import { MY_CONTENT_TAG } from '../../constants.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
