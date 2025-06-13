@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="isThailandDomain">
+  <v-container>
     <RoleTable
       v-if="props.role === 'admins'"
       :header="t('admins')"
@@ -29,21 +29,19 @@
       showTrainer
     />
   </v-container>
-  <OldRoles v-else />
 </template>
 
 <script setup>
   import { useStore } from 'vuex'
   import RoleTable from '../../components/role-table.vue'
   import RoleRequestTable from '../../components/role-request-table.vue'
-  import OldRoles from './old-roles.vue'
   import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '../../constants.js'
 
   const props = defineProps({ role: String })
 
   const store = useStore()
 
-  const { tagPartition, isThailandDomain } = store.getters
+  const { tagPartition } = store.getters
 
   async function setTagging({ tag, target, value }) {
     const myTags  = await Agent.state('tags')

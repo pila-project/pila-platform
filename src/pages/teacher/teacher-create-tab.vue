@@ -87,6 +87,8 @@
 import { ref } from 'vue'
 import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
+import setTagging from '../../set-tagging.js'
+import { MY_CONTENT_TAG } from '../../constants.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -98,23 +100,9 @@ const showSuccessMessage = ref(false)
 
 async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {
-    if (store.getters.isThailandDomain) { // new tagging approach for Thai
-      const myContent = await Agent.state('my-content')
-      myContent[userInput] = {}
-    } else { // old tagging approach for Intl
-      const { active_type } = await Agent.metadata(userInput)
-      if (active_type !== 'application/json;type=sequence') {
-        showInvalidMessage.value = true
-        userIdOrURL.value = ''
-        return
-      }
+    await setTagging({ tag: MY_CONTENT_TAG, target: userInput, value: true })
 
-      store.dispatch('pila_tags/tag', {
-        content_id: userInput,
-        tag_type: 'tracked'
-      })
-    }
-    // for either tagging approach, interface reset for this successful uuid
+    // reset interface for this successful uuid
     userIdOrURL.value = ''
     showSuccessMessage.value = true
   } else {

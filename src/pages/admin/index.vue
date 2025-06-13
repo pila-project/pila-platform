@@ -81,8 +81,6 @@
         v-if="['admins', 'teachers', 'trainers', 'role-requests'].includes(tab)"
         :role="tab"
       />
-      <AdminContentLibrary v-else-if="tab === 'content' && store.getters.isThailandDomain" />
-      <ContentLibrary v-else-if="tab === 'content'" />
       <AdminReports v-else-if="tab === 'reports'" />
       <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
       <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
@@ -101,31 +99,25 @@
   import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
-  import ContentLibrary from '../../components/content-library.vue'
   import {
     ADMIN_TAG,
     TEACHER_TAG,
     TRAINER_TAG,
     PILA_CONTENT_TAG
   } from '../../constants.js'
-  import AdminContentLibrary from './admin-content-library.vue'
 
   const store = useStore()
-  const user = store.getters.user()
-  const { auth: { info: userInfo } } = await Agent.environment()
-  const { isThailandDomain, tagPartition } = store.getters
+  const { auth: { user, info: userInfo } } = await Agent.environment()
 
   const hideStudies = true
   const tab = ref('teachers')
 
-  const iAmAnAdmin = await (isThailandDomain ? newRolesIsAdmin() : oldRolesIsAdmin())
+  const iAmAnAdmin = await isAdmin(user)
 
-  function oldRolesIsAdmin() { return store.getters['roles/role'](user) === 'admin' }
-
-  async function newRolesIsAdmin() {
+  async function isAdmin(user) {
     const adminTagging = await Agent.query(
       'tagging-for-target',
-      [tagPartition, ADMIN_TAG, user],
+      [store.getters.tagPartition, ADMIN_TAG, user],
       'tags.knowlearning.systems'
     )
     return !!adminTagging.length

@@ -60,29 +60,19 @@ export default {
       ])
     },
     async loadAssignments({ commit, getters, rootGetters }) {
-      if (rootGetters.isThailandDomain) {
-        await Promise.all(
-          [
-            ['admin', ADMIN_TAG],
-            ['teacher', TEACHER_TAG]
-          ].map(([role, tag]) => (
-            Agent
-              .query('taggings-for-tag', [rootGetters.tagPartition, tag], 'tags.knowlearning.systems')
-              .then(result => result.forEach(({ contributor: assigner, target: assignee }) => {
-                commit('addAssignment', { assigner, assignee, role })
-              }))
-          ))
-        )
-      }
-      else {
-        await (
+      await Promise.all(
+        [
+          ['admin', ADMIN_TAG],
+          ['teacher', TEACHER_TAG]
+        ].map(([role, tag]) => (
           Agent
-            .query('role-assignments')
-            .then(assignments => {
-              assignments.forEach(assignment => commit('addAssignment', assignment))
-            })
-        )
-      }
+            .query('taggings-for-tag', [rootGetters.tagPartition, tag], 'tags.knowlearning.systems')
+            .then(result => result.forEach(({ contributor: assigner, target: assignee }) => {
+              commit('addAssignment', { assigner, assignee, role })
+            }))
+        ))
+      )
+
       const { auth: { user } } = await Agent.environment()
       if (getters.role(user) !== 'student') {
         await storeUserInfo()
