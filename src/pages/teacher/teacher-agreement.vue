@@ -38,6 +38,8 @@
 
 <script>
 import PILAModal from '../../components/PILAModal.vue'
+import { DOMAIN_DATA_PROTECTION_LINKS } from '../../constants.js'
+
 export default {
 	name: 'teacher-agreement',
 	components: { PILAModal },
@@ -51,11 +53,8 @@ export default {
 	},
 	computed: {
 		teacherDataProtectionLink() {
-			if (location.host === 'thailand.pilaproject.org') {
-				return 'https://pilaproject.org/about-pila/thailand-data-protection-notice-for-teachers'
-			}
-
-			return 'https://pilaproject.org/about-pila/data-protection-notice-for-teachers'
+			return DOMAIN_DATA_PROTECTION_LINKS[location.host]
+			    || DOMAIN_DATA_PROTECTION_LINKS.default
 		}
 	}
 }
