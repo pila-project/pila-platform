@@ -101,12 +101,14 @@ export const HOST_TO_TITLE = {
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': 'International',
   'app.pilaproject.org': 'International',
   'cambodia.pilaproject.org': 'កម្ពុជា',
-  'thailand.pilaproject.org': 'ประเทศไทย'
+  'thailand.pilaproject.org': 'ประเทศไทย',
+  'poland-rct-2025.pilaproject.org': 'RCT Polska'
 }
 
 export const HOST_TO_PARTITION = {
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA',
   'app.pilaproject.org': 'PILA',
   'cambodia.pilaproject.org': 'PILA Cambodia',
-  'thailand.pilaproject.org': 'PILA Thailand'
+  'thailand.pilaproject.org': 'PILA Thailand',
+  'poland-rct-2025.pilaproject.org': 'PILA Poland RCT 2025'
 }
