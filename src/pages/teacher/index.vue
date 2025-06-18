@@ -67,12 +67,6 @@
           :active="tab === 'trainer'"
           @click="tab = 'trainer'"
         />
-        <v-list-item
-          prepend-icon="fa-solid fa-flask"
-          :title="t('join-studies')"
-          :active="tab === 'assignments-to-me'"
-          @click="tab = 'assignments-to-me'"
-        />
       </v-list>
 
       <template v-slot:append>
@@ -119,13 +113,6 @@
       />
       <ResourcesPage
         v-if="tab === 'resources'"
-      />
-      <StudiesNotAvailable
-        v-if="tab === 'assignments-to-me' && hideStudies"
-      />
-      <AssignmentsToMe
-        v-else-if="tab === 'assignments-to-me'"
-        type="researcher-to-teacher"
       />
       <v-container v-if="tab === 'support'">
         <div style="width: 400px; margin: auto; text-align: center; margin-top: 32px;">
