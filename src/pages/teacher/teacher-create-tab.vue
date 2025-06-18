@@ -1,5 +1,6 @@
 <template>
   <div class="create-tab">
+  <div v-if="customizersAvailable">
     <h3>{{ t('create-your-own-content') }}</h3>
     <button
       class="custom-button"
@@ -55,6 +56,7 @@
       <div class="center">{{ t('chirpys-adventure') }}</div>
       <i class="right fa-solid fa-pen-to-square" />
     </button>
+  </div>
 
     <div class="id-or-url-input-wrapper">
       <h3>{{ t('import-content') }}</h3>
@@ -88,7 +90,7 @@ import { ref } from 'vue'
 import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
 import setTagging from '../../set-tagging.js'
-import { MY_CONTENT_TAG } from '../../constants.js'
+import { MY_CONTENT_TAG, HIDDEN_CUSTOMIZER_DOMAINS } from '../../constants.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -97,6 +99,7 @@ const userIdOrURL = ref('')
 
 const showInvalidMessage = ref(false)
 const showSuccessMessage = ref(false)
+const customizersAvailable = !HIDDEN_CUSTOMIZER_DOMAINS.includes(window.location.host)
 
 async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {

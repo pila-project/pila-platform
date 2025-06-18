@@ -112,3 +112,7 @@ export const HOST_TO_PARTITION = {
   'thailand.pilaproject.org': 'PILA Thailand',
   'poland-rct-2025.pilaproject.org': 'PILA Poland RCT 2025'
 }
+
+export const HIDDEN_CUSTOMIZER_DOMAINS = [
+  'poland-rct-2025.pilaproject.org'
+]
