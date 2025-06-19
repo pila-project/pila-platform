@@ -49,7 +49,7 @@
       image = '/pila_sequence.png'
     }
     else if (metadata.active_type?.startsWith('application/json;type=karel-map')) {
-      image = '/karelSide.png'
+      image = '/karel_new.png'
     }
     else if (content.id?.includes('betty')) {
       image = '/betty.png'

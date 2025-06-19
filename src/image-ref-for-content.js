@@ -5,13 +5,13 @@ export default async function getImageFromContent(content) {
         return '/betty.png'
     }
     else if (content.includes('karel')) {
-        return '/karelSide'
+        return '/karel_new.png'
     }
     else if (isUUID(content)) {
         // attempt get image ref from state
-        const { image, id: innerContentId } = await Agent.state(content)
-        if (image) {
-            return isUUID(image) ? (await Agent.download(image).url()) : image
+        const { image, picture, id: innerContentId } = await Agent.state(content)
+        if (image || picture) {
+            return isUUID(image || picture) ? (await Agent.download(image || picture).url()) : image || picture
         } else if (innerContentId?.includes('betty')) { // for some reason betty stuff has "url" as ids nested
             return 'betty.png'
         }
@@ -22,7 +22,7 @@ export default async function getImageFromContent(content) {
             return '/pila_sequence.png'
         }
         else if (active_type?.startsWith('application/json;type=karel-map')) {
-            return '/karelSide.png'
+            return '/karel_new.png'
         }
     }
     return '/logo-green.svg'

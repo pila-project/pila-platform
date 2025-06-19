@@ -30,7 +30,7 @@ export default {
 	},
 	methods: {
 		getImageSrc(project) {
-			if (project === 'karel') return './karelSide.png'
+			if (project === 'karel') return './karel_new.png'
 			else if (project === 'candli') return './candli-logo.svg'
 			else if (project === 'betty') return './betty.png'
 			else return './mascotte.png'
