@@ -15,6 +15,11 @@
         />
         <v-container>
             <ShowArchivedToggle v-model="showArchived" />
+            <TeacherStudentAgreementModal
+              v-if="showAcceptStudentAgreementModal"
+              @agreed="createUserAndLaunchModal()"
+              @close="() => showAcceptStudentAgreementModal = false"
+            />
         </v-container>
     </div>
 </template>
@@ -23,6 +28,7 @@
 import Groups from '../../components/groups/viewer.vue'
 import UserInfoModal from '../../components/user-info-modal.vue'
 import ShowArchivedToggle from '../../components/show-archived-toggle.vue'
+import TeacherStudentAgreementModal from './teacher-student-agreement-modal.vue'
 
 import { ref, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
@@ -31,6 +37,8 @@ import { createUser } from '../../user-utils.js'
 const userModalUser = ref(null)
 const users = reactive({})
 const showArchived = ref(false)
+const state = await Agent.state()
+const showAcceptStudentAgreementModal = ref(false)
 
 await new Promise(resolve => {
     Agent.watch('users', ({ state }) => {
@@ -63,12 +71,16 @@ function randomString(length, chars) {
 }
 
 async function createUserAndLaunchModal() {
-    const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-    const userSecret = randomString(8, codeCharacterSet)
-    const info = { name: t('student') }
-    const id = await createUser(userSecret, providerSecret, info)
-    const users = await Agent.state('users')
-    users[id] = {}
-    userModalUser.value = id
+    const { studentDataProtectionAgreement } = await Agent.state()
+    if (studentDataProtectionAgreement) {
+        const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+        const userSecret = randomString(8, codeCharacterSet)
+        const info = { name: t('student') }
+        const id = await createUser(userSecret, providerSecret, info)
+        const users = await Agent.state('users')
+        users[id] = {}
+        userModalUser.value = id
+    }
+    else showAcceptStudentAgreementModal.value = true
 }
 </script>
