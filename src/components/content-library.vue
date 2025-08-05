@@ -7,6 +7,7 @@
   >
     <v-container>
       <TagFilters
+        v-if="showCreate"
         v-model="selectedCompetencies"
         :partition="partition"
         :roots="competencies"
@@ -82,7 +83,9 @@
   import PreviewModal from './PreviewModal.vue'
   import TagTranslation from './tag-translation.vue'
   import setTagging from '../set-tagging.js'
-  import { MY_CONTENT_TAG } from '../constants.js'
+  import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
+
+  const showCreate = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'

@@ -90,7 +90,7 @@ import { ref } from 'vue'
 import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
 import setTagging from '../../set-tagging.js'
-import { MY_CONTENT_TAG, HIDDEN_CUSTOMIZER_DOMAINS } from '../../constants.js'
+import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -99,7 +99,7 @@ const userIdOrURL = ref('')
 
 const showInvalidMessage = ref(false)
 const showSuccessMessage = ref(false)
-const customizersAvailable = !HIDDEN_CUSTOMIZER_DOMAINS.includes(window.location.host)
+const customizersAvailable = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
 async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {

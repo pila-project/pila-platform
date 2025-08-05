@@ -49,6 +49,7 @@
           @click="tab = 'content'"
         />
         <v-list-item
+          v-if="showCreate"
           prepend-icon="fa-solid fa-folder-plus"
           :title="t('create')"
           :active="tab === 'create'"
@@ -172,8 +173,9 @@
   import TeacherCreateTab from './teacher-create-tab.vue'
   import TrainerPage from './trainer-page.vue'
   import ResourcesPage from './resources-page.vue'
-  import { TRAINER_TAG } from '../../constants.js'
+  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
 
+  const showCreate = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
   const store = useStore()
   const hideStudies = true
