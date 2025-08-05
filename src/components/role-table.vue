@@ -31,7 +31,7 @@
           v-if="values"
           variant="solo"
           :items="values"
-          item-title="label"
+          :item-title="v => t(v?.label || 'teacher')"
           return-object
           v-model="relatedTagStates[id][data.item.target]"
           @update:modelValue="val => setRelatedTag(id, data.item.target, val)"
