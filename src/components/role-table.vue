@@ -22,15 +22,28 @@
       />
     </template>
     <template
-      v-for="{ id, key, templateSlot } in relatedTagTemplateData"
+      v-for="{ id, key, templateSlot, editable, values } in relatedTagTemplateData"
       :key="key"
       v-slot:[templateSlot]="data"
     >
-      <v-icon
-        class="d-inline-flex"
-        :icon="`fa-regular fa-square${relatedTagStates[id][data.item.target] ? '-check' : ''}`"
-        @click="toggleRelatedTag(id, data.item.target)"
-      />
+      <template v-if="editable">
+        <v-select
+          v-if="values"
+          density="compact"
+          variant="solo"
+          :items="values"
+          :item-title="v => t(v?.label || 'teacher')"
+          return-object
+          v-model="relatedTagStates[id][data.item.target]"
+          @update:modelValue="val => setRelatedTag(id, data.item.target, val)"
+        />
+        <v-icon
+          v-else
+          class="d-inline-flex"
+          :icon="`fa-regular fa-square${relatedTagStates[id][data.item.target] ? '-check' : ''}`"
+          @click="toggleRelatedTag(id, data.item.target)"
+        />
+      </template>
     </template>
     <template v-slot:item.contributor="data">
       <DecryptedName
@@ -146,10 +159,10 @@
 
   fetchTaggings()
 
-  const relatedTagStates = {}
+  const relatedTagStates = reactive({})
 
   props.relatedTags.forEach(({ id, editable }) => {
-    relatedTagStates[id] = reactive({})
+    relatedTagStates[id] = {}
     Agent
       .query(
         'taggings-for-tag',
@@ -157,14 +170,18 @@
         'tags.knowlearning.systems'
       )
       .then(results => {
-        results.forEach(result => relatedTagStates[id][result.target] = true)
+        results
+          .forEach(({ target, value }) => {
+            relatedTagStates[id][target] = value
+          })
       })
   })
 
   const relatedTagTemplateData = computed(() => {
-    return props.relatedTags.map(({ id, editable }, index) => ({
+    return props.relatedTags.map(({ id, editable, values }, index) => ({
       id,
       editable,
+      values,
       key: `relatedTag${index}`,
       templateSlot: `item.relatedTag${index}`
     }))
@@ -178,6 +195,10 @@
   headers.push({ key: 'contributor', title: t('assigned-by') })
   headers.push({ key: 'edit', title: '' })
 
+  function setRelatedTag(relatedTagId, target, value) {
+    relatedTagStates[relatedTagId][target] = value
+    tag(target, value, relatedTagId)
+  }
 
   function toggleRelatedTag(relatedTagId, target) {
     const value = !relatedTagStates[relatedTagId][target]

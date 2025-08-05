@@ -19,7 +19,18 @@
       v-else-if="props.role === 'teachers'"
       :header="t('teachers')"
       :partition="tagPartition"
-      :relatedTags="[{ id: TRAINER_TAG, editable: true }]"
+      :relatedTags="[
+        { id: TRAINER_TAG, editable: true },
+        {
+          id: THAI_TEACHER_LABEL,
+          editable: true,
+          values: [
+            { label: 'teacher' },
+            { label: 'supervisor' },
+            { label: 'core-facilitator' }
+          ]
+        }
+      ]"
       :tag="TEACHER_TAG"
       @tag="setTagging"
     />
@@ -35,7 +46,7 @@
   import { useStore } from 'vuex'
   import RoleTable from '../../components/role-table.vue'
   import RoleRequestTable from '../../components/role-request-table.vue'
-  import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '../../constants.js'
+  import { ADMIN_TAG, TRAINER_TAG, THAI_TEACHER_LABEL, TEACHER_TAG } from '../../constants.js'
 
   const props = defineProps({ role: String })
 
