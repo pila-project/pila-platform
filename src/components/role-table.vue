@@ -29,6 +29,7 @@
       <template v-if="editable">
         <v-select
           v-if="values"
+          density="compact"
           variant="solo"
           :items="values"
           :item-title="v => t(v?.label || 'teacher')"
