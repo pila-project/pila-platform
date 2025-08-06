@@ -118,3 +118,17 @@ export const SIMPLIFIED_STUDY_DOMAINS = [
   'poland-rct-2025.pilaproject.org',
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
 ]
+
+export const HOST_TO_EXTRA_TEACHER_TAGS = {
+  'thailand.pilaproject.org': [
+    {
+      id: THAI_TEACHER_LABEL,
+      editable: true,
+      values: [
+        { label: 'teacher' },
+        { label: 'supervisor' },
+        { label: 'core-facilitator' }
+      ]
+    }
+  ]
+}
