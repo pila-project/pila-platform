@@ -1,5 +1,13 @@
 <template>
-  <div class="text-h3">{{ props.header }}</div>
+  <div class="text-h3">
+    {{ props.header }}
+    <v-btn
+      v-if="downloadable"
+      @click="download"
+    >
+      {{ t('download') }}
+    </v-btn>
+  </div>
   <v-data-table
     sticky
     :items="taggings"
@@ -124,6 +132,7 @@
   import { ref, reactive, computed } from 'vue'
   import DecryptedName from './decrypted-name.vue'
   import { useStore } from 'vuex'
+  import { json2csv } from 'json-2-csv'
 
   const store = useStore()
 
@@ -144,6 +153,10 @@
     editable: {
       type: Boolean,
       default: true
+    },
+    downloadable: {
+      type: Boolean,
+      defaut: false
     }
   })
   const emit = defineEmits(['tag'])
@@ -237,6 +250,38 @@
         })
       })
     loading.value = false
-   }
+  }
 
+  async function download() {
+    const table = await Promise.all(
+      taggings
+        .value
+        .map(async ({ target, contributor }) => {
+          const entry = { [t('user')]: target }
+          await Promise.all(
+            Object
+              .entries(relatedTagStates)
+              .map(async ([tagId, tagTargets]) => {
+                const { name } = await Agent.state(tagId)
+                entry[t(name)] = tagTargets[target] || null
+              })
+          )
+          return entry
+        })
+    )
+    const csv = await json2csv(table)
+    const file = new File([csv], `${t('teachers')}-${(new Date()).toLocaleString()}.csv`, {
+      type: 'text/plain',
+    })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(file)
+
+    link.href = url
+    link.download = file.name
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
 </script>

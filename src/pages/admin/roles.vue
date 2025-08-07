@@ -17,6 +17,7 @@
     />
     <RoleTable
       v-else-if="props.role === 'teachers'"
+      downloadable
       :header="t('teachers')"
       :partition="tagPartition"
       :relatedTags="teacherRelatedTags"
