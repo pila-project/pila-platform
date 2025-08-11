@@ -103,7 +103,7 @@ export const HOST_TO_TITLE = {
   'app.pilaproject.org': 'International',
   'cambodia.pilaproject.org': 'កម្ពុជា',
   'thailand.pilaproject.org': 'ประเทศไทย',
-  'poland-rct-2025.pilaproject.org': 'RCT Polska'
+  'polska-rct-2025.pilaproject.org': 'RCT Polska'
 }
 
 export const HOST_TO_PARTITION = {
@@ -111,11 +111,11 @@ export const HOST_TO_PARTITION = {
   'app.pilaproject.org': 'PILA',
   'cambodia.pilaproject.org': 'PILA Cambodia',
   'thailand.pilaproject.org': 'PILA Thailand',
-  'poland-rct-2025.pilaproject.org': 'PILA Poland RCT 2025'
+  'polska-rct-2025.pilaproject.org': 'PILA Poland RCT 2025'
 }
 
 export const SIMPLIFIED_STUDY_DOMAINS = [
-  'poland-rct-2025.pilaproject.org',
+  'polska-rct-2025.pilaproject.org',
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
 ]
 
