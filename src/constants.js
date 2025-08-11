@@ -90,7 +90,8 @@ export const EXPERT_LIST = [
 export const DEFAULT_CODE_LIST = [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ]
 export const DOMAIN_CODE_LISTS = {
   'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
-  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access']
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access'],
+  'polska-rct-2025.pilaproject.org': ['25-DOSTEP-RCT']
 }
 
 export const DOMAIN_DATA_PROTECTION_LINKS = {
