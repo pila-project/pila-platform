@@ -45,7 +45,7 @@
 
 <script setup>
 import { reactive } from 'vue'
-import { MANDATORY_RESOURCES_TAG, OPTIONAL_RESOURCES_TAG } from '../../constants.js'
+import { HOST_TO_PARTITION, MANDATORY_RESOURCES_TAG, OPTIONAL_RESOURCES_TAG } from '../../constants.js'
 import { useStore } from 'vuex'
 
 const store = useStore()
@@ -54,7 +54,7 @@ function t(slug) { return store.getters.t(slug) }
 let mandatoryResources = reactive({})
 let optionalResources  = reactive({})
 
-const partition = 'PILA'
+const partition = HOST_TO_PARTITION[window.location.host]
 const domain = 'tags.knowlearning.systems'
 
 const x = await Agent.query('taggings-for-tag',[ partition, MANDATORY_RESOURCES_TAG], domain)
