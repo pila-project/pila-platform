@@ -33,7 +33,7 @@
     </div>
 
     <div v-if="requestedRole?.role !== role">
-      <v-select
+      <v-select v-if="!hideTrainerSelect"
         :items="trainers"
         :label="t('select-your-trainer')"
         v-model="trainer"
@@ -61,7 +61,7 @@
 
 <script>
   import IconButton from '../icon-button.vue'
-  import { TRAINER_TAG } from '../../constants.js'
+  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
   import DecryptedName from '../decrypted-name.vue'
 
   export default {
@@ -89,6 +89,9 @@
       )
     },
     computed: {
+      hideTrainerSelect() {
+        return SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+      },
       headerText() {
         let output = this.t('you-have-requested-the-role-of')
         output += ' '
