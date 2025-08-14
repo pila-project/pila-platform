@@ -19,6 +19,7 @@
 <script>
   import LoginMenu from './login/index.vue'
   import AccessCodeScreen from './login/AccessCodeScreen.vue'
+  import { SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
 
   export default {
     components: {
@@ -31,7 +32,11 @@
       accessCodeRequired() {
         const user = this.$store.state.user
         const role = this.$store.getters['roles/role'](user)
-        if (role === 'student' || Agent.embedded) return false
+        if (
+          role === 'student'
+          || Agent.embedded
+          || SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+        ) return false
         else return !this.$store.state.codeEntered
       }
     }
