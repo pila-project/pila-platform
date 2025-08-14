@@ -1,6 +1,6 @@
 <template>
   <vueEmbedComponent
-    :id="`https://rct-problem-creator.pilaproject.org/dashboard?game=9c9655f0-7781-11f0-8aa3-c7ea7e3e87ea&${params}`"
+    :id="`https://rct-problem-creator.pilaproject.org/dashboard?game=${props.module}&${params}`"
     :namespace="props.assignment"
     :environmentProxy="proxyEnvironmentCall"
   />
