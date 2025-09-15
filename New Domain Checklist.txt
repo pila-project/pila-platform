@@ -16,4 +16,10 @@ Domains to add new domain to configuration:
 
 Tag domain work:
   Create new partition for domain
-  
+  Add partition to tags domain agent
+  Go to "PILA Poland RCT 2025" and bring in each tag and add at least one tagging per
+    current hack:
+      use existing partition
+      click on tag we want to "import"
+      then swap out the partition name in the url to go to new partition
+      add a tagging within the new partition and that tag will appear in the new partition interface as long as there is an active tagging
