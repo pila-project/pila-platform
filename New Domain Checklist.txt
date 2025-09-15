@@ -1,0 +1,19 @@
+Launching new PILA domain:
+
+Add dns1.p09.nsone.net and dns2.p09.nsone.net as values for 2 NS record for new domain
+Add new domain on https://app.netlify.com/projects/pila-friday-demo/domain-management
+
+IMPORTANT: wait for netlify managed HTTPS cert to be valid (otherwise domain claim won't work)
+Claim admin for new domain
+Deploy configuration for new domain
+
+Domains to add new domain to configuration:
+  translate-pila-alpha.netlify.app
+  translate-karel-alpha.netlify.app
+  tags.knowlearning.systems
+  translate.knowlearning.systems
+  xapi.knowlearning.systems
+
+Tag domain work:
+  Create new partition for domain
+  
