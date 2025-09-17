@@ -48,7 +48,7 @@
 
     <button
       class="custom-button"
-      @click="openLink('https://chirpy-bird.pilaproject.org')"
+      @click="openLink('https://customize-candli.pilaproject.org/chirpy')"
     >
       <div class="left">
         <img src="/Chirpy.png" alt="chirpy-image" class="btn-image">
@@ -56,6 +56,19 @@
       <div class="center">{{ t('chirpys-adventure') }}</div>
       <i class="right fa-solid fa-pen-to-square" />
     </button>
+
+    <button
+      class="custom-button"
+      @click="openLink('https://customize-candli.pilaproject.org/mixology')"
+    >
+      <div class="left">
+        <img src="/Mixology.png" alt="mixology-image" class="btn-image">
+      </div>
+      <div class="center">{{ t('magical-mixology') }}</div>
+      <i class="right fa-solid fa-pen-to-square" />
+    </button>
+
+
   </div>
 
     <div class="id-or-url-input-wrapper">
