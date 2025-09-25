@@ -116,9 +116,7 @@
         v-if="tab === 'resources'"
       />
       <v-container v-if="tab === 'support'">
-        <div style="width: 400px; margin: auto; text-align: center; margin-top: 32px;">
-          <p>{{ t('for-support-please-email-edu-pila-oecd-org') }}</p>
-        </div>
+        <BugReport />
       </v-container>
       <TeacherCreateTab v-else-if="tab === 'create'" />
     </v-main>
@@ -170,6 +168,7 @@
   import AssignmentsToMe from '../../assignments/to-me/all.vue'
   import AssignmentsFromMe from '../../assignments/from-me/all.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
+  import BugReport from '../../components/bug-report.vue'
   import TeacherCreateTab from './teacher-create-tab.vue'
   import TrainerPage from './trainer-page.vue'
   import ResourcesPage from './resources-page.vue'
