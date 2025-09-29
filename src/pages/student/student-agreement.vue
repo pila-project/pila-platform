@@ -32,31 +32,7 @@
 
 					<div>
 						<p>{{ t('know-learning-will-keep-this-data-safe-and-not-share-it-in-any-way-externally') }}</p>
-						<p>{{ t('thanks-to-the-pila-data-security-system-your-teacher-will-receive-your-data-in-digital-dashboards') }}</p>
-						<p>{{ t('your-teachers-are-the-only-ones-who-will-be-able-to-identify-who-you-are') }}</p>
 					</div>
-
-					<div>
-						<p>
-							{{ t('you-will-be-able-to-access-your-assignments-and-results-in-your-student-account-you-can-read-more-about-how-pila-protects-your-data-in-the-data-protection-notice-for-students') }}
-						</p>
-						<p style="margin: 20px 0; text-align: center;">
-							<a
-								href="https://pilaproject.org/about-pila/data-protection-notice-for-students"
-								target="_blank"
-							>
-								{{ t('data-protection-notice-for-students') }}
-							</a>
-						</p>
-						<p>
-							<span>{{ t('if-you') }}&nbsp;</span>
-							<span><strong>{{ t('do-not-agree') }}</strong>&nbsp;</span>
-							<span>{{ t('to-know-learning-collecting-and-storing-this-data-please-speak-with-your-teacher-and-do-not-create-a-student-account-on-pila') }}</span>
-						</p>
-					</div>
-
-
-
 
 				</div>
 			</div>
