@@ -1,13 +1,14 @@
 <script setup>
+  import { onMounted, nextTick } from 'vue'
   import UserInfoCard from '../../components/user-info-card.vue'
   const users = await Agent.state('users')
 
   const visibleUsers = Object.keys(users).filter(id => !users[id].archived)
 
-  setTimeout(() => {
+  onMounted(async () => {
+    await nextTick()
     if (visibleUsers.length) window.print()
-    //window.close()
-  }, 500)
+  })
 </script>
 
 <template>
