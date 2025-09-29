@@ -120,6 +120,7 @@ export const HOST_TO_PARTITION = {
 
 export const SIMPLIFIED_STUDY_DOMAINS = [
   'polska-rct-2025.pilaproject.org',
+  'france-rct-2025.pilaproject.org'
   //'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'
 ]
 
