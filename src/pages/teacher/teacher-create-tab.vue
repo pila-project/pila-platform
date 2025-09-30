@@ -82,6 +82,12 @@
         }"
         @keydown.enter="attemptAddContent(userIdOrURL)"
       />
+      <v-btn
+        v-if="userIdOrURL"
+        @click="attemptAddContent(userIdOrURL)"
+      >
+        {{ t('add') }}
+      </v-btn>
       <v-alert
         v-model="showInvalidMessage"
         :text="t('invalid-id-or-url')"
