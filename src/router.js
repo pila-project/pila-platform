@@ -21,7 +21,24 @@ export default createRouter({
     },
     {
       path: '/teacher',
-      component: TeacherView
+      component: TeacherView,
+      children: [
+        { path: 'classes', component: () => import('./pages/teacher/manage-classes.vue') },
+        {
+          path: 'assignments-from-me',
+          component: () => import('./assignments/from-me/all.vue'),
+          props: {
+            assignable_item_type: 'teacher-created',
+            assignment_type: 'teacher-to-student'
+          }
+        },
+        { path: 'content', component: () => import('./components/content-library.vue') },
+        { path: 'create', component: () => import('./pages/teacher/teacher-create-tab.vue') },
+        { path: 'resources', component: () => import('./pages/teacher/resources-page.vue') },
+        { path: 'trainer', component: () => import('./pages/teacher/trainer-page.vue') },
+        { path: 'support', component: () => import('./components/bug-report.vue') },
+        { path: '', redirect: 'teacher/classes' }
+      ]
     },
     {
       path: '/teacher/codes',

@@ -33,47 +33,45 @@
         <v-list-item
           prepend-icon="fa-solid fa-users-gear"
           :title="t('admin')"
-          :active="tab === 'classes'"
-          @click="tab = 'classes'"
+          to="classes"
+          exact
         />
         <v-list-item
           prepend-icon="fa-solid fa-clipboard-check"
           :title="t('assign-and-monitor')"
-          :active="tab === 'assignments-from-me'"
-          @click="tab = 'assignments-from-me'"
+          to="assignments-from-me"
+          exact
         />
         <v-list-item
           prepend-icon="fa-solid fa-magnifying-glass-plus"
           :title="t('explore')"
-          :active="tab === 'content'"
-          @click="tab = 'content'"
+          to="content"
+          exact
         />
         <v-list-item
           v-if="showCreate"
           prepend-icon="fa-solid fa-folder-plus"
           :title="t('create')"
-          :active="tab === 'create'"
-          @click="tab = 'create'"
+          to="create"
         />
         <v-list-item
           prepend-icon="fa-solid fa-file-alt"
           :title="t('resources')"
-          :active="tab === 'resources'"
-          @click="tab = 'resources'"
+          to="resources"
         />
         <v-list-item
           v-if="userIsTrainer"
           prepend-icon="fa-solid fa-chalkboard-user"
           :title="t('trainer')"
-          :active="tab === 'trainer'"
-          @click="tab = 'trainer'"
+          to="trainer"
         />
       </v-list>
 
       <template v-slot:append>
         <v-list>
           <v-list-item
-            @click="tab = 'support'"
+            to="support"
+            exact
           >
             <v-avatar
               image="/support-icon.svg"
@@ -102,23 +100,7 @@
     </v-navigation-drawer>
     
     <v-main>
-      <ManageClasses v-if="tab === 'classes'" />
-      <ContentLibrary v-if="tab === 'content'" />
-      <AssignmentsFromMe
-        v-if="tab === 'assignments-from-me'"
-        assignable_item_type="teacher-created"
-        assignment_type="teacher-to-student"
-      />
-      <TrainerPage
-        v-if="tab === 'trainer'"
-      />
-      <ResourcesPage
-        v-if="tab === 'resources'"
-      />
-      <v-container v-if="tab === 'support'">
-        <BugReport />
-      </v-container>
-      <TeacherCreateTab v-else-if="tab === 'create'" />
+      <router-view />
     </v-main>
 
     <v-footer
