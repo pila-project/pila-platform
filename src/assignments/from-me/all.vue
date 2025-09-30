@@ -159,6 +159,15 @@
                 </tr>
               </tbody>
             </table>
+            <br>
+            <div style="text-align: right;">
+              <IconButton
+                icon="message"
+                @click="goToSupport"
+                :text="t('send-feedback')"
+                background="#FFC442"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -330,6 +339,9 @@
     methods: {
       handleRowClick(event, item) {
         this.current = this.current === item.item ? null : item.item
+      },
+      goToSupport() {
+        this.$router.push(`/teacher/support?assignment=${this.current}`)
       },
       async reassessContents() {
         this.assignmentContainsCandli = null
