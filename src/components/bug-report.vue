@@ -1,60 +1,147 @@
 <template>
-  <div class="bug-report">
-    <h2>Bug Report</h2>
+  <div style="margin: 2em auto; max-width: 512px;">
+    <v-card class="pa-4">
+      <div v-html="instructionMarkdown" />
+    </v-card>
+    <br>
+    <v-select
+      v-model="form.type"
+      :items="[
+        { label: t('report-bug'), value: 'bug' },
+        { label: t('suggest-feature'), value: 'feature' }
+      ]"
+      item-title="label"
+      item-value="value"
+      variant="outlined"
+    />
+    <br>
+    <v-card
+      v-if="form.type === 'bug'"
+      class="pa-6"
+      max-width="600"
+    >
+      <v-card-title class="text-h5">{{t('bug-report')}}</v-card-title>
 
-    <form v-if="!submitted" @submit.prevent="handleSubmit">
-      <div class="field">
-        <label for="description">Bug Description</label>
-        <textarea
-          id="description"
-          v-model="form.description"
-          required
-          rows="3"
-        ></textarea>
-      </div>
+      <v-card-text>
+        <v-form v-if="!submitted" @submit.prevent="handleSubmit">
+          <v-textarea
+            v-model="form.description"
+            :label="t('bug-description')"
+            rows="3"
+            variant="outlined"
+            :rules="[v => !!v || 'Description is required']"
+            required
+          />
 
-      <div class="field">
-        <label for="steps">Steps to Reproduce</label>
-        <textarea
-          id="steps"
-          v-model="form.steps"
-          required
-          rows="3"
-        ></textarea>
-      </div>
+          <v-textarea
+            v-model="form.steps"
+            :label="t('steps-to-reproduce')"
+            rows="3"
+            variant="outlined"
+            :rules="[v => !!v || t('steps-to-reproduce-are-required')]"
+            required
+          />
 
-      <button
-        type="submit"
-        class="submit-btn"
-        @mouseover="hovering = true"
-        @mouseleave="hovering = false"
-        :class="{ hover: hovering }"
-      >
-        Submit
-      </button>
-    </form>
+          <v-btn
+            type="submit"
+            color="primary"
+            class="mt-4"
+            :elevation="hovering ? 8 : 2"
+            @mouseover="hovering = true"
+            @mouseleave="hovering = false"
+          >
+            {{ t('submit') }}
+          </v-btn>
+        </v-form>
 
-    <div v-else class="thank-you">
-      <p>✅ Thank you, your data has been reported!</p>
-      <button
-        @click="resetForm"
-        class="reset-btn"
-        @mouseover="hoveringReset = true"
-        @mouseleave="hoveringReset = false"
-        :class="{ hover: hoveringReset }"
-      >
-        Report Another Bug
-      </button>
-    </div>
+        <div v-else class="text-center">
+          <p class="mb-4">{{t('bug-thank-you-message')}}</p>
+          <v-btn
+            color="secondary"
+            @click="resetForm"
+            :elevation="hoveringReset ? 8 : 2"
+            @mouseover="hoveringReset = true"
+            @mouseleave="hoveringReset = false"
+          >
+            {{ t('report-another-bug') }}
+          </v-btn>
+        </div>
+      </v-card-text>
+    </v-card>
+    <v-card
+      v-if="form.type === 'feature'"
+      class="pa-6"
+      max-width="600"
+    >
+      <v-card-title class="text-h5">
+       {{ t('suggest-a-feature-or-a-change') }}
+      </v-card-title>
+
+      <v-card-text>
+        <v-form v-if="!submitted" @submit.prevent="handleSubmit">
+          <v-text-field
+            v-model="form.suggestionTitle"
+            :label="t('feature-title')"
+            :placeholder="t('feature-title-placeholder')"
+            variant="outlined"
+            required
+          />
+
+          <v-textarea
+            v-model="form.suggestion"
+            :label="t('your-suggestion')"
+            :placeholder="t('your-suggestion-placeholder')"
+            rows="4"
+            variant="outlined"
+            required
+          />
+          <v-btn
+            type="submit"
+            color="primary"
+            class="mt-4"
+            :elevation="hovering ? 8 : 2"
+            @mouseover="hovering = true"
+            @mouseleave="hovering = false"
+          >
+            {{ t('submit') }}
+          </v-btn>
+        </v-form>
+        <div v-else class="text-center">
+          <p class="mb-4">{{t('feature-thank-you-message')}}</p>
+          <v-btn
+            color="secondary"
+            @click="resetForm"
+            :elevation="hoveringReset ? 8 : 2"
+            @mouseover="hoveringReset = true"
+            @mouseleave="hoveringReset = false"
+          >
+            {{ t('request-another-feature') }}
+          </v-btn>
+        </div>
+      </v-card-text>
+    </v-card>
+
   </div>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
+
+const t = useStore().getters.t
+
+const instructions = t('bug-report-instructions')
+const instructionMarkdown = marked.parse(DOMPurify.sanitize(instructions))
+
+const route = useRoute()
 
 const form = reactive({
   description: '',
   steps: '',
+  type: 'bug'
 })
 
 const submitted = ref(false)
