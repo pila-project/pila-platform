@@ -157,6 +157,9 @@ async function handleSubmit() {
     object: 'bug',
     result: {
       response: `DESCRIPTION: ${form.description} :: STEPS: ${form.steps}`
+    },
+    extensions: {
+      assignment: route.query?.assignment
     }
   }
   submitted.value = true
