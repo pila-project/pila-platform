@@ -252,7 +252,7 @@
   import PILAModal from '../../components/PILAModal.vue'
   import IconButton from '../../components/icon-button.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
-  import showArchivedToggle from '../../components/show-archived-toggle.vue'
+  import ShowArchivedToggle from '../../components/show-archived-toggle.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
@@ -272,7 +272,7 @@
       CandliDashboard,
       GenAIDashboard,
       CreateEditAssignmentModal,
-      showArchivedToggle
+      ShowArchivedToggle
     },
     props: {
       assignable_item_type: String,

@@ -144,16 +144,6 @@
   import Navbar from '../Navbar.vue'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '../../components/roles/requester.vue'
-  import TabMenu from '../../components/tab-menu.vue'
-  import ManageClasses from './manage-classes.vue'
-  import ContentLibrary from '../../components/content-library.vue'
-  import AssignmentsToMe from '../../assignments/to-me/all.vue'
-  import AssignmentsFromMe from '../../assignments/from-me/all.vue'
-  import StudiesNotAvailable from '../../components/studies-not-available.vue'
-  import BugReport from '../../components/bug-report.vue'
-  import TeacherCreateTab from './teacher-create-tab.vue'
-  import TrainerPage from './trainer-page.vue'
-  import ResourcesPage from './resources-page.vue'
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
 
   const showCreate = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
