@@ -2,7 +2,7 @@
   <div class="link-student-modal">
     <div class="agreement-area">
       <span>
-        {{ t('per-the-pila-personal-data-protection-notice-or-the-specific-consent-requirements-if-you-are-participating-in-a-research-study-through-pila-please-check-this-box-to-confirm-you-have-collected-parental-guardian-and-student-consent-as-required-by-your-local-or-national-laws') }}
+        {{ t('per-the-pila-personal-data-protection-notice-or') }}
       </span>
       <input type="checkbox" v-model="agreed" :disabled="agreed" >
     </div>

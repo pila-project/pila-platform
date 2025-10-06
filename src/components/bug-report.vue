@@ -8,7 +8,7 @@
       v-model="form.type"
       :items="[
         { label: t('report-bug'), value: 'bug' },
-        { label: t('suggest-feature'), value: 'feature' }
+        { label: t('suggest-a-feature'), value: 'feature' }
       ]"
       item-title="label"
       item-value="value"
@@ -29,7 +29,7 @@
             :label="t('bug-description')"
             rows="3"
             variant="outlined"
-            :rules="[v => !!v || 'Description is required']"
+            :rules="[v => !!v || t('description-is-required')]"
             required
           />
 
@@ -55,7 +55,7 @@
         </v-form>
 
         <div v-else class="text-center">
-          <p class="mb-4">{{t('bug-thank-you-message')}}</p>
+          <p class="mb-4">{{t('thank-you-your-feedback-has-been-sent-our-team-w')}}</p>
           <v-btn
             color="secondary"
             @click="resetForm"
@@ -74,7 +74,7 @@
       max-width="600"
     >
       <v-card-title class="text-h5">
-       {{ t('suggest-a-feature-or-a-change') }}
+       {{ t('suggest-a-feature') }}
       </v-card-title>
 
       <v-card-text>
@@ -82,7 +82,7 @@
           <v-text-field
             v-model="form.suggestionTitle"
             :label="t('feature-title')"
-            :placeholder="t('feature-title-placeholder')"
+            :placeholder="t('feature-title')"
             variant="outlined"
             required
           />
@@ -90,7 +90,7 @@
           <v-textarea
             v-model="form.suggestion"
             :label="t('your-suggestion')"
-            :placeholder="t('your-suggestion-placeholder')"
+            :placeholder="t('your-suggestion')"
             rows="4"
             variant="outlined"
             required
@@ -107,7 +107,7 @@
           </v-btn>
         </v-form>
         <div v-else class="text-center">
-          <p class="mb-4">{{t('feature-thank-you-message')}}</p>
+          <p class="mb-4">{{t('thank-you-your-feedback-has-been-sent-our-team-w')}}</p>
           <v-btn
             color="secondary"
             @click="resetForm"
@@ -133,7 +133,7 @@ import DOMPurify from 'dompurify'
 
 const t = useStore().getters.t
 
-const instructions = t('bug-report-instructions')
+const instructions = t('👉-quick-troubleshooting-checklist-please-make-s') // markdown!
 const instructionMarkdown = marked.parse(DOMPurify.sanitize(instructions))
 
 const route = useRoute()

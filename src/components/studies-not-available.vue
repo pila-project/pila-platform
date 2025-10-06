@@ -1,7 +1,7 @@
 <template>
 	<div class="studies-not-available">
 		<img src="/mascotte.png">
-		<h3>{{ t('you-will-be-able-to-participate-in-research-studies-on-pila-soon-check-back-in-a-few-months') }}</h3>
+		<h3>{{ t('you-will-be-able-to-participate-in-research-stud') }}</h3>
 	</div>
 </template>
 

@@ -8,7 +8,7 @@
       <div class="message-wrapper">
         <p>
           {{ headerText }}
-          {{ t('please-send-your-full-name-school-institution-and-this-anonymous-id-to-edu-pila-oecd-org-in-order-to-obtain-access-to-pila') }}
+          {{ t('please-send-your-full-name-school-institution-an') }}
         </p>
         <p class="user-id">
           {{ t('user-id') }} :: {{ $store.getters.user() }}
@@ -27,7 +27,7 @@
 
       <IconButton v-if="requestedRole.role === role"
         @click="reload"
-        :text="t('click-here-to-reload-once-you-receive-approval-confirmation')"
+        :text="t('click-here-to-reload-once-you-receive-approval-c')"
         background="orange"
       />
     </div>

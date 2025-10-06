@@ -12,7 +12,7 @@
 			<div class="student-agreement">
 				<div class="student-agreement-body">
 
-					<div>{{ t("by-creating-an-account-and-using-the-platform-for-innovative-learning-assessments-pila-you-are-agreeing-that-know-learning-can-collect-and-store-data-about-your-activity-and-google-analytics-and-google-cloud-platform-can-process-this-data") }}</div>
+					<div>{{ t("you-are-about-to-create-a-student-account-on-pil") }}</div>
 
 					<div>
 						<p>{{ t('the-kinds-of-activity-data-include') }}</p>
@@ -26,12 +26,12 @@
 						</p>
 						<p class="icon-row">
 							<i class="fa fa-desktop"></i>
-							<span>{{ t('all-saved-versions-of-your-answers-solutions') }}</span>
+							<span>{{ t('all-saved-versions-of-your-answers-solutions-inc') }}</span>
 						</p>
 					</div>
 
 					<div>
-						<p>{{ t('know-learning-will-keep-this-data-safe-and-not-share-it-in-any-way-externally') }}</p>
+						<p>{{ t('know-learning-will-keep-this-data-safe-and-wont') }}</p>
 					</div>
 
 				</div>
