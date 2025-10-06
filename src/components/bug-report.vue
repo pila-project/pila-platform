@@ -23,7 +23,7 @@
       <v-card-title class="text-h5">{{t('bug-report')}}</v-card-title>
 
       <v-card-text>
-        <v-form v-if="!submitted" @submit.prevent="handleSubmit">
+        <v-form ref="formRef" v-if="!submitted" @submit.prevent="handleSubmit">
           <v-textarea
             v-model="form.description"
             :label="t('bug-description')"
@@ -78,7 +78,7 @@
       </v-card-title>
 
       <v-card-text>
-        <v-form v-if="!submitted" @submit.prevent="handleSubmit">
+        <v-form ref="formRef" v-if="!submitted" @submit.prevent="handleSubmit">
           <v-text-field
             v-model="form.suggestionTitle"
             :label="t('feature-title')"
@@ -132,6 +132,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
 const t = useStore().getters.t
+const formRef = ref()
 
 const instructions = t('👉-quick-troubleshooting-checklist-please-make-s') // markdown!
 const instructionMarkdown = marked.parse(DOMPurify.sanitize(instructions))
@@ -149,6 +150,9 @@ const hovering = ref(false)
 const hoveringReset = ref(false)
 
 async function handleSubmit() {
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
+
   const { auth: { user } } = await Agent.environment()
   const x = await Agent.state('bug-report-xapi')
   x.xapi = {
