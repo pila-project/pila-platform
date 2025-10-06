@@ -168,7 +168,7 @@
       <template v-slot:title>{{ t('enter-encryption-key-word') }}</template>
       <template v-slot:body>
         <div style="padding: 20px 42px; text-align: center;">
-          {{ t('enter-an-encryption-key-word-you-will-remember-this-key-word-will-be-used-to-allow-you-to-see-your-students-names-while-preserving-the-anonymity-of-their-data-for-all-other-users') }}
+          {{ t('enter-an-encryption-key-word-you-will-remember-t') }}
           <br>
           <input v-model="namePassword" class="rounded-grey" style="width: 60%; text-align: center;" />
         </div>
@@ -198,7 +198,7 @@
       <template v-slot:title>{{ t('manage-data') }}</template>
       <template v-slot:body>
         <div style="margin: 40px 32px;">
-          {{ t('to-request-deletion-of-data-please-email-data-requests-knowlearning-org') }}
+          {{ t('to-request-deletion-of-data-please-email-data-re') }}
         </div>
       </template>
     </PILAModal>

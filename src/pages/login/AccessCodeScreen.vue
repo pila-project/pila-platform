@@ -12,9 +12,9 @@
         top: 170px;
       "
     />
-    <p>{{ t("create-an-account-or-log-in-with-the-service-that-you-use-at-your-school-if-the-service-you-normally-use-is-not-among-the-options-please-ask-your-teacher-to-contact-edu-pila-oecd-org") }}</p>
+    <p>{{ t("create-an-account-or-log-in-with-the-service-tha") }}</p>
     <br>
-    <p>{{ t('to-create-a-teacher-or-researcher-account-please-enter-your-access-code-below') }}</p>
+    <p>{{ t('to-create-a-teacher-or-researcher-account-please') }}</p>
     <div
       style="
         background: #CCCCCC;
@@ -49,7 +49,7 @@
       />
     </div>
     <p>
-    {{ t("dont-have-an-access-code-contact-edu-pila-oecd-org-to-express-interest-in-using-pila-in-your-classroom-or-for-your-research") }}
+    {{ t("dont-have-an-access-code-contact-edu-pila-oecd-o") }}
     </p>
   </div>
 </template>

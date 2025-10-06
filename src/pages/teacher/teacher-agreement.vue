@@ -12,7 +12,7 @@
 			<div class="teacher-agreement">
 				<div class="teacher-agreement-body">
 					<p style="margin-bottom: 24px;">
-						{{ t('by-creating-my-teacher-account-i-agree-to-the-terms-of-service-and-the-processing-of-my-personal-data-as-described-in-the-data-protection-notice') }}
+						{{ t('by-creating-my-teacher-account-i-agree-to-the-te') }}
 					</p>
 					<p>
 						<a

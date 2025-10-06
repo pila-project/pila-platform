@@ -8,7 +8,7 @@
     />
   </div>
   <div v-else-if="assignment">
-    {{ t('there-is-an-issue-with-your-assignment-please-ask-your-teacher-to-ensure-they-have-assigned-the-intended-content') }}
+    {{ t('there-is-an-issue-with-your-assignment-please-as') }}
   </div>
   <div v-else>
     ... {{ t('loading') }} ...

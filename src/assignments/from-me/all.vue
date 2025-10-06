@@ -159,6 +159,15 @@
                 </tr>
               </tbody>
             </table>
+            <br>
+            <div style="text-align: right;">
+              <IconButton
+                icon="message"
+                @click="goToSupport"
+                :text="t('send-feedback')"
+                background="#FFC442"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -243,7 +252,7 @@
   import PILAModal from '../../components/PILAModal.vue'
   import IconButton from '../../components/icon-button.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
-  import showArchivedToggle from '../../components/show-archived-toggle.vue'
+  import ShowArchivedToggle from '../../components/show-archived-toggle.vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
@@ -263,7 +272,7 @@
       CandliDashboard,
       GenAIDashboard,
       CreateEditAssignmentModal,
-      showArchivedToggle
+      ShowArchivedToggle
     },
     props: {
       assignable_item_type: String,
@@ -330,6 +339,9 @@
     methods: {
       handleRowClick(event, item) {
         this.current = this.current === item.item ? null : item.item
+      },
+      goToSupport() {
+        this.$router.push(`/teacher/support?assignment=${this.current}`)
       },
       async reassessContents() {
         this.assignmentContainsCandli = null
