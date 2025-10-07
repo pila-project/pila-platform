@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev-thai": "vite --host 0.0.0.0 --origin https://pila.gforcesolution.com ",
     "build": "vite build",
     "preview": "vite preview"
   },
