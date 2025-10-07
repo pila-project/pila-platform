@@ -46,14 +46,14 @@
         </div>
       </div>
       <div v-if="error" class="error">{{ error }}</div>
-      <div style="display: flex; margin: 16px 0; align-items: center;">
+      <!-- <div style="display: flex; margin: 16px 0; align-items: center;">
         <img src="/mascotte.png" style="width: 92px" />
         <div>
           <p style="padding: 16px; width: 450px; text-align: left;">
             {{ t("create-an-account-or-log-in-with-the-service-tha") }}
           </p>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
