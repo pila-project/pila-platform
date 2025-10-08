@@ -23,3 +23,4 @@ Tag domain work:
       click on tag we want to "import"
       then swap out the partition name in the url to go to new partition
       add a tagging within the new partition and that tag will appear in the new partition interface as long as there is an active tagging
+  Add new partition and domain to HOST_TO_PARTITION constant in this repo
