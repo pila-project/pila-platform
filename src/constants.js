@@ -91,6 +91,9 @@ export const DEFAULT_CODE_LIST = []
 export const DOMAIN_CODE_LISTS = {
   'app.pilaproject.org': [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ],
   'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
+  'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
+  'dev.gforcesolution.com': ['THAI_ACCESS', 'thai_access'],
+  'pila.gforcesolution.com': ['THAI_ACCESS', 'thai_access'],
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access'],
   'polska-rct-2025.pilaproject.org': ['25-DOSTEP-RCT'],
   'france-rct-2025.pilaproject.org': ['25-ACCES-RCT']
@@ -114,6 +117,8 @@ export const HOST_TO_PARTITION = {
   'app.pilaproject.org': 'PILA',
   'cambodia.pilaproject.org': 'PILA Cambodia',
   'thailand.pilaproject.org': 'PILA Thailand',
+  'dev.gforcesolution.com': 'PILA Thailand Development',
+  'pila.gforcesolution.com': 'PILA Thailand Development',
   'polska-rct-2025.pilaproject.org': 'PILA Poland RCT 2025',
   'france-rct-2025.pilaproject.org': 'PILA France RCT 2025'
 }
