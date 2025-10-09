@@ -16,6 +16,7 @@
         style="position: absolute;"
         namespace="preview"
         @close="$emit('close')"
+        :environmentProxy="addPreviewVariable"
         allow="camera;microphone;fullscreen"
       />
     </template>
@@ -45,7 +46,13 @@
       vueEmbedComponent
     },
     methods: {
-      t(slug) { return this.$store.getters.t(slug) }
+      t(slug) { return this.$store.getters.t(slug) },
+      async addPreviewVariable(e) {
+        const env = await Agent.environment(e)
+        if (env.variables) return { ...env, variables: { ...env.variables, PREVIEW: true } }
+        else return env
+
+      }
     },
     computed: {
       URL_CONTENT_DATA() {
