@@ -135,6 +135,15 @@
                 :text="t('competency-dashboard')"
                 background="rgb(107, 234, 201)"
               />
+              <div v-if="dashboardURLs.length">
+                <IconButton
+                  icon="dashboard"
+                  v-for="url, index in dashboardURLs"
+                  @click="dashboardUrl = url"
+                  :text="`${t('dashboard')} ${index+1}`"
+                  background="rgb(107, 234, 201)"
+                />
+              </div>
               <br v-if="assignmentContainsGenAI">
               <IconButton
                 icon="dashboard"
@@ -205,6 +214,25 @@
     </template>
   </PILAModal>
   <PILAModal
+    v-if="dashboardUrl"
+    @close="dashboardUrl = null"
+    showCloseButton
+    width="90vw"
+    height="90vh"
+  >
+    <template v-slot:title>
+      <span>
+        {{ t('dashboard') }} -
+        <vueScopeComponent :id="current" :path="['name']" />
+      </span>
+    </template>
+    <template v-slot:body>
+      <suspense>
+        <Dashboard :assignment="current" :url="dashboardUrl" />
+      </suspense>
+    </template>
+  </PILAModal>
+  <PILAModal
     v-if="showCandliResultsModal"
     @close="showCandliResultsModal = false"
     showCloseButton
@@ -257,8 +285,9 @@
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './CreateEditAssignmentModal.vue'
   import CandliDashboard from './candli-dashboard.vue'
+  import UrlDashboard from './dashboard/url-dashboard.vue'
   import GenAIDashboard from './gen-ai-dashboard.vue'
-  import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '../../constants.js'
+  import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES, DATAWISE_SEQUENCES_TO_DASHBOARDS } from '../../constants.js'
 
   let idToCreated = {}
 
@@ -270,6 +299,7 @@
       IconButton,
       Dashboard,
       CandliDashboard,
+      UrlDashboard,
       GenAIDashboard,
       CreateEditAssignmentModal,
       ShowArchivedToggle
@@ -288,7 +318,9 @@
         showCandliResultsModal: false,
         assignmentContainsCandli: null,
         assignmentContainsGenAI: false,
-        showGenAIDashboardModal: false
+        showGenAIDashboardModal: false,
+        dashboardURLs: [],
+        dashboardUrl: null
       }
     },
     mounted() {
@@ -351,6 +383,10 @@
             .then(({ content }) => {
               this.assignmentContainsCandli = !!CANDLI_SEQUENCES[content]
               this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
+              if (DATAWISE_SEQUENCES_TO_DASHBOARDS[content]) {
+                this.dashboardURLs = DATAWISE_SEQUENCES_TO_DASHBOARDS[content]
+              }
+              else this.dashboardURLs = []
             })
         }
       },

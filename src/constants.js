@@ -142,3 +142,24 @@ export const HOST_TO_EXTRA_TEACHER_TAGS = {
     }
   ]
 }
+
+const DATAWISE_SCHOOLYARD_DASHBOARDS = [
+  'https://datawise.accingo.co/dashboard/activity/schoolyard_formulate',
+  'https://datawise.accingo.co/dashboard/activity/schoolyard_runoff_explore',
+  'https://datawise.accingo.co/dashboard/activity/schoolyard_runoff_design'
+]
+
+const DATAWISE_COMMUNITY_DASHBOARDS = [
+  'https://datawise.accingo.co/dashboard/activity/community_formulate',
+  'https://datawise.accingo.co/dashboard/activity/community_runoff_explore',
+  'https://datawise.accingo.co/dashboard/activity/community_runoff_design'
+]
+
+export const DATAWISE_SEQUENCES_TO_DASHBOARDS = {
+  //Schoolyard sequences
+  '2bd34dc0-696f-11f0-9f32-db43f830c431': DATAWISE_SCHOOLYARD_DASHBOARDS, // English Sequence
+  'ae9c7950-a783-11f0-9015-793b817afd19': DATAWISE_SCHOOLYARD_DASHBOARDS,  // Thai Sequence
+  // Community sequences
+  '884f7e10-6970-11f0-9f32-db43f830c431': DATAWISE_COMMUNITY_DASHBOARDS, // English Sequence
+  'a0fa8660-a784-11f0-9015-793b817afd19': DATAWISE_COMMUNITY_DASHBOARDS  // Thai Sequence
+}
