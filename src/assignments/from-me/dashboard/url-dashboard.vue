@@ -12,8 +12,6 @@
 
   const props = defineProps({ assignment: String, module: String, users: Array, url: String })
 
-  console.log('PROPS IN URL DASHBOARD.....', props.url)
-
   const store = useStore()
   const users = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
   const params = new URLSearchParams(users.map(id => ['user', id]))
