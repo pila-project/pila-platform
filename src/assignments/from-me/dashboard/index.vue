@@ -1,7 +1,14 @@
 <template>
   <div class="dashboard-wrapper">
+    <UrlDashboard
+      v-if="props.url"
+      :url="props.url"
+      :users="users"
+      :assignment="props.assignment"
+      :module="content"
+    />
     <RCTDashboard
-      v-if="rctAssignment"
+      v-else-if="rctAssignment"
       :users="users"
       :assignment="props.assignment"
       :module="content"
@@ -24,8 +31,9 @@
   import Dashboard from '../../../components/NewDashboard/Dashboard.vue'
   import BettyDashboard from './betty-dashboard.vue'
   import RCTDashboard from './rct-dashboard.vue'
+  import UrlDashboard from './url-dashboard.vue'
 
-  const props = defineProps({ assignment: String })
+  const props = defineProps({ assignment: String, url: String })
 
   const users = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
 
