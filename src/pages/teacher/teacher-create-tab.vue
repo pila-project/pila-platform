@@ -68,6 +68,17 @@
       <i class="right fa-solid fa-pen-to-square" />
     </button>
 
+    <button
+      class="custom-button"
+      @click="openLink('https://datawise.accingo.co/pila/explore')"
+    >
+      <div class="left">
+        <img src="/mascotte.png" alt="datawise-image" class="btn-image">
+      </div>
+      <div class="center">{{ t('datawise-activities') }}</div>
+      <i class="right fa-solid fa-pen-to-square" />
+    </button>
+
 
   </div>
 

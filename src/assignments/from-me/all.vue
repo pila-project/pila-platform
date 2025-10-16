@@ -200,7 +200,10 @@
     </template>
     <template v-slot:body>
       <suspense>
-        <Dashboard :assignment="current" />
+        <Dashboard
+          :assignment="current"
+          :url="dashboardUrl"
+        />
       </suspense>
     </template>
   </PILAModal>
@@ -288,7 +291,8 @@
         showCandliResultsModal: false,
         assignmentContainsCandli: null,
         assignmentContainsGenAI: false,
-        showGenAIDashboardModal: false
+        showGenAIDashboardModal: false,
+        dashboardUrl: null
       }
     },
     mounted() {
@@ -346,11 +350,16 @@
       async reassessContents() {
         this.assignmentContainsCandli = null
         if (this.current) {
-          Agent
+          await Agent
             .state(this.current)
-            .then(({ content }) => {
+            .then(async ({ content }) => {
               this.assignmentContainsCandli = !!CANDLI_SEQUENCES[content]
               this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
+
+              if ((await Agent.metadata(content)).domain === 'datawise.accingo.co') {
+                this.dashboardUrl = 'https://datawise.accingo.co/dashboard'
+              }
+              else this.dashboardUrl = null
             })
         }
       },
