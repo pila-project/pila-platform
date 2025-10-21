@@ -83,6 +83,10 @@ export const MANDATORY_RESOURCES_TAG = "24af6b80-1174-11f0-9b08-0156640831c5"
 export const OPTIONAL_RESOURCES_TAG = "e5e89470-11ab-11f0-bd10-df9c846cb093"
 export const MY_CONTENT_TAG = '86220090-480f-11f0-a2e7-298d7c5ad755'
 
+export const CONTROL_TAG = '41ad5640-ab69-11f0-b8c9-a1d0807d9f84' // Control
+export const TREATMENT_TAG = '472a84d0-ab69-11f0-b8c9-a1d0807d9f84' // Treatment
+export const OPT_OUT_TAG = 'b7589b90-adec-11f0-954c-d1e98d074ab4'  // Opt-Out
+
 export const EXPERT_LIST = [
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f'
 ]

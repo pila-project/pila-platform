@@ -3,7 +3,8 @@
     <vueEmbedComponent
       :id="assignment.content"
       @close="closeAssignment"
-      :namespace="$route.params.id"
+      :namespace="route.params.id"
+      :environmentProxy="addVariables"
       allow="camera;microphone;fullscreen"
     />
   </div>
@@ -15,34 +16,47 @@
   </div>
 </template>
 
-<script>
-  import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
+import {
+  TREATMENT_TAG,
+  CONTROL_TAG,
+  OPT_OUT_TAG,
+  HOST_TO_PARTITION
+} from '../../constants.js'
 
-  export default {
-    components: {
-      vueEmbedComponent
-    },
-    data() {
-      return {
-        assignment: null,
-        metadata: null
-      }
-    },
-    async created() {
-      const { id } = this.$route.params
-      this.assignment = await Agent.state(id)
-    },
-    methods: {
-      t(slug) { return this.$store.getters.t(slug) },
-      closeAssignment() {
-        Agent.close()
-      }
-    }
-  }
+const route = useRoute()
+const store = useStore()
+
+const { id } = route.params
+const assignment = ref(await Agent.state(id))
+
+const t = slug => store.getters.t(slug)
+const closeAssignment = () => Agent.close()
+
+const partition = HOST_TO_PARTITION[window.location.host]
+
+const { auth: { user } } = await Agent.environment()
+
+const [ treatmentTagging, optOutTagging ] = await Promise.all([
+  Agent.query('tagging-for-target', [partition, TREATMENT_TAG, user], 'tags.knowlearning.systems'),
+  Agent.query('tagging-for-target', [partition, OPT_OUT_TAG, user], 'tags.knowlearning.systems')
+])
+
+const isInTreatment = treatmentTagging.length > 0 && optOutTagging.length === 0
+
+async function addVariables(e) {
+  const env = await Agent.environment(e)
+  if (env.variables) return { ...env, variables: { ...env.variables, TREATMENT: isInTreatment } }
+  else return env
+}
+
 </script>
 
 <style scoped>
-
 .wrapper {
   position: absolute;
   background: white;
@@ -51,5 +65,4 @@
   top: 0;
   left: 0;
 }
-
 </style>

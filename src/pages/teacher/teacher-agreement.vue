@@ -1,8 +1,8 @@
 <template>
 	<PILAModal
 		showCloseButton
+		@close="modalClose($event)"
 		:closeButtonText="t('create-account')"
-		@close="modalClose"
 		class="teacher-agreement-modal"
 	>
 		<template v-slot:title>
@@ -14,6 +14,11 @@
 					<p style="margin-bottom: 24px;">
 						{{ t('by-creating-my-teacher-account-i-agree-to-the-te') }}
 					</p>
+					<p
+						v-if="isSimplifiedDomain"
+						style="margin-bottom: 12px;"
+					>
+						For the PILA Study, your students will be randomized into either Treatment or Control groups.</p>
 					<p>
 						<a
 							href="https://pilaproject.org/about-pila/terms-and-conditions-for-teachers"
@@ -38,23 +43,48 @@
 
 <script>
 import PILAModal from '../../components/PILAModal.vue'
-import { DOMAIN_DATA_PROTECTION_LINKS } from '../../constants.js'
+import {
+	DOMAIN_DATA_PROTECTION_LINKS,
+	HOST_TO_PARTITION,
+	SIMPLIFIED_STUDY_DOMAINS,
+	TREATMENT_TAG,
+	CONTROL_TAG,
+	OPT_OUT_TAG
+} from '../../constants.js'
+
+const PARTITION = HOST_TO_PARTITION[window.location.host]
 
 export default {
 	name: 'teacher-agreement',
 	components: { PILAModal },
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
-		modalClose(e) {
-			// only accept/handle modal close from 'agree' button
-			const agreeBtn = e === 'primary-button'
-			if (agreeBtn) this.$store.dispatch('acceptTeacherAgreement')
+		async modalClose(e) {
+			const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
+			const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
+			const n = taggedAsTreatment.length
+			const m = taggedAsControl.length
+			const p = 1 // desired ratio of m:n
+			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
+			else tagSelfWith(CONTROL_TAG, PARTITION)
+
+			async function tagSelfWith(tag, partition) {
+				const { auth: { user }} = await Agent.environment()
+				const tags = await Agent.state('tags')
+				if (!tags[tag]) tags[tag] = {}
+				tags[tag][user] = { partition, value: true}
+			}
+
+			if (e === 'primary-button') this.$store.dispatch('acceptTeacherAgreement')
 		}
 	},
 	computed: {
 		teacherDataProtectionLink() {
 			return DOMAIN_DATA_PROTECTION_LINKS[location.host]
 			    || DOMAIN_DATA_PROTECTION_LINKS.default
+		},
+		isSimplifiedDomain() {
+			return SIMPLIFIED_STUDY_DOMAINS.includes(location.host)
 		}
 	}
 }
