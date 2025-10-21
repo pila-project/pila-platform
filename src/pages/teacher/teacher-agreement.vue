@@ -1,7 +1,7 @@
 <template>
 	<PILAModal
 		showCloseButton
-		@close="modalClose($event, false)"
+		@close="modalClose($event)"
 		:closeButtonText="t('create-account')"
 		class="teacher-agreement-modal"
 	>
@@ -72,6 +72,7 @@ export default {
 				if (!tags[tag]) tags[tag] = {}
 				tags[tag][user] = { partition: PARTITION, value: true}
 			}
+
 			if (e === 'primary-button') this.$store.dispatch('acceptTeacherAgreement')
 		}
 	},
@@ -113,15 +114,5 @@ export default {
 }
 .teacher-agreement .fa-mouse-pointer {
 	transform: translateX(10px);
-}
-#opt-out-wrapper {
-	text-align: right;
-	font-style: italic;
-	margin: 8px;
-	color: darkgrey;
-	font-size: 0.8rem;
-}
-#opt-out-wrapper:hover {
-	color: grey;
 }
 </style>
