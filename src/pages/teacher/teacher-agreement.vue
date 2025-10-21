@@ -55,7 +55,10 @@ import PILAModal from '../../components/PILAModal.vue'
 import {
 	DOMAIN_DATA_PROTECTION_LINKS,
 	HOST_TO_PARTITION,
-	SIMPLIFIED_STUDY_DOMAINS
+	SIMPLIFIED_STUDY_DOMAINS,
+	TREATMENT_TAG,
+	CONTROL_TAG,
+	OPT_OUT_TAG
 } from '../../constants.js'
 
 export default {
@@ -68,15 +71,12 @@ export default {
 			const host = location.host
 			if (SIMPLIFIED_STUDY_DOMAINS.includes(host)) {
 				const PARTITION = HOST_TO_PARTITION[host]
-				const C = '41ad5640-ab69-11f0-b8c9-a1d0807d9f84' // Control
-				const T = '472a84d0-ab69-11f0-b8c9-a1d0807d9f84' // Treatment
-				const O = 'b7589b90-adec-11f0-954c-d1e98d074ab4'  // Opt-Out
 
 				if (optOut) {
-					tagSelfWith(O)
+					tagSelfWith(OPT_OUT_TAG)
 				} else {
-					const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, T ], 'tags.knowlearning.systems')
-					const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, C ], 'tags.knowlearning.systems')
+					const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
+					const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
 					const n = taggedAsTreatment.length
 					const m = taggedAsControl.length
 					const p = 1 // desired ratio of m:n
