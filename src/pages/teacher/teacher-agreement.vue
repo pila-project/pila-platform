@@ -52,6 +52,8 @@ import {
 	OPT_OUT_TAG
 } from '../../constants.js'
 
+const PARTITION = HOST_TO_PARTITION[window.location.host]
+
 export default {
 	name: 'teacher-agreement',
 	components: { PILAModal },
@@ -63,14 +65,14 @@ export default {
 			const n = taggedAsTreatment.length
 			const m = taggedAsControl.length
 			const p = 1 // desired ratio of m:n
-			if (p*n <= m) tagSelfWith(T)
-			else tagSelfWith(C)
+			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
+			else tagSelfWith(CONTROL_TAG, PARTITION)
 
 			async function tagSelfWith(tag, partition) {
 				const { auth: { user }} = await Agent.environment()
 				const tags = await Agent.state('tags')
 				if (!tags[tag]) tags[tag] = {}
-				tags[tag][user] = { partition: PARTITION, value: true}
+				tags[tag][user] = { partition, value: true}
 			}
 
 			if (e === 'primary-button') this.$store.dispatch('acceptTeacherAgreement')

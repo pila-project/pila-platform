@@ -120,11 +120,14 @@ async function optOut() {
   const tags = await Agent.state('tags')
   if (!tags[OPT_OUT_TAG]) tags[OPT_OUT_TAG] = {}
   tags[OPT_OUT_TAG][user] = { partition: PARTITION, value: true }
+  await Agent.response()
 }
 
 async function optOutConfirmed() {
   loading.value = true
   await optOut()
+  await new Promise(r => setTimeout(r, 2000))
+  await refreshStatus()
   loading.value = false
   confirmOpen.value = false
 }
