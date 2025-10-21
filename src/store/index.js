@@ -9,7 +9,12 @@ import translations from './translations.js'
 
 import languageChoices from './languageChoices.js'
 import { matchNavigatorLanguage } from './matchNavigatorLanguage.js'
-import { EXPERT_LIST, HOST_TO_TITLE, HOST_TO_PARTITION } from '../constants.js'
+import {
+  EXPERT_LIST,
+  HOST_TO_TITLE,
+  HOST_TO_PARTITION,
+  HOST_TO_FORCED_LANGUAGE
+} from '../constants.js'
 
 export default {
   modules: {
@@ -103,7 +108,7 @@ export default {
       commit('language', value)
     },
     async load({ commit, state }) {
-      const language = matchNavigatorLanguage(languageChoices)
+      const language = HOST_TO_FORCED_LANGUAGE[window.location.host] || matchNavigatorLanguage(languageChoices)
       commit('language', language)
 
       const { auth } = await Agent.environment()
