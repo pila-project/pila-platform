@@ -37,6 +37,7 @@ export default createRouter({
         { path: 'resources', component: () => import('./pages/teacher/resources-page.vue') },
         { path: 'trainer', component: () => import('./pages/teacher/trainer-page.vue') },
         { path: 'support', component: () => import('./components/bug-report.vue') },
+        { path: 'opt-out', component: () => import('./pages/teacher/study-opt-out.vue') },
         { path: '', redirect: 'teacher/classes' }
       ]
     },

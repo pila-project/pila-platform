@@ -17,7 +17,8 @@
 					<p
 						v-if="isSimplifiedDomain"
 						style="margin-bottom: 12px;"
-					>For the PILA Study, your students will be randomized into either Treatment or Control groups. To remove your students from the study and ensure your student use the system without AI support, click the "Opt Out and Agree" button.</p>
+					>
+						For the PILA Study, your students will be randomized into either Treatment or Control groups.</p>
 					<p>
 						<a
 							href="https://pilaproject.org/about-pila/terms-and-conditions-for-teachers"
@@ -35,16 +36,6 @@
 						</a>
 					</p>
 				</div>
-				<div id="opt-out-wrapper">
-					<button
-						v-if="isSimplifiedDomain"
-						id="opt-out"
-						@click="modalClose('opt-out', true)"
-					>
-						Opt Out of Study and Create Account
-					</button>
-				</div>
-
 			</div>
 		</template>
 	</PILAModal>
@@ -66,33 +57,22 @@ export default {
 	components: { PILAModal },
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
-		async modalClose(e, optOut) {
+		async modalClose(e) {
+			const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
+			const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
+			const n = taggedAsTreatment.length
+			const m = taggedAsControl.length
+			const p = 1 // desired ratio of m:n
+			if (p*n <= m) tagSelfWith(T)
+			else tagSelfWith(C)
 
-			const host = location.host
-			if (SIMPLIFIED_STUDY_DOMAINS.includes(host)) {
-				const PARTITION = HOST_TO_PARTITION[host]
-
-				if (optOut) {
-					tagSelfWith(OPT_OUT_TAG)
-				} else {
-					const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
-					const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
-					const n = taggedAsTreatment.length
-					const m = taggedAsControl.length
-					const p = 1 // desired ratio of m:n
-					if (p*n <= m) tagSelfWith(T)
-					else tagSelfWith(C)
-				}
-
-				async function tagSelfWith(tag, partition) {
-					const { auth: { user }} = await Agent.environment()
-					const tags = await Agent.state('tags')
-					if (!tags[tag]) tags[tag] = {}
-					tags[tag][user] = { partition: PARTITION, value: true}
-				}
+			async function tagSelfWith(tag, partition) {
+				const { auth: { user }} = await Agent.environment()
+				const tags = await Agent.state('tags')
+				if (!tags[tag]) tags[tag] = {}
+				tags[tag][user] = { partition: PARTITION, value: true}
 			}
-
-			if (e === 'primary-button' || e === 'opt-out') this.$store.dispatch('acceptTeacherAgreement')
+			if (e === 'primary-button') this.$store.dispatch('acceptTeacherAgreement')
 		}
 	},
 	computed: {
