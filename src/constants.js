@@ -94,6 +94,7 @@ export const EXPERT_LIST = [
 export const DEFAULT_CODE_LIST = []
 export const DOMAIN_CODE_LISTS = {
   'app.pilaproject.org': [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ],
+  'testing.pilaproject.org': [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ],
   'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
   'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
   'dev.gforcesolution.com': ['THAI_ACCESS', 'thai_access'],
