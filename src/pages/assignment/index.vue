@@ -25,7 +25,8 @@ import {
   TREATMENT_TAG,
   CONTROL_TAG,
   OPT_OUT_TAG,
-  HOST_TO_PARTITION
+  HOST_TO_PARTITION,
+  HOST_TO_FORCED_LANGUAGE
 } from '../../constants.js'
 
 const route = useRoute()
@@ -50,8 +51,16 @@ const isInTreatment = treatmentTagging.length > 0 && optOutTagging.length === 0
 
 async function addVariables(e) {
   const env = await Agent.environment(e)
-  if (env.variables) return { ...env, variables: { ...env.variables, TREATMENT: isInTreatment } }
-  else return env
+  if (!env.variables) return env
+
+  const variables = {
+    ...env.variables,
+    TREATMENT: isInTreatment
+  }
+  const forcedLang = HOST_TO_FORCED_LANGUAGE[window.location.host]
+  if (forcedLang) variables.FORCED_LANGUAGE = forcedLang
+
+  return { ...env, variables }
 }
 
 </script>
