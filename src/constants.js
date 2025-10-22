@@ -124,7 +124,8 @@ export const HOST_TO_PARTITION = {
   'dev.gforcesolution.com': 'PILA Thailand Development',
   'pila.gforcesolution.com': 'PILA Thailand Development',
   'polska-rct-2025.pilaproject.org': 'PILA Poland RCT 2025',
-  'france-rct-2025.pilaproject.org': 'PILA France RCT 2025'
+  'france-rct-2025.pilaproject.org': 'PILA France RCT 2025',
+  'testing.pilaproject.org': 'PILA Testing'
 }
 
 export const SIMPLIFIED_STUDY_DOMAINS = [
