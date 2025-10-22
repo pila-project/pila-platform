@@ -8,11 +8,11 @@ Claim admin for new domain
 Deploy configuration for new domain
 
 Domains to add new domain to configuration:
-  translate-pila-alpha.netlify.app
-  translate-karel-alpha.netlify.app
   tags.knowlearning.systems
   translate.knowlearning.systems
   xapi.knowlearning.systems
+  translate-pila-alpha.netlify.app
+  translate-karel-alpha.netlify.app
 
 Tag domain work:
   Create new partition for domain
