@@ -14,11 +14,6 @@
 					<p style="margin-bottom: 24px;">
 						{{ t('by-creating-my-teacher-account-i-agree-to-the-te') }}
 					</p>
-					<p
-						v-if="isSimplifiedDomain"
-						style="margin-bottom: 12px;"
-					>
-						For the PILA Study, your students will be randomized into either Treatment or Control groups.</p>
 					<p>
 						<a
 							href="https://pilaproject.org/about-pila/terms-and-conditions-for-teachers"
@@ -48,8 +43,7 @@ import {
 	HOST_TO_PARTITION,
 	SIMPLIFIED_STUDY_DOMAINS,
 	TREATMENT_TAG,
-	CONTROL_TAG,
-	OPT_OUT_TAG
+	CONTROL_TAG
 } from '../../constants.js'
 
 const PARTITION = HOST_TO_PARTITION[window.location.host]
