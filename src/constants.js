@@ -91,6 +91,8 @@ export const EXPERT_LIST = [
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f'
 ]
 
+export const TEACHER_RESOURCE_TAGS = '23232650-b37f-11f0-9f12-bdc994eaa5ef'
+
 export const DEFAULT_CODE_LIST = []
 export const DOMAIN_CODE_LISTS = {
   'app.pilaproject.org': [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ],
