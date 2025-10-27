@@ -11,7 +11,7 @@ export default async function getImageFromContent(content) {
         // attempt get image ref from state
         const { image, picture, id: innerContentId } = await Agent.state(content)
         if (image || picture) {
-            return isUUID(image || picture) ? (await Agent.download(image || picture).url()) : image || picture
+            return isUUID(image || picture) ? (await Agent.download(image || picture).url()) : (image || picture)
         } else if (innerContentId?.includes('betty')) { // for some reason betty stuff has "url" as ids nested
             return 'betty.png'
         }
