@@ -108,8 +108,10 @@ export default {
       commit('language', value)
     },
     async load({ commit, state }) {
-      const language = HOST_TO_FORCED_LANGUAGE[window.location.host] || matchNavigatorLanguage(languageChoices)
-      commit('language', language)
+      if (!Agent.embedded) {
+        const language = HOST_TO_FORCED_LANGUAGE[window.location.host] || matchNavigatorLanguage(languageChoices)
+        commit('language', language)
+      }
 
       const { auth } = await Agent.environment()
       commit('load', auth)
