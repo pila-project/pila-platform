@@ -1,28 +1,5 @@
 <template>
 	<v-container class="resources-page">
-
-		<v-list
-			style="border: 1px solid #ccc; border-radius: 8px; background-color: #fafafa;"
-		>
-			<v-list-group value="Mandatory Resources">
-				<template v-slot:activator="{ props }">
-					<v-list-item
-						v-bind="props"
-						:title="t('required-resources')"
-					></v-list-item>
-				</template>
-
-				<v-list-item
-					v-for="({ name }, id) in mandatoryResources"
-					:key="id"
-					prepend-icon="fa-solid fa-download"
-					:title="name"
-					:value="name"
-					@click="download(id)"
-				></v-list-item>
-			</v-list-group>
-		</v-list>
-		<br>
 		<TagFilters
 			v-model="selectedTags"
 			:partition="partition"
