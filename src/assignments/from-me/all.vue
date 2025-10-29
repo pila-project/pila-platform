@@ -16,6 +16,7 @@
         </div>
 
         <v-data-table
+          :no-data-text="t('no-data-available')"
           :headers="headers"
           :items="assignmentsForActiveTable"
           :items-per-page="-1"
