@@ -26,7 +26,7 @@ import {
   CONTROL_TAG,
   OPT_OUT_TAG,
   HOST_TO_PARTITION,
-  HOST_TO_FORCED_LANGUAGE
+  HOST_TO_FORCED_ASSIGNMENT_LANGUAGE
 } from '../../constants.js'
 
 const route = useRoute()
@@ -57,7 +57,7 @@ async function addVariables(e) {
     ...env.variables,
     TREATMENT: isInTreatment
   }
-  const forcedLang = HOST_TO_FORCED_LANGUAGE[window.location.host]
+  const forcedLang = HOST_TO_FORCED_ASSIGNMENT_LANGUAGE[window.location.host]
   if (forcedLang) variables.FORCED_LANGUAGE = forcedLang
 
   return { ...env, variables }

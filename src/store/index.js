@@ -13,7 +13,7 @@ import {
   EXPERT_LIST,
   HOST_TO_TITLE,
   HOST_TO_PARTITION,
-  HOST_TO_FORCED_LANGUAGE
+  HOST_TO_FIRST_LOAD_LANGUAGE
 } from '../constants.js'
 
 export default {
@@ -109,7 +109,7 @@ export default {
     },
     async load({ commit, state }) {
       if (!Agent.embedded) {
-        const language = HOST_TO_FORCED_LANGUAGE[window.location.host] || matchNavigatorLanguage(languageChoices)
+        const language = HOST_TO_FIRST_LOAD_LANGUAGE[window.location.host] || matchNavigatorLanguage(languageChoices)
         commit('language', language)
       }
 

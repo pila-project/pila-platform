@@ -151,7 +151,13 @@ export const HOST_TO_EXTRA_TEACHER_TAGS = {
   ]
 }
 
-export const HOST_TO_FORCED_LANGUAGE = {
+export const HOST_TO_FIRST_LOAD_LANGUAGE = {
+  'polska-rct-2025.pilaproject.org': 'pl',
+  'france-rct-2025.pilaproject.org': 'fr',
+  'thailand.pilaproject.org': 'th'
+}
+
+export const HOST_TO_FORCED_ASSIGNMENT_LANGUAGE = {
   'polska-rct-2025.pilaproject.org': 'pl',
   'france-rct-2025.pilaproject.org': 'fr'
 }
