@@ -5,7 +5,9 @@
     density="compact"
   >
     <template v-slot:title>
-      {{ name }}
+      <span :style="`font-size: ${ name.length > 4 ? '1rem' : 'inherit'};`">
+        {{ name }}
+      </span>
     </template>
     <template v-slot:subtitle>
       {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
