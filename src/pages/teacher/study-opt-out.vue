@@ -1,9 +1,8 @@
 <template>
   <v-container class="py-10" style="max-width: 720px;">
-    <h1 class="text-h4 mb-2">Opt out of treatment group</h1>
+    <h1 class="text-h4 mb-2">{{ t('opt-out-of-treatment-group') }}</h1>
     <p class="text-body-1 mb-6">
-      If you opt out, you will no longer be included in experimental features or A/B tests tied to this account.
-      You will continue to have normal access, but new experimental changes may not be shown to you.
+      {{ t('if-you-opt-out-you-will-no-longer-be-included-in') }}
     </p>
 
     <v-alert
@@ -12,7 +11,7 @@
       variant="flat"
       class="mb-6"
     >
-      You’re currently opted out of the treatment group for this partition.
+      {{ t('youre-currently-opted-out-of-the-treatment-group') }}
     </v-alert>
 
     <v-alert
@@ -21,15 +20,14 @@
       variant="flat"
       class="mb-6"
     >
-      You are currently included in the treatment group. You can opt out at any time.
+      {{ t('you-are-currently-included-in-the-treatment-grou') }}
     </v-alert>
 
     <v-card class="pa-4 mb-8">
-      <h2 class="text-h6 mb-2">What opting out means</h2>
+      <h2 class="text-h6 mb-2">{{ t('what-opting-out-means') }}</h2>
       <ul class="pl-6">
-        <li class="mb-1">You will be excluded from feature experiments for this partition</li>
-        <li class="mb-1">Your experience should remain stable and less subject to change</li>
-        <li class="mb-1">You can request to opt back in later by contacting support or removing the opt-out tag</li>
+        <li class="mb-1">{{ t('you-will-be-excluded-from-future-experiments-for') }}</li>
+        <li class="mb-1">{{ t('you-can-request-to-opt-back-in-later-by-contacti') }}</li>
       </ul>
     </v-card>
 
@@ -46,7 +44,7 @@
           width="2"
           class="mr-2"
         />
-        {{ optedOut ? 'Already opted out' : 'Opt out of treatment group' }}
+        {{ optedOut ? t('already-opted-out') : t('opt-out-of-treatment-group') }}
       </v-btn>
 
       <v-btn
@@ -54,26 +52,28 @@
         @click="refreshStatus"
         :disabled="loading"
       >
-        Refresh status
+        {{ t('refresh-status') }}
       </v-btn>
     </div>
 
     <!-- Confirm dialog -->
     <v-dialog v-model="confirmOpen" max-width="520">
       <v-card>
-        <v-card-title class="text-h6">Confirm opt out</v-card-title>
+        <v-card-title class="text-h6">{{ t('confirm-opt-out') }}</v-card-title>
         <v-card-text>
-          Opting out will exclude you from experimental features and tests for this partition ({{ PARTITION }}).
-          You can revert later by clearing your opt-out tag. Continue?
+          <span>
+            {{ t('you-will-be-excluded-from-future-experiments-for') }} ({{ PARTITION }}).
+          </span>
+          <span>{{ t('you-can-revert-later-by-clearing-your-opt-out-ta') }}</span>
         </v-card-text>
         <v-card-actions class="justify-end">
-          <v-btn variant="text" @click="confirmOpen = false">Cancel</v-btn>
+          <v-btn variant="text" @click="confirmOpen = false">{{ t('cancel') }}</v-btn>
           <v-btn
             color="primary"
             :loading="loading"
             @click="optOutConfirmed"
           >
-            Yes, opt me out
+            {{ t('yes-opt-me-out') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -91,10 +91,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useStore } from 'vuex'
 import {
   HOST_TO_PARTITION,
   OPT_OUT_TAG
 } from '../../constants.js'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const host = location.host
 const PARTITION = HOST_TO_PARTITION[host]
