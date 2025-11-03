@@ -39,6 +39,11 @@ export async function translateNameFromTaskId (
     lang,
     domain = DEFAULT_TRANSLATION_DOMAIN
 ) {
+    // attempt translation site translation first
+    const translations = await Agent.query('translate-item', [ taskId, [ lang ] ], 'translations.pilaproject.org')
+    const nameTranslations = translations.filter(({ path })  => path.length === 2 && path[1] === 'name')
+    if (nameTranslations.length) return nameTranslations[0].value
+
     const { name } = await Agent.state(taskId)
     if (!name) {
         console.warn(`task name not found for ${taskId}`)
