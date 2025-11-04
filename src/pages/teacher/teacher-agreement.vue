@@ -58,7 +58,7 @@ export default {
 			const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
 			const n = taggedAsTreatment.length
 			const m = taggedAsControl.length
-			const p = 1 // desired ratio of m:n
+			const p = 2 // desired ratio of m:n
 			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
 			else tagSelfWith(CONTROL_TAG, PARTITION)
 
