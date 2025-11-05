@@ -5,21 +5,37 @@
 
   const visibleUsers = Object.keys(users).filter(id => !users[id].archived)
 
-  onMounted(async () => {
-    await nextTick()
-    if (visibleUsers.length) window.print()
-  })
+  function print() { window.print() }
+
 </script>
 
 <template>
-  <div>
-    <div v-if="visibleUsers.length === 0">
+  <v-container>
+    <v-row 
+      v-if="visibleUsers.length"
+      justify="center"
+      class="my-4"
+    >
+      <v-btn
+        color="primary"
+        variant="tonal"
+        size="large"
+        rounded="xl"
+        prepend-icon="fas fa-print"
+        @click="print"
+      >
+        Print Codes
+      </v-btn>
+    </v-row>
+
+    <div v-else class="text-center mt-8">
       <h3>No active users with login codes.</h3>
     </div>
+
     <UserInfoCard
       v-for="id in visibleUsers"
       :key="id"
       :id="id"
     />
-  </div>
+  </v-container>
 </template>
