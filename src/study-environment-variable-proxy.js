@@ -8,7 +8,7 @@ import {
 
 const partition = HOST_TO_PARTITION[window.location.host]
 
-export default async function () {
+export default async function (extraVariables = {}) {
   const { auth: { user } } = await Agent.environment()
 
   const [ treatmentTagging, optOutTagging ] = await Promise.all([
@@ -22,7 +22,8 @@ export default async function () {
 
     const variables = {
       ...env.variables,
-      TREATMENT: treatmentTagging.length > 0 && optOutTagging.length === 0
+      TREATMENT: treatmentTagging.length > 0 && optOutTagging.length === 0,
+      ...extraVariables
     }
     const forcedLang = HOST_TO_FORCED_ASSIGNMENT_LANGUAGE[window.location.host]
     if (forcedLang) variables.FORCED_LANGUAGE = forcedLang

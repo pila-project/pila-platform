@@ -26,7 +26,10 @@
 <script>
   import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import URL_CONTENT_DATA from '../url-content-data.js'
+  import studyEnvironmentVariableProxy from '../study-environment-variable-proxy.js'
   import PILAModal from './PILAModal.vue'
+
+  let varProxy
 
   export default {
     props: {
@@ -40,6 +43,9 @@
         default: '90vh'
       }
     },
+    created() {
+      varProxy = studyEnvironmentVariableProxy({ PREVIEW: true })
+    },
     components: {
       PILAModal,
       vueScopeComponent,
@@ -48,10 +54,8 @@
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
       async addPreviewVariable(e) {
-        const env = await Agent.environment(e)
-        if (env.variables) return { ...env, variables: { ...env.variables, PREVIEW: true } }
-        else return env
-
+        const fn = await varProxy
+        return fn(e)
       }
     },
     computed: {
