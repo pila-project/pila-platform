@@ -4,13 +4,6 @@
       @dragstart="$event.dataTransfer.setData('text', user)"
       @dragover.prevent
   >
-    <v-avatar
-      v-if="avatar"
-      :size="size"
-      class="mr-2"
-      :image="info.picture || '/mascotte.png'"
-      @click="logUser"
-    />
     <span v-if="showName">
       {{ info.name }}
     </span>
