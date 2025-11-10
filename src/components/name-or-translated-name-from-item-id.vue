@@ -13,6 +13,6 @@
   const displayString = await getName(props.itemId, store.getters.language())
 
   const nameStyle = computed(() => ({
-    fontSize: displayString.length > 20 ? '0.9rem' : 'inherit'
+    fontSize: displayString.length > 28 ? '0.9rem' : 'inherit'
   }))
 </script>
