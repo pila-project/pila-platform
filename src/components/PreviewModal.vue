@@ -2,6 +2,7 @@
   <PILAModal
     @close="$emit('close')"
     showCloseButton
+    :closeButtonText="t('close')"
     :width="width"
     :height="height"
   >
