@@ -3,6 +3,7 @@
     <vueEmbedComponent
       v-if="customDashboardUrl"
       :id="customDashboardUrl"
+      :namespace="props.assignment"
       :environmentProxy="proxyEnvironmentCall"
     />
     <UrlDashboard
