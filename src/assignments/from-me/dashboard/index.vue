@@ -68,14 +68,14 @@
   ]
 
   if (candliDashboardContent.includes(content)) {
-    const dashboardConfigId = 'candli-assignment-dashboard'
+    const dashboardConfigId = Agent.uuid()
     const dashboardConfig = await Agent.state(dashboardConfigId)
     dashboardConfig.placeholder = {
       states: Object.fromEntries(users.map(id => [id, 'placeholder']))
     }
     console.log('dashboard cofing!', dashboardConfig)
     await Agent.response()
-    customDashboardUrl.value = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${props.assignment}${dashboardConfigId}`
+    customDashboardUrl.value = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${dashboardConfigId}`
   }
 
   async function proxyEnvironmentCall(user) {
