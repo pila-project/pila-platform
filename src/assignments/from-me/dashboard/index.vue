@@ -64,7 +64,10 @@
   const bettyModuleId = bettyLink ? (new URL(bettyLink)).pathname.split('/')[2] : null
 
   const candliDashboardContent = [
-    '881f5110-a910-11f0-92ae-3f96e8a36c18'
+    // '881f5110-a910-11f0-92ae-3f96e8a36c18'
+    'e6b4b836-c4b9-46b7-b4bd-6da86d4d6b21',
+    '2711888d-177e-4284-aa35-304275a487c5',
+    'bb1e41e0-082b-4488-b03e-1a3829094bce'
   ]
 
   if (candliDashboardContent.includes(content)) {
