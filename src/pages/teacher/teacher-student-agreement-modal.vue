@@ -5,6 +5,7 @@
       emit('close')
     }"
     showCloseButton
+    :closeButtonText="t('close')"
     width="90vw"
     height="90vh"
   >
