@@ -352,7 +352,7 @@
       async reassessContents() {
         this.assignmentContainsCandli = null
         this.assignmentContainsGenAI = null
-        this.assigmentContainsBetty = null
+        this.assignmentContainsBetty = null
         if (this.current) {
           await Agent
             .state(this.current)
@@ -362,7 +362,7 @@
               this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
 
               if ((await Agent.state(content)).id?.includes('betty')) {
-                this.assigmentContainsBetty = true
+                this.assignmentContainsBetty = true
               }
 
 
