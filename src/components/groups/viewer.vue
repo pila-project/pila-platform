@@ -162,8 +162,8 @@
       v-if="showNamePasswordModal"
       @close="showNamePasswordModal = false"
       showCloseButton
-      width="600px"
       :closeButtonText="t('done')"
+      width="600px"
     >
       <template v-slot:title>{{ t('enter-encryption-key-word') }}</template>
       <template v-slot:body>

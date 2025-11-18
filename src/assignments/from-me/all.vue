@@ -189,6 +189,7 @@
   <PILAModal
     v-if="showResultsModal"
     @close="showResultsModal = false"
+    :closeButtonText="t('close')"
     showCloseButton
     width="90vw"
     height="90vh"
@@ -212,6 +213,7 @@
     v-if="showCandliResultsModal"
     @close="showCandliResultsModal = false"
     showCloseButton
+    :closeButtonText="t('close')"
     width="90vw"
     height="90vh"
   >
@@ -233,6 +235,7 @@
     v-if="showGenAIDashboardModal"
     @close="showGenAIDashboardModal = false"
     showCloseButton
+    :closeButtonText="t('close')"
     width="90vw"
     height="90vh"
   >
