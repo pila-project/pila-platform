@@ -15,7 +15,11 @@
         nav
       >
         <template v-slot:prepend>
-          <v-avatar :image="userInfo.picture" />
+          <v-avatar
+            @click.shift="alertUserName"
+            :image="userInfo.picture"
+          />
+
         </template>
       </v-list-item>
 
@@ -52,7 +56,6 @@
   import Navbar from '../Navbar.vue'
   import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
-  import TabMenu from '../../components/tab-menu.vue'
   import IconButton from '../../components/icon-button.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
   export default {
@@ -60,7 +63,6 @@
       Navbar,
       StudentAgreement,
       StudentAssignments,
-      TabMenu,
       IconButton,
       StudiesNotAvailable
     },
@@ -94,9 +96,8 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
-      logout() {
-        Agent.logout()
-      }
+      logout() { Agent.logout() },
+      alertUserName() { alert(this.$store.state.user ) }
     }
   }
 </script>

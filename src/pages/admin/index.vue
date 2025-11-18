@@ -16,6 +16,7 @@
         <template v-slot:prepend>
           <v-avatar
             :image="userInfo.picture"
+            @click.shift="alertUserName"
             class="mx-2"
           />
         </template>
@@ -108,6 +109,7 @@
 
   const store = useStore()
   const { auth: { user, info: userInfo } } = await Agent.environment()
+  function alertUserName() { alert(store.state.user )}
 
   const hideStudies = true
   const tab = ref('teachers')

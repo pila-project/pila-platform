@@ -23,6 +23,7 @@
           <v-avatar
             :image="userInfo.picture"
             class="mx-2"
+            @click.shift="alertUserName"
           />
         </template>
       </v-list-item>
@@ -185,6 +186,8 @@
   })
 
   function t(slug) { return store.getters.t(slug) }
+
+  function alertUserName() { alert(store.state.user )}
 
   function logout() { Agent.logout() }
 
