@@ -103,20 +103,15 @@
             autofocus
             v-model="newRoleUser"
             :label="t('user-id')"
-            @keypress.enter="() => {
-              tag(newRoleUser, true)
-              isActive.value = false
-            }"
+            :rules="[validateUUID]"
+            @keypress.enter="submitNewTeacher(newRoleUser, isActive)"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
             :text="t('add')"
-            @click="() => {
-              tag(newRoleUser, true)
-              isActive.value = false
-            }"
+            @click="submitNewTeacher(newRoleUser, isActive)"
           />
           <v-btn
             :text="t('cancel')"
@@ -130,6 +125,7 @@
 
 <script setup>
   import { ref, reactive, computed } from 'vue'
+  import { validate as isUUID } from 'uuid'
   import DecryptedName from './decrypted-name.vue'
   import { useStore } from 'vuex'
   import { json2csv } from 'json-2-csv'
@@ -137,6 +133,16 @@
   const store = useStore()
 
   function t(slug) { return store.getters.t(slug) }
+
+  function validateUUID(val) {
+    return isUUID(val) || 'Enter a valid user id'
+  }
+  function submitNewTeacher(user, isActive) {
+    if (isUUID(user)) {
+      tag(user, true)
+      isActive.value = false
+    }
+  }
 
   const props = defineProps({
     partition: String,
