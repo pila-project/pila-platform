@@ -54,12 +54,15 @@ export default {
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
 		async modalClose(e) {
-			const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
-			const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
-			const n = taggedAsTreatment.length
-			const m = taggedAsControl.length
-			const p = 2 // desired ratio of m:n
-			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
+			// const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
+			// const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
+			// const n = taggedAsTreatment.length
+			// const m = taggedAsControl.length
+			// const p = 2 // desired ratio of m:n
+			// if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
+			// else tagSelfWith(CONTROL_TAG, PARTITION)
+
+			if (Math.random() > 1/3) tagSelfWith(TREATMENT_TAG, PARTITION)
 			else tagSelfWith(CONTROL_TAG, PARTITION)
 
 			async function tagSelfWith(tag, partition) {
