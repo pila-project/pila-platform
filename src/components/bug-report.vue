@@ -23,7 +23,7 @@
       <v-card-title class="text-h5">{{t('bug-report')}}</v-card-title>
 
       <v-card-text>
-        <v-form ref="formRef" v-if="!submitted" @submit.prevent="handleSubmit">
+        <v-form ref="formRef" v-if="!submitted" @submit.prevent="handleBugSubmit">
           <v-textarea
             v-model="form.description"
             :label="t('bug-description')"
@@ -78,9 +78,10 @@
       </v-card-title>
 
       <v-card-text>
-        <v-form ref="formRef" v-if="!submitted" @submit.prevent="handleSubmit">
+        <v-form ref="formRef" v-if="!submitted" @submit.prevent="handleFeatureSubmit">
           <v-text-field
             v-model="form.suggestionTitle"
+            :rules="[v => !!v || t('description-is-required')]"
             :label="t('feature-title')"
             :placeholder="t('feature-title')"
             variant="outlined"
@@ -89,6 +90,7 @@
 
           <v-textarea
             v-model="form.suggestion"
+            :rules="[v => !!v || t('description-is-required')]"
             :label="t('your-suggestion')"
             :placeholder="t('your-suggestion')"
             rows="4"
@@ -140,16 +142,18 @@ const instructionMarkdown = marked.parse(DOMPurify.sanitize(instructions))
 const route = useRoute()
 
 const form = reactive({
+  type: 'bug',
   description: '',
   steps: '',
-  type: 'bug'
+  suggestionTitle: '',
+  suggestion: ''
 })
 
 const submitted = ref(false)
 const hovering = ref(false)
 const hoveringReset = ref(false)
 
-async function handleSubmit() {
+async function handleBugSubmit() {
   const { valid } = await formRef.value.validate()
   if (!valid) return
 
@@ -170,6 +174,29 @@ async function handleSubmit() {
   form.description = ''
   form.steps = ''
 }
+
+async function handleFeatureSubmit() {
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
+
+  const { auth: { user } } = await Agent.environment()
+  const x = await Agent.state('feature-request-xapi')
+  x.xapi = {
+    actor: user,
+    verb: 'requested',
+    object: 'feature',
+    result: {
+      response: `TITLE: ${form.suggestionTitle} :: SUGGESTION: ${form.suggestion}`
+    },
+    extensions: {
+      assignment: route.query?.assignment
+    }
+  }
+  submitted.value = true
+  form.suggestionTitle = ''
+  form.suggestion = ''
+}
+
 
 function resetForm() {
   submitted.value = false
