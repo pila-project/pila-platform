@@ -5,7 +5,15 @@
     density="compact"
   >
     <template v-slot:title>
-      <span :style="`font-size: ${ name.length > 20 ? '1rem' : 'inherit'};`">
+      <span
+        :style="`font-size: ${
+          name.length > 30
+            ? '0.85rem'
+            : name.length > 20
+              ? '1rem'
+              : 'inherit'
+        };`"
+      >
         {{ name }}
       </span>
     </template>
