@@ -8,7 +8,7 @@
       <span
         :style="`font-size: ${
           name.length > 30
-            ? '0.85rem'
+            ? '0.75rem'
             : name.length > 20
               ? '1rem'
               : 'inherit'
