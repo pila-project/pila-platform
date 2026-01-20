@@ -28,11 +28,12 @@ const store = useStore()
 
 const { id } = route.params
 const assignment = ref(await Agent.state(id))
+const { owner: teacher } = await Agent.metadata(id)
 
 const t = slug => store.getters.t(slug)
 const closeAssignment = () => Agent.close()
 
-const addVariables = await studyEnvironmentVariableProxy()
+const addVariables = await studyEnvironmentVariableProxy({}, teacher)
 
 </script>
 

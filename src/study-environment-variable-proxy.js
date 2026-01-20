@@ -8,12 +8,12 @@ import {
 
 const partition = HOST_TO_PARTITION[window.location.host]
 
-export default async function (extraVariables = {}) {
+export default async function (extraVariables = {}, teacher) {
   const { auth: { user } } = await Agent.environment()
 
   const [ treatmentTagging, optOutTagging ] = await Promise.all([
-    Agent.query('tagging-for-target', [partition, TREATMENT_TAG, user], 'tags.knowlearning.systems'),
-    Agent.query('tagging-for-target', [partition, OPT_OUT_TAG, user], 'tags.knowlearning.systems')
+    Agent.query('tagging-for-target', [partition, TREATMENT_TAG, teacher || user], 'tags.knowlearning.systems'),
+    Agent.query('tagging-for-target', [partition, OPT_OUT_TAG, teacher || user], 'tags.knowlearning.systems')
   ])
 
   return async function addVariables(e) {
