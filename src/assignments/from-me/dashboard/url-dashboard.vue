@@ -21,6 +21,16 @@
       const info = await store.getters.decryptUserInfo(user)
       return { auth: { user, info } }
     }
-    else return Agent.environment()
+    else {
+      const env = await Agent.environment()
+      return {
+        ...env,
+        variables: {
+          ...env.variables,
+          users: props.users,
+          assignment: props.assignment
+        }
+      }
+    }
   }
 </script>

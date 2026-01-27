@@ -373,6 +373,9 @@
               if ((await Agent.metadata(content)).domain === 'datawise.accingo.co') {
                 this.dashboardUrl = 'https://datawise.accingo.co/dashboard'
               }
+              else if ((await Agent.state(content)).reference?.dashboard) {
+                this.dashboardUrl = 'https://' + (await Agent.state(content)).reference.dashboard
+              }
               else this.dashboardUrl = null
             })
         }
