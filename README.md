@@ -8,11 +8,11 @@ Here is an example of the expected format for any content:
 ```js
 {
   name: 'Display Name', // will be displayed on the card in the explore page
-  picture: 'https://example.com/image_link', // will be displayed on the card in the explore page
+  picture: 'https://example.com/exaple_image_path', // will be displayed on the card in the explore page
   reference: {
     player: 'example.com', // The URL that will play this content.
                            // When embedded, the page example.com/THIS_CONTENT_UUID will be loaded
-    dashboard: 'example.com/dashboard'  // The URL used to show a dashboard for teacher assignments for this content
+    dashboard: 'example.com/example_dashboard_path'  // The URL used to show a dashboard for teacher assignments for this content
                                         // When the URL is loaded as a dashboard, the dashboard can access relevant
                                         // information for the assignment as shown below
   }
@@ -21,7 +21,7 @@ Here is an example of the expected format for any content:
 
 ## Implementing Dashboards
 
-Once you have created some content with a ```reference.dashboard``` set, you can
+Once you have created some content with ```reference.dashboard``` set, you can
 implement your dashboard using some useful facilities provided by the PILA application.
 
 ### Dashboard Environment Variables
