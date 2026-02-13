@@ -12,11 +12,11 @@ importers:
         specifier: ^6.5.1
         version: 6.5.1
       '@knowlearning/agents':
-        specifier: ^0.9.184
-        version: 0.9.184
+        specifier: ^0.9.185
+        version: 0.9.185
       '@knowlearning/tags':
         specifier: ^1.1.0
-        version: 1.1.0(@knowlearning/agents@0.9.184)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))
+        version: 1.1.0(@knowlearning/agents@0.9.185)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))
       '@vitejs/plugin-basic-ssl':
         specifier: ^1.0.1
         version: 1.0.1(vite@4.4.11)
@@ -228,11 +228,11 @@ packages:
   '@jridgewell/sourcemap-codec@1.4.15':
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
 
-  '@knowlearning/agents@0.9.184':
-    resolution: {integrity: sha512-DxV/bSMku+xccWVT5+6lwWsYX4xO6hFdiW8QKopqsR9IxK1VT3MBw9Q0A2nyfOOPArYsn1KyeoTTgIGMl+neAA==}
+  '@knowlearning/agents@0.9.185':
+    resolution: {integrity: sha512-FZLC/6ZKMHSR6fCIPF3aCgrr92I9VtFoulsur1ACoyO6xfxgSQw68ALCrFhwIK93gw3sEh1BCxlCn3UBlP2tFQ==}
 
-  '@knowlearning/patch-proxy@1.3.4':
-    resolution: {integrity: sha512-F1ay1UaPXsEJfTm6IX6NvEvorVXI3qXabQGCDeyDSu9qZmETqubgOYqx6B6wImCxGL9TgrB6ZC4QLF0tJHYwng==}
+  '@knowlearning/patch-proxy@1.3.5':
+    resolution: {integrity: sha512-9tN78DDzx1PmjQ807twi3lu6zvxQhglQu8NCEANPPMvD7fx6y0zTSyOBctWRBlYJq3J7LLuxgLTgDSB7sZBGkg==}
 
   '@knowlearning/tags@1.1.0':
     resolution: {integrity: sha512-uPLthvzzWc5wk4xRqiYOn+iK1XQd+7zv+u6S5sKWxWCeISvcBt3DD4VwnBSCOTkQOEd8P+3iD9r2toUNhojMfA==}
@@ -953,9 +953,9 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.4.15': {}
 
-  '@knowlearning/agents@0.9.184':
+  '@knowlearning/agents@0.9.185':
     dependencies:
-      '@knowlearning/patch-proxy': 1.3.4
+      '@knowlearning/patch-proxy': 1.3.5
       fast-json-patch: 3.1.1
       socket.io-client: 4.8.1
       uuid: 8.3.2
@@ -964,11 +964,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@knowlearning/patch-proxy@1.3.4': {}
+  '@knowlearning/patch-proxy@1.3.5': {}
 
-  '@knowlearning/tags@1.1.0(@knowlearning/agents@0.9.184)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))':
+  '@knowlearning/tags@1.1.0(@knowlearning/agents@0.9.185)(vue@3.3.4)(vuetify@3.5.13(vue@3.3.4))':
     dependencies:
-      '@knowlearning/agents': 0.9.184
+      '@knowlearning/agents': 0.9.185
       vue: 3.3.4
       vuetify: 3.5.13(vue@3.3.4)
 
