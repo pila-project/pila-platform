@@ -1,6 +1,8 @@
 <template>
-  <div v-if="loaded === false">
-    loading...
+  <div v-if="loaded === false" class="loading-screen">
+    <div class="loading-text">
+      Loading<span class="dots"></span>
+    </div>
   </div>
   <LoginMenu v-else-if="isAnonymous" />
   <AccessCodeScreen v-else-if="accessCodeRequired" />
@@ -44,6 +46,33 @@
 </script>
 
 <style scoped>
+#root,
+.loading-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loading-text {
+  font-size: 1.1rem;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+.dots::after {
+  content: '';
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: dots 1.6s steps(4, end) infinite;
+}
+@keyframes dots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
 #main-app
 {
   display: flex;
