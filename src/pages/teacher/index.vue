@@ -50,7 +50,7 @@
           exact
         />
         <v-list-item
-          v-if="showCreate"
+          v-if="!isSimplifiedStudyDomain"
           prepend-icon="fa-solid fa-folder-plus"
           :title="t('create')"
           to="create"
@@ -154,8 +154,6 @@
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
-  const showCreate = !isSimplifiedStudyDomain
-
   const store = useStore()
   const router = useRouter()
   const hideStudies = true

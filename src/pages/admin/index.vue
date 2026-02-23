@@ -50,6 +50,7 @@
           @click="tab = 'reports'"
         />
         <v-list-item
+          v-if="!isSimplifiedStudyDomain"
           prepend-icon="fa-solid fa-flask"
           :title="t('studies')"
           :active="tab === 'studies'"
@@ -104,8 +105,11 @@
     ADMIN_TAG,
     TEACHER_TAG,
     TRAINER_TAG,
-    PILA_CONTENT_TAG
+    PILA_CONTENT_TAG,
+    SIMPLIFIED_STUDY_DOMAINS
   } from '../../constants.js'
+
+  const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
   const store = useStore()
   const { auth: { user, info: userInfo } } = await Agent.environment()
