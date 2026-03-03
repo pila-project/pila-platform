@@ -89,12 +89,12 @@
             />
           </template>
           <v-list>
-            <v-list-item
+<!--             <v-list-item
               v-if="isSimplifiedStudyDomain"
               @click="router.push(`/teacher/opt-out`)"
               append-icon="fa-solid fa-person-walking-arrow-right"
               :title="t('opt-out')"
-            />
+            /> -->
             <v-list-item
               @click="logout"
               append-icon="fa-solid fa-arrow-right-from-bracket"
