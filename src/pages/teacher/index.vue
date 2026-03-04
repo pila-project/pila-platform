@@ -61,7 +61,7 @@
           to="resources"
         />
         <v-list-item
-          v-if="userIsTrainer"
+          v-if="userIsTrainer && !isSimplifiedStudyDomain"
           prepend-icon="fa-solid fa-chalkboard-user"
           :title="t('trainer')"
           to="trainer"

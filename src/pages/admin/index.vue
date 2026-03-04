@@ -26,6 +26,7 @@
 
       <v-list density="compact" nav>
         <v-list-item
+          v-if="!isSimplifiedStudyDomain"
           prepend-icon="fa-solid fa-chalkboard-user"
           :title="t('trainers')"
           :active="tab === 'trainers'"
