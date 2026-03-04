@@ -36,7 +36,13 @@
   import { useStore } from 'vuex'
   import RoleTable from '../../components/role-table.vue'
   import RoleRequestTable from '../../components/role-request-table.vue'
-  import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG, HOST_TO_EXTRA_TEACHER_TAGS } from '../../constants.js'
+  import {
+    ADMIN_TAG,
+    TRAINER_TAG,
+    TEACHER_TAG,
+    HOST_TO_EXTRA_TEACHER_TAGS,
+    SIMPLIFIED_STUDY_DOMAINS
+  } from '../../constants.js'
 
   const props = defineProps({ role: String })
 
@@ -44,15 +50,18 @@
 
   const { tagPartition } = store.getters
 
-  const teacherRelatedTags = [
-    { id: TRAINER_TAG, editable: true }
-  ]
+  // We maybe should unify this section, teacherTags (extra, related) by host in constants...
+  const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+  const teacherRelatedTags = isSimplifiedStudyDomain
+    ? []
+    : [{ id: TRAINER_TAG, editable: true }]
 
   const extraTeacherTags = HOST_TO_EXTRA_TEACHER_TAGS[window.location.host]
 
   if (extraTeacherTags) {
     teacherRelatedTags.push(...extraTeacherTags)
   }
+  // End of section we maybe should unify
 
   async function setTagging({ tag, target, value }) {
     const myTags  = await Agent.state('tags')
