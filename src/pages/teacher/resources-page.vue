@@ -67,12 +67,15 @@ await Promise.all(
 	})
 )
 
-if (teacherResourceTags.length === 1) selectedTags.value = [teacherResourceTags[0]]
-
 watch(selectedTags, () => {
 	taggedResources.value = []
 	fetchTaggings()
 })
+
+if (teacherResourceTags.length === 1) {
+	selectedTags.value = [teacherResourceTags[0]]
+	fetchTaggings()
+}
 
 function download(id) { Agent.download(id).direct() }
 
