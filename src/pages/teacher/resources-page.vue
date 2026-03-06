@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, onMounted } from 'vue'
 import {
 	HOST_TO_PARTITION,
 	MANDATORY_RESOURCES_TAG,
@@ -74,7 +74,7 @@ watch(selectedTags, () => {
 
 if (teacherResourceTags.length === 1) {
 	selectedTags.value = [teacherResourceTags[0]]
-	fetchTaggings()
+	onMounted(() => fetchTaggings())
 }
 
 function download(id) { Agent.download(id).direct() }
