@@ -67,6 +67,8 @@ await Promise.all(
 	})
 )
 
+if (teacherResourceTags.length === 1) selectedTags.value = [teacherResourceTags[0]]
+
 watch(selectedTags, () => {
 	taggedResources.value = []
 	fetchTaggings()
