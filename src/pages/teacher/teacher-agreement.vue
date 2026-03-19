@@ -24,8 +24,13 @@
 					</p>
 					<p>
 						<a
-							:href="teacherDataProtectionLink"
-							target="_blank"
+							:href="isFrenchDomain
+								? '/docs/fr-teacher-data-protection-2025.pdf'
+								: teacherDataProtectionLink"
+							:download="isFrenchDomain
+								? 'fr-teacher-data-protection-2025.pdf'
+								: null"
+							:target="isFrenchDomain ? null : '_blank'"
 						>
 							{{ t('data-protection-notice-for-teachers') }}
 						</a>
@@ -79,6 +84,9 @@ export default {
 		},
 		isSimplifiedDomain() {
 			return SIMPLIFIED_STUDY_DOMAINS.includes(location.host)
+		},
+		isFrenchDomain() {
+			return location.host === 'france-rct-2025.pilaproject.org'
 		}
 	}
 }
