@@ -25,8 +25,7 @@
 					<p>
 						<a
 							:href="teacherDataProtectionLink"
-							:download="teacherDataProtectionDownload"
-							:target="teacherDataProtectionTarget"
+							target="_blank"
 						>
 							{{ t('data-protection-notice-for-teachers') }}
 						</a>
@@ -74,27 +73,13 @@ export default {
 		}
 	},
 	computed: {
+		teacherDataProtectionLink() {
+			return DOMAIN_DATA_PROTECTION_LINKS[location.host]
+			    || DOMAIN_DATA_PROTECTION_LINKS.default
+		},
 		isSimplifiedDomain() {
 			return SIMPLIFIED_STUDY_DOMAINS.includes(location.host)
-		},
-		isFrenchDomain() {
-			return location.host === 'france-rct-2025.pilaproject.org'
-		},
-		teacherDataProtectionLink() {
-			if (this.isFrenchDomain) {
-				return '/docs/fr-teacher-data-protection-2025.pdf'
-			}
-			return DOMAIN_DATA_PROTECTION_LINKS[location.host]
-				|| DOMAIN_DATA_PROTECTION_LINKS.default
-		},
-		teacherDataProtectionDownload() {
-			return this.isFrenchDomain
-				? 'fr-teacher-data-protection-2025.pdf'
-				: null
-		},
-		teacherDataProtectionTarget() {
-			return this.isFrenchDomain ? null : '_blank'
-		},
+		}
 	}
 }
 </script>
