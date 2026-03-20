@@ -108,6 +108,7 @@ export const DOMAIN_CODE_LISTS = {
 
 export const DOMAIN_DATA_PROTECTION_LINKS = {
   'thailand.pilaproject.org': 'https://pilaproject.org/about-pila/thailand-data-protection-notice-for-teachers',
+  'france-rct-2025.pilaproject.org': '/fr-teacher-data-protection-2025.pdf',
   default: 'https://pilaproject.org/about-pila/data-protection-notice-for-teachers'
 }
 
