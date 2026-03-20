@@ -128,7 +128,7 @@
           :text="t('terms-and-conditions')"
         />
         <v-btn
-          @click="openLink('https://pilaproject.org/about-pila/data-protection-notice-for-teachers')"
+          @click="openLink(teacherDataProtectionLink)"
           variant="text"
           :text="t('data-protection')"
         />
@@ -151,7 +151,7 @@
   import Navbar from '../Navbar.vue'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '../../components/roles/requester.vue'
-  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
+  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '../../constants.js'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const store = useStore()
@@ -182,6 +182,9 @@
   const hasTeacherAgreement = computed(() => {
     return store.getters.hasAcceptedTeacherAgreement()
   })
+
+  const teacherDataProtectionLink = DOMAIN_DATA_PROTECTION_LINKS[location.host]
+          || DOMAIN_DATA_PROTECTION_LINKS.default
 
   function t(slug) { return store.getters.t(slug) }
 
