@@ -56,11 +56,14 @@ export default {
 		async modalClose(e) {
 			const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
 			const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
-			const n = taggedAsTreatment.length
-			const m = taggedAsControl.length
-			const p = 1 // desired ratio of m:n
-			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
-			else tagSelfWith(CONTROL_TAG, PARTITION)
+
+			// const n = taggedAsTreatment.length
+			// const m = taggedAsControl.length
+			// const p = 1 // desired ratio of m:n
+			// if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
+			// else tagSelfWith(CONTROL_TAG, PARTITION)
+
+			tagSelfWith((Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG), PARTITION)
 
 			async function tagSelfWith(tag, partition) {
 				const { auth: { user }} = await Agent.environment()
