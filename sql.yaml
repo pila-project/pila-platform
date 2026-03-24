@@ -92,6 +92,8 @@ postgres:
         type: TEXT
       - name: tag_type
         type: TEXT
+      - name: admin_ids
+        type: TEXT[]
       language: PLpgSQL
       body: |
         BEGIN
@@ -105,7 +107,7 @@ postgres:
               FROM pila_tags t
               LEFT JOIN metadata md ON md.id = t.id
               WHERE t.content_id = hasAdminTag.content_id
-                AND md.owner IN (SELECT unnest(admin_ids()))
+                AND md.owner IN (SELECT unnest(hasAdminTag.admin_ids))
                 AND t.tag_type = hasAdminTag.tag_type
               ORDER BY t.content_id, md.updated DESC
               LIMIT 1
@@ -114,22 +116,6 @@ postgres:
             FROM cte
             WHERE NOT cte.archived
           );
-        END;
-    admin_ids:
-      returns: TEXT[]
-      arguments: []
-      language: PLpgSQL
-      body: |
-        BEGIN
-          RETURN ARRAY[
-            'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
-            '0c9c64fc-559e-40d4-916b-852f6d108a17',
-            '25de1f29-28b4-44bd-9942-9f60f1f92447',
-            '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
-            'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
-            'aabc6c9c-a4f8-405b-9de3-76588997d52f',
-            'c0f3a481-d4d5-4133-a198-94a325aa4536'
-          ];
         END;
     role_assignments:
       returns:
@@ -140,6 +126,8 @@ postgres:
       arguments:
       - name: requester_id
         type: TEXT
+      - name: admin_ids
+        type: TEXT[]
       language: PLpgSQL
       body: |
         BEGIN
@@ -157,21 +145,51 @@ postgres:
                 SELECT ra2.assignee, MAX(m2.updated)
                 FROM role_assertions ra2
                 LEFT JOIN metadata m2 ON ra2.id = m2.id
-                WHERE m2.owner IN (SELECT unnest(admin_ids()))
+                WHERE m2.owner IN (SELECT unnest(role_assignments.admin_ids))
                 GROUP BY ra2.assignee
               )
-              AND m.owner IN (SELECT unnest(admin_ids()))
+              AND m.owner IN (SELECT unnest(role_assignments.admin_ids))
               AND (
-                requester_id IN (SELECT unnest(admin_ids()))
+                requester_id IN (SELECT unnest(role_assignments.admin_ids))
                 OR ra.assignee = requester_id
               )
-              AND NOT ra.assignee IN (SELECT unnest(admin_ids()))
+              AND NOT ra.assignee IN (SELECT unnest(role_assignments.admin_ids))
             UNION
-              SELECT unnest(admin_ids()), 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
+              SELECT unnest(role_assignments.admin_ids), 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
           ;
         END;
   queries:
-    role-assignments: SELECT * FROM role_assignments($REQUESTER)
+    admin_ids:
+      external:
+        france_rct_2025_admin_ids:
+          domain: tags.knowlearning.systems
+          query: taggings-intersection
+          params:
+          - PILA France RCT 2025
+          -
+            - 36e1b060-ed49-11ee-be89-5b04faf266ea
+      body: |
+        SELECT DISTINCT value
+        FROM (
+          SELECT unnest(ARRAY[
+            'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f',
+            '0c9c64fc-559e-40d4-916b-852f6d108a17',
+            '25de1f29-28b4-44bd-9942-9f60f1f92447',
+            '4e42c0c7-fe07-4199-b202-bdfe5fd3d975',
+            'c29368a6-e239-4ab0-8e54-3ea6dc6e1b7b',
+            'aabc6c9c-a4f8-405b-9de3-76588997d52f',
+            'c0f3a481-d4d5-4133-a198-94a325aa4536'
+          ]::TEXT[]) AS value
+          UNION
+          SELECT unnest(
+            CASE
+              WHEN $DOMAIN = 'france-rct-2025.pilaproject.org'
+                THEN $france_rct_2025_admin_ids::TEXT[]
+              ELSE ARRAY[]::TEXT[]
+            END
+          ) AS value
+        ) admin_ids
+    role-assignments: SELECT * FROM role_assignments($REQUESTER, $admin_ids::TEXT[])
     requested-roles: |
       SELECT
         role_requests.role AS role,
@@ -181,7 +199,7 @@ postgres:
       FROM role_requests
       LEFT JOIN metadata
         ON metadata.id = role_requests.id
-      WHERE $REQUESTER IN (SELECT unnest(admin_ids()))
+      WHERE $REQUESTER = ANY($admin_ids::TEXT[])
         OR metadata.owner = $REQUESTER
         OR role_requests.trainer = $REQUESTER
     # all groups a user owns, or has been put in
@@ -257,7 +275,7 @@ postgres:
               assignments.assignment_type = 'researcher-to-teacher'
               AND (
                 assignments.item_id IS NOT NULL
-                AND hasAdminTag(assignments.item_id, 'admin-approved'::text)
+                AND hasAdminTag(assignments.item_id, 'admin-approved'::text, $admin_ids::TEXT[])
               )
             )
           )
@@ -293,7 +311,7 @@ postgres:
         (
           tag_type = 'admin-approval-request'
           AND
-          $REQUESTER IN (SELECT unnest(admin_ids()))
+          $REQUESTER = ANY($admin_ids::TEXT[])
         )
       UNION
       SELECT DISTINCT ON (content_id)
@@ -305,7 +323,7 @@ postgres:
         updated
       FROM pila_tags
       LEFT JOIN metadata md ON md.id = pila_tags.id
-      WHERE md.owner IN (SELECT unnest(admin_ids()))
+      WHERE md.owner = ANY($admin_ids::TEXT[])
         AND tag_type = 'expert'
       ORDER BY content_id, updated DESC
     mutated-in-context: |
