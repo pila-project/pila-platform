@@ -280,6 +280,21 @@ postgres:
             )
           )
         )
+    student-teacher-class-ids:
+      domains:
+      - export.knowlearning.systems
+      - f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:5656
+      body: |
+        SELECT DISTINCT
+          gm.user_id AS student_id,
+          am.owner AS teacher_id,
+          gm.group_id AS class_id
+        FROM group_members gm
+        JOIN assignments ON assignments.group_id = gm.group_id
+        LEFT JOIN metadata am ON am.id = assignments.id
+        WHERE NOT gm.archived
+          AND NOT assignments.archived
+          AND assignments.assignment_type = 'teacher-to-student'
     assignment-report: |
       SELECT
         COUNT(assignments.id) as "num-groups-assigned",
