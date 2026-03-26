@@ -291,7 +291,7 @@ postgres:
           gm.group_id AS class_id
         FROM group_members gm
         LEFT JOIN metadata md ON md.id = gm.id
-        WHERE NOT gm.archived
+        WHERE gm.archived IS NOT NULL
     assignment-report: |
       SELECT
         COUNT(assignments.id) as "num-groups-assigned",
