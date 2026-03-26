@@ -284,11 +284,28 @@ postgres:
       domains:
       - export.knowlearning.systems
       - f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:5656
+      external:
+        treatment_teacher_ids:
+          domain: tags.knowlearning.systems
+          query: taggings-intersection
+          params:
+          - PILA Testing
+          -
+            - 472a84d0-ab69-11f0-b8c9-a1d0807d9f84
+        control_teacher_ids:
+          domain: tags.knowlearning.systems
+          query: taggings-intersection
+          params:
+          - PILA Testing
+          -
+            - 41ad5640-ab69-11f0-b8c9-a1d0807d9f84
       body: |
         SELECT DISTINCT
           gm.user_id AS student_id,
           md.owner AS teacher_id,
-          gm.group_id AS class_id
+          gm.group_id AS class_id,
+          md.owner = ANY(COALESCE($treatment_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS treatment,
+          md.owner = ANY(COALESCE($control_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS control
         FROM group_members gm
         LEFT JOIN metadata md ON md.id = gm.id
         WHERE gm.archived IS NOT NULL
