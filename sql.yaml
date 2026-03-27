@@ -1,8 +1,8 @@
 variables:
   TAG_PARTITION: PILA France RCT 2025
   ADMIN_TAG: 36e1b060-ed49-11ee-be89-5b04faf266ea
-  TREATMENT_TAG: 472a84d0-ab69-11f0-b8c9-a1d0807d9f84
-  CONTROL_TAG: 41ad5640-ab69-11f0-b8c9-a1d0807d9f84
+  TREATMENT_TAG_SET: [ 472a84d0-ab69-11f0-b8c9-a1d0807d9f84 ]
+  CONTROL_TAG_SET: [ 41ad5640-ab69-11f0-b8c9-a1d0807d9f84 ]
 authorize:
   sameDomain:
     postgres: same_domain_authorization
@@ -186,13 +186,7 @@ postgres:
             'c0f3a481-d4d5-4133-a198-94a325aa4536'
           ]::TEXT[]) AS value
           UNION
-          SELECT unnest(
-            CASE
-              WHEN $DOMAIN = 'france-rct-2025.pilaproject.org'
-                THEN $admins_from_tags::TEXT[]
-              ELSE ARRAY[]::TEXT[]
-            END
-          ) AS value
+          SELECT unnest($admins_from_tags::TEXT[]) AS value
         ) admin_ids
     role-assignments: SELECT * FROM role_assignments($REQUESTER, $admin_ids::TEXT[])
     requested-roles: |
@@ -295,15 +289,13 @@ postgres:
           query: taggings-intersection
           params:
           - $TAG_PARTITION
-          -
-            - $TREATMENT_TAG
+          - $TREATMENT_TAG_SET
         control_teacher_ids:
           domain: tags.knowlearning.systems
           query: taggings-intersection
           params:
           - $TAG_PARTITION
-          -
-            - $CONTROL_TAG
+          - $CONTROL_TAG_SET
       body: |
         SELECT DISTINCT
           gm.user_id AS student_id,
