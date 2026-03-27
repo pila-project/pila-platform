@@ -1,3 +1,8 @@
+variables:
+  TAG_PARTITION: PILA France RCT 2025
+  ADMIN_TAG: 36e1b060-ed49-11ee-be89-5b04faf266ea
+  TREATMENT_TAG: 472a84d0-ab69-11f0-b8c9-a1d0807d9f84
+  CONTROL_TAG: 41ad5640-ab69-11f0-b8c9-a1d0807d9f84
 authorize:
   sameDomain:
     postgres: same_domain_authorization
@@ -161,13 +166,13 @@ postgres:
   queries:
     admin_ids:
       external:
-        france_rct_2025_admin_ids:
+        admins_from_tags:
           domain: tags.knowlearning.systems
           query: taggings-intersection
           params:
-          - PILA France RCT 2025
+          - $TAG_PARTITION
           -
-            - 36e1b060-ed49-11ee-be89-5b04faf266ea
+            - $ADMIN_TAG
       body: |
         SELECT DISTINCT value
         FROM (
@@ -184,7 +189,7 @@ postgres:
           SELECT unnest(
             CASE
               WHEN $DOMAIN = 'france-rct-2025.pilaproject.org'
-                THEN $france_rct_2025_admin_ids::TEXT[]
+                THEN $admins_from_tags::TEXT[]
               ELSE ARRAY[]::TEXT[]
             END
           ) AS value
@@ -289,16 +294,16 @@ postgres:
           domain: tags.knowlearning.systems
           query: taggings-intersection
           params:
-          - PILA Testing
+          - $TAG_PARTITION
           -
-            - 472a84d0-ab69-11f0-b8c9-a1d0807d9f84
+            - $TREATMENT_TAG
         control_teacher_ids:
           domain: tags.knowlearning.systems
           query: taggings-intersection
           params:
-          - PILA Testing
+          - $TAG_PARTITION
           -
-            - 41ad5640-ab69-11f0-b8c9-a1d0807d9f84
+            - $CONTROL_TAG
       body: |
         SELECT DISTINCT
           gm.user_id AS student_id,
