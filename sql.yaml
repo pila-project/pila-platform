@@ -3,6 +3,7 @@ variables:
   ADMIN_TAG: [ 36e1b060-ed49-11ee-be89-5b04faf266ea ]
   TREATMENT_TAG_SET: [ 472a84d0-ab69-11f0-b8c9-a1d0807d9f84 ]
   CONTROL_TAG_SET: [ 41ad5640-ab69-11f0-b8c9-a1d0807d9f84 ]
+  TEACHER_TAG_SET: [ 49bf66a0-ed49-11ee-be89-5b04faf266ea ]
 authorize:
   sameDomain:
     postgres: same_domain_authorization
@@ -283,6 +284,12 @@ postgres:
       - export.knowlearning.systems
       - f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:5656
       external:
+        all_teachers:
+          domain: tags.knowlearning.systems
+          query: taggings-intersection
+          params:
+             - $TAG_PARTITION
+             - $TEACHER_TAG_SET
         treatment_teacher_ids:
           domain: tags.knowlearning.systems
           query: taggings-intersection
@@ -296,15 +303,23 @@ postgres:
           - $TAG_PARTITION
           - $CONTROL_TAG_SET
       body: |
+        WITH grouped_students AS (
+          SELECT DISTINCT
+            md.owner AS teacher_id,
+            gm.user_id AS student_id,
+            gm.group_id AS class_id
+          FROM group_members gm
+          LEFT JOIN metadata md ON md.id = gm.id
+          WHERE gm.archived IS NOT TRUE
+        )
         SELECT DISTINCT
-          gm.user_id AS student_id,
-          md.owner AS teacher_id,
-          gm.group_id AS class_id,
-          md.owner = ANY(COALESCE($treatment_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS treatment,
-          md.owner = ANY(COALESCE($control_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS control
-        FROM group_members gm
-        LEFT JOIN metadata md ON md.id = gm.id
-        WHERE gm.archived IS NOT NULL
+          COALESCE(grouped_students.student_id, '') AS student_id,
+          teachers.teacher_id,
+          COALESCE(grouped_students.class_id, '') AS class_id,
+          teachers.teacher_id = ANY(COALESCE($treatment_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS treatment,
+          teachers.teacher_id = ANY(COALESCE($control_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS control
+        FROM UNNEST(COALESCE($all_teachers::TEXT[], ARRAY[]::TEXT[])) AS teachers(teacher_id)
+        LEFT JOIN grouped_students ON grouped_students.teacher_id = teachers.teacher_id
     assignment-report: |
       SELECT
         COUNT(assignments.id) as "num-groups-assigned",
