@@ -14,6 +14,8 @@ Domains to add new domain to configuration:
   translate-pila-alpha.netlify.app
   translate-karel-alpha.netlify.app
 
+Add partition name to HOST_TO_PARTITION in constants.js
+
 Tag domain work:
   Create new partition for domain
   Add partition to tags domain agent
