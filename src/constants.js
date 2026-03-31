@@ -103,7 +103,8 @@ export const DOMAIN_CODE_LISTS = {
   'pila.gforcesolution.com': ['THAI_ACCESS', 'thai_access'],
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access'],
   'polska-rct-2025.pilaproject.org': ['25-DOSTEP-RCT'],
-  'france-rct-2025.pilaproject.org': ['25-ACCES-RCT']
+  'france-rct-2025.pilaproject.org': ['25-ACCES-RCT'],
+  'ui-dev.pilaproject.org': ['ACCESS']
 }
 
 export const DOMAIN_DATA_PROTECTION_LINKS = {
