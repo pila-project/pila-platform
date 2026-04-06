@@ -5,6 +5,7 @@ import storeDef from '../store/index.js'
 
 import basicContentManagementTests from './basic-content-management.js'
 import adminContentManagementTests from './admin-content-management.js'
+import assignmentGroupVisibilityTests from './assignment-group-visibility.js'
 import studentsJoiningTeachersTests from './students-joining-teachers.js'
 
 export default function runTests() {
@@ -51,6 +52,7 @@ function waitForStoreLoadThenRunTests (store) {
         describe('PILA Platform Tests', function () {
           basicContentManagementTests(store)
           adminContentManagementTests(store)
+          assignmentGroupVisibilityTests()
           studentsJoiningTeachersTests(store)
         })
       }
