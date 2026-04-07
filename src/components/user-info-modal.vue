@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, reactive } from 'vue'
+  import { ref, reactive, computed } from 'vue'
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '../encryption.js'
   import { encodeUTF8 } from 'tweetnacl-util'
@@ -46,11 +46,18 @@
 
   }
 
+  const hasNameLetter = computed(() => /\p{L}/u.test(editUserInfo?.name || ''))
+  const canSave = computed(() => !teacherOwnedUserAccount || !editUserInfo || hasNameLetter.value)
+  const nameRules = [
+    () => hasNameLetter.value || 'Enter at least one letter.'
+  ]
+
   function cancel() {
     open.value = false
   }
 
   async function save() {
+    if (!canSave.value) return
     if (teacherOwnedUserAccount && userSecret) {
       await createUser(userSecret, providerSecret, editUserInfo)
     }
@@ -81,6 +88,7 @@
           <v-text-field
             v-model="editUserInfo.name"
             :label="t('name')"
+            :rules="nameRules"
             required
           />
         </div>
@@ -100,7 +108,7 @@
       <v-card-actions>
         <v-spacer />
         <v-btn color="primary" @click="cancel">{{t('cancel')}}</v-btn>
-        <v-btn color="primary" @click="save">{{t('save')}}</v-btn>
+        <v-btn color="primary" :disabled="!canSave" @click="save">{{t('save')}}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
