@@ -54,8 +54,11 @@ export default {
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
 		async modalClose(e) {
-			const taggedAsTreatment = await Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems')
-			const taggedAsControl = await Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
+			const { auth: { user }} = await Agent.environment()
+			const [ existingTreatmentTagging, existingControlTagging ] = await Promise.all([
+				Agent.query('tagging-for-target', [ PARTITION, TREATMENT_TAG, user ], 'tags.knowlearning.systems'),
+				Agent.query('tagging-for-target', [ PARTITION, CONTROL_TAG, user ], 'tags.knowlearning.systems')
+			])
 
 			// const n = taggedAsTreatment.length
 			// const m = taggedAsControl.length
@@ -63,10 +66,11 @@ export default {
 			// if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
 			// else tagSelfWith(CONTROL_TAG, PARTITION)
 
-			tagSelfWith((Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG), PARTITION)
+			if (!existingTreatmentTagging.length && !existingControlTagging.length) {
+				tagSelfWith((Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG), PARTITION)
+			}
 
 			async function tagSelfWith(tag, partition) {
-				const { auth: { user }} = await Agent.environment()
 				const tags = await Agent.state('tags')
 				if (!tags[tag]) tags[tag] = {}
 				tags[tag][user] = { partition, value: true}
