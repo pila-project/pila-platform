@@ -70,6 +70,17 @@
 
     <button
       class="custom-button"
+      @click="openLink('https://customize-candli.pilaproject.org/invaders')"
+    >
+      <div class="left">
+        <img src="/Invaders.png" alt="invaders-image" class="btn-image">
+      </div>
+      <div class="center">{{ t('math-invaders') }}</div>
+      <i class="right fa-solid fa-pen-to-square" />
+    </button>
+
+    <button
+      class="custom-button"
       @click="openLink('https://datawise.accingo.co/pila/explore')"
     >
       <div class="left">
@@ -217,5 +228,4 @@ h3 {
   text-align: center !important;
 }
 </style>
-
 
