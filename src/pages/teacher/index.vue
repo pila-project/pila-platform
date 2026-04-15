@@ -123,6 +123,7 @@
           text="© OECD"
         />
         <v-btn
+          v-if="!isSimplifiedStudyDomain"
           @click="openLink('https://pilaproject.org/about-pila/terms-and-conditions-for-teachers')"
           variant="text"
           :text="t('terms-and-conditions')"
@@ -133,6 +134,7 @@
           :text="t('data-protection')"
         />
         <v-btn
+          v-if="!isSimplifiedStudyDomain"
           @click="openLink('https://pilaproject.org/contact-us')"
           variant="text"
           :text="t('contact-us')"
