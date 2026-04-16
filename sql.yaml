@@ -309,7 +309,10 @@ postgres:
             gm.user_id AS student_id,
             gm.group_id AS class_id,
             COALESCE(groups.archived, FALSE) AS class_archived,
-            COALESCE(gm.archived, FALSE) AS member_archived
+            CASE
+              WHEN COALESCE(gm.archived, FALSE) THEN md.updated
+              ELSE NULL
+            END AS member_archived
           FROM group_members gm
           LEFT JOIN metadata md ON md.id = gm.id
           LEFT JOIN groups ON groups.id = gm.group_id
@@ -319,7 +322,7 @@ postgres:
           teachers.teacher_id,
           COALESCE(grouped_students.class_id, '') AS class_id,
           COALESCE(grouped_students.class_archived, FALSE) AS class_archived,
-          COALESCE(grouped_students.member_archived, FALSE) AS member_archived,
+          grouped_students.member_archived,
           teachers.teacher_id = ANY(COALESCE($treatment_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS treatment,
           teachers.teacher_id = ANY(COALESCE($control_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS control
         FROM UNNEST(COALESCE($all_teachers::TEXT[], ARRAY[]::TEXT[])) AS teachers(teacher_id)
