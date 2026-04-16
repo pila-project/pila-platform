@@ -124,7 +124,7 @@
               <br>
               <IconButton
                 icon="dashboard"
-                @click="showResultsModal = true"
+                @click="openDashboard(primaryDashboardType())"
                 :text="assignmentContainsBetty || assignmentContainsGenAI ? t('activity-dashboard') : t('live-monitoring-dashboard')"
                 background="#FFC442"
               />
@@ -132,7 +132,7 @@
               <IconButton
                 icon="dashboard"
                 v-if="assignmentContainsCandli"
-                @click="showCandliResultsModal = true"
+                @click="openDashboard('competency')"
                 :text="t('competency-dashboard')"
                 background="rgb(107, 234, 201)"
               />
@@ -140,7 +140,7 @@
               <IconButton
                 icon="dashboard"
                 v-if="assignmentContainsGenAI"
-                @click="showGenAIDashboardModal = true"
+                @click="openDashboard('generative-ai-module')"
                 :text="t('generative-ai-module-dashboard')"
                 background="#FFC442"
               />
@@ -188,7 +188,7 @@
   />
   <PILAModal
     v-if="showResultsModal"
-    @close="showResultsModal = false"
+    @close="closeDashboard(primaryDashboardType())"
     :closeButtonText="t('close')"
     showCloseButton
     width="90vw"
@@ -211,7 +211,7 @@
   </PILAModal>
   <PILAModal
     v-if="showCandliResultsModal"
-    @close="showCandliResultsModal = false"
+    @close="closeDashboard('competency')"
     showCloseButton
     :closeButtonText="t('close')"
     width="90vw"
@@ -233,7 +233,7 @@
   </PILAModal>
   <PILAModal
     v-if="showGenAIDashboardModal"
-    @close="showGenAIDashboardModal = false"
+    @close="closeDashboard('generative-ai-module')"
     showCloseButton
     :closeButtonText="t('close')"
     width="90vw"
@@ -297,13 +297,24 @@
         assignmentContainsGenAI: null,
         assignmentContainsBetty: null,
         showGenAIDashboardModal: false,
-        dashboardUrl: null
+        dashboardUrl: null,
+        openDashboardSession: null
       }
     },
     mounted() {
       this.assignable_items.forEach(async id => {
         idToCreated[id] = await Agent.metadata(id).then(md => md.created)
       })
+      window.addEventListener('pagehide', this.handlePageHide)
+    },
+    beforeUnmount() {
+      window.removeEventListener('pagehide', this.handlePageHide)
+      this.closeOpenDashboardSession().catch(() => {})
+    },
+    beforeRouteLeave(to, from, next) {
+      this.closeOpenDashboardSession()
+        .catch(() => {})
+        .finally(next)
     },
     computed: {
       assignmentsForActiveTable() {
@@ -403,6 +414,52 @@
       async preview(id) {
         const { content } = await Agent.state(this.current)
         this.previewing = content
+      },
+      primaryDashboardType() {
+        return this.assignmentContainsBetty || this.assignmentContainsGenAI ? 'activity' : 'live-monitoring'
+      },
+      async openDashboard(dashboard) {
+        const assignment = this.current
+        if (!assignment) return
+
+        if (dashboard === 'competency') this.showCandliResultsModal = true
+        else if (dashboard === 'generative-ai-module') this.showGenAIDashboardModal = true
+        else this.showResultsModal = true
+
+        this.openDashboardSession = { assignment, dashboard }
+        await this.writeDashboardXapi('opened-dashboard', assignment, dashboard)
+      },
+      async closeDashboard(dashboard) {
+        if (dashboard === 'competency') this.showCandliResultsModal = false
+        else if (dashboard === 'generative-ai-module') this.showGenAIDashboardModal = false
+        else this.showResultsModal = false
+
+        await this.closeOpenDashboardSession()
+      },
+      handlePageHide() {
+        this.closeOpenDashboardSession().catch(() => {})
+      },
+      async closeOpenDashboardSession() {
+        const session = this.openDashboardSession
+        if (!session) return
+
+        this.openDashboardSession = null
+        await this.writeDashboardXapi('closed-dashboard', session.assignment, session.dashboard)
+      },
+      async writeDashboardXapi(verb, assignment, dashboard) {
+        if (!assignment) return
+
+        const { auth: { user } } = await Agent.environment()
+        const xapi = await Agent.state(`teacher-dashboard-${assignment}-xapi`)
+        xapi.xapi = {
+          actor: user,
+          authority: user,
+          verb,
+          object: assignment,
+          extensions: {
+            dashboard
+          }
+        }
       }
     }
   }
