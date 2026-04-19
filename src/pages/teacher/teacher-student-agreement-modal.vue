@@ -1,5 +1,5 @@
 <template>
-  <PILAModal
+  <PModal
     @close="() => {
       if (state.studentDataProtectionAgreement) emit('agreed')
       emit('close')
@@ -21,13 +21,13 @@
         </span>
       </div>
     </template>
-  </PILAModal>
+  </PModal>
 </template>
 
 <script setup>
   import { ref, reactive } from 'vue'
   import { useStore } from 'vuex'
-  import PILAModal from '../../components/PILAModal.vue'
+  import { PModal } from '@/components/ui/index.js'
 
   const emit = defineEmits(['agreed', 'close'])
 

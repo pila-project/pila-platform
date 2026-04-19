@@ -1,20 +1,20 @@
-import { generateKeyPair, encrypt, decrypt, decryptSymmetric } from '../encryption.js'
+import { generateKeyPair, encrypt, decrypt, decryptSymmetric } from '@/utils/encryption.js'
 import { encodeBase64, decodeBase64, encodeUTF8 } from 'tweetnacl-util'
 
 import roles from './roles.js'
 import groups from './groups.js'
 import assignments from './assignments.js'
-import pila_tags from './pila_tags.js'
+import pila_tags from './pila-tags.js'
 import translations from './translations.js'
 
-import languageChoices from './languageChoices.js'
-import { matchNavigatorLanguage } from './matchNavigatorLanguage.js'
+import languageChoices from './language-choices.js'
+import { matchNavigatorLanguage } from './match-navigator-language.js'
 import {
   EXPERT_LIST,
   HOST_TO_TITLE,
   HOST_TO_PARTITION,
   HOST_TO_FIRST_LOAD_LANGUAGE
-} from '../constants.js'
+} from '@/utils/constants.js'
 
 export default {
   modules: {
@@ -141,7 +141,8 @@ export default {
     async store => {
       store.dispatch('loaded', false)
 
-      await Promise.all([
+      const dispatchNames = ['load', 'fetchTranslations', 'pila_tags/load', 'roles/load', 'groups/load', 'assignments/load']
+      const allDispatches = Promise.allSettled([
         store.dispatch('load'),
         store.dispatch('fetchTranslations'),
         store.dispatch('pila_tags/load'),
@@ -149,6 +150,20 @@ export default {
         store.dispatch('groups/load'),
         store.dispatch('assignments/load')
       ])
+
+      const timeout = new Promise(resolve => setTimeout(() => resolve(null), 10000))
+      const results = await Promise.race([allDispatches, timeout])
+
+      if (results) {
+        results.forEach((r, i) => {
+          if (r.status === 'rejected') {
+            console.error(`[Store] ${dispatchNames[i]} failed:`, r.reason)
+          }
+        })
+      } else {
+        console.warn('[Store] initialization timed out — showing login')
+        store.commit('load', { user: null, provider: 'anonymous' })
+      }
 
       store.dispatch('loaded', true)
     }

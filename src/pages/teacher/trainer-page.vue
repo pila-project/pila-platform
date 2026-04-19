@@ -1,5 +1,5 @@
 <template>
-  <v-container :key="lastRefresh">
+  <div class="p-6" :key="lastRefresh">
     <RoleTable
       :header="t('your-teachers')"
       :partition="partition"
@@ -15,16 +15,16 @@
         setTagging(data, partition)
       }"
     />
-  </v-container>
+  </div>
 </template>
 
 <script setup>
   import { ref } from 'vue'
   import { useStore } from 'vuex'
-  import RoleTable from '../../components/role-table.vue'
-  import RoleRequestTable from '../../components/role-request-table.vue'
-  import { TEACHER_TAG, TRAINER_TAG } from '../../constants.js'
-  import setTagging from '../../set-tagging.js'
+  import RoleTable from '@/components/roles/role-table.vue'
+  import RoleRequestTable from '@/components/roles/role-request-table.vue'
+  import { TEACHER_TAG, TRAINER_TAG } from '@/utils/constants.js'
+  import setTagging from '@/utils/set-tagging.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }

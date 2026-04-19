@@ -1,94 +1,73 @@
 <template>
-  <v-app
+  <div
     v-if="iAmAnAdmin"
-    class="teacher-view"
+    class="admin-view"
   >
     <Navbar />
-    <v-navigation-drawer permanent>
-      <v-list-item
-        class="my-2"
-        style="white-space: nowrap;"
-        :title="userInfo.name"
-        :subtitle="t(store.getters['roles/role']())"
-        nav
-      >
-
-        <template v-slot:prepend>
-          <v-avatar
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Sidebar -->
+      <nav class="flex flex-col w-64 border-r border-slate-200 bg-white flex-shrink-0">
+        <!-- User info -->
+        <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-200" style="white-space: nowrap;">
+          <PAvatar
             :image="userInfo.picture"
+            :name="userInfo.name"
+            :size="32"
             @click.shift="alertUserName"
-            class="mx-2"
           />
-        </template>
-      </v-list-item>
+          <div class="min-w-0">
+            <div class="text-sm font-medium text-zinc-950 truncate">{{ userInfo.name }}</div>
+            <div class="text-xs text-slate-500 truncate">{{ t(store.getters['roles/role']()) }}</div>
+          </div>
+        </div>
 
-      <v-divider></v-divider>
+        <PDivider />
 
-      <v-list density="compact" nav>
-        <v-list-item
-          v-if="!isSimplifiedStudyDomain"
-          prepend-icon="fa-solid fa-chalkboard-user"
-          :title="t('trainers')"
-          :active="tab === 'trainers'"
-          @click="tab = 'trainers'"
-        />
-        <v-list-item
-          prepend-icon="fa-solid fa-person-chalkboard"
-          :title="t('teachers')"
-          :active="tab === 'teachers'"
-          @click="tab = 'teachers'"
-        />
-        <v-list-item
-          prepend-icon="fa-solid fa-clipboard-check"
-          :title="t('role-requests')"
-          :active="tab === 'role-requests'"
-          @click="tab = 'role-requests'"
-        />
-        <v-list-item
-          prepend-icon="fa-solid fa-magnifying-glass-chart"
-          :title="t('reports')"
-          :active="tab === 'reports'"
-          @click="tab = 'reports'"
-        />
-        <v-list-item
-          v-if="!isSimplifiedStudyDomain"
-          prepend-icon="fa-solid fa-flask"
-          :title="t('studies')"
-          :active="tab === 'studies'"
-          @click="tab = 'studies'"
-        />
-      </v-list>
+        <!-- Nav items -->
+        <div class="flex-1 py-2">
+          <button
+            v-for="item in navItems"
+            :key="item.key"
+            v-show="item.show !== false"
+            class="nav-item w-full"
+            :class="{ 'nav-item-active': tab === item.key }"
+            @click="tab = item.key"
+          >
+            <i :class="item.icon" class="w-5 text-center" />
+            <span>{{ item.title }}</span>
+          </button>
+        </div>
 
-      <template v-slot:append>
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-icon
-              v-bind="props"
-              class="ma-4"
-              icon="fa-solid fa-gear"
-            />
-          </template>
-          <v-list>
-            <v-list-item
-              @click="logout"
-              append-icon="fa-solid fa-arrow-right-from-bracket"
+        <!-- Settings -->
+        <div class="border-t border-slate-200 py-2">
+          <PMenu>
+            <template #activator="{ props }">
+              <button class="nav-item w-full" @click="props.onClick">
+                <i class="fa-solid fa-gear w-5 text-center" />
+                <span>{{ t('settings') || 'Settings' }}</span>
+              </button>
+            </template>
+            <PMenuItem
               :title="t('log-out')"
-            >
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </template>
-    </v-navigation-drawer>
-    <v-main>
-      <RoleManager
-        v-if="['admins', 'teachers', 'trainers', 'role-requests'].includes(tab)"
-        :role="tab"
-      />
-      <AdminReports v-else-if="tab === 'reports'" />
-      <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
-      <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
-    </v-main>
-  </v-app>
+              append-icon="fa-solid fa-arrow-right-from-bracket"
+              @click="logout"
+            />
+          </PMenu>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <main class="flex-1 overflow-auto">
+        <RoleManager
+          v-if="['admins', 'teachers', 'trainers', 'role-requests'].includes(tab)"
+          :role="tab"
+        />
+        <AdminReports v-else-if="tab === 'reports'" />
+        <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
+        <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
+      </main>
+    </div>
+  </div>
   <div v-else>
     {{ t('admin-role-required') }}
   </div>
@@ -97,18 +76,19 @@
 <script setup>
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
-  import Navbar from '../Navbar.vue'
+  import Navbar from '@/pages/navbar.vue'
   import RoleManager from './roles.vue'
   import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'
-  import StudiesNotAvailable from '../../components/studies-not-available.vue'
+  import StudiesNotAvailable from '@/components/common/studies-not-available.vue'
+  import { PAvatar, PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
   import {
     ADMIN_TAG,
     TEACHER_TAG,
     TRAINER_TAG,
     PILA_CONTENT_TAG,
     SIMPLIFIED_STUDY_DOMAINS
-  } from '../../constants.js'
+  } from '@/utils/constants.js'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
@@ -120,6 +100,14 @@
   const tab = ref('teachers')
 
   const iAmAnAdmin = await isAdmin(user)
+
+  const navItems = computed(() => [
+    { icon: 'fa-solid fa-chalkboard-user', title: t('trainers'), key: 'trainers', show: !isSimplifiedStudyDomain },
+    { icon: 'fa-solid fa-person-chalkboard', title: t('teachers'), key: 'teachers', show: true },
+    { icon: 'fa-solid fa-clipboard-check', title: t('role-requests'), key: 'role-requests', show: true },
+    { icon: 'fa-solid fa-magnifying-glass-chart', title: t('reports'), key: 'reports', show: true },
+    { icon: 'fa-solid fa-flask', title: t('studies'), key: 'studies', show: !isSimplifiedStudyDomain },
+  ])
 
   async function isAdmin(user) {
     const adminTagging = await Agent.query(
@@ -138,3 +126,34 @@
     Agent.logout()
   }
 </script>
+
+<style scoped>
+.admin-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  color: var(--color-slate-700);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 150ms;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+.nav-item:hover {
+  background: var(--color-slate-50);
+}
+.nav-item-active {
+  color: var(--color-primary-600);
+  background: var(--color-primary-50);
+}
+</style>

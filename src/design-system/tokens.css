@@ -1,0 +1,90 @@
+@theme {
+  /* Primary (Blue) */
+  --color-primary-50: #EFF6FF;
+  --color-primary-100: #DBEAFE;
+  --color-primary-200: #BFDBFE;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-primary-700: #1D4ED8;
+
+  /* Slate grays */
+  --color-slate-50: #F8FAFC;
+  --color-slate-100: #F1F5F9;
+  --color-slate-200: #E2E8F0;
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1E293B;
+  --color-slate-900: #0F172A;
+  --color-slate-950: #020617;
+
+  /* Status: Success */
+  --color-success-50: #F0FDF4;
+  --color-success-100: #DCFCE7;
+  --color-success-500: #22C55E;
+  --color-success-600: #16A34A;
+
+  /* Status: Warning */
+  --color-warning-50: #FEFCE8;
+  --color-warning-100: #FEF9C3;
+  --color-warning-500: #EAB308;
+  --color-warning-600: #CA8A04;
+
+  /* Status: Danger */
+  --color-danger-50: #FEF2F2;
+  --color-danger-100: #FEE2E2;
+  --color-danger-200: #FECACA;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
+
+  /* Additional Primary */
+  --color-primary-300: #93C5FD;
+  --color-primary-400: #60A5FA;
+
+  /* Brand */
+  --color-brand-teal: #6BEAC9;
+  --color-zinc-950: #09090B;
+
+  /* Typography */
+  --font-sans: 'Geist', 'Inter', 'Noto Sans Thai Looped', system-ui, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.333;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.429;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.556;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.333;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+  /* Layout */
+  --sidebar-width: 256px;
+  --sidebar-collapsed: 64px;
+  --content-padding: 1.5rem;
+  --table-row-height: 52px;
+  --header-height: 56px;
+
+  /* Component Sizing */
+  --datepicker-width: 284px;
+  --datepicker-range-width: 560px;
+  --alert-dialog-width: 512px;
+  --student-card-width: 394px;
+}

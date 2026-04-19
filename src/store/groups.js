@@ -1,6 +1,6 @@
 import naclUtil from 'tweetnacl-util'
 import { v4 as uuid } from 'uuid'
-import { encrypt, generateKeyPair } from '../encryption.js'
+import { encrypt, generateKeyPair } from '@/utils/encryption.js'
 
 const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'

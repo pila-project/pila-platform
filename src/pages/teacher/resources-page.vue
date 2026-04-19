@@ -1,5 +1,5 @@
 <template>
-	<v-container class="resources-page">
+	<div class="resources-page">
 		<TagFilters
 			v-model="selectedTags"
 			:partition="partition"
@@ -7,27 +7,28 @@
 			select-leaves-only
 			:LabelComponent="TagTranslation"
 		/>
-		<v-progress-linear v-if="loading" indeterminate />
-		<v-list
+		<div v-if="loading" class="py-4 text-center text-slate-500">
+			<i class="fa fa-spinner fa-spin mr-2" />Loading...
+		</div>
+		<div
 			v-if="taggedResources.length"
-			style="border: 1px solid #ccc; border-radius: 8px; background-color: #fafafa;"
+			class="border border-slate-200 rounded-lg bg-slate-50"
 		>
-			<v-list-item
+			<button
 				v-for="id in taggedResources"
 				:key="id"
-				prepend-icon="fa-solid fa-download"
+				class="flex items-center gap-3 w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-100 transition-colors text-left border-b border-slate-200 last:border-b-0"
 				@click="download(id)"
 			>
-				<v-list-item-title>
-					<vueScopeComponent
-						metadata
-						:id="id"
-						:path="['name']"
-					/>
-				</v-list-item-title>
-			</v-list-item>
-		</v-list>
-	</v-container>
+				<i class="fa-solid fa-download text-slate-400" />
+				<vueScopeComponent
+					metadata
+					:id="id"
+					:path="['name']"
+				/>
+			</button>
+		</div>
+	</div>
 </template>
 
 <script setup>
@@ -37,11 +38,11 @@ import {
 	MANDATORY_RESOURCES_TAG,
 	OPTIONAL_RESOURCES_TAG,
 	TEACHER_RESOURCE_TAGS
-} from '../../constants.js'
+} from '@/utils/constants.js'
 import { useStore } from 'vuex'
 import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 import { Filters as TagFilters } from '@knowlearning/tags'
-import TagTranslation from '../../components/tag-translation.vue'
+import TagTranslation from '@/components/tags/tag-translation.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }

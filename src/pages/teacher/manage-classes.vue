@@ -13,40 +13,44 @@
             @selectUser="id => userModalUser = id"
             :key="userModalUser || 'default' /* to ensure name load on change */"
         />
-        <v-container>
+        <div class="p-6">
             <ShowArchivedToggle v-model="showArchived" />
             <TeacherStudentAgreementModal
               v-if="showAcceptStudentAgreementModal"
               @agreed="createUserAndLaunchModal()"
               @close="() => showAcceptStudentAgreementModal = false"
             />
-        </v-container>
+        </div>
     </div>
 </template>
 
 <script setup>
-import Groups from '../../components/groups/viewer.vue'
-import UserInfoModal from '../../components/user-info-modal.vue'
-import ShowArchivedToggle from '../../components/show-archived-toggle.vue'
+import Groups from '@/components/groups/group-viewer.vue'
+import UserInfoModal from '@/components/users/user-info-modal.vue'
+import ShowArchivedToggle from '@/components/common/show-archived-toggle.vue'
 import TeacherStudentAgreementModal from './teacher-student-agreement-modal.vue'
 
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
-import { createUser } from '../../user-utils.js'
+import { createUser } from '@/utils/user-utils.js'
 
 const userModalUser = ref(null)
 const users = reactive({})
 const showArchived = ref(false)
-const state = await Agent.state()
 const showAcceptStudentAgreementModal = ref(false)
 
-await new Promise(resolve => {
-    Agent.watch('users', ({ state }) => {
-        resolve()
+let unwatchUsers
+
+onMounted(() => {
+    unwatchUsers = Agent.watch('users', ({ state }) => {
         Object
         .entries(state)
         .forEach(([key, value]) => users[key] = value)
     })
+})
+
+onBeforeUnmount(() => {
+    if (unwatchUsers) unwatchUsers()
 })
 
 const store = useStore()

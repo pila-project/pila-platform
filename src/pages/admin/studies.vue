@@ -4,7 +4,7 @@
 </template>
 
 <script>
-  import TaggedContent from '../../components/tagged-content-collection.vue'
+  import TaggedContent from '@/components/tags/tagged-content-collection.vue'
 
   export default {
     components: {

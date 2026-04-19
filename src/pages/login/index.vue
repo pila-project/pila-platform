@@ -67,10 +67,8 @@
 </template>
 
 <script>
-import IconButton from './../../components/icon-button.vue'
-
   export default {
-    components: { IconButton },
+    components: {},
     props: {
       usernameProvider: {
         type: String,

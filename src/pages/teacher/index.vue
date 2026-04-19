@@ -1,167 +1,159 @@
 <template>
   <TeacherAgreement v-if="!hasTeacherAgreement" />
-  <v-app
+  <div
     class="teacher-view"
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
-    <Navbar />
-    <v-navigation-drawer
-      v-model:rail="showRail"
-      permanent
-      rail
-      expand-on-hover
-    >
-      <v-list-item
-        class="my-2"
-        style="white-space: nowrap;"
-        :title="userInfo.name"
-        :subtitle="t(store.getters['roles/role']())"
-        nav
+    <div class="teacher-layout">
+      <!-- Mobile hamburger -->
+      <button
+        v-if="isMobile"
+        class="mobile-hamburger"
+        @click="mobileMenuOpen = true"
+        aria-label="Open menu"
       >
+        <i class="fa-solid fa-bars" />
+      </button>
 
-        <template v-slot:prepend>
-          <v-avatar
-            :image="userInfo.picture"
-            class="mx-2"
-            @click.shift="alertUserName"
+      <!-- Mobile backdrop -->
+      <div
+        v-if="isMobile && mobileMenuOpen"
+        class="sidebar-backdrop"
+        @click="mobileMenuOpen = false"
+      />
+
+      <!-- Sidebar -->
+      <nav class="sidebar" :class="{ 'sidebar-collapsed': !sidebarOpen && !isMobile, 'sidebar-mobile': isMobile, 'sidebar-mobile-open': isMobile && mobileMenuOpen }">
+        <!-- Logo area -->
+        <div class="logo-area">
+          <img
+            v-if="sidebarOpen"
+            src="/oecd-pila-logo.svg"
+            alt="OECD PILA"
+            class="oecd-pila-logo"
           />
-        </template>
-      </v-list-item>
+          <img
+            v-else
+            src="/pila-logo-p.svg"
+            alt="PILA"
+            class="pila-p-logo"
+          />
+        </div>
 
-      <v-divider></v-divider>
+        <!-- Collapse/expand toggle -->
+        <button v-if="!isMobile" class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">
+          <i :class="sidebarOpen ? 'fa-solid fa-chevron-left' : 'fa-solid fa-chevron-right'" />
+        </button>
 
-      <v-list density="compact" nav>
-        <v-list-item
-          prepend-icon="fa-solid fa-users-gear"
-          :title="t('admin')"
-          to="classes"
-          exact
-        />
-        <v-list-item
-          prepend-icon="fa-solid fa-clipboard-check"
-          :title="t('assign-and-monitor')"
-          to="assignments-from-me"
-          exact
-        />
-        <v-list-item
-          prepend-icon="fa-solid fa-magnifying-glass-plus"
-          :title="t('explore')"
-          to="content"
-          exact
-        />
-        <v-list-item
-          v-if="!isSimplifiedStudyDomain"
-          prepend-icon="fa-solid fa-folder-plus"
-          :title="t('create')"
-          to="create"
-        />
-        <v-list-item
-          prepend-icon="fa-solid fa-file-alt"
-          :title="t('resources')"
-          to="resources"
-        />
-        <v-list-item
-          v-if="userIsTrainer && !isSimplifiedStudyDomain"
-          prepend-icon="fa-solid fa-chalkboard-user"
-          :title="t('trainer')"
-          to="trainer"
-        />
-      </v-list>
+        <!-- Separator -->
+        <div class="sidebar-separator" />
 
-      <template v-slot:append>
-        <v-list>
-          <v-list-item
-            to="support"
-            exact
+        <!-- Nav items -->
+        <div class="nav-list">
+          <router-link
+            v-for="item in navItems"
+            :key="item.to"
+            :to="item.to"
+            v-show="item.show !== false"
+            class="nav-item"
+            active-class="nav-item-active"
+            :title="!sidebarOpen ? item.title : undefined"
+            @click="mobileMenuOpen = false"
           >
-            <v-avatar
-              image="/support-icon.svg"
-              rounded="0"
-            />
-          </v-list-item>
-        </v-list>
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-icon
-              v-bind="props"
-              class="ma-4"
-              icon="fa-solid fa-gear"
-            />
-          </template>
-          <v-list>
-<!--             <v-list-item
-              v-if="isSimplifiedStudyDomain"
-              @click="router.push(`/teacher/opt-out`)"
-              append-icon="fa-solid fa-person-walking-arrow-right"
-              :title="t('opt-out')"
-            /> -->
-            <v-list-item
-              @click="logout"
-              append-icon="fa-solid fa-arrow-right-from-bracket"
-              :title="t('log-out')"
-            />
-          </v-list>
-        </v-menu>
-      </template>
-    </v-navigation-drawer>
-    
-    <v-main>
-      <router-view />
-    </v-main>
+            <i :class="item.icon" class="nav-icon" />
+            <span v-if="sidebarOpen || isMobile">{{ item.title }}</span>
+          </router-link>
+        </div>
 
-    <v-footer
-      style="flex-grow: 0; background: #CCCCCC"
-    >
-      <v-row justify="center" no-gutters>
-        <v-btn
-          @click="openLink('https://oecd.org')"
-          variant="text"
-          :text="`${t('visit')} (OECD.org)`"
-        />
-        <v-btn
-          variant="text"
-          text="© OECD"
-        />
-        <v-btn
-          v-if="!isSimplifiedStudyDomain"
-          @click="openLink('https://pilaproject.org/about-pila/terms-and-conditions-for-teachers')"
-          variant="text"
-          :text="t('terms-and-conditions')"
-        />
-        <v-btn
-          @click="openLink(teacherDataProtectionLink)"
-          variant="text"
-          :text="t('data-protection')"
-        />
-        <v-btn
-          v-if="!isSimplifiedStudyDomain"
-          @click="openLink('https://pilaproject.org/contact-us')"
-          variant="text"
-          :text="t('contact-us')"
-        />
-      </v-row>
-    </v-footer>
-  </v-app>
+        <!-- User card with dropdown -->
+        <div class="user-card-wrapper">
+          <PMenu openUp>
+            <template #activator="{ props }">
+              <button class="user-card" @click="props.onClick" @click.shift="alertUserName">
+                <PAvatar
+                  :image="userInfo.picture"
+                  :name="userInfo.name"
+                  :size="32"
+                />
+                <div v-if="sidebarOpen" class="user-card-info">
+                  <div class="user-card-name">{{ userInfo.name }}</div>
+                  <div class="user-card-role">{{ t(store.getters['roles/role']()) }}</div>
+                </div>
+                <i v-if="sidebarOpen" class="fa-solid fa-sort user-card-chevron" />
+              </button>
+            </template>
+            <PMenuItem
+              :title="languageLabel(currentLanguage)"
+              prepend-icon="fa-solid fa-globe"
+            >
+              <template #submenu>
+                <PMenuItem
+                  v-for="lang in languageChoices"
+                  :key="lang"
+                  :title="languageLabel(lang)"
+                  :prepend-icon="lang === currentLanguage ? 'fa-solid fa-check' : ''"
+                  @click="store.dispatch('language', lang)"
+                />
+              </template>
+            </PMenuItem>
+            <PMenuItem
+              title="Support"
+              prepend-icon="fa-solid fa-circle-question"
+              @click="$router.push('/teacher/support')"
+            />
+            <PMenuItem
+              title="Log Out"
+              prepend-icon="fa-solid fa-arrow-right-from-bracket"
+              danger
+              @click="logout"
+            />
+          </PMenu>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <main class="teacher-main">
+        <router-view />
+      </main>
+    </div>
+
+    <!-- Footer removed — not in Figma designs -->
+  </div>
 
   <RoleRequester v-else role="teacher" />
 </template>
 
 <script setup>
-  import { ref, reactive, computed } from 'vue'
+  import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
-  import Navbar from '../Navbar.vue'
   import TeacherAgreement from './teacher-agreement.vue'
-  import RoleRequester from '../../components/roles/requester.vue'
-  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '../../constants.js'
+  import RoleRequester from '@/components/roles/role-requester.vue'
+  import { PAvatar, PMenu, PMenuItem } from '@/components/ui/index.js'
+  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '@/utils/constants.js'
+  import languageChoices from '@/store/language-choices.js'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const store = useStore()
   const router = useRouter()
-  const hideStudies = true
-  const tab = ref('classes')
   const userInfo = ref({})
-  const userIsTrainer= ref(null)
+  const userIsTrainer = ref(null)
+  const sidebarOpen = ref(true)
+  const isMobile = ref(window.innerWidth < 1024)
+  const mobileMenuOpen = ref(false)
+
+  function handleResize() {
+    const mobile = window.innerWidth < 1024
+    if (mobile !== isMobile.value) {
+      isMobile.value = mobile
+      if (mobile) {
+        mobileMenuOpen.value = false
+      }
+    }
+  }
+
+  onMounted(() => window.addEventListener('resize', handleResize))
+  onBeforeUnmount(() => window.removeEventListener('resize', handleResize))
 
   Agent
     .query(
@@ -177,8 +169,6 @@
       userIsTrainer.value = !!result.length
     })
 
-  const showRail = ref(true)
-
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
   const hasTeacherAgreement = computed(() => {
@@ -188,34 +178,288 @@
   const teacherDataProtectionLink = DOMAIN_DATA_PROTECTION_LINKS[location.host]
           || DOMAIN_DATA_PROTECTION_LINKS.default
 
+  const navItems = computed(() => [
+    { icon: 'fa-regular fa-circle-user', title: t('admin'), to: 'classes', show: true },
+    { icon: 'fa-regular fa-file-lines', title: t('assign-and-monitor'), to: 'assignments-from-me', show: true },
+    { icon: 'fa-solid fa-magnifying-glass', title: t('explore'), to: 'content', show: true },
+    { icon: 'fa-solid fa-folder-plus', title: t('create'), to: 'create', show: !isSimplifiedStudyDomain },
+    { icon: 'fa-regular fa-file-lines', title: t('resources'), to: 'resources', show: true },
+    { icon: 'fa-solid fa-chalkboard-user', title: t('trainer'), to: 'trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
+    { icon: 'fa-solid fa-sliders', title: 'Setting', to: 'support', show: true },
+  ])
+
+  const LANGUAGE_NAMES = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }
+
+  const currentLanguage = computed(() => store.getters.language())
+
+  function languageLabel(code) {
+    const name = LANGUAGE_NAMES[code] || code.toUpperCase()
+    return `${name} (${code.toUpperCase()})`
+  }
+
   function t(slug) { return store.getters.t(slug) }
 
   function alertUserName() { alert(store.state.user )}
 
   function logout() { Agent.logout() }
 
-  function openLink(link) { window.open(link, '_blank') }
-
 </script>
 
 <style scoped>
 .teacher-view {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.teacher-layout {
+  display: flex;
+  height: 100%;
+  background: var(--color-slate-100);
+}
+
+.teacher-main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--color-slate-100);
+}
+
+.sidebar {
+  position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;  
-}
-.tab-wrapper {
-  font-weight: bold;
-}
-
-/*
-  This is to prevent name and role wrapping and overflowing
-  making there appear to be too much padding around the avatar
-  in the nav bar.
-*/
-.v-list-item__content
-{
-  white-space: nowrap !important;
+  width: 240px;
+  border: 1px solid var(--color-slate-200);
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  background: white;
+  overflow: visible;
+  flex-shrink: 0;
+  transition: width 200ms ease;
+  border-radius: 12px;
+  margin: 12px;
+  height: calc(100vh - 24px);
 }
 
+.sidebar-collapsed {
+  width: 64px;
+}
+
+.logo-area {
+  padding: 16px;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-collapsed .logo-area {
+  justify-content: center;
+  padding: 16px 12px;
+}
+
+.oecd-pila-logo {
+  height: 44px;
+  width: auto;
+}
+
+.pila-p-logo {
+  height: 28px;
+  width: 28px;
+}
+
+.sidebar-separator {
+  height: 1px;
+  background: var(--color-slate-200);
+  margin: 0 16px;
+}
+
+.sidebar-collapsed .sidebar-separator {
+  margin: 0 8px;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  right: -12px;
+  top: 60px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--color-slate-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: background-color 150ms;
+  font-size: 0.625rem;
+  color: var(--color-primary-600);
+}
+.sidebar-toggle:hover {
+  background: var(--color-slate-50);
+}
+
+.nav-list {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-icon {
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  color: #334155;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: capitalize;
+  transition: background-color 150ms;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 8px;
+}
+.nav-item:hover {
+  background: var(--color-slate-50);
+}
+.nav-item-active {
+  color: #2563EB;
+  background: #EFF6FF;
+}
+
+.sidebar-collapsed .nav-list {
+  padding: 8px;
+}
+
+.sidebar-collapsed .nav-item {
+  justify-content: center;
+  padding: 8px;
+}
+
+/* User card */
+.user-card-wrapper {
+  padding: 8px;
+}
+
+.user-card-wrapper :deep(.relative) {
+  display: block;
+  width: 100%;
+}
+
+.user-card-wrapper :deep([role="menu"]) {
+  width: 100%;
+  min-width: unset;
+  border-radius: 10px;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  background: #eff6ff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms;
+}
+.user-card:hover {
+  background: #dbeafe;
+}
+
+.user-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-card-role {
+  font-size: 12px;
+  font-weight: 400;
+  color: #334155;
+  text-transform: capitalize;
+}
+
+.user-card-chevron {
+  font-size: 14px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.sidebar-collapsed .user-card {
+  justify-content: center;
+}
+
+/* Mobile responsive */
+.mobile-hamburger {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 40;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid var(--color-slate-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 1rem;
+  color: var(--color-primary-600);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 45;
+}
+
+.sidebar-mobile {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 50;
+  height: 100vh;
+  margin: 0;
+  border-radius: 0 12px 12px 0;
+  transform: translateX(-100%);
+  transition: transform 200ms ease;
+  width: 260px;
+}
+
+.sidebar-mobile-open {
+  transform: translateX(0);
+}
+
+@media (max-width: 1023px) {
+  .teacher-main {
+    padding-top: 56px;
+  }
+}
 </style>

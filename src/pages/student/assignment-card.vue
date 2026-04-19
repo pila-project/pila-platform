@@ -1,10 +1,6 @@
 <template>
-  <v-card
-    :elevation="props.selected ? 10 : 3"
-    :variant="props.selected ? 'tonal' : 'elevated'"
-    density="compact"
-  >
-    <template v-slot:title>
+  <PCard :elevated="props.selected">
+    <template #header>
       <span
         :style="`font-size: ${
           name.length > 30
@@ -16,30 +12,33 @@
       >
         {{ name }}
       </span>
+      <p class="text-xs text-slate-500 mt-0.5">
+        {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
+      </p>
     </template>
-    <template v-slot:subtitle>
-      {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
-    </template>
-    <template v-slot:text>
+    <template #text>
       <div class="image-container">
-        <v-img :src="image" height="80px" />
+        <img :src="image" class="max-w-full max-h-full object-contain" />
       </div>
     </template>
-    <template v-slot:actions>
-      <v-btn
-        prepend-icon="fa-solid fa-play"
+    <template #actions>
+      <PButton
+        variant="primary"
+        size="sm"
+        icon="fa-solid fa-play"
         :text="t('play')"
         @click.stop="$emit('play')"
       />
     </template>
-  </v-card>
+  </PCard>
 </template>
 
 <script setup>
   import { computed, ref, watch } from 'vue'
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
-  import getName, { localizedNameFromValue } from '../../name-and-translation-for-content.js'
+  import getName, { localizedNameFromValue } from '@/utils/name-and-translation-for-content.js'
+  import { PCard, PButton } from '@/components/ui/index.js'
   const store = useStore()
 
   const props = defineProps(['assignment', 'selected'])
@@ -90,3 +89,12 @@
 
   function t(slug) { return store.getters.t(slug)}
 </script>
+
+<style scoped>
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+</style>

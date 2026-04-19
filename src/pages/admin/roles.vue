@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <div class="p-6">
     <RoleTable
       v-if="props.role === 'admins'"
       :header="t('admins')"
@@ -29,20 +29,20 @@
       @tag="setTagging"
       showTrainer
     />
-  </v-container>
+  </div>
 </template>
 
 <script setup>
   import { useStore } from 'vuex'
-  import RoleTable from '../../components/role-table.vue'
-  import RoleRequestTable from '../../components/role-request-table.vue'
+  import RoleTable from '@/components/roles/role-table.vue'
+  import RoleRequestTable from '@/components/roles/role-request-table.vue'
   import {
     ADMIN_TAG,
     TRAINER_TAG,
     TEACHER_TAG,
     HOST_TO_EXTRA_TEACHER_TAGS,
     SIMPLIFIED_STUDY_DOMAINS
-  } from '../../constants.js'
+  } from '@/utils/constants.js'
 
   const props = defineProps({ role: String })
 
@@ -50,7 +50,6 @@
 
   const { tagPartition } = store.getters
 
-  // We maybe should unify this section, teacherTags (extra, related) by host in constants...
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const teacherRelatedTags = isSimplifiedStudyDomain
     ? []
@@ -61,7 +60,6 @@
   if (extraTeacherTags) {
     teacherRelatedTags.push(...extraTeacherTags)
   }
-  // End of section we maybe should unify
 
   async function setTagging({ tag, target, value }) {
     const myTags  = await Agent.state('tags')

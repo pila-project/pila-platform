@@ -33,13 +33,13 @@
 </template>
 
 <script>
-  import TabMenu from '../../components/tab-menu.vue'
-  import Groups from '../../components/groups/viewer.vue'
-  import RoleRequester from '../../components/roles/requester.vue'
-  import Files from '../../components/files.vue'
-  import AssignmentsFromMe from '../../assignments/from-me/all.vue'
+  import TabMenu from '@/components/common/tab-menu.vue'
+  import Groups from '@/components/groups/group-viewer.vue'
+  import RoleRequester from '@/components/roles/role-requester.vue'
+  import Files from '@/components/content/file-browser.vue'
+  import AssignmentsFromMe from '@/pages/assignments/from-me/assignments-list.vue'
 
-  import ContentLibrary from '../../components/content-library.vue'
+  import ContentLibrary from '@/components/content/content-library.vue'
 
   export default {
     components: {

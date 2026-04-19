@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid'
-import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '../constants.js'
+import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '@/utils/constants.js'
 
 const ROLE_ASSERTION_TYPE = 'application/json;type=role_assertion'
 const ROLE_REQUEST_TYPE = 'application/json;type=role_request'

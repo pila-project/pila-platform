@@ -7,36 +7,36 @@
     <div v-else-if="leaving">{{ t('leaving-teacher') }}</div>
     <div class="is-teacher" v-else-if="isMyTeacher">
       <p>{{ t('you-have-joined-this-teacher')}}</p>
-      <IconButton
+      <PButton
         @click="leave"
         :text="t('leave')"
         icon="unlink"
-        background="#FFC442"
+        variant="primary"
       />
-      <IconButton
+      <PButton
         @click="goToAssignments"
         :text="t('go-to-assignments')"
         icon="arrow-right"
-        background="#FFC442"
+        variant="primary"
       />
     </div>
-    <IconButton v-else
+    <PButton v-else
       @click="join"
       :text="t('join')"
       icon="link"
-      background="#FFC442"
+      variant="primary"
     />
 </div>
 </template>
 
 <script>
   import StudentAgreement from './student-agreement.vue'
-  import IconButton from '../../components/icon-button.vue'
+  import { PButton } from '@/components/ui/index.js'
   export default {
     name: 'join-teacher',
     components: {
       StudentAgreement,
-      IconButton
+      PButton
     },
     data() {
       return {

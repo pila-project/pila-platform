@@ -70,17 +70,6 @@
 
     <button
       class="custom-button"
-      @click="openLink('https://customize-candli.pilaproject.org/invaders')"
-    >
-      <div class="left">
-        <img src="/Invaders.png" alt="invaders-image" class="btn-image">
-      </div>
-      <div class="center">{{ t('math-invaders') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
-    </button>
-
-    <button
-      class="custom-button"
       @click="openLink('https://datawise.accingo.co/pila/explore')"
     >
       <div class="left">
@@ -90,50 +79,43 @@
       <i class="right fa-solid fa-pen-to-square" />
     </button>
 
-    <button
-      v-if="IS_THAILAND_DOMAIN"
-      class="custom-button"
-      @click="openLink('https://thaipilacreate.gforcesolution.com/')"
-    >
-      <div class="left">
-        <img src="/icon_pilathailand.png" alt="pila-thailand-image" class="btn-image">
-      </div>
-      <div class="center">{{ "THAI PILA" }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
-    </button>
-
 
   </div>
 
     <div class="id-or-url-input-wrapper">
       <h3>{{ t('import-content') }}</h3>
-      <v-text-field
+      <input
         :placeholder="t('add-content-by-id-or-url')"
         v-model="userIdOrURL"
+        class="input"
         @keydown="() => {
           showInvalidMessage = false
           showSuccessMessage = false
         }"
         @keydown.enter="attemptAddContent(userIdOrURL)"
       />
-      <v-btn
+      <PButton
         v-if="userIdOrURL"
+        variant="primary"
+        size="sm"
+        :text="t('add')"
         @click="attemptAddContent(userIdOrURL)"
+        class="mt-2"
+      />
+      <div
+        v-if="showInvalidMessage"
+        class="mt-2 p-3 rounded-md bg-danger-200 text-danger-600 text-sm"
       >
-        {{ t('add') }}
-      </v-btn>
-      <v-alert
-        v-model="showInvalidMessage"
-        :text="t('invalid-id-or-url')"
-        type="error"
-        closable
-      />
-      <v-alert
-        v-model="showSuccessMessage"
-        :text="t('success')"
-        type="success"
-        closable
-      />
+        {{ t('invalid-id-or-url') }}
+        <button class="ml-2 font-medium" @click="showInvalidMessage = false">&times;</button>
+      </div>
+      <div
+        v-if="showSuccessMessage"
+        class="mt-2 p-3 rounded-md bg-success-50 text-success-600 text-sm"
+      >
+        {{ t('success') }}
+        <button class="ml-2 font-medium" @click="showSuccessMessage = false">&times;</button>
+      </div>
     </div>
   </div>
 </template>
@@ -142,15 +124,14 @@
 import { ref } from 'vue'
 import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
-import setTagging from '../../set-tagging.js'
-import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
+import setTagging from '@/utils/set-tagging.js'
+import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
+import { PButton } from '@/components/ui/index.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 
 const userIdOrURL = ref('')
-
-const IS_THAILAND_DOMAIN = window.location.host === 'thailand.pilaproject.org'
 
 const showInvalidMessage = ref(false)
 const showSuccessMessage = ref(false)
@@ -160,7 +141,6 @@ async function attemptAddContent(userInput) {
   if (await isValidInput(userInput)) {
     await setTagging({ tag: MY_CONTENT_TAG, target: userInput, value: true })
 
-    // reset interface for this successful uuid
     userIdOrURL.value = ''
     showSuccessMessage.value = true
   } else {
@@ -229,7 +209,6 @@ h3 {
   opacity: 1;
 }
 .custom-button .btn-image {
-  padding: px 20px;
   height: 100%;
   overflow:hidden;
 }
@@ -238,8 +217,4 @@ h3 {
   margin-top: 20px;
   width: 340px;
 }
-#input-15 {
-  text-align: center !important;
-}
 </style>
-

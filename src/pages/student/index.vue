@@ -1,6 +1,6 @@
 <template>
   <StudentAgreement v-if="!hasStudentAgreement" />
-  <v-app
+  <div
     class="student-view"
     v-else
   >
@@ -8,62 +8,63 @@
       :teacherViewButton="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
     />
 
-    <v-navigation-drawer rail permanent>
-      <v-list-item
-        :title="userInfo.name"
-        :subtitle="$store.getters['roles/role']()"
-        nav
-      >
-        <template v-slot:prepend>
-          <v-avatar
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Sidebar -->
+      <nav class="flex flex-col w-16 border-r border-slate-200 bg-white flex-shrink-0">
+        <!-- User info -->
+        <div class="flex items-center justify-center py-3 border-b border-slate-200">
+          <PAvatar
             @click.shift="alertUserName"
             :image="userInfo.picture"
+            :name="userInfo.name"
+            :size="32"
           />
+        </div>
 
-        </template>
-      </v-list-item>
+        <PDivider />
 
-      <v-divider></v-divider>
+        <div class="flex-1" />
 
-      <template v-slot:append>
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-icon
-              v-bind="props"
-              class="ma-4"
-              icon="fa-solid fa-gear"
-            />
-          </template>
-          <v-list>
-            <v-list-item
-              @click="logout"
-              append-icon="fa-solid fa-arrow-right-from-bracket"
+        <!-- Settings -->
+        <div class="border-t border-slate-200 py-2">
+          <PMenu>
+            <template #activator="{ props }">
+              <button class="flex items-center justify-center w-full py-2 text-slate-500 hover:text-slate-700" @click="props.onClick">
+                <i class="fa-solid fa-gear" />
+              </button>
+            </template>
+            <PMenuItem
               :title="t('log-out')"
-            >
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </template>
-    </v-navigation-drawer>
+              append-icon="fa-solid fa-arrow-right-from-bracket"
+              @click="logout"
+            />
+          </PMenu>
+        </div>
+      </nav>
 
-    <v-main>
-      <StudentAssignments :id="id" />
-    </v-main>
-  </v-app>
+      <!-- Main content -->
+      <main class="flex-1 overflow-auto">
+        <StudentAssignments :id="id" />
+      </main>
+    </div>
+  </div>
 </template>
 
 <script>
-  import Navbar from '../Navbar.vue'
+  import Navbar from '@/pages/navbar.vue'
   import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
-  import IconButton from '../../components/icon-button.vue'
-  import StudiesNotAvailable from '../../components/studies-not-available.vue'
+  import { PAvatar, PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
+  import StudiesNotAvailable from '@/components/common/studies-not-available.vue'
   export default {
     components: {
       Navbar,
       StudentAgreement,
       StudentAssignments,
-      IconButton,
+      PAvatar,
+      PMenu,
+      PMenuItem,
+      PDivider,
       StudiesNotAvailable
     },
     props: ['id'],
@@ -101,3 +102,11 @@
     }
   }
 </script>
+
+<style scoped>
+.student-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+</style>

@@ -46,15 +46,14 @@ export default {
           .flat()
       ))
     },
-    to: (state, _getters, _rootState, rootGetters) => (user_id, assignment_type) => {
+    to: (state, getters) => (user_id, assignment_type) => {
       return (
         Object
           .keys(state)
+          .filter(id => !state[id].archived)
           .filter(id => {
-            const assignment = state[id]
-            return !assignment.archived
-              && assignment.assignment_type === assignment_type
-              && rootGetters['groups/belongs'](user_id, assignment.group_id)
+            const { item_id } = state[id]
+            return getters.assignedStudents(item_id, assignment_type).includes(user_id)
           })
       )
     }

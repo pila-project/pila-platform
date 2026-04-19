@@ -21,52 +21,40 @@
           style="cursor: pointer; margin: 4px 24px 12px 0px;"
           @click="oldestFirst = !oldestFirst"
         >
-          <v-icon
-            size="x-small"
-            color="grey"
-            :icon="`fa-solid fa-arrow-${oldestFirst ? 'down' : 'up'}`"    
+          <i
+            :class="`fa-solid fa-arrow-${oldestFirst ? 'down' : 'up'} text-xs text-slate-400`"
           />
-          <v-icon
-            class="ml-2"
-            color="grey"
-            icon="fa-solid fa-calendar"
-          />
+          <i class="fa-solid fa-calendar ml-2 text-slate-400" />
         </div>
 
       </div>
-      <v-row>
-        <v-col
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div
           v-for="assignmentId in filteredAssignmentIds"
           :key="assignmentId"
-          cols="12"
-          lg="3"
-          md="4"
-          sm="6"
         >
           <AssignmentCard
             :assignment="assignmentId"
             @play="play(assignmentId)"
           />
-        </v-col>
-      </v-row>
-    </div>
-    <v-overlay v-if="id" :model-value="true"  persistent>
-      <div class="assignment-overlay">
-        <vueEmbedComponent
-          :id="id"
-          @close="$router.push('/')"
-          allow="camera;microphone;fullscreen"
-        />
+        </div>
       </div>
-    </v-overlay>
+    </div>
+    <div v-if="id" class="assignment-overlay">
+      <vueEmbedComponent
+        :id="id"
+        @close="$router.push('/')"
+        allow="camera;microphone;fullscreen"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import CardIconsBar from '../../components/card-icons-bar.vue'
-import DecryptedName from '../../components/decrypted-name.vue'
+import CardIconsBar from '@/components/content/card-icons-bar.vue'
+import DecryptedName from '@/components/common/decrypted-name.vue'
 import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.js'
-import URL_CONTENT_DATA from '../../url-content-data.js'
+import URL_CONTENT_DATA from '@/utils/url-content-data.js'
 import AssignmentCard from './assignment-card.vue'
 
 export default {
@@ -111,8 +99,6 @@ export default {
       const aidsFromActiveAssigner = this.assignmentIds.filter(aid => this.assignmentsToAssignerAndCreated[aid]?.owner === this.activeAssigner)
       const oldestFirst = aidsFromActiveAssigner.sort(compareCreated)
       return this.oldestFirst ? oldestFirst : oldestFirst.reverse()
-
-
     }
 
   },
@@ -192,51 +178,6 @@ export default {
   overflow: hidden;
   width: 100vw;
   height: calc(var(--vh, 1vh) * 100);
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid #ccc;
-  width: 33%;
-  max-width: 256px;
-  height: 33vw;
-  max-height: 192px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 10px;
-  max-width: 300px;
-  overflow: hidden;
-  position: relative;
-}
-card.bottom {
-  color: pink;
-}
-.preview-image
-{
-  position: relative;
-  flex-grow: 1;
-  min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.preview-image > img
-{
-  position: absolute;
-  max-width: 80%;
-  max-height: 80%;
-}
-.content-name
-{
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-  color: #5d5d5d;
-  font-size: 1.25em;
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 8px;
+  z-index: 50;
 }
 </style>

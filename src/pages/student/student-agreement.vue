@@ -1,9 +1,10 @@
 <template>
-	<PILAModal
+	<PModal
 		showCloseButton
 		:closeButtonText="t('create-account')"
 		@close="modalClose"
 		class="student-agreement-modal"
+		width="800px"
 	>
 		<template v-slot:title>
 			{{ t('your-data') }}
@@ -37,14 +38,14 @@
 				</div>
 			</div>
 		</template>
-	</PILAModal>
+	</PModal>
 </template>
 
 <script>
-import PILAModal from '../../components/PILAModal.vue'
+import { PModal } from '@/components/ui/index.js'
 export default {
 	name: 'student-agreement',
-	components: { PILAModal },
+	components: { PModal },
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
 		modalClose(e) {

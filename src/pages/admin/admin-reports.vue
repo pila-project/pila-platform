@@ -1,35 +1,31 @@
 <template>
-  <v-container>
-    <v-btn
-      class="ma-2"
-      :color="selected === 'login-report' ? 'primary' : ''"
-      @click="pullReport('login-report')"
-    >
-      {{ t('login-report') }}
-    </v-btn>
-    <v-btn
-      class="ma-2"
-      :color="selected === 'assignment-report' ? 'primary' : ''"
-      @click="pullReport('assignment-report')"
-    >
-      {{ t('assignments') }}
-    </v-btn>
-    <v-btn
-      class="ma-2"
-      :color="selected === 'customised_items_report' ? 'primary' : ''"
-      @click="pullReport('customised_items_report', [], 'create.pilaproject.org')"
-    >
-      {{ t('customised-items') }}
-    </v-btn>
+  <div class="p-6">
+    <div class="flex gap-2 mb-4">
+      <PButton
+        :variant="selected === 'login-report' ? 'primary' : 'secondary'"
+        @click="pullReport('login-report')"
+        :text="t('login-report')"
+      />
+      <PButton
+        :variant="selected === 'assignment-report' ? 'primary' : 'secondary'"
+        @click="pullReport('assignment-report')"
+        :text="t('assignments')"
+      />
+      <PButton
+        :variant="selected === 'customised_items_report' ? 'primary' : 'secondary'"
+        @click="pullReport('customised_items_report', [], 'create.pilaproject.org')"
+        :text="t('customised-items')"
+      />
+    </div>
 
-    <v-data-table
-      sticky
+    <PTable
       :loading="loading"
       :items="results"
       :headers="headers"
-      :no-data-text="t('no-data-available')"
-      :items-per-page-text="t('items-per-page')"
-      :items-per-page-options="[
+      :noDataText="t('no-data-available')"
+      :itemsPerPageText="t('items-per-page')"
+      :itemsPerPage="10"
+      :itemsPerPageOptions="[
         {value: 10, title: '10'},
         {value: 25, title: '25'},
         {value: 50, title: '50'},
@@ -37,32 +33,32 @@
         {value: -1, title: t('all')}
       ]"
     >
-      <template v-slot:item.owner="data">
-        <DecryptedName avatar :user="data.item.owner" />
+      <template #item.owner="{ item }">
+        <DecryptedName avatar :user="item.owner" />
       </template>
-      <template v-slot:item.assigner-id="data">
-        <DecryptedName avatar :user="data.item['assigner-id']" />
+      <template #[`item.assigner-id`]="{ item }">
+        <DecryptedName avatar :user="item['assigner-id']" />
       </template>
-      <template v-slot:item.user="data">
-        <DecryptedName avatar :user="data.item.user" />
+      <template #item.user="{ item }">
+        <DecryptedName avatar :user="item.user" />
       </template>
-    </v-data-table>
-    <v-btn
-      class="ma-2"
-      @click="download"
+    </PTable>
+    <PButton
       v-if="results[0]"
-    >
-      {{ t('download') }}
-    </v-btn>
-
-  </v-container>
+      variant="secondary"
+      @click="download"
+      :text="t('download')"
+      class="mt-4"
+    />
+  </div>
 </template>
 
 <script setup>
   import { ref } from 'vue'
   import { useStore } from 'vuex'
-  import DecryptedName from '../../components/decrypted-name.vue'
+  import DecryptedName from '@/components/common/decrypted-name.vue'
   import { json2csv } from 'json-2-csv'
+  import { PTable, PButton } from '@/components/ui/index.js'
 
   const store = useStore()
 
@@ -76,7 +72,7 @@
   async function pullReport(query, params, domain) {
     loading.value = true
     selected.value = query
-    headers.value = undefined
+    headers.value = []
     results.value = await Agent.query(query, params, domain)
     if (results.value[0]) {
       headers.value = (
