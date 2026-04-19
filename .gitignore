@@ -14,6 +14,14 @@ dist-ssr
 
 # Claude
 .claude
+MEMORY.md
+*.todo.md
+todo.md
+figma-reference/
+
+# Test/scratch files
+src/tests/
+src/pages/component-showcase.vue
 
 # Editor directories and files
 .vscode/*
