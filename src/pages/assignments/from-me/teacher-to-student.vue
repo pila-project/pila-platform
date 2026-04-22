@@ -291,7 +291,7 @@
         text="Create assignment"
         icon="fa-solid fa-arrow-right"
         :icon-right="true"
-        @click="$emit('close')"
+        @click="saveAndClose"
       />
     </div>
   </div>
@@ -427,11 +427,49 @@
     assignment.value.content = id
   }
 
+  // ── Save all settings to backend ──
+  async function saveSettings() {
+    const state = await Agent.state(props.id)
+    state.assignmentType = assignmentType.value || 'Assignment'
+    state.dueDate = dueDate.value || null
+    state.dueTime = dueTime.value || null
+    state.allowLate = allowLate.value
+    state.maxAttempts = maxAttempts.value || '1 attempt'
+    state.feedbackTiming = feedbackTiming.value || 'At the end'
+    state.shuffleQuestions = shuffleQuestions.value
+    state.showAnswers = showAnswers.value
+    state.teacherNotes = teacherNotes.value || ''
+    state.status = distributionOption.value === 'publish' ? 'Published'
+      : distributionOption.value === 'schedule' ? 'Scheduled'
+      : 'Draft'
+  }
+
+  async function saveAndClose() {
+    await saveSettings()
+    await Agent.synced()
+    emit('close')
+  }
+
   // ── Load assignment data ──
   async function init() {
     loading.value = true
     const state = await Agent.state(props.id)
     assignment.value = state
+
+    // Load persisted settings if editing existing assignment
+    if (state.assignmentType) assignmentType.value = state.assignmentType
+    if (state.dueDate) dueDate.value = state.dueDate
+    if (state.dueTime) dueTime.value = state.dueTime
+    if (state.allowLate !== undefined) allowLate.value = state.allowLate
+    if (state.maxAttempts) maxAttempts.value = state.maxAttempts
+    if (state.feedbackTiming) feedbackTiming.value = state.feedbackTiming
+    if (state.shuffleQuestions !== undefined) shuffleQuestions.value = state.shuffleQuestions
+    if (state.showAnswers !== undefined) showAnswers.value = state.showAnswers
+    if (state.teacherNotes) teacherNotes.value = state.teacherNotes
+    if (state.status === 'Published') distributionOption.value = 'publish'
+    else if (state.status === 'Scheduled') distributionOption.value = 'schedule'
+    else if (state.status === 'Draft') distributionOption.value = 'draft'
+
     loading.value = false
   }
 
@@ -444,6 +482,9 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .wizard-loading {
@@ -462,6 +503,7 @@
   justify-content: space-between;
   align-items: flex-start;
   padding-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .wizard-title {
@@ -503,6 +545,7 @@
   height: 1px;
   background: #e2e8f0;
   margin: 0;
+  flex-shrink: 0;
 }
 
 /* ── Stepper ── */
@@ -510,6 +553,7 @@
   display: flex;
   align-items: flex-start;
   padding: 16px 0 20px;
+  flex-shrink: 0;
 }
 
 .stepper-item {
@@ -601,6 +645,9 @@
   flex-direction: column;
   gap: 16px;
   padding-bottom: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* ── Side-by-side fields ── */
@@ -918,6 +965,8 @@
   align-items: center;
   gap: 8px;
   padding-top: 16px;
+  flex-shrink: 0;
+  border-top: 1px solid #e2e8f0;
 }
 
 .flex-1 {
@@ -935,5 +984,84 @@
 /* ── Content browse mode ── */
 .wizard-content-browse {
   min-height: 400px;
+}
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .stepper {
+    padding: 12px 0 16px;
+  }
+
+  .step-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .step-label {
+    font-size: 11px;
+  }
+
+  .step-trail {
+    margin-top: 14px;
+    min-width: 12px;
+  }
+
+  .field-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toggle-row {
+    padding: 8px 0;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+  }
+
+  .toggle-desc {
+    font-size: 12px;
+  }
+
+  .group-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .group-name {
+    font-size: 14px;
+  }
+
+  .group-list {
+    max-height: 180px;
+  }
+
+  .wizard-footer {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 12px;
+  }
+
+  .wizard-content-browse {
+    min-height: 300px;
+  }
+
+  .content-cta {
+    padding: 12px;
+  }
+
+  .content-cta-icon {
+    font-size: 20px;
+  }
+
+  .content-cta-title {
+    font-size: 13px;
+  }
+
+  .content-cta-desc {
+    font-size: 11px;
+  }
 }
 </style>

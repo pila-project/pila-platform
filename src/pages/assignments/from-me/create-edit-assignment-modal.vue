@@ -82,9 +82,24 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   max-width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
+  height: 80vh;
+  overflow: hidden;
   padding: 20px;
   transition: width 300ms ease;
+}
+
+/* Mobile: bottom sheet style */
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal-dialog {
+    width: 100% !important;
+    max-width: 100vw;
+    height: 92vh;
+    border-radius: 16px 16px 0 0;
+    padding: 16px;
+  }
 }
 </style>

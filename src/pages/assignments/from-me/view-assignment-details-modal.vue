@@ -1,0 +1,587 @@
+<template>
+  <Teleport to="body">
+    <div class="modal-overlay">
+      <div class="modal-backdrop" @click="$emit('close')" />
+      <div class="modal-dialog" role="dialog" aria-modal="true">
+        <div v-if="loading" class="details-loading">
+          <i class="fa fa-spinner fa-spin" /> Loading...
+        </div>
+        <template v-else>
+          <!-- Header -->
+          <div class="details-header">
+            <div>
+              <h2 class="details-title">View assignment details</h2>
+              <p class="details-subtitle">Complete information about {{ data.name }}</p>
+            </div>
+            <button class="details-close" @click="$emit('close')">
+              <i class="fa-solid fa-xmark" />
+            </button>
+          </div>
+
+          <div class="details-body">
+            <!-- Assignment Information -->
+            <div class="details-section">
+              <h3 class="section-heading">
+                <i class="fa-solid fa-file-lines section-icon" />
+                Assignment information
+              </h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Title</span>
+                  <span class="info-value">{{ data.name || '--' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Type</span>
+                  <span class="info-value">{{ data.assignmentType || 'Assignment' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Due date</span>
+                  <span class="info-value">{{ data.dueDate ? formatDate(data.dueDate) : 'Not set' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Status</span>
+                  <span class="info-value" :class="statusClass">{{ status }}</span>
+                </div>
+              </div>
+              <div class="info-full">
+                <span class="info-label">Instructions</span>
+                <span class="info-value">{{ data.description || 'No instructions provided' }}</span>
+              </div>
+            </div>
+
+            <!-- Assignment Settings -->
+            <div class="details-section">
+              <h3 class="section-heading">
+                <i class="fa-solid fa-gear section-icon" />
+                Assignment setting
+              </h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Feedback timings</span>
+                  <span class="info-value">{{ data.feedbackTiming || 'At the end' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Maximum attempts</span>
+                  <span class="info-value">{{ data.maxAttempts || '1' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Late submissions</span>
+                  <span class="info-value">{{ data.allowLate !== false ? 'Allowed' : 'Not allowed' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Shuffle questions</span>
+                  <span class="info-value">{{ data.shuffleQuestions ? 'Yes' : 'No' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Assignment Groups & Students -->
+            <div class="details-section">
+              <h3 class="section-heading">
+                <i class="fa-solid fa-user-group section-icon" />
+                Assignment group & students ({{ assignedGroups.length }})
+              </h3>
+              <div v-if="assignedGroups.length === 0" class="empty-text">
+                No groups assigned
+              </div>
+              <div v-else class="group-list">
+                <div v-for="gid in assignedGroups" :key="gid" class="group-row">
+                  <div class="group-icon">
+                    <i class="fa-solid fa-user-group" />
+                  </div>
+                  <div class="group-info">
+                    <span class="group-name">
+                      <vueScopeComponent :id="gid" :path="['name']" />
+                    </span>
+                    <span class="group-meta">
+                      <vueScopeComponent :id="gid" :path="['grade']">
+                        <template v-slot="d">{{ d.value || '' }}</template>
+                      </vueScopeComponent>
+                      <template v-if="getGroupMembers(gid).length"> | {{ getGroupMembers(gid).length }} Students</template>
+                    </span>
+                  </div>
+                  <span class="group-badge">{{ getGroupMembers(gid).length }} Students</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Items -->
+            <div class="details-section">
+              <h3 class="section-heading">
+                <i class="fa-solid fa-book section-icon" />
+                Content items ({{ data.content ? 1 : 0 }})
+              </h3>
+              <div v-if="!data.content" class="empty-text">
+                No content items added
+              </div>
+              <div v-else class="content-list">
+                <div class="content-row">
+                  <div class="content-info">
+                    <span class="content-name">
+                      <vueScopeComponent :id="data.content" :path="['name']" />
+                    </span>
+                    <span class="content-desc">
+                      <vueScopeComponent :id="data.content" :path="['description']">
+                        <template v-slot="d">{{ d.value || '' }}</template>
+                      </vueScopeComponent>
+                    </span>
+                  </div>
+                  <button class="preview-btn" @click="previewing = data.content">Preview</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="details-footer">
+            <PButton variant="ghost" text="Cancel" @click="$emit('close')" />
+            <PButton variant="ghost" text="Edit assignment" @click="$emit('edit')" />
+            <PButton variant="primary" text="View submissions" @click="$emit('view-submissions')" />
+          </div>
+        </template>
+      </div>
+    </div>
+  </Teleport>
+
+  <PreviewModal
+    v-if="previewing"
+    :id="previewing"
+    @close="previewing = null"
+  />
+</template>
+
+<script setup>
+  import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+  import { useStore } from 'vuex'
+  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { PButton } from '@/components/ui/index.js'
+  import PreviewModal from '@/components/common/preview-modal.vue'
+
+  const props = defineProps({
+    id: { type: String, required: true },
+  })
+
+  const emit = defineEmits(['close', 'edit', 'view-submissions'])
+
+  const store = useStore()
+
+  const loading = ref(true)
+  const data = ref({})
+  const previewing = ref(null)
+
+  const assignedGroups = computed(() =>
+    store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false)
+  )
+
+  const status = computed(() => {
+    if (data.value.status) return data.value.status
+    return assignedGroups.value.length > 0 ? 'Published' : 'Draft'
+  })
+
+  const statusClass = computed(() => {
+    const s = status.value
+    if (s === 'Published' || s === 'Completed') return 'status-published'
+    if (s === 'Draft') return 'status-draft'
+    return 'status-scheduled'
+  })
+
+  function getGroupMembers(gid) {
+    return store.getters['groups/members'](gid) || []
+  }
+
+  function formatDate(ts) {
+    if (!ts) return '--'
+    const d = new Date(ts)
+    return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
+  }
+
+  function handleKeydown(e) {
+    if (e.key === 'Escape') emit('close')
+  }
+
+  onMounted(() => document.addEventListener('keydown', handleKeydown))
+  onBeforeUnmount(() => document.removeEventListener('keydown', handleKeydown))
+
+  async function init() {
+    loading.value = true
+    try {
+      const state = await Agent.state(props.id)
+      data.value = {
+        name: state.name || '',
+        description: state.description || '',
+        content: state.content || null,
+        assignmentType: state.assignmentType || 'Assignment',
+        dueDate: state.dueDate || null,
+        dueTime: state.dueTime || null,
+        status: state.status || null,
+        allowLate: state.allowLate,
+        maxAttempts: state.maxAttempts || '1',
+        feedbackTiming: state.feedbackTiming || 'At the end',
+        shuffleQuestions: state.shuffleQuestions || false,
+        showAnswers: state.showAnswers || false,
+        teacherNotes: state.teacherNotes || '',
+      }
+    } catch {
+      data.value = { name: 'Error loading assignment' }
+    }
+    loading.value = false
+  }
+
+  init()
+</script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  width: 520px;
+  max-width: 90vw;
+  max-height: 90vh;
+  padding: 20px;
+}
+
+.details-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Header */
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.details-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+}
+
+.details-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.details-close {
+  width: 28px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.details-close:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* Body */
+.details-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 0;
+}
+
+/* Sections */
+.details-section {
+  padding: 16px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.details-section:last-child {
+  border-bottom: none;
+}
+
+.section-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-icon {
+  font-size: 14px;
+  color: #2563eb;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-full {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.info-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.info-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.status-published {
+  color: #16a34a;
+}
+.status-draft {
+  color: #ca8a04;
+}
+.status-scheduled {
+  color: #334155;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: #94a3b8;
+  padding: 8px 0;
+}
+
+/* Groups */
+.group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.group-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.group-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.group-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  display: block;
+}
+
+.group-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.group-badge {
+  font-size: 12px;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Content items */
+.content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.content-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.content-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  display: block;
+}
+
+.content-desc {
+  font-size: 12px;
+  color: #64748b;
+  display: block;
+  margin-top: 2px;
+}
+
+.preview-btn {
+  padding: 4px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.preview-btn:hover {
+  background: #f8fafc;
+}
+
+/* Footer */
+.details-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal-dialog {
+    width: 100% !important;
+    max-width: 100vw;
+    max-height: 92vh;
+    border-radius: 16px 16px 0 0;
+    padding: 16px;
+  }
+
+  .details-title {
+    font-size: 15px;
+  }
+
+  .details-subtitle {
+    font-size: 11px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+  }
+
+  .info-label {
+    font-size: 11px;
+  }
+
+  .info-value {
+    font-size: 12px;
+  }
+
+  .section-heading {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .group-row {
+    padding: 6px 10px;
+  }
+
+  .group-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .group-name {
+    font-size: 13px;
+  }
+
+  .group-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .content-name {
+    font-size: 13px;
+  }
+
+  .details-footer {
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+</style>

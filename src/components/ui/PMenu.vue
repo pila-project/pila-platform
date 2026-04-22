@@ -1,39 +1,38 @@
 <template>
-  <div class="relative inline-block" ref="menuRef">
+  <div class="p-menu-anchor" ref="menuRef">
     <div aria-haspopup="true" :aria-expanded="isOpen">
       <slot name="activator" :props="{ onClick: toggle }" />
     </div>
-    <Transition
-      enter-active-class="transition ease-out duration-100"
-      enter-from-class="opacity-0 scale-95"
-      enter-to-class="opacity-100 scale-100"
-      leave-active-class="transition ease-in duration-75"
-      leave-from-class="opacity-100 scale-100"
-      leave-to-class="opacity-0 scale-95"
-    >
-      <div
-        v-if="isOpen"
-        ref="dropdownRef"
-        role="menu"
-        class="absolute z-40 min-w-48 rounded-lg bg-white border border-slate-200 shadow-lg py-1"
-        :class="[
-          alignRight ? 'right-0' : 'left-0',
-          openUp ? 'bottom-full mb-2' : 'top-full mt-1'
-        ]"
-        @keydown.esc="isOpen = false"
-        @keydown.arrow-down.prevent="focusNext"
-        @keydown.arrow-up.prevent="focusPrev"
+    <Teleport to="body">
+      <Transition
+        enter-active-class="p-menu-enter-active"
+        enter-from-class="p-menu-enter-from"
+        enter-to-class="p-menu-enter-to"
+        leave-active-class="p-menu-leave-active"
+        leave-from-class="p-menu-leave-from"
+        leave-to-class="p-menu-leave-to"
       >
-        <slot />
-      </div>
-    </Transition>
+        <div
+          v-if="isOpen"
+          ref="dropdownRef"
+          role="menu"
+          class="p-menu-dropdown"
+          :style="floatingStyle"
+          @keydown.esc="isOpen = false"
+          @keydown.arrow-down.prevent="focusNext"
+          @keydown.arrow-up.prevent="focusPrev"
+        >
+          <slot />
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount, computed } from 'vue'
 
-defineProps({
+const props = defineProps({
   alignRight: Boolean,
   openUp: Boolean,
 })
@@ -41,10 +40,38 @@ defineProps({
 const isOpen = ref(false)
 const menuRef = ref(null)
 const dropdownRef = ref(null)
+const anchorRect = ref(null)
 
 function toggle() {
+  if (!isOpen.value) updateAnchorRect()
   isOpen.value = !isOpen.value
 }
+
+function updateAnchorRect() {
+  if (menuRef.value) {
+    anchorRect.value = menuRef.value.getBoundingClientRect()
+  }
+}
+
+const floatingStyle = computed(() => {
+  if (!anchorRect.value) return {}
+  const r = anchorRect.value
+  const style = { position: 'fixed', zIndex: 9999 }
+
+  if (props.alignRight) {
+    style.right = `${window.innerWidth - r.right}px`
+  } else {
+    style.left = `${r.left}px`
+  }
+
+  if (props.openUp) {
+    style.bottom = `${window.innerHeight - r.top + 4}px`
+  } else {
+    style.top = `${r.bottom + 4}px`
+  }
+
+  return style
+})
 
 function getMenuItems() {
   if (!dropdownRef.value) return []
@@ -76,11 +103,62 @@ watch(isOpen, async (open) => {
 })
 
 function close(e) {
-  if (menuRef.value && !menuRef.value.contains(e.target)) {
+  if (!isOpen.value) return
+  const inAnchor = menuRef.value && menuRef.value.contains(e.target)
+  const inDropdown = dropdownRef.value && dropdownRef.value.contains(e.target)
+  if (!inAnchor && !inDropdown) {
     isOpen.value = false
   }
 }
 
-onMounted(() => document.addEventListener('click', close))
-onBeforeUnmount(() => document.removeEventListener('click', close))
+function onScrollOrResize() {
+  if (isOpen.value) {
+    updateAnchorRect()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', close)
+  window.addEventListener('scroll', onScrollOrResize, true)
+  window.addEventListener('resize', onScrollOrResize)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', close)
+  window.removeEventListener('scroll', onScrollOrResize, true)
+  window.removeEventListener('resize', onScrollOrResize)
+})
 </script>
+
+<style>
+.p-menu-anchor {
+  position: relative;
+  display: inline-block;
+}
+
+.p-menu-dropdown {
+  min-width: 12rem;
+  border-radius: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  padding: 4px 0;
+}
+
+.p-menu-enter-active {
+  transition: opacity 100ms ease-out, transform 100ms ease-out;
+}
+.p-menu-leave-active {
+  transition: opacity 75ms ease-in, transform 75ms ease-in;
+}
+.p-menu-enter-from,
+.p-menu-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+.p-menu-enter-to,
+.p-menu-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+</style>
