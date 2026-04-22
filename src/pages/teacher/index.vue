@@ -180,7 +180,7 @@
 
   const navItems = computed(() => [
     { icon: 'fa-regular fa-circle-user', title: t('admin'), to: 'classes', show: true },
-    { icon: 'fa-regular fa-file-lines', title: t('assign-and-monitor'), to: 'assignments-from-me', show: true },
+    { icon: 'fa-regular fa-file-lines', title: t('assignments').toLowerCase(), to: 'assignments-from-me', show: true },
     { icon: 'fa-solid fa-magnifying-glass', title: t('explore'), to: 'content', show: true },
     { icon: 'fa-solid fa-folder-plus', title: t('create'), to: 'create', show: !isSimplifiedStudyDomain },
     { icon: 'fa-regular fa-file-lines', title: t('resources'), to: 'resources', show: true },
@@ -353,7 +353,7 @@
   padding: 8px;
 }
 
-.user-card-wrapper :deep(.relative) {
+.user-card-wrapper :deep(.p-menu-anchor) {
   display: block;
   width: 100%;
 }
