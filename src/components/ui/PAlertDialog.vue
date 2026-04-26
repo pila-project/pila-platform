@@ -40,7 +40,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'notification',
-    validator: v => ['error', 'success', 'notification'].includes(v),
+    validator: v => ['error', 'success', 'notification', 'warning'].includes(v),
   },
   title: {
     type: String,
@@ -63,6 +63,7 @@ const variantIcons = {
   error: 'fa-regular fa-circle-xmark',
   success: 'fa-regular fa-circle-check',
   notification: 'fa-solid fa-bell',
+  warning: 'fa-solid fa-box-archive',
 }
 
 const variantIcon = computed(() => variantIcons[props.variant])
@@ -115,6 +116,7 @@ onBeforeUnmount(() => document.body.style.overflow = '')
 .alert-icon-error { color: #dc2626; }
 .alert-icon-success { color: #16a34a; }
 .alert-icon-notification { color: #2563eb; }
+.alert-icon-warning { color: #ca8a04; }
 
 /* Content */
 .alert-content {
@@ -179,6 +181,10 @@ onBeforeUnmount(() => document.body.style.overflow = '')
   background: #2563eb;
   color: #f8fafc;
 }
+.alert-btn-confirm.alert-btn-warning {
+  background: #ca8a04;
+  color: #f8fafc;
+}
 
 /* Cancel variants */
 .alert-btn-cancel {
@@ -195,6 +201,10 @@ onBeforeUnmount(() => document.body.style.overflow = '')
 .alert-btn-cancel-notification {
   border-color: #bfdbfe;
   color: #2563eb;
+}
+.alert-btn-cancel-warning {
+  border-color: #fde68a;
+  color: #ca8a04;
 }
 
 /* Mobile */

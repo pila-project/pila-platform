@@ -10,7 +10,10 @@ export default {
     t: (state, _getters, rootState) => slug => {
       const target = translationSlugMap[slug]
       const lang = rootState.language
-      if (!target) return `no slug ${slug}`
+      if (!target) {
+        // Graceful fallback: humanize the slug ("my-content" → "My content")
+        return slug.replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase())
+      }
       if (!state.translations?.[lang]) return `no translations for ${lang}`
       if (!state.translations[lang][target]) return `${lang} ${slug}`
       else return state.translations[lang][target]

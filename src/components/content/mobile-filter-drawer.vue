@@ -4,8 +4,8 @@
       <div class="drawer-panel">
         <!-- Header -->
         <div class="drawer-header">
-          <h3 class="drawer-title">Property Filter</h3>
-          <button v-if="hasActiveFilters" class="drawer-reset" @click="resetAll">Reset all</button>
+          <h3 class="drawer-title">{{ t('property-filter') }}</h3>
+          <button v-if="hasActiveFilters" class="drawer-reset" @click="resetAll">{{ t('reset-all') }}</button>
         </div>
 
         <!-- Filter sections -->
@@ -34,7 +34,7 @@
                 <span>{{ opt.label }}</span>
               </label>
               <div v-if="!filter.options.length" class="text-xs text-slate-400 py-2 px-1">
-                No options available
+                {{ t('no-options-available') }}
               </div>
             </div>
           </div>
@@ -46,6 +46,10 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
+import { useStore } from 'vuex'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   filters: { type: Array, required: true },

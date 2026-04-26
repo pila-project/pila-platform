@@ -49,7 +49,7 @@
             <span v-if="opt.count != null" class="filter-option-count">{{ opt.count }}</span>
           </label>
           <div v-if="!filteredOptions.length" class="filter-empty">
-            No options found
+            {{ t('no-options-found') }}
           </div>
         </div>
 
@@ -59,7 +59,7 @@
           class="filter-clear"
           @click="$emit('update:modelValue', [])"
         >
-          Clear filters
+          {{ t('clear-filters') }}
         </button>
       </div>
     </Transition>
@@ -68,6 +68,10 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useStore } from 'vuex'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   label: { type: String, required: true },

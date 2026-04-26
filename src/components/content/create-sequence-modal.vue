@@ -6,40 +6,40 @@
     <template #title>
       <div>
         <h2 class="text-lg font-semibold text-zinc-950">
-          <template v-if="isEdit">Edit sequence</template>
-          <template v-else>+ Create new sequence</template>
+          <template v-if="isEdit">{{ t('edit-sequence') }}</template>
+          <template v-else>+ {{ t('create-new-sequence') }}</template>
         </h2>
         <p v-if="!isEdit" class="text-sm text-slate-500 mt-0.5">
-          Create a new sequence to organize content items in a specific order.
+          {{ t('create-sequence-description') }}
         </p>
       </div>
     </template>
     <template #body>
       <div v-if="!isEdit" class="info-banner">
         <i class="fa-solid fa-circle-info text-primary-500" />
-        <span>After creating the sequence, you add content items to it from the main library or by browsing existing contents.</span>
+        <span>{{ t('after-creating-sequence-info') }}</span>
       </div>
 
       <div class="flex flex-col gap-4" :class="{ 'mt-4': !isEdit }">
         <PInput
           v-model="name"
-          :label="isEdit ? 'Sequence name' : 'Sequence Title*'"
-          placeholder="Complete math fundamentals"
+          :label="isEdit ? t('sequence-name') : t('sequence-title') + '*'"
+          :placeholder="t('sequence-name-placeholder')"
         />
         <PInput
           v-model="description"
-          label="Description"
-          placeholder="A comprehensive sequence covering basic to advance mathematical concepts"
+          :label="t('description')"
+          :placeholder="t('sequence-description-placeholder')"
           multiline
           :rows="3"
         />
       </div>
     </template>
     <template #footer>
-      <PButton variant="ghost" text="Cancel" class="cancel-btn" @click="$emit('close')" />
+      <PButton variant="ghost" :text="t('cancel')" class="cancel-btn" @click="$emit('close')" />
       <PButton
         variant="primary"
-        :text="isEdit ? 'Save' : 'Create sequence'"
+        :text="isEdit ? t('save') : t('create-sequence')"
         :disabled="!name.trim()"
         @click="submit"
       />
@@ -49,7 +49,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useStore } from 'vuex'
 import { PModal, PInput, PButton } from '@/components/ui/index.js'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
 

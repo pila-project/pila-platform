@@ -1,6 +1,6 @@
 <template>
   <PModal
-    :title="step === 'success' ? '' : step === 1 ? 'Copy & modify content' : 'Preview details'"
+    :title="step === 'success' ? '' : step === 1 ? t('copy-and-modify-content') : t('preview-details')"
     width="520px"
     @close="$emit('close')"
   >
@@ -8,7 +8,7 @@
       <!-- Step 1: Copy details -->
       <div v-if="step === 1">
         <p class="text-sm text-slate-500 mb-1">
-          Step 1 of 2: Create your own version of "{{ originalName }}" that you can customize for your needs.
+          {{ t('step-1-of-2') }}: {{ t('create-your-own-version') }} "{{ originalName }}"
         </p>
 
         <div class="stepper-mini mt-3">
@@ -19,33 +19,33 @@
 
         <div class="info-banner">
           <i class="fa-solid fa-circle-info text-primary-500" />
-          <span>A copy will be created with all content and settings from the existing assignment.</span>
+          <span>{{ t('copy-will-be-created-info') }}</span>
         </div>
 
         <div class="flex flex-col gap-4 mt-4">
           <PInput
             v-model="form.title"
-            label="New Title*"
-            placeholder="Copy of complete math fundamentals"
+            :label="t('new-title') + '*'"
+            :placeholder="t('copy-of') + '...'"
           />
           <PInput
             v-model="form.description"
-            label="Description"
-            :placeholder="originalDescription || 'Describe this content...'"
+            :label="t('description')"
+            :placeholder="originalDescription || t('describe-this-content')"
             multiline
             :rows="3"
           />
           <PInput
             v-model="form.notes"
-            label="Customization notes (optional)"
-            placeholder="Describe what changes you plan to make"
+            :label="t('customization-notes-optional')"
+            :placeholder="t('describe-changes-planned')"
             multiline
             :rows="2"
           />
 
           <!-- Image upload -->
           <div>
-            <label class="text-sm font-medium text-slate-700 block mb-1">Upload image</label>
+            <label class="text-sm font-medium text-slate-700 block mb-1">{{ t('upload-image') }}</label>
             <div
               class="image-upload-area"
               :class="{ 'image-upload-dragover': imageDragover }"
@@ -62,8 +62,8 @@
               </div>
               <div v-else class="image-upload-placeholder">
                 <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400" />
-                <span class="text-sm font-medium text-primary-600">Upload image</span>
-                <span class="text-xs text-slate-400">Drag and drop image</span>
+                <span class="text-sm font-medium text-primary-600">{{ t('upload-image') }}</span>
+                <span class="text-xs text-slate-400">{{ t('drag-and-drop-image') }}</span>
               </div>
               <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="onImageSelect" />
             </div>
@@ -74,7 +74,7 @@
       <!-- Step 2: Preview details -->
       <div v-else-if="step === 2">
         <p class="text-sm text-slate-500 mb-4">
-          Step 2 of 2: Review existing content or add new content
+          {{ t('step-2-of-2') }}: {{ t('review-existing-content') }}
         </p>
         <div class="stepper-mini">
           <div class="stepper-mini-dot stepper-mini-done"><i class="fa-solid fa-check text-[10px]" /></div>
@@ -85,7 +85,7 @@
         <!-- Add content CTA -->
         <div class="add-content-cta" @click="showContentBrowser = !showContentBrowser">
           <i class="fa-solid fa-circle-plus text-slate-400" />
-          <span class="text-sm font-medium text-primary-600">Add content item/sequence</span>
+          <span class="text-sm font-medium text-primary-600">{{ t('add-content-item-or-sequence') }}</span>
         </div>
 
         <!-- Inline content browser -->
@@ -94,7 +94,7 @@
             <button class="content-browser-btn" @click="browserSearch = !browserSearch">
               <i class="fa-solid fa-magnifying-glass" />
             </button>
-            <span class="text-xs text-slate-500">View as:</span>
+            <span class="text-xs text-slate-500">{{ t('view-as') }}:</span>
             <div class="content-browser-toggles">
               <button class="content-browser-toggle" :class="{ active: browserView === 'list' }" @click="browserView = 'list'">
                 <i class="fa-solid fa-list" />
@@ -104,11 +104,11 @@
               </button>
             </div>
             <button class="content-browser-btn" @click="browserFilter = !browserFilter">
-              <i class="fa-solid fa-filter" /> Filter
+              <i class="fa-solid fa-filter" /> {{ t('filter') }}
             </button>
           </div>
           <div v-if="browserSearch" class="mb-2">
-            <PInput v-model="browserSearchQuery" placeholder="Search content..." icon="fa-solid fa-magnifying-glass" />
+            <PInput v-model="browserSearchQuery" :placeholder="t('search-content')" icon="fa-solid fa-magnifying-glass" />
           </div>
           <div class="content-browser-list">
             <div
@@ -126,11 +126,11 @@
                 <NameOrTranslatedNameFromItemId :itemId="itemId" />
               </span>
               <span class="content-browser-source" :class="myContentIds.has(itemId) ? 'source-mine' : 'source-expert'">
-                {{ myContentIds.has(itemId) ? 'My content' : 'Expert' }}
+                {{ myContentIds.has(itemId) ? t('my-content') : t('expert') }}
               </span>
             </div>
             <div v-if="!browsableItems.length" class="text-xs text-slate-400 text-center py-4">
-              No content found
+              {{ t('no-content-found') }}
             </div>
           </div>
         </div>
@@ -143,10 +143,10 @@
             class="copy-item-check"
             @change="toggleAllItems"
           />
-          <span class="text-xs font-medium text-slate-500">Title & details</span>
+          <span class="text-xs font-medium text-slate-500">{{ t('title-and-details') }}</span>
         </div>
         <div v-if="!allAvailableItems.length" class="text-sm text-slate-400 text-center py-8">
-          No content items to preview
+          {{ t('no-content-items-to-preview') }}
         </div>
         <div v-else class="copy-items-list">
           <div
@@ -164,7 +164,7 @@
               <span class="copy-item-title">
                 <NameOrTranslatedNameFromItemId :itemId="itemId" />
                 <span class="copy-item-source" :class="myContentIds.has(itemId) ? 'source-mine' : 'source-expert'">
-                  . {{ myContentIds.has(itemId) ? 'My content' : 'Expert' }}
+                  . {{ myContentIds.has(itemId) ? t('my-content') : t('expert') }}
                 </span>
               </span>
               <span class="copy-item-desc">{{ itemDescriptions.get(itemId) || '' }}</span>
@@ -179,34 +179,34 @@
         <div class="success-icon-ring">
           <i class="fa-solid fa-check text-green-600 text-2xl" />
         </div>
-        <h3 class="text-lg font-semibold text-zinc-950 mt-4">Content successfully copied and modified</h3>
+        <h3 class="text-lg font-semibold text-zinc-950 mt-4">{{ t('content-copied-successfully') }}</h3>
         <p class="text-sm text-slate-500 mt-2">
-          You can now find "{{ form.title }}" in "My content" and make further modifications.
+          {{ t('find-in-my-content') }} "{{ form.title }}"
         </p>
       </div>
     </template>
 
     <template #footer>
       <template v-if="step === 1">
-        <PButton variant="ghost" text="Cancel" @click="$emit('close')" />
+        <PButton variant="ghost" :text="t('cancel')" @click="$emit('close')" />
         <PButton
           variant="primary"
-          text="Create copy"
+          :text="t('create-copy')"
           :disabled="!form.title.trim()"
           @click="step = 2"
         />
       </template>
       <template v-else-if="step === 2">
-        <PButton variant="ghost" text="Back" @click="step = 1" />
+        <PButton variant="ghost" :text="t('back')" @click="step = 1" />
         <PButton
           variant="primary"
-          text="Finish"
+          :text="t('finish')"
           :loading="saving"
           @click="createCopy"
         />
       </template>
       <template v-else-if="step === 'success'">
-        <PButton variant="primary" text="Continue" @click="$emit('created', createdId)" />
+        <PButton variant="primary" :text="t('continue')" @click="$emit('created', createdId)" />
       </template>
     </template>
   </PModal>
@@ -222,6 +222,7 @@ import { PModal, PInput, PButton } from '@/components/ui/index.js'
 import { useStore } from 'vuex'
 
 const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 const partition = store.getters.tagPartition
 const pilaTag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
 
@@ -351,8 +352,8 @@ onMounted(async () => {
   try {
     // Load original content info
     const name = await getName(props.id, store.getters.language())
-    originalName.value = name || 'Untitled'
-    form.title = `Copy of ${originalName.value}`
+    originalName.value = name || t('untitled')
+    form.title = t('copy-of') + ' ' + originalName.value
 
     const state = await Agent.state(props.id)
     originalDescription.value = state.description || ''

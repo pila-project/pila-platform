@@ -10,10 +10,10 @@
     <!-- Header -->
     <div class="sc-header">
       <div class="sc-header-content">
-        <div v-if="isNew" class="sc-new-badge">New</div>
-        <h3 class="sc-title">{{ seqState?.name || 'Untitled' }}</h3>
+        <div v-if="isNew" class="sc-new-badge">{{ t('new') }}</div>
+        <h3 class="sc-title">{{ seqState?.name || t('untitled') }}</h3>
         <p class="sc-desc">{{ seqState?.description || '' }}</p>
-        <span class="sc-modified">Last modified - {{ lastModifiedDate }}</span>
+        <span class="sc-modified">{{ t('last-modified') }} - {{ lastModifiedDate }}</span>
       </div>
       <PMenu align-right>
         <template #activator="{ props }">
@@ -21,17 +21,17 @@
             <i class="fa-solid fa-ellipsis-vertical" />
           </button>
         </template>
-        <PMenuItem title="View sequence content" prepend-icon="fa-solid fa-list" @click="expanded = true" />
-        <PMenuItem title="Edit sequence details" prepend-icon="fa-solid fa-pen" @click="$emit('edit')" />
-        <PMenuItem title="Preview sequence" prepend-icon="fa-regular fa-eye" @click="$emit('preview')" />
-        <PMenuItem title="Delete sequence" prepend-icon="fa-solid fa-trash" danger @click="$emit('delete')" />
+        <PMenuItem :title="t('view-sequence-content')" prepend-icon="fa-solid fa-list" @click="expanded = true" />
+        <PMenuItem :title="t('edit-sequence-details')" prepend-icon="fa-solid fa-pen" @click="$emit('edit')" />
+        <PMenuItem :title="t('preview-sequence')" prepend-icon="fa-regular fa-eye" @click="$emit('preview')" />
+        <PMenuItem :title="t('delete-sequence')" prepend-icon="fa-solid fa-trash" danger @click="$emit('delete')" />
       </PMenu>
     </div>
 
     <!-- Footer: expand/collapse + item list -->
     <div class="sc-footer" :class="{ 'sc-footer-expanded': expanded }">
       <button class="sc-expand-btn" @click.stop="expanded = !expanded">
-        Show items/sequence ({{ itemCount }})
+        {{ t('show-items') }} ({{ itemCount }})
         <i :class="expanded ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="sc-chevron" />
       </button>
 
@@ -44,7 +44,7 @@
               class="sc-item-type"
               :class="itemMeta[itemId]?.isSequence ? 'sc-item-type-seq' : 'sc-item-type-item'"
             >
-              {{ itemMeta[itemId]?.isSequence ? 'Sequence' : 'Item' }}
+              {{ itemMeta[itemId]?.isSequence ? t('sequence') : t('item') }}
             </span>
             <button class="sc-item-delete" @click.stop="removeItem(i)">
               <i class="fa-solid fa-trash" />
@@ -61,7 +61,7 @@
         </div>
       </div>
       <div v-else-if="expanded" class="sc-empty">
-        No items yet
+        {{ t('no-items-yet') }}
       </div>
     </div>
   </div>
@@ -69,8 +69,12 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
 import { PMenu, PMenuItem } from '@/components/ui/index.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   id: { type: String, required: true },

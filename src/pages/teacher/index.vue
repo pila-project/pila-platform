@@ -5,15 +5,18 @@
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
   >
     <div class="teacher-layout">
-      <!-- Mobile hamburger -->
-      <button
-        v-if="isMobile"
-        class="mobile-hamburger"
-        @click="mobileMenuOpen = true"
-        aria-label="Open menu"
-      >
-        <i class="fa-solid fa-bars" />
-      </button>
+      <!-- Mobile header bar -->
+      <header v-if="isMobile" class="mobile-header">
+        <img src="/oecd-pila-logo.svg" alt="OECD PILA" class="mobile-header-logo" />
+        <div class="mobile-header-actions">
+          <button class="mobile-header-btn" aria-label="Search">
+            <i class="fa-solid fa-magnifying-glass" />
+          </button>
+          <button class="mobile-header-btn" aria-label="Open menu" @click="mobileMenuOpen = true">
+            <i class="fa-solid fa-bars" />
+          </button>
+        </div>
+      </header>
 
       <!-- Mobile backdrop -->
       <div
@@ -97,12 +100,12 @@
               </template>
             </PMenuItem>
             <PMenuItem
-              title="Support"
+              :title="t('support')"
               prepend-icon="fa-solid fa-circle-question"
               @click="$router.push('/teacher/support')"
             />
             <PMenuItem
-              title="Log Out"
+              :title="t('log-out')"
               prepend-icon="fa-solid fa-arrow-right-from-bracket"
               danger
               @click="logout"
@@ -185,7 +188,7 @@
     { icon: 'fa-solid fa-folder-plus', title: t('create'), to: 'create', show: !isSimplifiedStudyDomain },
     { icon: 'fa-regular fa-file-lines', title: t('resources'), to: 'resources', show: true },
     { icon: 'fa-solid fa-chalkboard-user', title: t('trainer'), to: 'trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
-    { icon: 'fa-solid fa-sliders', title: 'Setting', to: 'support', show: true },
+    { icon: 'fa-solid fa-sliders', title: t('settings'), to: 'support', show: true },
   ])
 
   const LANGUAGE_NAMES = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }
@@ -358,13 +361,6 @@
   width: 100%;
 }
 
-.user-card-wrapper :deep([role="menu"]) {
-  width: 100%;
-  min-width: unset;
-  border-radius: 10px;
-  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
-}
-
 .user-card {
   display: flex;
   align-items: center;
@@ -413,26 +409,51 @@
   justify-content: center;
 }
 
-/* Mobile responsive */
-.mobile-hamburger {
+/* Mobile header bar */
+.mobile-header {
   position: fixed;
-  top: 16px;
-  left: 16px;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 40;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: white;
+  border-bottom: 1px solid var(--color-slate-200);
+}
+
+.mobile-header-logo {
+  height: 32px;
+  width: auto;
+}
+
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-header-btn {
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background: white;
-  border: 1px solid var(--color-slate-200);
+  background: none;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 1rem;
-  color: var(--color-primary-600);
+  font-size: 1.125rem;
+  color: #334155;
+}
+.mobile-header-btn:hover {
+  background: var(--color-slate-50);
 }
 
+/* Mobile backdrop & sidebar */
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
@@ -442,13 +463,13 @@
 
 .sidebar-mobile {
   position: fixed;
-  left: 0;
+  right: 0;
   top: 0;
   z-index: 50;
   height: 100vh;
   margin: 0;
-  border-radius: 0 12px 12px 0;
-  transform: translateX(-100%);
+  border-radius: 12px 0 0 12px;
+  transform: translateX(100%);
   transition: transform 200ms ease;
   width: 260px;
 }

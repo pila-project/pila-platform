@@ -7,16 +7,16 @@
       <PButton
         variant="primary"
         icon="fa-solid fa-plus"
-        text="New sequence"
+        :text="t('new-sequence')"
         class="w-full"
         @click="showCreateSequence = true"
       />
       <div class="mobile-seq-section">
-        <h2 class="text-sm font-semibold text-zinc-950">My sequences ({{ mySequenceIds.length }})</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Organize content into learning sequences</p>
+        <h2 class="text-sm font-semibold text-zinc-950">{{ t('my-sequences') }} ({{ mySequenceIds.length }})</h2>
+        <p class="text-xs text-slate-500 mt-0.5">{{ t('organize-content-into-learning-sequences') }}</p>
         <button class="mobile-seq-selector" @click="mobileSeqExpanded = !mobileSeqExpanded">
           <span class="mobile-seq-selector-name">
-            {{ selectedSequenceName || 'Select a sequence' }}
+            {{ selectedSequenceName || t('select-a-sequence') }}
           </span>
           <i :class="mobileSeqExpanded ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="text-xs text-slate-400" />
         </button>
@@ -34,7 +34,7 @@
             @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
           />
           <div v-if="!loading && !mySequenceIds.length" class="text-xs text-slate-400 text-center py-4">
-            No sequences yet
+            {{ t('no-sequences-yet') }}
           </div>
         </div>
       </div>
@@ -44,12 +44,12 @@
       <!-- Left panel: My sequences (desktop) -->
       <aside class="sequences-panel">
         <div class="sequences-card">
-          <h2 class="text-base font-semibold text-zinc-950">My sequences ({{ mySequenceIds.length }})</h2>
-          <p class="text-sm text-slate-500 mt-1">Organize content into learning sequences</p>
+          <h2 class="text-base font-semibold text-zinc-950">{{ t('my-sequences') }} ({{ mySequenceIds.length }})</h2>
+          <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
           <PButton
             variant="primary"
             icon="fa-solid fa-plus"
-            text="New sequence"
+            :text="t('new-sequence')"
             class="mt-3 w-full"
             @click="showCreateSequence = true"
           />
@@ -72,7 +72,7 @@
 
           <!-- Empty state -->
           <div v-if="!loading && !mySequenceIds.length" class="mt-4 text-xs text-slate-400 text-center py-6">
-            No sequences yet
+            {{ t('no-sequences-yet') }}
           </div>
         </div>
       </aside>
@@ -85,15 +85,15 @@
             <div>
               <h2 class="text-base font-semibold text-zinc-950 flex items-center gap-2">
                 <i class="fa-solid fa-clipboard-list text-primary-600" />
-                Explore content library
+                {{ t('explore-content-library') }}
               </h2>
-              <p class="text-xs text-slate-500 mt-1">Discover, customise, and add content to your assignments</p>
+              <p class="text-xs text-slate-500 mt-1">{{ t('discover-customise-and-add-content') }}</p>
             </div>
             <PButton
               v-if="selectedItems.size"
               variant="primary"
               icon="fa-solid fa-plus"
-              :text="`Add selected (${selectedItems.size})`"
+              :text="t('add-selected') + ' (' + selectedItems.size + ')'"
               @click="addSelectedToSequence"
             />
           </div>
@@ -103,12 +103,12 @@
         <div class="desktop-search search-wrapper mb-3 max-w-sm" ref="searchWrapperRef">
           <PInput
             v-model="searchQuery"
-            placeholder="Search content title"
+            :placeholder="t('search-content-title')"
             icon="fa-solid fa-magnifying-glass"
             @focus="showSearchDropdown = true"
           />
           <div v-if="showSearchDropdown && popularTags.length && !searchQuery" class="search-dropdown">
-            <div class="search-dropdown-header">Popular tags</div>
+            <div class="search-dropdown-header">{{ t('popular-tags') }}</div>
             <button
               v-for="tag in popularTags"
               :key="tag.key + ':' + tag.value"
@@ -128,7 +128,7 @@
             <i class="fa-solid fa-magnifying-glass" />
           </button>
           <!-- View toggles -->
-          <span class="toolbar-label">View as:</span>
+          <span class="toolbar-label">{{ t('view-as') }}:</span>
           <div class="icon-toggle-container">
             <button class="icon-toggle" :class="{ 'icon-toggle-active': viewMode === 'grid' }" @click="viewMode = 'grid'">
               <i class="fa-solid fa-table-cells" />
@@ -139,11 +139,11 @@
           </div>
           <!-- Sort -->
           <button class="mobile-toolbar-btn" :class="{ 'mobile-toolbar-btn-active': showMobileSort }" @click="showMobileSort = !showMobileSort">
-            <i class="fa-solid fa-sort" /> Sort
+            <i class="fa-solid fa-sort" /> {{ t('sort') }}
           </button>
           <!-- Filter -->
           <button class="mobile-toolbar-btn" :class="{ 'mobile-toolbar-btn-active': hasActiveFilters }" @click="showMobileFilters = true">
-            <i class="fa-solid fa-filter" /> Filter
+            <i class="fa-solid fa-filter" /> {{ t('filter') }}
             <span v-if="hasActiveFilters" class="mobile-filter-dot" />
           </button>
         </div>
@@ -152,7 +152,7 @@
         <div v-if="mobileSearchExpanded" class="mobile-search-expanded search-wrapper mb-3">
           <PInput
             v-model="searchQuery"
-            placeholder="Search"
+            :placeholder="t('search')"
             icon="fa-solid fa-magnifying-glass"
             autofocus
           />
@@ -161,11 +161,11 @@
         <!-- Mobile: sort panel -->
         <div v-if="showMobileSort" class="mobile-sort-panel">
           <div class="mobile-sort-group">
-            <span class="toolbar-label">Show:</span>
+            <span class="toolbar-label">{{ t('show') }}:</span>
             <PTabs v-model="activeShowTab" :tabs="showTabs" />
           </div>
           <div class="mobile-sort-group">
-            <span class="toolbar-label">Type:</span>
+            <span class="toolbar-label">{{ t('type') }}:</span>
             <PTabs v-model="activeTypeTab" :tabs="typeTabs" />
           </div>
         </div>
@@ -184,7 +184,7 @@
         <div class="toolbar-row desktop-toolbar">
           <!-- View toggles -->
           <div class="toolbar-group">
-            <span class="toolbar-label">View as:</span>
+            <span class="toolbar-label">{{ t('view-as') }}:</span>
             <div class="icon-toggle-container">
               <button
                 class="icon-toggle"
@@ -205,13 +205,13 @@
 
           <!-- Show tabs -->
           <div class="toolbar-group">
-            <span class="toolbar-label">Show:</span>
+            <span class="toolbar-label">{{ t('show') }}:</span>
             <PTabs v-model="activeShowTab" :tabs="showTabs" />
           </div>
 
           <!-- Type tabs -->
           <div class="toolbar-group">
-            <span class="toolbar-label">Type:</span>
+            <span class="toolbar-label">{{ t('type') }}:</span>
             <PTabs v-model="activeTypeTab" :tabs="typeTabs" />
           </div>
 
@@ -221,7 +221,7 @@
             class="select-all-btn"
             @click="toggleSelectAll"
           >
-            {{ allSelected ? 'Deselect All' : 'Select All' }}
+            {{ allSelected ? t('deselect-all') : t('select-all') }}
           </button>
         </div>
 
@@ -243,14 +243,14 @@
             :modelValue="allSelected"
             @update:modelValue="toggleSelectAll"
           />
-          <span class="selection-count">{{ selectedItems.size }} item(s) selected</span>
+          <span class="selection-count">{{ selectedItems.size }} {{ t('items-selected') }}</span>
           <div style="flex:1" />
-          <PButton variant="ghost" size="sm" text="Deselect all" @click="deselectAll" />
+          <PButton variant="ghost" size="sm" :text="t('deselect-all')" @click="deselectAll" />
           <PButton
             variant="primary"
             size="sm"
             icon="fa-solid fa-plus"
-            :text="`Add selected (${selectedItems.size})`"
+            :text="t('add-selected') + ' (' + selectedItems.size + ')'"
             @click="addSelectedToSequence"
           />
         </div>
@@ -258,11 +258,11 @@
         <!-- Empty state: selected sequence with no items -->
         <div v-if="selectedSequence && selectedSequenceEmpty" class="empty-sequence-state">
           <i class="fa-solid fa-magnifying-glass empty-sequence-icon" />
-          <h3 class="text-base font-semibold text-zinc-950">No item in this sequence</h3>
-          <p class="text-sm text-slate-500 mt-1">Start browsing to add content in this sequence</p>
+          <h3 class="text-base font-semibold text-zinc-950">{{ t('no-item-in-this-sequence') }}</h3>
+          <p class="text-sm text-slate-500 mt-1">{{ t('start-browsing-to-add-content') }}</p>
           <PButton
             variant="primary"
-            text="Browse content"
+            :text="t('browse-content')"
             class="mt-4"
             @click="selectedSequence = null"
           />
@@ -270,14 +270,14 @@
 
         <!-- Content grid -->
         <div v-else-if="loading" class="py-8 text-center text-slate-500">
-          <i class="fa fa-spinner fa-spin mr-2" />Loading...
+          <i class="fa fa-spinner fa-spin mr-2" />{{ t('loading') }}...
         </div>
         <NoResultsFound v-else-if="!filteredContentList.length" />
 
         <!-- Grid view -->
         <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <div
-            v-for="(id, index) in filteredContentList"
+            v-for="(id, index) in paginatedContentList"
             :key="id + index"
           >
             <TaggedContentCard
@@ -307,7 +307,7 @@
         <!-- List view -->
         <div v-else class="content-list-view">
           <ContentListRow
-            v-for="(id, index) in filteredContentList"
+            v-for="(id, index) in paginatedContentList"
             :key="id + index"
             :id="id"
             :checked="selectedItems.has(id)"
@@ -322,6 +322,17 @@
             }"
           />
         </div>
+
+        <!-- Pagination -->
+        <PPagination
+          v-if="filteredContentList.length > contentPerPage"
+          :totalItems="filteredContentList.length"
+          :currentPage="contentPage"
+          :perPage="contentPerPage"
+          :perPageOptions="[12, 24, 48]"
+          @update:currentPage="contentPage = $event"
+          @update:perPage="contentPerPage = $event; contentPage = 1"
+        />
 
         <!-- Success toast -->
         <Transition name="fade">
@@ -348,7 +359,7 @@
         variant="primary"
         class="w-full"
         icon="fa-solid fa-plus"
-        :text="`Add selected (${selectedItems.size}) to &quot;${selectedSequenceName || 'sequence'}&quot;`"
+        :text="t('add-selected') + ' (' + selectedItems.size + ')'"
         @click="addSelectedToSequence"
       />
     </div>
@@ -379,10 +390,10 @@
     <PAlertDialog
       v-if="sequenceToDelete"
       variant="error"
-      title="Are you sure you want to delete this sequence?"
-      description="This action cannot be undone. All items in the sequence will be removed."
-      confirmText="Delete"
-      cancelText="Cancel"
+      :title="t('confirm-delete-sequence')"
+      :description="t('delete-sequence-warning')"
+      :confirmText="t('delete')"
+      :cancelText="t('cancel')"
       @confirm="confirmDeleteSequence"
       @cancel="sequenceToDelete = null"
     />
@@ -407,35 +418,35 @@
       v-if="showCreateAssignment"
       :contentIds="createAssignmentContentIds"
       @close="showCreateAssignment = false; createAssignmentContentIds = []"
-      @created="showSuccess('Assignment created successfully')"
+      @created="showSuccess(t('assignment-created-successfully'))"
     />
 
     <!-- Add item/sequence picker -->
     <PModal
       v-if="showAddPicker"
-      :title="addPickerStep === 'choose' ? 'Add item/sequence' : addPickerStep === 'sequence' ? 'Add to sequence' : 'Add to assignment'"
+      :title="addPickerStep === 'choose' ? t('add-item-or-sequence') : addPickerStep === 'sequence' ? t('add-to-sequence') : t('add-to-assignment')"
       width="480px"
       @close="closeAddPicker"
     >
       <template #body>
         <!-- Step 1: Choose type -->
         <div v-if="addPickerStep === 'choose'">
-          <p class="text-sm text-slate-500 mb-4">Add the selected item/sequence to an existing assignment or create a new assignment.</p>
+          <p class="text-sm text-slate-500 mb-4">{{ t('add-picker-description') }}</p>
           <div class="add-picker-cards">
             <button class="add-picker-card" @click="addPickerStep = 'assignment'">
               <i class="fa-solid fa-clipboard-list add-picker-card-icon" />
-              <span class="add-picker-card-label">Add to assignment</span>
+              <span class="add-picker-card-label">{{ t('add-to-assignment') }}</span>
             </button>
             <button class="add-picker-card" @click="addPickerStep = 'sequence'">
               <i class="fa-solid fa-layer-group add-picker-card-icon" />
-              <span class="add-picker-card-label">Add to sequence</span>
+              <span class="add-picker-card-label">{{ t('add-to-sequence') }}</span>
             </button>
           </div>
         </div>
 
         <!-- Step 2a: Choose sequence -->
         <div v-else-if="addPickerStep === 'sequence'">
-          <p class="text-sm text-slate-500 mb-4">Choose a sequence to add {{ pendingAddItems.length }} item(s) to:</p>
+          <p class="text-sm text-slate-500 mb-4">{{ t('choose-sequence-to-add') }}:</p>
           <div class="flex flex-col gap-2">
             <button
               v-for="seqId in mySequenceIds"
@@ -448,25 +459,25 @@
             </button>
             <button class="add-picker-option add-picker-new" @click="closeAddPicker(); showCreateSequence = true">
               <i class="fa-solid fa-plus text-primary-600" />
-              <span>Create new sequence</span>
+              <span>{{ t('create-new-sequence') }}</span>
             </button>
           </div>
         </div>
 
         <!-- Step 2b: Choose assignment -->
         <div v-else-if="addPickerStep === 'assignment'">
-          <p class="text-sm text-slate-500 mb-4">Choose an assignment or create a new one:</p>
+          <p class="text-sm text-slate-500 mb-4">{{ t('choose-assignment-or-create') }}:</p>
           <div class="flex flex-col gap-2">
             <button class="add-picker-option add-picker-new" @click="navigateToCreateAssignment">
               <i class="fa-solid fa-plus text-primary-600" />
-              <span>Create new assignment</span>
+              <span>{{ t('create-new-assignment') }}</span>
             </button>
           </div>
         </div>
       </template>
 
       <template v-if="addPickerStep !== 'choose'" #footer>
-        <PButton variant="ghost" text="Back" icon="fa-solid fa-chevron-left" @click="addPickerStep = 'choose'" />
+        <PButton variant="ghost" :text="t('back')" icon="fa-solid fa-chevron-left" @click="addPickerStep = 'choose'" />
       </template>
     </PModal>
   </div>
@@ -492,7 +503,7 @@
   import setTagging from '@/utils/set-tagging.js'
   import getName from '@/utils/name-and-translation-for-content.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
-  import { PInput, PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs } from '@/components/ui/index.js'
+  import { PInput, PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination } from '@/components/ui/index.js'
 
   const store = useStore()
   const router = useRouter()
@@ -513,6 +524,10 @@
   const activeShowTab = ref('all')
   const activeTypeTab = ref('all')
   const successMessage = ref('')
+
+  // ── Pagination state ──
+  const contentPage = ref(1)
+  const contentPerPage = ref(12)
 
   // ── Filter state ──
   const activeFilters = reactive({})
@@ -554,7 +569,7 @@
   function onCopyModifyCreated(id) {
     if (!myContent.includes(id)) myContent.push(id)
     copyModifyId.value = null
-    showSuccess('Content successfully copied and modified')
+    showSuccess(t('content-copied-successfully'))
   }
 
   // ── Add picker state ──
@@ -562,17 +577,17 @@
   const pendingAddItems = ref([])
   const addPickerStep = ref('choose') // 'choose' | 'sequence' | 'assignment'
 
-  const showTabs = [
-    { label: 'All content', key: 'all' },
-    { label: 'PILA content', key: 'pila' },
-    { label: 'My content', key: 'mine' },
-  ]
+  const showTabs = computed(() => [
+    { label: t('all-content'), key: 'all' },
+    { label: t('pila-content'), key: 'pila' },
+    { label: t('my-content'), key: 'mine' },
+  ])
 
-  const typeTabs = [
-    { label: 'All', key: 'all' },
-    { label: 'Items', key: 'items' },
-    { label: 'Sequences', key: 'sequences' },
-  ]
+  const typeTabs = computed(() => [
+    { label: t('all'), key: 'all' },
+    { label: t('items'), key: 'items' },
+    { label: t('sequences'), key: 'sequences' },
+  ])
 
   // ── Mobile toolbar state ──
   const showMobileSort = ref(false)
@@ -696,9 +711,19 @@
     return list
   })
 
+  const paginatedContentList = computed(() => {
+    const start = (contentPage.value - 1) * contentPerPage.value
+    return filteredContentList.value.slice(start, start + contentPerPage.value)
+  })
+
+  // Reset page when filters change
+  watch([searchQuery, activeShowTab, activeTypeTab, () => JSON.stringify(activeFilters)], () => {
+    contentPage.value = 1
+  })
+
   const selectedSequenceName = computed(() => {
     if (!selectedSequence.value) return ''
-    return nameCache.get(selectedSequence.value) || 'Untitled'
+    return nameCache.get(selectedSequence.value) || t('untitled')
   })
 
   const allSelected = computed(() => {
@@ -762,12 +787,12 @@
     mySequenceIds.value.unshift(id)
     newestSequenceId.value = id
     showCreateSequence.value = false
-    showSuccess('Sequence created successfully')
+    showSuccess(t('sequence-created-successfully'))
   }
 
   async function onSequenceUpdated() {
     sequenceToEdit.value = null
-    showSuccess('Sequence updated')
+    showSuccess(t('sequence-updated'))
   }
 
   async function confirmDeleteSequence() {
@@ -779,7 +804,7 @@
     mySequenceIds.value = mySequenceIds.value.filter(s => s !== id)
     if (selectedSequence.value === id) selectedSequence.value = null
     sequenceToDelete.value = null
-    showSuccess('Sequence deleted')
+    showSuccess(t('sequence-deleted'))
   }
 
   // ── Add to sequence/assignment ──
@@ -836,7 +861,7 @@
     }
     // Force sequence cards to re-render so they show the new items
     sequenceVersion.value++
-    showSuccess(`${itemIds.length} item(s) added to sequence`)
+    showSuccess(itemIds.length + ' ' + t('items-added-to-sequence'))
   }
 
   // ── Toast ──

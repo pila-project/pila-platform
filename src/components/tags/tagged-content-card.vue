@@ -23,7 +23,7 @@
       <!-- Item badge + Drag handle -->
       <div class="pcard-overlay-tr">
         <span class="pcard-type-badge">
-          {{ props.typeBadge || 'Item' }}
+          {{ props.typeBadge || t('item') }}
         </span>
         <button class="pcard-drag-handle" @click.stop>
           <i class="fa-solid fa-grip-vertical" />
@@ -43,10 +43,10 @@
       <!-- Source badge -->
       <div class="pcard-source-row">
         <span v-if="props.source === 'mine'" class="pcard-source pcard-source-mine">
-          <i class="fa-solid fa-user pcard-source-icon" />My content
+          <i class="fa-solid fa-user pcard-source-icon" />{{ t('my-content') }}
         </span>
         <span v-else class="pcard-source pcard-source-pila">
-          <i class="fa-solid fa-crown pcard-source-icon" />PILA content
+          <i class="fa-solid fa-crown pcard-source-icon" />{{ t('pila-content') }}
         </span>
       </div>
 
@@ -70,11 +70,11 @@
     <div class="pcard-actions">
       <button class="pcard-btn pcard-btn-preview" @click.stop="$emit('preview')">
         <i class="fa-regular fa-eye pcard-btn-icon" />
-        Preview
+        {{ t('preview') }}
       </button>
       <button class="pcard-btn pcard-btn-add" @click.stop="$emit('add')">
         <i class="fa-solid fa-plus pcard-btn-icon" />
-        Add
+        {{ t('add') }}
       </button>
       <button class="pcard-btn-info" @click.stop="$emit('click')">
         <i class="fa-solid fa-circle-info" />
@@ -105,7 +105,7 @@
     grades: Array,
     typeBadge: {
       type: String,
-      default: 'Item'
+      default: null
     },
   })
 
