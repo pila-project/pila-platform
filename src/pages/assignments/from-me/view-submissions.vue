@@ -5,16 +5,16 @@
       <div class="vs-navbar">
         <button class="vs-back" @click="$emit('close')">
           <i class="fa-solid fa-arrow-left" />
-          Back
+          {{ t('back') }}
         </button>
         <div class="vs-student-info">
           <span class="vs-student-name">{{ currentStudentName }}</span>
           <span class="vs-student-subtitle">{{ assignmentName }}</span>
         </div>
         <div class="vs-nav-stats">
-          <span class="vs-stat">{{ totalCorrect }}/{{ totalItems }} Points</span>
+          <span class="vs-stat">{{ totalCorrect }}/{{ totalItems }} {{ t('points') }}</span>
           <span class="vs-stat-sep">|</span>
-          <span class="vs-stat">{{ scorePercent }}% score</span>
+          <span class="vs-stat">{{ scorePercent }}% {{ t('score') }}</span>
         </div>
         <span class="vs-grade-badge" v-if="currentStudentInfo.grade">{{ currentStudentInfo.grade }}</span>
         <span class="vs-status-badge">{{ submissionStatus }}</span>
@@ -23,10 +23,10 @@
       <div class="vs-body">
         <!-- Left sidebar: Questions list -->
         <div class="vs-sidebar-left">
-          <h3 class="vs-sidebar-title">Questions</h3>
+          <h3 class="vs-sidebar-title">{{ t('questions') }}</h3>
           <select class="vs-student-select" v-model="selectedStudentIndex">
             <option v-for="(sid, i) in students" :key="sid" :value="i">
-              Student {{ i + 1 }}
+              {{ t('student') }} {{ i + 1 }}
             </option>
           </select>
 
@@ -62,8 +62,8 @@
               </div>
               <div class="vs-qcard-footer">
                 <i class="fa-solid fa-list-check vs-qcard-type-icon" />
-                <span class="vs-qcard-type">Item</span>
-                <span class="vs-qcard-points">{{ getItemResult(i) === true ? '3' : '0' }} Point</span>
+                <span class="vs-qcard-type">{{ t('item') }}</span>
+                <span class="vs-qcard-points">{{ getItemResult(i) === true ? '3' : '0' }} {{ t('point') }}</span>
               </div>
             </div>
           </div>
@@ -107,7 +107,7 @@
                 />
                 <template #fallback>
                   <div class="vs-embed-loading">
-                    <i class="fa fa-spinner fa-spin" /> Loading question...
+                    <i class="fa fa-spinner fa-spin" /> {{ t('loading-question') }}
                   </div>
                 </template>
               </Suspense>
@@ -116,23 +116,23 @@
             <!-- Result bar -->
             <div class="vs-result-bar" v-if="currentItemId">
               <span class="vs-result-label">
-                Result:
+                {{ t('result') }}:
                 <strong :class="currentResultClass">{{ currentResultText }}</strong>
               </span>
-              <span class="vs-result-type-badge">Item {{ selectedItemIndex + 1 }}</span>
-              <span class="vs-result-points">Points: <strong>{{ currentItemPoints }}/3</strong></span>
+              <span class="vs-result-type-badge">{{ t('item') }} {{ selectedItemIndex + 1 }}</span>
+              <span class="vs-result-points">{{ t('points') }}: <strong>{{ currentItemPoints }}/3</strong></span>
             </div>
 
             <!-- Feedback for this question -->
             <div class="vs-feedback-section" v-if="currentItemId">
-              <h4 class="vs-feedback-title">Feedback for this question</h4>
+              <h4 class="vs-feedback-title">{{ t('feedback-for-this-question') }}</h4>
               <textarea
                 v-model="itemFeedback"
                 class="vs-feedback-textarea"
-                placeholder="Provide specific feedback for this item..."
+                :placeholder="t('provide-specific-feedback-placeholder')"
                 rows="3"
               />
-              <p class="vs-feedback-hint">This feedback will be shown to the student alongside their response</p>
+              <p class="vs-feedback-hint">{{ t('feedback-shown-to-student') }}</p>
             </div>
           </div>
         </div>
@@ -145,12 +145,12 @@
               class="vs-tab"
               :class="{ 'vs-tab-active': rightTab === 'overview' }"
               @click="rightTab = 'overview'"
-            >Overview</button>
+            >{{ t('overview') }}</button>
             <button
               class="vs-tab"
               :class="{ 'vs-tab-active': rightTab === 'details' }"
               @click="rightTab = 'details'"
-            >Details</button>
+            >{{ t('details') }}</button>
           </div>
 
           <!-- Overview tab -->
@@ -158,23 +158,23 @@
             <div class="vs-section">
               <h4 class="vs-section-heading">
                 <i class="fa-solid fa-clipboard-list vs-section-icon" />
-                Assignment overview
+                {{ t('assignment-overview') }}
               </h4>
               <div class="vs-overview-stats">
                 <div class="vs-stat-box">
                   <span class="vs-stat-num">{{ answeredCount }}</span>
-                  <span class="vs-stat-label">Answered</span>
+                  <span class="vs-stat-label">{{ t('answered') }}</span>
                 </div>
                 <div class="vs-stat-box">
                   <span class="vs-stat-num">{{ totalItems }}</span>
-                  <span class="vs-stat-label">Total items</span>
+                  <span class="vs-stat-label">{{ t('total-items') }}</span>
                 </div>
               </div>
               <div class="vs-result-badges">
-                <span class="vs-rbadge vs-rbadge-correct">{{ totalCorrect }} <small>Correct</small></span>
-                <span class="vs-rbadge vs-rbadge-incorrect">{{ totalIncorrect }} <small>Incorrect</small></span>
-                <span class="vs-rbadge vs-rbadge-partial">{{ totalPartial }} <small>Partial</small></span>
-                <span class="vs-rbadge vs-rbadge-skipped">{{ totalSkipped }} <small>Skipped</small></span>
+                <span class="vs-rbadge vs-rbadge-correct">{{ totalCorrect }} <small>{{ t('correct') }}</small></span>
+                <span class="vs-rbadge vs-rbadge-incorrect">{{ totalIncorrect }} <small>{{ t('incorrect') }}</small></span>
+                <span class="vs-rbadge vs-rbadge-partial">{{ totalPartial }} <small>{{ t('partial') }}</small></span>
+                <span class="vs-rbadge vs-rbadge-skipped">{{ totalSkipped }} <small>{{ t('skipped') }}</small></span>
               </div>
             </div>
 
@@ -183,25 +183,25 @@
             <div class="vs-section">
               <h4 class="vs-section-heading">
                 <i class="fa-solid fa-star vs-section-icon" />
-                Overall grade
+                {{ t('overall-grade') }}
               </h4>
-              <label class="vs-field-label">Score(%)</label>
+              <label class="vs-field-label">{{ t('score-percent') }}</label>
               <input
                 v-model="overallScore"
                 type="number"
                 class="vs-field-input"
-                placeholder="Enter score out of 100"
+                :placeholder="t('enter-score-placeholder')"
                 min="0"
                 max="100"
               />
-              <label class="vs-field-label" style="margin-top: 12px;">Overall feedback</label>
+              <label class="vs-field-label" style="margin-top: 12px;">{{ t('overall-feedback') }}</label>
               <textarea
                 v-model="overallFeedback"
                 class="vs-field-textarea"
-                placeholder="Provide overall feedback for the student..."
+                :placeholder="t('provide-overall-feedback-placeholder')"
                 rows="3"
               />
-              <p class="vs-feedback-hint">This feedback will be visible to the student</p>
+              <p class="vs-feedback-hint">{{ t('feedback-visible-to-student') }}</p>
             </div>
 
             <div class="vs-separator" />
@@ -209,13 +209,13 @@
             <div class="vs-section">
               <h4 class="vs-section-heading">
                 <i class="fa-solid fa-star vs-section-icon" />
-                Teacher notes
+                {{ t('teacher-notes') }}
               </h4>
-              <label class="vs-field-label">Private notes</label>
+              <label class="vs-field-label">{{ t('private-notes') }}</label>
               <textarea
                 v-model="teacherPrivateNotes"
                 class="vs-field-textarea"
-                placeholder="Add private notes for your references..."
+                :placeholder="t('add-private-notes-references-placeholder')"
                 rows="3"
               />
             </div>
@@ -226,31 +226,31 @@
             <div class="vs-section">
               <h4 class="vs-section-heading">
                 <i class="fa-solid fa-clipboard-list vs-section-icon" />
-                Submission details
+                {{ t('submission-details') }}
               </h4>
               <div class="vs-details-grid">
-                <span class="vs-detail-label">Student:</span>
+                <span class="vs-detail-label">{{ t('student') }}:</span>
                 <span class="vs-detail-value">{{ currentStudentName }}</span>
 
-                <span class="vs-detail-label">Email:</span>
+                <span class="vs-detail-label">{{ t('email') }}:</span>
                 <span class="vs-detail-value">{{ currentStudentInfo.email || '--' }}</span>
 
-                <span class="vs-detail-label">Grade:</span>
+                <span class="vs-detail-label">{{ t('grade') }}:</span>
                 <span class="vs-detail-value">{{ currentStudentInfo.grade || '--' }}</span>
 
-                <span class="vs-detail-label">Submitted:</span>
+                <span class="vs-detail-label">{{ t('submitted') }}:</span>
                 <span class="vs-detail-value">{{ formatDateTime(submittedAt) }}</span>
 
-                <span class="vs-detail-label">Due Date:</span>
+                <span class="vs-detail-label">{{ t('due-date') }}:</span>
                 <span class="vs-detail-value">{{ assignmentDueDate }}</span>
 
-                <span class="vs-detail-label">Time Spent:</span>
+                <span class="vs-detail-label">{{ t('time-spent') }}:</span>
                 <span class="vs-detail-value">{{ formatDuration(performanceData?.totalTime) }}</span>
 
-                <span class="vs-detail-label">Attempts:</span>
+                <span class="vs-detail-label">{{ t('attempts') }}:</span>
                 <span class="vs-detail-value">{{ performanceData?.attempts || '1' }}/{{ maxAttempts }}</span>
 
-                <span class="vs-detail-label">Completion:</span>
+                <span class="vs-detail-label">{{ t('completion') }}:</span>
                 <span class="vs-detail-value">{{ completionPercent }}%</span>
               </div>
             </div>
@@ -259,12 +259,12 @@
           <!-- Footer -->
           <div class="vs-footer">
             <div class="vs-auto-save">
-              <span>Auto Save</span>
+              <span>{{ t('auto-save') }}</span>
               <input type="checkbox" v-model="autoSave" class="vs-checkbox" />
             </div>
             <div class="vs-footer-actions">
-              <button class="vs-btn-draft" @click="saveDraft">Save Draft</button>
-              <button class="vs-btn-graded" @click="markAsGraded">Mark as Graded</button>
+              <button class="vs-btn-draft" @click="saveDraft">{{ t('save-draft') }}</button>
+              <button class="vs-btn-graded" @click="markAsGraded">{{ t('mark-as-graded') }}</button>
             </div>
           </div>
         </div>
@@ -285,6 +285,7 @@
 
   const emit = defineEmits(['close'])
   const store = useStore()
+  function t(slug) { return store.getters.t(slug) }
 
   // ── State ──
   const loading = ref(true)
@@ -318,7 +319,7 @@
 
   const currentStudentName = computed(() => {
     const info = studentInfoCache[currentStudentId.value]
-    return info?.name || `Student ${selectedStudentIndex.value + 1}`
+    return info?.name || `${t('student')} ${selectedStudentIndex.value + 1}`
   })
 
   const currentStudentInfo = computed(() => {
@@ -354,16 +355,16 @@
   })
 
   const submissionStatus = computed(() => {
-    if (answeredCount.value === 0) return 'Not started'
-    if (answeredCount.value < totalItems.value) return 'In Progress'
-    return 'Submitted'
+    if (answeredCount.value === 0) return t('not-started')
+    if (answeredCount.value < totalItems.value) return t('in-progress')
+    return t('submitted')
   })
 
   const currentResultText = computed(() => {
     const result = getItemResult(selectedItemIndex.value)
-    if (result === true) return 'Correct'
-    if (result === false) return 'Incorrect'
-    return 'Not answered'
+    if (result === true) return t('correct')
+    if (result === false) return t('incorrect')
+    return t('not-answered')
   })
 
   const currentResultClass = computed(() => {
@@ -533,7 +534,7 @@
 
     // Load assignment data
     const assignState = await Agent.state(props.assignmentId)
-    assignmentName.value = assignState.name || 'Assignment'
+    assignmentName.value = assignState.name || t('assignment')
     contentId.value = assignState.content
     maxAttempts.value = assignState.maxAttempts || '1'
 

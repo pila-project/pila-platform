@@ -102,6 +102,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { PMenu, PMenuItem, PAlertDialog } from '@/components/ui/index.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
+import { getContentMetadata } from '@/utils/content-cache.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -194,7 +195,7 @@ async function loadItemMeta(itemId) {
   try {
     const [state, meta] = await Promise.all([
       Agent.state(itemId),
-      Agent.metadata(itemId),
+      getContentMetadata(itemId),
     ])
     itemMeta[itemId] = {
       description: state.description || '',

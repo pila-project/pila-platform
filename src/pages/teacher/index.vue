@@ -116,7 +116,11 @@
 
       <!-- Main content -->
       <main class="teacher-main">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <KeepAlive :max="4">
+            <component :is="Component" :key="$route.path" />
+          </KeepAlive>
+        </router-view>
       </main>
     </div>
 

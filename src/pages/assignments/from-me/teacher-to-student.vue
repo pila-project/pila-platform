@@ -1,12 +1,12 @@
 <template>
   <div v-if="loading" class="wizard-loading">
-    <i class="fa fa-spinner fa-spin" /> Loading...
+    <i class="fa fa-spinner fa-spin" /> {{ t('loading') }}
   </div>
   <div v-else-if="selectingContent" class="wizard-content-browse">
     <div class="wizard-header">
       <div>
-        <h2 class="wizard-title">Create new assignment</h2>
-        <p class="wizard-subtitle">Step 2 of 4: Add content</p>
+        <h2 class="wizard-title">{{ t('create-new-assignment') }}</h2>
+        <p class="wizard-subtitle">{{ stepSubtitles[1] }}</p>
       </div>
       <button class="wizard-close" @click="$emit('close')">
         <i class="fa-solid fa-xmark" />
@@ -21,7 +21,7 @@
           <div class="step-circle" :class="stepCircleClass(step.num)">
             <i :class="step.icon" />
           </div>
-          <span class="step-label" :class="stepLabelClass(step.num)">Step {{ step.num }}</span>
+          <span class="step-label" :class="stepLabelClass(step.num)">{{ t('step') }} {{ step.num }}</span>
         </div>
         <div v-if="step.num < 4" class="step-trail" :class="stepTrailClass(step.num)" />
       </div>
@@ -31,8 +31,8 @@
     <div class="content-cta">
       <i class="fa-solid fa-circle-plus content-cta-icon" />
       <div>
-        <span class="content-cta-title">Add content item/sequence</span>
-        <span class="content-cta-desc">Drag and drop item from the explore page or create new one's</span>
+        <span class="content-cta-title">{{ t('add-content-item-or-sequence') }}</span>
+        <span class="content-cta-desc">{{ t('drag-and-drop-content-description') }}</span>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
 
     <!-- Footer -->
     <div class="wizard-footer">
-      <PButton variant="ghost" text="Done" @click="selectingContent = false; $emit('update:width', '480px')" />
+      <PButton variant="ghost" :text="t('done')" @click="selectingContent = false; $emit('update:width', '480px')" />
       <div class="flex-1" />
     </div>
   </div>
@@ -53,7 +53,7 @@
     <!-- Header -->
     <div class="wizard-header">
       <div>
-        <h2 class="wizard-title">Create new assignment</h2>
+        <h2 class="wizard-title">{{ t('create-new-assignment') }}</h2>
         <p class="wizard-subtitle">{{ stepSubtitles[currentStep - 1] }}</p>
       </div>
       <button class="wizard-close" @click="$emit('close')">
@@ -69,7 +69,7 @@
           <div class="step-circle" :class="stepCircleClass(step.num)">
             <i :class="step.icon" />
           </div>
-          <span class="step-label" :class="stepLabelClass(step.num)">Step {{ step.num }}</span>
+          <span class="step-label" :class="stepLabelClass(step.num)">{{ t('step') }} {{ step.num }}</span>
         </div>
         <div v-if="step.num < 4" class="step-trail" :class="stepTrailClass(step.num)" />
       </div>
@@ -79,33 +79,33 @@
     <div v-if="currentStep === 1" class="step-body">
       <PInput
         v-model="assignment.name"
-        label="Assignment Title"
-        placeholder="e,g. Mathematics Quiz - Fractions"
+        :label="t('assignment-title')"
+        :placeholder="t('assignment-title-placeholder')"
       />
       <PInput
         v-model="assignment.description"
-        label="Instructions"
-        placeholder="Provide detailed instructions for students"
+        :label="t('instructions')"
+        :placeholder="t('instructions-placeholder')"
         multiline
         :rows="5"
       />
       <div class="field-row">
         <PSelect
           v-model="assignmentType"
-          label="Assignment type"
-          placeholder="Assignment"
+          :label="t('assignment-type')"
+          :placeholder="t('assignment')"
           :items="assignmentTypeOptions"
         />
         <PInput
           v-model="dueDate"
-          label="Due date (Optional)"
+          :label="t('due-date-optional')"
           placeholder="mm/dd/yyyy"
           type="date"
         />
       </div>
       <PInput
         v-model="dueTime"
-        label="Due time (Optional)"
+        :label="t('due-time-optional')"
         placeholder="--:-- --"
         type="time"
       />
@@ -116,25 +116,25 @@
       <div class="content-cta" @click="openContentBrowser">
         <i class="fa-solid fa-circle-plus content-cta-icon" />
         <div>
-          <span class="content-cta-title">Add content item/sequence</span>
-          <span class="content-cta-desc">Drag and drop item from the explore page or create new one's</span>
+          <span class="content-cta-title">{{ t('add-content-item-or-sequence') }}</span>
+          <span class="content-cta-desc">{{ t('drag-and-drop-content-description') }}</span>
         </div>
       </div>
 
       <div class="content-current">
         <div class="content-current-header">
-          <span class="content-current-label">Current item/sequence ({{ assignment.content ? 1 : 0 }})</span>
+          <span class="content-current-label">{{ t('current-item-sequence') }} ({{ assignment.content ? 1 : 0 }})</span>
           <PButton
             v-if="assignment.content"
             variant="ghost"
             size="sm"
             icon="fa-regular fa-eye"
-            text="Preview"
+            :text="t('preview')"
             @click="previewing = assignment.content"
           />
         </div>
         <div v-if="!assignment.content" class="content-empty">
-          no items added yet
+          {{ t('no-items-added-yet') }}
         </div>
         <div v-else class="content-item">
           <i class="fa-solid fa-file-lines content-item-icon" />
@@ -150,8 +150,8 @@
     <div v-else-if="currentStep === 3" class="step-body">
       <div class="toggle-row">
         <div class="toggle-content">
-          <span class="toggle-label">Allow late submissions</span>
-          <span class="toggle-desc">Students can submit after due date</span>
+          <span class="toggle-label">{{ t('allow-late-submissions') }}</span>
+          <span class="toggle-desc">{{ t('students-can-submit-after-due-date') }}</span>
         </div>
         <button class="toggle-switch" :class="{ active: allowLate }" @click="allowLate = !allowLate">
           <span class="toggle-thumb" />
@@ -161,22 +161,22 @@
       <div class="field-row">
         <PSelect
           v-model="maxAttempts"
-          label="Maximum attempts"
-          placeholder="1 attempt"
+          :label="t('maximum-attempts')"
+          :placeholder="t('1-attempt')"
           :items="maxAttemptsOptions"
         />
         <PSelect
           v-model="feedbackTiming"
-          label="Feedback timing"
-          placeholder="At the end"
+          :label="t('feedback-timing')"
+          :placeholder="t('at-the-end')"
           :items="feedbackTimingOptions"
         />
       </div>
 
       <div class="toggle-row">
         <div class="toggle-content">
-          <span class="toggle-label">Shuffle questions</span>
-          <span class="toggle-desc">Randomize question order for each student</span>
+          <span class="toggle-label">{{ t('shuffle-questions') }}</span>
+          <span class="toggle-desc">{{ t('randomize-question-order') }}</span>
         </div>
         <button class="toggle-switch" :class="{ active: shuffleQuestions }" @click="shuffleQuestions = !shuffleQuestions">
           <span class="toggle-thumb" />
@@ -185,8 +185,8 @@
 
       <div class="toggle-row">
         <div class="toggle-content">
-          <span class="toggle-label">Show correct answers</span>
-          <span class="toggle-desc">Display correct answers after submission</span>
+          <span class="toggle-label">{{ t('show-correct-answers') }}</span>
+          <span class="toggle-desc">{{ t('display-correct-answers-after-submission') }}</span>
         </div>
         <button class="toggle-switch" :class="{ active: showAnswers }" @click="showAnswers = !showAnswers">
           <span class="toggle-thumb" />
@@ -197,8 +197,8 @@
 
       <PInput
         v-model="teacherNotes"
-        label="Teacher notes (private)"
-        placeholder="Add private notes for your reference..."
+        :label="t('teacher-notes-private')"
+        :placeholder="t('add-private-notes-placeholder')"
         multiline
         :rows="5"
       />
@@ -207,10 +207,10 @@
     <!-- ═══════════════ Step 4: Assign & Publish ═══════════════ -->
     <div v-else class="step-body">
       <div class="assign-section">
-        <label class="field-label">Assign to</label>
+        <label class="field-label">{{ t('assign-to') }}</label>
         <PInput
           v-model="groupSearch"
-          placeholder="Search group(s)"
+          :placeholder="t('search-groups')"
           icon="fa-solid fa-magnifying-glass"
         />
         <div class="group-list">
@@ -228,14 +228,14 @@
               <span class="group-name">
                 <vueScopeComponent :id="gid" :path="['name']" />
               </span>
-              <span class="group-count">25 students</span>
+              <span class="group-count">{{ t('students') }}</span>
             </div>
             <div class="group-check">
               <i v-if="assignmentForGroup(gid)" class="fa-solid fa-check" />
             </div>
           </div>
           <div v-if="!filteredGroups.length" class="content-empty">
-            No groups found
+            {{ t('no-groups-found') }}
           </div>
         </div>
       </div>
@@ -243,7 +243,7 @@
       <div class="wizard-separator" />
 
       <div class="distribution-section">
-        <label class="field-label">Distribution options</label>
+        <label class="field-label">{{ t('distribution-options') }}</label>
         <div
           v-for="opt in distributionOptions"
           :key="opt.value"
@@ -266,21 +266,21 @@
       <PButton
         v-if="currentStep > 1"
         variant="ghost"
-        text="Back"
+        :text="t('back')"
         class="footer-back"
         @click="currentStep--"
       />
       <div class="flex-1" />
       <PButton
         variant="ghost"
-        text="Cancel"
+        :text="t('cancel')"
         class="footer-cancel"
         @click="$emit('close')"
       />
       <PButton
         v-if="currentStep < 4"
         variant="primary"
-        text="Next"
+        :text="t('next')"
         icon="fa-solid fa-arrow-right"
         :icon-right="true"
         @click="currentStep++"
@@ -288,7 +288,7 @@
       <PButton
         v-else
         variant="primary"
-        text="Create assignment"
+        :text="t('create-assignment')"
         icon="fa-solid fa-arrow-right"
         :icon-right="true"
         @click="saveAndClose"
@@ -336,18 +336,18 @@
     { num: 4, icon: 'fa-solid fa-graduation-cap' },
   ]
 
-  const stepSubtitles = [
-    'Step 1 of 4: Add title and instructions',
-    'Step 2 of 4: Add content',
-    'Step 3 of 4: Add assignment details',
-    'Step 4 of 4: Assign and publish',
-  ]
+  const stepSubtitles = computed(() => [
+    t('step-1-of-4-title-instructions'),
+    t('step-2-of-4-add-content'),
+    t('step-3-of-4-assignment-details'),
+    t('step-4-of-4-assign-publish'),
+  ])
 
   // ── Step 1: Title & Instructions (visual-only fields) ──
   const assignmentType = ref('')
   const dueDate = ref('')
   const dueTime = ref('')
-  const assignmentTypeOptions = ['Assignment', 'Quiz', 'Project']
+  const assignmentTypeOptions = computed(() => [t('assignment'), t('quiz'), t('project')])
 
   // ── Step 3: Assignment Details (all visual-only) ──
   const allowLate = ref(true)
@@ -356,8 +356,8 @@
   const shuffleQuestions = ref(true)
   const showAnswers = ref(true)
   const teacherNotes = ref('')
-  const maxAttemptsOptions = ['1 attempt', '2 attempts', '3 attempts', 'Unlimited']
-  const feedbackTimingOptions = ['At the end', 'After each question', 'Never']
+  const maxAttemptsOptions = computed(() => [t('1-attempt'), t('2-attempts'), t('3-attempts'), t('unlimited')])
+  const feedbackTimingOptions = computed(() => [t('at-the-end'), t('after-each-question'), t('never')])
 
   // ── Step 4: Assign & Publish ──
   const groupSearch = ref('')
@@ -371,11 +371,11 @@
     return groups.value.filter(() => true) // Search filtering requires group name — for now show all
   })
 
-  const distributionOptions = [
-    { value: 'publish', label: 'Publish immediately', description: 'Students can start working right away' },
-    { value: 'schedule', label: 'Schedule for later', description: 'Set a specific date and time to publish' },
-    { value: 'draft', label: 'Save as draft', description: 'Keep working on it before publishing' },
-  ]
+  const distributionOptions = computed(() => [
+    { value: 'publish', label: t('publish-immediately'), description: t('students-can-start-right-away') },
+    { value: 'schedule', label: t('schedule-for-later'), description: t('set-specific-date-time') },
+    { value: 'draft', label: t('save-as-draft'), description: t('keep-working-before-publishing') },
+  ])
 
   // ── Group assignment logic (from GroupAssigner) ──
   function assignmentsForItem() {

@@ -72,7 +72,20 @@ export default {
   actions: {
     async load({commit, dispatch}, poll) {
       if (firstLoad || poll === 'do-it') {
-        setTimeout(() => dispatch('load', 'do-it'), 7000 + Math.random()*4000)
+        const scheduleNext = () => {
+          setTimeout(() => {
+            if (document.visibilityState === 'hidden') {
+              const onVisible = () => {
+                document.removeEventListener('visibilitychange', onVisible)
+                dispatch('load', 'do-it')
+              }
+              document.addEventListener('visibilitychange', onVisible)
+            } else {
+              dispatch('load', 'do-it')
+            }
+          }, 15000 + Math.random() * 5000)
+        }
+        scheduleNext()
         firstLoad = false
       }
       const assignments = await Agent.query('assignments')

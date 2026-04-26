@@ -4,14 +4,14 @@
       <div class="modal-backdrop" @click="$emit('close')" />
       <div class="modal-dialog" role="dialog" aria-modal="true">
         <div v-if="loading" class="details-loading">
-          <i class="fa fa-spinner fa-spin" /> Loading...
+          <i class="fa fa-spinner fa-spin" /> {{ t('loading') }}
         </div>
         <template v-else>
           <!-- Header -->
           <div class="details-header">
             <div>
-              <h2 class="details-title">View assignment details</h2>
-              <p class="details-subtitle">Complete information about {{ data.name }}</p>
+              <h2 class="details-title">{{ t('view-assignment-details') }}</h2>
+              <p class="details-subtitle">{{ t('complete-information-about') }} {{ data.name }}</p>
             </div>
             <button class="details-close" @click="$emit('close')">
               <i class="fa-solid fa-xmark" />
@@ -23,29 +23,29 @@
             <div class="details-section">
               <h3 class="section-heading">
                 <i class="fa-solid fa-file-lines section-icon" />
-                Assignment information
+                {{ t('assignment-information') }}
               </h3>
               <div class="info-grid">
                 <div class="info-item">
-                  <span class="info-label">Title</span>
+                  <span class="info-label">{{ t('title') }}</span>
                   <span class="info-value">{{ data.name || '--' }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">Type</span>
-                  <span class="info-value">{{ data.assignmentType || 'Assignment' }}</span>
+                  <span class="info-label">{{ t('type') }}</span>
+                  <span class="info-value">{{ data.assignmentType || t('assignment') }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">Due date</span>
-                  <span class="info-value">{{ data.dueDate ? formatDate(data.dueDate) : 'Not set' }}</span>
+                  <span class="info-label">{{ t('due-date') }}</span>
+                  <span class="info-value">{{ data.dueDate ? formatDate(data.dueDate) : t('not-set') }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">Status</span>
+                  <span class="info-label">{{ t('status') }}</span>
                   <span class="info-value" :class="statusClass">{{ status }}</span>
                 </div>
               </div>
               <div class="info-full">
-                <span class="info-label">Instructions</span>
-                <span class="info-value">{{ data.description || 'No instructions provided' }}</span>
+                <span class="info-label">{{ t('instructions') }}</span>
+                <span class="info-value">{{ data.description || t('no-instructions-provided') }}</span>
               </div>
             </div>
 
@@ -53,24 +53,24 @@
             <div class="details-section">
               <h3 class="section-heading">
                 <i class="fa-solid fa-gear section-icon" />
-                Assignment setting
+                {{ t('assignment-settings') }}
               </h3>
               <div class="info-grid">
                 <div class="info-item">
-                  <span class="info-label">Feedback timings</span>
-                  <span class="info-value">{{ data.feedbackTiming || 'At the end' }}</span>
+                  <span class="info-label">{{ t('feedback-timings') }}</span>
+                  <span class="info-value">{{ data.feedbackTiming || t('at-the-end') }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">Maximum attempts</span>
+                  <span class="info-label">{{ t('maximum-attempts') }}</span>
                   <span class="info-value">{{ data.maxAttempts || '1' }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">Late submissions</span>
-                  <span class="info-value">{{ data.allowLate !== false ? 'Allowed' : 'Not allowed' }}</span>
+                  <span class="info-label">{{ t('late-submissions') }}</span>
+                  <span class="info-value">{{ data.allowLate !== false ? t('allowed') : t('not-allowed') }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label">Shuffle questions</span>
-                  <span class="info-value">{{ data.shuffleQuestions ? 'Yes' : 'No' }}</span>
+                  <span class="info-label">{{ t('shuffle-questions') }}</span>
+                  <span class="info-value">{{ data.shuffleQuestions ? t('yes') : t('no') }}</span>
                 </div>
               </div>
             </div>
@@ -79,10 +79,10 @@
             <div class="details-section">
               <h3 class="section-heading">
                 <i class="fa-solid fa-user-group section-icon" />
-                Assignment group & students ({{ assignedGroups.length }})
+                {{ t('assignment-groups-students') }} ({{ assignedGroups.length }})
               </h3>
               <div v-if="assignedGroups.length === 0" class="empty-text">
-                No groups assigned
+                {{ t('no-groups-assigned') }}
               </div>
               <div v-else class="group-list">
                 <div v-for="gid in assignedGroups" :key="gid" class="group-row">
@@ -97,10 +97,10 @@
                       <vueScopeComponent :id="gid" :path="['grade']">
                         <template v-slot="d">{{ d.value || '' }}</template>
                       </vueScopeComponent>
-                      <template v-if="getGroupMembers(gid).length"> | {{ getGroupMembers(gid).length }} Students</template>
+                      <template v-if="getGroupMembers(gid).length"> | {{ getGroupMembers(gid).length }} {{ t('students') }}</template>
                     </span>
                   </div>
-                  <span class="group-badge">{{ getGroupMembers(gid).length }} Students</span>
+                  <span class="group-badge">{{ getGroupMembers(gid).length }} {{ t('students') }}</span>
                 </div>
               </div>
             </div>
@@ -109,10 +109,10 @@
             <div class="details-section">
               <h3 class="section-heading">
                 <i class="fa-solid fa-book section-icon" />
-                Content items ({{ data.content ? 1 : 0 }})
+                {{ t('content-items') }} ({{ data.content ? 1 : 0 }})
               </h3>
               <div v-if="!data.content" class="empty-text">
-                No content items added
+                {{ t('no-content-items-added') }}
               </div>
               <div v-else class="content-list">
                 <div class="content-row">
@@ -126,7 +126,7 @@
                       </vueScopeComponent>
                     </span>
                   </div>
-                  <button class="preview-btn" @click="previewing = data.content">Preview</button>
+                  <button class="preview-btn" @click="previewing = data.content">{{ t('preview') }}</button>
                 </div>
               </div>
             </div>
@@ -134,9 +134,9 @@
 
           <!-- Footer -->
           <div class="details-footer">
-            <PButton variant="ghost" text="Cancel" @click="$emit('close')" />
-            <PButton variant="ghost" text="Edit assignment" @click="$emit('edit')" />
-            <PButton variant="primary" text="View submissions" @click="$emit('view-submissions')" />
+            <PButton variant="ghost" :text="t('cancel')" @click="$emit('close')" />
+            <PButton variant="ghost" :text="t('edit-assignment')" @click="$emit('edit')" />
+            <PButton variant="primary" :text="t('view-submissions')" @click="$emit('view-submissions')" />
           </div>
         </template>
       </div>
@@ -164,6 +164,7 @@
   const emit = defineEmits(['close', 'edit', 'view-submissions'])
 
   const store = useStore()
+  function t(slug) { return store.getters.t(slug) }
 
   const loading = ref(true)
   const data = ref({})
@@ -222,7 +223,7 @@
         teacherNotes: state.teacherNotes || '',
       }
     } catch {
-      data.value = { name: 'Error loading assignment' }
+      data.value = { name: t('error-loading-assignment') }
     }
     loading.value = false
   }

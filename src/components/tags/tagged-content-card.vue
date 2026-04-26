@@ -87,7 +87,7 @@
   import { ref, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
-  import displayContentImage from '@/utils/image-ref-for-content.js'
+  import { getContentImage } from '@/utils/content-cache.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -117,7 +117,7 @@
 
   onMounted(async () => {
     try {
-      image.value = await displayContentImage(props.id)
+      image.value = await getContentImage(props.id)
     } catch (e) {
       // silently fail — card renders without image
     }

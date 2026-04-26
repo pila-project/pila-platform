@@ -59,7 +59,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
-import displayContentImage from '@/utils/image-ref-for-content.js'
+import { getContentImage, getContentMetadata } from '@/utils/content-cache.js'
 import { PButton, PBadge } from '@/components/ui/index.js'
 
 const props = defineProps({
@@ -76,8 +76,8 @@ const isSequence = ref(false)
 
 onMounted(async () => {
   try {
-    image.value = await displayContentImage(props.id)
-    const meta = await Agent.metadata(props.id)
+    image.value = await getContentImage(props.id)
+    const meta = await getContentMetadata(props.id)
     isSequence.value = meta.active_type === 'application/json;type=sequence'
   } catch {}
 })

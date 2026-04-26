@@ -5,7 +5,7 @@
 <script setup>
   import { ref, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import getName from '@/utils/name-and-translation-for-content.js'
+  import { getContentName } from '@/utils/content-cache.js'
 
   const props = defineProps({ itemId: String })
   const store = useStore()
@@ -14,7 +14,7 @@
 
   onMounted(async () => {
     try {
-      displayString.value = await getName(props.itemId, store.getters.language())
+      displayString.value = await getContentName(props.itemId, store.getters.language())
     } catch (e) {
       displayString.value = props.itemId?.slice(0, 8) || ''
     }

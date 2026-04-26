@@ -503,8 +503,13 @@
   import CreateAssignmentModal from './create-assignment-modal.vue'
   import MobileFilterDrawer from './mobile-filter-drawer.vue'
   import setTagging from '@/utils/set-tagging.js'
-  import getName from '@/utils/name-and-translation-for-content.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
+  import {
+    getContentName, getContentMetadata, getContentTags, getTagName,
+    nameCache, metadataCache, tagCache, tagNameCache,
+    loadTagHierarchy, getCachedTagHierarchy,
+    prefetchBatch, invalidate, invalidateNames,
+  } from '@/utils/content-cache.js'
   import { PInput, PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination } from '@/components/ui/index.js'
 
   const store = useStore()
@@ -533,14 +538,9 @@
 
   // ── Filter state ──
   const activeFilters = reactive({})
-  const nameCache = reactive(new Map())
-  const itemTypeCache = reactive(new Map())
-  const itemTags = reactive(new Map())
 
-  // ── Tag hierarchy (loaded from backend) ──
-  const tagCategories = ref([])            // [{ id, name, leafIds }]
-  const tagNameCache = reactive(new Map()) // tagUUID → resolved name
-  const leafToCategory = reactive(new Map()) // leafUUID → categoryUUID
+  // ── Tag hierarchy (view-local ref, populated from cache) ──
+  const tagCategories = ref([])
 
   // ── Selection state ──
   const selectedItems = reactive(new Set())
@@ -651,7 +651,7 @@
 
   function uniqueTagValues(categoryId) {
     const counts = {}
-    for (const [, tags] of itemTags) {
+    for (const [, tags] of tagCache) {
       const leafIds = tags[categoryId]
       if (leafIds) {
         for (const leafId of leafIds) {
@@ -699,9 +699,10 @@
     // Type filter
     if (activeTypeTab.value !== 'all') {
       list = list.filter(id => {
-        const type = itemTypeCache.get(id)
-        if (activeTypeTab.value === 'sequences') return type === 'sequence'
-        return type !== 'sequence'
+        const meta = metadataCache.get(id)
+        const isSeq = meta?.active_type === 'application/json;type=sequence'
+        if (activeTypeTab.value === 'sequences') return isSeq
+        return !isSeq
       })
     }
 
@@ -709,7 +710,7 @@
     for (const [key, selected] of Object.entries(activeFilters)) {
       if (selected && selected.length) {
         list = list.filter(id => {
-          const tags = itemTags.get(id)
+          const tags = tagCache.get(id)
           if (!tags || !tags[key]) return false
           const vals = Array.isArray(tags[key]) ? tags[key] : [tags[key]]
           return selected.some(v => vals.includes(v))
@@ -742,7 +743,7 @@
 
   // ── Tag label helpers ──
   function getItemTagLabels(id) {
-    const tags = itemTags.get(id) || {}
+    const tags = tagCache.get(id) || {}
     const labels = []
     for (const leafIds of Object.values(tags)) {
       for (const leafId of leafIds) {
@@ -796,7 +797,7 @@
 
   async function onSequenceCreated(id) {
     if (!myContent.includes(id)) myContent.push(id)
-    itemTypeCache.set(id, 'sequence')
+    metadataCache.set(id, { active_type: 'application/json;type=sequence' })
     mySequenceIds.value.unshift(id)
     newestSequenceId.value = id
     showCreateSequence.value = false
@@ -884,111 +885,35 @@
     setTimeout(() => successMessage.value = '', 3000)
   }
 
-  // ── Tag hierarchy loading ──
-  async function resolveTagName(tagId) {
-    if (tagNameCache.has(tagId)) return tagNameCache.get(tagId)
-    try {
-      const { name } = await Agent.state(tagId)
-      tagNameCache.set(tagId, name || tagId.slice(0, 8))
-      return name || tagId.slice(0, 8)
-    } catch {
-      tagNameCache.set(tagId, tagId.slice(0, 8))
-      return tagId.slice(0, 8)
-    }
-  }
-
-  async function loadTagHierarchy() {
-    const cats = await Agent.query(
-      'taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems'
-    ).catch(() => [])
-
-    const categories = []
-    for (const cat of cats) {
-      const catId = cat.target
-      const catName = await resolveTagName(catId)
-
-      const leaves = await Agent.query(
-        'taggings-targeting-tags', [partition, catId], 'tags.knowlearning.systems'
-      ).catch(() => [])
-
-      const leafIds = leaves.map(l => l.target)
-
-      await Promise.allSettled(
-        leafIds.map(async (leafId) => {
-          leafToCategory.set(leafId, catId)
-          await resolveTagName(leafId)
-        })
-      )
-
-      categories.push({ id: catId, name: catName, leafIds })
-    }
-
-    tagCategories.value = categories
-  }
-
-  // ── Data loading ──
+  // ── Data loading (cache-backed) ──
   async function loadContentData() {
     loading.value = true
 
-    // Load tag hierarchy first so we can map per-item tags to categories
-    await loadTagHierarchy()
+    // Load tag hierarchy (cached — instant on revisit)
+    const hierarchy = await loadTagHierarchy(partition, competencyTag)
+    tagCategories.value = hierarchy.categories
 
-    // Fetch tagged content
+    // Fetch tagged content list (lightweight — just IDs)
     const result = await Agent.query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
     taggedContent.value = result
 
     // Build all content IDs set
     const allIds = [...new Set([...result.map(t => t.target), ...myContent])]
 
-    // Load names, types, and tags in parallel batches
-    const loadPromises = allIds.map(async (id) => {
-      try {
-        // Load name
-        const name = await getName(id, store.getters.language())
-        if (name) nameCache.set(id, name)
-
-        // Load type (item vs sequence)
-        const metadata = await Agent.metadata(id)
-        if (metadata.active_type === 'application/json;type=sequence') {
-          itemTypeCache.set(id, 'sequence')
-        } else {
-          itemTypeCache.set(id, 'item')
-        }
-
-        // Load tags for this item, mapped to categories
-        const tagData = await Agent.query(
-          'taggings-for-target', [partition, id], 'tags.knowlearning.systems'
-        ).catch(() => [])
-
-        if (tagData.length) {
-          const tags = {}
-          for (const t of tagData) {
-            const catId = leafToCategory.get(t.tag)
-            if (catId) {
-              if (!tags[catId]) tags[catId] = []
-              if (!tags[catId].includes(t.tag)) tags[catId].push(t.tag)
-            }
-          }
-          itemTags.set(id, tags)
-        }
-      } catch (e) {
-        // Silently skip items that fail to load
-      }
-    })
-
-    await Promise.allSettled(loadPromises)
+    // Batch prefetch names, metadata, images, tags (cache-first — instant on revisit)
+    await prefetchBatch(allIds, store.getters.language(), partition, hierarchy.leafToCategory)
 
     // Load sequences
-    await loadMySequences()
+    loadMySequences()
 
     loading.value = false
   }
 
-  async function loadMySequences() {
+  function loadMySequences() {
     const sequenceIds = []
     for (const id of myContent) {
-      const type = itemTypeCache.get(id)
-      if (type === 'sequence') {
+      const meta = metadataCache.get(id)
+      if (meta?.active_type === 'application/json;type=sequence') {
         sequenceIds.push(id)
       }
     }
@@ -998,6 +923,17 @@
   // ── Watch selected sequence ──
   watch(selectedSequence, async (id) => {
     if (id) await loadSequenceItems(id)
+  })
+
+  // ── Invalidate name cache on language change ──
+  watch(() => store.getters.language(), async (newLang, oldLang) => {
+    if (newLang && oldLang && newLang !== oldLang) {
+      invalidateNames()
+      const allIds = currentContentList.value
+      if (allIds.length) {
+        await prefetchBatch(allIds, newLang, partition, getCachedTagHierarchy()?.leafToCategory)
+      }
+    }
   })
 
   // ── Lifecycle ──

@@ -96,7 +96,21 @@ export default {
       if (firstLoad) dispatch('encryptMyUserInfo')
 
       if (firstLoad || poll === 'do-it') {
-        setTimeout(() => dispatch('load', 'do-it'), 7000 + Math.random()*4000)
+        const scheduleNext = () => {
+          setTimeout(() => {
+            if (document.visibilityState === 'hidden') {
+              // Defer until tab becomes visible again
+              const onVisible = () => {
+                document.removeEventListener('visibilitychange', onVisible)
+                dispatch('load', 'do-it')
+              }
+              document.addEventListener('visibilitychange', onVisible)
+            } else {
+              dispatch('load', 'do-it')
+            }
+          }, 15000 + Math.random() * 5000)
+        }
+        scheduleNext()
         firstLoad = false
       }
     },

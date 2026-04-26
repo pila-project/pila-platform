@@ -11,12 +11,12 @@
               <i class="fa-solid fa-clipboard-list text-primary-600" />
               <span class="capitalize">{{ t('assignments') }}</span>
             </h2>
-            <p class="card-section-subtitle">Create and manage assignments for your students</p>
+            <p class="card-section-subtitle">{{ t('create-and-manage-assignments') }}</p>
           </div>
           <PButton
             variant="primary"
             icon="fa-solid fa-plus"
-            text="New Assignment"
+            :text="t('new-assignment')"
             class="assign-new-btn"
             @click="add"
           />
@@ -28,7 +28,7 @@
         <div class="assign-search">
           <PInput
             v-model="searchQuery"
-            placeholder="Search assignments"
+            :placeholder="t('search-assignments')"
             icon="fa-solid fa-magnifying-glass"
           />
         </div>
@@ -39,27 +39,27 @@
           @click="showMobileFilters = !showMobileFilters"
         >
           <i class="fa-solid fa-sliders" />
-          Filters
+          {{ t('filters') }}
           <span v-if="activeFilterCount" class="mobile-filter-badge">{{ activeFilterCount }}</span>
         </button>
         <!-- Desktop filter dropdowns -->
         <div class="assign-filters" :class="{ 'filters-open': showMobileFilters }">
           <FilterDropdown
-            label="Status"
+            :label="t('status')"
             :options="statusOptions"
             v-model="statusFilter"
           />
           <FilterDropdown
-            label="Assignment type"
+            :label="t('assignment-type')"
             :options="typeOptions"
             v-model="typeFilter"
           />
           <button class="filter-chip-btn" disabled>
-            Assigned To
+            {{ t('assigned-to') }}
             <i class="fa-solid fa-chevron-down chevron" />
           </button>
           <button class="filter-chip-btn" disabled>
-            Due Date Range
+            {{ t('due-date-range') }}
             <i class="fa-solid fa-chevron-down chevron" />
           </button>
         </div>
@@ -78,18 +78,18 @@
                   @change="toggleSelectAll"
                 />
               </th>
-              <th class="assign-th assign-th-title">Assignment Title <i class="fa-solid fa-sort assign-sort-icon" /></th>
-              <th class="assign-th assign-th-date">Due Date <i class="fa-solid fa-sort assign-sort-icon" /></th>
-              <th class="assign-th assign-th-status">Publication status <i class="fa-solid fa-sort assign-sort-icon" /></th>
-              <th class="assign-th assign-th-assigned">Assigned to</th>
-              <th class="assign-th assign-th-submissions">Assignment submissions</th>
-              <th class="assign-th assign-th-actions">Actions</th>
+              <th class="assign-th assign-th-title">{{ t('assignment-title') }} <i class="fa-solid fa-sort assign-sort-icon" /></th>
+              <th class="assign-th assign-th-date">{{ t('due-date') }} <i class="fa-solid fa-sort assign-sort-icon" /></th>
+              <th class="assign-th assign-th-status">{{ t('publication-status') }} <i class="fa-solid fa-sort assign-sort-icon" /></th>
+              <th class="assign-th assign-th-assigned">{{ t('assigned-to') }}</th>
+              <th class="assign-th assign-th-submissions">{{ t('assignment-submissions') }}</th>
+              <th class="assign-th assign-th-actions">{{ t('actions') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="assignmentsForActiveTable.length === 0" class="assign-row">
               <td colspan="7" class="assign-td text-center" style="padding: 32px 16px; color: #64748b;">
-                {{ searchQuery || statusFilter.length || typeFilter.length ? 'No assignments match your filters' : t('no-data-available') }}
+                {{ searchQuery || statusFilter.length || typeFilter.length ? t('no-assignments-match-filters') : t('no-data-available') }}
               </td>
             </tr>
             <tr
@@ -116,7 +116,7 @@
                 <div class="assign-cell-desc">
                   <vueScopeComponent :id="item" :path="['description']">
                     <template v-slot="data">
-                      {{ data.value || 'No description' }}
+                      {{ data.value || t('no-description') }}
                     </template>
                   </vueScopeComponent>
                 </div>
@@ -148,7 +148,7 @@
                     {{ getAssignedGroups(item).length }} group{{ getAssignedGroups(item).length > 1 ? 's' : '' }}
                   </div>
                 </template>
-                <span v-else class="assign-cell-text">Not assigned</span>
+                <span v-else class="assign-cell-text">{{ t('not-assigned') }}</span>
               </td>
               <!-- Assignment submissions -->
               <td class="assign-td assign-td-submissions">
@@ -158,7 +158,7 @@
                   </div>
                   <span class="assign-cell-desc">{{ getSubmissionProgress(item) }}%</span>
                 </template>
-                <span v-else class="assign-cell-text">No submissions</span>
+                <span v-else class="assign-cell-text">{{ t('no-submissions') }}</span>
               </td>
               <!-- Actions -->
               <td class="assign-td assign-td-actions" @click.stop>
@@ -169,39 +169,39 @@
                     </button>
                   </template>
                   <PMenuItem
-                    title="View assignment details"
+                    :title="t('view-assignment-details')"
                     prepend-icon="fa-solid fa-eye"
                     @click="viewDetails(item)"
                   />
                   <PMenuItem
-                    title="Edit assignment"
+                    :title="t('edit-assignment')"
                     prepend-icon="fa-solid fa-pencil"
                     @click="openEdit(item)"
                   />
                   <PMenuItem
-                    title="View submissions"
+                    :title="t('view-submissions')"
                     prepend-icon="fa-solid fa-chart-bar"
                     @click="openSubmissions(item)"
                   />
                   <PMenuItem
-                    title="Duplicate"
+                    :title="t('duplicate')"
                     prepend-icon="fa-solid fa-copy"
                     @click="startDuplicate(item)"
                   />
                   <PMenuItem
                     v-if="archivedIds[item]"
-                    title="Unarchive"
+                    :title="t('unarchive')"
                     prepend-icon="fa-solid fa-box-open"
                     @click="readd(item)"
                   />
                   <PMenuItem
                     v-else
-                    title="Archive"
+                    :title="t('archive')"
                     prepend-icon="fa-solid fa-box-archive"
                     @click="startArchive(item)"
                   />
                   <PMenuItem
-                    title="Delete"
+                    :title="t('delete')"
                     prepend-icon="fa-solid fa-trash"
                     class="menu-item-danger"
                     @click="startDelete(item)"
@@ -216,11 +216,11 @@
       <!-- Pagination -->
       <div class="assign-pagination">
         <span class="assign-pagination-info">
-          {{ selectedRows.size }} of {{ assignmentsForActiveTable.length }} row(s) selected.
+          {{ selectedRows.size }} {{ t('of') }} {{ assignmentsForActiveTable.length }} {{ t('rows-selected') }}
         </span>
         <div class="assign-pagination-nav">
-          <button class="assign-pagination-btn" disabled>Previous</button>
-          <button class="assign-pagination-btn" disabled>Next</button>
+          <button class="assign-pagination-btn" disabled>{{ t('previous') }}</button>
+          <button class="assign-pagination-btn" disabled>{{ t('next') }}</button>
         </div>
       </div>
     </div>
@@ -321,30 +321,30 @@
   <PAlertDialog
     v-if="showDeleteDialog"
     variant="error"
-    title="Delete Assignment"
-    description="Are you sure you want to delete this assignment? This action cannot be undone and all associated data will be permanently removed."
-    confirmText="Delete"
-    cancelText="Cancel"
+    :title="t('delete-assignment')"
+    :description="t('delete-assignment-warning')"
+    :confirmText="t('delete')"
+    :cancelText="t('cancel')"
     @confirm="confirmDelete"
     @cancel="showDeleteDialog = false"
   />
   <PAlertDialog
     v-if="showDuplicateDialog"
     variant="notification"
-    title="Duplicate Assignment"
-    description="A copy of this assignment will be created with all settings preserved. The duplicate will be saved as a draft."
-    confirmText="Duplicate"
-    cancelText="Cancel"
+    :title="t('duplicate-assignment')"
+    :description="t('duplicate-assignment-description')"
+    :confirmText="t('duplicate')"
+    :cancelText="t('cancel')"
     @confirm="confirmDuplicate"
     @cancel="showDuplicateDialog = false"
   />
   <PAlertDialog
     v-if="showArchiveDialog"
     variant="notification"
-    title="Archive Assignment"
-    description="This assignment will be archived and hidden from the active list. You can unarchive it later from the archived view."
-    confirmText="Archive"
-    cancelText="Cancel"
+    :title="t('archive-assignment')"
+    :description="t('archive-assignment-description')"
+    :confirmText="t('archive')"
+    :cancelText="t('cancel')"
     @confirm="confirmArchive"
     @cancel="showArchiveDialog = false"
   />
@@ -400,17 +400,17 @@
 
   const activeFilterCount = computed(() => statusFilter.value.length + typeFilter.value.length)
 
-  const statusOptions = [
-    { value: 'Published', label: 'Published' },
-    { value: 'Draft', label: 'Draft' },
-    { value: 'Scheduled', label: 'Scheduled' },
-  ]
+  const statusOptions = computed(() => [
+    { value: 'Published', label: t('published') },
+    { value: 'Draft', label: t('draft') },
+    { value: 'Scheduled', label: t('scheduled') },
+  ])
 
-  const typeOptions = [
-    { value: 'Assignment', label: 'Assignment' },
-    { value: 'Quiz', label: 'Quiz' },
-    { value: 'Project', label: 'Project' },
-  ]
+  const typeOptions = computed(() => [
+    { value: 'Assignment', label: t('assignment') },
+    { value: 'Quiz', label: t('quiz') },
+    { value: 'Project', label: t('project') },
+  ])
 
   // ── Confirmation dialog state ──
   const showDeleteDialog = ref(false)
@@ -524,7 +524,7 @@
   function getDueDate(id) {
     const data = assignmentData[id]
     if (data?.dueDate) return formatDate(data.dueDate)
-    return 'Not set'
+    return t('not-set')
   }
 
   // ── Submission progress (placeholder until real submission tracking) ──
