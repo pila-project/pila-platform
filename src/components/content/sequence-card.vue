@@ -11,21 +11,23 @@
     <div class="sc-header">
       <div class="sc-header-content">
         <div v-if="isNew" class="sc-new-badge">{{ t('new') }}</div>
-        <h3 class="sc-title">{{ seqState?.name || t('untitled') }}</h3>
+        <div class="sc-title-row">
+          <h3 class="sc-title">{{ seqState?.name || t('untitled') }}</h3>
+          <PMenu align-right>
+            <template #activator="{ props }">
+              <button class="sc-menu-trigger" @click.stop="props.onClick">
+                <i class="fa-solid fa-ellipsis-vertical" />
+              </button>
+            </template>
+            <PMenuItem :title="t('view-sequence-content')" prepend-icon="fa-solid fa-list" @click="expanded = true" />
+            <PMenuItem :title="t('edit-sequence-details')" prepend-icon="fa-solid fa-pen" @click="$emit('edit')" />
+            <PMenuItem :title="t('preview-sequence')" prepend-icon="fa-regular fa-eye" @click="$emit('preview')" />
+            <PMenuItem :title="t('delete-sequence')" prepend-icon="fa-solid fa-trash" danger @click="$emit('delete')" />
+          </PMenu>
+        </div>
         <p class="sc-desc">{{ seqState?.description || '' }}</p>
         <span class="sc-modified">{{ t('last-modified') }} - {{ lastModifiedDate }}</span>
       </div>
-      <PMenu align-right>
-        <template #activator="{ props }">
-          <button class="sc-menu-trigger" @click.stop="props.onClick">
-            <i class="fa-solid fa-ellipsis-vertical" />
-          </button>
-        </template>
-        <PMenuItem :title="t('view-sequence-content')" prepend-icon="fa-solid fa-list" @click="expanded = true" />
-        <PMenuItem :title="t('edit-sequence-details')" prepend-icon="fa-solid fa-pen" @click="$emit('edit')" />
-        <PMenuItem :title="t('preview-sequence')" prepend-icon="fa-regular fa-eye" @click="$emit('preview')" />
-        <PMenuItem :title="t('delete-sequence')" prepend-icon="fa-solid fa-trash" danger @click="$emit('delete')" />
-      </PMenu>
     </div>
 
     <!-- Footer: expand/collapse + item list -->
@@ -36,9 +38,25 @@
       </button>
 
       <div v-if="expanded && items.length" class="sc-items">
-        <div v-for="(itemId, i) in items" :key="itemId" class="sc-item-card">
-          <!-- Row 1: number + type badge + trash -->
+        <div
+          v-for="(itemId, i) in items"
+          :key="itemId"
+          class="sc-item-card"
+          :class="{
+            'sc-item-dragging': dragIndex === i,
+            'sc-item-drop-above': dropTarget === i && dropTarget < dragIndex,
+            'sc-item-drop-below': dropTarget === i && dropTarget > dragIndex,
+          }"
+          draggable="true"
+          @dragstart.stop="onItemDragStart(i, $event)"
+          @dragend="onItemDragEnd"
+          @dragover.stop.prevent="onItemDragOver(i, $event)"
+          @dragleave="onItemDragLeave"
+          @drop.stop.prevent="onItemDrop(i)"
+        >
+          <!-- Row 1: drag handle + number + type badge + trash -->
           <div class="sc-item-top">
+            <i class="fa-solid fa-grip-vertical sc-item-grip" />
             <span class="sc-item-num">{{ String(i + 1).padStart(2, '0') }}</span>
             <span
               class="sc-item-type"
@@ -47,7 +65,7 @@
               {{ itemMeta[itemId]?.isSequence ? t('sequence') : t('item') }}
             </span>
             <button class="sc-item-delete" @click.stop="removeItem(i)">
-              <i class="fa-solid fa-trash" />
+              <i class="fa-solid fa-trash-can" />
             </button>
           </div>
           <!-- Row 2: title -->
@@ -64,13 +82,25 @@
         {{ t('no-items-yet') }}
       </div>
     </div>
+
+    <!-- Delete item confirmation -->
+    <PAlertDialog
+      v-if="itemToDelete !== null"
+      variant="error"
+      :title="t('confirm-delete-item')"
+      :description="t('delete-item-from-sequence-warning')"
+      :confirmText="t('delete')"
+      :cancelText="t('cancel')"
+      @confirm="confirmRemoveItem"
+      @cancel="itemToDelete = null"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
-import { PMenu, PMenuItem } from '@/components/ui/index.js'
+import { PMenu, PMenuItem, PAlertDialog } from '@/components/ui/index.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 
 const store = useStore()
@@ -80,18 +110,64 @@ const props = defineProps({
   id: { type: String, required: true },
   active: Boolean,
   isNewest: Boolean,
+  version: { type: Number, default: 0 },
 })
 
 const emit = defineEmits(['select', 'edit', 'delete', 'preview', 'drop-item'])
 
 const isDragOver = ref(false)
 
+// ── Internal reorder drag state ──
+const dragIndex = ref(null)
+const dropTarget = ref(null)
+const isInternalDrag = ref(false)
+
 function onDrop(e) {
   isDragOver.value = false
+  if (isInternalDrag.value) return // ignore internal reorder drops on the card itself
   const itemId = e.dataTransfer.getData('text')
   if (itemId) {
     emit('drop-item', itemId)
   }
+}
+
+function onItemDragStart(index, e) {
+  dragIndex.value = index
+  isInternalDrag.value = true
+  e.dataTransfer.effectAllowed = 'move'
+  e.dataTransfer.setData('text/x-reorder', String(index))
+}
+
+function onItemDragEnd() {
+  dragIndex.value = null
+  dropTarget.value = null
+  isInternalDrag.value = false
+}
+
+function onItemDragOver(index) {
+  if (dragIndex.value === null || index === dragIndex.value) {
+    dropTarget.value = null
+    return
+  }
+  dropTarget.value = index
+}
+
+function onItemDragLeave() {
+  dropTarget.value = null
+}
+
+async function onItemDrop(toIndex) {
+  const fromIndex = dragIndex.value
+  dropTarget.value = null
+  if (fromIndex === null || fromIndex === toIndex || !seqState.value?.items) return
+
+  const items = seqState.value.items
+  const [moved] = items.splice(fromIndex, 1)
+  items.splice(toIndex, 0, moved)
+  await Agent.synced()
+  itemVersion.value++
+  dragIndex.value = null
+  isInternalDrag.value = false
 }
 
 const seqState = ref(null)
@@ -99,8 +175,13 @@ const metadata = ref(null)
 const expanded = ref(false)
 const isNew = ref(false)
 const itemMeta = reactive({})
+const itemVersion = ref(0)
+const itemToDelete = ref(null) // index of item pending delete confirmation
 
-const items = computed(() => seqState.value?.items || [])
+const items = computed(() => {
+  itemVersion.value // dependency to force recompute
+  return seqState.value?.items || []
+})
 const itemCount = computed(() => items.value.length)
 
 const lastModifiedDate = computed(() => {
@@ -125,10 +206,26 @@ async function loadItemMeta(itemId) {
 }
 
 function removeItem(index) {
-  if (seqState.value?.items) {
+  itemToDelete.value = index
+}
+
+async function confirmRemoveItem() {
+  const index = itemToDelete.value
+  itemToDelete.value = null
+  if (index !== null && seqState.value?.items) {
     seqState.value.items.splice(index, 1)
+    await Agent.synced()
+    itemVersion.value++
   }
 }
+
+// When parent signals a version change, refresh items without remounting
+watch(() => props.version, () => {
+  itemVersion.value++
+  if (expanded.value && items.value.length) {
+    items.value.forEach(id => loadItemMeta(id))
+  }
+})
 
 // Load item metadata when expanded or items change
 watch(
@@ -165,7 +262,7 @@ onMounted(async () => {
 .sc {
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
   transition: all 150ms;
@@ -187,13 +284,15 @@ onMounted(async () => {
 .sc-header {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 12px 12px 10px;
+  padding: 12px;
 }
 
 .sc-header-content {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .sc-new-badge {
@@ -204,26 +303,35 @@ onMounted(async () => {
   font-size: 11px;
   font-weight: 600;
   color: #16a34a;
-  margin-bottom: 4px;
+  align-self: flex-start;
+}
+
+.sc-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
 }
 
 .sc-title {
   font-size: 12px;
   font-weight: 500;
   color: #020617;
-  line-height: 1.4;
+  line-height: 16px;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .sc-desc {
   font-size: 12px;
   font-weight: 400;
   color: #64748b;
-  line-height: 1.5;
-  margin: 4px 0 0;
+  line-height: 16px;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -231,23 +339,18 @@ onMounted(async () => {
 }
 
 .sc-modified {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 2px 8px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
   font-size: 12px;
+  font-weight: 500;
   color: #64748b;
+  line-height: 16px;
 }
 
 .sc-menu-trigger {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
   border: none;
   background: transparent;
   color: #94a3b8;
@@ -256,18 +359,17 @@ onMounted(async () => {
   font-size: 12px;
 }
 .sc-menu-trigger:hover {
-  background: #f1f5f9;
   color: #64748b;
 }
 
 /* ── Footer ── */
 .sc-footer {
-  padding: 8px 12px 10px;
+  padding: 6px 12px;
   border-top: 1px solid #e2e8f0;
 }
 
 .sc-footer-expanded {
-  background: #eff6ff;
+  padding-bottom: 12px;
 }
 
 .sc-expand-btn {
@@ -281,6 +383,7 @@ onMounted(async () => {
   color: #2563eb;
   cursor: pointer;
   padding: 0;
+  line-height: 16px;
 }
 .sc-expand-btn:hover {
   text-decoration: underline;
@@ -292,15 +395,14 @@ onMounted(async () => {
 
 /* ── Items list ── */
 .sc-items {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .sc-item-card {
   background: #f1f5f9;
-  border: 1px solid #e2e8f0;
   border-radius: 6px;
   padding: 10px 12px;
 }
@@ -308,31 +410,34 @@ onMounted(async () => {
 .sc-item-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .sc-item-num {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
-  height: 24px;
-  padding: 0 6px;
+  min-width: 22px;
+  padding: 3px 4px;
   background: white;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
   color: #64748b;
+  line-height: 16px;
 }
 
 /* Type badges */
 .sc-item-type {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  justify-content: center;
+  min-width: 22px;
+  padding: 3px 4px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
+  line-height: 16px;
 }
 .sc-item-type-item {
   background: #f0fdf4;
@@ -343,28 +448,59 @@ onMounted(async () => {
   color: #a16207;
 }
 
+.sc-item-grip {
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: grab;
+  flex-shrink: 0;
+}
+.sc-item-grip:hover {
+  color: #64748b;
+}
+
 .sc-item-delete {
   margin-left: auto;
   border: none;
   background: none;
   color: #dc2626;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 17px;
+  flex-shrink: 0;
+  opacity: 0.8;
 }
 .sc-item-delete:hover {
-  background: #fef2f2;
+  opacity: 1;
+}
+
+/* Reorder drag states */
+.sc-item-dragging {
+  opacity: 0.4;
+}
+.sc-item-drop-above {
+  box-shadow: 0 -2px 0 0 #2563eb;
+}
+.sc-item-drop-below {
+  box-shadow: 0 2px 0 0 #2563eb;
 }
 
 .sc-item-title {
   font-size: 12px;
   font-weight: 500;
   color: #020617;
-  margin-top: 8px;
-  line-height: 1.4;
+  margin-top: 4px;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-item-title :deep(span) {
+  font-size: 12px !important;
 }
 
 .sc-item-desc {
@@ -372,7 +508,7 @@ onMounted(async () => {
   font-weight: 400;
   color: #64748b;
   margin: 4px 0 0;
-  line-height: 1.5;
+  line-height: 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

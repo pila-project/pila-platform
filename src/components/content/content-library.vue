@@ -23,10 +23,11 @@
         <div v-if="mobileSeqExpanded" class="mobile-seq-list">
           <SequenceCard
             v-for="seqId in mySequenceIds"
-            :key="seqId + '-' + sequenceVersion"
+            :key="seqId"
             :id="seqId"
             :active="selectedSequence === seqId"
             :isNewest="newestSequenceId === seqId"
+            :version="sequenceVersion"
             @select="selectSequence(seqId); mobileSeqExpanded = false"
             @edit="editSequence(seqId)"
             @delete="sequenceToDelete = seqId"
@@ -58,10 +59,11 @@
           <div class="mt-4 flex flex-col gap-3">
             <SequenceCard
               v-for="seqId in mySequenceIds"
-              :key="seqId + '-' + sequenceVersion"
+              :key="seqId"
               :id="seqId"
               :active="selectedSequence === seqId"
               :isNewest="newestSequenceId === seqId"
+              :version="sequenceVersion"
               @select="selectSequence(seqId)"
               @edit="editSequence(seqId)"
               @delete="sequenceToDelete = seqId"
@@ -553,6 +555,7 @@
   const sequenceToDelete = ref(null)
   const sequenceToPreview = ref(null)
   const selectedSequenceEmpty = ref(true)
+  const selectedSequenceItems = ref([])
   const newestSequenceId = ref(null)
 
   // ── Copy & modify state ──
@@ -678,6 +681,12 @@
   const filteredContentList = computed(() => {
     let list = currentContentList.value
 
+    // Filter by selected sequence
+    if (selectedSequence.value && selectedSequenceItems.value.length) {
+      const seqItems = new Set(selectedSequenceItems.value)
+      list = list.filter(id => seqItems.has(id))
+    }
+
     // Search by name
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase()
@@ -766,15 +775,19 @@
   function selectSequence(id) {
     if (selectedSequence.value === id) {
       selectedSequence.value = null
+      selectedSequenceItems.value = []
+      selectedSequenceEmpty.value = true
     } else {
       selectedSequence.value = id
-      checkSequenceEmpty(id)
+      loadSequenceItems(id)
     }
   }
 
-  async function checkSequenceEmpty(id) {
+  async function loadSequenceItems(id) {
     const state = await Agent.state(id)
-    selectedSequenceEmpty.value = !state.items || state.items.length === 0
+    const items = state.items || []
+    selectedSequenceItems.value = items
+    selectedSequenceEmpty.value = items.length === 0
   }
 
   function editSequence(id) {
@@ -858,6 +871,7 @@
     deselectAll()
     if (selectedSequence.value === sequenceId) {
       selectedSequenceEmpty.value = false
+      selectedSequenceItems.value = state.items || []
     }
     // Force sequence cards to re-render so they show the new items
     sequenceVersion.value++
@@ -983,7 +997,7 @@
 
   // ── Watch selected sequence ──
   watch(selectedSequence, async (id) => {
-    if (id) await checkSequenceEmpty(id)
+    if (id) await loadSequenceItems(id)
   })
 
   // ── Lifecycle ──
