@@ -11,9 +11,10 @@ Domains to add new domain to configuration:
   tags.knowlearning.systems
   translate.knowlearning.systems
   xapi.knowlearning.systems
+  create.pilaproject.org
   translate-pila-alpha.netlify.app
   translate-karel-alpha.netlify.app
-  create.pilaproject.org
+  the-karel-project.netlify.app
 
 Setup constants.js
   Add partition name to HOST_TO_PARTITION
