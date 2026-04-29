@@ -165,10 +165,18 @@ export const HOST_TO_EXTRA_TEACHER_TAGS = {
 export const HOST_TO_FIRST_LOAD_LANGUAGE = {
   'polska-rct-2025.pilaproject.org': 'pl',
   'france-rct-2025.pilaproject.org': 'fr',
-  'thailand.pilaproject.org': 'th'
+  'thailand.pilaproject.org': 'th',
+  'deutschland-rct-2026.pilaproject.org': 'de',
+  'nederland-rct-2026.pilaproject.org': 'nl',
+  'latvija-rct-2026.pilaproject.org': 'lv',
+  'slovensko-rct-2026.pilaproject.org': 'sk'
 }
 
 export const HOST_TO_FORCED_ASSIGNMENT_LANGUAGE = {
   'polska-rct-2025.pilaproject.org': 'pl',
-  'france-rct-2025.pilaproject.org': 'fr'
+  'france-rct-2025.pilaproject.org': 'fr',
+  'deutschland-rct-2026.pilaproject.org': 'de',
+  'nederland-rct-2026.pilaproject.org': 'nl',
+  'latvija-rct-2026.pilaproject.org': 'lv',
+  'slovensko-rct-2026.pilaproject.org': 'sk'
 }
