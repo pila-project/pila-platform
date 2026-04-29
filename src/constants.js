@@ -98,13 +98,16 @@ export const DOMAIN_CODE_LISTS = {
   'app.pilaproject.org': [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ],
   'testing.pilaproject.org': [ 'ACCESS', 'PILA23', 'PILA4Learning23!' ],
   'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
-  'thailand.pilaproject.org': ['THAI_ACCESS', 'thai_access'],
   'dev.gforcesolution.com': ['THAI_ACCESS', 'thai_access'],
   'pila.gforcesolution.com': ['THAI_ACCESS', 'thai_access'],
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access'],
   'polska-rct-2025.pilaproject.org': ['25-DOSTEP-RCT'],
   'france-rct-2025.pilaproject.org': ['25-ACCES-RCT'],
-  'ui-dev.pilaproject.org': ['ACCESS']
+  'ui-dev.pilaproject.org': ['ACCESS'],
+  'deutschland-rct-2026.pilaproject.org': ['26-PILA-RCT'],
+  'nederland-rct-2026.pilaproject.org': ['26-PILA-RCT'],
+  'latvija-rct-2026.pilaproject.org': ['26-PILA-RCT'],
+  'slovensko-rct-2026.pilaproject.org': ['26-PILA-RCT']
 }
 
 export const DOMAIN_DATA_PROTECTION_LINKS = {
@@ -131,7 +134,12 @@ export const HOST_TO_PARTITION = {
   'polska-rct-2025.pilaproject.org': 'PILA Poland RCT 2025',
   'france-rct-2025.pilaproject.org': 'PILA France RCT 2025',
   'testing.pilaproject.org': 'PILA Testing',
-  'ui-dev.pilaproject.org': 'PILA UI Development'
+  'ui-dev.pilaproject.org': 'PILA UI Development',
+  'ui-dev.pilaproject.org': 'PILA UI Development',
+  'deutschland-rct-2026.pilaproject.org': 'PILA Germany RCT 2026',
+  'nederland-rct-2026.pilaproject.org': 'PILA Netherlands RCT 2026',
+  'latvija-rct-2026.pilaproject.org': 'PILA Latvia RCT 2026',
+  'slovensko-rct-2026.pilaproject.org': 'PILA Slovenia RCT 2026'
 }
 
 export const SIMPLIFIED_STUDY_DOMAINS = [
