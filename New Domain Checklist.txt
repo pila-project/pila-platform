@@ -9,7 +9,7 @@ Deploy configuration for new domain
 
 Domains to add new domain to configuration:
   tags.knowlearning.systems
-  translate.knowlearning.systems
+  translations.pilaproject.org
   xapi.knowlearning.systems
   create.pilaproject.org
   translate-pila-alpha.netlify.app
