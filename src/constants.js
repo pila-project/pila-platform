@@ -139,7 +139,7 @@ export const HOST_TO_PARTITION = {
   'deutschland-rct-2026.pilaproject.org': 'PILA Germany RCT 2026',
   'nederland-rct-2026.pilaproject.org': 'PILA Netherlands RCT 2026',
   'latvija-rct-2026.pilaproject.org': 'PILA Latvia RCT 2026',
-  'slovensko-rct-2026.pilaproject.org': 'PILA Slovenia RCT 2026'
+  'slovensko-rct-2026.pilaproject.org': 'PILA Slovakia RCT 2026'
 }
 
 export const SIMPLIFIED_STUDY_DOMAINS = [
