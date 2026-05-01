@@ -8,8 +8,6 @@ import storeDef from './store/index.js'
 import App from './pages/App.vue'
 import runTests from './tests/index.js'
 
-import 'mathlive' // for math input support for RCT content
-
 import './main.css'
 
 import 'vuetify/styles'
@@ -19,8 +17,6 @@ import { aliases, fa } from 'vuetify/iconsets/fa'
 //  TODO: trim down imports
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-
-mathVirtualKeyboard.targetOrigin = '*' // for math input support for RCT content
 
 
 if (window.location.pathname === '/test') runTests()
