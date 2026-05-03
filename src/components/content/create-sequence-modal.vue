@@ -16,7 +16,7 @@
     </template>
     <template #body>
       <div v-if="!isEdit" class="info-banner">
-        <i class="fa-solid fa-circle-info text-primary-500" />
+        <LucideIcon name="info" :size="14" class="text-primary-500" />
         <span>{{ t('after-creating-sequence-info') }}</span>
       </div>
 
@@ -51,6 +51,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import { PModal, PInput, PButton } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }

@@ -1,31 +1,26 @@
 <script setup>
-  import { ref, reactive } from 'vue'
+  import { ref, reactive, computed } from 'vue'
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '@/utils/encryption.js'
-  import { encodeUTF8 } from 'tweetnacl-util'
   import { createUser } from '@/utils/user-utils.js'
   import DecryptedName from '@/components/common/decrypted-name.vue'
-  import { PModal, PButton, PInput, PCheckbox } from '@/components/ui/index.js'
+  import { PModal, PButton, PInput, PSelect, PBadge } from '@/components/ui/index.js'
 
   const store = useStore()
 
   const props = defineProps({ id: String })
-  const emit = defineEmits(['close'])
+  const emit = defineEmits(['close', 'open-login-code'])
 
   const open = ref(true)
 
   const userData = reactive(await Agent.state(props.id))
-  const users = reactive(await Agent.state('users'))
+  const usersState = reactive(await Agent.state('users'))
 
-  const archived = ref(!!users[props.id]?.archived)
+  const archived = ref(!!usersState[props.id]?.archived)
+  const studentGrade = ref(usersState[props.id]?.grade || '')
+  const studentStatus = ref(archived.value ? 'archived' : 'active')
 
   const teacherOwnedUserAccount = !!userData.providerEncryptedKey
-
-  const {
-    providerEncryptedKey,
-    providerEncryptedInfo,
-    publicKey
-  } = userData
 
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
   const providerKeyPair = await generateKeyPair(providerSecret)
@@ -35,17 +30,33 @@
   try {
     editUserInfo = reactive(JSON.parse(decryptSymmetric(
       providerKeyPair.secretKey,
-      providerEncryptedInfo
+      userData.providerEncryptedInfo
     )).info)
 
     userSecret = decryptSymmetric(
       providerKeyPair.secretKey,
       userData.providerEncryptedKey
     )
+
+    // Migrate: if old single name field exists but no first_name, split it
+    if (!editUserInfo.first_name && editUserInfo.name) {
+      editUserInfo.first_name = editUserInfo.name
+    }
   }
   catch (error) {
-
+    // Decryption failed — user cannot edit
   }
+
+  const statusOptions = [
+    { value: 'active', title: t('active') },
+    { value: 'archived', title: t('archived') },
+  ]
+
+  // Grade options — derive from existing students or provide common defaults
+  const gradeOptions = computed(() => {
+    const grades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+    return grades.map(g => ({ value: g, title: g }))
+  })
 
   function cancel() {
     open.value = false
@@ -54,13 +65,30 @@
 
   async function save() {
     if (teacherOwnedUserAccount && userSecret) {
+      // Keep backward-compat name field in sync
+      if (editUserInfo.first_name) {
+        editUserInfo.name = [editUserInfo.first_name, editUserInfo.last_name].filter(Boolean).join(' ')
+      }
       await createUser(userSecret, providerSecret, editUserInfo)
     }
-    if (users[props.id] && archived.value !== !!users[props.id]?.archived) {
-      users[props.id].archived = archived.value
+
+    // Save grade to users state
+    if (usersState[props.id]) {
+      usersState[props.id].grade = studentGrade.value || undefined
+
+      // Update archived status based on dropdown
+      const shouldBeArchived = studentStatus.value === 'archived'
+      if (shouldBeArchived !== !!usersState[props.id]?.archived) {
+        usersState[props.id].archived = shouldBeArchived
+      }
     }
+
     open.value = false
     emit('close')
+  }
+
+  function openLoginCode() {
+    emit('open-login-code', props.id)
   }
 
   function t(slug) {
@@ -72,26 +100,54 @@
   <PModal
     v-if="open"
     width="500px"
-    :title="t('student-info')"
+    :title="t('edit')"
     @close="cancel"
   >
+    <template #title>
+      <div>
+        <h2 class="text-lg font-semibold text-zinc-950">{{ t('edit') }}</h2>
+        <p class="text-sm text-slate-500 mt-0.5">{{ t('student-info') }}</p>
+      </div>
+    </template>
     <template #body>
-      <div v-if="teacherOwnedUserAccount && editUserInfo">
+      <div v-if="teacherOwnedUserAccount && editUserInfo" class="edit-student-form">
         <PInput
-          v-model="editUserInfo.name"
-          :label="t('name')"
+          v-model="editUserInfo.first_name"
+          :label="t('first-name')"
+          :placeholder="t('first-name')"
           required
         />
+        <PInput
+          v-model="editUserInfo.last_name"
+          :label="t('last-name')"
+          :placeholder="t('last-name')"
+        />
+        <PInput
+          v-model="editUserInfo.nickname"
+          :label="t('nickname')"
+          :placeholder="t('nickname')"
+        />
+        <PSelect
+          v-model="studentGrade"
+          :label="t('grade')"
+          :items="gradeOptions"
+          :placeholder="t('select-grade')"
+          required
+        />
+        <PSelect
+          v-model="studentStatus"
+          :label="t('status')"
+          :items="statusOptions"
+        />
+        <div class="login-code-link">
+          <button class="login-code-btn" @click="openLoginCode">
+            {{ t('login-code') }} →
+          </button>
+          <!-- TODO: backend — needs per-student QR generation endpoint -->
+        </div>
       </div>
       <div v-else>
         <DecryptedName :user="id" />
-      </div>
-
-      <div v-if="users[id]" class="mt-4">
-        <PCheckbox
-          v-model="archived"
-          :label="t('archive')"
-        />
       </div>
     </template>
     <template #footer>
@@ -100,3 +156,28 @@
     </template>
   </PModal>
 </template>
+
+<style scoped>
+.edit-student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-code-link {
+  padding-top: 4px;
+}
+
+.login-code-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary-600, #2563eb);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+.login-code-btn:hover {
+  text-decoration: underline;
+}
+</style>

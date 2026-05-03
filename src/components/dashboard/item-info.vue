@@ -1,7 +1,8 @@
 <template>
 	<div class="item-info">
-		<i
-			class="fas fa-check-circle"
+		<LucideIcon
+			name="check-circle"
+			:size="14"
 			:style="`color: ${iconColor};`"
 		/>
 		<span>{{ timeString }}</span>
@@ -9,10 +10,12 @@
 </template>
 
 <script>
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 const o = x => ( x<10 ? '0'+x : ''+x )
 
 export default {
 	name: 'item-info',
+	components: { LucideIcon },
 	props: {
 		info: {
 			type: Object,

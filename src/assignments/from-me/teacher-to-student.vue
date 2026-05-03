@@ -5,7 +5,7 @@
   <div v-else-if="selectingContent">
     <div>
       <v-btn
-        prepend-icon="fa-solid fa-bolt"
+        prepend-icon="lucide:zap"
         style="
           z-index: 1;
           position: fixed;

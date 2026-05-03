@@ -8,7 +8,7 @@
 			:LabelComponent="TagTranslation"
 		/>
 		<div v-if="loading" class="py-4 text-center text-slate-500">
-			<i class="fa fa-spinner fa-spin mr-2" />Loading...
+			<LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-2" />Loading...
 		</div>
 		<div
 			v-if="taggedResources.length"
@@ -20,7 +20,7 @@
 				class="flex items-center gap-3 w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-100 transition-colors text-left border-b border-slate-200 last:border-b-0"
 				@click="download(id)"
 			>
-				<i class="fa-solid fa-download text-slate-400" />
+				<LucideIcon name="download" :size="16" class="text-slate-400" />
 				<vueScopeComponent
 					metadata
 					:id="id"
@@ -33,6 +33,7 @@
 
 <script setup>
 import { reactive, ref, watch, onMounted } from 'vue'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 import {
 	HOST_TO_PARTITION,
 	MANDATORY_RESOURCES_TAG,

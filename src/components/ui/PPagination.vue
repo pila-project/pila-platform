@@ -20,7 +20,7 @@
         aria-label="Previous page"
         @click="$emit('update:currentPage', currentPage - 1)"
       >
-        <i class="fa fa-chevron-left text-xs" />
+        <LucideIcon name="chevron-left" :size="12" />
       </button>
       <span class="pagination-page-info">
         Page {{ currentPage }} of {{ totalPages }}
@@ -31,7 +31,7 @@
         aria-label="Next page"
         @click="$emit('update:currentPage', currentPage + 1)"
       >
-        <i class="fa fa-chevron-right text-xs" />
+        <LucideIcon name="chevron-right" :size="12" />
       </button>
     </div>
   </div>
@@ -39,6 +39,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   totalItems: {

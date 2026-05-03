@@ -6,14 +6,21 @@
     :aria-disabled="disabled || undefined"
     @click="$emit('click', $event)"
   >
-    <i v-if="icon && !iconRight" :class="iconClass" :style="iconStyle" />
+    <template v-if="icon && !iconRight">
+      <LucideIcon v-if="isLucide" :name="lucideName" :size="14" :style="iconStyle" />
+      <i v-else :class="iconClass" :style="iconStyle" />
+    </template>
     <slot>{{ text }}</slot>
-    <i v-if="icon && iconRight" :class="iconClass" :style="iconStyle" />
+    <template v-if="icon && iconRight">
+      <LucideIcon v-if="isLucide" :name="lucideName" :size="14" :style="iconStyle" />
+      <i v-else :class="iconClass" :style="iconStyle" />
+    </template>
   </button>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   variant: {
@@ -40,6 +47,9 @@ const props = defineProps({
 })
 
 defineEmits(['click'])
+
+const isLucide = computed(() => props.icon?.startsWith('lucide:'))
+const lucideName = computed(() => props.icon?.slice(7))
 
 const iconClass = computed(() => {
   if (!props.icon) return ''

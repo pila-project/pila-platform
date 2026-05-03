@@ -4,7 +4,7 @@
       <div class="modal-backdrop" @click="$emit('close')" />
       <div class="modal-dialog" role="dialog" aria-modal="true">
         <div v-if="loading" class="details-loading">
-          <i class="fa fa-spinner fa-spin" /> {{ t('loading') }}
+          <LucideIcon name="loader-2" :size="14" :spin="true" /> {{ t('loading') }}
         </div>
         <template v-else>
           <!-- Header -->
@@ -14,7 +14,7 @@
               <p class="details-subtitle">{{ t('complete-information-about') }} {{ data.name }}</p>
             </div>
             <button class="details-close" @click="$emit('close')">
-              <i class="fa-solid fa-xmark" />
+              <LucideIcon name="x" :size="12" />
             </button>
           </div>
 
@@ -22,7 +22,7 @@
             <!-- Assignment Information -->
             <div class="details-section">
               <h3 class="section-heading">
-                <i class="fa-solid fa-file-lines section-icon" />
+                <LucideIcon name="file-text" :size="14" class="section-icon" />
                 {{ t('assignment-information') }}
               </h3>
               <div class="info-grid">
@@ -32,7 +32,7 @@
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('type') }}</span>
-                  <span class="info-value">{{ data.assignmentType || t('assignment') }}</span>
+                  <span class="info-value">{{ t(data.assignmentType ? data.assignmentType.toLowerCase() : 'assignment') }}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('due-date') }}</span>
@@ -40,7 +40,7 @@
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('status') }}</span>
-                  <span class="info-value" :class="statusClass">{{ status }}</span>
+                  <span class="info-value" :class="statusClass">{{ t(status.toLowerCase()) }}</span>
                 </div>
               </div>
               <div class="info-full">
@@ -52,25 +52,25 @@
             <!-- Assignment Settings -->
             <div class="details-section">
               <h3 class="section-heading">
-                <i class="fa-solid fa-gear section-icon" />
+                <LucideIcon name="settings" :size="14" class="section-icon" />
                 {{ t('assignment-settings') }}
               </h3>
               <div class="info-grid">
                 <div class="info-item">
                   <span class="info-label">{{ t('feedback-timings') }}</span>
-                  <span class="info-value">{{ data.feedbackTiming || t('at-the-end') }}</span>
+                  <span class="info-value">{{ t(feedbackTimingKey) }}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('maximum-attempts') }}</span>
-                  <span class="info-value">{{ data.maxAttempts || '1' }}</span>
+                  <span class="info-value">{{ data.maxAttempts || t('1-attempt') }}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('late-submissions') }}</span>
-                  <span class="info-value">{{ data.allowLate !== false ? t('allowed') : t('not-allowed') }}</span>
+                  <span class="info-value">{{ t(data.allowLate !== false ? 'allowed' : 'not-allowed') }}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('shuffle-questions') }}</span>
-                  <span class="info-value">{{ data.shuffleQuestions ? t('yes') : t('no') }}</span>
+                  <span class="info-value">{{ t(data.shuffleQuestions ? 'yes' : 'no') }}</span>
                 </div>
               </div>
             </div>
@@ -78,7 +78,7 @@
             <!-- Assignment Groups & Students -->
             <div class="details-section">
               <h3 class="section-heading">
-                <i class="fa-solid fa-user-group section-icon" />
+                <LucideIcon name="users" :size="14" class="section-icon" />
                 {{ t('assignment-groups-students') }} ({{ assignedGroups.length }})
               </h3>
               <div v-if="assignedGroups.length === 0" class="empty-text">
@@ -87,7 +87,7 @@
               <div v-else class="group-list">
                 <div v-for="gid in assignedGroups" :key="gid" class="group-row">
                   <div class="group-icon">
-                    <i class="fa-solid fa-user-group" />
+                    <LucideIcon name="users" :size="14" />
                   </div>
                   <div class="group-info">
                     <span class="group-name">
@@ -108,25 +108,25 @@
             <!-- Content Items -->
             <div class="details-section">
               <h3 class="section-heading">
-                <i class="fa-solid fa-book section-icon" />
-                {{ t('content-items') }} ({{ data.content ? 1 : 0 }})
+                <LucideIcon name="book-open" :size="14" class="section-icon" />
+                {{ t('content-items') }} ({{ contentItems.length }})
               </h3>
-              <div v-if="!data.content" class="empty-text">
+              <div v-if="!contentItems.length" class="empty-text">
                 {{ t('no-content-items-added') }}
               </div>
               <div v-else class="content-list">
-                <div class="content-row">
+                <div v-for="cid in contentItems" :key="cid" class="content-row">
                   <div class="content-info">
                     <span class="content-name">
-                      <vueScopeComponent :id="data.content" :path="['name']" />
+                      <vueScopeComponent :id="cid" :path="['name']" />
                     </span>
                     <span class="content-desc">
-                      <vueScopeComponent :id="data.content" :path="['description']">
+                      <vueScopeComponent :id="cid" :path="['description']">
                         <template v-slot="d">{{ d.value || '' }}</template>
                       </vueScopeComponent>
                     </span>
                   </div>
-                  <button class="preview-btn" @click="previewing = data.content">{{ t('preview') }}</button>
+                  <button class="preview-btn" @click="previewing = cid">{{ t('preview') }}</button>
                 </div>
               </div>
             </div>
@@ -155,6 +155,7 @@
   import { useStore } from 'vuex'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PButton } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
 
   const props = defineProps({
@@ -177,6 +178,19 @@
   const status = computed(() => {
     if (data.value.status) return data.value.status
     return assignedGroups.value.length > 0 ? 'Published' : 'Draft'
+  })
+
+  const contentItems = computed(() => {
+    if (!data.value.content) return []
+    if (Array.isArray(data.value.content)) return data.value.content
+    return [data.value.content]
+  })
+
+  const feedbackTimingKey = computed(() => {
+    const v = (data.value.feedbackTiming || '').toLowerCase()
+    if (v.includes('each')) return 'after-each-question'
+    if (v.includes('never')) return 'never'
+    return 'at-the-end'
   })
 
   const statusClass = computed(() => {
@@ -210,7 +224,7 @@
       data.value = {
         name: state.name || '',
         description: state.description || '',
-        content: state.content || null,
+        content: Array.isArray(state.content) ? state.content : (state.content ? [state.content] : []),
         assignmentType: state.assignmentType || 'Assignment',
         dueDate: state.dueDate || null,
         dueTime: state.dueTime || null,

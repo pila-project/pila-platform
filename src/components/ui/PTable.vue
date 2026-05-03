@@ -22,10 +22,10 @@
           >
             <div class="flex items-center gap-1">
               {{ header.title }}
-              <i
+              <LucideIcon
                 v-if="sortKey === header.key"
-                :class="sortOrder === 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'"
-                class="text-xs"
+                :name="sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'"
+                :size="12"
               />
             </div>
           </th>
@@ -35,7 +35,7 @@
       <tbody>
         <tr v-if="loading" class="table-row">
           <td :colspan="totalColumns" class="table-cell text-center py-8">
-            <i class="fa fa-spinner fa-spin mr-2" />Loading...
+            <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-2" />Loading...
           </td>
         </tr>
         <tr v-else-if="paginatedItems.length === 0" class="table-row">
@@ -81,7 +81,7 @@
                   :aria-expanded="isExpanded(item)"
                   aria-label="Expand row"
                 >
-                  <i :class="isExpanded(item) ? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="text-xs" />
+                  <LucideIcon :name="isExpanded(item) ? 'chevron-up' : 'chevron-down'" :size="12" />
                 </button>
               </td>
             </tr>
@@ -97,14 +97,19 @@
 
     <!-- Pagination -->
     <div
-      v-if="showPagination && totalPages > 1"
-      class="flex items-center justify-between px-4 py-3 border-t border-slate-200"
+      v-if="showPagination"
+      class="ptable-pagination"
     >
-      <div class="text-xs text-slate-500">
-        {{ itemsPerPageText || 'Items per page' }}:
+      <div class="ptable-pagination-info">
+        <span v-if="selectable" class="ptable-selected-count">
+          {{ selected.length }} of {{ items.length }} row(s) selected.
+        </span>
+      </div>
+      <div class="ptable-pagination-center">
+        {{ itemsPerPageText || 'Rows per page' }}
         <select
           :value="currentPerPage"
-          class="ml-1 border border-slate-200 rounded px-1 py-0.5 text-xs"
+          class="ptable-per-page-select"
           @change="currentPerPage = Number($event.target.value); currentPage = 1"
         >
           <option
@@ -116,24 +121,42 @@
           </option>
         </select>
       </div>
-      <div class="flex items-center gap-2">
-        <button
-          class="btn btn-ghost btn-sm"
-          :disabled="currentPage <= 1"
-          @click="currentPage--"
-        >
-          <i class="fa fa-chevron-left text-xs" />
-        </button>
-        <span class="text-xs text-slate-600">
-          {{ currentPage }} / {{ totalPages }}
-        </span>
-        <button
-          class="btn btn-ghost btn-sm"
-          :disabled="currentPage >= totalPages"
-          @click="currentPage++"
-        >
-          <i class="fa fa-chevron-right text-xs" />
-        </button>
+      <div class="ptable-pagination-right">
+        <span class="ptable-page-label">Page {{ currentPage }} of {{ totalPages }}</span>
+        <div class="ptable-page-buttons">
+          <button
+            class="ptable-page-btn"
+            :disabled="currentPage <= 1"
+            @click="currentPage = 1"
+            aria-label="First page"
+          >
+            <LucideIcon name="chevrons-left" :size="12" />
+          </button>
+          <button
+            class="ptable-page-btn"
+            :disabled="currentPage <= 1"
+            @click="currentPage--"
+            aria-label="Previous page"
+          >
+            <LucideIcon name="chevron-left" :size="12" />
+          </button>
+          <button
+            class="ptable-page-btn"
+            :disabled="currentPage >= totalPages"
+            @click="currentPage++"
+            aria-label="Next page"
+          >
+            <LucideIcon name="chevron-right" :size="12" />
+          </button>
+          <button
+            class="ptable-page-btn"
+            :disabled="currentPage >= totalPages"
+            @click="currentPage = totalPages"
+            aria-label="Last page"
+          >
+            <LucideIcon name="chevrons-right" :size="12" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -141,6 +164,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   headers: {
@@ -281,3 +305,86 @@ function toggleExpand(item) {
   expandedRows.value = next
 }
 </script>
+
+<style scoped>
+.ptable-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ptable-pagination-info {
+  flex-shrink: 0;
+}
+
+.ptable-selected-count {
+  font-size: 14px;
+  font-weight: 400;
+  color: #64748b;
+}
+
+.ptable-pagination-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.ptable-per-page-select {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #334155;
+  background: white;
+  cursor: pointer;
+}
+
+.ptable-pagination-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ptable-page-label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #334155;
+}
+
+.ptable-page-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ptable-page-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 11px;
+  transition: all 150ms;
+}
+.ptable-page-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #334155;
+}
+.ptable-page-btn:disabled {
+  color: #cbd5e1;
+  cursor: not-allowed;
+}
+</style>

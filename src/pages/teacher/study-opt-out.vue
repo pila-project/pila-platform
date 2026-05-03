@@ -35,7 +35,7 @@
         :disabled="loading || optedOut"
         @click="confirmOpen = true"
       >
-        <i v-if="loading" class="fa fa-spinner fa-spin mr-2" />
+        <LucideIcon v-if="loading" name="loader-2" :size="14" :spin="true" class="inline mr-2" />
         {{ optedOut ? t('already-opted-out') : t('opt-out-of-treatment-group') }}
       </PButton>
 
@@ -67,7 +67,7 @@
           :disabled="loading"
           @click="optOutConfirmed"
         >
-          <i v-if="loading" class="fa fa-spinner fa-spin mr-2" />
+          <LucideIcon v-if="loading" name="loader-2" :size="14" :spin="true" class="inline mr-2" />
           {{ t('yes-opt-me-out') }}
         </PButton>
       </template>
@@ -86,6 +86,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useStore } from 'vuex'
 import { PButton, PModal } from '@/components/ui/index.js'
 import {

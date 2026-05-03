@@ -16,12 +16,12 @@
     <!-- Thumbnail -->
     <div class="list-thumb">
       <img v-if="image" :src="image" />
-      <i v-else class="fa-solid fa-file-lines text-slate-300" />
+      <LucideIcon v-else name="file-text" :size="16" class="text-slate-300" />
     </div>
 
     <!-- Badge -->
     <PBadge :variant="isSequence ? 'warning' : 'info'" class="list-badge">
-      {{ isSequence ? 'Sequence' : 'Item' }}
+      {{ isSequence ? t('sequence') : t('item') }}
     </PBadge>
 
     <!-- Title + description -->
@@ -33,23 +33,23 @@
     </div>
 
     <!-- Source badge -->
-    <span v-if="source === 'mine'" class="source-pill source-mine">My content</span>
-    <span v-else class="source-pill source-pila">PILA content</span>
+    <span v-if="source === 'mine'" class="source-pill source-mine">{{ t('my-content') }}</span>
+    <span v-else class="source-pill source-pila">{{ t('pila-content') }}</span>
 
     <!-- Actions -->
     <div class="list-actions">
       <PButton
         variant="secondary"
         size="sm"
-        icon="fa-regular fa-eye"
-        text="Preview"
+        icon="lucide:eye"
+        :text="t('preview')"
         @click.stop="$emit('preview')"
       />
       <PButton
         variant="primary"
         size="sm"
-        icon="fa-solid fa-plus"
-        text="Add"
+        icon="lucide:plus"
+        :text="t('add')"
         @click.stop="$emit('add')"
       />
     </div>
@@ -58,9 +58,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useStore } from 'vuex'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { getContentImage, getContentMetadata } from '@/utils/content-cache.js'
 import { PButton, PBadge } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   id: { type: String, required: true },

@@ -45,10 +45,11 @@
           v-model="relatedTagStates[id][data.item.target]"
           @update:modelValue="val => setRelatedTag(id, data.item.target, val)"
         />
-        <v-icon
+        <LucideIcon
           v-else
-          class="d-inline-flex"
-          :icon="`fa-regular fa-square${relatedTagStates[id][data.item.target] ? '-check' : ''}`"
+          class="d-inline-flex cursor-pointer"
+          :name="relatedTagStates[id][data.item.target] ? 'check-square' : 'square'"
+          :size="18"
           @click="toggleRelatedTag(id, data.item.target)"
         />
       </template>
@@ -63,7 +64,7 @@
       <v-btn
         v-if="editable"
         variant="plain"
-        icon="fa-solid fa-xmark"
+        icon="mdi-close"
         @click="potentialRemoval = data.item.target"
       />
     </template>
@@ -129,6 +130,7 @@
   import DecryptedName from './decrypted-name.vue'
   import { useStore } from 'vuex'
   import { json2csv } from 'json-2-csv'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const store = useStore()
 

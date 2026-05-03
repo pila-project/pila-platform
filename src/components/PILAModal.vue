@@ -11,7 +11,7 @@
           class="mr-2"
           size="x-small"
           density="comfortable"
-          icon="fa fa-xmark"
+          icon="mdi-close"
           color="red"
         />
       </div>

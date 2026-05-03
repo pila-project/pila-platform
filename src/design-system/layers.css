@@ -54,15 +54,15 @@
 
   /* Badges */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5
+    @apply inline-flex items-center px-3 py-1
            text-xs font-medium transition-colors;
   }
   .badge-rounded { @apply rounded-full; }
   .badge-square  { @apply rounded-md; }
-  .badge-success { @apply bg-success-50 text-success-600; }
-  .badge-warning { @apply bg-warning-50 text-warning-600; }
-  .badge-danger  { @apply bg-danger-200 text-danger-600; }
-  .badge-info    { @apply bg-primary-50 text-primary-600; }
+  .badge-success { @apply bg-success-50 text-success-600 border border-success-500; }
+  .badge-warning { @apply bg-warning-50 text-warning-600 border border-warning-500; }
+  .badge-danger  { @apply bg-danger-200 text-danger-600 border border-danger-500; }
+  .badge-info    { @apply bg-primary-50 text-primary-600 border border-primary-600; }
   .badge-outline { @apply bg-white text-slate-600 border border-slate-300; }
   .badge-secondary { @apply bg-slate-100 text-slate-600; }
   .badge-destructive { @apply bg-danger-50 text-danger-600; }

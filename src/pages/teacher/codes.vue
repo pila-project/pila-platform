@@ -1,6 +1,7 @@
 <script setup>
   import { onMounted, nextTick } from 'vue'
   import UserInfoCard from '@/components/users/user-info-card.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   const users = await Agent.state('users')
 
   const visibleUsers = Object.keys(users).filter(id => !users[id].archived)
@@ -19,7 +20,7 @@
         class="btn btn-primary btn-lg"
         @click="print"
       >
-        <i class="fas fa-print mr-2" />
+        <LucideIcon name="printer" :size="16" class="mr-2" />
         Print Codes
       </button>
     </div>

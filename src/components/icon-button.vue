@@ -9,19 +9,22 @@
             'user-select': 'none'
         }"
     >
-        <i
+        <LucideIcon
             v-if="icon"
-            :class="`fa fa-${icon}`"
+            :name="icon"
+            :size="14"
             :style="{
               'margin-right': text ? undefined : 0
             }"
-        ></i>
+        />
         <span>{{ text }}</span>
     </button>
 </template>
 
 <script>
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 export default {
+    components: { LucideIcon },
     props: {
         text: {
             type: String,

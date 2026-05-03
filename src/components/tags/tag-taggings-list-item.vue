@@ -7,13 +7,17 @@
     }"
   >
     <span :style="`display: block; width: ${depth * 48}px`" />
-    <i
+    <LucideIcon
       v-if="loaded && childTags.length === 0"
-      :class="`fa-regular fa-square${selected.includes(props.tag) ? '-check' : ''} mr-2`"
+      :name="selected.includes(props.tag) ? 'check-square' : 'square'"
+      :size="16"
+      class="mr-2"
     />
-    <i
+    <LucideIcon
       v-if="childTags.length"
-      :class="`fa-solid fa-chevron-${open ? 'down' : 'right'} mr-2`"
+      :name="open ? 'chevron-down' : 'chevron-right'"
+      :size="16"
+      class="mr-2"
       :style="{ marginLeft: `${Math.max(depth-1, 0) * 48}px` }"
       @click.stop="open = !open"
     />
@@ -39,6 +43,7 @@
   import { ref } from 'vue'
   import TagTaggingsList from './tag-taggings-list.vue'
   import TagTranslation from './tag-translation.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const emit = defineEmits(['select'])
 

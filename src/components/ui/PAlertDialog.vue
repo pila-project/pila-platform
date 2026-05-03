@@ -4,7 +4,8 @@
       <div class="alert-backdrop" @click="$emit('cancel')" />
       <div class="alert-dialog" role="alertdialog" aria-modal="true">
         <div class="alert-icon" :class="`alert-icon-${variant}`">
-          <i :class="variantIcon" />
+          <LucideIcon v-if="isLucideIcon" :name="lucideIconName" :size="54" />
+          <i v-else :class="variantIcon" />
         </div>
         <div class="alert-content">
           <h3 class="alert-title">{{ title }}</h3>
@@ -35,6 +36,7 @@
 
 <script setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   variant: {
@@ -60,13 +62,15 @@ const props = defineProps({
 defineEmits(['confirm', 'cancel'])
 
 const variantIcons = {
-  error: 'fa-regular fa-circle-xmark',
-  success: 'fa-regular fa-circle-check',
-  notification: 'fa-solid fa-bell',
-  warning: 'fa-solid fa-box-archive',
+  error: 'lucide:x-circle',
+  success: 'lucide:check-circle',
+  notification: 'lucide:bell',
+  warning: 'lucide:archive',
 }
 
 const variantIcon = computed(() => variantIcons[props.variant])
+const isLucideIcon = computed(() => variantIcon.value.startsWith('lucide:'))
+const lucideIconName = computed(() => variantIcon.value.slice(7))
 
 onMounted(() => document.body.style.overflow = 'hidden')
 onBeforeUnmount(() => document.body.style.overflow = '')
@@ -116,7 +120,7 @@ onBeforeUnmount(() => document.body.style.overflow = '')
 .alert-icon-error { color: #dc2626; }
 .alert-icon-success { color: #16a34a; }
 .alert-icon-notification { color: #2563eb; }
-.alert-icon-warning { color: #ca8a04; }
+.alert-icon-warning { color: #ea580c; }
 
 /* Content */
 .alert-content {
@@ -182,7 +186,7 @@ onBeforeUnmount(() => document.body.style.overflow = '')
   color: #f8fafc;
 }
 .alert-btn-confirm.alert-btn-warning {
-  background: #ca8a04;
+  background: #ea580c;
   color: #f8fafc;
 }
 
@@ -203,8 +207,8 @@ onBeforeUnmount(() => document.body.style.overflow = '')
   color: #2563eb;
 }
 .alert-btn-cancel-warning {
-  border-color: #fde68a;
-  color: #ca8a04;
+  border-color: #e2e8f0;
+  color: #334155;
 }
 
 /* Mobile */

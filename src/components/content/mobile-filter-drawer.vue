@@ -17,7 +17,7 @@
           >
             <button class="filter-section-header" @click="toggleSection(filter.key)">
               <span class="filter-section-title">{{ filter.label }}</span>
-              <i :class="openSections.has(filter.key) ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="text-xs text-slate-400" />
+              <LucideIcon :name="openSections.has(filter.key) ? 'chevron-up' : 'chevron-down'" :size="12" class="text-slate-400" />
             </button>
             <div v-if="openSections.has(filter.key)" class="filter-section-body">
               <label
@@ -47,6 +47,7 @@
 <script setup>
 import { reactive, computed } from 'vue'
 import { useStore } from 'vuex'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }

@@ -163,23 +163,23 @@
         width="520px"
       >
         <template #title>
-          <h2 class="text-lg font-semibold text-zinc-950"><i class="fa-solid fa-users" style="margin-right: 8px;" />Add students</h2>
+          <h2 class="text-lg font-semibold text-zinc-950"><LucideIcon name="users" :size="18" style="margin-right: 8px; display: inline;" />Add students</h2>
         </template>
         <template #body>
           <p style="color: #64748b; margin-bottom: 20px;">Choose how you would like to add students.</p>
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <div class="action-tile" style="border-left: 4px solid #f59e0b;">
-              <div class="action-tile-icon" style="background: #fef3c7;"><i class="fa-solid fa-plus" style="color: #f59e0b;" /></div>
+              <div class="action-tile-icon" style="background: #fef3c7;"><LucideIcon name="plus" :size="18" style="color: #f59e0b;" /></div>
               <div><div style="font-weight: 600;">Create individual account</div><div style="color: #64748b; font-size: 0.875rem;">Manually create a single student account</div></div>
             </div>
             <div style="text-align: center;"><a href="#" style="color: #3b82f6; font-size: 0.875rem;">Link student to you →</a></div>
             <div class="action-tile" style="border-left: 4px solid #22c55e;">
-              <div class="action-tile-icon" style="background: #dcfce7;"><i class="fa-solid fa-angles-up" style="color: #22c55e;" /></div>
+              <div class="action-tile-icon" style="background: #dcfce7;"><LucideIcon name="chevrons-up" :size="18" style="color: #22c55e;" /></div>
               <div><div style="font-weight: 600;">Create bulk accounts</div><div style="color: #64748b; font-size: 0.875rem;">Upload CSV or manually enter multiple students</div></div>
             </div>
             <div style="text-align: center;"><a href="#" style="color: #3b82f6; font-size: 0.875rem;">Link students to you →</a></div>
             <div class="action-tile" style="border-left: 4px solid #3b82f6;">
-              <div class="action-tile-icon" style="background: #dbeafe;"><i class="fa-solid fa-user-plus" style="color: #3b82f6;" /></div>
+              <div class="action-tile-icon" style="background: #dbeafe;"><LucideIcon name="user-plus" :size="18" style="color: #3b82f6;" /></div>
               <div><div style="font-weight: 600;">Link via SSO</div><div style="color: #64748b; font-size: 0.875rem;">Connect existing accounts from Google or Microsoft</div></div>
             </div>
           </div>
@@ -279,8 +279,8 @@
           </template>
           <template #item.action="{ item }">
             <div style="display: flex; gap: 8px;">
-              <button class="icon-action"><i class="fa-solid fa-ellipsis-vertical" /></button>
-              <button class="icon-action"><i class="fa-solid fa-grip-vertical" /></button>
+              <button class="icon-action"><LucideIcon name="ellipsis-vertical" :size="14" /></button>
+              <button class="icon-action"><LucideIcon name="grip-vertical" :size="14" /></button>
             </div>
           </template>
         </PTable>
@@ -340,15 +340,15 @@
       <h3>Action Tiles</h3>
       <div class="showcase-grid-cards">
         <div class="action-tile">
-          <div class="action-tile-icon" style="background: #dbeafe;"><i class="fa-solid fa-user-plus" style="color: #3b82f6;" /></div>
+          <div class="action-tile-icon" style="background: #dbeafe;"><LucideIcon name="user-plus" :size="18" style="color: #3b82f6;" /></div>
           <div><div style="font-weight: 600;">Link via SSO</div><div style="color: #64748b; font-size: 0.85rem;">5th Grade</div></div>
         </div>
         <div class="action-tile">
-          <div class="action-tile-icon" style="background: #fef3c7;"><i class="fa-solid fa-plus" style="color: #f59e0b;" /></div>
+          <div class="action-tile-icon" style="background: #fef3c7;"><LucideIcon name="plus" :size="18" style="color: #f59e0b;" /></div>
           <div><div style="font-weight: 600;">Create individual account</div><div style="color: #64748b; font-size: 0.85rem;">Manually create a single student account</div></div>
         </div>
         <div class="action-tile">
-          <div class="action-tile-icon" style="background: #dcfce7;"><i class="fa-solid fa-angles-up" style="color: #22c55e;" /></div>
+          <div class="action-tile-icon" style="background: #dcfce7;"><LucideIcon name="chevrons-up" :size="18" style="color: #22c55e;" /></div>
           <div><div style="font-weight: 600;">Create bulk accounts</div><div style="color: #64748b; font-size: 0.85rem;">Upload CSV or manually enter multiple students</div></div>
         </div>
       </div>
@@ -419,18 +419,18 @@
       <div class="showcase-row">
         <PMenu>
           <template #activator="{ props }">
-            <PButton text="Status" icon="fa-solid fa-circle-plus" variant="outline" @click="props.onClick" />
+            <PButton text="Status" icon="lucide:circle-plus" variant="outline" @click="props.onClick" />
           </template>
-          <PMenuItem title="Profile" prepend-icon="fa-solid fa-user" />
-          <PMenuItem title="Settings" prepend-icon="fa-solid fa-gear" />
-          <PMenuItem title="Active Item" prepend-icon="fa-solid fa-check" active />
-          <PMenuItem title="With Submenu" prepend-icon="fa-solid fa-folder">
+          <PMenuItem title="Profile" prepend-icon="lucide:user" />
+          <PMenuItem title="Settings" prepend-icon="lucide:settings" />
+          <PMenuItem title="Active Item" prepend-icon="lucide:check" active />
+          <PMenuItem title="With Submenu" prepend-icon="lucide:folder">
             <template #submenu>
               <PMenuItem title="Sub Item 1" />
               <PMenuItem title="Sub Item 2" />
             </template>
           </PMenuItem>
-          <PMenuItem title="Delete" prepend-icon="fa-solid fa-trash" danger />
+          <PMenuItem title="Delete" prepend-icon="lucide:trash-2" danger />
         </PMenu>
 
         <div class="showcase-row" style="gap: 4px;">
@@ -448,7 +448,7 @@
       <div class="pagination-demo">
         <div style="display: flex; align-items: center; gap: 8px;">
           <PButton variant="outline" icon="arrow-left" text="Previous" size="sm" />
-          <PButton variant="outline" icon="fa-solid fa-rotate" text="Skip" size="sm" />
+          <PButton variant="outline" icon="lucide:rotate-cw" text="Skip" size="sm" />
         </div>
         <div style="display: flex; align-items: center; gap: 4px;">
           <span class="page-num active">1</span>
@@ -505,7 +505,7 @@
         width="520px"
       >
         <template #title>
-          <h2 class="text-lg font-semibold text-zinc-950"><i class="fa-solid fa-users" style="margin-right: 8px;" />Add students</h2>
+          <h2 class="text-lg font-semibold text-zinc-950"><LucideIcon name="users" :size="18" style="margin-right: 8px; display: inline;" />Add students</h2>
         </template>
         <template #body>
           <p style="color: #64748b; margin-bottom: 20px;">Enter individual students information</p>
@@ -544,7 +544,7 @@
       <h3>Input Fields</h3>
       <div class="showcase-grid">
         <PInput label="First Name" placeholder="Enter first name" v-model="extraInput1" />
-        <PInput label="Email" placeholder="Enter email" icon="fa-solid fa-envelope" v-model="extraInput2" />
+        <PInput label="Email" placeholder="Enter email" icon="lucide:mail" v-model="extraInput2" />
         <PInput label="With Error" placeholder="Required" error="This field is required" v-model="extraInput3" />
       </div>
 
@@ -576,11 +576,11 @@
       <h3>File Cards</h3>
       <div class="showcase-row">
         <div class="file-card">
-          <i class="fa-solid fa-file-csv" style="font-size: 1.5rem; color: #64748b;" />
+          <LucideIcon name="file-spreadsheet" :size="24" style="color: #64748b;" />
           <div><div style="font-weight: 600;">CSV file</div><div style="color: #64748b; font-size: 0.8rem;">Spreadsheet format</div></div>
         </div>
         <div class="file-card">
-          <i class="fa-solid fa-file-pdf" style="font-size: 1.5rem; color: #64748b;" />
+          <LucideIcon name="file-text" :size="24" style="color: #64748b;" />
           <div><div style="font-weight: 600;">PDF report</div><div style="color: #64748b; font-size: 0.8rem;">Formatted document</div></div>
         </div>
       </div>
@@ -597,6 +597,7 @@ import {
   PMenu, PMenuItem, PPagination, PDatePicker,
   PInput, PSelect, PCheckbox, PDivider, PAvatar, PModal
 } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 // Tabs
 const tabLabels = [

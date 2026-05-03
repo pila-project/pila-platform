@@ -18,21 +18,20 @@
   
     <div class="icons">
       <div class="icon-wrapper" v-if="showPlay" @click="$emit('play')">
-        <i style="color: green;" class="fa fa-play"></i>
+        <LucideIcon name="play" :size="14" style="color: green;" />
       </div>
       <div class="icon-wrapper" v-if="showPreview" @click="$emit('preview')">
-        <i style="color: grey;" class="fa fa-eye"></i>
+        <LucideIcon name="eye" :size="14" style="color: grey;" />
       </div>
       <div class="icon-wrapper" v-if="showRemove && !isExpertTask" @click="$emit('remove')">
-        X
+        <LucideIcon name="x" :size="14" />
       </div>
       <div class="icon-wrapper" v-if="showEdit" @click="$emit('edit')">
-        <i style="color: grey;" class="fa fa-pencil"></i>
+        <LucideIcon name="pencil" :size="14" style="color: grey;" />
       </div>
 
       <div class="icon-wrapper" v-if="showFavorite" @click="$emit('toggleFavorite')">
-        <i v-if="isFavorite" style="color: red;" class="fa fa-heart"></i>
-        <i v-else style="color: grey;" class="fa fa-heart"></i>
+        <LucideIcon name="heart" :size="14" :style="{ color: isFavorite ? 'red' : 'grey' }" />
       </div>
 
     </div>
@@ -41,10 +40,11 @@
 
 <script>
 import PilaExpertSvg from './pila-expert-svg.vue'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 export default {
 	name: 'card-icons-bar',
-  components: { PilaExpertSvg },
+  components: { PilaExpertSvg, LucideIcon },
 	props: {
     id: {
       type: String,

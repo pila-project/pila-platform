@@ -8,14 +8,14 @@
         <div class="assign-card-title-row">
           <div>
             <h2 class="card-section-title flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-list text-primary-600" />
+              <LucideIcon name="clipboard-list" :size="18" class="text-primary-600" />
               <span class="capitalize">{{ t('assignments') }}</span>
             </h2>
             <p class="card-section-subtitle">{{ t('create-and-manage-assignments') }}</p>
           </div>
           <PButton
             variant="primary"
-            icon="fa-solid fa-plus"
+            icon="lucide:plus"
             :text="t('new-assignment')"
             class="assign-new-btn"
             @click="add"
@@ -25,44 +25,39 @@
 
       <!-- Search + Filters -->
       <div class="assign-controls">
-        <div class="assign-search">
-          <PInput
-            v-model="searchQuery"
-            :placeholder="t('search-assignments')"
-            icon="fa-solid fa-magnifying-glass"
-          />
-        </div>
-        <!-- Mobile filters toggle -->
-        <button
-          class="mobile-filters-btn"
-          :class="{ active: showMobileFilters }"
-          @click="showMobileFilters = !showMobileFilters"
+        <PUnifiedFilter
+          v-model:searchQuery="searchQuery"
+          :placeholder="t('search-assignments')"
         >
-          <i class="fa-solid fa-sliders" />
-          {{ t('filters') }}
-          <span v-if="activeFilterCount" class="mobile-filter-badge">{{ activeFilterCount }}</span>
-        </button>
-        <!-- Desktop filter dropdowns -->
-        <div class="assign-filters" :class="{ 'filters-open': showMobileFilters }">
-          <FilterDropdown
-            :label="t('status')"
+          <PUnifiedFilterSection
+            id="status"
+            :label="t('publication-status')"
+            icon="table"
             :options="statusOptions"
             v-model="statusFilter"
           />
-          <FilterDropdown
+          <PUnifiedFilterSection
+            id="type"
             :label="t('assignment-type')"
+            icon="list-tree"
             :options="typeOptions"
             v-model="typeFilter"
           />
-          <button class="filter-chip-btn" disabled>
-            {{ t('assigned-to') }}
-            <i class="fa-solid fa-chevron-down chevron" />
-          </button>
-          <button class="filter-chip-btn" disabled>
-            {{ t('due-date-range') }}
-            <i class="fa-solid fa-chevron-down chevron" />
-          </button>
-        </div>
+          <PUnifiedFilterDateSection
+            id="dueDate"
+            :label="t('due-date-range')"
+            v-model="dueDateFilter"
+          />
+          <PUnifiedFilterTabSection
+            id="assignedTo"
+            :label="t('assigned-to')"
+            icon="link"
+            :tabs="assignedToTabs"
+            :options="assignedToOptions"
+            v-model="assignedToFilter"
+            v-model:activeTab="assignedToTab"
+          />
+        </PUnifiedFilter>
       </div>
 
       <!-- Data table -->
@@ -78,22 +73,22 @@
                   @change="toggleSelectAll"
                 />
               </th>
-              <th class="assign-th assign-th-title">{{ t('assignment-title') }} <i class="fa-solid fa-sort assign-sort-icon" /></th>
-              <th class="assign-th assign-th-date">{{ t('due-date') }} <i class="fa-solid fa-sort assign-sort-icon" /></th>
-              <th class="assign-th assign-th-status">{{ t('publication-status') }} <i class="fa-solid fa-sort assign-sort-icon" /></th>
+              <th class="assign-th assign-th-title">{{ t('assignment-title') }} <LucideIcon name="arrow-up-down" :size="10" class="assign-sort-icon" /></th>
+              <th class="assign-th assign-th-date">{{ t('due-date') }} <LucideIcon name="arrow-up-down" :size="10" class="assign-sort-icon" /></th>
+              <th class="assign-th assign-th-status">{{ t('publication-status') }} <LucideIcon name="arrow-up-down" :size="10" class="assign-sort-icon" /></th>
               <th class="assign-th assign-th-assigned">{{ t('assigned-to') }}</th>
               <th class="assign-th assign-th-submissions">{{ t('assignment-submissions') }}</th>
               <th class="assign-th assign-th-actions">{{ t('actions') }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="assignmentsForActiveTable.length === 0" class="assign-row">
+            <tr v-if="paginatedAssignments.length === 0" class="assign-row">
               <td colspan="7" class="assign-td text-center" style="padding: 32px 16px; color: #64748b;">
                 {{ searchQuery || statusFilter.length || typeFilter.length ? t('no-assignments-match-filters') : t('no-data-available') }}
               </td>
             </tr>
             <tr
-              v-for="item in assignmentsForActiveTable"
+              v-for="item in paginatedAssignments"
               :key="item"
               class="assign-row"
               :class="{ 'assign-row-selected': current === item }"
@@ -112,6 +107,10 @@
               <td class="assign-td assign-td-title">
                 <div class="assign-cell-title">
                   <vueScopeComponent :id="item" :path="['name']" />
+                  <span v-if="assignmentData[item]?.assignmentType" class="assign-type-dot"> . </span>
+                  <span v-if="assignmentData[item]?.assignmentType" :class="getTypeBadgeClass(assignmentData[item].assignmentType)">
+                    {{ t(assignmentData[item].assignmentType.toLowerCase()) }}
+                  </span>
                 </div>
                 <div class="assign-cell-desc">
                   <vueScopeComponent :id="item" :path="['description']">
@@ -130,8 +129,11 @@
               <!-- Publication status -->
               <td class="assign-td">
                 <span :class="getStatusBadgeClass(item)">
-                  {{ getStatus(item) }}
+                  {{ t(getStatus(item).toLowerCase()) }}
                 </span>
+                <div v-if="getStatus(item) === 'Scheduled' && assignmentData[item]?.dueDate" class="assign-cell-desc">
+                  {{ t('for') }} {{ formatDate(assignmentData[item].dueDate) }}
+                </div>
               </td>
               <!-- Assigned to -->
               <td class="assign-td">
@@ -145,7 +147,7 @@
                     />
                   </div>
                   <div class="assign-cell-desc">
-                    {{ getAssignedGroups(item).length }} group{{ getAssignedGroups(item).length > 1 ? 's' : '' }}
+                    {{ getAssignedGroups(item).length }} {{ getAssignedGroups(item).length > 1 ? t('groups') : t('group') }}
                   </div>
                 </template>
                 <span v-else class="assign-cell-text">{{ t('not-assigned') }}</span>
@@ -165,44 +167,66 @@
                 <PMenu alignRight>
                   <template #activator="{ props }">
                     <button class="assign-action-btn" @click="props.onClick">
-                      <i class="fa-solid fa-ellipsis" />
+                      <LucideIcon name="ellipsis" :size="14" />
                     </button>
                   </template>
                   <PMenuItem
                     :title="t('view-assignment-details')"
-                    prepend-icon="fa-solid fa-eye"
+                    prepend-icon="lucide:eye"
                     @click="viewDetails(item)"
                   />
                   <PMenuItem
+                    :title="t('view-analytics-dashboard')"
+                    :prepend-icon="dashboardSubmenuItem === item ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+                    @click.prevent="dashboardSubmenuItem = dashboardSubmenuItem === item ? null : item"
+                  />
+                  <template v-if="dashboardSubmenuItem === item">
+                    <PMenuItem
+                      :title="t('app-specific-dashboard')"
+                      class="menu-item-indent"
+                      @click="openDashboard(item)"
+                    />
+                    <PMenuItem
+                      :title="t('competency-dashboard')"
+                      class="menu-item-indent"
+                      @click="openCandliDashboard(item)"
+                    />
+                    <PMenuItem
+                      :title="t('live-monitoring-dashboard')"
+                      class="menu-item-indent"
+                      @click="openLiveDashboard(item)"
+                    />
+                  </template>
+                  <PMenuItem
                     :title="t('edit-assignment')"
-                    prepend-icon="fa-solid fa-pencil"
+                    prepend-icon="lucide:pencil"
                     @click="openEdit(item)"
                   />
                   <PMenuItem
                     :title="t('view-submissions')"
-                    prepend-icon="fa-solid fa-chart-bar"
+                    prepend-icon="lucide:bar-chart"
                     @click="openSubmissions(item)"
                   />
                   <PMenuItem
                     :title="t('duplicate')"
-                    prepend-icon="fa-solid fa-copy"
+                    prepend-icon="lucide:copy"
                     @click="startDuplicate(item)"
                   />
                   <PMenuItem
                     v-if="archivedIds[item]"
                     :title="t('unarchive')"
-                    prepend-icon="fa-solid fa-box-open"
+                    prepend-icon="lucide:archive-restore"
                     @click="readd(item)"
                   />
                   <PMenuItem
                     v-else
                     :title="t('archive')"
-                    prepend-icon="fa-solid fa-box-archive"
+                    prepend-icon="lucide:archive"
                     @click="startArchive(item)"
                   />
                   <PMenuItem
                     :title="t('delete')"
-                    prepend-icon="fa-solid fa-trash"
+                    prepend-icon="lucide:trash-2"
                     class="menu-item-danger"
                     @click="startDelete(item)"
                   />
@@ -218,9 +242,30 @@
         <span class="assign-pagination-info">
           {{ selectedRows.size }} {{ t('of') }} {{ assignmentsForActiveTable.length }} {{ t('rows-selected') }}
         </span>
-        <div class="assign-pagination-nav">
-          <button class="assign-pagination-btn" disabled>{{ t('previous') }}</button>
-          <button class="assign-pagination-btn" disabled>{{ t('next') }}</button>
+        <div class="assign-pagination-center">
+          {{ t('rows-per-page') }}
+          <select class="assign-per-page-select" v-model.number="perPage" @change="currentPage = 1">
+            <option :value="10">10</option>
+            <option :value="25">25</option>
+            <option :value="50">50</option>
+          </select>
+        </div>
+        <div class="assign-pagination-right">
+          <span class="assign-page-label">{{ t('page') }} {{ currentPage }} {{ t('of') }} {{ totalPages }}</span>
+          <div class="assign-page-buttons">
+            <button class="assign-page-btn" :disabled="currentPage <= 1" @click="currentPage = 1">
+              <LucideIcon name="chevrons-left" :size="11" />
+            </button>
+            <button class="assign-page-btn" :disabled="currentPage <= 1" @click="currentPage--">
+              <LucideIcon name="chevron-left" :size="11" />
+            </button>
+            <button class="assign-page-btn" :disabled="currentPage >= totalPages" @click="currentPage++">
+              <LucideIcon name="chevron-right" :size="11" />
+            </button>
+            <button class="assign-page-btn" :disabled="currentPage >= totalPages" @click="currentPage = totalPages">
+              <LucideIcon name="chevrons-right" :size="11" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -230,9 +275,11 @@
   <CreateEditAssignmentModal
     v-if="showEditModal"
     @close="showEditModal = false"
+    @saved="onAssignmentSaved"
     :researcher="props.assignable_item_type === 'researcher-created'"
     :teacher="props.assignable_item_type === 'teacher-created'"
     :id="current"
+    :editing="!wasCreating"
   />
 
   <!-- Preview Modal -->
@@ -321,32 +368,56 @@
   <PAlertDialog
     v-if="showDeleteDialog"
     variant="error"
-    :title="t('delete-assignment')"
-    :description="t('delete-assignment-warning')"
-    :confirmText="t('delete')"
+    :title="`${t('are-you-sure-you-want-to-delete')} &quot;${pendingActionName}&quot;?`"
+    :description="t('delete-assignment-warning-permanent')"
+    :confirmText="t('delete-assignment')"
     :cancelText="t('cancel')"
     @confirm="confirmDelete"
     @cancel="showDeleteDialog = false"
   />
-  <PAlertDialog
+  <PModal
     v-if="showDuplicateDialog"
-    variant="notification"
-    :title="t('duplicate-assignment')"
-    :description="t('duplicate-assignment-description')"
-    :confirmText="t('duplicate')"
-    :cancelText="t('cancel')"
-    @confirm="confirmDuplicate"
-    @cancel="showDuplicateDialog = false"
-  />
+    @close="showDuplicateDialog = false"
+    width="500px"
+  >
+    <template #title>
+      <span class="flex items-center gap-2">
+        <LucideIcon name="copy" :size="16" />
+        {{ t('duplicate-assignment') }}
+      </span>
+    </template>
+    <template #body>
+      <p class="duplicate-subtitle">{{ t('create-a-copy-of') }} "{{ duplicateSourceName }}"</p>
+      <div class="duplicate-info-banner">
+        <LucideIcon name="info" :size="14" class="info-banner-icon" />
+        <span>{{ t('duplicate-info-text') }}</span>
+      </div>
+      <div style="margin-top: 16px;">
+        <PInput v-model="duplicateNewTitle" :label="t('new-assignment-title')" />
+      </div>
+    </template>
+    <template #footer>
+      <PButton variant="ghost" :text="t('back')" class="footer-back-btn" />
+      <PButton variant="ghost" :text="t('cancel')" class="footer-cancel-btn" @click="showDuplicateDialog = false" />
+      <PButton variant="primary" :text="t('duplicate-assignment')" @click="confirmDuplicate" />
+    </template>
+  </PModal>
   <PAlertDialog
     v-if="showArchiveDialog"
-    variant="notification"
-    :title="t('archive-assignment')"
-    :description="t('archive-assignment-description')"
-    :confirmText="t('archive')"
+    variant="warning"
+    :title="t('are-you-sure-you-want-to-archive-this-assignment')"
+    :description="`${t('archive')} &quot;${pendingActionName}&quot; ${t('to-remove-from-active-lists-while-preserving-data')}`"
+    :confirmText="t('archive-assignment')"
     :cancelText="t('cancel')"
     @confirm="confirmArchive"
     @cancel="showArchiveDialog = false"
+  />
+  <PAlertDialog
+    v-if="showSuccessDialog"
+    variant="success"
+    :title="t('assignment-successfully-created')"
+    :confirmText="t('continue')"
+    @confirm="showSuccessDialog = false"
   />
 </template>
 
@@ -356,8 +427,8 @@
   import { useRouter } from 'vue-router'
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog } from '@/components/ui/index.js'
-  import FilterDropdown from '@/components/content/filter-dropdown.vue'
+  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
   import Dashboard from './dashboard/index.vue'
   import CreateEditAssignmentModal from './create-edit-assignment-modal.vue'
@@ -380,6 +451,8 @@
   const current = ref(null)
   const showEditModal = ref(false)
   const showArchived = ref(false)
+  const currentPage = ref(1)
+  const perPage = ref(10)
   const previewing = ref(null)
   const showResultsModal = ref(false)
   const showCandliResultsModal = ref(false)
@@ -392,13 +465,16 @@
   const selectedRows = reactive(new Set())
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
+  const dashboardSubmenuItem = ref(null)
+  const showSuccessDialog = ref(false)
+  const wasCreating = ref(false)
 
   // ── Filter state ──
   const statusFilter = ref([])
   const typeFilter = ref([])
-  const showMobileFilters = ref(false)
-
-  const activeFilterCount = computed(() => statusFilter.value.length + typeFilter.value.length)
+  const dueDateFilter = ref(null)
+  const assignedToFilter = ref([])
+  const assignedToTab = ref('all')
 
   const statusOptions = computed(() => [
     { value: 'Published', label: t('published') },
@@ -412,11 +488,34 @@
     { value: 'Project', label: t('project') },
   ])
 
+  const assignedToTabs = computed(() => [
+    { key: 'all', label: t('all') },
+    { key: 'group', label: t('group') },
+    { key: 'students', label: t('student') },
+  ])
+
+  const assignedToOptions = computed(() => {
+    const groupEntries = Object.entries(store.state.groups.groups)
+      .filter(([, g]) => !g.archived)
+      .map(([id, g]) => ({ value: id, label: g.name || t('unnamed') }))
+    return {
+      group: groupEntries,
+      students: [],
+    }
+  })
+
   // ── Confirmation dialog state ──
   const showDeleteDialog = ref(false)
   const showDuplicateDialog = ref(false)
   const showArchiveDialog = ref(false)
   const pendingActionItem = ref(null)
+  const duplicateNewTitle = ref('')
+  const duplicateSourceName = ref('')
+
+  const pendingActionName = computed(() => {
+    if (!pendingActionItem.value) return ''
+    return assignmentData[pendingActionItem.value]?.name || t('this-assignment')
+  })
 
   // ── Assignment data cache (for search/filter) ──
   const assignmentData = reactive({})
@@ -487,8 +586,37 @@
       })
     }
 
+    // Due date range filter
+    if (dueDateFilter.value && dueDateFilter.value[0] && dueDateFilter.value[1]) {
+      items = items.filter(id => {
+        const data = assignmentData[id]
+        if (!data?.dueDate) return false
+        const due = new Date(data.dueDate)
+        return due >= dueDateFilter.value[0] && due <= dueDateFilter.value[1]
+      })
+    }
+
+    // Assigned to filter
+    if (assignedToFilter.value.length > 0) {
+      items = items.filter(id => {
+        const groups = getAssignedGroups(id)
+        return assignedToFilter.value.some(val => groups.includes(val))
+      })
+    }
+
     return items
   })
+
+  // ── Pagination ──
+  const totalPages = computed(() => Math.max(1, Math.ceil(assignmentsForActiveTable.value.length / perPage.value)))
+
+  const paginatedAssignments = computed(() => {
+    const start = (currentPage.value - 1) * perPage.value
+    return assignmentsForActiveTable.value.slice(start, start + perPage.value)
+  })
+
+  // Reset to page 1 when filters change
+  watch(assignmentsForActiveTable, () => { currentPage.value = 1 })
 
   // ── Select all checkbox ──
   const allSelected = computed(() => {
@@ -518,6 +646,15 @@
     if (s === 'Published') return 'assign-badge assign-badge-published'
     if (s === 'Draft') return 'assign-badge assign-badge-draft'
     return 'assign-badge assign-badge-scheduled'
+  }
+
+  function getTypeBadgeClass(type) {
+    const t = (type || '').toLowerCase()
+    if (t === 'assessment') return 'assign-type-tag assign-type-assessment'
+    if (t === 'homework') return 'assign-type-tag assign-type-homework'
+    if (t === 'practice') return 'assign-type-tag assign-type-practice'
+    if (t === 'learning') return 'assign-type-tag assign-type-learning'
+    return 'assign-type-tag assign-type-default'
   }
 
   // ── Due date ──
@@ -559,13 +696,20 @@
   }
 
   // ── CRUD actions ──
-  async function add() {
+  function add() {
     const content_id = uuid()
-    const assignableItem = await Agent.state(content_id)
-    assignableItem.name = t('new-assignment')
     current.value = content_id
-    store.dispatch('pila_tags/tag', { content_id, tag_type: props.assignable_item_type })
+    wasCreating.value = true
     showEditModal.value = true
+  }
+
+  const wasSaved = ref(false)
+
+  function onAssignmentSaved() {
+    wasSaved.value = true
+    if (wasCreating.value && current.value) {
+      store.dispatch('pila_tags/tag', { content_id: current.value, tag_type: props.assignable_item_type })
+    }
   }
 
   async function readd(content_id) {
@@ -579,6 +723,7 @@
 
   function openEdit(item) {
     current.value = item
+    wasCreating.value = false
     showEditModal.value = true
   }
 
@@ -600,6 +745,9 @@
   // ── Duplicate ──
   function startDuplicate(item) {
     pendingActionItem.value = item
+    const name = assignmentData[item]?.name || t('new-assignment')
+    duplicateSourceName.value = name
+    duplicateNewTitle.value = name
     showDuplicateDialog.value = true
   }
 
@@ -611,7 +759,7 @@
     const sourceState = await Agent.state(sourceId)
     const newState = await Agent.state(newId)
 
-    newState.name = (sourceState.name || '') + ' (Copy)'
+    newState.name = duplicateNewTitle.value || (sourceState.name || '') + ' (Copy)'
     newState.description = sourceState.description || ''
     newState.content = sourceState.content || null
     if (sourceState.assignmentType) newState.assignmentType = sourceState.assignmentType
@@ -665,23 +813,38 @@
     showResultsModal.value = true
   }
 
+  async function openCandliDashboard(item) {
+    current.value = item
+    await reassessContents()
+    showCandliResultsModal.value = true
+  }
+
+  async function openLiveDashboard(item) {
+    current.value = item
+    await reassessContents()
+    showResultsModal.value = true
+  }
+
   async function reassessContents() {
     assignmentContainsCandli.value = null
     assignmentContainsGenAI.value = null
     assignmentContainsBetty.value = null
+    dashboardUrl.value = null
     if (current.value) {
-      const { content } = await Agent.state(current.value)
-      assignmentContainsCandli.value = !!CANDLI_SEQUENCES[content]
-      assignmentContainsGenAI.value = !!GEN_AI_SEQUENCES[content]
-      if ((await Agent.state(content)).id?.includes('betty')) {
-        assignmentContainsBetty.value = true
-      }
-      if ((await Agent.metadata(content)).domain === 'datawise.accingo.co') {
-        dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
-      } else if ((await Agent.state(content)).reference?.dashboard) {
-        dashboardUrl.value = 'https://' + (await Agent.state(content)).reference.dashboard
-      } else {
-        dashboardUrl.value = null
+      const stateData = await Agent.state(current.value)
+      const rawContent = stateData.content
+      const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
+      for (const content of contentIds) {
+        if (CANDLI_SEQUENCES[content]) assignmentContainsCandli.value = true
+        if (GEN_AI_SEQUENCES[content]) assignmentContainsGenAI.value = true
+        if ((await Agent.state(content)).id?.includes('betty')) {
+          assignmentContainsBetty.value = true
+        }
+        if ((await Agent.metadata(content)).domain === 'datawise.accingo.co') {
+          dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
+        } else if ((await Agent.state(content)).reference?.dashboard) {
+          dashboardUrl.value = 'https://' + (await Agent.state(content)).reference.dashboard
+        }
       }
     }
   }
@@ -689,12 +852,20 @@
   watch(current, reassessContents)
   watch(showEditModal, v => {
     if (!v) {
-      reassessContents()
-      // Reload data for edited assignment
-      if (current.value) {
-        delete assignmentData[current.value]
-        loadAssignmentData(current.value)
+      if (wasSaved.value) {
+        reassessContents()
+        // Reload data for saved assignment
+        if (current.value) {
+          delete assignmentData[current.value]
+          loadAssignmentData(current.value)
+        }
+        // Show success dialog after creating a new assignment
+        if (wasCreating.value) {
+          showSuccessDialog.value = true
+        }
       }
+      wasCreating.value = false
+      wasSaved.value = false
     }
   })
 </script>
@@ -721,41 +892,9 @@
 
 /* Search + filters */
 .assign-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 16px;
 }
 
-.assign-search {
-  width: 246px;
-  flex-shrink: 0;
-}
-
-.assign-filters {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filter-chip-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: white;
-  font-size: 13px;
-  font-weight: 500;
-  color: #94a3b8;
-  cursor: not-allowed;
-  white-space: nowrap;
-}
-.filter-chip-btn .chevron {
-  font-size: 10px;
-  margin-left: 2px;
-}
 
 /* Table */
 .assign-table-wrapper {
@@ -873,14 +1012,17 @@
 .assign-badge-published {
   background: #f0fdf4;
   color: #16a34a;
+  border: 1px solid #22c55e;
 }
 .assign-badge-draft {
   background: #fefce8;
   color: #ca8a04;
+  border: 1px solid #eab308;
 }
 .assign-badge-scheduled {
   background: #f1f5f9;
   color: #334155;
+  border: 1px solid #cbd5e1;
 }
 
 /* Progress bar */
@@ -927,6 +1069,21 @@
   color: #334155;
 }
 
+/* Assignment type tags (inline next to title) */
+.assign-type-dot {
+  color: #94a3b8;
+  font-weight: 400;
+}
+.assign-type-tag {
+  font-size: 12px;
+  font-weight: 500;
+}
+.assign-type-assessment { color: #2563eb; }
+.assign-type-homework { color: #16a34a; }
+.assign-type-practice { color: #7c3aed; }
+.assign-type-learning { color: #0891b2; }
+.assign-type-default { color: #64748b; }
+
 /* Danger menu item */
 .menu-item-danger {
   color: #dc2626 !important;
@@ -935,12 +1092,53 @@
   background: #fef2f2 !important;
 }
 
+/* Dashboard submenu indent */
+.menu-item-indent {
+  padding-left: 32px !important;
+  font-size: 13px;
+}
+
+/* Duplicate modal */
+.duplicate-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+}
+
+.duplicate-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e40af;
+  line-height: 1.5;
+}
+
+.info-banner-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.footer-back-btn {
+  color: #2563eb !important;
+}
+
+.footer-cancel-btn {
+  color: #dc2626 !important;
+}
+
 /* Pagination */
 .assign-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 0 0 0;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .assign-pagination-info {
@@ -949,35 +1147,67 @@
   color: #64748b;
 }
 
-.assign-pagination-nav {
+.assign-pagination-center {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.assign-pagination-btn {
-  padding: 6px 8px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: white;
+  gap: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: #2563eb;
+  color: #334155;
+}
+
+.assign-per-page-select {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #334155;
+  background: white;
   cursor: pointer;
+}
+
+.assign-pagination-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.assign-page-label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #334155;
+}
+
+.assign-page-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.assign-page-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 11px;
   transition: all 150ms;
 }
-.assign-pagination-btn:hover:not(:disabled) {
+.assign-page-btn:hover:not(:disabled) {
   background: #f8fafc;
+  color: #334155;
 }
-.assign-pagination-btn:disabled {
-  color: #94a3b8;
+.assign-page-btn:disabled {
+  color: #cbd5e1;
   cursor: not-allowed;
 }
 
-/* ── Mobile filters button (hidden on desktop) ── */
-.mobile-filters-btn {
-  display: none;
-}
 
 /* ── Mobile Responsive ── */
 @media (max-width: 768px) {
@@ -998,56 +1228,6 @@
   .assign-controls {
     flex-wrap: wrap;
     gap: 8px;
-  }
-
-  .assign-search {
-    width: 100%;
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* Show mobile Filters button */
-  .mobile-filters-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: white;
-    font-size: 14px;
-    font-weight: 500;
-    color: #2563eb;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .mobile-filters-btn.active {
-    background: #eff6ff;
-    border-color: #2563eb;
-  }
-  .mobile-filter-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 9px;
-    background: #2563eb;
-    color: white;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 0 4px;
-  }
-
-  /* Hide desktop filters, show when toggled */
-  .assign-filters {
-    display: none;
-    width: 100%;
-    flex-wrap: wrap;
-  }
-  .assign-filters.filters-open {
-    display: flex;
   }
 
   /* Horizontally scrollable table */

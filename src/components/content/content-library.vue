@@ -6,7 +6,7 @@
     <div class="mobile-sequences">
       <PButton
         variant="primary"
-        icon="fa-solid fa-plus"
+        icon="lucide:plus"
         :text="t('new-sequence')"
         class="w-full"
         @click="showCreateSequence = true"
@@ -18,7 +18,7 @@
           <span class="mobile-seq-selector-name">
             {{ selectedSequenceName || t('select-a-sequence') }}
           </span>
-          <i :class="mobileSeqExpanded ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="text-xs text-slate-400" />
+          <LucideIcon :name="mobileSeqExpanded ? 'chevron-up' : 'chevron-down'" :size="12" class="text-slate-400" />
         </button>
         <div v-if="mobileSeqExpanded" class="mobile-seq-list">
           <SequenceCard
@@ -49,7 +49,7 @@
           <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
           <PButton
             variant="primary"
-            icon="fa-solid fa-plus"
+            icon="lucide:plus"
             :text="t('new-sequence')"
             class="mt-3 w-full"
             @click="showCreateSequence = true"
@@ -86,7 +86,7 @@
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-base font-semibold text-zinc-950 flex items-center gap-2">
-                <i class="fa-solid fa-clipboard-list text-primary-600" />
+                <LucideIcon name="clipboard-list" :size="16" class="text-primary-600" />
                 {{ t('explore-content-library') }}
               </h2>
               <p class="text-xs text-slate-500 mt-1">{{ t('discover-customise-and-add-content') }}</p>
@@ -94,7 +94,7 @@
             <PButton
               v-if="selectedItems.size"
               variant="primary"
-              icon="fa-solid fa-plus"
+              icon="lucide:plus"
               :text="t('add-selected') + ' (' + selectedItems.size + ')'"
               @click="addSelectedToSequence"
             />
@@ -106,7 +106,7 @@
           <PInput
             v-model="searchQuery"
             :placeholder="t('search-content-title')"
-            icon="fa-solid fa-magnifying-glass"
+            icon="lucide:search"
             @focus="showSearchDropdown = true"
           />
           <div v-if="showSearchDropdown && popularTags.length && !searchQuery" class="search-dropdown">
@@ -127,25 +127,25 @@
         <div class="mobile-toolbar">
           <!-- Search toggle -->
           <button class="mobile-toolbar-btn" @click="mobileSearchExpanded = !mobileSearchExpanded">
-            <i class="fa-solid fa-magnifying-glass" />
+            <LucideIcon name="search" :size="14" />
           </button>
           <!-- View toggles -->
           <span class="toolbar-label">{{ t('view-as') }}:</span>
           <div class="icon-toggle-container">
             <button class="icon-toggle" :class="{ 'icon-toggle-active': viewMode === 'grid' }" @click="viewMode = 'grid'">
-              <i class="fa-solid fa-table-cells" />
+              <LucideIcon name="layout-grid" :size="14" />
             </button>
             <button class="icon-toggle" :class="{ 'icon-toggle-active': viewMode === 'list' }" @click="viewMode = 'list'">
-              <i class="fa-solid fa-list" />
+              <LucideIcon name="list" :size="14" />
             </button>
           </div>
           <!-- Sort -->
           <button class="mobile-toolbar-btn" :class="{ 'mobile-toolbar-btn-active': showMobileSort }" @click="showMobileSort = !showMobileSort">
-            <i class="fa-solid fa-sort" /> {{ t('sort') }}
+            <LucideIcon name="arrow-up-down" :size="14" /> {{ t('sort') }}
           </button>
           <!-- Filter -->
           <button class="mobile-toolbar-btn" :class="{ 'mobile-toolbar-btn-active': hasActiveFilters }" @click="showMobileFilters = true">
-            <i class="fa-solid fa-filter" /> {{ t('filter') }}
+            <LucideIcon name="sliders-horizontal" :size="14" /> {{ t('filter') }}
             <span v-if="hasActiveFilters" class="mobile-filter-dot" />
           </button>
         </div>
@@ -155,7 +155,7 @@
           <PInput
             v-model="searchQuery"
             :placeholder="t('search')"
-            icon="fa-solid fa-magnifying-glass"
+            icon="lucide:search"
             autofocus
           />
         </div>
@@ -193,14 +193,14 @@
                 :class="{ 'icon-toggle-active': viewMode === 'grid' }"
                 @click="viewMode = 'grid'"
               >
-                <i class="fa-solid fa-table-cells" />
+                <LucideIcon name="layout-grid" :size="14" />
               </button>
               <button
                 class="icon-toggle"
                 :class="{ 'icon-toggle-active': viewMode === 'list' }"
                 @click="viewMode = 'list'"
               >
-                <i class="fa-solid fa-list" />
+                <LucideIcon name="list" :size="14" />
               </button>
             </div>
           </div>
@@ -251,7 +251,7 @@
           <PButton
             variant="primary"
             size="sm"
-            icon="fa-solid fa-plus"
+            icon="lucide:plus"
             :text="t('add-selected') + ' (' + selectedItems.size + ')'"
             @click="addSelectedToSequence"
           />
@@ -259,7 +259,7 @@
 
         <!-- Empty state: selected sequence with no items -->
         <div v-if="selectedSequence && selectedSequenceEmpty" class="empty-sequence-state">
-          <i class="fa-solid fa-magnifying-glass empty-sequence-icon" />
+          <LucideIcon name="search" :size="48" class="text-slate-300 mb-4" />
           <h3 class="text-base font-semibold text-zinc-950">{{ t('no-item-in-this-sequence') }}</h3>
           <p class="text-sm text-slate-500 mt-1">{{ t('start-browsing-to-add-content') }}</p>
           <PButton
@@ -272,7 +272,7 @@
 
         <!-- Content grid -->
         <div v-else-if="loading" class="py-8 text-center text-slate-500">
-          <i class="fa fa-spinner fa-spin mr-2" />{{ t('loading') }}...
+          <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-2" />{{ t('loading') }}...
         </div>
         <NoResultsFound v-else-if="!filteredContentList.length" />
 
@@ -360,7 +360,7 @@
       <PButton
         variant="primary"
         class="w-full"
-        icon="fa-solid fa-plus"
+        icon="lucide:plus"
         :text="t('add-selected') + ' (' + selectedItems.size + ')'"
         @click="addSelectedToSequence"
       />
@@ -436,11 +436,11 @@
           <p class="text-sm text-slate-500 mb-4">{{ t('add-picker-description') }}</p>
           <div class="add-picker-cards">
             <button class="add-picker-card" @click="addPickerStep = 'assignment'">
-              <i class="fa-solid fa-clipboard-list add-picker-card-icon" />
+              <LucideIcon name="clipboard-list" :size="24" class="add-picker-card-icon" />
               <span class="add-picker-card-label">{{ t('add-to-assignment') }}</span>
             </button>
             <button class="add-picker-card" @click="addPickerStep = 'sequence'">
-              <i class="fa-solid fa-layer-group add-picker-card-icon" />
+              <LucideIcon name="layers" :size="24" class="add-picker-card-icon" />
               <span class="add-picker-card-label">{{ t('add-to-sequence') }}</span>
             </button>
           </div>
@@ -456,11 +456,11 @@
               class="add-picker-option"
               @click="addItemsToSequence(seqId, pendingAddItems)"
             >
-              <i class="fa-solid fa-layer-group text-primary-600" />
+              <LucideIcon name="layers" :size="14" class="text-primary-600" />
               <SequenceName :id="seqId" />
             </button>
             <button class="add-picker-option add-picker-new" @click="closeAddPicker(); showCreateSequence = true">
-              <i class="fa-solid fa-plus text-primary-600" />
+              <LucideIcon name="plus" :size="14" class="text-primary-600" />
               <span>{{ t('create-new-sequence') }}</span>
             </button>
           </div>
@@ -471,7 +471,7 @@
           <p class="text-sm text-slate-500 mb-4">{{ t('choose-assignment-or-create') }}:</p>
           <div class="flex flex-col gap-2">
             <button class="add-picker-option add-picker-new" @click="navigateToCreateAssignment">
-              <i class="fa-solid fa-plus text-primary-600" />
+              <LucideIcon name="plus" :size="14" class="text-primary-600" />
               <span>{{ t('create-new-assignment') }}</span>
             </button>
           </div>
@@ -479,7 +479,7 @@
       </template>
 
       <template v-if="addPickerStep !== 'choose'" #footer>
-        <PButton variant="ghost" :text="t('back')" icon="fa-solid fa-chevron-left" @click="addPickerStep = 'choose'" />
+        <PButton variant="ghost" :text="t('back')" icon="lucide:chevron-left" @click="addPickerStep = 'choose'" />
       </template>
     </PModal>
   </div>
@@ -502,6 +502,7 @@
   import CopyModifyModal from './copy-modify-modal.vue'
   import CreateAssignmentModal from './create-assignment-modal.vue'
   import MobileFilterDrawer from './mobile-filter-drawer.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import setTagging from '@/utils/set-tagging.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
   import {
@@ -1135,11 +1136,6 @@
   text-align: center;
 }
 
-.empty-sequence-icon {
-  font-size: 48px;
-  color: #cbd5e1;
-  margin-bottom: 16px;
-}
 
 /* List view */
 .content-list-view {
@@ -1193,7 +1189,6 @@
   background: #eff6ff;
 }
 .add-picker-card-icon {
-  font-size: 24px;
   color: #2563eb;
 }
 .add-picker-card-label {

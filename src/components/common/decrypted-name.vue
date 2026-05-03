@@ -5,13 +5,13 @@
       @dragover.prevent
   >
     <span v-if="showName">
-      {{ info.name }}
+      {{ displayName }}
     </span>
   </span>
 </template>
 
 <script setup>
-  import { reactive, watch } from 'vue'
+  import { reactive, computed, watch } from 'vue'
   import { useStore } from 'vuex'
 
   const store = useStore()
@@ -51,6 +51,13 @@
       immediate: true
     }
   )
+
+  const displayName = computed(() => {
+    if (info.first_name) {
+      return [info.first_name, info.last_name].filter(Boolean).join(' ')
+    }
+    return info.name || '...'
+  })
 
   function logUser() {
     console.log(props.user)

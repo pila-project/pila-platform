@@ -5,15 +5,17 @@
   }">
     <template v-slot:prepend>
       <span :style="`display: block; width: ${depth * 48}px`" />
-      <v-icon
+      <LucideIcon
         v-if="loaded && childTags.length === 0"
-        :icon="`fa-regular fa-square${selected.includes(props.tag)  ? '-check' : ''}`"
+        :name="selected.includes(props.tag) ? 'check-square' : 'square'"
+        :size="18"
       />
-      <v-icon
+      <LucideIcon
         v-if="childTags.length"
+        :name="open ? 'chevron-down' : 'chevron-right'"
+        :size="18"
         :style="{ marginLeft: `${ Math.max(depth-1, 0) * 48 }px`}"
         @click.stop="open = !open"
-        :icon="`fa-solid fa-chevron-${ open ? 'down' : 'right'}`"
       />
     </template>
     <v-list-item-title
@@ -38,6 +40,7 @@
   import { ref } from 'vue'
   import TagTaggingsList from './tag-taggings-list.vue'
   import TagTranslation from './tag-translation.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const emit = defineEmits(['select'])
 

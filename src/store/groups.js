@@ -67,8 +67,8 @@ export default {
     }
   },
   mutations: {
-    add(state, { id, name, owner, group_type, archived }) {
-      state.groups[id] = { name, owner, group_type, archived }
+    add(state, { id, name, owner, group_type, archived, grade, subject }) {
+      state.groups[id] = { name, owner, group_type, archived, grade, subject }
     },
     remove(state, id) {
       delete state.groups[id]

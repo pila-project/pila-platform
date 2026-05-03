@@ -16,13 +16,13 @@
           <PMenu align-right>
             <template #activator="{ props }">
               <button class="sc-menu-trigger" @click.stop="props.onClick">
-                <i class="fa-solid fa-ellipsis-vertical" />
+                <LucideIcon name="ellipsis-vertical" :size="12" />
               </button>
             </template>
-            <PMenuItem :title="t('view-sequence-content')" prepend-icon="fa-solid fa-list" @click="expanded = true" />
-            <PMenuItem :title="t('edit-sequence-details')" prepend-icon="fa-solid fa-pen" @click="$emit('edit')" />
-            <PMenuItem :title="t('preview-sequence')" prepend-icon="fa-regular fa-eye" @click="$emit('preview')" />
-            <PMenuItem :title="t('delete-sequence')" prepend-icon="fa-solid fa-trash" danger @click="$emit('delete')" />
+            <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="expanded = true" />
+            <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
+            <PMenuItem :title="t('preview-sequence')" prepend-icon="lucide:eye" @click="$emit('preview')" />
+            <PMenuItem :title="t('delete-sequence')" prepend-icon="lucide:trash-2" danger @click="$emit('delete')" />
           </PMenu>
         </div>
         <p class="sc-desc">{{ seqState?.description || '' }}</p>
@@ -34,7 +34,7 @@
     <div class="sc-footer" :class="{ 'sc-footer-expanded': expanded }">
       <button class="sc-expand-btn" @click.stop="expanded = !expanded">
         {{ t('show-items') }} ({{ itemCount }})
-        <i :class="expanded ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="sc-chevron" />
+        <LucideIcon :name="expanded ? 'chevron-up' : 'chevron-down'" :size="10" class="sc-chevron" />
       </button>
 
       <div v-if="expanded && items.length" class="sc-items">
@@ -56,7 +56,7 @@
         >
           <!-- Row 1: drag handle + number + type badge + trash -->
           <div class="sc-item-top">
-            <i class="fa-solid fa-grip-vertical sc-item-grip" />
+            <LucideIcon name="grip-vertical" :size="11" class="sc-item-grip" />
             <span class="sc-item-num">{{ String(i + 1).padStart(2, '0') }}</span>
             <span
               class="sc-item-type"
@@ -65,7 +65,7 @@
               {{ itemMeta[itemId]?.isSequence ? t('sequence') : t('item') }}
             </span>
             <button class="sc-item-delete" @click.stop="removeItem(i)">
-              <i class="fa-solid fa-trash-can" />
+              <LucideIcon name="trash-2" :size="13" />
             </button>
           </div>
           <!-- Row 2: title -->
@@ -101,6 +101,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { PMenu, PMenuItem, PAlertDialog } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { getContentMetadata } from '@/utils/content-cache.js'
 

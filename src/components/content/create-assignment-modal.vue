@@ -15,7 +15,7 @@
       <!-- Success state -->
       <div v-if="step === 'success'" class="success-state">
         <div class="success-icon-ring">
-          <i class="fa-solid fa-check text-green-600 text-2xl" />
+          <LucideIcon name="check" :size="24" class="text-green-600" />
         </div>
         <h3 class="text-lg font-semibold text-zinc-950 mt-4">New assignment has been successfully created</h3>
         <p class="text-sm text-slate-500 mt-2">
@@ -29,7 +29,7 @@
           <div v-for="s in steps" :key="s.num" class="stepper-item">
             <div class="step-col">
               <div class="step-circle" :class="stepCircleClass(s.num)">
-                <i :class="s.icon" />
+                <LucideIcon :name="s.icon" :size="13" />
               </div>
               <span class="step-label" :class="stepLabelClass(s.num)">Step {{ s.num }}</span>
             </div>
@@ -77,7 +77,7 @@
         <div v-else-if="step === 2" class="step-body">
           <!-- Content CTA -->
           <div class="content-cta" @click="browsingContent = !browsingContent">
-            <i class="fa-solid fa-circle-plus content-cta-icon" />
+            <LucideIcon name="circle-plus" :size="24" class="content-cta-icon" />
             <div>
               <span class="content-cta-title">Add content item/sequence</span>
               <span class="content-cta-desc">Drag and drop item from the explore page or create new one's</span>
@@ -90,7 +90,7 @@
               <PInput
                 v-model="contentSearch"
                 placeholder="Search content..."
-                icon="fa-solid fa-magnifying-glass"
+                icon="lucide:search"
                 class="flex-1"
               />
             </div>
@@ -130,7 +130,7 @@
                 v-if="form.contentIds.length"
                 variant="ghost"
                 size="sm"
-                icon="fa-regular fa-eye"
+                icon="lucide:eye"
                 text="Preview"
                 @click="previewingId = form.contentIds[0]"
               />
@@ -140,12 +140,12 @@
             </div>
             <div v-else class="content-selected-list">
               <div v-for="cid in form.contentIds" :key="cid" class="content-selected-item">
-                <i class="fa-solid fa-file-lines text-primary-600 text-sm" />
+                <LucideIcon name="file-text" :size="14" class="text-primary-600" />
                 <span class="flex-1 text-sm text-slate-700 truncate">
                   <NameOrTranslatedNameFromItemId :itemId="cid" />
                 </span>
                 <button class="content-remove-btn" @click="removeContent(cid)">
-                  <i class="fa-solid fa-xmark" />
+                  <LucideIcon name="x" :size="12" />
                 </button>
               </div>
             </div>
@@ -217,7 +217,7 @@
             <PInput
               v-model="groupSearch"
               placeholder="Search group(s)"
-              icon="fa-solid fa-magnifying-glass"
+              icon="lucide:search"
             />
             <div class="group-list">
               <div
@@ -228,7 +228,7 @@
                 @click="toggleGroup(gid)"
               >
                 <div class="group-icon" :class="selectedGroups.has(gid) ? 'group-icon-green' : 'group-icon-blue'">
-                  <i class="fa-solid fa-user-group" />
+                  <LucideIcon name="users" :size="16" />
                 </div>
                 <div class="group-info">
                   <span class="group-name">
@@ -239,7 +239,7 @@
                   </span>
                 </div>
                 <div class="group-check">
-                  <i v-if="selectedGroups.has(gid)" class="fa-solid fa-check" />
+                  <LucideIcon v-if="selectedGroups.has(gid)" name="check" :size="14" />
                 </div>
               </div>
               <div v-if="!filteredGroups.length" class="text-xs text-slate-400 py-3">
@@ -294,7 +294,7 @@
           v-if="step < 4"
           variant="primary"
           text="Next"
-          icon="fa-solid fa-arrow-right"
+          icon="lucide:arrow-right"
           :icon-right="true"
           @click="step++"
         />
@@ -302,7 +302,7 @@
           v-else
           variant="primary"
           text="Create assignment"
-          icon="fa-solid fa-arrow-right"
+          icon="lucide:arrow-right"
           :icon-right="true"
           :loading="creating"
           @click="createAssignment"
@@ -327,6 +327,7 @@ import PreviewModal from '@/components/common/preview-modal.vue'
 import getName from '@/utils/name-and-translation-for-content.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import { PModal, PInput, PButton, PSelect } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
 const partition = store.getters.tagPartition
@@ -371,10 +372,10 @@ const form = reactive({
 })
 
 const steps = [
-  { num: 1, icon: 'fa-solid fa-file-export' },
-  { num: 2, icon: 'fa-solid fa-upload' },
-  { num: 3, icon: 'fa-solid fa-file-arrow-up' },
-  { num: 4, icon: 'fa-solid fa-graduation-cap' },
+  { num: 1, icon: 'file-output' },
+  { num: 2, icon: 'upload' },
+  { num: 3, icon: 'file-up' },
+  { num: 4, icon: 'graduation-cap' },
 ]
 
 const stepSubtitles = [
@@ -623,7 +624,6 @@ onMounted(async () => {
   background: #f8fafc;
 }
 .content-cta-icon {
-  font-size: 24px;
   color: #64748b;
   flex-shrink: 0;
 }

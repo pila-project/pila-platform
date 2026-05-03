@@ -1,7 +1,7 @@
 <template>
   <div class="search-filter">
     <div class="search-filter-input-wrapper">
-      <i class="fa fa-magnifying-glass search-filter-icon" />
+      <LucideIcon name="search" :size="14" class="search-filter-icon" />
       <input
         type="text"
         :value="modelValue"
@@ -22,13 +22,15 @@
         <span v-if="activeFilters[filter.key]" class="filter-chip-value">
           {{ getFilterDisplay(filter) }}
         </span>
-        <i class="fa-solid fa-chevron-down chevron" />
+        <LucideIcon name="chevron-down" :size="10" class="chevron" />
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
+import LucideIcon from './LucideIcon.vue'
+
 const props = defineProps({
   modelValue: {
     type: String,

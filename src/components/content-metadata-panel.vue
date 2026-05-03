@@ -5,7 +5,7 @@
         <v-btn
           variant="plain"
           @click="emit('back')"
-          icon="fa-solid fa-xmark"
+          icon="mdi-close"
         />
       </template>
     </v-list-item>

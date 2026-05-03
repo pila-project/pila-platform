@@ -2,7 +2,8 @@
   <div :class="cardClasses">
     <div v-if="$slots.icon || icon" class="data-card-icon">
       <slot name="icon">
-        <i :class="icon.startsWith('fa') ? icon : `fa fa-${icon}`" />
+        <LucideIcon v-if="icon.startsWith('lucide:')" :name="icon.slice(7)" :size="20" />
+        <i v-else :class="icon.startsWith('fa') ? icon : `fa fa-${icon}`" />
       </slot>
     </div>
     <div class="data-card-content">
@@ -19,6 +20,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   variant: {

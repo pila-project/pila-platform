@@ -17,7 +17,9 @@
         <TeacherToStudentAssignment
           v-else-if="teacher"
           :id="id"
+          :editing="editing"
           @close="$emit('close')"
+          @saved="$emit('saved')"
           @update:width="w => modalWidth = w"
         />
       </div>
@@ -34,11 +36,12 @@
     id: String,
     teacher: Boolean,
     researcher: Boolean,
+    editing: Boolean,
   })
 
-  const emit = defineEmits(['close'])
+  const emit = defineEmits(['close', 'saved'])
   const modalRef = ref(null)
-  const modalWidth = ref('480px')
+  const modalWidth = ref('984px')
 
   function handleKeydown(e) {
     if (e.key === 'Escape') emit('close')

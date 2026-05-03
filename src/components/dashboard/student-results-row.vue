@@ -1,13 +1,12 @@
 <template>
   <tr>
     <td style="white-space: nowrap;">
-      <i
-        :class="{
-          'fas': true,
-          'fa-circle': true,
-          'mr-2': true,
-          'active': userIsActive
-        }"
+      <LucideIcon
+        name="circle"
+        :size="10"
+        :class="{ 'mr-2': true, 'active': userIsActive }"
+        :fill="userIsActive ? 'limegreen' : '#ccc'"
+        :stroke="userIsActive ? 'limegreen' : '#ccc'"
       />
       <DecryptedName :user="user" />
     </td>
@@ -41,6 +40,7 @@
   import ItemInfo from './item-info.vue'
   import StudentSummary from './student-summary.vue'
   import DecryptedName from '@/components/common/decrypted-name.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const props = defineProps({
     user: String,
@@ -97,8 +97,7 @@
 </script>
 
 <style scoped>
-i { color: #ccc; }
-i.active { color: limegreen; }
+/* Status dot colors handled inline via LucideIcon props */
 td.active {
   background: rgba(255, 255, 0, 0.3);;
 }

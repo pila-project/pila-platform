@@ -10,7 +10,7 @@
         <img src="/betty.png" alt="betty-image" class="btn-image">
       </div>
       <div class="center">{{ t('bettys-brain') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
+      <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
     <button
@@ -21,7 +21,7 @@
         <img src="/karel_new.png" alt="karel-image" class="btn-image">
       </div>
       <div class="center">{{ t('karel-the-turtle') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
+      <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
     <button
@@ -32,7 +32,7 @@
         <img src="/mascotte.png" alt="sequence-image" class="btn-image">
       </div>
       <div class="center">{{ t('pila-sequences') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
+      <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
     <button
@@ -43,7 +43,7 @@
         <img src="/mascotte.png" alt="sequence-image" class="btn-image">
       </div>
       <div class="center">{{ t('pila-create') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
+      <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
     <button
@@ -54,7 +54,7 @@
         <img src="/Chirpy.png" alt="chirpy-image" class="btn-image">
       </div>
       <div class="center">{{ t('chirpys-adventure') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
+      <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
     <button
@@ -65,7 +65,7 @@
         <img src="/Mixology.png" alt="mixology-image" class="btn-image">
       </div>
       <div class="center">{{ t('magical-mixology') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
+      <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
     <button
@@ -76,7 +76,7 @@
         <img src="/datawise-logo.png" alt="datawise-image" class="btn-image">
       </div>
       <div class="center">{{ t('datawise-activities') }}</div>
-      <i class="right fa-solid fa-pen-to-square" />
+      <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
 
@@ -122,6 +122,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
 import setTagging from '@/utils/set-tagging.js'

@@ -20,20 +20,24 @@
           />
         </span>
       </div>
-      <!-- Item badge + Drag handle -->
+      <!-- Sequence count + Heart + Drag handle -->
       <div class="pcard-overlay-tr">
-        <span class="pcard-type-badge">
-          {{ props.typeBadge || t('item') }}
+        <span v-if="sequenceCount" class="pcard-seq-count">
+          {{ sequenceCount }}
+          <LucideIcon name="folders" :size="12" />
         </span>
+        <button class="pcard-heart-btn" :class="{ 'pcard-heart-active': favorited }" @click.stop="$emit('toggle-favorite')">
+          <LucideIcon name="heart" :size="14" />
+        </button>
         <button class="pcard-drag-handle" @click.stop>
-          <i class="fa-solid fa-grip-vertical" />
+          <LucideIcon name="grip-vertical" :size="12" />
         </button>
       </div>
       <!-- Image -->
       <div class="pcard-image">
         <img v-if="image" :src="image" style="pointer-events: none;" />
         <div v-else class="pcard-image-placeholder">
-          <i class="fa-solid fa-image text-slate-300 text-2xl" />
+          <LucideIcon name="image" :size="24" class="text-slate-300" />
         </div>
       </div>
     </div>
@@ -43,10 +47,10 @@
       <!-- Source badge -->
       <div class="pcard-source-row">
         <span v-if="props.source === 'mine'" class="pcard-source pcard-source-mine">
-          <i class="fa-solid fa-user pcard-source-icon" />{{ t('my-content') }}
+          <LucideIcon name="folders" :size="10" class="pcard-source-icon" />{{ t('my-content') }}
         </span>
         <span v-else class="pcard-source pcard-source-pila">
-          <i class="fa-solid fa-crown pcard-source-icon" />{{ t('pila-content') }}
+          <LucideIcon name="crown" :size="10" class="pcard-source-icon" />{{ t('pila-content') }}
         </span>
       </div>
 
@@ -61,23 +65,27 @@
       </p>
 
       <!-- Tag pills -->
-      <div v-if="displayGrades.length" class="pcard-grades">
+      <div class="pcard-tags">
         <span v-for="grade in displayGrades" :key="grade" class="pcard-grade">{{ grade }}</span>
+        <span v-if="duration" class="pcard-duration">
+          <LucideIcon name="clock-2" :size="12" />
+          {{ duration }}
+        </span>
       </div>
     </div>
 
     <!-- Actions -->
     <div class="pcard-actions">
       <button class="pcard-btn pcard-btn-preview" @click.stop="$emit('preview')">
-        <i class="fa-regular fa-eye pcard-btn-icon" />
+        <LucideIcon name="eye" :size="14" />
         {{ t('preview') }}
       </button>
       <button class="pcard-btn pcard-btn-add" @click.stop="$emit('add')">
-        <i class="fa-solid fa-plus pcard-btn-icon" />
+        <LucideIcon name="plus" :size="14" />
         {{ t('add') }}
       </button>
       <button class="pcard-btn-info" @click.stop="$emit('click')">
-        <i class="fa-solid fa-circle-info" />
+        <LucideIcon name="info" :size="18" />
       </button>
     </div>
   </div>
@@ -88,6 +96,7 @@
   import { useStore } from 'vuex'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import { getContentImage } from '@/utils/content-cache.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -107,9 +116,12 @@
       type: String,
       default: null
     },
+    duration: String,
+    sequenceCount: Number,
+    favorited: Boolean,
   })
 
-  defineEmits(['click', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify'])
+  defineEmits(['click', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
 
   const displayGrades = props.grades || []
 
@@ -127,8 +139,7 @@
 <style scoped>
 /* ── Card container ── */
 .pcard {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: #f8fafc;
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
@@ -141,13 +152,13 @@
 }
 .pcard-selected {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  border-color: var(--color-primary-300);
+  outline: 2px solid var(--color-primary-300);
 }
 
 /* ── Image area ── */
 .pcard-image-area {
   position: relative;
-  background: #f8fafc;
+  background: #f1f5f9;
 }
 
 .pcard-overlay-tl {
@@ -186,21 +197,39 @@
   accent-color: #10B981;
 }
 
-/* Item/Sequence type badge — green */
-.pcard-type-badge {
+/* Sequence count badge — green */
+.pcard-seq-count {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 8px;
+  padding: 4px 8px;
   background: #f0fdf4;
   color: #15803d;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 20px;
   border-radius: 8px;
 }
-.pcard-type-icon {
-  font-size: 10px;
+
+/* Heart button */
+.pcard-heart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 6px;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 150ms;
+}
+.pcard-heart-btn:hover {
+  color: #ef4444;
+}
+.pcard-heart-active {
+  color: #ef4444;
 }
 
 .pcard-drag-handle {
@@ -213,7 +242,6 @@
   border-radius: 6px;
   border: none;
   color: #64748b;
-  font-size: 12px;
   cursor: grab;
 }
 .pcard-drag-handle:hover {
@@ -265,7 +293,7 @@
   line-height: 20px;
 }
 .pcard-source-icon {
-  font-size: 10px;
+  flex-shrink: 0;
 }
 
 /* PILA content: yellow/amber */
@@ -302,17 +330,18 @@
   line-height: 20px;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Grade pills */
-.pcard-grades {
+/* Tag pills row */
+.pcard-tags {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
   padding-bottom: 2px;
+  align-items: center;
 }
 
 .pcard-grade {
@@ -326,6 +355,20 @@
   color: #334155;
   line-height: 16px;
   background: white;
+}
+
+/* Duration badge */
+.pcard-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
 }
 
 /* ── Actions row ── */
@@ -351,9 +394,6 @@
   transition: all 150ms;
   border: none;
   flex: 1;
-}
-.pcard-btn-icon {
-  font-size: 14px;
 }
 
 /* Preview button: white bg, blue text, slate border */
@@ -387,7 +427,6 @@
   border: 1px solid #e2e8f0;
   background: white;
   color: #2563eb;
-  font-size: 18px;
   cursor: pointer;
   transition: all 150ms;
 }

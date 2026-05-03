@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <label v-if="label" :for="selectId" class="label">{{ label }}</label>
+    <label v-if="label" :for="selectId" class="label">{{ label }} <span v-if="required" class="required-marker">*Required</span></label>
     <select
       :id="selectId"
       :value="modelValue"
@@ -21,13 +21,14 @@
         {{ item.title }}
       </option>
     </select>
-    <i class="fa fa-chevron-down select-chevron" />
+    <LucideIcon name="chevron-down" :size="10" class="select-chevron" />
     <p v-if="error" class="mt-1 text-xs text-danger-600">{{ error }}</p>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   modelValue: [String, Number, Object],
@@ -70,6 +71,11 @@ const normalizedItems = computed(() => {
 </script>
 
 <style scoped>
+.required-marker {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 400;
+}
 .select-chevron {
   position: absolute;
   right: 0.75rem;

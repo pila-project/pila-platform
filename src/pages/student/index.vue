@@ -30,12 +30,12 @@
           <PMenu>
             <template #activator="{ props }">
               <button class="flex items-center justify-center w-full py-2 text-slate-500 hover:text-slate-700" @click="props.onClick">
-                <i class="fa-solid fa-gear" />
+                <LucideIcon name="settings" :size="16" />
               </button>
             </template>
             <PMenuItem
               :title="t('log-out')"
-              append-icon="fa-solid fa-arrow-right-from-bracket"
+              append-icon="lucide:log-out"
               @click="logout"
             />
           </PMenu>
@@ -55,6 +55,7 @@
   import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
   import { PAvatar, PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import StudiesNotAvailable from '@/components/common/studies-not-available.vue'
   export default {
     components: {
@@ -65,7 +66,8 @@
       PMenu,
       PMenuItem,
       PDivider,
-      StudiesNotAvailable
+      StudiesNotAvailable,
+      LucideIcon
     },
     props: ['id'],
     data() {

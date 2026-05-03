@@ -21,10 +21,12 @@
           style="cursor: pointer; margin: 4px 24px 12px 0px;"
           @click="oldestFirst = !oldestFirst"
         >
-          <i
-            :class="`fa-solid fa-arrow-${oldestFirst ? 'down' : 'up'} text-xs text-slate-400`"
+          <LucideIcon
+            :name="oldestFirst ? 'arrow-down' : 'arrow-up'"
+            :size="12"
+            class="text-slate-400"
           />
-          <i class="fa-solid fa-calendar ml-2 text-slate-400" />
+          <LucideIcon name="calendar" :size="12" class="ml-2 text-slate-400" />
         </div>
 
       </div>
@@ -56,9 +58,10 @@ import DecryptedName from '@/components/common/decrypted-name.vue'
 import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.js'
 import URL_CONTENT_DATA from '@/utils/url-content-data.js'
 import AssignmentCard from './assignment-card.vue'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 export default {
-  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName },
+  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName, LucideIcon },
   props: ['id'],
   data() {
     return {

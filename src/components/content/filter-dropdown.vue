@@ -5,10 +5,10 @@
       :class="{ 'filter-chip-active': modelValue.length > 0 }"
       @click="isOpen = !isOpen"
     >
-      <i class="fa-solid fa-plus filter-chip-icon" />
+      <LucideIcon name="plus" :size="10" class="filter-chip-icon" />
       {{ label }}
       <span v-if="modelValue.length" class="filter-chip-count">{{ modelValue.length }}</span>
-      <i class="fa-solid fa-chevron-down filter-chip-chevron" />
+      <LucideIcon name="chevron-down" :size="10" class="filter-chip-chevron" />
     </button>
 
     <Transition
@@ -22,7 +22,7 @@
       <div v-if="isOpen" class="filter-panel">
         <!-- Search inside dropdown -->
         <div class="filter-search">
-          <i class="fa-solid fa-magnifying-glass filter-search-icon" />
+          <LucideIcon name="search" :size="12" class="filter-search-icon" />
           <input
             ref="searchRef"
             v-model="query"
@@ -69,6 +69,7 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }

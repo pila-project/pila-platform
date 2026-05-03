@@ -17,11 +17,11 @@
       <div class="datepicker-calendar">
         <div class="datepicker-header">
           <button class="datepicker-nav-btn" aria-label="Previous month" @click="prevMonth(0)">
-            <i class="fa fa-chevron-left text-xs" />
+            <LucideIcon name="chevron-left" :size="12" />
           </button>
           <span class="datepicker-month-label">{{ monthLabel(viewMonths[0]) }}</span>
           <button class="datepicker-nav-btn" aria-label="Next month" @click="nextMonth(0)">
-            <i class="fa fa-chevron-right text-xs" />
+            <LucideIcon name="chevron-right" :size="12" />
           </button>
         </div>
         <div class="datepicker-weekdays">
@@ -44,11 +44,11 @@
       <div v-if="type === 'range'" class="datepicker-calendar">
         <div class="datepicker-header">
           <button class="datepicker-nav-btn" aria-label="Previous month" @click="prevMonth(1)">
-            <i class="fa fa-chevron-left text-xs" />
+            <LucideIcon name="chevron-left" :size="12" />
           </button>
           <span class="datepicker-month-label">{{ monthLabel(viewMonths[1]) }}</span>
           <button class="datepicker-nav-btn" aria-label="Next month" @click="nextMonth(1)">
-            <i class="fa fa-chevron-right text-xs" />
+            <LucideIcon name="chevron-right" :size="12" />
           </button>
         </div>
         <div class="datepicker-weekdays">
@@ -72,6 +72,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   modelValue: {

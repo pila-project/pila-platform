@@ -1,10 +1,152 @@
 <template>
   <Teleport to="body">
     <div class="vs-overlay">
+      <!-- ═══════════════ OVERVIEW MODE ═══════════════ -->
+      <template v-if="viewMode === 'overview'">
+        <div class="vso-container">
+          <!-- Header -->
+          <div class="vso-header">
+            <div>
+              <h2 class="vso-title">
+                <LucideIcon name="bar-chart" :size="16" class="vso-title-icon" />
+                {{ t('view-submissions') }} - {{ assignmentName }}
+              </h2>
+              <p class="vso-subtitle">{{ t('review-student-submissions-and-provide-feedback') }}</p>
+            </div>
+            <button class="wizard-close" @click="$emit('close')">
+              <LucideIcon name="x" :size="12" />
+            </button>
+          </div>
+
+          <!-- Dashboard cards -->
+          <div class="vso-dashboards">
+            <h4 class="vso-section-label">{{ t('view-dashboards') }}:</h4>
+            <div class="vso-dashboard-cards">
+              <div class="vso-dcard" @click="$emit('open-dashboard', 'app')">
+                <div class="vso-dcard-icon vso-dcard-icon-yellow">
+                  <LucideIcon name="layout-dashboard" :size="20" />
+                </div>
+                <div class="vso-dcard-info">
+                  <span class="vso-dcard-title">{{ t('app-specific-dashboard') }}</span>
+                  <span class="vso-dcard-link">{{ t('view-dashboard') }} &rsaquo;</span>
+                </div>
+              </div>
+              <div class="vso-dcard" @click="$emit('open-dashboard', 'live')">
+                <div class="vso-dcard-icon vso-dcard-icon-red">
+                  <LucideIcon name="activity" :size="20" />
+                </div>
+                <div class="vso-dcard-info">
+                  <span class="vso-dcard-title">{{ t('live-monitoring-dashboard') }}</span>
+                  <span class="vso-dcard-link">{{ t('view-dashboard') }} &rsaquo;</span>
+                </div>
+              </div>
+              <div class="vso-dcard" @click="$emit('open-dashboard', 'competency')">
+                <div class="vso-dcard-icon vso-dcard-icon-green">
+                  <LucideIcon name="grid-2x2" :size="20" />
+                </div>
+                <div class="vso-dcard-info">
+                  <span class="vso-dcard-title">{{ t('competency-dashboard') }}</span>
+                  <span class="vso-dcard-link">{{ t('view-dashboard') }} &rsaquo;</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats summary -->
+          <div class="vso-stats">
+            <div class="vso-stat-box">
+              <span class="vso-stat-num vso-stat-total">{{ students.length }}</span>
+              <span class="vso-stat-label">{{ t('total-student') }}</span>
+            </div>
+            <div class="vso-stat-box">
+              <span class="vso-stat-num vso-stat-submitted">{{ submittedStudentCount }}</span>
+              <span class="vso-stat-label">{{ t('submitted') }}</span>
+            </div>
+            <div class="vso-stat-box">
+              <span class="vso-stat-num vso-stat-progress">{{ inProgressStudentCount }}</span>
+              <span class="vso-stat-label">{{ t('in-progress') }}</span>
+            </div>
+            <div class="vso-stat-box">
+              <span class="vso-stat-num vso-stat-graded">{{ gradedStudentCount }}</span>
+              <span class="vso-stat-label">{{ t('graded') }}</span>
+            </div>
+          </div>
+
+          <!-- Student submissions section -->
+          <div class="vso-submissions">
+            <h4 class="vso-section-label">{{ t('student-submissions') }}:</h4>
+            <input
+              v-model="studentSearch"
+              class="vso-search input"
+              :placeholder="t('search-student')"
+            />
+
+            <!-- Student table -->
+            <div class="vso-table-wrapper">
+              <table class="vso-table">
+                <thead>
+                  <tr>
+                    <th class="vso-th"><input type="checkbox" class="assign-checkbox" /></th>
+                    <th class="vso-th">{{ t('student-name') }}</th>
+                    <th class="vso-th">{{ t('submitted') }} <LucideIcon name="arrow-up-down" :size="10" /></th>
+                    <th class="vso-th">{{ t('assignment-status') }} <LucideIcon name="arrow-up-down" :size="10" /></th>
+                    <th class="vso-th">{{ t('feedback') }}</th>
+                    <th class="vso-th">{{ t('individual-submission') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(sid, i) in filteredStudents" :key="sid" class="vso-tr">
+                    <td class="vso-td"><input type="checkbox" class="assign-checkbox" /></td>
+                    <td class="vso-td">{{ getStudentDisplayName(sid, i) }}</td>
+                    <td class="vso-td">{{ getStudentSubmittedDate(sid) }}</td>
+                    <td class="vso-td">
+                      <span :class="getStudentStatusClass(sid)">{{ getStudentStatusText(sid) }}</span>
+                    </td>
+                    <td class="vso-td">
+                      <span v-if="getStudentStatusText(sid) === t('not-started')" class="vso-feedback-none">{{ t('no-submission') }}</span>
+                      <button v-else-if="hasStudentFeedback(sid)" class="vso-feedback-btn vso-feedback-edit" @click="openDetailView(i)">
+                        <LucideIcon name="pencil" :size="12" /> {{ t('edit-feedback') }}
+                      </button>
+                      <button v-else class="vso-feedback-btn vso-feedback-add" @click="openDetailView(i)">
+                        <LucideIcon name="plus" :size="12" /> {{ t('add-feedback') }}
+                      </button>
+                    </td>
+                    <td class="vso-td">
+                      <button class="vso-view-btn" @click="openDetailView(i)">{{ t('view') }}</button>
+                    </td>
+                  </tr>
+                  <tr v-if="filteredStudents.length === 0">
+                    <td colspan="6" class="vso-td" style="text-align: center; padding: 24px;">{{ t('no-students-found') }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination info -->
+            <div class="vso-pagination">
+              <span class="vso-pagination-info">{{ selectedOverviewRows.size }} {{ t('of') }} {{ students.length }} {{ t('rows-selected') }}</span>
+              <div class="vso-pagination-nav">
+                <span class="vso-page-link" @click="">{{ t('previous') }}</span>
+                <span class="vso-page-link" @click="">{{ t('next') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="vso-footer">
+            <button class="vso-footer-back" @click="$emit('close')">{{ t('back') }}</button>
+            <div style="flex: 1;" />
+            <button class="vso-footer-cancel" @click="$emit('close')">{{ t('cancel') }}</button>
+          </div>
+        </div>
+      </template>
+
+      <!-- ═══════════════ DETAIL MODE (existing grading view) ═══════════════ -->
+      <template v-else>
       <!-- Navigation bar -->
       <div class="vs-navbar">
-        <button class="vs-back" @click="$emit('close')">
-          <i class="fa-solid fa-arrow-left" />
+        <button class="vs-back" @click="viewMode = 'overview'">
+          <LucideIcon name="arrow-left" :size="14" />
           {{ t('back') }}
         </button>
         <div class="vs-student-info">
@@ -44,24 +186,30 @@
             >
               <div class="vs-qcard-header">
                 <span class="vs-qcard-num">{{ padNum(i + 1) }}</span>
-                <i
+                <LucideIcon
                   v-if="getItemResult(i) === true"
-                  class="fa-solid fa-circle-check vs-qcard-icon vs-icon-correct"
+                  name="check-circle"
+                  :size="14"
+                  class="vs-qcard-icon vs-icon-correct"
                 />
-                <i
+                <LucideIcon
                   v-else-if="getItemResult(i) === false"
-                  class="fa-solid fa-triangle-exclamation vs-qcard-icon vs-icon-incorrect"
+                  name="triangle-alert"
+                  :size="14"
+                  class="vs-qcard-icon vs-icon-incorrect"
                 />
-                <i
+                <LucideIcon
                   v-else
-                  class="fa-solid fa-circle-minus vs-qcard-icon vs-icon-skipped"
+                  name="circle-minus"
+                  :size="14"
+                  class="vs-qcard-icon vs-icon-skipped"
                 />
               </div>
               <div class="vs-qcard-desc">
                 <NameOrTranslatedNameFromItemId :itemId="itemId" />
               </div>
               <div class="vs-qcard-footer">
-                <i class="fa-solid fa-list-check vs-qcard-type-icon" />
+                <LucideIcon name="list-checks" :size="10" class="vs-qcard-type-icon" />
                 <span class="vs-qcard-type">{{ t('item') }}</span>
                 <span class="vs-qcard-points">{{ getItemResult(i) === true ? '3' : '0' }} {{ t('point') }}</span>
               </div>
@@ -75,7 +223,7 @@
               :disabled="selectedStudentIndex === 0"
               @click="selectedStudentIndex--"
             >
-              <i class="fa-solid fa-chevron-left" />
+              <LucideIcon name="chevron-left" :size="11" />
             </button>
             <span class="vs-student-nav-label">
               {{ selectedStudentIndex + 1 }} / {{ students.length }}
@@ -85,7 +233,7 @@
               :disabled="selectedStudentIndex >= students.length - 1"
               @click="selectedStudentIndex++"
             >
-              <i class="fa-solid fa-chevron-right" />
+              <LucideIcon name="chevron-right" :size="11" />
             </button>
           </div>
         </div>
@@ -107,7 +255,7 @@
                 />
                 <template #fallback>
                   <div class="vs-embed-loading">
-                    <i class="fa fa-spinner fa-spin" /> {{ t('loading-question') }}
+                    <LucideIcon name="loader-2" :size="14" :spin="true" /> {{ t('loading-question') }}
                   </div>
                 </template>
               </Suspense>
@@ -157,7 +305,7 @@
           <div v-if="rightTab === 'overview'" class="vs-tab-content">
             <div class="vs-section">
               <h4 class="vs-section-heading">
-                <i class="fa-solid fa-clipboard-list vs-section-icon" />
+                <LucideIcon name="clipboard-list" :size="13" class="vs-section-icon" />
                 {{ t('assignment-overview') }}
               </h4>
               <div class="vs-overview-stats">
@@ -182,7 +330,7 @@
 
             <div class="vs-section">
               <h4 class="vs-section-heading">
-                <i class="fa-solid fa-star vs-section-icon" />
+                <LucideIcon name="star" :size="13" class="vs-section-icon" />
                 {{ t('overall-grade') }}
               </h4>
               <label class="vs-field-label">{{ t('score-percent') }}</label>
@@ -208,7 +356,7 @@
 
             <div class="vs-section">
               <h4 class="vs-section-heading">
-                <i class="fa-solid fa-star vs-section-icon" />
+                <LucideIcon name="star" :size="13" class="vs-section-icon" />
                 {{ t('teacher-notes') }}
               </h4>
               <label class="vs-field-label">{{ t('private-notes') }}</label>
@@ -225,7 +373,7 @@
           <div v-else class="vs-tab-content">
             <div class="vs-section">
               <h4 class="vs-section-heading">
-                <i class="fa-solid fa-clipboard-list vs-section-icon" />
+                <LucideIcon name="clipboard-list" :size="13" class="vs-section-icon" />
                 {{ t('submission-details') }}
               </h4>
               <div class="vs-details-grid">
@@ -269,6 +417,7 @@
           </div>
         </div>
       </div>
+      </template>
     </div>
   </Teleport>
 </template>
@@ -278,17 +427,19 @@
   import { useStore } from 'vuex'
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
   })
 
-  const emit = defineEmits(['close'])
+  const emit = defineEmits(['close', 'open-dashboard'])
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
 
   // ── State ──
   const loading = ref(true)
+  const viewMode = ref('overview')
   const assignmentName = ref('')
   const contentId = ref(null)
   const sequenceItems = ref([])
@@ -299,6 +450,12 @@
   const submittedAt = ref(null)
   const maxAttempts = ref('1')
   const assignmentDueDate = ref('--')
+
+  // Overview state
+  const studentSearch = ref('')
+  const selectedOverviewRows = reactive(new Set())
+  const studentStatusCache = reactive({})
+  const studentFeedbackCache = reactive({})
 
   // Grading state
   const itemFeedback = ref('')
@@ -378,6 +535,89 @@
     const result = getItemResult(selectedItemIndex.value)
     return result === true ? 3 : 0
   })
+
+  // ── Overview computeds ──
+  const filteredStudents = computed(() => {
+    if (!studentSearch.value) return students.value
+    const q = studentSearch.value.toLowerCase()
+    return students.value.filter((sid, i) => {
+      const name = getStudentDisplayName(sid, i)
+      return name.toLowerCase().includes(q)
+    })
+  })
+
+  const submittedStudentCount = computed(() =>
+    students.value.filter(sid => studentStatusCache[sid] === 'submitted').length
+  )
+
+  const inProgressStudentCount = computed(() =>
+    students.value.filter(sid => studentStatusCache[sid] === 'in-progress').length
+  )
+
+  const gradedStudentCount = computed(() =>
+    students.value.filter(sid => studentStatusCache[sid] === 'graded').length
+  )
+
+  function getStudentDisplayName(sid, index) {
+    const info = studentInfoCache[sid]
+    if (info?.first_name) return [info.first_name, info.last_name].filter(Boolean).join(' ')
+    if (info?.name) return info.name
+    return `${t('student')} ${index + 1}`
+  }
+
+  function getStudentSubmittedDate(sid) {
+    const status = studentStatusCache[sid]
+    if (!status || status === 'not-started') return t('no-submission')
+    // TODO: track actual submission date per student
+    return assignmentDueDate.value !== '--' ? assignmentDueDate.value : '--'
+  }
+
+  function getStudentStatusText(sid) {
+    const status = studentStatusCache[sid]
+    if (status === 'submitted') return t('submitted')
+    if (status === 'in-progress') return t('in-progress')
+    if (status === 'graded') return t('graded')
+    return t('not-started')
+  }
+
+  function getStudentStatusClass(sid) {
+    const status = studentStatusCache[sid]
+    if (status === 'submitted') return 'vso-status-badge vso-status-submitted'
+    if (status === 'in-progress') return 'vso-status-badge vso-status-progress'
+    if (status === 'graded') return 'vso-status-badge vso-status-graded'
+    return 'vso-status-badge vso-status-not-started'
+  }
+
+  function hasStudentFeedback(sid) {
+    return !!studentFeedbackCache[sid]
+  }
+
+  function openDetailView(studentIndex) {
+    selectedStudentIndex.value = studentIndex
+    viewMode.value = 'detail'
+  }
+
+  async function loadAllStudentStatuses() {
+    for (const sid of students.value) {
+      await loadStudentInfo(sid)
+      // Check submission status by looking at grading data
+      try {
+        const gradingId = `${props.assignmentId}-grading-${sid}`
+        const state = await Agent.state(gradingId)
+        if (state.overallScore) {
+          studentStatusCache[sid] = 'graded'
+          studentFeedbackCache[sid] = true
+        } else if (state.overallFeedback || state.itemFeedback) {
+          studentStatusCache[sid] = 'submitted'
+          studentFeedbackCache[sid] = !!(state.overallFeedback || Object.keys(state.itemFeedback || {}).length)
+        } else {
+          studentStatusCache[sid] = 'not-started'
+        }
+      } catch {
+        studentStatusCache[sid] = 'not-started'
+      }
+    }
+  }
 
   // ── Functions ──
   function getItemResult(index) {
@@ -524,7 +764,7 @@
       const info = await store.getters.decryptUserInfo(userId)
       studentInfoCache[userId] = info
     } catch {
-      studentInfoCache[userId] = { name: 'Unknown' }
+      studentInfoCache[userId] = { name: t('unknown') }
     }
   }
 
@@ -535,7 +775,7 @@
     // Load assignment data
     const assignState = await Agent.state(props.assignmentId)
     assignmentName.value = assignState.name || t('assignment')
-    contentId.value = assignState.content
+    contentId.value = Array.isArray(assignState.content) ? assignState.content[0] : assignState.content
     maxAttempts.value = assignState.maxAttempts || '1'
 
     if (assignState.dueDate) {
@@ -560,6 +800,9 @@
         sequenceItems.value = []
       }
     }
+
+    // Load student statuses for overview
+    loadAllStudentStatuses()
 
     // Load first student info and performance
     if (students.value.length > 0) {
@@ -1257,6 +1500,446 @@
   .vs-result-bar {
     flex-wrap: wrap;
     gap: 8px;
+  }
+}
+
+/* ═══════════════ OVERVIEW MODE STYLES ═══════════════ */
+
+.vso-container {
+  width: 100%;
+  height: 100%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.vso-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.vso-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.vso-title-icon {
+  color: var(--color-primary-600, #4f46e5);
+}
+
+.vso-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.vso-section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 12px;
+}
+
+/* Dashboard cards */
+.vso-dashboards {
+  padding: 20px 28px;
+}
+
+.vso-dashboard-cards {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+}
+
+.vso-dcard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 200ms, box-shadow 200ms;
+  min-width: 220px;
+  flex: 1;
+}
+
+.vso-dcard:hover {
+  border-color: var(--color-primary-400, #818cf8);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
+}
+
+.vso-dcard-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vso-dcard-icon-yellow {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.vso-dcard-icon-red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.vso-dcard-icon-green {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.vso-dcard-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vso-dcard-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.vso-dcard-link {
+  font-size: 12px;
+  color: var(--color-primary-600, #4f46e5);
+  font-weight: 500;
+}
+
+/* Stats summary */
+.vso-stats {
+  display: flex;
+  gap: 16px;
+  padding: 0 28px 20px;
+}
+
+.vso-stat-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.vso-stat-num {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.vso-stat-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.vso-stat-total { color: #334155; }
+.vso-stat-submitted { color: #059669; }
+.vso-stat-progress { color: #d97706; }
+.vso-stat-graded { color: #2563eb; }
+
+/* Submissions section */
+.vso-submissions {
+  padding: 0 28px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.vso-search {
+  margin-bottom: 12px;
+  max-width: 320px;
+}
+
+.vso-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.vso-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vso-th {
+  text-align: left;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #64748b;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.vso-th .lucide-icon {
+  vertical-align: middle;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.vso-tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 150ms;
+}
+
+.vso-tr:hover {
+  background: #f8fafc;
+}
+
+.vso-td {
+  padding: 10px 14px;
+  color: #334155;
+  vertical-align: middle;
+}
+
+/* Status badges */
+.vso-status-not-started {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.vso-status-submitted {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #d1fae5;
+  color: #059669;
+}
+
+.vso-status-in-progress {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.vso-status-graded {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* Feedback actions */
+.vso-feedback-none {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.vso-feedback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+}
+
+.vso-feedback-add {
+  color: var(--color-primary-600, #4f46e5);
+  border-color: var(--color-primary-200, #c7d2fe);
+}
+
+.vso-feedback-add:hover {
+  background: var(--color-primary-50, #eef2ff);
+}
+
+.vso-feedback-edit {
+  color: #334155;
+}
+
+.vso-feedback-edit:hover {
+  background: #f1f5f9;
+}
+
+/* View button */
+.vso-view-btn {
+  padding: 5px 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+}
+
+.vso-view-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* Pagination */
+.vso-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.vso-pagination-info {
+  font-size: 12px;
+}
+
+.vso-pagination-nav {
+  display: flex;
+  gap: 16px;
+}
+
+.vso-page-link {
+  color: var(--color-primary-600, #4f46e5);
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.vso-page-link:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.vso-footer {
+  display: flex;
+  align-items: center;
+  padding: 16px 28px;
+  border-top: 1px solid #e2e8f0;
+  gap: 12px;
+}
+
+.vso-footer-back {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+}
+
+.vso-footer-back:hover {
+  background: #f1f5f9;
+}
+
+.vso-footer-cancel {
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.vso-footer-cancel:hover {
+  background: #fef2f2;
+}
+
+/* Overview mobile */
+@media (max-width: 768px) {
+  .vso-header {
+    padding: 16px 16px 12px;
+  }
+
+  .vso-title {
+    font-size: 16px;
+  }
+
+  .vso-dashboards {
+    padding: 16px;
+  }
+
+  .vso-dashboard-cards {
+    flex-direction: column;
+  }
+
+  .vso-dcard {
+    min-width: unset;
+  }
+
+  .vso-stats {
+    padding: 0 16px 16px;
+    gap: 8px;
+  }
+
+  .vso-stat-box {
+    padding: 10px 8px;
+  }
+
+  .vso-stat-num {
+    font-size: 22px;
+  }
+
+  .vso-stat-label {
+    font-size: 11px;
+  }
+
+  .vso-submissions {
+    padding: 0 16px 16px;
+  }
+
+  .vso-search {
+    max-width: 100%;
+  }
+
+  .vso-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .vso-table {
+    min-width: 600px;
+  }
+
+  .vso-footer {
+    padding: 12px 16px;
   }
 }
 </style>

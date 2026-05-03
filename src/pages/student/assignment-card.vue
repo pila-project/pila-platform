@@ -25,7 +25,7 @@
       <PButton
         variant="primary"
         size="sm"
-        icon="fa-solid fa-play"
+        icon="lucide:play"
         :text="t('play')"
         @click.stop="$emit('play')"
       />

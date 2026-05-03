@@ -96,11 +96,12 @@
             v-for="id in possibleMembers"
             :key="`possible-member-id-${id}`"
           >
-            <v-icon
+            <button
               @click="$emit('selectUser', id)"
-              class="ma-4"
-              icon="fa-solid fa-pencil"
-            />
+              class="ma-4 p-2 text-slate-400 hover:text-slate-700"
+            >
+              <LucideIcon name="pencil" :size="14" />
+            </button>
             <DecryptedName :user="id" />
           </div>
         </div>
@@ -210,6 +211,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import IconButton from '../icon-button.vue'
   import PILAModal from '../PILAModal.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import ShowArchivedToggle from '../show-archived-toggle.vue'
   import LinkStudentModal from './LinkStudentModal.vue'
   import CreateEditGroupModal from './CreateEditGroupModal.vue'
@@ -221,6 +223,7 @@
       DecryptedName,
       vueScopeComponent,
       IconButton,
+      LucideIcon,
       LinkStudentModal,
       CreateEditGroupModal,
       ShowArchivedToggle,

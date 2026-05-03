@@ -6,7 +6,8 @@
       :class="tabClass(tab)"
       @click="$emit('update:modelValue', tab.key)"
     >
-      <i v-if="tab.icon" :class="tab.icon.startsWith('fa') ? tab.icon : `fa fa-${tab.icon}`" />
+      <LucideIcon v-if="tab.icon && tab.icon.startsWith('lucide:')" :name="tab.icon.slice(7)" :size="14" />
+      <i v-else-if="tab.icon" :class="tab.icon.startsWith('fa') ? tab.icon : `fa fa-${tab.icon}`" />
       {{ tab.label }}
     </button>
   </div>
@@ -14,6 +15,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   modelValue: {

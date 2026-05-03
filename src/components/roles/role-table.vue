@@ -49,7 +49,7 @@
           class="inline-flex"
           @click="toggleRelatedTag(id, item.target)"
         >
-          <i :class="`fa-regular fa-square${relatedTagStates[id][item.target] ? '-check' : ''}`" />
+          <LucideIcon :name="relatedTagStates[id][item.target] ? 'check-square' : 'square'" :size="16" />
         </button>
       </template>
     </template>
@@ -65,7 +65,7 @@
         class="text-slate-400 hover:text-danger-600"
         @click="potentialRemoval = item.target"
       >
-        <i class="fa-solid fa-xmark" />
+        <LucideIcon name="x" :size="16" />
       </button>
     </template>
   </PTable>
@@ -123,6 +123,7 @@
   import { useStore } from 'vuex'
   import { json2csv } from 'json-2-csv'
   import { PTable, PModal, PButton, PInput, PSelect } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const store = useStore()
 

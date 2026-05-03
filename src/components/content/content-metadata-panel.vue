@@ -5,7 +5,7 @@
         class="text-slate-400 hover:text-slate-600"
         @click="emit('back')"
       >
-        <i class="fa-solid fa-xmark" />
+        <LucideIcon name="x" :size="16" />
       </button>
     </div>
     <div class="px-4 py-3">
@@ -38,6 +38,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import DecryptedName from '@/components/common/decrypted-name.vue'
   import TagCloud from '@/components/tags/tag-cloud.vue'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   import { useStore } from 'vuex'
   const store = useStore()

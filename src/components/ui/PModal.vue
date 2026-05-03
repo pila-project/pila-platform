@@ -27,7 +27,7 @@
             class="ml-4 p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
             aria-label="Close"
           >
-            <i class="fa fa-xmark text-sm" />
+            <LucideIcon name="x" :size="14" />
           </button>
         </div>
 
@@ -59,6 +59,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import PButton from './PButton.vue'
+import LucideIcon from './LucideIcon.vue'
 
 defineOptions({ inheritAttrs: false })
 

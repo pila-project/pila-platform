@@ -101,7 +101,7 @@
               @click="$emit('selectUser', id)"
               class="p-2 text-slate-400 hover:text-slate-700"
             >
-              <i class="fa-solid fa-pencil" />
+              <LucideIcon name="pencil" :size="14" />
             </button>
             <DecryptedName :user="id" />
           </div>
@@ -217,6 +217,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PButton } from '@/components/ui/index.js'
   import { PModal } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import ShowArchivedToggle from '@/components/common/show-archived-toggle.vue'
   import LinkStudentModal from './link-student-modal.vue'
   import CreateEditGroupModal from './create-edit-group-modal.vue'
@@ -228,6 +229,7 @@
       DecryptedName,
       vueScopeComponent,
       PButton,
+      LucideIcon,
       LinkStudentModal,
       CreateEditGroupModal,
       ShowArchivedToggle,

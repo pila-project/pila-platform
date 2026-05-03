@@ -33,7 +33,7 @@
             :class="{ 'nav-item-active': tab === item.key }"
             @click="tab = item.key"
           >
-            <i :class="item.icon" class="w-5 text-center" />
+            <LucideIcon :name="item.icon" :size="16" class="w-5 text-center" />
             <span>{{ item.title }}</span>
           </button>
         </div>
@@ -43,13 +43,13 @@
           <PMenu>
             <template #activator="{ props }">
               <button class="nav-item w-full" @click="props.onClick">
-                <i class="fa-solid fa-gear w-5 text-center" />
+                <LucideIcon name="settings" :size="16" class="w-5 text-center" />
                 <span>{{ t('settings') || 'Settings' }}</span>
               </button>
             </template>
             <PMenuItem
               :title="t('log-out')"
-              append-icon="fa-solid fa-arrow-right-from-bracket"
+              append-icon="lucide:log-out"
               @click="logout"
             />
           </PMenu>
@@ -82,6 +82,7 @@
   import AdminStudyManager from './studies.vue'
   import StudiesNotAvailable from '@/components/common/studies-not-available.vue'
   import { PAvatar, PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import {
     ADMIN_TAG,
     TEACHER_TAG,
@@ -102,11 +103,11 @@
   const iAmAnAdmin = await isAdmin(user)
 
   const navItems = computed(() => [
-    { icon: 'fa-solid fa-chalkboard-user', title: t('trainers'), key: 'trainers', show: !isSimplifiedStudyDomain },
-    { icon: 'fa-solid fa-person-chalkboard', title: t('teachers'), key: 'teachers', show: true },
-    { icon: 'fa-solid fa-clipboard-check', title: t('role-requests'), key: 'role-requests', show: true },
-    { icon: 'fa-solid fa-magnifying-glass-chart', title: t('reports'), key: 'reports', show: true },
-    { icon: 'fa-solid fa-flask', title: t('studies'), key: 'studies', show: !isSimplifiedStudyDomain },
+    { icon: 'presentation', title: t('trainers'), key: 'trainers', show: !isSimplifiedStudyDomain },
+    { icon: 'presentation', title: t('teachers'), key: 'teachers', show: true },
+    { icon: 'clipboard-list', title: t('role-requests'), key: 'role-requests', show: true },
+    { icon: 'search', title: t('reports'), key: 'reports', show: true },
+    { icon: 'flask-conical', title: t('studies'), key: 'studies', show: !isSimplifiedStudyDomain },
   ])
 
   async function isAdmin(user) {

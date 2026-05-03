@@ -18,15 +18,15 @@
 					<div>
 						<p>{{ t('the-kinds-of-activity-data-include') }}</p>
 						<p class="icon-row">
-							<i class="fa fa-cloud-download"></i>
+							<LucideIcon name="cloud-download" :size="35" />
 							<span>{{ t('your-clicks') }}</span>
 						</p>
 						<p class="icon-row">
-							<i class="fa fa-mouse-pointer"></i>
+							<LucideIcon name="mouse-pointer" :size="35" />
 							<span>{{ t('information-about-your-screen-and-device') }}</span>
 						</p>
 						<p class="icon-row">
-							<i class="fa fa-desktop"></i>
+							<LucideIcon name="monitor" :size="35" />
 							<span>{{ t('all-saved-versions-of-your-answers-solutions-inc') }}</span>
 						</p>
 					</div>
@@ -43,9 +43,10 @@
 
 <script>
 import { PModal } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 export default {
 	name: 'student-agreement',
-	components: { PModal },
+	components: { PModal, LucideIcon },
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
 		modalClose(e) {
@@ -72,16 +73,13 @@ export default {
 .student-agreement .student-agreement-body p {
 	margin: 8px;
 }
-.student-agreement .student-agreement-body i {
+.student-agreement .student-agreement-body svg {
 	min-width: 50px;
-	font-size: 2.2rem;
 	margin: 4px 20px 4px 6px;
+	flex-shrink: 0;
 }
 .student-agreement p.icon-row {
 	display: flex;
 	align-items: center;
-}
-.student-agreement .fa-mouse-pointer {
-	transform: translateX(10px);
 }
 </style>

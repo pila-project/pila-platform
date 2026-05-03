@@ -7,7 +7,7 @@
       <div class="student-section content-card">
         <div class="section-header">
           <div class="section-header-left">
-            <i class="fa-solid fa-user-group section-icon" />
+            <LucideIcon name="users" :size="20" class="section-icon" />
             <div>
               <h2 class="card-section-title">{{ t('student') }} ({{ students.length }})</h2>
               <p class="card-section-subtitle">{{ t('manage-student-accounts') }}</p>
@@ -15,15 +15,31 @@
           </div>
           <div class="section-header-actions">
             <PButton
+              v-if="selectedStudents.length"
+              icon="lucide:download"
+              variant="outline"
+              :text="`${t('export')} (${selectedStudents.length})`"
+              size="sm"
+              @click="showExportModal = true"
+            />
+            <PButton
+              v-if="selectedStudents.length"
+              icon="lucide:users"
+              variant="outline"
+              :text="`${t('add-to-groups')} (${selectedStudents.length})`"
+              size="sm"
+              @click="showAddToGroupsModal = true; selectedGroupsForAssign = []; groupSearchQuery = ''"
+            />
+            <PButton
               v-if="hasEncryptionKey"
-              icon="fa-solid fa-print"
+              icon="lucide:printer"
               variant="outline"
               :text="t('print-login-codes')"
               size="sm"
               @click="printLoginCodes"
             />
             <PButton
-              icon="fa-solid fa-plus"
+              icon="lucide:plus"
               variant="primary"
               :text="t('add-student')"
               size="sm"
@@ -34,23 +50,33 @@
 
         <!-- Search + filters -->
         <div class="search-and-filters">
-          <PSearchFilter
-            v-model="searchQuery"
-            type="search-only"
+          <PUnifiedFilter
+            v-model:searchQuery="searchQuery"
             :placeholder="t('search')"
-          />
-          <div class="filter-chips-row">
-            <FilterDropdown
+          >
+            <PUnifiedFilterSection
+              id="grade"
+              :label="t('grade')"
+              icon="table"
+              :options="gradeFilterOptions"
+              v-model="activeGradeFilters"
+            />
+            <PUnifiedFilterSection
+              id="status"
               :label="t('status')"
+              icon="badge-check"
               :options="statusFilterOptions"
               v-model="activeStatusFilters"
             />
-            <FilterDropdown
+            <PUnifiedFilterSection
+              id="group"
               :label="t('group')"
+              icon="list-tree"
               :options="groupFilterOptions"
               v-model="activeGroupFilters"
+              searchable
             />
-          </div>
+          </PUnifiedFilter>
         </div>
 
         <!-- Student table -->
@@ -75,40 +101,73 @@
             <template #item.name="{ item }">
               <div class="student-name-cell">
                 <PAvatar :name="item.displayName" :size="28" />
-                <DecryptedName :user="item.id" />
+                <div class="student-name-col">
+                  <DecryptedName :user="item.id" />
+                  <!-- TODO: backend — needs email field on student -->
+                </div>
               </div>
+            </template>
+            <template #item.grade="{ item }">
+              <span class="grade-cell">{{ item.grade || '--' }}</span>
             </template>
             <template #item.status="{ item }">
               <PBadge
-                :variant="item.archived ? 'warning' : 'success'"
+                :variant="item.archived ? 'warning' : 'info'"
                 :text="item.archived ? t('archived') : t('active')"
               />
             </template>
             <template #item.groups="{ item }">
-              <span class="groups-cell">{{ item.groupNames }}</span>
+              <PTooltip :text="item.groupNames">
+                <span class="groups-cell">{{ item.groupNames || '--' }}</span>
+              </PTooltip>
             </template>
             <template #item.more="{ item }">
               <div class="action-cell">
-                <PMenu align-right>
+                <PButton
+                  v-if="item.archived"
+                  variant="outline"
+                  size="sm"
+                  :text="t('restore')"
+                  @click="toggleArchiveStudent(item)"
+                />
+                <PMenu v-else align-right>
                   <template #activator="{ props }">
                     <button class="action-dots" @click="props.onClick">
-                      <i class="fa-solid fa-ellipsis-vertical" />
+                      <LucideIcon name="ellipsis-vertical" :size="14" />
                     </button>
                   </template>
                   <PMenuItem
                     :title="t('edit')"
-                    prepend-icon="fa-solid fa-pencil"
+                    prepend-icon="lucide:pencil"
                     @click="userModalUser = item.id"
                   />
                   <PMenuItem
                     :title="t('student-info')"
-                    prepend-icon="fa-solid fa-user"
-                    @click="viewProfileUser = item.id"
+                    prepend-icon="lucide:user"
+                    @click="openStudentProfile(item.id)"
                   />
                   <PMenuItem
-                    :title="item.archived ? t('unarchive') : t('archive')"
-                    :prepend-icon="item.archived ? 'fa-solid fa-box-open' : 'fa-solid fa-box-archive'"
+                    :title="t('archive')"
+                    prepend-icon="lucide:archive"
                     @click="confirmArchiveStudent(item)"
+                  />
+                  <PDivider />
+                  <PMenuItem
+                    :title="t('download-login-code')"
+                    prepend-icon="lucide:qr-code"
+                    @click="openLoginCodeModal(item)"
+                  />
+                  <PMenuItem
+                    :title="t('reset-password')"
+                    prepend-icon="lucide:key-round"
+                    @click="resetPasswordStudent = item"
+                  />
+                  <PDivider />
+                  <PMenuItem
+                    :title="t('remove-student')"
+                    prepend-icon="lucide:trash-2"
+                    danger
+                    @click="deleteConfirmStudent = item"
                   />
                 </PMenu>
               </div>
@@ -116,24 +175,20 @@
           </PTable>
         </div>
 
-        <!-- Archived toggle -->
-        <div class="archived-toggle-row">
-          <ShowArchivedToggle v-model="showArchived" />
-        </div>
       </div>
 
       <!-- Right column: Groups -->
       <div class="group-section">
         <div class="group-section-header content-card">
           <div class="section-header-left">
-            <i class="fa-solid fa-shuffle section-icon" />
+            <LucideIcon name="shuffle" :size="20" class="section-icon" />
             <div>
               <h2 class="card-section-title">{{ t('group') }} ({{ activeGroups.length }})</h2>
               <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
             </div>
           </div>
           <PButton
-            icon="fa-solid fa-plus"
+            icon="lucide:plus"
             variant="primary"
             :text="t('add-group')"
             size="sm"
@@ -149,6 +204,7 @@
             @manage="openManageStudents(groupId)"
             @edit="openEditGroup(groupId)"
             @archive="archiveGroup(groupId)"
+            @delete="confirmDeleteGroup(groupId)"
           />
 
           <div v-if="showArchived && archivedGroups.length" class="archived-groups-section">
@@ -170,6 +226,7 @@
       v-if="userModalUser"
       :id="userModalUser"
       @close="userModalUser = null"
+      @open-login-code="openLoginCodeModal({ id: $event }); userModalUser = null"
     />
 
     <!-- Student Profile (read-only) -->
@@ -179,27 +236,66 @@
       width="500px"
       @close="viewProfileUser = null"
     >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('student-info') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('student-profile') }}</p>
+        </div>
+      </template>
       <template #body>
+        <!-- Basic Information -->
         <div class="profile-section">
           <div class="profile-section-header">
-            <i class="fa-solid fa-user profile-section-icon" />
-            <span class="profile-section-label">{{ t('student-info') }}</span>
+            <LucideIcon name="user" :size="16" class="profile-section-icon" />
+            <span class="profile-section-label">{{ t('basic-information') }}</span>
           </div>
           <div class="profile-row">
-            <span class="profile-label">{{ t('name') }}</span>
-            <span class="profile-value"><DecryptedName :user="viewProfileUser" /></span>
+            <span class="profile-label">{{ t('first-name') }}</span>
+            <span class="profile-value">{{ profileStudentInfo?.first_name || profileStudentInfo?.name || '...' }}</span>
+          </div>
+          <div class="profile-row" v-if="profileStudentInfo?.last_name">
+            <span class="profile-label">{{ t('last-name') }}</span>
+            <span class="profile-value">{{ profileStudentInfo.last_name }}</span>
+          </div>
+          <div class="profile-row" v-if="profileStudentInfo?.nickname">
+            <span class="profile-label">{{ t('nickname') }}</span>
+            <span class="profile-value">{{ profileStudentInfo.nickname }}</span>
+          </div>
+          <div class="profile-row" v-if="profileUserGrade">
+            <span class="profile-label">{{ t('grade') }}</span>
+            <span class="profile-value">{{ profileUserGrade }}</span>
           </div>
           <div class="profile-row">
             <span class="profile-label">{{ t('status') }}</span>
             <PBadge
-              :variant="profileUserArchived ? 'warning' : 'success'"
+              :variant="profileUserArchived ? 'warning' : 'info'"
               :text="profileUserArchived ? t('archived') : t('active')"
             />
           </div>
         </div>
+
+        <!-- Account Activity -->
+        <div class="profile-section">
+          <div class="profile-section-header">
+            <LucideIcon name="clock" :size="16" class="profile-section-icon" />
+            <span class="profile-section-label">{{ t('account-activity') }}</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">{{ t('account-created') }}</span>
+            <!-- TODO: backend — needs account activity timestamps -->
+            <span class="profile-value profile-value--muted">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">{{ t('last-login') }}</span>
+            <!-- TODO: backend — needs account activity timestamps -->
+            <span class="profile-value profile-value--muted">—</span>
+          </div>
+        </div>
+
+        <!-- Group Membership -->
         <div class="profile-section" v-if="profileUserGroups.length">
           <div class="profile-section-header">
-            <i class="fa-solid fa-users profile-section-icon" />
+            <LucideIcon name="users" :size="16" class="profile-section-icon" />
             <span class="profile-section-label">{{ t('group') }} ({{ profileUserGroups.length }})</span>
           </div>
           <div
@@ -207,7 +303,10 @@
             :key="g.id"
             class="profile-group-tile"
           >
-            <span class="profile-group-name">{{ g.name }}</span>
+            <div class="profile-group-info">
+              <span class="profile-group-name">{{ g.name }}</span>
+              <span v-if="g.detail" class="profile-group-detail">{{ g.detail }}</span>
+            </div>
             <PBadge variant="default" :text="`${g.memberCount} ${t('student')}`" />
           </div>
         </div>
@@ -229,41 +328,139 @@
     <PModal
       v-if="showAddStudentPicker"
       :title="t('add-student')"
-      width="500px"
-      @close="showAddStudentPicker = false"
+      width="460px"
+      @close="showAddStudentPicker = false; selectedPickerOption = null"
     >
       <template #title>
         <div>
-          <h2 class="text-lg font-semibold text-zinc-950">{{ t('add-student') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('select-content-type') }}</p>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('add-students') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('choose-how-to-add-students') }}</p>
         </div>
       </template>
       <template #body>
         <div class="add-student-options">
-          <button class="add-student-option" @click="handleAddStudentIndividual">
-            <div class="add-option-icon add-option-icon-individual">
-              <i class="fa-solid fa-plus" />
+          <!-- Card 1: Create individual account -->
+          <div
+            class="add-student-card"
+            :class="{ 'add-student-card--selected': selectedPickerOption === 'individual' }"
+          >
+            <button class="add-student-card-header" @click="selectedPickerOption = 'individual'">
+              <div class="add-option-icon add-option-icon-individual">
+                <LucideIcon name="plus" :size="16" />
+              </div>
+              <div class="add-option-text">
+                <span class="add-option-title">{{ t('create-individual-account') }}</span>
+                <span class="add-option-desc">{{ t('manually-create-single-student') }}</span>
+              </div>
+            </button>
+            <div class="add-student-card-link">
+              <button class="add-student-link-btn" @click="handleAddStudentLink">
+                {{ t('link-student-to-you') }} <LucideIcon name="arrow-right" :size="14" class="inline" />
+              </button>
             </div>
-            <div class="add-option-text">
-              <span class="add-option-title">{{ t('create-account') }}</span>
-              <span class="add-option-desc">{{ t('add-student') }}</span>
+          </div>
+
+          <!-- Card 2: Create bulk accounts -->
+          <div
+            class="add-student-card"
+            :class="{ 'add-student-card--selected': selectedPickerOption === 'bulk' }"
+          >
+            <button class="add-student-card-header" @click="selectedPickerOption = 'bulk'">
+              <div class="add-option-icon add-option-icon-bulk">
+                <LucideIcon name="upload" :size="16" />
+              </div>
+              <div class="add-option-text">
+                <span class="add-option-title">{{ t('create-bulk-accounts') }}</span>
+                <span class="add-option-desc">{{ t('upload-csv-or-enter-multiple') }}</span>
+              </div>
+            </button>
+            <div class="add-student-card-link">
+              <button class="add-student-link-btn" @click="handleAddStudentLink">
+                {{ t('link-students-to-you') }} <LucideIcon name="arrow-right" :size="14" class="inline" />
+              </button>
             </div>
-            <i class="fa-solid fa-arrow-right add-option-arrow" />
-          </button>
-          <button class="add-student-option" @click="handleAddStudentLink">
-            <div class="add-option-icon add-option-icon-link">
-              <i class="fa-solid fa-link" />
-            </div>
-            <div class="add-option-text">
-              <span class="add-option-title">{{ t('link-students-to-you') }}</span>
-              <span class="add-option-desc">{{ t('share-this-link-with-your-students') }}</span>
-            </div>
-            <i class="fa-solid fa-arrow-right add-option-arrow" />
-          </button>
+          </div>
+
+          <!-- Card 3: Link via SSO -->
+          <div
+            class="add-student-card add-student-card--short"
+            :class="{ 'add-student-card--selected': selectedPickerOption === 'sso' }"
+          >
+            <button class="add-student-card-header" @click="selectedPickerOption = 'sso'">
+              <div class="add-option-icon add-option-icon-sso">
+                <LucideIcon name="user-plus" :size="16" />
+              </div>
+              <div class="add-option-text">
+                <span class="add-option-title">{{ t('link-via-sso') }}</span>
+                <span class="add-option-desc">{{ t('connect-existing-google-microsoft') }}</span>
+              </div>
+            </button>
+          </div>
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="showAddStudentPicker = false" />
+        <PButton variant="secondary" :text="t('cancel')" @click="showAddStudentPicker = false; selectedPickerOption = null" />
+        <PButton
+          variant="primary"
+          :text="t('next')"
+          :disabled="!selectedPickerOption"
+          @click="handlePickerNext"
+        />
+      </template>
+    </PModal>
+
+    <!-- Create Student Form -->
+    <PModal
+      v-if="showCreateStudentForm"
+      :title="t('create-individual-account')"
+      width="500px"
+      @close="showCreateStudentForm = false"
+    >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('create-individual-account') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('manually-create-single-student') }}</p>
+        </div>
+      </template>
+      <template #body>
+        <div class="modal-form-fields">
+          <PInput
+            v-model="newStudentFirstName"
+            :label="t('first-name')"
+            :placeholder="t('first-name')"
+            required
+          />
+          <PInput
+            v-model="newStudentLastName"
+            :label="t('last-name')"
+            :placeholder="t('last-name')"
+          />
+          <PInput
+            v-model="newStudentNickname"
+            :label="t('nickname')"
+            :placeholder="t('nickname')"
+          />
+          <PSelect
+            v-model="newStudentGrade"
+            :label="t('grade')"
+            :items="gradeFilterOptions"
+            item-title="label"
+            item-value="value"
+            :placeholder="t('select-grade')"
+            required
+          />
+        </div>
+      </template>
+      <template #footer>
+        <PButton variant="outline" :text="t('back')" @click="showCreateStudentForm = false; showAddStudentPicker = true" />
+        <div style="flex: 1" />
+        <PButton variant="secondary" :text="t('cancel')" @click="showCreateStudentForm = false" />
+        <PButton
+          variant="primary"
+          :text="t('create')"
+          :disabled="!newStudentFirstName.trim() || !newStudentGrade"
+          @click="createStudentAccount"
+        />
       </template>
     </PModal>
 
@@ -281,12 +478,28 @@
         </div>
       </template>
       <template #body>
-        <PInput
-          v-model="newGroupName"
-          :label="t('group-name')"
-          :placeholder="t('give-your-group-a-name')"
-          required
-        />
+        <div class="modal-form-fields">
+          <PInput
+            v-model="newGroupName"
+            :label="t('group-name')"
+            :placeholder="t('give-your-group-a-name')"
+            required
+          />
+          <PSelect
+            v-model="newGroupGrade"
+            :label="t('grade')"
+            :items="gradeFilterOptions"
+            item-title="label"
+            item-value="value"
+            :placeholder="t('select-grade')"
+          />
+          <PSelect
+            v-model="newGroupSubject"
+            :label="t('subject')"
+            :items="subjectOptions"
+            :placeholder="t('select-subject')"
+          />
+        </div>
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="showCreateGroupModal = false" />
@@ -308,12 +521,28 @@
         </div>
       </template>
       <template #body>
-        <PInput
-          v-model="editGroupName"
-          :label="t('group-name')"
-          :placeholder="t('give-your-group-a-name')"
-          required
-        />
+        <div class="modal-form-fields">
+          <PInput
+            v-model="editGroupName"
+            :label="t('group-name')"
+            :placeholder="t('give-your-group-a-name')"
+            required
+          />
+          <PSelect
+            v-model="editGroupGrade"
+            :label="t('grade')"
+            :items="gradeFilterOptions"
+            item-title="label"
+            item-value="value"
+            :placeholder="t('select-grade')"
+          />
+          <PSelect
+            v-model="editGroupSubject"
+            :label="t('subject')"
+            :items="subjectOptions"
+            :placeholder="t('select-subject')"
+          />
+        </div>
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="editGroupId = null" />
@@ -325,12 +554,48 @@
     <PAlertDialog
       v-if="archiveConfirmStudent"
       variant="warning"
-      :title="t('are-you-sure')"
-      :description="`${t('archive')} &quot;${archiveConfirmStudent.id.slice(0,8)}&quot;`"
+      :title="t('archive-student-confirm-title')"
+      :description="t('archive-student-confirm-description')"
       :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
       @confirm="executeArchiveStudent"
       @cancel="archiveConfirmStudent = null"
+    />
+
+    <!-- Delete Student Confirmation -->
+    <PAlertDialog
+      v-if="deleteConfirmStudent"
+      variant="error"
+      :title="t('delete-student-confirm-title')"
+      :description="t('delete-student-confirm-description')"
+      :confirm-text="t('delete')"
+      :cancel-text="t('cancel')"
+      @confirm="executeDeleteStudent"
+      @cancel="deleteConfirmStudent = null"
+    />
+
+    <!-- Reset Password Confirmation -->
+    <PAlertDialog
+      v-if="resetPasswordStudent"
+      variant="warning"
+      :title="t('reset-password-confirm-title')"
+      :description="t('reset-password-confirm-description')"
+      :confirm-text="t('reset-password')"
+      :cancel-text="t('cancel')"
+      @confirm="executeResetPassword"
+      @cancel="resetPasswordStudent = null"
+    />
+
+    <!-- Delete Group Confirmation -->
+    <PAlertDialog
+      v-if="deleteConfirmGroup"
+      variant="error"
+      :title="`${t('delete-group-confirm-title')} '${store.state.groups.groups[deleteConfirmGroup]?.name || ''}'?`"
+      :description="`${t('delete-group-confirm-description')} (${store.getters['groups/members'](deleteConfirmGroup).length} ${t('student')})`"
+      :confirm-text="t('delete-group')"
+      :cancel-text="t('cancel')"
+      @confirm="executeDeleteGroup"
+      @cancel="deleteConfirmGroup = null"
     />
 
     <!-- Success Dialog -->
@@ -343,6 +608,316 @@
       @confirm="successMessage = null"
       @cancel="successMessage = null"
     />
+
+    <!-- CSV Upload Modal -->
+    <PModal
+      v-if="showCSVUploadModal"
+      :title="t('create-bulk-accounts')"
+      width="600px"
+      @close="showCSVUploadModal = false"
+    >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('create-bulk-accounts') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('upload-csv-or-enter-multiple') }}</p>
+        </div>
+      </template>
+      <template #body>
+        <div class="modal-form-fields">
+          <PFileUpload
+            accept=".csv"
+            :label="t('drop-csv-file-here')"
+            :description="t('csv-required-columns')"
+            @file-selected="csvFile = $event"
+          />
+          <div class="csv-actions-row">
+            <!-- TODO: backend — needs CSV template endpoint -->
+            <button class="csv-template-link" disabled>
+              <LucideIcon name="download" :size="14" />
+              {{ t('download-template') }}
+            </button>
+            <button class="csv-template-link" @click="showCSVUploadModal = false; showBulkEntryModal = true">
+              <LucideIcon name="table" :size="14" />
+              {{ t('manual-entry') }}
+            </button>
+          </div>
+          <div class="csv-info-text">
+            <LucideIcon name="info" :size="14" />
+            <span>{{ t('csv-required-columns') }}: First name ({{ t('required') }}), Last name, Nickname, Grade ({{ t('required') }})</span>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <PButton variant="outline" :text="t('back')" @click="showCSVUploadModal = false; showAddStudentPicker = true" />
+        <div style="flex: 1" />
+        <PButton variant="secondary" :text="t('cancel')" @click="showCSVUploadModal = false" />
+        <!-- TODO: backend — needs CSV import endpoint -->
+        <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!csvFile" @click="handleCSVImport" />
+      </template>
+    </PModal>
+
+    <!-- Manual Bulk Entry Modal -->
+    <PModal
+      v-if="showBulkEntryModal"
+      :title="t('create-bulk-accounts')"
+      width="800px"
+      @close="showBulkEntryModal = false"
+    >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('create-bulk-accounts') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('manual-entry') }}</p>
+        </div>
+      </template>
+      <template #body>
+        <div class="bulk-entry-container">
+          <div class="bulk-entry-toolbar">
+            <PButton variant="outline" size="sm" icon="lucide:plus" :text="t('add-row')" @click="addBulkRow" />
+          </div>
+          <div class="bulk-entry-table-wrapper">
+            <table class="bulk-entry-table">
+              <thead>
+                <tr>
+                  <th>{{ t('first-name') }} *</th>
+                  <th>{{ t('last-name') }}</th>
+                  <th>{{ t('nickname') }}</th>
+                  <th>{{ t('grade') }} *</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, index) in bulkEntryRows" :key="index">
+                  <td><input v-model="row.first_name" class="input bulk-input" :placeholder="t('first-name')" /></td>
+                  <td><input v-model="row.last_name" class="input bulk-input" :placeholder="t('last-name')" /></td>
+                  <td><input v-model="row.nickname" class="input bulk-input" :placeholder="t('nickname')" /></td>
+                  <td>
+                    <select v-model="row.grade" class="input bulk-input">
+                      <option value="">{{ t('select-grade') }}</option>
+                      <option v-for="g in gradeFilterOptions" :key="g.value" :value="g.value">{{ g.label }}</option>
+                    </select>
+                  </td>
+                  <td>
+                    <button class="bulk-delete-row" @click="bulkEntryRows.splice(index, 1)">
+                      <LucideIcon name="x" :size="14" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <PButton variant="outline" :text="t('back')" @click="showBulkEntryModal = false; showCSVUploadModal = true" />
+        <div style="flex: 1" />
+        <PButton variant="secondary" :text="t('cancel')" @click="showBulkEntryModal = false" />
+        <!-- TODO: backend — needs bulk create endpoint + QR generation -->
+        <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!validBulkRows" @click="handleBulkCreate" />
+      </template>
+    </PModal>
+
+    <!-- SSO Provider Selection Modal -->
+    <PModal
+      v-if="showSSOModal"
+      :title="t('link-via-sso')"
+      width="460px"
+      @close="showSSOModal = false"
+    >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('link-via-sso') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('connect-existing-google-microsoft') }}</p>
+        </div>
+      </template>
+      <template #body>
+        <div class="add-student-options">
+          <div
+            class="add-student-card add-student-card--short"
+            :class="{ 'add-student-card--selected': selectedSSOProvider === 'google' }"
+          >
+            <button class="add-student-card-header" @click="selectedSSOProvider = 'google'">
+              <div class="add-option-icon" style="background: #fef9c3; color: #d97706;">
+                <LucideIcon name="chrome" :size="16" />
+              </div>
+              <div class="add-option-text">
+                <span class="add-option-title">Google Workspace</span>
+                <span class="add-option-desc">{{ t('import-from-google') }}</span>
+              </div>
+            </button>
+          </div>
+          <div
+            class="add-student-card add-student-card--short"
+            :class="{ 'add-student-card--selected': selectedSSOProvider === 'microsoft' }"
+          >
+            <button class="add-student-card-header" @click="selectedSSOProvider = 'microsoft'">
+              <div class="add-option-icon" style="background: #dbeafe; color: #2563eb;">
+                <LucideIcon name="app-window" :size="16" />
+              </div>
+              <div class="add-option-text">
+                <span class="add-option-title">Microsoft 365</span>
+                <span class="add-option-desc">{{ t('import-from-microsoft') }}</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <PButton variant="outline" :text="t('back')" @click="showSSOModal = false; showAddStudentPicker = true" />
+        <div style="flex: 1" />
+        <PButton variant="secondary" :text="t('cancel')" @click="showSSOModal = false" />
+        <!-- TODO: backend — needs SSO OAuth integration (Google + Microsoft) -->
+        <PButton variant="primary" :text="t('next')" :disabled="!selectedSSOProvider" @click="handleSSONext" />
+      </template>
+    </PModal>
+
+    <!-- Export Students Modal -->
+    <PModal
+      v-if="showExportModal"
+      :title="t('export')"
+      width="500px"
+      @close="showExportModal = false"
+    >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('export') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ selectedStudents.length }} {{ t('student') }} {{ t('selected') }}</p>
+        </div>
+      </template>
+      <template #body>
+        <div class="add-student-options">
+          <div
+            class="add-student-card add-student-card--short"
+            :class="{ 'add-student-card--selected': exportFormat === 'csv' }"
+          >
+            <button class="add-student-card-header" @click="exportFormat = 'csv'">
+              <div class="add-option-icon" style="background: #dcfce7; color: #16a34a;">
+                <LucideIcon name="table" :size="16" />
+              </div>
+              <div class="add-option-text">
+                <span class="add-option-title">CSV</span>
+                <span class="add-option-desc">{{ t('spreadsheet-format') }}</span>
+              </div>
+            </button>
+          </div>
+          <div
+            class="add-student-card add-student-card--short"
+            :class="{ 'add-student-card--selected': exportFormat === 'pdf' }"
+          >
+            <button class="add-student-card-header" @click="exportFormat = 'pdf'">
+              <div class="add-option-icon" style="background: #fef3c7; color: #d97706;">
+                <LucideIcon name="file-text" :size="16" />
+              </div>
+              <div class="add-option-text">
+                <span class="add-option-title">PDF</span>
+                <span class="add-option-desc">{{ t('formatted-document') }}</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <PButton variant="secondary" :text="t('cancel')" @click="showExportModal = false; exportFormat = null" />
+        <!-- TODO: backend — needs export endpoint -->
+        <PButton variant="primary" :text="t('export')" :disabled="!exportFormat" @click="handleExport" />
+      </template>
+    </PModal>
+
+    <!-- Add Students to Groups Modal -->
+    <PModal
+      v-if="showAddToGroupsModal"
+      :title="t('add-to-groups')"
+      width="700px"
+      @close="showAddToGroupsModal = false"
+    >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('add-to-groups') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ selectedStudents.length }} {{ t('student') }} {{ t('selected') }}</p>
+        </div>
+      </template>
+      <template #body>
+        <div class="modal-form-fields">
+          <div class="info-banner">
+            <LucideIcon name="info" :size="14" />
+            <span>{{ t('selected-students-will-be-added') }}</span>
+          </div>
+          <PInput
+            v-model="groupSearchQuery"
+            :placeholder="t('search-groups')"
+          />
+          <div class="assign-groups-list">
+            <label
+              v-for="gid in filteredGroupsForAssign"
+              :key="gid"
+              class="assign-group-row"
+            >
+              <input
+                type="checkbox"
+                :checked="selectedGroupsForAssign.includes(gid)"
+                @change="toggleGroupForAssign(gid)"
+              />
+              <span class="assign-group-name">{{ store.state.groups.groups[gid]?.name || t('unnamed') }}</span>
+              <span v-if="store.state.groups.groups[gid]?.grade" class="assign-group-detail">{{ store.state.groups.groups[gid].grade }}</span>
+              <span v-if="store.state.groups.groups[gid]?.subject" class="assign-group-detail">{{ store.state.groups.groups[gid].subject }}</span>
+              <PBadge variant="default" :text="`${store.getters['groups/members'](gid).length}`" />
+            </label>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <PButton variant="secondary" :text="t('cancel')" @click="showAddToGroupsModal = false" />
+        <PButton
+          variant="primary"
+          :text="`${t('add-to')} ${selectedGroupsForAssign.length} ${t('group')}`"
+          :disabled="!selectedGroupsForAssign.length"
+          @click="handleAddToGroups"
+        />
+      </template>
+    </PModal>
+
+    <!-- Login Code / QR Modal -->
+    <PModal
+      v-if="loginCodeStudent"
+      :title="t('login-code')"
+      width="500px"
+      @close="loginCodeStudent = null"
+    >
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('login-code') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('student-login-code') }}</p>
+        </div>
+      </template>
+      <template #body>
+        <div class="login-code-modal-body">
+          <div class="login-code-student-name">
+            <span><DecryptedName :user="loginCodeStudent.id" /></span>
+            <button class="copy-btn" @click="copyToClipboard(loginCodeStudent.id)">
+              <LucideIcon name="copy" :size="14" />
+            </button>
+          </div>
+          <div class="login-code-qr">
+            <!-- TODO: backend — needs per-student QR generation endpoint. Currently showing join link as placeholder. -->
+            <Suspense>
+              <QRCodeDisplay :data="`${location.origin}/join/${loginCodeStudent.id}`" size="200px" />
+              <template #fallback>
+                <div class="qr-placeholder">{{ t('loading') }}...</div>
+              </template>
+            </Suspense>
+          </div>
+          <div class="login-code-passphrase">
+            <!-- TODO: backend — needs symbol passphrase generation -->
+            <span class="passphrase-label">{{ t('symbol-passphrase') }}</span>
+            <span class="passphrase-value">—</span>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <PButton variant="secondary" :text="t('cancel')" @click="loginCodeStudent = null" />
+        <!-- TODO: backend — needs QR download endpoint -->
+        <PButton variant="primary" :text="t('download-qr-code')" disabled />
+      </template>
+    </PModal>
 
     <PModal
       v-if="showLinkStudentModal"
@@ -383,15 +958,16 @@
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 import naclUtil from 'tweetnacl-util'
-import { PButton, PTable, PBadge, PAvatar, PSearchFilter, PModal, PMenu, PMenuItem, PAlertDialog, PInput } from '@/components/ui/index.js'
+import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
-import ShowArchivedToggle from '@/components/common/show-archived-toggle.vue'
+
 import UserInfoModal from '@/components/users/user-info-modal.vue'
 import LinkStudentModal from '@/components/groups/link-student-modal.vue'
 import TeacherStudentAgreementModal from './teacher-student-agreement-modal.vue'
 import GroupCard from '@/components/groups/GroupCard.vue'
+import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
-import FilterDropdown from '@/components/content/filter-dropdown.vue'
 import { createUser } from '@/utils/user-utils.js'
 import * as encryption from '@/utils/encryption.js'
 
@@ -402,20 +978,50 @@ function t(slug) { return store.getters.t(slug) }
 const users = reactive({})
 const userModalUser = ref(null)
 const viewProfileUser = ref(null)
-const showArchived = ref(false)
+const showArchived = computed(() => activeStatusFilters.value.includes(t('archived')))
 const showAcceptStudentAgreementModal = ref(false)
 const showLinkStudentModal = ref(false)
 const showAddStudentPicker = ref(false)
+const selectedPickerOption = ref(null)
+const showCreateStudentForm = ref(false)
+const newStudentFirstName = ref('')
+const newStudentLastName = ref('')
+const newStudentNickname = ref('')
+const newStudentGrade = ref('')
 const showCreateGroupModal = ref(false)
 const editGroupId = ref(null)
 const editGroupName = ref('')
+const editGroupGrade = ref('')
+const editGroupSubject = ref('')
 const newGroupName = ref('')
+const newGroupGrade = ref('')
+const newGroupSubject = ref('')
 const searchQuery = ref('')
 const selectedStudents = ref([])
 const manageGroupId = ref(null)
+const activeGradeFilters = ref([])
 const activeStatusFilters = ref([])
 const activeGroupFilters = ref([])
 const archiveConfirmStudent = ref(null)
+const deleteConfirmStudent = ref(null)
+const resetPasswordStudent = ref(null)
+const loginCodeStudent = ref(null)
+const deleteConfirmGroup = ref(null)
+const showExportModal = ref(false)
+const exportFormat = ref(null)
+const showCSVUploadModal = ref(false)
+const csvFile = ref(null)
+const showBulkEntryModal = ref(false)
+const showSSOModal = ref(false)
+const showAddToGroupsModal = ref(false)
+const selectedGroupsForAssign = ref([])
+const groupSearchQuery = ref('')
+const selectedSSOProvider = ref(null)
+const bulkEntryRows = ref([
+  { first_name: '', last_name: '', nickname: '', grade: '' },
+  { first_name: '', last_name: '', nickname: '', grade: '' },
+  { first_name: '', last_name: '', nickname: '', grade: '' },
+])
 const successMessage = ref(null)
 
 // ── Encryption key ──
@@ -458,6 +1064,7 @@ const students = computed(() => {
       id,
       displayName: '…',
       archived: !!users[id]?.archived,
+      grade: users[id]?.grade || '',
       groupNames,
       groupIds,
     }
@@ -469,6 +1076,9 @@ const filteredStudents = computed(() => {
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     items = items.filter(s => s.id.toLowerCase().includes(q) || s.groupNames.toLowerCase().includes(q))
+  }
+  if (activeGradeFilters.value.length) {
+    items = items.filter(s => s.grade && activeGradeFilters.value.includes(s.grade))
   }
   if (activeStatusFilters.value.length) {
     items = items.filter(s => {
@@ -486,12 +1096,18 @@ const filteredStudents = computed(() => {
 
 const studentHeaders = computed(() => [
   { key: 'name', title: t('name') },
+  { key: 'grade', title: t('grade'), sortable: false },
   { key: 'status', title: t('status'), sortable: false },
   { key: 'groups', title: t('groups'), sortable: false },
   { key: 'more', title: '', sortable: false, width: '60px' },
 ])
 
 // ── Filter options ──
+const gradeFilterOptions = computed(() => {
+  const grades = [...new Set(students.value.map(s => s.grade).filter(Boolean))]
+  return grades.map(g => ({ value: g, label: g }))
+})
+
 const statusFilterOptions = computed(() => [
   { value: t('active'), label: t('active') },
   { value: t('archived'), label: t('archived') },
@@ -504,22 +1120,58 @@ const groupFilterOptions = computed(() =>
   })
 )
 
+// ── Subject options ──
+const subjectOptions = [
+  { value: 'Mathematics', title: 'Mathematics' },
+  { value: 'English', title: 'English' },
+  { value: 'Science', title: 'Science' },
+  { value: 'Social Studies', title: 'Social Studies' },
+  { value: 'Art', title: 'Art' },
+  { value: 'Music', title: 'Music' },
+  { value: 'Physical Education', title: 'Physical Education' },
+  { value: 'Other', title: 'Other' },
+]
+
 // ── Profile helpers ──
+const profileStudentInfo = ref(null)
+
 const profileUserArchived = computed(() => {
   if (!viewProfileUser.value) return false
   return !!users[viewProfileUser.value]?.archived
+})
+
+const profileUserGrade = computed(() => {
+  if (!viewProfileUser.value) return ''
+  return users[viewProfileUser.value]?.grade || ''
 })
 
 const profileUserGroups = computed(() => {
   if (!viewProfileUser.value) return []
   return activeGroups.value
     .filter(gid => store.getters['groups/belongs'](viewProfileUser.value, gid))
-    .map(gid => ({
-      id: gid,
-      name: store.state.groups.groups[gid]?.name || t('unnamed'),
-      memberCount: store.getters['groups/members'](gid).length,
-    }))
+    .map(gid => {
+      const groupData = store.state.groups.groups[gid] || {}
+      const detail = [groupData.grade, groupData.subject].filter(Boolean).join(' | ')
+      return {
+        id: gid,
+        name: groupData.name || t('unnamed'),
+        detail,
+        memberCount: store.getters['groups/members'](gid).length,
+      }
+    })
 })
+
+async function openStudentProfile(studentId) {
+  viewProfileUser.value = studentId
+  profileStudentInfo.value = null
+  // Decrypt student info for profile display
+  try {
+    const info = await store.getters.decryptUserInfo(studentId, false)
+    profileStudentInfo.value = info
+  } catch (e) {
+    profileStudentInfo.value = { name: '...' }
+  }
+}
 
 // ── Groups ──
 const activeGroups = computed(() => store.getters['groups/groups']('class', true))
@@ -529,21 +1181,34 @@ async function handleCreateGroup() {
   const name = newGroupName.value.trim()
   if (!name) return
   const id = await store.dispatch('groups/add', { type: 'class', name })
+  // Save grade and subject to the group state
+  const groupState = await Agent.state(id)
+  if (newGroupGrade.value) groupState.grade = newGroupGrade.value
+  if (newGroupSubject.value) groupState.subject = newGroupSubject.value
+  await Agent.synced()
+  await store.dispatch('groups/loadGroups')
   newGroupName.value = ''
+  newGroupGrade.value = ''
+  newGroupSubject.value = ''
   showCreateGroupModal.value = false
   successMessage.value = t('success')
   manageGroupId.value = id
 }
 
 function openEditGroup(groupId) {
+  const groupData = store.state.groups.groups[groupId] || {}
   editGroupId.value = groupId
-  editGroupName.value = store.state.groups.groups[groupId]?.name || ''
+  editGroupName.value = groupData.name || ''
+  editGroupGrade.value = groupData.grade || ''
+  editGroupSubject.value = groupData.subject || ''
 }
 
 async function handleSaveGroup() {
   if (!editGroupName.value.trim() || !editGroupId.value) return
   const state = await Agent.state(editGroupId.value)
   state.name = editGroupName.value.trim()
+  state.grade = editGroupGrade.value || undefined
+  state.subject = editGroupSubject.value || undefined
   await Agent.synced()
   await store.dispatch('groups/loadGroups')
   editGroupId.value = null
@@ -586,6 +1251,32 @@ async function toggleArchiveStudent(item) {
   }
 }
 
+function openLoginCodeModal(item) {
+  loginCodeStudent.value = item
+}
+
+function executeDeleteStudent() {
+  // TODO: backend — needs delete student endpoint
+  console.warn('Delete student not yet implemented — needs backend endpoint')
+  deleteConfirmStudent.value = null
+}
+
+function executeResetPassword() {
+  // TODO: backend — needs reset password endpoint
+  console.warn('Reset password not yet implemented — needs backend endpoint')
+  resetPasswordStudent.value = null
+}
+
+function confirmDeleteGroup(groupId) {
+  deleteConfirmGroup.value = groupId
+}
+
+function executeDeleteGroup() {
+  // TODO: backend — needs group hard-delete endpoint
+  console.warn('Delete group not yet implemented — needs backend endpoint')
+  deleteConfirmGroup.value = null
+}
+
 const codeCharacterSet = 'abcdefghijklmnopqrstuvwxy'
 
 function randomString(length, chars) {
@@ -594,9 +1285,32 @@ function randomString(length, chars) {
   return [...arr].map(i => chars[i % chars.length]).join('')
 }
 
+function handlePickerNext() {
+  if (selectedPickerOption.value === 'individual') {
+    handleAddStudentIndividual()
+  } else if (selectedPickerOption.value === 'bulk') {
+    showAddStudentPicker.value = false
+    selectedPickerOption.value = null
+    showCSVUploadModal.value = true
+  } else if (selectedPickerOption.value === 'sso') {
+    showAddStudentPicker.value = false
+    selectedPickerOption.value = null
+    showSSOModal.value = true
+  }
+}
+
 function handleAddStudentIndividual() {
   showAddStudentPicker.value = false
-  handleAddStudent()
+  selectedPickerOption.value = null
+  if (!hasEncryptionKey.value) {
+    showNamePasswordModal.value = true
+    return
+  }
+  newStudentFirstName.value = ''
+  newStudentLastName.value = ''
+  newStudentNickname.value = ''
+  newStudentGrade.value = ''
+  showCreateStudentForm.value = true
 }
 
 function handleAddStudentLink() {
@@ -612,19 +1326,111 @@ async function handleAddStudent() {
   await createUserAndLaunchModal()
 }
 
+async function createStudentAccount() {
+  const { studentDataProtectionAgreement } = await Agent.state()
+  if (!studentDataProtectionAgreement) {
+    showCreateStudentForm.value = false
+    showAcceptStudentAgreementModal.value = true
+    return
+  }
+  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+  const userSecret = randomString(8, codeCharacterSet)
+  const info = {
+    first_name: newStudentFirstName.value.trim(),
+    last_name: newStudentLastName.value.trim() || undefined,
+    nickname: newStudentNickname.value.trim() || undefined,
+    name: newStudentFirstName.value.trim(), // backward-compat fallback
+  }
+  const id = await createUser(userSecret, providerSecret, info)
+  const usersState = await Agent.state('users')
+  usersState[id] = { grade: newStudentGrade.value || undefined }
+  showCreateStudentForm.value = false
+  successMessage.value = t('success')
+  userModalUser.value = id
+}
+
 async function createUserAndLaunchModal() {
   const { studentDataProtectionAgreement } = await Agent.state()
   if (studentDataProtectionAgreement) {
-    const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-    const userSecret = randomString(8, codeCharacterSet)
-    const info = { name: t('student') }
-    const id = await createUser(userSecret, providerSecret, info)
-    const usersState = await Agent.state('users')
-    usersState[id] = {}
-    userModalUser.value = id
+    // Legacy path — used from agreement modal callback
+    newStudentFirstName.value = t('student')
+    newStudentGrade.value = ''
+    showCreateStudentForm.value = true
   } else {
     showAcceptStudentAgreementModal.value = true
   }
+}
+
+// ── Bulk / Export / SSO handlers ──
+
+function addBulkRow() {
+  bulkEntryRows.value.push({ first_name: '', last_name: '', nickname: '', grade: '' })
+}
+
+const validBulkRows = computed(() =>
+  bulkEntryRows.value.some(r => r.first_name.trim() && r.grade)
+)
+
+function handleCSVImport() {
+  // TODO: backend — needs CSV import endpoint
+  console.warn('CSV import not yet implemented — needs backend endpoint')
+  showCSVUploadModal.value = false
+}
+
+function handleBulkCreate() {
+  // TODO: backend — needs bulk create endpoint + QR generation
+  console.warn('Bulk create not yet implemented — needs backend endpoint')
+  showBulkEntryModal.value = false
+}
+
+function handleSSONext() {
+  // TODO: backend — needs SSO OAuth integration (Google + Microsoft)
+  console.warn('SSO integration not yet implemented — needs backend endpoint')
+  showSSOModal.value = false
+}
+
+function handleExport() {
+  // TODO: backend — needs export endpoint
+  console.warn('Export not yet implemented — needs backend endpoint')
+  showExportModal.value = false
+  exportFormat.value = null
+}
+
+const filteredGroupsForAssign = computed(() => {
+  let groups = activeGroups.value
+  if (groupSearchQuery.value) {
+    const q = groupSearchQuery.value.toLowerCase()
+    groups = groups.filter(gid => {
+      const name = store.state.groups.groups[gid]?.name || ''
+      return name.toLowerCase().includes(q)
+    })
+  }
+  return groups
+})
+
+function toggleGroupForAssign(gid) {
+  const idx = selectedGroupsForAssign.value.indexOf(gid)
+  if (idx >= 0) {
+    selectedGroupsForAssign.value.splice(idx, 1)
+  } else {
+    selectedGroupsForAssign.value.push(gid)
+  }
+}
+
+async function handleAddToGroups() {
+  for (const gid of selectedGroupsForAssign.value) {
+    for (const studentId of selectedStudents.value) {
+      await store.dispatch('groups/addMember', { user_id: studentId, group_id: gid })
+    }
+  }
+  showAddToGroupsModal.value = false
+  selectedGroupsForAssign.value = []
+  groupSearchQuery.value = ''
+  successMessage.value = t('success')
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).catch(() => {})
 }
 
 function printLoginCodes() {
@@ -676,21 +1482,7 @@ function printLoginCodes() {
 }
 
 .search-and-filters {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
   margin-bottom: 12px;
-}
-
-.search-and-filters :deep(.search-filter) {
-  flex: 0 0 240px;
-}
-
-.filter-chips-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 /* Table scroll wrapper for mobile horizontal scroll */
@@ -704,6 +1496,17 @@ function printLoginCodes() {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.student-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.grade-cell {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
 }
 
 .groups-cell {
@@ -738,9 +1541,6 @@ function printLoginCodes() {
   color: var(--color-slate-700);
 }
 
-.archived-toggle-row {
-  padding: 12px 16px 4px;
-}
 
 /* Group section (right) */
 .group-section {
@@ -786,39 +1586,83 @@ function printLoginCodes() {
   gap: 12px;
 }
 
-.add-student-option {
+.add-student-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  background: #f8fafc;
+  overflow: hidden;
+  transition: all 150ms;
+}
+
+.add-student-card-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 16px;
-  border: 1px solid var(--color-slate-200);
-  border-radius: 12px;
-  background: white;
+  border: none;
+  background: none;
   cursor: pointer;
-  transition: all 150ms;
   text-align: left;
   width: 100%;
 }
-.add-student-option:hover {
-  border-color: var(--color-primary-300);
-  background: var(--color-primary-50);
+.add-student-card-header:hover {
+  background: #f1f5f9;
 }
 
-.add-option-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+.add-student-card-link {
+  border-top: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  padding: 9px 0;
+}
+
+.add-student-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.add-student-link-btn:hover {
+  text-decoration: underline;
+}
+.add-student-link-btn.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.add-student-card--selected {
+  outline: 2px solid var(--color-primary-600, #2563eb);
+  background: #eff6ff;
+}
+
+.add-option-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
   flex-shrink: 0;
 }
 .add-option-icon-individual {
-  background: #fef3c7;
+  background: #fef9c3;
   color: #d97706;
 }
-.add-option-icon-link {
+.add-option-icon-bulk {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.add-option-icon-sso {
   background: #dbeafe;
   color: #2563eb;
 }
@@ -827,21 +1671,17 @@ function printLoginCodes() {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 .add-option-title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
   color: #334155;
 }
 .add-option-desc {
   font-size: 12px;
   color: #64748b;
-}
-.add-option-arrow {
-  color: var(--color-primary-600);
-  font-size: 14px;
-  flex-shrink: 0;
+  line-height: 16px;
 }
 
 /* Student Profile Modal */
@@ -894,10 +1734,232 @@ function printLoginCodes() {
   border-radius: 8px;
   margin-bottom: 8px;
 }
+.profile-value--muted {
+  color: var(--color-slate-400);
+}
+
+.profile-group-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 .profile-group-name {
   font-size: 14px;
   font-weight: 600;
   color: #334155;
+}
+.profile-group-detail {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Modal form fields */
+.modal-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* CSV Upload */
+.csv-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.csv-template-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary-600, #2563eb);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.csv-template-link:hover {
+  text-decoration: underline;
+}
+.csv-template-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.csv-info-text {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-slate-500);
+  padding: 10px 12px;
+  background: var(--color-slate-50, #f8fafc);
+  border-radius: 8px;
+}
+
+/* Bulk Entry Table */
+.bulk-entry-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bulk-entry-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+.bulk-entry-table-wrapper {
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.bulk-entry-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.bulk-entry-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-slate-500);
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--color-slate-200);
+  white-space: nowrap;
+}
+.bulk-entry-table td {
+  padding: 4px 6px;
+}
+.bulk-input {
+  width: 100%;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--color-slate-200);
+  border-radius: 6px;
+}
+.bulk-delete-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--color-slate-400);
+  cursor: pointer;
+  border-radius: 6px;
+}
+.bulk-delete-row:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Assign groups modal */
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #eff6ff;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1d4ed8;
+}
+.assign-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.assign-group-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 100ms;
+}
+.assign-group-row:hover {
+  background: var(--color-slate-50, #f8fafc);
+}
+.assign-group-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  flex: 1;
+}
+.assign-group-detail {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Login Code Modal */
+.login-code-modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 0;
+}
+
+.login-code-student-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-slate-200);
+  background: none;
+  border-radius: 6px;
+  color: var(--color-slate-400);
+  cursor: pointer;
+}
+.copy-btn:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-700);
+}
+
+.login-code-qr {
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--color-slate-200);
+  border-radius: 12px;
+}
+
+.qr-placeholder {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-slate-400);
+}
+
+.login-code-passphrase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.passphrase-label {
+  font-size: 12px;
+  color: var(--color-slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.passphrase-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #334155;
+  letter-spacing: 0.1em;
 }
 
 /* Encryption key modal */
@@ -928,14 +1990,6 @@ function printLoginCodes() {
     width: 100%;
   }
 
-  .search-and-filters {
-    flex-direction: column;
-  }
-
-  .search-and-filters :deep(.search-filter) {
-    flex: 1;
-  }
-
   .section-header {
     flex-direction: column;
     gap: 8px;
@@ -961,6 +2015,18 @@ function printLoginCodes() {
   .table-scroll-wrapper {
     margin: 0 -16px;
     padding: 0 16px;
+  }
+
+  .section-header-actions {
+    flex-wrap: wrap;
+  }
+
+  .bulk-entry-table-wrapper {
+    margin: 0 -8px;
+  }
+
+  .assign-groups-list {
+    max-height: 200px;
   }
 }
 </style>

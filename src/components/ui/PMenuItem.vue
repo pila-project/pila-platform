@@ -15,11 +15,15 @@
       @keydown.space.prevent="$emit('click', $event)"
     >
       <span v-if="prependIcon !== undefined" class="w-5 text-center inline-flex justify-center" :style="iconStyle">
-        <i v-if="prependIcon" :class="prependIcon" />
+        <LucideIcon v-if="prependIcon && prependIcon.startsWith('lucide:')" :name="prependIcon.slice(7)" :size="14" />
+        <i v-else-if="prependIcon" :class="prependIcon" />
       </span>
       <span class="flex-1">{{ title }}</span>
-      <i v-if="appendIcon && !hasSubmenu" :class="appendIcon" class="w-5 text-center text-slate-400" />
-      <i v-if="hasSubmenu" class="fa-solid fa-chevron-right w-5 text-center text-slate-400 text-xs" />
+      <template v-if="appendIcon && !hasSubmenu">
+        <LucideIcon v-if="appendIcon.startsWith('lucide:')" :name="appendIcon.slice(7)" :size="14" class="w-5 text-center text-slate-400" />
+        <i v-else :class="appendIcon" class="w-5 text-center text-slate-400" />
+      </template>
+      <LucideIcon v-if="hasSubmenu" name="chevron-right" :size="12" class="w-5 text-center text-slate-400" />
     </button>
     <Transition
       enter-active-class="transition ease-out duration-100"
@@ -41,6 +45,7 @@
 
 <script setup>
 import { ref, useSlots } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   title: String,

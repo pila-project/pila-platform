@@ -5,40 +5,52 @@
       <PMenu align-right>
         <template #activator="{ props }">
           <button class="group-card-menu-btn" @click="props.onClick">
-            <i class="fa-solid fa-ellipsis-vertical" />
+            <LucideIcon name="ellipsis-vertical" :size="16" />
           </button>
         </template>
         <PMenuItem
           v-if="!archived"
           :title="t('edit')"
-          prepend-icon="fa-solid fa-pencil"
+          prepend-icon="lucide:pencil"
           @click="$emit('edit')"
         />
         <PMenuItem
           v-if="!archived"
           :title="t('assign-students-to-group')"
-          prepend-icon="fa-solid fa-users"
+          prepend-icon="lucide:users"
           @click="$emit('manage')"
         />
         <PMenuItem
           v-if="!archived"
           :title="t('archive')"
-          prepend-icon="fa-solid fa-box-archive"
+          prepend-icon="lucide:archive"
           @click="$emit('archive')"
         />
         <PMenuItem
           v-if="archived"
           :title="t('unarchive')"
-          prepend-icon="fa-solid fa-box-open"
+          prepend-icon="lucide:archive-restore"
           @click="$emit('unarchive')"
+        />
+        <PDivider v-if="!archived" />
+        <PMenuItem
+          v-if="!archived"
+          :title="t('delete-group')"
+          prepend-icon="lucide:trash-2"
+          danger
+          @click="$emit('delete')"
         />
       </PMenu>
     </div>
 
     <div class="group-card-details">
       <div class="group-card-row" v-if="groupGrade">
-        <span class="group-card-label">{{ t('group-details') }}</span>
+        <span class="group-card-label">{{ t('grade') }}</span>
         <span class="group-card-value">{{ groupGrade }}</span>
+      </div>
+      <div class="group-card-row" v-if="groupSubject">
+        <span class="group-card-label">{{ t('subject') }}</span>
+        <span class="group-card-value">{{ groupSubject }}</span>
       </div>
       <div class="group-card-row">
         <span class="group-card-label">{{ t('students') }}</span>
@@ -47,7 +59,7 @@
     </div>
 
     <button v-if="!archived" class="group-card-add-link" @click="$emit('manage')">
-      <i class="fa-solid fa-user-plus" />
+      <LucideIcon name="user-plus" :size="14" />
       {{ t('add-more-students') }}
     </button>
   </div>
@@ -56,14 +68,15 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { PMenu, PMenuItem } from '@/components/ui/index.js'
+import { PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const props = defineProps({
   groupId: { type: String, required: true },
   archived: Boolean,
 })
 
-defineEmits(['manage', 'edit', 'archive', 'unarchive'])
+defineEmits(['manage', 'edit', 'archive', 'unarchive', 'delete'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -71,6 +84,7 @@ function t(slug) { return store.getters.t(slug) }
 const groupData = computed(() => store.state.groups.groups[props.groupId] || {})
 const groupName = computed(() => groupData.value.name || t('unnamed'))
 const groupGrade = computed(() => groupData.value.grade || '')
+const groupSubject = computed(() => groupData.value.subject || '')
 const memberCount = computed(() => store.getters['groups/members'](props.groupId).length)
 </script>
 

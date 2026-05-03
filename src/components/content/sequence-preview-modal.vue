@@ -15,7 +15,7 @@
 
     <template #body>
       <div v-if="!loaded" class="flex items-center justify-center h-full text-slate-400">
-        <i class="fa fa-spinner fa-spin mr-2" /> Loading...
+        <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-2" /> Loading...
       </div>
       <div v-else-if="!seqState.items?.length" class="flex items-center justify-center h-full text-slate-400">
         No items in this sequence
@@ -55,7 +55,7 @@
         <PButton
           variant="ghost"
           text="Previous"
-          icon="fa-solid fa-chevron-left"
+          icon="lucide:chevron-left"
           :disabled="currentIndex === 0"
           @click="currentIndex--"
         />
@@ -71,7 +71,7 @@
         <PButton
           variant="primary"
           text="Next"
-          icon="fa-solid fa-chevron-right"
+          icon="lucide:chevron-right"
           :icon-right="true"
           :disabled="currentIndex >= (seqState.items?.length || 1) - 1"
           @click="currentIndex++"
@@ -86,6 +86,7 @@ import { ref, computed, onMounted } from 'vue'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { PModal, PButton } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const props = defineProps({
   id: { type: String, required: true },

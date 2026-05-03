@@ -12,13 +12,13 @@
         </p>
 
         <div class="stepper-mini mt-3">
-          <div class="stepper-mini-dot stepper-mini-active"><i class="fa-solid fa-file-export text-[10px]" /></div>
+          <div class="stepper-mini-dot stepper-mini-active"><LucideIcon name="file-output" :size="10" /></div>
           <div class="stepper-mini-line" />
-          <div class="stepper-mini-dot"><i class="fa-regular fa-eye text-[10px]" /></div>
+          <div class="stepper-mini-dot"><LucideIcon name="eye" :size="10" /></div>
         </div>
 
         <div class="info-banner">
-          <i class="fa-solid fa-circle-info text-primary-500" />
+          <LucideIcon name="info" :size="14" class="text-primary-500" />
           <span>{{ t('copy-will-be-created-info') }}</span>
         </div>
 
@@ -57,11 +57,11 @@
               <div v-if="imagePreview" class="image-upload-preview">
                 <img :src="imagePreview" alt="Upload preview" />
                 <button class="image-upload-remove" @click.stop="removeImage">
-                  <i class="fa-solid fa-xmark" />
+                  <LucideIcon name="x" :size="11" />
                 </button>
               </div>
               <div v-else class="image-upload-placeholder">
-                <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400" />
+                <LucideIcon name="upload" :size="20" class="text-slate-400" />
                 <span class="text-sm font-medium text-primary-600">{{ t('upload-image') }}</span>
                 <span class="text-xs text-slate-400">{{ t('drag-and-drop-image') }}</span>
               </div>
@@ -77,14 +77,14 @@
           {{ t('step-2-of-2') }}: {{ t('review-existing-content') }}
         </p>
         <div class="stepper-mini">
-          <div class="stepper-mini-dot stepper-mini-done"><i class="fa-solid fa-check text-[10px]" /></div>
+          <div class="stepper-mini-dot stepper-mini-done"><LucideIcon name="check" :size="10" /></div>
           <div class="stepper-mini-line stepper-mini-line-done" />
-          <div class="stepper-mini-dot stepper-mini-active"><i class="fa-regular fa-eye text-[10px]" /></div>
+          <div class="stepper-mini-dot stepper-mini-active"><LucideIcon name="eye" :size="10" /></div>
         </div>
 
         <!-- Add content CTA -->
         <div class="add-content-cta" @click="showContentBrowser = !showContentBrowser">
-          <i class="fa-solid fa-circle-plus text-slate-400" />
+          <LucideIcon name="circle-plus" :size="14" class="text-slate-400" />
           <span class="text-sm font-medium text-primary-600">{{ t('add-content-item-or-sequence') }}</span>
         </div>
 
@@ -92,23 +92,23 @@
         <div v-if="showContentBrowser" class="content-browser">
           <div class="content-browser-toolbar">
             <button class="content-browser-btn" @click="browserSearch = !browserSearch">
-              <i class="fa-solid fa-magnifying-glass" />
+              <LucideIcon name="search" :size="12" />
             </button>
             <span class="text-xs text-slate-500">{{ t('view-as') }}:</span>
             <div class="content-browser-toggles">
               <button class="content-browser-toggle" :class="{ active: browserView === 'list' }" @click="browserView = 'list'">
-                <i class="fa-solid fa-list" />
+                <LucideIcon name="list" :size="12" />
               </button>
               <button class="content-browser-toggle" :class="{ active: browserView === 'grid' }" @click="browserView = 'grid'">
-                <i class="fa-solid fa-table-cells" />
+                <LucideIcon name="layout-grid" :size="12" />
               </button>
             </div>
             <button class="content-browser-btn" @click="browserFilter = !browserFilter">
-              <i class="fa-solid fa-filter" /> {{ t('filter') }}
+              <LucideIcon name="sliders-horizontal" :size="12" /> {{ t('filter') }}
             </button>
           </div>
           <div v-if="browserSearch" class="mb-2">
-            <PInput v-model="browserSearchQuery" :placeholder="t('search-content')" icon="fa-solid fa-magnifying-glass" />
+            <PInput v-model="browserSearchQuery" :placeholder="t('search-content')" icon="lucide:search" />
           </div>
           <div class="content-browser-list">
             <div
@@ -177,7 +177,7 @@
       <!-- Success -->
       <div v-else-if="step === 'success'" class="success-state">
         <div class="success-icon-ring">
-          <i class="fa-solid fa-check text-green-600 text-2xl" />
+          <LucideIcon name="check" :size="24" class="text-green-600" />
         </div>
         <h3 class="text-lg font-semibold text-zinc-950 mt-4">{{ t('content-copied-successfully') }}</h3>
         <p class="text-sm text-slate-500 mt-2">
@@ -219,6 +219,7 @@ import getName from '@/utils/name-and-translation-for-content.js'
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import { PModal, PInput, PButton } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useStore } from 'vuex'
 
 const store = useStore()

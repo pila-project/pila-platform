@@ -1,5 +1,3 @@
-@import url('font-awesome/css/font-awesome.min.css');
-
 @import "tailwindcss";
 @import "./design-system/tokens.css";
 @import "./design-system/layers.css";

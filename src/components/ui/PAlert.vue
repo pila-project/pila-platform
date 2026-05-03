@@ -1,17 +1,19 @@
 <template>
   <div v-if="visible" role="alert" :class="alertClasses">
-    <i :class="iconClass" class="alert-icon" />
+    <LucideIcon v-if="isLucideIcon" :name="lucideIconName" :size="16" class="alert-icon" />
+    <i v-else :class="iconClass" class="alert-icon" />
     <div class="flex-1">
       <slot>{{ title }}</slot>
     </div>
     <button v-if="closable" class="alert-close" aria-label="Dismiss" @click="visible = false; $emit('close')">
-      <i class="fa fa-times" />
+      <LucideIcon name="x" :size="14" />
     </button>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   variant: {
@@ -34,17 +36,21 @@ defineEmits(['close'])
 const visible = ref(true)
 
 const defaultIcons = {
-  info: 'fa fa-info-circle',
-  success: 'fa fa-check-circle',
-  warning: 'fa fa-exclamation-triangle',
-  error: 'fa fa-times-circle',
+  info: 'lucide:info',
+  success: 'lucide:check-circle',
+  warning: 'lucide:triangle-alert',
+  error: 'lucide:x-circle',
 }
 
+const resolvedIcon = computed(() => props.icon || defaultIcons[props.variant])
+const isLucideIcon = computed(() => resolvedIcon.value.startsWith('lucide:'))
+const lucideIconName = computed(() => resolvedIcon.value.slice(7))
+
 const iconClass = computed(() => {
-  if (props.icon) {
-    return props.icon.startsWith('fa') ? props.icon : `fa fa-${props.icon}`
-  }
-  return defaultIcons[props.variant]
+  const icon = resolvedIcon.value
+  if (icon.startsWith('lucide:')) return ''
+  if (icon.startsWith('fa')) return icon
+  return `fa fa-${icon}`
 })
 
 const alertClasses = computed(() => [

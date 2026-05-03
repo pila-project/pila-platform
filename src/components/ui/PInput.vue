@@ -1,8 +1,9 @@
 <template>
   <div>
-    <label v-if="label" :for="inputId" class="label">{{ label }}</label>
+    <label v-if="label" :for="inputId" class="label">{{ label }} <span v-if="required" class="required-marker">*Required</span></label>
     <div :class="icon ? 'relative' : ''">
-      <i v-if="icon" :class="iconClass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" />
+      <LucideIcon v-if="icon && icon.startsWith('lucide:')" :name="icon.slice(7)" :size="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      <i v-else-if="icon" :class="iconClass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" />
       <component
         :is="multiline ? 'textarea' : 'input'"
         :id="inputId"
@@ -31,6 +32,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
   modelValue: [String, Number],
@@ -67,5 +69,10 @@ const iconClass = computed(() => {
 <style scoped>
 textarea.input {
   resize: vertical;
+}
+.required-marker {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 400;
 }
 </style>

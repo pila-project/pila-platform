@@ -14,7 +14,7 @@
     <template #body>
       <!-- Info banner -->
       <div class="info-banner">
-        <i class="fa-solid fa-circle-info" />
+        <LucideIcon name="info" :size="16" />
         <span>{{ t('drag-students-info') }}</span>
       </div>
 
@@ -27,7 +27,7 @@
               v-if="selectedAvailable.size"
               variant="primary"
               size="sm"
-              icon="fa-solid fa-user-plus"
+              icon="lucide:user-plus"
               :text="`${t('add-selected')} (${selectedAvailable.size})`"
               @click="addSelectedToGroup"
             />
@@ -67,7 +67,7 @@
                 <DecryptedName :user="student.id" />
               </span>
               <button class="panel-drag-handle" @click="addToGroup(student.id)" :title="t('add')">
-                <i class="fa-solid fa-grip-vertical" />
+                <LucideIcon name="grip-vertical" :size="12" />
               </button>
             </div>
             <div v-if="!filteredAvailable.length" class="panel-empty">
@@ -114,7 +114,7 @@
                 <DecryptedName :user="student.id" />
               </span>
               <button class="panel-drag-handle" @click="removeFromGroup(student.id)" :title="t('remove')">
-                <i class="fa-solid fa-grip-vertical" />
+                <LucideIcon name="grip-vertical" :size="12" />
               </button>
             </div>
             <div v-if="!filteredGroup.length" class="panel-empty">
@@ -129,7 +129,7 @@
         <PButton
           variant="danger"
           size="sm"
-          icon="fa-solid fa-user-minus"
+          icon="lucide:user-minus"
           :text="`${t('remove-selected')} (${selectedGroup.size})`"
           @click="removeSelectedFromGroup"
         />
@@ -153,6 +153,7 @@ import { ref, computed, reactive } from 'vue'
 import { useStore } from 'vuex'
 import { PModal, PButton } from '@/components/ui/index.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const props = defineProps({
   groupId: { type: String, required: true },

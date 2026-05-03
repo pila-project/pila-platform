@@ -10,10 +10,10 @@
         <img src="/oecd-pila-logo.svg" alt="OECD PILA" class="mobile-header-logo" />
         <div class="mobile-header-actions">
           <button class="mobile-header-btn" aria-label="Search">
-            <i class="fa-solid fa-magnifying-glass" />
+            <LucideIcon name="search" :size="18" />
           </button>
           <button class="mobile-header-btn" aria-label="Open menu" @click="mobileMenuOpen = true">
-            <i class="fa-solid fa-bars" />
+            <LucideIcon name="menu" :size="18" />
           </button>
         </div>
       </header>
@@ -45,7 +45,7 @@
 
         <!-- Collapse/expand toggle -->
         <button v-if="!isMobile" class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">
-          <i :class="sidebarOpen ? 'fa-solid fa-chevron-left' : 'fa-solid fa-chevron-right'" />
+          <LucideIcon :name="sidebarOpen ? 'chevron-left' : 'chevron-right'" :size="14" />
         </button>
 
         <!-- Separator -->
@@ -63,7 +63,7 @@
             :title="!sidebarOpen ? item.title : undefined"
             @click="mobileMenuOpen = false"
           >
-            <i :class="item.icon" class="nav-icon" />
+            <LucideIcon :name="item.icon" :size="20" class="nav-icon" />
             <span v-if="sidebarOpen || isMobile">{{ item.title }}</span>
           </router-link>
         </div>
@@ -82,31 +82,31 @@
                   <div class="user-card-name">{{ userInfo.name }}</div>
                   <div class="user-card-role">{{ t(store.getters['roles/role']()) }}</div>
                 </div>
-                <i v-if="sidebarOpen" class="fa-solid fa-sort user-card-chevron" />
+                <LucideIcon v-if="sidebarOpen" name="arrow-up-down" :size="14" class="user-card-chevron" />
               </button>
             </template>
             <PMenuItem
               :title="languageLabel(currentLanguage)"
-              prepend-icon="fa-solid fa-globe"
+              prepend-icon="lucide:globe"
             >
               <template #submenu>
                 <PMenuItem
                   v-for="lang in languageChoices"
                   :key="lang"
                   :title="languageLabel(lang)"
-                  :prepend-icon="lang === currentLanguage ? 'fa-solid fa-check' : ''"
+                  :prepend-icon="lang === currentLanguage ? 'lucide:check' : ''"
                   @click="store.dispatch('language', lang)"
                 />
               </template>
             </PMenuItem>
             <PMenuItem
               :title="t('support')"
-              prepend-icon="fa-solid fa-circle-question"
+              prepend-icon="lucide:help-circle"
               @click="$router.push('/teacher/support')"
             />
             <PMenuItem
               :title="t('log-out')"
-              prepend-icon="fa-solid fa-arrow-right-from-bracket"
+              prepend-icon="lucide:log-out"
               danger
               @click="logout"
             />
@@ -137,6 +137,7 @@
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '@/components/roles/role-requester.vue'
   import { PAvatar, PMenu, PMenuItem } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '@/utils/constants.js'
   import languageChoices from '@/store/language-choices.js'
 
@@ -186,13 +187,13 @@
           || DOMAIN_DATA_PROTECTION_LINKS.default
 
   const navItems = computed(() => [
-    { icon: 'fa-regular fa-circle-user', title: t('admin'), to: 'classes', show: true },
-    { icon: 'fa-regular fa-file-lines', title: t('assignments').toLowerCase(), to: 'assignments-from-me', show: true },
-    { icon: 'fa-solid fa-magnifying-glass', title: t('explore'), to: 'content', show: true },
-    { icon: 'fa-solid fa-folder-plus', title: t('create'), to: 'create', show: !isSimplifiedStudyDomain },
-    { icon: 'fa-regular fa-file-lines', title: t('resources'), to: 'resources', show: true },
-    { icon: 'fa-solid fa-chalkboard-user', title: t('trainer'), to: 'trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
-    { icon: 'fa-solid fa-sliders', title: t('settings'), to: 'support', show: true },
+    { icon: 'user', title: t('admin'), to: 'classes', show: true },
+    { icon: 'file-text', title: t('assignments').toLowerCase(), to: 'assignments-from-me', show: true },
+    { icon: 'search', title: t('explore'), to: 'content', show: true },
+    { icon: 'folder-plus', title: t('create'), to: 'create', show: !isSimplifiedStudyDomain },
+    { icon: 'file-text', title: t('resources'), to: 'resources', show: true },
+    { icon: 'school', title: t('trainer'), to: 'trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
+    { icon: 'sliders-horizontal', title: t('settings'), to: 'support', show: true },
   ])
 
   const LANGUAGE_NAMES = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }
