@@ -31,10 +31,10 @@
               @click="showAddToGroupsModal = true; selectedGroupsForAssign = []; groupSearchQuery = ''"
             />
             <PButton
-              v-if="hasEncryptionKey"
+              v-if="hasEncryptionKey && selectedStudents.length"
               icon="lucide:printer"
               variant="outline"
-              :text="t('print-login-codes')"
+              :text="`${t('print-login-codes')} (${selectedStudents.length})`"
               size="sm"
               @click="printLoginCodes"
             />
@@ -1434,7 +1434,8 @@ function copyToClipboard(text) {
 }
 
 function printLoginCodes() {
-  window.open('/teacher/codes')
+  const ids = selectedStudents.value.join(',')
+  window.open(`/teacher/codes?students=${encodeURIComponent(ids)}`)
 }
 </script>
 

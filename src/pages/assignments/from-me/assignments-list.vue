@@ -935,6 +935,8 @@
   font-size: 10px;
   color: #94a3b8;
   margin-left: 4px;
+  vertical-align: middle;
+  display: inline;
 }
 
 .assign-row {

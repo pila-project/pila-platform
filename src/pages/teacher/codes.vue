@@ -4,7 +4,15 @@
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   const users = await Agent.state('users')
 
-  const visibleUsers = Object.keys(users).filter(id => !users[id].archived)
+  const params = new URLSearchParams(window.location.search)
+  const studentFilter = params.get('students')
+  const filterIds = studentFilter ? studentFilter.split(',').filter(Boolean) : null
+
+  const visibleUsers = Object.keys(users).filter(id => {
+    if (users[id].archived) return false
+    if (filterIds) return filterIds.includes(id)
+    return true
+  })
 
   function print() { window.print() }
 

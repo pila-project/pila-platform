@@ -1012,8 +1012,9 @@
   user-select: none;
 }
 
-.ct-th .lucide-icon {
+.ct-th :deep(svg) {
   vertical-align: middle;
+  display: inline;
   margin-left: 4px;
   cursor: pointer;
 }

@@ -1696,8 +1696,9 @@
   user-select: none;
 }
 
-.vso-th .lucide-icon {
+.vso-th :deep(svg) {
   vertical-align: middle;
+  display: inline;
   margin-left: 4px;
   cursor: pointer;
 }
