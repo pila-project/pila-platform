@@ -101,142 +101,27 @@
           </div>
         </div>
 
-        <!-- Desktop: Search bar with popular tags -->
-        <div class="desktop-search search-wrapper mb-3 max-w-sm" ref="searchWrapperRef">
-          <PInput
-            v-model="searchQuery"
+        <!-- Search + Show tabs -->
+        <div class="explore-toolbar">
+          <PUnifiedFilter
+            v-model:searchQuery="searchQuery"
             :placeholder="t('search-content-title')"
-            icon="lucide:search"
-            @focus="showSearchDropdown = true"
-          />
-          <div v-if="showSearchDropdown && popularTags.length && !searchQuery" class="search-dropdown">
-            <div class="search-dropdown-header">{{ t('popular-tags') }}</div>
-            <button
-              v-for="tag in popularTags"
-              :key="tag.key + ':' + tag.value"
-              class="search-dropdown-item"
-              @mousedown.prevent="applyPopularTag(tag)"
-            >
-              <span class="search-dropdown-tag">{{ tag.label }}</span>
-              <span class="search-dropdown-count">{{ tag.count }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mobile: compact toolbar -->
-        <div class="mobile-toolbar">
-          <!-- Search toggle -->
-          <button class="mobile-toolbar-btn" @click="mobileSearchExpanded = !mobileSearchExpanded">
-            <LucideIcon name="search" :size="14" />
-          </button>
-          <!-- View toggles -->
-          <span class="toolbar-label">{{ t('view-as') }}:</span>
-          <div class="icon-toggle-container">
-            <button class="icon-toggle" :class="{ 'icon-toggle-active': viewMode === 'grid' }" @click="viewMode = 'grid'">
-              <LucideIcon name="layout-grid" :size="14" />
-            </button>
-            <button class="icon-toggle" :class="{ 'icon-toggle-active': viewMode === 'list' }" @click="viewMode = 'list'">
-              <LucideIcon name="list" :size="14" />
-            </button>
-          </div>
-          <!-- Sort -->
-          <button class="mobile-toolbar-btn" :class="{ 'mobile-toolbar-btn-active': showMobileSort }" @click="showMobileSort = !showMobileSort">
-            <LucideIcon name="arrow-up-down" :size="14" /> {{ t('sort') }}
-          </button>
-          <!-- Filter -->
-          <button class="mobile-toolbar-btn" :class="{ 'mobile-toolbar-btn-active': hasActiveFilters }" @click="showMobileFilters = true">
-            <LucideIcon name="sliders-horizontal" :size="14" /> {{ t('filter') }}
-            <span v-if="hasActiveFilters" class="mobile-filter-dot" />
-          </button>
-        </div>
-
-        <!-- Mobile: expandable search input -->
-        <div v-if="mobileSearchExpanded" class="mobile-search-expanded search-wrapper mb-3">
-          <PInput
-            v-model="searchQuery"
-            :placeholder="t('search')"
-            icon="lucide:search"
-            autofocus
-          />
-        </div>
-
-        <!-- Mobile: sort panel -->
-        <div v-if="showMobileSort" class="mobile-sort-panel">
-          <div class="mobile-sort-group">
-            <span class="toolbar-label">{{ t('show') }}:</span>
-            <PTabs v-model="activeShowTab" :tabs="showTabs" />
-          </div>
-          <div class="mobile-sort-group">
-            <span class="toolbar-label">{{ t('type') }}:</span>
-            <PTabs v-model="activeTypeTab" :tabs="typeTabs" />
-          </div>
-        </div>
-
-        <!-- Mobile: filter drawer -->
-        <MobileFilterDrawer
-          v-if="showMobileFilters"
-          :filters="filterDefinitions"
-          :activeFilters="activeFilters"
-          @close="showMobileFilters = false"
-          @update:filter="handleMobileFilterUpdate"
-          @reset="resetAllFilters"
-        />
-
-        <!-- Desktop: Toolbar: view toggles + content tabs + type tabs -->
-        <div class="toolbar-row desktop-toolbar">
-          <!-- View toggles -->
-          <div class="toolbar-group">
-            <span class="toolbar-label">{{ t('view-as') }}:</span>
-            <div class="icon-toggle-container">
-              <button
-                class="icon-toggle"
-                :class="{ 'icon-toggle-active': viewMode === 'grid' }"
-                @click="viewMode = 'grid'"
-              >
-                <LucideIcon name="layout-grid" :size="14" />
-              </button>
-              <button
-                class="icon-toggle"
-                :class="{ 'icon-toggle-active': viewMode === 'list' }"
-                @click="viewMode = 'list'"
-              >
-                <LucideIcon name="list" :size="14" />
-              </button>
-            </div>
-          </div>
-
-          <!-- Show tabs -->
-          <div class="toolbar-group">
-            <span class="toolbar-label">{{ t('show') }}:</span>
-            <PTabs v-model="activeShowTab" :tabs="showTabs" />
-          </div>
-
-          <!-- Type tabs -->
-          <div class="toolbar-group">
-            <span class="toolbar-label">{{ t('type') }}:</span>
-            <PTabs v-model="activeTypeTab" :tabs="typeTabs" />
-          </div>
-
-          <!-- Select All button -->
-          <button
-            v-if="filteredContentList.length"
-            class="select-all-btn"
-            @click="toggleSelectAll"
           >
-            {{ allSelected ? t('deselect-all') : t('select-all') }}
-          </button>
-        </div>
+            <PUnifiedFilterSection
+              v-for="f in filterDefinitions"
+              :key="f.key"
+              :id="f.key"
+              :label="f.label"
+              :options="f.options"
+              v-model="activeFilters[f.key]"
+              searchable
+            />
+          </PUnifiedFilter>
 
-        <!-- Filter chips (desktop only) -->
-        <div class="filter-chips-row desktop-toolbar">
-          <FilterDropdown
-            v-for="f in filterDefinitions"
-            :key="f.key"
-            :label="f.label"
-            :options="f.options"
-            :modelValue="activeFilters[f.key] || []"
-            @update:modelValue="val => activeFilters[f.key] = val"
-          />
+          <div class="toolbar-group">
+            <span class="toolbar-label">{{ t('show') }}:</span>
+            <PTabs v-model="activeShowTab" :tabs="showTabs" />
+          </div>
         </div>
 
         <!-- Selection toolbar -->
@@ -276,8 +161,8 @@
         </div>
         <NoResultsFound v-else-if="!filteredContentList.length" />
 
-        <!-- Grid view -->
-        <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <!-- Content grid -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <div
             v-for="(id, index) in paginatedContentList"
             :key="id + index"
@@ -304,25 +189,6 @@
               @copy-modify="handleCopyModify(id)"
             />
           </div>
-        </div>
-
-        <!-- List view -->
-        <div v-else class="content-list-view">
-          <ContentListRow
-            v-for="(id, index) in paginatedContentList"
-            :key="id + index"
-            :id="id"
-            :checked="selectedItems.has(id)"
-            :source="myContent.includes(id) ? 'mine' : 'pila'"
-            @toggle-select="toggleSelection(id)"
-            @preview="previewing = id"
-            @add="handleAddItem(id)"
-            @click="() => {
-              if (selfSelected === id) selfSelected = null
-              else selfSelected = id
-              $emit('select', selfSelected)
-            }"
-          />
         </div>
 
         <!-- Pagination -->
@@ -486,22 +352,19 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+  import { ref, reactive, computed, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import NoResultsFound from '@/components/common/no-results-found.vue'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
-  import ContentListRow from './content-list-row.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
-  import FilterDropdown from './filter-dropdown.vue'
   import SequenceCard from './sequence-card.vue'
   import CreateSequenceModal from './create-sequence-modal.vue'
   import SequencePreviewModal from './sequence-preview-modal.vue'
   import SequenceName from './sequence-name.vue'
   import CopyModifyModal from './copy-modify-modal.vue'
   import CreateAssignmentModal from './create-assignment-modal.vue'
-  import MobileFilterDrawer from './mobile-filter-drawer.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import setTagging from '@/utils/set-tagging.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
@@ -511,7 +374,7 @@
     loadTagHierarchy, getCachedTagHierarchy,
     prefetchBatch, invalidate, invalidateNames,
   } from '@/utils/content-cache.js'
-  import { PInput, PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination } from '@/components/ui/index.js'
+  import { PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
 
   const store = useStore()
   const router = useRouter()
@@ -528,9 +391,7 @@
   const selfSelected = ref(null)
   const previewing = ref(null)
   const searchQuery = ref('')
-  const viewMode = ref('grid')
   const activeShowTab = ref('all')
-  const activeTypeTab = ref('all')
   const successMessage = ref('')
 
   // ── Pagination state ──
@@ -581,65 +442,12 @@
   const pendingAddItems = ref([])
   const addPickerStep = ref('choose') // 'choose' | 'sequence' | 'assignment'
 
+  // ── Show tabs (outside search bar) ──
   const showTabs = computed(() => [
     { label: t('all-content'), key: 'all' },
-    { label: t('pila-content'), key: 'pila' },
+    { label: t('expert-content'), key: 'pila' },
     { label: t('my-content'), key: 'mine' },
   ])
-
-  const typeTabs = computed(() => [
-    { label: t('all'), key: 'all' },
-    { label: t('items'), key: 'items' },
-    { label: t('sequences'), key: 'sequences' },
-  ])
-
-  // ── Mobile toolbar state ──
-  const showMobileSort = ref(false)
-  const showMobileFilters = ref(false)
-  const mobileSearchExpanded = ref(false)
-
-  const hasActiveFilters = computed(() => {
-    return Object.values(activeFilters).some(v => v && v.length > 0)
-  })
-
-  function handleMobileFilterUpdate(key, values) {
-    activeFilters[key] = values
-  }
-
-  function resetAllFilters() {
-    for (const key of Object.keys(activeFilters)) {
-      activeFilters[key] = []
-    }
-    showMobileFilters.value = false
-  }
-
-  // ── Search dropdown ──
-  const showSearchDropdown = ref(false)
-  const searchWrapperRef = ref(null)
-
-  const popularTags = computed(() => {
-    const allTags = []
-    for (const cat of tagCategories.value.slice(0, 3)) {
-      for (const opt of uniqueTagValues(cat.id).slice(0, 5)) {
-        allTags.push({ key: cat.id, value: opt.value, label: `${cat.name}: ${opt.label}`, count: opt.count })
-      }
-    }
-    return allTags.sort((a, b) => b.count - a.count).slice(0, 10)
-  })
-
-  function applyPopularTag(tag) {
-    if (!activeFilters[tag.key]) activeFilters[tag.key] = []
-    if (!activeFilters[tag.key].includes(tag.value)) {
-      activeFilters[tag.key] = [...(activeFilters[tag.key] || []), tag.value]
-    }
-    showSearchDropdown.value = false
-  }
-
-  function closeSearchDropdown(e) {
-    if (searchWrapperRef.value && !searchWrapperRef.value.contains(e.target)) {
-      showSearchDropdown.value = false
-    }
-  }
 
   // ── Filter definitions (dynamic from tag hierarchy) ──
   const filterDefinitions = computed(() => {
@@ -697,16 +505,6 @@
       })
     }
 
-    // Type filter
-    if (activeTypeTab.value !== 'all') {
-      list = list.filter(id => {
-        const meta = metadataCache.get(id)
-        const isSeq = meta?.active_type === 'application/json;type=sequence'
-        if (activeTypeTab.value === 'sequences') return isSeq
-        return !isSeq
-      })
-    }
-
     // Tag-based filters
     for (const [key, selected] of Object.entries(activeFilters)) {
       if (selected && selected.length) {
@@ -728,7 +526,7 @@
   })
 
   // Reset page when filters change
-  watch([searchQuery, activeShowTab, activeTypeTab, () => JSON.stringify(activeFilters)], () => {
+  watch([searchQuery, activeShowTab, () => JSON.stringify(activeFilters)], () => {
     contentPage.value = 1
   })
 
@@ -893,6 +691,9 @@
     // Load tag hierarchy (cached — instant on revisit)
     const hierarchy = await loadTagHierarchy(partition, competencyTag)
     tagCategories.value = hierarchy.categories
+    for (const cat of hierarchy.categories) {
+      if (!activeFilters[cat.id]) activeFilters[cat.id] = []
+    }
 
     // Fetch tagged content list (lightweight — just IDs)
     const result = await Agent.query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
@@ -936,10 +737,6 @@
       }
     }
   })
-
-  // ── Lifecycle ──
-  onMounted(() => document.addEventListener('click', closeSearchDropdown))
-  onBeforeUnmount(() => document.removeEventListener('click', closeSearchDropdown))
 
   // ── Init (all async calls go here, no top-level await) ──
   onMounted(async () => {
@@ -986,126 +783,32 @@
   border-bottom: 1px solid #E2E8F0;
 }
 
-/* Search dropdown */
-.search-wrapper {
-  position: relative;
-}
-.search-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 30;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  margin-top: 4px;
-  overflow: hidden;
-}
-.search-dropdown-header {
-  padding: 8px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #94a3b8;
-  letter-spacing: 0.05em;
-}
-.search-dropdown-item {
+/* Explore toolbar */
+.explore-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  transition: background 100ms;
-}
-.search-dropdown-item:hover {
-  background: #f8fafc;
-}
-.search-dropdown-tag {
-  font-size: 13px;
-  color: #334155;
-}
-.search-dropdown-count {
-  font-size: 12px;
-  color: #94a3b8;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-/* Toolbar */
-.toolbar-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
+.explore-toolbar :deep(.unified-filter) {
+  flex: 1;
+  min-width: 0;
 }
 
 .toolbar-group {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
+
 
 .toolbar-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  color: #64748b;
+  color: #334155;
   white-space: nowrap;
-}
-
-.icon-toggle-container {
-  display: flex;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.icon-toggle {
-  padding: 6px 10px;
-  background: white;
-  border: none;
-  cursor: pointer;
-  color: #94a3b8;
-  font-size: 14px;
-  transition: all 150ms;
-}
-.icon-toggle:not(:last-child) {
-  border-right: 1px solid #e2e8f0;
-}
-.icon-toggle-active {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-
-.select-all-btn {
-  margin-left: auto;
-  padding: 6px 14px;
-  border: 1px solid #2563eb;
-  border-radius: 6px;
-  background: white;
-  font-size: 13px;
-  font-weight: 500;
-  color: #2563eb;
-  cursor: pointer;
-  transition: all 150ms;
-  white-space: nowrap;
-}
-.select-all-btn:hover {
-  background: #eff6ff;
-}
-
-/* Filter chips row */
-.filter-chips-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
 }
 
 /* Selection toolbar */
@@ -1137,16 +840,6 @@
 }
 
 
-/* List view */
-.content-list-view {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  background: #e2e8f0;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
-}
 
 /* Success toast */
 .success-toast {
@@ -1251,61 +944,6 @@
   box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
 }
 
-/* Mobile toolbar (hidden on desktop) */
-.mobile-toolbar {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-.mobile-toolbar-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: white;
-  font-size: 13px;
-  font-weight: 500;
-  color: #334155;
-  cursor: pointer;
-  position: relative;
-}
-.mobile-toolbar-btn:hover {
-  background: #f8fafc;
-}
-.mobile-toolbar-btn-active {
-  border-color: #2563eb;
-  color: #2563eb;
-}
-.mobile-filter-dot {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #2563eb;
-}
-.mobile-search-expanded {
-  display: none;
-}
-.mobile-sort-panel {
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-.mobile-sort-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
 /* Mobile sequences (hidden on desktop) */
 .mobile-sequences {
@@ -1355,15 +993,6 @@
   .sequences-panel {
     width: 100%;
   }
-  .toolbar-row {
-    gap: 8px;
-  }
-  .filter-chips-row {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
-  }
 }
 
 @media (max-width: 767px) {
@@ -1373,20 +1002,9 @@
   .mobile-sequences {
     display: flex;
   }
-  .desktop-search {
-    display: none;
-  }
-  .desktop-toolbar {
-    display: none !important;
-  }
-  .mobile-toolbar {
-    display: flex;
-  }
-  .mobile-search-expanded {
-    display: block;
-  }
-  .mobile-sort-panel {
-    display: flex;
+  .explore-toolbar {
+    flex-direction: column;
+    align-items: stretch;
   }
   .mobile-bottom-bar {
     display: block;
