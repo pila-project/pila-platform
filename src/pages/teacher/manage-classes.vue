@@ -250,12 +250,8 @@
             <span class="profile-section-label">{{ t('basic-information') }}</span>
           </div>
           <div class="profile-row">
-            <span class="profile-label">{{ t('first-name') }}</span>
-            <span class="profile-value">{{ profileStudentInfo?.first_name || profileStudentInfo?.name || '...' }}</span>
-          </div>
-          <div class="profile-row" v-if="profileStudentInfo?.last_name">
-            <span class="profile-label">{{ t('last-name') }}</span>
-            <span class="profile-value">{{ profileStudentInfo.last_name }}</span>
+            <span class="profile-label">{{ t('name') }}</span>
+            <span class="profile-value">{{ profileStudentInfo?.name || '...' }}</span>
           </div>
           <div class="profile-row" v-if="profileStudentInfo?.nickname">
             <span class="profile-label">{{ t('nickname') }}</span>
@@ -425,15 +421,10 @@
       <template #body>
         <div class="modal-form-fields">
           <PInput
-            v-model="newStudentFirstName"
-            :label="t('first-name')"
-            :placeholder="t('first-name')"
+            v-model="newStudentName"
+            :label="t('name')"
+            :placeholder="t('name')"
             required
-          />
-          <PInput
-            v-model="newStudentLastName"
-            :label="t('last-name')"
-            :placeholder="t('last-name')"
           />
           <PInput
             v-model="newStudentNickname"
@@ -458,7 +449,7 @@
         <PButton
           variant="primary"
           :text="t('create')"
-          :disabled="!newStudentFirstName.trim() || !newStudentGrade"
+          :disabled="!newStudentName.trim() || !newStudentGrade"
           @click="createStudentAccount"
         />
       </template>
@@ -678,8 +669,7 @@
             <table class="bulk-entry-table">
               <thead>
                 <tr>
-                  <th>{{ t('first-name') }} *</th>
-                  <th>{{ t('last-name') }}</th>
+                  <th>{{ t('name') }} *</th>
                   <th>{{ t('nickname') }}</th>
                   <th>{{ t('grade') }} *</th>
                   <th></th>
@@ -687,8 +677,7 @@
               </thead>
               <tbody>
                 <tr v-for="(row, index) in bulkEntryRows" :key="index">
-                  <td><input v-model="row.first_name" class="input bulk-input" :placeholder="t('first-name')" /></td>
-                  <td><input v-model="row.last_name" class="input bulk-input" :placeholder="t('last-name')" /></td>
+                  <td><input v-model="row.name" class="input bulk-input" :placeholder="t('name')" /></td>
                   <td><input v-model="row.nickname" class="input bulk-input" :placeholder="t('nickname')" /></td>
                   <td>
                     <select v-model="row.grade" class="input bulk-input">
@@ -984,8 +973,7 @@ const showLinkStudentModal = ref(false)
 const showAddStudentPicker = ref(false)
 const selectedPickerOption = ref(null)
 const showCreateStudentForm = ref(false)
-const newStudentFirstName = ref('')
-const newStudentLastName = ref('')
+const newStudentName = ref('')
 const newStudentNickname = ref('')
 const newStudentGrade = ref('')
 const showCreateGroupModal = ref(false)
@@ -1018,9 +1006,9 @@ const selectedGroupsForAssign = ref([])
 const groupSearchQuery = ref('')
 const selectedSSOProvider = ref(null)
 const bulkEntryRows = ref([
-  { first_name: '', last_name: '', nickname: '', grade: '' },
-  { first_name: '', last_name: '', nickname: '', grade: '' },
-  { first_name: '', last_name: '', nickname: '', grade: '' },
+  { name: '', nickname: '', grade: '' },
+  { name: '', nickname: '', grade: '' },
+  { name: '', nickname: '', grade: '' },
 ])
 const successMessage = ref(null)
 
@@ -1306,8 +1294,7 @@ function handleAddStudentIndividual() {
     showNamePasswordModal.value = true
     return
   }
-  newStudentFirstName.value = ''
-  newStudentLastName.value = ''
+  newStudentName.value = ''
   newStudentNickname.value = ''
   newStudentGrade.value = ''
   showCreateStudentForm.value = true
@@ -1336,10 +1323,8 @@ async function createStudentAccount() {
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
   const userSecret = randomString(8, codeCharacterSet)
   const info = {
-    first_name: newStudentFirstName.value.trim(),
-    last_name: newStudentLastName.value.trim() || undefined,
+    name: newStudentName.value.trim(),
     nickname: newStudentNickname.value.trim() || undefined,
-    name: newStudentFirstName.value.trim(), // backward-compat fallback
   }
   const id = await createUser(userSecret, providerSecret, info)
   const usersState = await Agent.state('users')
@@ -1353,7 +1338,7 @@ async function createUserAndLaunchModal() {
   const { studentDataProtectionAgreement } = await Agent.state()
   if (studentDataProtectionAgreement) {
     // Legacy path — used from agreement modal callback
-    newStudentFirstName.value = t('student')
+    newStudentName.value = t('student')
     newStudentGrade.value = ''
     showCreateStudentForm.value = true
   } else {
@@ -1364,11 +1349,11 @@ async function createUserAndLaunchModal() {
 // ── Bulk / Export / SSO handlers ──
 
 function addBulkRow() {
-  bulkEntryRows.value.push({ first_name: '', last_name: '', nickname: '', grade: '' })
+  bulkEntryRows.value.push({ name: '', nickname: '', grade: '' })
 }
 
 const validBulkRows = computed(() =>
-  bulkEntryRows.value.some(r => r.first_name.trim() && r.grade)
+  bulkEntryRows.value.some(r => r.name.trim() && r.grade)
 )
 
 function handleCSVImport() {

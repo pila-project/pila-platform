@@ -38,9 +38,9 @@
       userData.providerEncryptedKey
     )
 
-    // Migrate: if old single name field exists but no first_name, split it
-    if (!editUserInfo.first_name && editUserInfo.name) {
-      editUserInfo.first_name = editUserInfo.name
+    // Migrate: if old first_name/last_name fields exist but no name, combine them
+    if (!editUserInfo.name && editUserInfo.first_name) {
+      editUserInfo.name = [editUserInfo.first_name, editUserInfo.last_name].filter(Boolean).join(' ')
     }
   }
   catch (error) {
@@ -65,10 +65,6 @@
 
   async function save() {
     if (teacherOwnedUserAccount && userSecret) {
-      // Keep backward-compat name field in sync
-      if (editUserInfo.first_name) {
-        editUserInfo.name = [editUserInfo.first_name, editUserInfo.last_name].filter(Boolean).join(' ')
-      }
       await createUser(userSecret, providerSecret, editUserInfo)
     }
 
@@ -112,15 +108,10 @@
     <template #body>
       <div v-if="teacherOwnedUserAccount && editUserInfo" class="edit-student-form">
         <PInput
-          v-model="editUserInfo.first_name"
-          :label="t('first-name')"
-          :placeholder="t('first-name')"
+          v-model="editUserInfo.name"
+          :label="t('name')"
+          :placeholder="t('name')"
           required
-        />
-        <PInput
-          v-model="editUserInfo.last_name"
-          :label="t('last-name')"
-          :placeholder="t('last-name')"
         />
         <PInput
           v-model="editUserInfo.nickname"

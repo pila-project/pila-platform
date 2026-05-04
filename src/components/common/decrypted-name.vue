@@ -53,9 +53,6 @@
   )
 
   const displayName = computed(() => {
-    if (info.first_name) {
-      return [info.first_name, info.last_name].filter(Boolean).join(' ')
-    }
     return info.name || '...'
   })
 

@@ -560,7 +560,6 @@
 
   function getStudentDisplayName(sid, index) {
     const info = studentInfoCache[sid]
-    if (info?.first_name) return [info.first_name, info.last_name].filter(Boolean).join(' ')
     if (info?.name) return info.name
     return `${t('student')} ${index + 1}`
   }
