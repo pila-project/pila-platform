@@ -1,9 +1,9 @@
 <template>
   <Teleport to="body">
-    <div class="vs-overlay">
+    <div class="vs-overlay" @click.self="viewMode === 'overview' && $emit('close')">
       <!-- ═══════════════ OVERVIEW MODE ═══════════════ -->
       <template v-if="viewMode === 'overview'">
-        <div class="vso-container">
+        <div class="vso-container" @click.stop>
           <!-- Header -->
           <div class="vso-header">
             <div>
@@ -828,9 +828,19 @@
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: white;
   display: flex;
   flex-direction: column;
+}
+
+.vs-overlay:has(.vso-container) {
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.vs-overlay:not(:has(.vso-container)) {
+  background: white;
 }
 
 /* ── Navbar ── */
@@ -1506,11 +1516,14 @@
 
 .vso-container {
   width: 100%;
-  height: 100%;
+  max-width: 1300px;
+  height: 90%;
   background: white;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .vso-header {
@@ -1885,6 +1898,14 @@
 
 /* Overview mobile */
 @media (max-width: 768px) {
+  .vs-overlay:has(.vso-container) {
+    padding: 16px;
+  }
+
+  .vso-container {
+    max-height: 95vh;
+  }
+
   .vso-header {
     padding: 16px 16px 12px;
   }

@@ -18,6 +18,7 @@
           role="menu"
           class="p-menu-dropdown"
           :style="floatingStyle"
+          @click="onMenuItemClick"
           @keydown.esc="isOpen = false"
           @keydown.arrow-down.prevent="focusNext"
           @keydown.arrow-up.prevent="focusPrev"
@@ -101,6 +102,13 @@ watch(isOpen, async (open) => {
     if (items.length) items[0].focus()
   }
 })
+
+function onMenuItemClick(e) {
+  const menuItem = e.target.closest('[role="menuitem"]')
+  if (menuItem && !menuItem.closest('[data-keep-open]')) {
+    isOpen.value = false
+  }
+}
 
 function close(e) {
   if (!isOpen.value) return

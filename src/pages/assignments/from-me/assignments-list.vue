@@ -178,6 +178,7 @@
                   <PMenuItem
                     :title="t('view-analytics-dashboard')"
                     :prepend-icon="dashboardSubmenuItem === item ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+                    keepOpen
                     @click.prevent="dashboardSubmenuItem = dashboardSubmenuItem === item ? null : item"
                   />
                   <template v-if="dashboardSubmenuItem === item">

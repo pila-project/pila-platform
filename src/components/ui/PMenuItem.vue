@@ -10,6 +10,7 @@
       tabindex="-1"
       class="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
       :class="{ 'bg-primary-50 text-primary-600': active }"
+      :data-keep-open="keepOpen || undefined"
       @click="$emit('click', $event)"
       @keydown.enter.prevent="$emit('click', $event)"
       @keydown.space.prevent="$emit('click', $event)"
@@ -53,6 +54,7 @@ const props = defineProps({
   appendIcon: String,
   active: Boolean,
   danger: Boolean,
+  keepOpen: Boolean,
 })
 
 defineEmits(['click'])
