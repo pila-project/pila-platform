@@ -255,6 +255,7 @@ export default {
     "enter-encryption-key-word": "ed53a571-b06e-46eb-a561-9db34c6b91a7",
     "remove": "edb42907-4df6-4e7a-afa2-3a2249a11449",
     "expert-content": "ee00aef5-c413-4a48-a907-6f30f297b158",
+    "pila-content": "",
     "information-about-your-screen-and-device": "ee7123b7-4908-4313-8612-31bb3652928a",
     "researcher": "ef20dff4-17f0-4359-87e9-42e7bd718c48",
     "👉-quick-troubleshooting-checklist-please-make-s": "ef94ba18-1747-414f-8c2a-ee10ce191493",

@@ -154,13 +154,14 @@
               </td>
               <!-- Assignment submissions -->
               <td class="assign-td assign-td-submissions">
-                <template v-if="getAssignedGroups(item).length > 0">
+                <template v-if="getAssignedGroups(item).length > 0 && getSubmissionProgress(item) != null">
                   <div class="assign-progress-track">
                     <div class="assign-progress-fill" :style="{ width: getSubmissionProgress(item) + '%' }" />
                   </div>
                   <span class="assign-cell-desc">{{ getSubmissionProgress(item) }}%</span>
                 </template>
-                <span v-else class="assign-cell-text">{{ t('no-submissions') }}</span>
+                <!-- TODO: backend — submission tracking not yet available -->
+                <span v-else class="assign-cell-text assign-cell-text--muted">—</span>
               </td>
               <!-- Actions -->
               <td class="assign-td assign-td-actions" @click.stop>
@@ -179,7 +180,7 @@
                     :title="t('view-analytics-dashboard')"
                     :prepend-icon="dashboardSubmenuItem === item ? 'lucide:chevron-up' : 'lucide:chevron-down'"
                     keepOpen
-                    @click.prevent="dashboardSubmenuItem = dashboardSubmenuItem === item ? null : item"
+                    @click.prevent="toggleDashboardSubmenu(item)"
                   />
                   <template v-if="dashboardSubmenuItem === item">
                     <PMenuItem
@@ -188,14 +189,21 @@
                       @click="openDashboard(item)"
                     />
                     <PMenuItem
+                      :title="t('live-monitoring-dashboard')"
+                      class="menu-item-indent"
+                      @click="openLiveDashboard(item)"
+                    />
+                    <PMenuItem
+                      v-if="assignmentContainsCandli"
                       :title="t('competency-dashboard')"
                       class="menu-item-indent"
                       @click="openCandliDashboard(item)"
                     />
                     <PMenuItem
-                      :title="t('live-monitoring-dashboard')"
+                      v-if="assignmentContainsGenAI"
+                      :title="t('generative-ai-module-dashboard')"
                       class="menu-item-indent"
-                      @click="openLiveDashboard(item)"
+                      @click="openGenAIDashboard(item)"
                     />
                   </template>
                   <PMenuItem
@@ -304,6 +312,7 @@
     v-if="showSubmissionsView"
     :assignmentId="current"
     @close="showSubmissionsView = false"
+    @open-dashboard="handleOpenDashboardFromSubmissions"
   />
 
   <!-- Dashboard Modals -->
@@ -667,13 +676,10 @@
 
   // ── Submission progress (placeholder until real submission tracking) ──
   function getSubmissionProgress(id) {
-    // TODO: Replace with real submission data from backend
+    // TODO: backend — replace with real submission data once backend tracking exists
     const groups = getAssignedGroups(id)
-    if (groups.length === 0) return 0
-    // Placeholder: use a hash of the ID to generate a stable percentage
-    let hash = 0
-    for (let i = 0; i < id.length; i++) hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0
-    return Math.abs(hash) % 101
+    if (groups.length === 0) return null // no groups = no progress to show
+    return null // show "—" until real tracking exists
   }
 
   // ── Helpers ──
@@ -808,6 +814,16 @@
   }
 
   // ── Dashboard ──
+  async function toggleDashboardSubmenu(item) {
+    if (dashboardSubmenuItem.value === item) {
+      dashboardSubmenuItem.value = null
+      return
+    }
+    dashboardSubmenuItem.value = item
+    current.value = item
+    await reassessContents()
+  }
+
   async function openDashboard(item) {
     current.value = item
     await reassessContents()
@@ -824,6 +840,24 @@
     current.value = item
     await reassessContents()
     showResultsModal.value = true
+  }
+
+  async function openGenAIDashboard(item) {
+    current.value = item
+    await reassessContents()
+    showGenAIDashboardModal.value = true
+  }
+
+  async function handleOpenDashboardFromSubmissions(type) {
+    showSubmissionsView.value = false
+    if (type === 'competency') {
+      await openCandliDashboard(current.value)
+    } else if (type === 'genai') {
+      await openGenAIDashboard(current.value)
+    } else {
+      // 'app' and 'live' both use the main results modal
+      await openDashboard(current.value)
+    }
   }
 
   async function reassessContents() {
@@ -1000,6 +1034,9 @@
   font-size: 12px;
   font-weight: 500;
   color: #334155;
+}
+.assign-cell-text--muted {
+  color: #94a3b8;
 }
 
 /* Status badges */

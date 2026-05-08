@@ -85,7 +85,7 @@
         <div class="cb-show-tabs">
           <span class="cb-show-label">{{ t('show') }}:</span>
           <button class="cb-tab" :class="{ 'cb-tab-active': cbShowTab === 'all' }" @click="cbShowTab = 'all'">{{ t('all-content') }}</button>
-          <button class="cb-tab" :class="{ 'cb-tab-active': cbShowTab === 'expert' }" @click="cbShowTab = 'expert'">{{ t('expert-content') }}</button>
+          <button class="cb-tab" :class="{ 'cb-tab-active': cbShowTab === 'expert' }" @click="cbShowTab = 'expert'">{{ t('pila-content') }}</button>
           <button class="cb-tab" :class="{ 'cb-tab-active': cbShowTab === 'mine' }" @click="cbShowTab = 'mine'">{{ t('my-content') }}</button>
         </div>
       </div>
@@ -359,7 +359,7 @@
               class="cb-tab"
               :class="{ 'cb-tab-active': cbShowTab === 'expert' }"
               @click="cbShowTab = 'expert'"
-            >{{ t('expert-content') }}</button>
+            >{{ t('pila-content') }}</button>
             <button
               class="cb-tab"
               :class="{ 'cb-tab-active': cbShowTab === 'mine' }"

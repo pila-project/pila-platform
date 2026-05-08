@@ -179,16 +179,29 @@ export default {
       await dispatch('loadGroups')
       return id
     },
-    async addMember({ getters, dispatch }, { user_id, group_id }) {
-      //  TODO: reinstate an archived member if one exists
+    async addMember({ state, getters, dispatch }, { user_id, group_id }) {
       if (getters.belongs(user_id, group_id)) return
+
+      // Reinstate an archived member if one exists
+      const archivedEntry = Object.entries(state.members).find(
+        ([, m]) => m.user_id === user_id && m.group_id === group_id && m.archived
+      )
+      if (archivedEntry) {
+        const [existingId] = archivedEntry
+        const memberState = await Agent.state(existingId)
+        memberState.archived = false
+        await Agent.synced()
+        await dispatch('loadMembers')
+        return existingId
+      }
+
       const id = uuid()
       const metadata = await Agent.metadata(id)
       if (metadata.active_type !== GROUP_TYPE) metadata.active_type = GROUP_MEMBER_TYPE
 
-      const state = await Agent.state(id)
-      state.user_id = user_id
-      state.group_id = group_id
+      const state2 = await Agent.state(id)
+      state2.user_id = user_id
+      state2.group_id = group_id
 
       await Agent.synced()
       await dispatch('loadMembers')

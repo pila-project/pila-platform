@@ -32,7 +32,7 @@
         </div>
 
         <!-- Body -->
-        <div class="flex-1 overflow-auto px-6 py-4">
+        <div :class="['flex-1 overflow-auto', noPadBody ? 'relative' : 'px-6 py-4']" :style="noPadBody ? 'min-height: 0' : ''">
           <slot name="body">
             <slot />
           </slot>
@@ -79,6 +79,7 @@ const props = defineProps({
     default: 'Close'
   },
   persistent: Boolean,
+  noPadBody: Boolean,
 })
 
 const emit = defineEmits(['close'])
@@ -87,8 +88,10 @@ const modalRef = ref(null)
 const modalStyle = computed(() => ({
   width: props.width,
   maxWidth: '90vw',
-  minHeight: props.height !== 'auto' ? props.height : undefined,
-  maxHeight: '90vh',
+  ...(props.height !== 'auto'
+    ? { height: props.height, maxHeight: '90vh' }
+    : { maxHeight: '90vh' }
+  ),
 }))
 
 function close(reason) {

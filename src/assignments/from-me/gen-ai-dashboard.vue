@@ -1,7 +1,7 @@
 <template>
   <vueEmbedComponent
     :namespace="props.assignment"
-    :id="` https://pila.oecd.jordanfung.com/genai/dashboard?domain=${domain}&${params}`"
+    :id="`https://pila.oecd.jordanfung.com/genai/dashboard?domain=${domain}&${params}`"
     :environmentProxy="proxyEnvironmentCall"
   />
 </template>

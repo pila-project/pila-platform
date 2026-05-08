@@ -278,12 +278,11 @@
           </div>
           <div class="profile-row">
             <span class="profile-label">{{ t('account-created') }}</span>
-            <!-- TODO: backend — needs account activity timestamps -->
-            <span class="profile-value profile-value--muted">—</span>
+            <span class="profile-value" :class="{ 'profile-value--muted': !profileCreatedDate }">{{ profileCreatedDate || '—' }}</span>
           </div>
           <div class="profile-row">
             <span class="profile-label">{{ t('last-login') }}</span>
-            <!-- TODO: backend — needs account activity timestamps -->
+            <!-- TODO: backend — needs last-login tracking -->
             <span class="profile-value profile-value--muted">—</span>
           </div>
         </div>
@@ -434,7 +433,7 @@
           <PSelect
             v-model="newStudentGrade"
             :label="t('grade')"
-            :items="gradeFilterOptions"
+            :items="gradeOptions"
             item-title="label"
             item-value="value"
             :placeholder="t('select-grade')"
@@ -479,7 +478,7 @@
           <PSelect
             v-model="newGroupGrade"
             :label="t('grade')"
-            :items="gradeFilterOptions"
+            :items="gradeOptions"
             item-title="label"
             item-value="value"
             :placeholder="t('select-grade')"
@@ -522,7 +521,7 @@
           <PSelect
             v-model="editGroupGrade"
             :label="t('grade')"
-            :items="gradeFilterOptions"
+            :items="gradeOptions"
             item-title="label"
             item-value="value"
             :placeholder="t('select-grade')"
@@ -622,8 +621,7 @@
             @file-selected="csvFile = $event"
           />
           <div class="csv-actions-row">
-            <!-- TODO: backend — needs CSV template endpoint -->
-            <button class="csv-template-link" disabled>
+            <button class="csv-template-link" @click="downloadCSVTemplate">
               <LucideIcon name="download" :size="14" />
               {{ t('download-template') }}
             </button>
@@ -642,7 +640,6 @@
         <PButton variant="outline" :text="t('back')" @click="showCSVUploadModal = false; showAddStudentPicker = true" />
         <div style="flex: 1" />
         <PButton variant="secondary" :text="t('cancel')" @click="showCSVUploadModal = false" />
-        <!-- TODO: backend — needs CSV import endpoint -->
         <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!csvFile" @click="handleCSVImport" />
       </template>
     </PModal>
@@ -682,7 +679,7 @@
                   <td>
                     <select v-model="row.grade" class="input bulk-input">
                       <option value="">{{ t('select-grade') }}</option>
-                      <option v-for="g in gradeFilterOptions" :key="g.value" :value="g.value">{{ g.label }}</option>
+                      <option v-for="g in gradeOptions" :key="g.value" :value="g.value">{{ g.label }}</option>
                     </select>
                   </td>
                   <td>
@@ -700,7 +697,6 @@
         <PButton variant="outline" :text="t('back')" @click="showBulkEntryModal = false; showCSVUploadModal = true" />
         <div style="flex: 1" />
         <PButton variant="secondary" :text="t('cancel')" @click="showBulkEntryModal = false" />
-        <!-- TODO: backend — needs bulk create endpoint + QR generation -->
         <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!validBulkRows" @click="handleBulkCreate" />
       </template>
     </PModal>
@@ -806,7 +802,6 @@
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="showExportModal = false; exportFormat = null" />
-        <!-- TODO: backend — needs export endpoint -->
         <PButton variant="primary" :text="t('export')" :disabled="!exportFormat" @click="handleExport" />
       </template>
     </PModal>
@@ -885,26 +880,23 @@
               <LucideIcon name="copy" :size="14" />
             </button>
           </div>
-          <div class="login-code-qr">
-            <!-- TODO: backend — needs per-student QR generation endpoint. Currently showing join link as placeholder. -->
+          <div class="login-code-qr" ref="qrContainerRef">
             <Suspense>
-              <QRCodeDisplay :data="`${location.origin}/join/${loginCodeStudent.id}`" size="200px" />
+              <QRCodeDisplay :data="`${siteOrigin}/join/${loginCodeStudent.id}`" size="200px" />
               <template #fallback>
                 <div class="qr-placeholder">{{ t('loading') }}...</div>
               </template>
             </Suspense>
           </div>
           <div class="login-code-passphrase">
-            <!-- TODO: backend — needs symbol passphrase generation -->
             <span class="passphrase-label">{{ t('symbol-passphrase') }}</span>
-            <span class="passphrase-value">—</span>
+            <span class="passphrase-value">{{ loginCodePassphrase }}</span>
           </div>
         </div>
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="loginCodeStudent = null" />
-        <!-- TODO: backend — needs QR download endpoint -->
-        <PButton variant="primary" :text="t('download-qr-code')" disabled />
+        <PButton variant="primary" :text="t('download-qr-code')" @click="downloadQRCode" />
       </template>
     </PModal>
 
@@ -937,7 +929,7 @@
 
     <TeacherStudentAgreementModal
       v-if="showAcceptStudentAgreementModal"
-      @agreed="createUserAndLaunchModal()"
+      @agreed="onAgreementAccepted()"
       @close="showAcceptStudentAgreementModal = false"
     />
   </div>
@@ -957,13 +949,14 @@ import TeacherStudentAgreementModal from './teacher-student-agreement-modal.vue'
 import GroupCard from '@/components/groups/GroupCard.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
-import { createUser } from '@/utils/user-utils.js'
+import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import * as encryption from '@/utils/encryption.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 
 // ── State ──
+const siteOrigin = window.location.origin
 const users = reactive({})
 const userModalUser = ref(null)
 const viewProfileUser = ref(null)
@@ -1090,7 +1083,13 @@ const studentHeaders = computed(() => [
   { key: 'more', title: '', sortable: false, width: '60px' },
 ])
 
-// ── Filter options ──
+// ── Grade options (static list for create/edit forms) ──
+const gradeOptions = computed(() => {
+  const grades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+  return grades.map(g => ({ value: g, label: g }))
+})
+
+// ── Filter options (derived from existing students, for table filters only) ──
 const gradeFilterOptions = computed(() => {
   const grades = [...new Set(students.value.map(s => s.grade).filter(Boolean))]
   return grades.map(g => ({ value: g, label: g }))
@@ -1149,9 +1148,12 @@ const profileUserGroups = computed(() => {
     })
 })
 
+const profileCreatedDate = ref(null)
+
 async function openStudentProfile(studentId) {
   viewProfileUser.value = studentId
   profileStudentInfo.value = null
+  profileCreatedDate.value = null
   // Decrypt student info for profile display
   try {
     const info = await store.getters.decryptUserInfo(studentId, false)
@@ -1159,6 +1161,13 @@ async function openStudentProfile(studentId) {
   } catch (e) {
     profileStudentInfo.value = { name: '...' }
   }
+  // Get account creation date from metadata
+  try {
+    const meta = await Agent.metadata(studentId)
+    if (meta?.created) {
+      profileCreatedDate.value = new Date(meta.created).toLocaleDateString()
+    }
+  } catch (e) { /* metadata not available */ }
 }
 
 // ── Groups ──
@@ -1239,30 +1248,85 @@ async function toggleArchiveStudent(item) {
   }
 }
 
+const qrContainerRef = ref(null)
+
+const loginCodePassphrase = computed(() => {
+  if (!loginCodeStudent.value) return '—'
+  const secret = users[loginCodeStudent.value.id]?.secret
+  return secret || '—'
+})
+
 function openLoginCodeModal(item) {
   loginCodeStudent.value = item
 }
 
-function executeDeleteStudent() {
-  // TODO: backend — needs delete student endpoint
-  console.warn('Delete student not yet implemented — needs backend endpoint')
-  deleteConfirmStudent.value = null
+function downloadQRCode() {
+  if (!qrContainerRef.value) return
+  const canvas = qrContainerRef.value.querySelector('canvas')
+  if (!canvas) return
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `login-code-${loginCodeStudent.value.id.slice(0, 8)}.png`
+    a.click()
+    URL.revokeObjectURL(url)
+  })
 }
 
-function executeResetPassword() {
-  // TODO: backend — needs reset password endpoint
-  console.warn('Reset password not yet implemented — needs backend endpoint')
+async function executeDeleteStudent() {
+  // TODO: backend — replace with hard-delete once backend endpoint exists
+  if (!deleteConfirmStudent.value) return
+  const studentId = deleteConfirmStudent.value.id
+  const usersState = await Agent.state('users')
+  if (usersState[studentId]) usersState[studentId].archived = true
+  // Cascade: archive group memberships for this student
+  for (const gid of activeGroups.value) {
+    if (store.getters['groups/belongs'](studentId, gid)) {
+      await store.dispatch('groups/removeMember', { user_id: studentId, group_id: gid })
+    }
+  }
+  deleteConfirmStudent.value = null
+  successMessage.value = t('success')
+}
+
+async function executeResetPassword() {
+  if (!resetPasswordStudent.value) return
+  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+  if (!providerSecret) {
+    resetPasswordStudent.value = null
+    showNamePasswordModal.value = true
+    return
+  }
+  const studentId = resetPasswordStudent.value.id
+  const newSecret = randomString(8, codeCharacterSet)
+  // Decrypt existing info to re-encrypt under new keys
+  let info = { name: 'Student' }
+  try {
+    info = await store.getters.decryptUserInfo(studentId, false)
+  } catch (e) {
+    // fallback — re-encrypt with minimal info
+  }
+  await resetUserSecret(studentId, newSecret, providerSecret, info)
+  // Store new secret so QR modal can show it
+  const usersState = await Agent.state('users')
+  if (usersState[studentId]) usersState[studentId].secret = newSecret
   resetPasswordStudent.value = null
+  // Open login code modal to show new credentials
+  loginCodeStudent.value = { id: studentId }
+  successMessage.value = t('success')
 }
 
 function confirmDeleteGroup(groupId) {
   deleteConfirmGroup.value = groupId
 }
 
-function executeDeleteGroup() {
-  // TODO: backend — needs group hard-delete endpoint
-  console.warn('Delete group not yet implemented — needs backend endpoint')
+async function executeDeleteGroup() {
+  // TODO: backend — replace with hard-delete once backend endpoint exists
+  if (!deleteConfirmGroup.value) return
+  await store.dispatch('groups/archive', deleteConfirmGroup.value)
   deleteConfirmGroup.value = null
+  successMessage.value = t('success')
 }
 
 const codeCharacterSet = 'abcdefghijklmnopqrstuvwxy'
@@ -1316,7 +1380,6 @@ async function handleAddStudent() {
 async function createStudentAccount() {
   const { studentDataProtectionAgreement } = await Agent.state()
   if (!studentDataProtectionAgreement) {
-    showCreateStudentForm.value = false
     showAcceptStudentAgreementModal.value = true
     return
   }
@@ -1328,25 +1391,37 @@ async function createStudentAccount() {
   }
   const id = await createUser(userSecret, providerSecret, info)
   const usersState = await Agent.state('users')
-  usersState[id] = { grade: newStudentGrade.value || undefined }
+  usersState[id] = { grade: newStudentGrade.value || undefined, secret: userSecret }
   showCreateStudentForm.value = false
+  newStudentName.value = ''
+  newStudentNickname.value = ''
+  newStudentGrade.value = ''
   successMessage.value = t('success')
-  userModalUser.value = id
+  openLoginCodeModal({ id, secret: userSecret })
 }
 
-async function createUserAndLaunchModal() {
-  const { studentDataProtectionAgreement } = await Agent.state()
-  if (studentDataProtectionAgreement) {
-    // Legacy path — used from agreement modal callback
-    newStudentName.value = t('student')
-    newStudentGrade.value = ''
-    showCreateStudentForm.value = true
-  } else {
-    showAcceptStudentAgreementModal.value = true
+function onAgreementAccepted() {
+  showAcceptStudentAgreementModal.value = false
+  // If the create form is open, re-trigger creation now that consent is given
+  if (showCreateStudentForm.value) {
+    createStudentAccount()
   }
 }
 
 // ── Bulk / Export / SSO handlers ──
+
+async function createSingleStudent(name, nickname, grade) {
+  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+  const userSecret = randomString(8, codeCharacterSet)
+  const info = {
+    name: name.trim(),
+    nickname: nickname?.trim() || undefined,
+  }
+  const id = await createUser(userSecret, providerSecret, info)
+  const usersState = await Agent.state('users')
+  usersState[id] = { grade: grade || undefined, secret: userSecret }
+  return id
+}
 
 function addBulkRow() {
   bulkEntryRows.value.push({ name: '', nickname: '', grade: '' })
@@ -1356,16 +1431,78 @@ const validBulkRows = computed(() =>
   bulkEntryRows.value.some(r => r.name.trim() && r.grade)
 )
 
-function handleCSVImport() {
-  // TODO: backend — needs CSV import endpoint
-  console.warn('CSV import not yet implemented — needs backend endpoint')
+async function handleCSVImport() {
+  if (!csvFile.value) return
+  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+  if (!providerSecret) {
+    showCSVUploadModal.value = false
+    showNamePasswordModal.value = true
+    return
+  }
+  const { studentDataProtectionAgreement } = await Agent.state()
+  if (!studentDataProtectionAgreement) {
+    showCSVUploadModal.value = false
+    showAcceptStudentAgreementModal.value = true
+    return
+  }
+  const text = await csvFile.value.text()
+  const lines = text.split(/\r?\n/).filter(l => l.trim())
+  if (lines.length < 2) return // header only
+  const header = lines[0].toLowerCase()
+  const hasHeader = header.includes('name')
+  const dataLines = hasHeader ? lines.slice(1) : lines
+  let created = 0
+  for (const line of dataLines) {
+    const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
+    const name = cols[0]
+    const nickname = cols[1] || ''
+    const grade = cols[2] || ''
+    if (!name) continue
+    await createSingleStudent(name, nickname, grade)
+    created++
+  }
   showCSVUploadModal.value = false
+  csvFile.value = null
+  successMessage.value = `${created} ${t('student')} ${t('created')}`
 }
 
-function handleBulkCreate() {
-  // TODO: backend — needs bulk create endpoint + QR generation
-  console.warn('Bulk create not yet implemented — needs backend endpoint')
+async function handleBulkCreate() {
+  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+  if (!providerSecret) {
+    showBulkEntryModal.value = false
+    showNamePasswordModal.value = true
+    return
+  }
+  const { studentDataProtectionAgreement } = await Agent.state()
+  if (!studentDataProtectionAgreement) {
+    showBulkEntryModal.value = false
+    showAcceptStudentAgreementModal.value = true
+    return
+  }
+  const rows = bulkEntryRows.value.filter(r => r.name.trim() && r.grade)
+  let created = 0
+  for (const row of rows) {
+    await createSingleStudent(row.name, row.nickname, row.grade)
+    created++
+  }
   showBulkEntryModal.value = false
+  bulkEntryRows.value = [
+    { name: '', nickname: '', grade: '' },
+    { name: '', nickname: '', grade: '' },
+    { name: '', nickname: '', grade: '' },
+  ]
+  successMessage.value = `${created} ${t('student')} ${t('created')}`
+}
+
+function downloadCSVTemplate() {
+  const csv = 'Name,Nickname,Grade\n'
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'student-import-template.csv'
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 function handleSSONext() {
@@ -1374,9 +1511,52 @@ function handleSSONext() {
   showSSOModal.value = false
 }
 
-function handleExport() {
-  // TODO: backend — needs export endpoint
-  console.warn('Export not yet implemented — needs backend endpoint')
+async function handleExport() {
+  const studentData = []
+  for (const studentId of selectedStudents.value) {
+    const student = students.value.find(s => s.id === studentId)
+    let info = { name: '' }
+    try {
+      info = await store.getters.decryptUserInfo(studentId, false)
+    } catch (e) { /* fallback */ }
+    studentData.push({
+      name: info?.name || '',
+      nickname: info?.nickname || '',
+      grade: student?.grade || '',
+      status: student?.archived ? 'Archived' : 'Active',
+      groups: student?.groupNames || '',
+    })
+  }
+
+  if (exportFormat.value === 'csv') {
+    const header = 'Name,Nickname,Grade,Status,Groups\n'
+    const rows = studentData.map(s =>
+      [s.name, s.nickname, s.grade, s.status, `"${s.groups}"`].join(',')
+    ).join('\n')
+    const blob = new Blob([header + rows], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'students-export.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  } else if (exportFormat.value === 'pdf') {
+    const html = `<html><head><title>Students Export</title><style>
+      body { font-family: sans-serif; padding: 20px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+      th { background: #f1f5f9; font-weight: 600; }
+    </style></head><body>
+    <h2>Students Export</h2>
+    <table><thead><tr><th>Name</th><th>Nickname</th><th>Grade</th><th>Status</th><th>Groups</th></tr></thead>
+    <tbody>${studentData.map(s => `<tr><td>${s.name}</td><td>${s.nickname}</td><td>${s.grade}</td><td>${s.status}</td><td>${s.groups}</td></tr>`).join('')}</tbody></table>
+    </body></html>`
+    const w = window.open('', '_blank')
+    w.document.write(html)
+    w.document.close()
+    w.print()
+  }
+
   showExportModal.value = false
   exportFormat.value = null
 }

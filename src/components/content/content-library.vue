@@ -174,12 +174,14 @@
               :removable="myContent.includes(id)"
               :source="myContent.includes(id) ? 'mine' : 'pila'"
               :grades="getItemTagLabels(id)"
+              :favorited="favorites.has(id)"
               @click="() => {
                 if (selfSelected === id) selfSelected = null
                 else selfSelected = id
                 $emit('select', selfSelected)
               }"
               @toggle-select="toggleSelection(id)"
+              @toggle-favorite="toggleFavorite(id)"
               @preview="previewing = id"
               @remove="() => {
                 setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
@@ -445,7 +447,7 @@
   // ── Show tabs (outside search bar) ──
   const showTabs = computed(() => [
     { label: t('all-content'), key: 'all' },
-    { label: t('expert-content'), key: 'pila' },
+    { label: t('pila-content'), key: 'pila' },
     { label: t('my-content'), key: 'mine' },
   ])
 
@@ -475,6 +477,27 @@
         count
       }))
       .sort((a, b) => a.label.localeCompare(b.label))
+  }
+
+  // ── Favorites state ──
+  const favorites = reactive(new Set())
+  let favoritesState = null
+
+  async function loadFavorites() {
+    favoritesState = await Agent.state('my-favorites')
+    if (favoritesState && Array.isArray(favoritesState.items)) {
+      favoritesState.items.forEach(id => favorites.add(id))
+    }
+  }
+
+  async function toggleFavorite(id) {
+    if (favorites.has(id)) {
+      favorites.delete(id)
+    } else {
+      favorites.add(id)
+    }
+    if (!favoritesState) favoritesState = await Agent.state('my-favorites')
+    favoritesState.items = [...favorites]
   }
 
   // ── Content data ──
@@ -749,6 +772,9 @@
         'taggings-for-tag', [user.value, MY_CONTENT_TAG], 'tags.knowlearning.systems'
       ).catch(() => [])
       myContentResult.forEach(t => myContent.push(t.target))
+
+      // Load favorites
+      loadFavorites().catch(() => {})
 
       // Load main content data (includes tag hierarchy)
       await loadContentData()
