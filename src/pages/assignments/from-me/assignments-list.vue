@@ -422,13 +422,6 @@
     @confirm="confirmArchive"
     @cancel="showArchiveDialog = false"
   />
-  <PAlertDialog
-    v-if="showSuccessDialog"
-    variant="success"
-    :title="t('assignment-successfully-created')"
-    :confirmText="t('continue')"
-    @confirm="showSuccessDialog = false"
-  />
 </template>
 
 <script setup>
@@ -438,6 +431,7 @@
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection } from '@/components/ui/index.js'
+  import { useToast } from '@/utils/useToast.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
   import Dashboard from './dashboard/index.vue'
@@ -476,7 +470,7 @@
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
   const dashboardSubmenuItem = ref(null)
-  const showSuccessDialog = ref(false)
+  const { success: toastSuccess } = useToast()
   const wasCreating = ref(false)
 
   // ── Filter state ──
@@ -896,7 +890,7 @@
         }
         // Show success dialog after creating a new assignment
         if (wasCreating.value) {
-          showSuccessDialog.value = true
+          toastSuccess(t('assignment-successfully-created'))
         }
       }
       wasCreating.value = false

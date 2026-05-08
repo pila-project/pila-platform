@@ -449,6 +449,7 @@
           variant="primary"
           :text="t('create')"
           :disabled="!newStudentName.trim() || !newStudentGrade"
+          :loading="creatingStudent"
           @click="createStudentAccount"
         />
       </template>
@@ -493,7 +494,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="showCreateGroupModal = false" />
-        <PButton variant="primary" :text="t('create')" @click="handleCreateGroup" :disabled="!newGroupName.trim()" />
+        <PButton variant="primary" :text="t('create')" @click="handleCreateGroup" :disabled="!newGroupName.trim()" :loading="creatingGroup" />
       </template>
     </PModal>
 
@@ -536,7 +537,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="editGroupId = null" />
-        <PButton variant="primary" :text="t('save')" @click="handleSaveGroup" :disabled="!editGroupName.trim()" />
+        <PButton variant="primary" :text="t('save')" @click="handleSaveGroup" :disabled="!editGroupName.trim()" :loading="savingGroup" />
       </template>
     </PModal>
 
@@ -588,17 +589,6 @@
       @cancel="deleteConfirmGroup = null"
     />
 
-    <!-- Success Dialog -->
-    <PAlertDialog
-      v-if="successMessage"
-      variant="success"
-      :title="successMessage"
-      confirm-text="OK"
-      :cancel-text="null"
-      @confirm="successMessage = null"
-      @cancel="successMessage = null"
-    />
-
     <!-- CSV Upload Modal -->
     <PModal
       v-if="showCSVUploadModal"
@@ -640,7 +630,7 @@
         <PButton variant="outline" :text="t('back')" @click="showCSVUploadModal = false; showAddStudentPicker = true" />
         <div style="flex: 1" />
         <PButton variant="secondary" :text="t('cancel')" @click="showCSVUploadModal = false" />
-        <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!csvFile" @click="handleCSVImport" />
+        <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!csvFile" :loading="importingCSV" @click="handleCSVImport" />
       </template>
     </PModal>
 
@@ -697,7 +687,7 @@
         <PButton variant="outline" :text="t('back')" @click="showBulkEntryModal = false; showCSVUploadModal = true" />
         <div style="flex: 1" />
         <PButton variant="secondary" :text="t('cancel')" @click="showBulkEntryModal = false" />
-        <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!validBulkRows" @click="handleBulkCreate" />
+        <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!validBulkRows" :loading="creatingBulk" @click="handleBulkCreate" />
       </template>
     </PModal>
 
@@ -802,7 +792,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="showExportModal = false; exportFormat = null" />
-        <PButton variant="primary" :text="t('export')" :disabled="!exportFormat" @click="handleExport" />
+        <PButton variant="primary" :text="t('export')" :disabled="!exportFormat" :loading="exporting" @click="handleExport" />
       </template>
     </PModal>
 
@@ -854,6 +844,7 @@
           variant="primary"
           :text="`${t('add-to')} ${selectedGroupsForAssign.length} ${t('group')}`"
           :disabled="!selectedGroupsForAssign.length"
+          :loading="addingToGroups"
           @click="handleAddToGroups"
         />
       </template>
@@ -950,6 +941,7 @@ import GroupCard from '@/components/groups/GroupCard.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
+import { useToast } from '@/utils/useToast.js'
 import * as encryption from '@/utils/encryption.js'
 
 const store = useStore()
@@ -1003,7 +995,20 @@ const bulkEntryRows = ref([
   { name: '', nickname: '', grade: '' },
   { name: '', nickname: '', grade: '' },
 ])
-const successMessage = ref(null)
+// ── Toast notifications ──
+const { success: toastSuccess, error: toastError } = useToast()
+
+// ── Loading states ──
+const creatingStudent = ref(false)
+const creatingBulk = ref(false)
+const importingCSV = ref(false)
+const creatingGroup = ref(false)
+const savingGroup = ref(false)
+const deletingStudent = ref(false)
+const resettingPassword = ref(false)
+const deletingGroup = ref(false)
+const exporting = ref(false)
+const addingToGroups = ref(false)
 
 // ── Encryption key ──
 const namePassword = ref(localStorage.getItem(`zkek-${store.state.user}`) || '')
@@ -1177,19 +1182,26 @@ const archivedGroups = computed(() => store.getters['groups/archivedGroups']('cl
 async function handleCreateGroup() {
   const name = newGroupName.value.trim()
   if (!name) return
-  const id = await store.dispatch('groups/add', { type: 'class', name })
-  // Save grade and subject to the group state
-  const groupState = await Agent.state(id)
-  if (newGroupGrade.value) groupState.grade = newGroupGrade.value
-  if (newGroupSubject.value) groupState.subject = newGroupSubject.value
-  await Agent.synced()
-  await store.dispatch('groups/loadGroups')
-  newGroupName.value = ''
-  newGroupGrade.value = ''
-  newGroupSubject.value = ''
-  showCreateGroupModal.value = false
-  successMessage.value = t('success')
-  manageGroupId.value = id
+  creatingGroup.value = true
+  try {
+    const id = await store.dispatch('groups/add', { type: 'class', name })
+    const groupState = await Agent.state(id)
+    if (newGroupGrade.value) groupState.grade = newGroupGrade.value
+    if (newGroupSubject.value) groupState.subject = newGroupSubject.value
+    await Agent.synced()
+    await store.dispatch('groups/loadGroups')
+    newGroupName.value = ''
+    newGroupGrade.value = ''
+    newGroupSubject.value = ''
+    showCreateGroupModal.value = false
+    toastSuccess(t('success'))
+    manageGroupId.value = id
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    creatingGroup.value = false
+  }
 }
 
 function openEditGroup(groupId) {
@@ -1202,14 +1214,22 @@ function openEditGroup(groupId) {
 
 async function handleSaveGroup() {
   if (!editGroupName.value.trim() || !editGroupId.value) return
-  const state = await Agent.state(editGroupId.value)
-  state.name = editGroupName.value.trim()
-  state.grade = editGroupGrade.value || undefined
-  state.subject = editGroupSubject.value || undefined
-  await Agent.synced()
-  await store.dispatch('groups/loadGroups')
-  editGroupId.value = null
-  successMessage.value = t('success')
+  savingGroup.value = true
+  try {
+    const groupState = await Agent.state(editGroupId.value)
+    groupState.name = editGroupName.value.trim()
+    groupState.grade = editGroupGrade.value || undefined
+    groupState.subject = editGroupSubject.value || undefined
+    await Agent.synced()
+    await store.dispatch('groups/loadGroups')
+    editGroupId.value = null
+    toastSuccess(t('success'))
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    savingGroup.value = false
+  }
 }
 
 function archiveGroup(id) {
@@ -1277,17 +1297,24 @@ function downloadQRCode() {
 async function executeDeleteStudent() {
   // TODO: backend — replace with hard-delete once backend endpoint exists
   if (!deleteConfirmStudent.value) return
-  const studentId = deleteConfirmStudent.value.id
-  const usersState = await Agent.state('users')
-  if (usersState[studentId]) usersState[studentId].archived = true
-  // Cascade: archive group memberships for this student
-  for (const gid of activeGroups.value) {
-    if (store.getters['groups/belongs'](studentId, gid)) {
-      await store.dispatch('groups/removeMember', { user_id: studentId, group_id: gid })
+  deletingStudent.value = true
+  try {
+    const studentId = deleteConfirmStudent.value.id
+    const usersState = await Agent.state('users')
+    if (usersState[studentId]) usersState[studentId].archived = true
+    for (const gid of activeGroups.value) {
+      if (store.getters['groups/belongs'](studentId, gid)) {
+        await store.dispatch('groups/removeMember', { user_id: studentId, group_id: gid })
+      }
     }
+    deleteConfirmStudent.value = null
+    toastSuccess(t('success'))
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    deletingStudent.value = false
   }
-  deleteConfirmStudent.value = null
-  successMessage.value = t('success')
 }
 
 async function executeResetPassword() {
@@ -1298,23 +1325,28 @@ async function executeResetPassword() {
     showNamePasswordModal.value = true
     return
   }
-  const studentId = resetPasswordStudent.value.id
-  const newSecret = randomString(8, codeCharacterSet)
-  // Decrypt existing info to re-encrypt under new keys
-  let info = { name: 'Student' }
+  resettingPassword.value = true
   try {
-    info = await store.getters.decryptUserInfo(studentId, false)
+    const studentId = resetPasswordStudent.value.id
+    const newSecret = randomString(8, codeCharacterSet)
+    let info = { name: 'Student' }
+    try {
+      info = await store.getters.decryptUserInfo(studentId, false)
+    } catch (e) {
+      // fallback — re-encrypt with minimal info
+    }
+    await resetUserSecret(studentId, newSecret, providerSecret, info)
+    const usersState = await Agent.state('users')
+    if (usersState[studentId]) usersState[studentId].secret = newSecret
+    resetPasswordStudent.value = null
+    loginCodeStudent.value = { id: studentId }
+    toastSuccess(t('success'))
   } catch (e) {
-    // fallback — re-encrypt with minimal info
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    resettingPassword.value = false
   }
-  await resetUserSecret(studentId, newSecret, providerSecret, info)
-  // Store new secret so QR modal can show it
-  const usersState = await Agent.state('users')
-  if (usersState[studentId]) usersState[studentId].secret = newSecret
-  resetPasswordStudent.value = null
-  // Open login code modal to show new credentials
-  loginCodeStudent.value = { id: studentId }
-  successMessage.value = t('success')
 }
 
 function confirmDeleteGroup(groupId) {
@@ -1324,9 +1356,17 @@ function confirmDeleteGroup(groupId) {
 async function executeDeleteGroup() {
   // TODO: backend — replace with hard-delete once backend endpoint exists
   if (!deleteConfirmGroup.value) return
-  await store.dispatch('groups/archive', deleteConfirmGroup.value)
-  deleteConfirmGroup.value = null
-  successMessage.value = t('success')
+  deletingGroup.value = true
+  try {
+    await store.dispatch('groups/archive', deleteConfirmGroup.value)
+    deleteConfirmGroup.value = null
+    toastSuccess(t('success'))
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    deletingGroup.value = false
+  }
 }
 
 const codeCharacterSet = 'abcdefghijklmnopqrstuvwxy'
@@ -1383,21 +1423,29 @@ async function createStudentAccount() {
     showAcceptStudentAgreementModal.value = true
     return
   }
-  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-  const userSecret = randomString(8, codeCharacterSet)
-  const info = {
-    name: newStudentName.value.trim(),
-    nickname: newStudentNickname.value.trim() || undefined,
+  creatingStudent.value = true
+  try {
+    const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+    const userSecret = randomString(8, codeCharacterSet)
+    const info = {
+      name: newStudentName.value.trim(),
+      nickname: newStudentNickname.value.trim() || undefined,
+    }
+    const id = await createUser(userSecret, providerSecret, info)
+    const usersState = await Agent.state('users')
+    usersState[id] = { grade: newStudentGrade.value || undefined, secret: userSecret }
+    showCreateStudentForm.value = false
+    newStudentName.value = ''
+    newStudentNickname.value = ''
+    newStudentGrade.value = ''
+    toastSuccess(t('success'))
+    openLoginCodeModal({ id, secret: userSecret })
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    creatingStudent.value = false
   }
-  const id = await createUser(userSecret, providerSecret, info)
-  const usersState = await Agent.state('users')
-  usersState[id] = { grade: newStudentGrade.value || undefined, secret: userSecret }
-  showCreateStudentForm.value = false
-  newStudentName.value = ''
-  newStudentNickname.value = ''
-  newStudentGrade.value = ''
-  successMessage.value = t('success')
-  openLoginCodeModal({ id, secret: userSecret })
 }
 
 function onAgreementAccepted() {
@@ -1445,25 +1493,33 @@ async function handleCSVImport() {
     showAcceptStudentAgreementModal.value = true
     return
   }
-  const text = await csvFile.value.text()
-  const lines = text.split(/\r?\n/).filter(l => l.trim())
-  if (lines.length < 2) return // header only
-  const header = lines[0].toLowerCase()
-  const hasHeader = header.includes('name')
-  const dataLines = hasHeader ? lines.slice(1) : lines
-  let created = 0
-  for (const line of dataLines) {
-    const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
-    const name = cols[0]
-    const nickname = cols[1] || ''
-    const grade = cols[2] || ''
-    if (!name) continue
-    await createSingleStudent(name, nickname, grade)
-    created++
+  importingCSV.value = true
+  try {
+    const text = await csvFile.value.text()
+    const lines = text.split(/\r?\n/).filter(l => l.trim())
+    if (lines.length < 2) return // header only
+    const header = lines[0].toLowerCase()
+    const hasHeader = header.includes('name')
+    const dataLines = hasHeader ? lines.slice(1) : lines
+    let created = 0
+    for (const line of dataLines) {
+      const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
+      const name = cols[0]
+      const nickname = cols[1] || ''
+      const grade = cols[2] || ''
+      if (!name) continue
+      await createSingleStudent(name, nickname, grade)
+      created++
+    }
+    showCSVUploadModal.value = false
+    csvFile.value = null
+    toastSuccess(`${created} ${t('student')} ${t('created')}`)
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    importingCSV.value = false
   }
-  showCSVUploadModal.value = false
-  csvFile.value = null
-  successMessage.value = `${created} ${t('student')} ${t('created')}`
 }
 
 async function handleBulkCreate() {
@@ -1479,19 +1535,27 @@ async function handleBulkCreate() {
     showAcceptStudentAgreementModal.value = true
     return
   }
-  const rows = bulkEntryRows.value.filter(r => r.name.trim() && r.grade)
-  let created = 0
-  for (const row of rows) {
-    await createSingleStudent(row.name, row.nickname, row.grade)
-    created++
+  creatingBulk.value = true
+  try {
+    const rows = bulkEntryRows.value.filter(r => r.name.trim() && r.grade)
+    let created = 0
+    for (const row of rows) {
+      await createSingleStudent(row.name, row.nickname, row.grade)
+      created++
+    }
+    showBulkEntryModal.value = false
+    bulkEntryRows.value = [
+      { name: '', nickname: '', grade: '' },
+      { name: '', nickname: '', grade: '' },
+      { name: '', nickname: '', grade: '' },
+    ]
+    toastSuccess(`${created} ${t('student')} ${t('created')}`)
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    creatingBulk.value = false
   }
-  showBulkEntryModal.value = false
-  bulkEntryRows.value = [
-    { name: '', nickname: '', grade: '' },
-    { name: '', nickname: '', grade: '' },
-    { name: '', nickname: '', grade: '' },
-  ]
-  successMessage.value = `${created} ${t('student')} ${t('created')}`
 }
 
 function downloadCSVTemplate() {
@@ -1512,53 +1576,62 @@ function handleSSONext() {
 }
 
 async function handleExport() {
-  const studentData = []
-  for (const studentId of selectedStudents.value) {
-    const student = students.value.find(s => s.id === studentId)
-    let info = { name: '' }
-    try {
-      info = await store.getters.decryptUserInfo(studentId, false)
-    } catch (e) { /* fallback */ }
-    studentData.push({
-      name: info?.name || '',
-      nickname: info?.nickname || '',
-      grade: student?.grade || '',
-      status: student?.archived ? 'Archived' : 'Active',
-      groups: student?.groupNames || '',
-    })
-  }
+  exporting.value = true
+  try {
+    const studentData = []
+    for (const studentId of selectedStudents.value) {
+      const student = students.value.find(s => s.id === studentId)
+      let info = { name: '' }
+      try {
+        info = await store.getters.decryptUserInfo(studentId, false)
+      } catch (e) { /* fallback */ }
+      studentData.push({
+        name: info?.name || '',
+        nickname: info?.nickname || '',
+        grade: student?.grade || '',
+        status: student?.archived ? 'Archived' : 'Active',
+        groups: student?.groupNames || '',
+      })
+    }
 
-  if (exportFormat.value === 'csv') {
-    const header = 'Name,Nickname,Grade,Status,Groups\n'
-    const rows = studentData.map(s =>
-      [s.name, s.nickname, s.grade, s.status, `"${s.groups}"`].join(',')
-    ).join('\n')
-    const blob = new Blob([header + rows], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'students-export.csv'
-    a.click()
-    URL.revokeObjectURL(url)
-  } else if (exportFormat.value === 'pdf') {
-    const html = `<html><head><title>Students Export</title><style>
-      body { font-family: sans-serif; padding: 20px; }
-      table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
-      th { background: #f1f5f9; font-weight: 600; }
-    </style></head><body>
-    <h2>Students Export</h2>
-    <table><thead><tr><th>Name</th><th>Nickname</th><th>Grade</th><th>Status</th><th>Groups</th></tr></thead>
-    <tbody>${studentData.map(s => `<tr><td>${s.name}</td><td>${s.nickname}</td><td>${s.grade}</td><td>${s.status}</td><td>${s.groups}</td></tr>`).join('')}</tbody></table>
-    </body></html>`
-    const w = window.open('', '_blank')
-    w.document.write(html)
-    w.document.close()
-    w.print()
-  }
+    if (exportFormat.value === 'csv') {
+      const header = 'Name,Nickname,Grade,Status,Groups\n'
+      const rows = studentData.map(s =>
+        [s.name, s.nickname, s.grade, s.status, `"${s.groups}"`].join(',')
+      ).join('\n')
+      const blob = new Blob([header + rows], { type: 'text/csv' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'students-export.csv'
+      a.click()
+      URL.revokeObjectURL(url)
+    } else if (exportFormat.value === 'pdf') {
+      const html = `<html><head><title>Students Export</title><style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+        th { background: #f1f5f9; font-weight: 600; }
+      </style></head><body>
+      <h2>Students Export</h2>
+      <table><thead><tr><th>Name</th><th>Nickname</th><th>Grade</th><th>Status</th><th>Groups</th></tr></thead>
+      <tbody>${studentData.map(s => `<tr><td>${s.name}</td><td>${s.nickname}</td><td>${s.grade}</td><td>${s.status}</td><td>${s.groups}</td></tr>`).join('')}</tbody></table>
+      </body></html>`
+      const w = window.open('', '_blank')
+      w.document.write(html)
+      w.document.close()
+      w.print()
+    }
 
-  showExportModal.value = false
-  exportFormat.value = null
+    showExportModal.value = false
+    exportFormat.value = null
+    toastSuccess(t('success'))
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    exporting.value = false
+  }
 }
 
 const filteredGroupsForAssign = computed(() => {
@@ -1583,15 +1656,23 @@ function toggleGroupForAssign(gid) {
 }
 
 async function handleAddToGroups() {
-  for (const gid of selectedGroupsForAssign.value) {
-    for (const studentId of selectedStudents.value) {
-      await store.dispatch('groups/addMember', { user_id: studentId, group_id: gid })
+  addingToGroups.value = true
+  try {
+    for (const gid of selectedGroupsForAssign.value) {
+      for (const studentId of selectedStudents.value) {
+        await store.dispatch('groups/addMember', { user_id: studentId, group_id: gid })
+      }
     }
+    showAddToGroupsModal.value = false
+    selectedGroupsForAssign.value = []
+    groupSearchQuery.value = ''
+    toastSuccess(t('success'))
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    addingToGroups.value = false
   }
-  showAddToGroupsModal.value = false
-  selectedGroupsForAssign.value = []
-  groupSearchQuery.value = ''
-  successMessage.value = t('success')
 }
 
 function copyToClipboard(text) {

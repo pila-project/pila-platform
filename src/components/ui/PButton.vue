@@ -2,16 +2,19 @@
   <button
     :class="classes"
     :type="type"
-    :disabled="disabled"
-    :aria-disabled="disabled || undefined"
+    :disabled="disabled || loading"
+    :aria-disabled="disabled || loading || undefined"
     @click="$emit('click', $event)"
   >
-    <template v-if="icon && !iconRight">
+    <template v-if="loading">
+      <LucideIcon name="loader-2" :size="14" :spin="true" :style="icon && !iconRight ? iconStyle : { marginRight: '0.5rem' }" />
+    </template>
+    <template v-else-if="icon && !iconRight">
       <LucideIcon v-if="isLucide" :name="lucideName" :size="14" :style="iconStyle" />
       <i v-else :class="iconClass" :style="iconStyle" />
     </template>
     <slot>{{ text }}</slot>
-    <template v-if="icon && iconRight">
+    <template v-if="!loading && icon && iconRight">
       <LucideIcon v-if="isLucide" :name="lucideName" :size="14" :style="iconStyle" />
       <i v-else :class="iconClass" :style="iconStyle" />
     </template>
@@ -41,6 +44,7 @@ const props = defineProps({
     default: 'button'
   },
   disabled: Boolean,
+  loading: Boolean,
   block: Boolean,
   iconOnly: Boolean,
   destructive: Boolean,
@@ -71,6 +75,7 @@ const classes = computed(() => [
   {
     'w-full': props.block,
     'btn-icon-only': props.iconOnly,
+    'btn-loading': props.loading,
   }
 ])
 </script>
@@ -79,5 +84,9 @@ const classes = computed(() => [
 .btn-icon-only {
   padding: 0.5rem;
   aspect-ratio: 1;
+}
+.btn-loading {
+  opacity: 0.75;
+  cursor: wait;
 }
 </style>

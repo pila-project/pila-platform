@@ -204,14 +204,6 @@
           @update:perPage="contentPerPage = $event; contentPage = 1"
         />
 
-        <!-- Success toast -->
-        <Transition name="fade">
-          <div v-if="successMessage" class="success-toast">
-            <PAlert variant="success" closable @close="successMessage = ''">
-              {{ successMessage }}
-            </PAlert>
-          </div>
-        </Transition>
 
         <PreviewModal
           v-if="previewing"
@@ -377,6 +369,7 @@
     prefetchBatch, invalidate, invalidateNames,
   } from '@/utils/content-cache.js'
   import { PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
+  import { useToast } from '@/utils/useToast.js'
 
   const store = useStore()
   const router = useRouter()
@@ -394,7 +387,7 @@
   const previewing = ref(null)
   const searchQuery = ref('')
   const activeShowTab = ref('all')
-  const successMessage = ref('')
+  const { success: showSuccess } = useToast()
 
   // ── Pagination state ──
   const contentPage = ref(1)
@@ -701,12 +694,6 @@
     showSuccess(itemIds.length + ' ' + t('items-added-to-sequence'))
   }
 
-  // ── Toast ──
-  function showSuccess(msg) {
-    successMessage.value = msg
-    setTimeout(() => successMessage.value = '', 3000)
-  }
-
   // ── Data loading (cache-backed) ──
   async function loadContentData() {
     loading.value = true
@@ -866,24 +853,6 @@
 }
 
 
-
-/* Success toast */
-.success-toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 60;
-  min-width: 280px;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 200ms;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 
 /* Add picker cards */
 .add-picker-cards {

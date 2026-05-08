@@ -20,7 +20,13 @@
 
       <div class="panels">
         <!-- Left: Available students -->
-        <div class="panel">
+        <div
+          class="panel"
+          :class="{ 'panel--drop-target': dragTarget === 'available' }"
+          @dragover.prevent="onDragOver('available')"
+          @dragleave="onDragLeave('available', $event)"
+          @drop.prevent="onDrop('available')"
+        >
           <div class="panel-title-row">
             <h3 class="panel-title">{{ t('available-students') }} ({{ availableStudents.length }})</h3>
             <PButton
@@ -55,6 +61,10 @@
               v-for="student in filteredAvailable"
               :key="student.id"
               class="panel-row"
+              :class="{ 'panel-row--dragging': draggingId === student.id }"
+              draggable="true"
+              @dragstart="onDragStart(student.id, 'available', $event)"
+              @dragend="onDragEnd"
             >
               <label class="panel-checkbox-cell">
                 <input
@@ -66,19 +76,35 @@
               <span class="panel-student-name">
                 <DecryptedName :user="student.id" />
               </span>
-              <button class="panel-drag-handle" @click="addToGroup(student.id)" :title="t('add')">
+              <span class="panel-drag-handle" :title="t('add')">
                 <LucideIcon name="grip-vertical" :size="12" />
-              </button>
+              </span>
             </div>
             <div v-if="!filteredAvailable.length" class="panel-empty">
-              {{ t('no-available-students') }}
+              {{ dragTarget === 'available' ? t('drop-here') : t('no-available-students') }}
             </div>
           </div>
         </div>
 
         <!-- Right: Group students -->
-        <div class="panel">
-          <h3 class="panel-title">{{ t('students-in-group') }} '{{ groupName }}' ({{ groupStudents.length }})</h3>
+        <div
+          class="panel"
+          :class="{ 'panel--drop-target': dragTarget === 'group' }"
+          @dragover.prevent="onDragOver('group')"
+          @dragleave="onDragLeave('group', $event)"
+          @drop.prevent="onDrop('group')"
+        >
+          <div class="panel-title-row">
+            <h3 class="panel-title">{{ t('students-in-group') }} '{{ groupName }}' ({{ groupStudents.length }})</h3>
+            <PButton
+              v-if="selectedGroup.size"
+              variant="danger"
+              size="sm"
+              icon="lucide:user-minus"
+              :text="`${t('remove-selected')} (${selectedGroup.size})`"
+              @click="removeSelectedFromGroup"
+            />
+          </div>
           <div class="panel-search">
             <input
               v-model="groupSearch"
@@ -102,6 +128,10 @@
               v-for="student in filteredGroup"
               :key="student.id"
               class="panel-row"
+              :class="{ 'panel-row--dragging': draggingId === student.id }"
+              draggable="true"
+              @dragstart="onDragStart(student.id, 'group', $event)"
+              @dragend="onDragEnd"
             >
               <label class="panel-checkbox-cell">
                 <input
@@ -113,26 +143,15 @@
               <span class="panel-student-name">
                 <DecryptedName :user="student.id" />
               </span>
-              <button class="panel-drag-handle" @click="removeFromGroup(student.id)" :title="t('remove')">
+              <span class="panel-drag-handle" :title="t('remove')">
                 <LucideIcon name="grip-vertical" :size="12" />
-              </button>
+              </span>
             </div>
             <div v-if="!filteredGroup.length" class="panel-empty">
-              {{ t('no-students-in-group') }}
+              {{ dragTarget === 'group' ? t('drop-here') : t('no-students-in-group') }}
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Bulk remove button -->
-      <div v-if="selectedGroup.size" class="bulk-actions">
-        <PButton
-          variant="danger"
-          size="sm"
-          icon="lucide:user-minus"
-          :text="`${t('remove-selected')} (${selectedGroup.size})`"
-          @click="removeSelectedFromGroup"
-        />
       </div>
     </template>
 
@@ -142,7 +161,7 @@
       </div>
       <div class="modal-footer-right">
         <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
-        <PButton variant="primary" :text="t('save')" @click="$emit('close')" />
+        <PButton variant="primary" :text="t('done')" @click="$emit('close')" />
       </div>
     </template>
   </PModal>
@@ -154,6 +173,7 @@ import { useStore } from 'vuex'
 import { PModal, PButton } from '@/components/ui/index.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { useToast } from '@/utils/useToast.js'
 
 const props = defineProps({
   groupId: { type: String, required: true },
@@ -164,11 +184,17 @@ defineEmits(['close'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+const { error: toastError } = useToast()
 
 const availableSearch = ref('')
 const groupSearch = ref('')
 const selectedAvailable = reactive(new Set())
 const selectedGroup = reactive(new Set())
+
+// Drag state
+const draggingId = ref(null)
+const dragSource = ref(null)
+const dragTarget = ref(null)
 
 const groupName = computed(() => store.state.groups.groups[props.groupId]?.name || t('unnamed'))
 
@@ -234,6 +260,54 @@ function toggleAllGroup() {
   }
 }
 
+// Drag handlers
+function onDragStart(studentId, source, event) {
+  draggingId.value = studentId
+  dragSource.value = source
+  event.dataTransfer.effectAllowed = 'move'
+  event.dataTransfer.setData('text/plain', studentId)
+}
+
+function onDragEnd() {
+  draggingId.value = null
+  dragSource.value = null
+  dragTarget.value = null
+}
+
+function onDragOver(target) {
+  // Only highlight if dragging to the opposite panel
+  if (dragSource.value && dragSource.value !== target) {
+    dragTarget.value = target
+  }
+}
+
+function onDragLeave(target, event) {
+  // Only clear if actually leaving the panel (not entering a child)
+  if (!event.currentTarget.contains(event.relatedTarget)) {
+    if (dragTarget.value === target) dragTarget.value = null
+  }
+}
+
+async function onDrop(target) {
+  const studentId = draggingId.value
+  dragTarget.value = null
+  draggingId.value = null
+
+  if (!studentId || dragSource.value === target) return
+
+  try {
+    if (target === 'group') {
+      await addToGroup(studentId)
+    } else {
+      await removeFromGroup(studentId)
+    }
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  }
+  dragSource.value = null
+}
+
 // Actions
 async function addToGroup(userId) {
   await store.dispatch('groups/addMember', { user_id: userId, group_id: props.groupId })
@@ -290,6 +364,15 @@ async function removeSelectedFromGroup() {
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  padding: 4px;
+  transition: border-color 200ms, background 200ms;
+}
+
+.panel--drop-target {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50);
 }
 
 .panel-title-row {
@@ -350,13 +433,21 @@ async function removeSelectedFromGroup() {
   gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--color-slate-100);
-  transition: background 150ms;
+  transition: background 150ms, opacity 150ms;
+  cursor: grab;
+  user-select: none;
 }
 .panel-row:hover {
   background: var(--color-slate-50);
 }
 .panel-row:last-child {
   border-bottom: none;
+}
+.panel-row:active {
+  cursor: grabbing;
+}
+.panel-row--dragging {
+  opacity: 0.4;
 }
 
 .panel-student-name {
@@ -393,15 +484,6 @@ async function removeSelectedFromGroup() {
   text-align: center;
   color: var(--color-slate-400);
   font-size: 13px;
-}
-
-.bulk-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-slate-200);
 }
 
 /* Footer layout */
