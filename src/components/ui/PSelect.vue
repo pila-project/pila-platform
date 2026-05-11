@@ -21,7 +21,7 @@
         {{ item.title }}
       </option>
     </select>
-    <LucideIcon name="chevron-down" :size="10" class="select-chevron" />
+    <LucideIcon name="chevron-down" :size="16" class="select-chevron" />
     <p v-if="error" class="mt-1 text-xs text-danger-600">{{ error }}</p>
   </div>
 </template>

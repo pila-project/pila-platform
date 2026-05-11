@@ -53,14 +53,14 @@
         />
         <PInput
           v-model="dueDate"
-          :label="t('due-date-optional')"
+          :label="t('due-date')"
           :placeholder="t('date-format-placeholder')"
           type="date"
         />
       </div>
       <PInput
         v-model="dueTime"
-        :label="t('due-time-optional')"
+        :label="t('due-time')"
         :placeholder="t('time-format-placeholder')"
         type="time"
       />
@@ -1186,6 +1186,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;
+  max-width: 560px;
 }
 
 .toggle-content {

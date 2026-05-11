@@ -15,7 +15,7 @@
       <!-- Info banner -->
       <div class="info-banner">
         <LucideIcon name="info" :size="16" />
-        <span>{{ t('drag-students-info') }}</span>
+        <span>{{ t('drag-students-between-panels') }}</span>
       </div>
 
       <div class="panels">
@@ -31,7 +31,7 @@
             <h3 class="panel-title">{{ t('available-students') }} ({{ availableStudents.length }})</h3>
             <PButton
               v-if="selectedAvailable.size"
-              variant="primary"
+              variant="secondary"
               size="sm"
               icon="lucide:user-plus"
               :text="`${t('add-selected')} (${selectedAvailable.size})`"
@@ -98,7 +98,7 @@
             <h3 class="panel-title">{{ t('students-in-group') }} '{{ groupName }}' ({{ groupStudents.length }})</h3>
             <PButton
               v-if="selectedGroup.size"
-              variant="danger"
+              variant="secondary"
               size="sm"
               icon="lucide:user-minus"
               :text="`${t('remove-selected')} (${selectedGroup.size})`"
@@ -143,6 +143,9 @@
               <span class="panel-student-name">
                 <DecryptedName :user="student.id" />
               </span>
+              <button class="panel-remove-btn" :title="t('remove')" @click="removeFromGroup(student.id)">
+                <LucideIcon name="trash-2" :size="14" />
+              </button>
               <span class="panel-drag-handle" :title="t('remove')">
                 <LucideIcon name="grip-vertical" :size="12" />
               </span>
@@ -157,7 +160,7 @@
 
     <template #footer>
       <div class="modal-footer-left">
-        <PButton variant="outline" :text="t('back')" @click="$emit('close')" />
+        <PButton v-if="showBack" variant="outline" :text="t('back')" @click="$emit('back')" />
       </div>
       <div class="modal-footer-right">
         <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
@@ -168,7 +171,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { PModal, PButton } from '@/components/ui/index.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
@@ -178,9 +181,10 @@ import { useToast } from '@/utils/useToast.js'
 const props = defineProps({
   groupId: { type: String, required: true },
   students: { type: Array, default: () => [] },
+  showBack: { type: Boolean, default: false },
 })
 
-defineEmits(['close'])
+defineEmits(['close', 'back'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -190,6 +194,20 @@ const availableSearch = ref('')
 const groupSearch = ref('')
 const selectedAvailable = reactive(new Set())
 const selectedGroup = reactive(new Set())
+
+// Decrypted name lookup for search
+const nameMap = reactive({})
+
+onMounted(async () => {
+  for (const student of props.students) {
+    try {
+      const info = await store.getters.decryptUserInfo(student.id, false)
+      nameMap[student.id] = (info?.name || '').toLowerCase()
+    } catch {
+      nameMap[student.id] = ''
+    }
+  }
+})
 
 // Drag state
 const draggingId = ref(null)
@@ -211,13 +229,13 @@ const availableStudents = computed(() =>
 const filteredAvailable = computed(() => {
   if (!availableSearch.value) return availableStudents.value
   const q = availableSearch.value.toLowerCase()
-  return availableStudents.value.filter(s => s.id.toLowerCase().includes(q))
+  return availableStudents.value.filter(s => (nameMap[s.id] || '').includes(q))
 })
 
 const filteredGroup = computed(() => {
   if (!groupSearch.value) return groupStudents.value
   const q = groupSearch.value.toLowerCase()
-  return groupStudents.value.filter(s => s.id.toLowerCase().includes(q))
+  return groupStudents.value.filter(s => (nameMap[s.id] || '').includes(q))
 })
 
 // Selection helpers
@@ -290,16 +308,30 @@ function onDragLeave(target, event) {
 
 async function onDrop(target) {
   const studentId = draggingId.value
+  const source = dragSource.value
   dragTarget.value = null
   draggingId.value = null
 
-  if (!studentId || dragSource.value === target) return
+  if (!studentId || source === target) return
 
   try {
     if (target === 'group') {
-      await addToGroup(studentId)
+      // If the dragged student is part of a multi-selection, move all selected
+      if (selectedAvailable.has(studentId) && selectedAvailable.size > 1) {
+        const ids = [...selectedAvailable]
+        for (const id of ids) await addToGroup(id)
+        selectedAvailable.clear()
+      } else {
+        await addToGroup(studentId)
+      }
     } else {
-      await removeFromGroup(studentId)
+      if (selectedGroup.has(studentId) && selectedGroup.size > 1) {
+        const ids = [...selectedGroup]
+        for (const id of ids) await removeFromGroup(id)
+        selectedGroup.clear()
+      } else {
+        await removeFromGroup(studentId)
+      }
     }
   } catch (e) {
     console.error(e)
@@ -458,6 +490,25 @@ async function removeSelectedFromGroup() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.panel-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  color: var(--color-slate-400);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 150ms;
+}
+.panel-remove-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .panel-drag-handle {

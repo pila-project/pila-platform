@@ -316,7 +316,9 @@
       v-if="manageGroupId"
       :group-id="manageGroupId"
       :students="students"
-      @close="manageGroupId = null"
+      :show-back="manageGroupShowBack"
+      @close="manageGroupId = null; manageGroupShowBack = false"
+      @back="manageGroupId = null; manageGroupShowBack = false; showCreateGroupModal = true"
     />
 
     <!-- Add Student Option Picker -->
@@ -587,6 +589,17 @@
       :cancel-text="t('cancel')"
       @confirm="executeDeleteGroup"
       @cancel="deleteConfirmGroup = null"
+    />
+
+    <!-- Success Confirmation -->
+    <PAlertDialog
+      v-if="successDialog.show"
+      variant="success"
+      :title="successDialog.message"
+      :confirm-text="t('done')"
+      cancel-text=""
+      @confirm="dismissSuccessDialog"
+      @cancel="dismissSuccessDialog"
     />
 
     <!-- CSV Upload Modal -->
@@ -942,6 +955,7 @@ import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import { useToast } from '@/utils/useToast.js'
+import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
 import * as encryption from '@/utils/encryption.js'
 
 const store = useStore()
@@ -972,6 +986,7 @@ const newGroupSubject = ref('')
 const searchQuery = ref('')
 const selectedStudents = ref([])
 const manageGroupId = ref(null)
+const manageGroupShowBack = ref(false)
 const activeGradeFilters = ref([])
 const activeStatusFilters = ref([])
 const activeGroupFilters = ref([])
@@ -996,7 +1011,8 @@ const bulkEntryRows = ref([
   { name: '', nickname: '', grade: '' },
 ])
 // ── Toast notifications ──
-const { success: toastSuccess, error: toastError } = useToast()
+const { error: toastError } = useToast()
+const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
 
 // ── Loading states ──
 const creatingStudent = ref(false)
@@ -1194,8 +1210,10 @@ async function handleCreateGroup() {
     newGroupGrade.value = ''
     newGroupSubject.value = ''
     showCreateGroupModal.value = false
-    toastSuccess(t('success'))
-    manageGroupId.value = id
+    showSuccessDialog(t('success'), () => {
+      manageGroupShowBack.value = true
+      manageGroupId.value = id
+    })
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1223,7 +1241,7 @@ async function handleSaveGroup() {
     await Agent.synced()
     await store.dispatch('groups/loadGroups')
     editGroupId.value = null
-    toastSuccess(t('success'))
+    showSuccessDialog(t('success'))
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1308,7 +1326,7 @@ async function executeDeleteStudent() {
       }
     }
     deleteConfirmStudent.value = null
-    toastSuccess(t('success'))
+    showSuccessDialog(t('success'))
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1339,8 +1357,9 @@ async function executeResetPassword() {
     const usersState = await Agent.state('users')
     if (usersState[studentId]) usersState[studentId].secret = newSecret
     resetPasswordStudent.value = null
-    loginCodeStudent.value = { id: studentId }
-    toastSuccess(t('success'))
+    showSuccessDialog(t('success'), () => {
+      loginCodeStudent.value = { id: studentId }
+    })
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1360,7 +1379,7 @@ async function executeDeleteGroup() {
   try {
     await store.dispatch('groups/archive', deleteConfirmGroup.value)
     deleteConfirmGroup.value = null
-    toastSuccess(t('success'))
+    showSuccessDialog(t('success'))
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1438,8 +1457,9 @@ async function createStudentAccount() {
     newStudentName.value = ''
     newStudentNickname.value = ''
     newStudentGrade.value = ''
-    toastSuccess(t('success'))
-    openLoginCodeModal({ id, secret: userSecret })
+    showSuccessDialog(t('success'), () => {
+      openLoginCodeModal({ id, secret: userSecret })
+    })
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1513,7 +1533,7 @@ async function handleCSVImport() {
     }
     showCSVUploadModal.value = false
     csvFile.value = null
-    toastSuccess(`${created} ${t('student')} ${t('created')}`)
+    showSuccessDialog(`${created} ${t('student')} ${t('created')}`)
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1549,7 +1569,7 @@ async function handleBulkCreate() {
       { name: '', nickname: '', grade: '' },
       { name: '', nickname: '', grade: '' },
     ]
-    toastSuccess(`${created} ${t('student')} ${t('created')}`)
+    showSuccessDialog(`${created} ${t('student')} ${t('created')}`)
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1625,7 +1645,7 @@ async function handleExport() {
 
     showExportModal.value = false
     exportFormat.value = null
-    toastSuccess(t('success'))
+    showSuccessDialog(t('success'))
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1666,7 +1686,7 @@ async function handleAddToGroups() {
     showAddToGroupsModal.value = false
     selectedGroupsForAssign.value = []
     groupSearchQuery.value = ''
-    toastSuccess(t('success'))
+    showSuccessDialog(t('success'))
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))

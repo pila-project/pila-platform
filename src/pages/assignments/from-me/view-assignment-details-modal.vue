@@ -249,7 +249,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,7 +263,7 @@
 
 .modal-dialog {
   position: relative;
-  z-index: 50;
+  z-index: 61;
   display: flex;
   flex-direction: column;
   background: white;

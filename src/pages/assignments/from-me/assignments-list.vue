@@ -73,9 +73,9 @@
                   @change="toggleSelectAll"
                 />
               </th>
-              <th class="assign-th assign-th-title">{{ t('assignment-title') }} <LucideIcon name="arrow-up-down" :size="10" class="assign-sort-icon" /></th>
-              <th class="assign-th assign-th-date">{{ t('due-date') }} <LucideIcon name="arrow-up-down" :size="10" class="assign-sort-icon" /></th>
-              <th class="assign-th assign-th-status">{{ t('publication-status') }} <LucideIcon name="arrow-up-down" :size="10" class="assign-sort-icon" /></th>
+              <th class="assign-th assign-th-title assign-th-sortable" @click="toggleSort('title')">{{ t('assignment-title') }} <LucideIcon :name="sortIcon('title')" :size="10" class="assign-sort-icon" /></th>
+              <th class="assign-th assign-th-date assign-th-sortable" @click="toggleSort('dueDate')">{{ t('due-date') }} <LucideIcon :name="sortIcon('dueDate')" :size="10" class="assign-sort-icon" /></th>
+              <th class="assign-th assign-th-status assign-th-sortable" @click="toggleSort('status')">{{ t('publication-status') }} <LucideIcon :name="sortIcon('status')" :size="10" class="assign-sort-icon" /></th>
               <th class="assign-th assign-th-assigned">{{ t('assigned-to') }}</th>
               <th class="assign-th assign-th-submissions">{{ t('assignment-submissions') }}</th>
               <th class="assign-th assign-th-actions">{{ t('actions') }}</th>
@@ -168,7 +168,7 @@
                 <PMenu alignRight>
                   <template #activator="{ props }">
                     <button class="assign-action-btn" @click="props.onClick">
-                      <LucideIcon name="ellipsis" :size="14" />
+                      <LucideIcon name="ellipsis-vertical" :size="14" />
                     </button>
                   </template>
                   <PMenuItem
@@ -177,45 +177,47 @@
                     @click="viewDetails(item)"
                   />
                   <PMenuItem
-                    :title="t('view-analytics-dashboard')"
-                    :prepend-icon="dashboardSubmenuItem === item ? 'lucide:chevron-up' : 'lucide:chevron-down'"
-                    keepOpen
-                    @click.prevent="toggleDashboardSubmenu(item)"
-                  />
-                  <template v-if="dashboardSubmenuItem === item">
-                    <PMenuItem
-                      :title="t('app-specific-dashboard')"
-                      class="menu-item-indent"
-                      @click="openDashboard(item)"
-                    />
-                    <PMenuItem
-                      :title="t('live-monitoring-dashboard')"
-                      class="menu-item-indent"
-                      @click="openLiveDashboard(item)"
-                    />
-                    <PMenuItem
-                      v-if="assignmentContainsCandli"
-                      :title="t('competency-dashboard')"
-                      class="menu-item-indent"
-                      @click="openCandliDashboard(item)"
-                    />
-                    <PMenuItem
-                      v-if="assignmentContainsGenAI"
-                      :title="t('generative-ai-module-dashboard')"
-                      class="menu-item-indent"
-                      @click="openGenAIDashboard(item)"
-                    />
-                  </template>
-                  <PMenuItem
                     :title="t('edit-assignment')"
                     prepend-icon="lucide:pencil"
                     @click="openEdit(item)"
                   />
-                  <PMenuItem
-                    :title="t('view-submissions')"
-                    prepend-icon="lucide:bar-chart"
-                    @click="openSubmissions(item)"
-                  />
+                  <template v-if="getStatus(item) === 'Published'">
+                    <PMenuItem
+                      :title="t('view-submissions')"
+                      prepend-icon="lucide:bar-chart"
+                      @click="openSubmissions(item)"
+                    />
+                    <PMenuItem
+                      :title="t('view-analytics-dashboard')"
+                      :prepend-icon="dashboardSubmenuItem === item ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+                      keepOpen
+                      @click.prevent="toggleDashboardSubmenu(item)"
+                    />
+                    <template v-if="dashboardSubmenuItem === item">
+                      <PMenuItem
+                        :title="t('app-specific-dashboard')"
+                        class="menu-item-indent"
+                        @click="openDashboard(item)"
+                      />
+                      <PMenuItem
+                        :title="t('live-monitoring-dashboard')"
+                        class="menu-item-indent"
+                        @click="openLiveDashboard(item)"
+                      />
+                      <PMenuItem
+                        v-if="assignmentContainsCandli"
+                        :title="t('competency-dashboard')"
+                        class="menu-item-indent"
+                        @click="openCandliDashboard(item)"
+                      />
+                      <PMenuItem
+                        v-if="assignmentContainsGenAI"
+                        :title="t('generative-ai-module-dashboard')"
+                        class="menu-item-indent"
+                        @click="openGenAIDashboard(item)"
+                      />
+                    </template>
+                  </template>
                   <PMenuItem
                     :title="t('duplicate')"
                     prepend-icon="lucide:copy"
@@ -422,6 +424,17 @@
     @confirm="confirmArchive"
     @cancel="showArchiveDialog = false"
   />
+
+  <!-- Success Confirmation -->
+  <PAlertDialog
+    v-if="successDialog.show"
+    variant="success"
+    :title="successDialog.message"
+    :confirm-text="t('done')"
+    cancel-text=""
+    @confirm="dismissSuccessDialog"
+    @cancel="dismissSuccessDialog"
+  />
 </template>
 
 <script setup>
@@ -431,7 +444,7 @@
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection } from '@/components/ui/index.js'
-  import { useToast } from '@/utils/useToast.js'
+  import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
   import Dashboard from './dashboard/index.vue'
@@ -470,8 +483,27 @@
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
   const dashboardSubmenuItem = ref(null)
-  const { success: toastSuccess } = useToast()
+  const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
   const wasCreating = ref(false)
+
+  // ── Sort state ──
+  const sortField = ref(null) // 'title' | 'dueDate' | 'status'
+  const sortDir = ref('asc') // 'asc' | 'desc'
+
+  function toggleSort(field) {
+    if (sortField.value === field) {
+      if (sortDir.value === 'asc') sortDir.value = 'desc'
+      else { sortField.value = null; sortDir.value = 'asc' }
+    } else {
+      sortField.value = field
+      sortDir.value = 'asc'
+    }
+  }
+
+  function sortIcon(field) {
+    if (sortField.value !== field) return 'arrow-up-down'
+    return sortDir.value === 'asc' ? 'arrow-up' : 'arrow-down'
+  }
 
   // ── Filter state ──
   const statusFilter = ref([])
@@ -605,6 +637,28 @@
       items = items.filter(id => {
         const groups = getAssignedGroups(id)
         return assignedToFilter.value.some(val => groups.includes(val))
+      })
+    }
+
+    // Sort
+    if (sortField.value) {
+      const dir = sortDir.value === 'asc' ? 1 : -1
+      items = [...items].sort((a, b) => {
+        const da = assignmentData[a]
+        const db = assignmentData[b]
+        if (!da || !db) return 0
+        if (sortField.value === 'title') {
+          return dir * (da.name || '').localeCompare(db.name || '')
+        }
+        if (sortField.value === 'dueDate') {
+          const ta = da.dueDate ? new Date(da.dueDate).getTime() : 0
+          const tb = db.dueDate ? new Date(db.dueDate).getTime() : 0
+          return dir * (ta - tb)
+        }
+        if (sortField.value === 'status') {
+          return dir * getStatus(a).localeCompare(getStatus(b))
+        }
+        return 0
       })
     }
 
@@ -890,7 +944,7 @@
         }
         // Show success dialog after creating a new assignment
         if (wasCreating.value) {
-          toastSuccess(t('assignment-successfully-created'))
+          showSuccessDialog(t('assignment-successfully-created'))
         }
       }
       wasCreating.value = false
@@ -959,6 +1013,14 @@
 .assign-th-assigned { width: 195px; }
 .assign-th-submissions { width: 236px; }
 .assign-th-actions { width: 92px; }
+
+.assign-th-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.assign-th-sortable:hover {
+  color: #334155;
+}
 
 .assign-sort-icon {
   font-size: 10px;

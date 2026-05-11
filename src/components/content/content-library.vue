@@ -260,6 +260,17 @@
       @cancel="sequenceToDelete = null"
     />
 
+    <!-- Success Confirmation -->
+    <PAlertDialog
+      v-if="successDialog.show"
+      variant="success"
+      :title="successDialog.message"
+      :confirm-text="t('done')"
+      cancel-text=""
+      @confirm="dismissSuccessDialog"
+      @cancel="dismissSuccessDialog"
+    />
+
     <!-- Sequence Preview Modal -->
     <SequencePreviewModal
       v-if="sequenceToPreview"
@@ -280,7 +291,7 @@
       v-if="showCreateAssignment"
       :contentIds="createAssignmentContentIds"
       @close="showCreateAssignment = false; createAssignmentContentIds = []"
-      @created="showSuccess(t('assignment-created-successfully'))"
+      @created="showSuccessDialog(t('assignment-created-successfully'))"
     />
 
     <!-- Add item/sequence picker -->
@@ -369,7 +380,7 @@
     prefetchBatch, invalidate, invalidateNames,
   } from '@/utils/content-cache.js'
   import { PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
-  import { useToast } from '@/utils/useToast.js'
+  import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
 
   const store = useStore()
   const router = useRouter()
@@ -387,7 +398,7 @@
   const previewing = ref(null)
   const searchQuery = ref('')
   const activeShowTab = ref('all')
-  const { success: showSuccess } = useToast()
+  const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
 
   // ── Pagination state ──
   const contentPage = ref(1)
@@ -429,7 +440,7 @@
   function onCopyModifyCreated(id) {
     if (!myContent.includes(id)) myContent.push(id)
     copyModifyId.value = null
-    showSuccess(t('content-copied-successfully'))
+    showSuccessDialog(t('content-copied-successfully'))
   }
 
   // ── Add picker state ──
@@ -616,12 +627,12 @@
     mySequenceIds.value.unshift(id)
     newestSequenceId.value = id
     showCreateSequence.value = false
-    showSuccess(t('sequence-created-successfully'))
+    showSuccessDialog(t('sequence-created-successfully'))
   }
 
   async function onSequenceUpdated() {
     sequenceToEdit.value = null
-    showSuccess(t('sequence-updated'))
+    showSuccessDialog(t('sequence-updated'))
   }
 
   async function confirmDeleteSequence() {
@@ -633,7 +644,7 @@
     mySequenceIds.value = mySequenceIds.value.filter(s => s !== id)
     if (selectedSequence.value === id) selectedSequence.value = null
     sequenceToDelete.value = null
-    showSuccess(t('sequence-deleted'))
+    showSuccessDialog(t('sequence-deleted'))
   }
 
   // ── Add to sequence/assignment ──
@@ -691,7 +702,7 @@
     }
     // Force sequence cards to re-render so they show the new items
     sequenceVersion.value++
-    showSuccess(itemIds.length + ' ' + t('items-added-to-sequence'))
+    showSuccessDialog(itemIds.length + ' ' + t('items-added-to-sequence'))
   }
 
   // ── Data loading (cache-backed) ──
