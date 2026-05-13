@@ -635,7 +635,7 @@
           </div>
           <div class="csv-info-text">
             <LucideIcon name="info" :size="14" />
-            <span>{{ t('csv-required-columns') }}: First name ({{ t('required') }}), Last name, Nickname, Grade ({{ t('required') }})</span>
+            <span>{{ t('csv-required-columns') }}: Name ({{ t('required') }}), Nickname, Grade ({{ t('required') }})</span>
           </div>
         </div>
       </template>
@@ -1499,6 +1499,36 @@ const validBulkRows = computed(() =>
   bulkEntryRows.value.some(r => r.name.trim() && r.grade)
 )
 
+function parseCSVLine(line) {
+  const cols = []
+  let current = ''
+  let inQuotes = false
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') {
+        current += '"'
+        i++
+      } else if (ch === '"') {
+        inQuotes = false
+      } else {
+        current += ch
+      }
+    } else if (ch === '"') {
+      inQuotes = true
+    } else if (ch === ',') {
+      cols.push(current.trim())
+      current = ''
+    } else {
+      current += ch
+    }
+  }
+  cols.push(current.trim())
+  return cols
+}
+
+const validGrades = new Set(['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
+
 async function handleCSVImport() {
   if (!csvFile.value) return
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
@@ -1517,23 +1547,40 @@ async function handleCSVImport() {
   try {
     const text = await csvFile.value.text()
     const lines = text.split(/\r?\n/).filter(l => l.trim())
-    if (lines.length < 2) return // header only
+    if (lines.length < 2) {
+      toastError(t('something-went-wrong'))
+      return
+    }
     const header = lines[0].toLowerCase()
     const hasHeader = header.includes('name')
     const dataLines = hasHeader ? lines.slice(1) : lines
     let created = 0
+    let skipped = 0
     for (const line of dataLines) {
-      const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
-      const name = cols[0]
+      const cols = parseCSVLine(line)
+      const name = cols[0] || ''
       const nickname = cols[1] || ''
       const grade = cols[2] || ''
-      if (!name) continue
-      await createSingleStudent(name, nickname, grade)
-      created++
+      if (!name.trim()) { skipped++; continue }
+      if (grade && !validGrades.has(grade)) { skipped++; continue }
+      try {
+        await createSingleStudent(name, nickname, grade)
+        created++
+      } catch (e) {
+        console.error('Failed to create student from CSV row:', e)
+        skipped++
+      }
     }
     showCSVUploadModal.value = false
     csvFile.value = null
-    showSuccessDialog(`${created} ${t('student')} ${t('created')}`)
+    const msg = skipped > 0
+      ? `${created} ${t('student')} ${t('created')}, ${skipped} ${t('skipped')}`
+      : `${created} ${t('student')} ${t('created')}`
+    if (created > 0) {
+      showSuccessDialog(msg)
+    } else {
+      toastError(msg)
+    }
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
