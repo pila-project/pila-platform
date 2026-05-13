@@ -148,7 +148,8 @@
   flex-direction: column;
 }
 .pcard:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border: 1px solid #cbd5e1;
 }
 .pcard-selected {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);

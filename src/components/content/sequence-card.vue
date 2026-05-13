@@ -22,6 +22,7 @@
             <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="expanded = true" />
             <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
             <PMenuItem :title="t('preview-sequence')" prepend-icon="lucide:eye" @click="$emit('preview')" />
+            <PMenuItem :title="t('archive-sequence')" prepend-icon="lucide:archive" @click="$emit('archive')" />
             <PMenuItem :title="t('delete-sequence')" prepend-icon="lucide:trash-2" danger @click="$emit('delete')" />
           </PMenu>
         </div>
@@ -115,7 +116,7 @@ const props = defineProps({
   version: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['select', 'edit', 'delete', 'preview', 'drop-item'])
+const emit = defineEmits(['select', 'edit', 'delete', 'archive', 'preview', 'drop-item'])
 
 const isDragOver = ref(false)
 

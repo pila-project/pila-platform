@@ -1,6 +1,6 @@
 <template>
   <PModal
-    width="480px"
+    width="520px"
     @close="$emit('close')"
   >
     <template #title>
@@ -23,13 +23,14 @@
       <div class="flex flex-col gap-4" :class="{ 'mt-4': !isEdit }">
         <PInput
           v-model="name"
-          :label="isEdit ? t('sequence-name') : t('sequence-title') + '*'"
-          :placeholder="t('sequence-name-placeholder')"
+          :label="t('sequence-title')"
+          required
+          :placeholder="t('enter-sequence-title')"
         />
         <PInput
           v-model="description"
           :label="t('description')"
-          :placeholder="t('sequence-description-placeholder')"
+          :placeholder="t('describe-your-sequence')"
           multiline
           :rows="3"
         />

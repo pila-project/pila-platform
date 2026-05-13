@@ -31,6 +31,7 @@
             @select="selectSequence(seqId); mobileSeqExpanded = false"
             @edit="editSequence(seqId)"
             @delete="sequenceToDelete = seqId"
+            @archive="archiveSequence(seqId)"
             @preview="sequenceToPreview = seqId"
             @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
           />
@@ -67,6 +68,7 @@
               @select="selectSequence(seqId)"
               @edit="editSequence(seqId)"
               @delete="sequenceToDelete = seqId"
+              @archive="archiveSequence(seqId)"
               @preview="sequenceToPreview = seqId"
               @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
             />
@@ -89,11 +91,11 @@
                 <LucideIcon name="clipboard-list" :size="16" class="text-primary-600" />
                 {{ t('explore-content-library') }}
               </h2>
-              <p class="text-xs text-slate-500 mt-1">{{ t('discover-customise-and-add-content') }}</p>
+              <p class="text-xs text-slate-500 mt-1">{{ t('discover-customise-and-add-content-to-your-assignments') }}</p>
             </div>
             <PButton
               v-if="selectedItems.size"
-              variant="primary"
+              variant="secondary"
               icon="lucide:plus"
               :text="t('add-selected') + ' (' + selectedItems.size + ')'"
               @click="addSelectedToSequence"
@@ -133,13 +135,6 @@
           <span class="selection-count">{{ selectedItems.size }} {{ t('items-selected') }}</span>
           <div style="flex:1" />
           <PButton variant="ghost" size="sm" :text="t('deselect-all')" @click="deselectAll" />
-          <PButton
-            variant="primary"
-            size="sm"
-            icon="lucide:plus"
-            :text="t('add-selected') + ' (' + selectedItems.size + ')'"
-            @click="addSelectedToSequence"
-          />
         </div>
 
         <!-- Empty state: selected sequence with no items -->
@@ -253,7 +248,7 @@
       v-if="sequenceToDelete"
       variant="error"
       :title="t('confirm-delete-sequence')"
-      :description="t('delete-sequence-warning')"
+      :description="t('this-will-permanently-delete-the-sequence-and-cannot-be-undone')"
       :confirmText="t('delete')"
       :cancelText="t('cancel')"
       @confirm="confirmDeleteSequence"
@@ -298,7 +293,7 @@
     <PModal
       v-if="showAddPicker"
       :title="addPickerStep === 'choose' ? t('add-item-or-sequence') : addPickerStep === 'sequence' ? t('add-to-sequence') : t('add-to-assignment')"
-      width="480px"
+      width="520px"
       @close="closeAddPicker"
     >
       <template #body>
@@ -633,6 +628,15 @@
   async function onSequenceUpdated() {
     sequenceToEdit.value = null
     showSuccessDialog(t('sequence-updated'))
+  }
+
+  async function archiveSequence(id) {
+    const state = await Agent.state(id)
+    state.archived = true
+    await Agent.synced()
+    mySequenceIds.value = mySequenceIds.value.filter(s => s !== id)
+    if (selectedSequence.value === id) selectedSequence.value = null
+    showSuccessDialog(t('sequence-archived'))
   }
 
   async function confirmDeleteSequence() {

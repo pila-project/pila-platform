@@ -25,7 +25,8 @@
         <div class="flex flex-col gap-4 mt-4">
           <PInput
             v-model="form.title"
-            :label="t('new-title') + '*'"
+            :label="t('new-title')"
+            required
             :placeholder="t('copy-of') + '...'"
           />
           <PInput
@@ -37,7 +38,7 @@
           />
           <PInput
             v-model="form.notes"
-            :label="t('customization-notes-optional')"
+            :label="t('customization-notes')"
             :placeholder="t('describe-changes-planned')"
             multiline
             :rows="2"
