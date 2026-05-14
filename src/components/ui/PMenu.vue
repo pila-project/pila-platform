@@ -54,6 +54,8 @@ function updateAnchorRect() {
   }
 }
 
+const autoFlip = ref(false)
+
 const floatingStyle = computed(() => {
   if (!anchorRect.value) return {}
   const r = anchorRect.value
@@ -65,7 +67,7 @@ const floatingStyle = computed(() => {
     style.left = `${r.left}px`
   }
 
-  if (props.openUp) {
+  if (props.openUp || autoFlip.value) {
     style.bottom = `${window.innerHeight - r.top + 4}px`
   } else {
     style.top = `${r.bottom + 4}px`
@@ -97,7 +99,15 @@ function focusPrev() {
 
 watch(isOpen, async (open) => {
   if (open) {
+    autoFlip.value = false
     await nextTick()
+    // Auto-flip upward if dropdown extends beyond viewport
+    if (!props.openUp && dropdownRef.value) {
+      const rect = dropdownRef.value.getBoundingClientRect()
+      if (rect.bottom > window.innerHeight) {
+        autoFlip.value = true
+      }
+    }
     const items = getMenuItems()
     if (items.length) items[0].focus()
   }

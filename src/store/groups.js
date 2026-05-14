@@ -179,7 +179,7 @@ export default {
       await dispatch('loadGroups')
       return id
     },
-    async addMember({ state, getters, dispatch }, { user_id, group_id }) {
+    async addMember({ commit, state, getters, dispatch }, { user_id, group_id, defer }) {
       if (getters.belongs(user_id, group_id)) return
 
       // Reinstate an archived member if one exists
@@ -188,14 +188,22 @@ export default {
       )
       if (archivedEntry) {
         const [existingId] = archivedEntry
+        // Optimistic update: immediately mark as unarchived in Vuex
+        commit('addMember', { id: existingId, user_id, group_id, archived: false })
+
         const memberState = await Agent.state(existingId)
         memberState.archived = false
-        await Agent.synced()
-        await dispatch('loadMembers')
+        if (!defer) {
+          await Agent.synced()
+          await dispatch('loadMembers')
+        }
         return existingId
       }
 
       const id = uuid()
+      // Optimistic update: immediately add to Vuex before async persistence
+      commit('addMember', { id, user_id, group_id, archived: false })
+
       const metadata = await Agent.metadata(id)
       if (metadata.active_type !== GROUP_TYPE) metadata.active_type = GROUP_MEMBER_TYPE
 
@@ -203,8 +211,10 @@ export default {
       state2.user_id = user_id
       state2.group_id = group_id
 
-      await Agent.synced()
-      await dispatch('loadMembers')
+      if (!defer) {
+        await Agent.synced()
+        await dispatch('loadMembers')
+      }
       return id
     },
     async archive({ dispatch }, id) {
@@ -220,19 +230,31 @@ export default {
       await Agent.synced()
       await dispatch('loadGroups')
     },
-    async removeMember({ state, dispatch }, { user_id, group_id }) {
+    async removeMember({ commit, state, dispatch }, { user_id, group_id, defer }) {
+      // Capture entries to archive BEFORE optimistic removal
+      const entriesToArchive = Object
+        .entries(state.members)
+        .filter(([_id, { user_id: uid, group_id: gid, archived }]) => {
+          return user_id === uid && group_id === gid && !archived
+        })
+        .map(([id]) => id)
+
+      // Optimistic update: immediately remove from Vuex
+      commit('removeMember', { user_id, group_id })
+
       await Promise.all(
-        Object
-          .entries(state.members)
-          .filter(([_id, { user_id: uid, group_id: gid, archived }]) => {
-            return user_id === uid && group_id === gid && !archived
-          })
-          .map(async ([id]) => {
-            const state = await Agent.state(id)
-            state.archived = true
-          })
+        entriesToArchive.map(async (id) => {
+          const agentState = await Agent.state(id)
+          agentState.archived = true
+        })
       )
 
+      if (!defer) {
+        await Agent.synced()
+        await dispatch('loadMembers')
+      }
+    },
+    async flushMembers({ dispatch }) {
       await Agent.synced()
       await dispatch('loadMembers')
     }

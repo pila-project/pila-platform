@@ -724,16 +724,13 @@
     const result = await Agent.query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
     taggedContent.value = result
 
-    // Build all content IDs set
-    const allIds = [...new Set([...result.map(t => t.target), ...myContent])]
-
-    // Batch prefetch names, metadata, images, tags (cache-first — instant on revisit)
-    await prefetchBatch(allIds, store.getters.language(), partition, hierarchy.leafToCategory)
-
-    // Load sequences
-    loadMySequences()
-
+    // Show content grid immediately — cards load their own images/names
     loading.value = false
+
+    // Background: prefetch metadata + tags into cache for filters, tag pills, and sequence detection
+    const allIds = [...new Set([...result.map(t => t.target), ...myContent])]
+    prefetchBatch(allIds, store.getters.language(), partition, hierarchy.leafToCategory)
+      .then(() => loadMySequences())
   }
 
   function loadMySequences() {

@@ -164,7 +164,7 @@
       </div>
       <div class="modal-footer-right">
         <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
-        <PButton variant="primary" :text="t('done')" @click="$emit('close')" />
+        <PButton variant="primary" :text="hasChanges ? t('update') : t('done')" :loading="flushing" @click="handleDone" />
       </div>
     </template>
   </PModal>
@@ -184,7 +184,7 @@ const props = defineProps({
   showBack: { type: Boolean, default: false },
 })
 
-defineEmits(['close', 'back'])
+const emit = defineEmits(['close', 'back'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -306,7 +306,7 @@ function onDragLeave(target, event) {
   }
 }
 
-async function onDrop(target) {
+function onDrop(target) {
   const studentId = draggingId.value
   const source = dragSource.value
   dragTarget.value = null
@@ -314,56 +314,69 @@ async function onDrop(target) {
 
   if (!studentId || source === target) return
 
-  try {
-    if (target === 'group') {
-      // If the dragged student is part of a multi-selection, move all selected
-      if (selectedAvailable.has(studentId) && selectedAvailable.size > 1) {
-        const ids = [...selectedAvailable]
-        for (const id of ids) await addToGroup(id)
-        selectedAvailable.clear()
-      } else {
-        await addToGroup(studentId)
-      }
+  if (target === 'group') {
+    // If the dragged student is part of a multi-selection, move all selected
+    if (selectedAvailable.has(studentId) && selectedAvailable.size > 1) {
+      const ids = [...selectedAvailable]
+      for (const id of ids) addToGroup(id)
+      selectedAvailable.clear()
     } else {
-      if (selectedGroup.has(studentId) && selectedGroup.size > 1) {
-        const ids = [...selectedGroup]
-        for (const id of ids) await removeFromGroup(id)
-        selectedGroup.clear()
-      } else {
-        await removeFromGroup(studentId)
-      }
+      addToGroup(studentId)
     }
-  } catch (e) {
-    console.error(e)
-    toastError(t('something-went-wrong'))
+  } else {
+    if (selectedGroup.has(studentId) && selectedGroup.size > 1) {
+      const ids = [...selectedGroup]
+      for (const id of ids) removeFromGroup(id)
+      selectedGroup.clear()
+    } else {
+      removeFromGroup(studentId)
+    }
   }
   dragSource.value = null
 }
 
-// Actions
-async function addToGroup(userId) {
-  await store.dispatch('groups/addMember', { user_id: userId, group_id: props.groupId })
+// Deferred persistence: collect promises, flush on Done/Update
+const pendingOps = ref([])
+const flushing = ref(false)
+const hasChanges = computed(() => pendingOps.value.length > 0)
+
+// Actions — optimistic commit is instant, Agent persistence is deferred
+function addToGroup(userId) {
+  pendingOps.value.push(
+    store.dispatch('groups/addMember', { user_id: userId, group_id: props.groupId, defer: true })
+  )
 }
 
-async function removeFromGroup(userId) {
-  await store.dispatch('groups/removeMember', { user_id: userId, group_id: props.groupId })
+function removeFromGroup(userId) {
   selectedGroup.delete(userId)
+  pendingOps.value.push(
+    store.dispatch('groups/removeMember', { user_id: userId, group_id: props.groupId, defer: true })
+  )
 }
 
-async function addSelectedToGroup() {
+function addSelectedToGroup() {
   const ids = [...selectedAvailable]
-  for (const id of ids) {
-    await store.dispatch('groups/addMember', { user_id: id, group_id: props.groupId })
-  }
+  for (const id of ids) addToGroup(id)
   selectedAvailable.clear()
 }
 
-async function removeSelectedFromGroup() {
+function removeSelectedFromGroup() {
   const ids = [...selectedGroup]
-  for (const id of ids) {
-    await store.dispatch('groups/removeMember', { user_id: id, group_id: props.groupId })
-  }
+  for (const id of ids) removeFromGroup(id)
   selectedGroup.clear()
+}
+
+async function handleDone() {
+  if (hasChanges.value) {
+    flushing.value = true
+    try {
+      await Promise.all(pendingOps.value)
+      await store.dispatch('groups/flushMembers')
+    } finally {
+      flushing.value = false
+    }
+  }
+  emit('close')
 }
 </script>
 
