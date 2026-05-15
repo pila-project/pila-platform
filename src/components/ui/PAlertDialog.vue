@@ -57,6 +57,10 @@ const props = defineProps({
     type: String,
     default: 'Cancel',
   },
+  width: {
+    type: String,
+    default: '380px',
+  },
 })
 
 defineEmits(['confirm', 'cancel'])
@@ -103,7 +107,7 @@ onBeforeUnmount(() => document.body.style.overflow = '')
   background: white;
   border-radius: 6px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  width: 380px;
+  width: v-bind(width);
   max-width: 90vw;
 }
 

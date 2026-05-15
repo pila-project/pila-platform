@@ -98,7 +98,7 @@
             :no-data-text="t('you-currently-have-no-students')"
             :items-per-page-text="t('rows-per-page')"
           >
-            <template #item.name="{ item }">
+            <template #item.displayName="{ item }">
               <div class="student-name-cell">
                 <PAvatar :name="item.displayName" :size="28" />
                 <div class="student-name-col">
@@ -116,7 +116,7 @@
                 :text="item.archived ? t('archived') : t('active')"
               />
             </template>
-            <template #item.groups="{ item }">
+            <template #item.groupNames="{ item }">
               <PTooltip :text="item.groupNames">
                 <span class="groups-cell">{{ item.groupNames || '--' }}</span>
               </PTooltip>
@@ -602,6 +602,52 @@
       @cancel="dismissSuccessDialog"
     />
 
+    <!-- Add to Groups Result Dialog -->
+    <PAlertDialog
+      v-if="addToGroupsResults"
+      variant="success"
+      title="Students successfully added to the groups"
+      :confirm-text="t('continue')"
+      cancel-text=""
+      width="512px"
+      @confirm="addToGroupsResults = null"
+      @cancel="addToGroupsResults = null"
+    >
+      <div
+        v-for="r in addToGroupsResults.filter(r => r.status === 'added')"
+        :key="'added-' + r.id"
+        class="result-tile"
+      >
+        <div class="result-tile-info">
+          <span class="result-tile-name"><DecryptedName :user="r.id" /></span>
+          <span class="result-tile-grade">{{ r.grade }}</span>
+        </div>
+        <span class="result-badge result-badge-added">
+          <LucideIcon name="check" :size="12" /> Added
+        </span>
+      </div>
+
+      <div
+        v-for="r in addToGroupsResults.filter(r => r.status === 'skipped')"
+        :key="'skipped-' + r.id"
+        class="result-skipped-box"
+      >
+        <div class="result-skipped-warning">
+          <LucideIcon name="triangle-alert" :size="16" />
+          <span>This student is already in the group "{{ r.groupName }}"</span>
+        </div>
+        <div class="result-tile">
+          <div class="result-tile-info">
+            <span class="result-tile-name"><DecryptedName :user="r.id" /></span>
+            <span class="result-tile-grade">{{ r.grade }}</span>
+          </div>
+          <span class="result-badge result-badge-skipped">
+            <LucideIcon name="refresh-cw" :size="12" /> Skipped
+          </span>
+        </div>
+      </div>
+    </PAlertDialog>
+
     <!-- CSV Upload Modal -->
     <PModal
       v-if="showCSVUploadModal"
@@ -880,9 +926,6 @@
         <div class="login-code-modal-body">
           <div class="login-code-student-name">
             <span><DecryptedName :user="loginCodeStudent.id" /></span>
-            <button class="copy-btn" @click="copyToClipboard(loginCodeStudent.id)">
-              <LucideIcon name="copy" :size="14" />
-            </button>
           </div>
           <div class="login-code-qr" ref="qrContainerRef">
             <Suspense>
@@ -900,7 +943,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="loginCodeStudent = null" />
-        <PButton variant="primary" :text="t('download-qr-code')" @click="downloadQRCode" />
+        <PButton variant="primary" text="Download QR Code" @click="downloadQRCode" />
       </template>
     </PModal>
 
@@ -985,6 +1028,7 @@ const newGroupGrade = ref('')
 const newGroupSubject = ref('')
 const searchQuery = ref('')
 const selectedStudents = ref([])
+const addToGroupsResults = ref(null)
 const manageGroupId = ref(null)
 const manageGroupShowBack = ref(false)
 const activeGradeFilters = ref([])
@@ -1051,6 +1095,9 @@ onMounted(() => {
 })
 onBeforeUnmount(() => { if (unwatchUsers) unwatchUsers() })
 
+// ── Decrypted student names (for sorting + search) ──
+const decryptedNames = reactive(new Map())
+
 // ── Students ──
 const myPILAUsers = computed(() => Object.keys(users))
 
@@ -1064,8 +1111,9 @@ const students = computed(() => {
     const groupNames = groupIds.map(gid => store.state.groups.groups[gid]?.name || '').filter(Boolean).join(', ')
     return {
       id,
-      displayName: '…',
+      displayName: decryptedNames.get(id) || '…',
       archived: !!users[id]?.archived,
+      status: users[id]?.archived ? t('archived') : t('active'),
       grade: users[id]?.grade || '',
       groupNames,
       groupIds,
@@ -1073,11 +1121,28 @@ const students = computed(() => {
   })
 })
 
+watch(
+  () => students.value.map(s => s.id),
+  (ids) => {
+    for (const id of ids) {
+      if (decryptedNames.has(id)) continue
+      store.getters.decryptUserInfo(id, false)
+        .then(info => { decryptedNames.set(id, info?.name || '') })
+        .catch(() => { decryptedNames.set(id, '') })
+    }
+  },
+  { immediate: true }
+)
+
 const filteredStudents = computed(() => {
   let items = students.value
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
-    items = items.filter(s => s.id.toLowerCase().includes(q) || s.groupNames.toLowerCase().includes(q))
+    items = items.filter(s =>
+      s.displayName.toLowerCase().includes(q) ||
+      s.id.toLowerCase().includes(q) ||
+      s.groupNames.toLowerCase().includes(q)
+    )
   }
   if (activeGradeFilters.value.length) {
     items = items.filter(s => s.grade && activeGradeFilters.value.includes(s.grade))
@@ -1097,10 +1162,10 @@ const filteredStudents = computed(() => {
 })
 
 const studentHeaders = computed(() => [
-  { key: 'name', title: t('name') },
-  { key: 'grade', title: t('grade'), sortable: false },
-  { key: 'status', title: t('status'), sortable: false },
-  { key: 'groups', title: t('groups'), sortable: false },
+  { key: 'displayName', title: t('name') },
+  { key: 'grade', title: t('grade') },
+  { key: 'status', title: t('status') },
+  { key: 'groupNames', title: t('groups') },
   { key: 'more', title: '', sortable: false, width: '60px' },
 ])
 
@@ -1300,16 +1365,28 @@ function openLoginCodeModal(item) {
 
 function downloadQRCode() {
   if (!qrContainerRef.value) return
-  const canvas = qrContainerRef.value.querySelector('canvas')
-  if (!canvas) return
-  canvas.toBlob(blob => {
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `login-code-${loginCodeStudent.value.id.slice(0, 8)}.png`
-    a.click()
-    URL.revokeObjectURL(url)
-  })
+  const svg = qrContainerRef.value.querySelector('svg')
+  if (!svg) return
+  const svgData = new XMLSerializer().serializeToString(svg)
+  const canvas = document.createElement('canvas')
+  canvas.width = 400
+  canvas.height = 400
+  const ctx = canvas.getContext('2d')
+  const img = new Image()
+  img.onload = () => {
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, 400, 400)
+    ctx.drawImage(img, 0, 0, 400, 400)
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `login-code-${loginCodeStudent.value.id.slice(0, 8)}.png`
+      a.click()
+      URL.revokeObjectURL(url)
+    })
+  }
+  img.src = 'data:image/svg+xml;base64,' + btoa(svgData)
 }
 
 async function executeDeleteStudent() {
@@ -1457,9 +1534,7 @@ async function createStudentAccount() {
     newStudentName.value = ''
     newStudentNickname.value = ''
     newStudentGrade.value = ''
-    showSuccessDialog(t('success'), () => {
-      openLoginCodeModal({ id, secret: userSecret })
-    })
+    showSuccessDialog(t('success'))
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1646,18 +1721,17 @@ async function handleExport() {
   exporting.value = true
   try {
     const studentData = []
-    for (const studentId of selectedStudents.value) {
-      const student = students.value.find(s => s.id === studentId)
+    for (const student of selectedStudents.value) {
       let info = { name: '' }
       try {
-        info = await store.getters.decryptUserInfo(studentId, false)
+        info = await store.getters.decryptUserInfo(student.id, false)
       } catch (e) { /* fallback */ }
       studentData.push({
         name: info?.name || '',
         nickname: info?.nickname || '',
-        grade: student?.grade || '',
-        status: student?.archived ? 'Archived' : 'Active',
-        groups: student?.groupNames || '',
+        grade: student.grade || '',
+        status: student.archived ? 'Archived' : 'Active',
+        groups: student.groupNames || '',
       })
     }
 
@@ -1725,15 +1799,22 @@ function toggleGroupForAssign(gid) {
 async function handleAddToGroups() {
   addingToGroups.value = true
   try {
+    const results = []
     for (const gid of selectedGroupsForAssign.value) {
-      for (const studentId of selectedStudents.value) {
-        await store.dispatch('groups/addMember', { user_id: studentId, group_id: gid })
+      const groupName = store.state.groups.groups[gid]?.name || ''
+      for (const student of selectedStudents.value) {
+        if (store.getters['groups/belongs'](student.id, gid)) {
+          results.push({ id: student.id, grade: student.grade, status: 'skipped', groupName })
+        } else {
+          await store.dispatch('groups/addMember', { user_id: student.id, group_id: gid })
+          results.push({ id: student.id, grade: student.grade, status: 'added' })
+        }
       }
     }
     showAddToGroupsModal.value = false
     selectedGroupsForAssign.value = []
     groupSearchQuery.value = ''
-    showSuccessDialog(t('success'))
+    addToGroupsResults.value = results
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1747,7 +1828,7 @@ function copyToClipboard(text) {
 }
 
 function printLoginCodes() {
-  const ids = selectedStudents.value.join(',')
+  const ids = selectedStudents.value.map(s => s.id).join(',')
   window.open(`/teacher/codes?students=${encodeURIComponent(ids)}`)
 }
 </script>
@@ -2224,22 +2305,6 @@ function printLoginCodes() {
   color: #334155;
 }
 
-.copy-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--color-slate-200);
-  background: none;
-  border-radius: 6px;
-  color: var(--color-slate-400);
-  cursor: pointer;
-}
-.copy-btn:hover {
-  background: var(--color-slate-100);
-  color: var(--color-slate-700);
-}
 
 .login-code-qr {
   padding: 16px;
@@ -2342,5 +2407,75 @@ function printLoginCodes() {
   .assign-groups-list {
     max-height: 200px;
   }
+}
+
+/* Add to Groups result tiles */
+.result-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.result-tile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-tile-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.result-tile-grade {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.result-badge-added {
+  background: #f0fdf4;
+  border: 1px solid #16a34a;
+  color: #16a34a;
+}
+
+.result-badge-skipped {
+  background: #fefce8;
+  border: 1px solid #ca8a04;
+  color: #ca8a04;
+}
+
+.result-skipped-box {
+  border: 1px solid #ca8a04;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.result-skipped-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ca8a04;
 }
 </style>

@@ -10,7 +10,9 @@
           :key="chip.id"
           class="unified-chip"
         >
-          {{ chip.sectionLabel }} = {{ chip.valueLabel }}
+          <span class="unified-chip-label">{{ chip.sectionLabel }}</span>
+          <span class="unified-chip-eq">=</span>
+          <span class="unified-chip-value">{{ chip.valueLabel }}</span>
           <button class="unified-chip-remove" @click.stop="chip.remove()">
             <LucideIcon name="x" :size="10" />
           </button>
@@ -44,7 +46,7 @@
       leave-from-class="opacity-100 scale-100"
       leave-to-class="opacity-0 scale-95"
     >
-      <div v-if="isDropdownOpen" class="unified-filter-dropdown">
+      <div v-show="isDropdownOpen" class="unified-filter-dropdown">
         <slot />
       </div>
     </Transition>
@@ -52,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, computed, provide, reactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, provide, reactive, shallowReactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import LucideIcon from './LucideIcon.vue'
 import { useDebounce } from '@/utils/useDebounce'
 
@@ -94,7 +96,7 @@ watch(() => props.searchQuery, (val) => {
 })
 
 // Section registry
-const sections = reactive(new Map())
+const sections = shallowReactive(new Map())
 
 function registerSection(id, meta) {
   sections.set(id, meta)
@@ -218,17 +220,17 @@ provide('unifiedFilter', {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 4px;
+  background: #f1f5f9;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
-  color: #2563eb;
   white-space: nowrap;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  height: 24px;
 }
+
+.unified-chip-label { color: #64748b; }
+.unified-chip-eq { color: #94a3b8; }
+.unified-chip-value { color: #2563eb; }
 
 .unified-chip-remove {
   display: inline-flex;
@@ -238,7 +240,7 @@ provide('unifiedFilter', {
   height: 14px;
   border: none;
   background: transparent;
-  color: #2563eb;
+  color: #94a3b8;
   cursor: pointer;
   padding: 0;
   border-radius: 2px;
@@ -246,7 +248,8 @@ provide('unifiedFilter', {
 }
 
 .unified-chip-remove:hover {
-  background: #dbeafe;
+  color: #64748b;
+  background: #e2e8f0;
 }
 
 .unified-filter-input {

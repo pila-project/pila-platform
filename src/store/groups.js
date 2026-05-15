@@ -158,7 +158,16 @@ export default {
       await Promise.all([
         Agent
           .query('groups')
-          .then(g => g.forEach(group => commit('add', group))),
+          .then(async (groups) => {
+            await Promise.all(groups.map(async (group) => {
+              const state = await Agent.state(group.id)
+              commit('add', {
+                ...group,
+                grade: state.grade,
+                subject: state.subject,
+              })
+            }))
+          }),
         loadSpecialGroup('my-students'),
         loadSpecialGroup('my-teachers')
       ])
