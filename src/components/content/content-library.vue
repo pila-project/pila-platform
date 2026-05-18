@@ -247,9 +247,9 @@
     <PAlertDialog
       v-if="sequenceToDelete"
       variant="error"
-      :title="t('confirm-delete-sequence')"
-      :description="t('this-will-permanently-delete-the-sequence-and-cannot-be-undone')"
-      :confirmText="t('delete')"
+      :title="t('delete-sequence')"
+      :description="sequenceToDeleteName ? `Are you sure you want to delete &quot;${sequenceToDeleteName}&quot;? This action cannot be undone.` : t('this-will-permanently-delete-the-sequence-and-cannot-be-undone')"
+      :confirmText="t('delete-sequence')"
       :cancelText="t('cancel')"
       @confirm="confirmDeleteSequence"
       @cancel="sequenceToDelete = null"
@@ -352,7 +352,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch, onMounted } from 'vue'
+  import { ref, reactive, shallowReactive, computed, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import ContentMetadataPanel from './content-metadata-panel.vue'
@@ -373,6 +373,7 @@
     nameCache, metadataCache, tagCache, tagNameCache,
     loadTagHierarchy, getCachedTagHierarchy,
     prefetchBatch, invalidate, invalidateNames,
+    seedFromDisk, persistToDisk,
   } from '@/utils/content-cache.js'
   import { PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
   import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
@@ -406,7 +407,7 @@
   const tagCategories = ref([])
 
   // ── Selection state ──
-  const selectedItems = reactive(new Set())
+  const selectedItems = shallowReactive(new Set())
 
   // ── Sequence state ──
   const mobileSeqExpanded = ref(false)
@@ -416,6 +417,7 @@
   const showCreateSequence = ref(false)
   const sequenceToEdit = ref(null)
   const sequenceToDelete = ref(null)
+  const sequenceToDeleteName = ref('')
   const sequenceToPreview = ref(null)
   const selectedSequenceEmpty = ref(true)
   const selectedSequenceItems = ref([])
@@ -648,8 +650,15 @@
     mySequenceIds.value = mySequenceIds.value.filter(s => s !== id)
     if (selectedSequence.value === id) selectedSequence.value = null
     sequenceToDelete.value = null
+    sequenceToDeleteName.value = ''
     showSuccessDialog(t('sequence-deleted'))
   }
+
+  watch(sequenceToDelete, async (id) => {
+    if (!id) { sequenceToDeleteName.value = ''; return }
+    const state = await Agent.state(id)
+    sequenceToDeleteName.value = state?.name || ''
+  })
 
   // ── Add to sequence/assignment ──
   function closeAddPicker() {
@@ -766,6 +775,9 @@
       const env = await Agent.environment()
       user.value = env.auth.user
 
+      // Seed in-memory caches from IndexedDB for instant display
+      if (user.value) await seedFromDisk(user.value)
+
       // Load my content
       const myContentResult = await Agent.query(
         'taggings-for-tag', [user.value, MY_CONTENT_TAG], 'tags.knowlearning.systems'
@@ -777,6 +789,9 @@
 
       // Load main content data (includes tag hierarchy)
       await loadContentData()
+
+      // Persist updated caches to IndexedDB
+      if (user.value) persistToDisk(user.value)
     } catch (e) {
       console.error('[content-library] init error:', e)
       loading.value = false

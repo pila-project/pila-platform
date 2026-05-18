@@ -1,4 +1,5 @@
 <template>
+  <RefreshingIndicator />
   <div
     v-if="iAmAnAdmin"
     class="admin-view"
@@ -90,6 +91,8 @@
     PILA_CONTENT_TAG,
     SIMPLIFIED_STUDY_DOMAINS
   } from '@/utils/constants.js'
+  import { logout as doLogout } from '@/utils/logout.js'
+  import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
@@ -124,7 +127,7 @@
   }
 
   function logout() {
-    Agent.logout()
+    doLogout(store.state.user)
   }
 </script>
 

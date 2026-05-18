@@ -1,5 +1,8 @@
 import { v4 as uuid } from 'uuid'
 import { ADMIN_TAG, TRAINER_TAG, TEACHER_TAG } from '@/utils/constants.js'
+import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
+
+let firstLoad = true
 
 const ROLE_ASSERTION_TYPE = 'application/json;type=role_assertion'
 const ROLE_REQUEST_TYPE = 'application/json;type=role_request'
@@ -53,11 +56,41 @@ export default {
     }
   },
   actions: {
-    async load({ dispatch }) {
-      await Promise.all([
-        dispatch('loadAssignments'),
-        dispatch('loadRequests')
-      ])
+    async load({ commit, dispatch, rootState }) {
+      const userId = rootState.user
+      let usedCache = false
+
+      if (firstLoad && userId) {
+        const cached = await localCache.get(userId, 'roles', 'all')
+        if (cached) {
+          usedCache = true
+          if (cached.assignments) {
+            cached.assignments.forEach(a => commit('addAssignment', a))
+          }
+          if (cached.requests) {
+            cached.requests.forEach(r => commit('addRequest', r))
+          }
+        }
+        firstLoad = false
+      }
+
+      if (usedCache) beginRevalidation()
+      try {
+        await Promise.all([
+          dispatch('loadAssignments'),
+          dispatch('loadRequests')
+        ])
+
+        if (userId) {
+          const state = rootState.roles
+          localCache.set(userId, 'roles', 'all', {
+            assignments: Object.entries(state.assignments).map(([assignee, v]) => ({ assignee, ...v })),
+            requests: Object.entries(state.requests).map(([assignee, v]) => ({ assignee, ...v })),
+          })
+        }
+      } finally {
+        if (usedCache) endRevalidation()
+      }
     },
     async loadAssignments({ commit, getters, rootGetters }) {
       await Promise.all(

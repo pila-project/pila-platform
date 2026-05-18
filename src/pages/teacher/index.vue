@@ -1,4 +1,5 @@
 <template>
+  <RefreshingIndicator />
   <TeacherAgreement v-if="!hasTeacherAgreement" />
   <div
     class="teacher-view"
@@ -140,6 +141,8 @@
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '@/utils/constants.js'
   import languageChoices from '@/store/language-choices.js'
+  import { logout as doLogout } from '@/utils/logout.js'
+  import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const store = useStore()
@@ -209,7 +212,7 @@
 
   function alertUserName() { alert(store.state.user )}
 
-  function logout() { Agent.logout() }
+  function logout() { doLogout(store.state.user) }
 
 </script>
 

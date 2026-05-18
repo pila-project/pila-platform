@@ -43,6 +43,7 @@
 
 <script>
     import { PButton } from '@/components/ui/index.js'
+    import { logout as doLogout } from '@/utils/logout.js'
 
 	export default {
 		components: {
@@ -63,7 +64,7 @@
 		},
 		methods: {
 			t(slug) { return this.$store.getters.t(slug) },
-			logout() { Agent.logout() },
+			logout() { doLogout(this.$store.state.user) },
 			alertUserId() {
 				const message = this.t('user-id') + ' :: ' + this.$store.getters.user()
 				alert(message)

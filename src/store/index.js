@@ -141,9 +141,11 @@ export default {
     async store => {
       store.dispatch('loaded', false)
 
-      const dispatchNames = ['load', 'fetchTranslations', 'pila_tags/load', 'roles/load', 'groups/load', 'assignments/load']
+      // Load auth first so stores have access to userId for caching
+      await store.dispatch('load').catch(e => console.error('[Store] load failed:', e))
+
+      const dispatchNames = ['fetchTranslations', 'pila_tags/load', 'roles/load', 'groups/load', 'assignments/load']
       const allDispatches = Promise.allSettled([
-        store.dispatch('load'),
         store.dispatch('fetchTranslations'),
         store.dispatch('pila_tags/load'),
         store.dispatch('roles/load'),

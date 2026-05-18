@@ -17,8 +17,8 @@
            focus:ring-primary-500;
   }
   .btn-secondary {
-    @apply bg-white text-slate-700 border border-slate-200
-           hover:bg-slate-50 focus:ring-primary-500;
+    @apply bg-white text-primary-600 border border-primary-200
+           hover:bg-primary-50 focus:ring-primary-500;
   }
   .btn-danger {
     @apply bg-danger-600 text-white hover:bg-red-700
@@ -39,6 +39,11 @@
     padding-inline: 0;
   }
 
+  .btn-warning {
+    @apply bg-orange-500 text-white hover:bg-orange-600
+           focus:ring-orange-400;
+  }
+
   /* Destructive modifier — overrides variant colors to danger palette */
   .btn-destructive.btn-primary {
     @apply bg-danger-600 text-white hover:bg-red-700 focus:ring-danger-600;
@@ -50,6 +55,9 @@
   .btn-destructive.btn-ghost,
   .btn-destructive.btn-link {
     @apply text-danger-600 hover:bg-danger-50 focus:ring-danger-600;
+  }
+  .btn-destructive.btn-warning {
+    @apply bg-orange-500 text-white hover:bg-orange-600 focus:ring-orange-400;
   }
 
   /* Badges */
@@ -78,6 +86,11 @@
   }
   .card-body {
     @apply px-6 py-4;
+  }
+
+  /* Checkbox accent */
+  input[type="checkbox"] {
+    accent-color: #2563eb;
   }
 
   /* Form Inputs */

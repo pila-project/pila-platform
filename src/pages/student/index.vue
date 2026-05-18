@@ -1,4 +1,5 @@
 <template>
+  <RefreshingIndicator />
   <StudentAgreement v-if="!hasStudentAgreement" />
   <div
     class="student-view"
@@ -57,6 +58,8 @@
   import { PAvatar, PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import StudiesNotAvailable from '@/components/common/studies-not-available.vue'
+  import { logout as doLogout } from '@/utils/logout.js'
+  import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
   export default {
     components: {
       Navbar,
@@ -67,7 +70,8 @@
       PMenuItem,
       PDivider,
       StudiesNotAvailable,
-      LucideIcon
+      LucideIcon,
+      RefreshingIndicator
     },
     props: ['id'],
     data() {
@@ -99,7 +103,7 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
-      logout() { Agent.logout() },
+      logout() { doLogout(this.$store.state.user) },
       alertUserName() { alert(this.$store.state.user ) }
     }
   }

@@ -4,15 +4,6 @@
     <button class="ufds-header" @click="toggleExpand">
       <LucideIcon :name="icon" :size="14" class="ufds-header-icon" />
       <span class="ufds-header-label">{{ label }}</span>
-      <!-- Mini chip when date range is selected and collapsed -->
-      <div v-if="!isExpanded && hasValue" class="ufds-mini-chips">
-        <span class="ufds-mini-chip">
-          {{ formattedRange }}
-          <button class="ufds-mini-chip-remove" @click.stop="clearValue">
-            <LucideIcon name="x" :size="8" />
-          </button>
-        </span>
-      </div>
       <LucideIcon name="calendar-search" :size="14" class="ufds-header-calendar" />
     </button>
 
@@ -140,47 +131,6 @@ onBeforeUnmount(() => {
   color: #2563eb;
   flex-shrink: 0;
   margin-left: auto;
-}
-
-.ufds-mini-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.ufds-mini-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 1px 6px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 3px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #2563eb;
-  white-space: nowrap;
-}
-
-.ufds-mini-chip-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  border: none;
-  background: transparent;
-  color: #2563eb;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 2px;
-}
-
-.ufds-mini-chip-remove:hover {
-  background: #dbeafe;
 }
 
 .ufds-body {

@@ -1,4 +1,8 @@
 import translationSlugMap from './translation-slug-map.js'
+import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
+
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
+let firstLoad = true
 
 export default {
   scope: null,
@@ -29,16 +33,34 @@ export default {
   actions: {
     addTranslation({ commit }, t) { commit('addTranslation', t) },
 
-    async fetchTranslations({ dispatch }) {
-      const domain ='translate-pila-alpha.netlify.app' 
+    async fetchTranslations({ commit, dispatch, rootState }) {
+      const userId = rootState.user
+      let usedCache = false
+
+      if (firstLoad && userId) {
+        const cached = await localCache.get(userId, 'translations', 'all', SEVEN_DAYS)
+        if (cached) {
+          usedCache = true
+          cached.forEach(t => commit('addTranslation', t))
+        }
+        firstLoad = false
+      }
+
+      const domain ='translate-pila-alpha.netlify.app'
+      if (usedCache) beginRevalidation()
       try {
         const translations = await Agent.query('translations', [], domain) || []
-        const translationPromises = translations.map(t => dispatch('addTranslation', t )) //dispatch so we can await
-        return Promise.all(translationPromises)
+        const translationPromises = translations.map(t => dispatch('addTranslation', t))
+        await Promise.all(translationPromises)
+
+        if (userId) {
+          localCache.set(userId, 'translations', 'all', translations)
+        }
       }
       catch (error) {
         console.warn(`ERROR FETCHING TRANSLATIONS. Ensure ${domain} is configured to allow ${location.host}`)
-        return []
+      } finally {
+        if (usedCache) endRevalidation()
       }
     }
   }

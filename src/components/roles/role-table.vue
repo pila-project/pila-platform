@@ -100,6 +100,7 @@
         :label="t('user-id')"
         :error="newRoleUser && !validateUUID(newRoleUser) ? 'Enter a valid user id' : ''"
         @enter="submitNewTeacher(newRoleUser)"
+        required
       />
     </template>
     <template #footer>

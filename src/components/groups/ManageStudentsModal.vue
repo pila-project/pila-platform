@@ -15,7 +15,7 @@
       <!-- Info banner -->
       <div class="info-banner">
         <LucideIcon name="info" :size="16" />
-        <span>{{ t('drag-students-between-panels') }}</span>
+        <span>Drag students between panels to add/remove them from the group. Alternatively, use checkboxes to select multiple students and move them to the groups.</span>
       </div>
 
       <div class="panels">

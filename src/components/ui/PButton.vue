@@ -29,7 +29,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: v => ['primary', 'secondary', 'danger', 'ghost', 'text', 'outline', 'link'].includes(v)
+    validator: v => ['primary', 'secondary', 'danger', 'warning', 'ghost', 'text', 'outline', 'link'].includes(v)
   },
   size: {
     type: String,

@@ -23,12 +23,17 @@
             <div class="flex items-center gap-1">
               {{ header.title }}
               <LucideIcon
-                v-if="sortKey === header.key"
-                :name="sortOrder === 'asc' ? 'chevron-up' : 'chevron-down'"
+                v-if="header.sortable !== false"
+                :name="sortKey === header.key
+                  ? (sortOrder === 'asc' ? 'chevron-up' : 'chevron-down')
+                  : 'arrow-up-down'"
                 :size="12"
+                class="sort-icon"
+                :class="{ 'sort-icon-active': sortKey === header.key }"
               />
             </div>
           </th>
+          <th v-if="draggableRows" scope="col" class="table-header-cell w-8" />
           <th v-if="expandable" scope="col" class="table-header-cell w-10" />
         </tr>
       </thead>
@@ -55,7 +60,10 @@
                 item._disabled ? 'table-row-disabled' : '',
               ]"
               :style="rowStyle ? rowStyle(item) : {}"
+              :draggable="draggableRows || undefined"
               @click="$emit('click:row', $event, { item, index })"
+              @dragstart="draggableRows && onRowDragStart($event, item)"
+              @dragend="draggableRows && onRowDragEnd($event, item)"
             >
               <td v-if="selectable" class="table-cell w-10">
                 <input
@@ -73,6 +81,9 @@
                 <slot :name="`item.${header.key}`" :item="item" :index="index">
                   {{ item[header.key] }}
                 </slot>
+              </td>
+              <td v-if="draggableRows" class="table-cell w-8 text-center drag-handle-cell">
+                <LucideIcon name="grip-vertical" :size="14" class="drag-handle" />
               </td>
               <td v-if="expandable" class="table-cell w-10 text-center">
                 <button
@@ -203,9 +214,10 @@ const props = defineProps({
     default: () => []
   },
   expandable: Boolean,
+  draggableRows: Boolean,
 })
 
-const emit = defineEmits(['click:row', 'update:selected'])
+const emit = defineEmits(['click:row', 'update:selected', 'dragstart', 'dragend'])
 
 const currentPage = ref(1)
 const currentPerPage = ref(props.itemsPerPage)
@@ -221,6 +233,7 @@ const totalColumns = computed(() => {
   let cols = props.headers.length
   if (props.selectable) cols++
   if (props.expandable) cols++
+  if (props.draggableRows) cols++
   return cols
 })
 
@@ -297,6 +310,16 @@ function isExpanded(item) {
   return expandedRows.value.has(getItemId(item))
 }
 
+function onRowDragStart(event, item) {
+  event.dataTransfer.effectAllowed = 'copy'
+  event.dataTransfer.setData('application/json', JSON.stringify(item))
+  emit('dragstart', { event, item })
+}
+
+function onRowDragEnd(event, item) {
+  emit('dragend', { event, item })
+}
+
 function toggleExpand(item) {
   const id = getItemId(item)
   const next = new Set(expandedRows.value)
@@ -307,6 +330,24 @@ function toggleExpand(item) {
 </script>
 
 <style scoped>
+.drag-handle-cell {
+  padding: 0 4px !important;
+}
+.drag-handle {
+  color: #94a3b8;
+  cursor: grab;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.sort-icon {
+  color: #94a3b8;
+}
+.sort-icon-active {
+  color: #334155;
+}
+
 .ptable-pagination {
   display: flex;
   align-items: center;

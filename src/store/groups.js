@@ -1,6 +1,7 @@
 import naclUtil from 'tweetnacl-util'
 import { v4 as uuid } from 'uuid'
 import { encrypt, generateKeyPair } from '@/utils/encryption.js'
+import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
 
 const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'
@@ -88,18 +89,55 @@ export default {
     }
   },
   actions: {
-    async load({ dispatch }, poll) {
-      await Promise.all([
-        dispatch('loadGroups'),
-        dispatch('loadMembers')
-      ])
+    async load({ commit, dispatch, rootState }, poll) {
+      const userId = rootState.user
+      let usedCache = false
+
+      // Seed from cache on first load
+      if (firstLoad && userId) {
+        const cached = await localCache.get(userId, 'groups', 'all')
+        if (cached) {
+          usedCache = true
+          if (cached.groups) cached.groups.forEach(g => commit('add', g))
+          if (cached.members) cached.members.forEach(m => commit('addMember', m))
+          if (cached.specialGroups) {
+            cached.specialGroups.forEach(sg => {
+              commit('setSpecialGroup', sg)
+              commit('add', sg)
+            })
+          }
+        }
+      }
+
+      if (usedCache) beginRevalidation()
+      try {
+        await Promise.all([
+          dispatch('loadGroups'),
+          dispatch('loadMembers')
+        ])
+      } finally {
+        if (usedCache) endRevalidation()
+      }
+
+      // Persist to cache
+      if (userId) {
+        const state = rootState.groups
+        localCache.set(userId, 'groups', 'all', {
+          groups: Object.entries(state.groups).map(([id, g]) => ({ id, ...g })),
+          members: Object.entries(state.members).map(([id, m]) => ({ id, ...m })),
+          specialGroups: Object.entries(state.specialGroupIds).map(([name, id]) => {
+            const g = state.groups[id]
+            return g ? { name, id, owner: g.owner, group_type: g.group_type, archived: g.archived } : null
+          }).filter(Boolean),
+        })
+      }
+
       if (firstLoad) dispatch('encryptMyUserInfo')
 
       if (firstLoad || poll === 'do-it') {
         const scheduleNext = () => {
           setTimeout(() => {
             if (document.visibilityState === 'hidden') {
-              // Defer until tab becomes visible again
               const onVisible = () => {
                 document.removeEventListener('visibilitychange', onVisible)
                 dispatch('load', 'do-it')

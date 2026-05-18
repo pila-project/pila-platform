@@ -4,7 +4,7 @@
     <select
       :id="selectId"
       :value="modelValue"
-      class="input appearance-none pr-8 cursor-pointer"
+      class="input appearance-none pr-10 cursor-pointer"
       :class="{ 'border-danger-600': error }"
       :disabled="disabled"
       :required="required"
@@ -78,7 +78,7 @@ const normalizedItems = computed(() => {
 }
 .select-chevron {
   position: absolute;
-  right: 0.75rem;
+  right: 1rem;
   bottom: 0.7rem;
   font-size: 0.625rem;
   color: var(--color-slate-400);

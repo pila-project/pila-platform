@@ -5,11 +5,12 @@
   import { createUser } from '@/utils/user-utils.js'
   import DecryptedName from '@/components/common/decrypted-name.vue'
   import { PModal, PButton, PInput, PSelect, PBadge } from '@/components/ui/index.js'
+  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const store = useStore()
 
   const props = defineProps({ id: String })
-  const emit = defineEmits(['close', 'open-login-code'])
+  const emit = defineEmits(['close', 'open-login-code', 'saved'])
 
   const open = ref(true)
 
@@ -80,6 +81,7 @@
     }
 
     open.value = false
+    emit('saved')
     emit('close')
   }
 
@@ -101,8 +103,8 @@
   >
     <template #title>
       <div>
-        <h2 class="text-lg font-semibold text-zinc-950">{{ t('edit') }}</h2>
-        <p class="text-sm text-slate-500 mt-0.5">{{ t('student-info') }}</p>
+        <h2 class="text-lg font-semibold text-zinc-950">{{ t('edit-students-details') }}</h2>
+        <p class="text-sm text-slate-500 mt-0.5">{{ t('update-the-students-information') }}</p>
       </div>
     </template>
     <template #body>
@@ -130,12 +132,16 @@
           :label="t('status')"
           :items="statusOptions"
         />
-        <div class="login-code-link">
-          <button class="login-code-btn" @click="openLoginCode">
-            {{ t('login-code') }} →
-          </button>
-          <!-- TODO: backend — needs per-student QR generation endpoint -->
-        </div>
+        <button class="login-code-card" @click="openLoginCode">
+          <div class="login-code-card-icon">
+            <LucideIcon name="upload" :size="18" />
+          </div>
+          <div class="login-code-card-text">
+            <span class="login-code-card-title">{{ t('login-code') }}</span>
+            <span class="login-code-card-subtitle">{{ t('view-and-download-login-code') }}</span>
+          </div>
+          <LucideIcon name="chevron-right" :size="16" class="login-code-card-arrow" />
+        </button>
       </div>
       <div v-else>
         <DecryptedName :user="id" />
@@ -143,7 +149,7 @@
     </template>
     <template #footer>
       <PButton variant="secondary" :text="t('cancel')" @click="cancel" />
-      <PButton variant="primary" :text="t('save')" @click="save" />
+      <PButton variant="primary" :text="t('save-changes')" @click="save" />
     </template>
   </PModal>
 </template>
@@ -155,20 +161,50 @@
   gap: 16px;
 }
 
-.login-code-link {
-  padding-top: 4px;
+.login-code-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 150ms;
 }
-
-.login-code-btn {
-  background: none;
-  border: none;
-  color: var(--color-primary-600, #2563eb);
+.login-code-card:hover {
+  background: #f1f5f9;
+}
+.login-code-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+.login-code-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  text-align: left;
+}
+.login-code-card-title {
   font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
-  padding: 0;
+  color: #334155;
 }
-.login-code-btn:hover {
-  text-decoration: underline;
+.login-code-card-subtitle {
+  font-size: 12px;
+  color: #64748b;
+}
+.login-code-card-arrow {
+  color: #94a3b8;
+  flex-shrink: 0;
 }
 </style>

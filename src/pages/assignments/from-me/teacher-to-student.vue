@@ -481,7 +481,10 @@
   const filteredGroups = computed(() => {
     if (!groupSearch.value) return groups.value
     const q = groupSearch.value.toLowerCase()
-    return groups.value.filter(() => true) // Search filtering requires group name — for now show all
+    return groups.value.filter(gid => {
+      const group = store.state.groups.groups[gid]
+      return group?.name?.toLowerCase().includes(q)
+    })
   })
 
   const distributionOptions = computed(() => [

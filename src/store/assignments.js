@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid'
+import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
 
 const ASSIGNMENTS_TYPE = 'application/json;type=assignment'
 
@@ -70,7 +71,30 @@ export default {
     }
   },
   actions: {
-    async load({commit, dispatch}, poll) {
+    async load({commit, dispatch, rootState}, poll) {
+      const userId = rootState.user
+      let usedCache = false
+
+      if (firstLoad && userId) {
+        const cached = await localCache.get(userId, 'assignments', 'all')
+        if (cached) {
+          usedCache = true
+          cached.forEach(a => commit('addAssignment', a))
+        }
+      }
+
+      if (usedCache) beginRevalidation()
+      try {
+        const assignments = await Agent.query('assignments')
+        assignments.forEach(assignment => commit('addAssignment', assignment))
+
+        if (userId) {
+          localCache.set(userId, 'assignments', 'all', assignments)
+        }
+      } finally {
+        if (usedCache) endRevalidation()
+      }
+
       if (firstLoad || poll === 'do-it') {
         const scheduleNext = () => {
           setTimeout(() => {
@@ -88,8 +112,6 @@ export default {
         scheduleNext()
         firstLoad = false
       }
-      const assignments = await Agent.query('assignments')
-      assignments.forEach(assignment => commit('addAssignment', assignment))
     },
     async assign({getters, dispatch}, { group_id, item_id, assignment_type }) {
       if (getters.isAssigned(group_id, item_id, assignment_type)) return

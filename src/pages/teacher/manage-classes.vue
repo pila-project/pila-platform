@@ -15,36 +15,49 @@
           </div>
           <div class="section-header-actions">
             <PButton
-              v-if="selectedStudents.length"
-              icon="lucide:download"
-              variant="outline"
-              :text="`${t('export')} (${selectedStudents.length})`"
-              size="sm"
-              @click="showExportModal = true"
-            />
-            <PButton
-              v-if="selectedStudents.length"
-              icon="lucide:users"
-              variant="outline"
-              :text="`${t('add-to-groups')} (${selectedStudents.length})`"
-              size="sm"
-              @click="showAddToGroupsModal = true; selectedGroupsForAssign = []; groupSearchQuery = ''"
-            />
-            <PButton
-              v-if="hasEncryptionKey && selectedStudents.length"
-              icon="lucide:printer"
-              variant="outline"
-              :text="`${t('print-login-codes')} (${selectedStudents.length})`"
-              size="sm"
-              @click="printLoginCodes"
-            />
-            <PButton
               icon="lucide:plus"
               variant="primary"
               :text="t('add-student')"
               size="sm"
               @click="showAddStudentPicker = true"
             />
+            <PButton
+              v-if="hasEncryptionKey && selectedStudents.length"
+              icon="lucide:printer"
+              variant="secondary"
+              :text="t('print-login-codes')"
+              size="sm"
+              @click="printLoginCodes"
+            />
+            <PMenu v-if="selectedStudents.length" align-right>
+              <template #activator="{ props }">
+                <button class="action-dots" @click="props.onClick">
+                  <LucideIcon name="ellipsis-vertical" :size="16" />
+                </button>
+              </template>
+              <PMenuItem
+                :title="t('add-to-groups')"
+                prepend-icon="lucide:users"
+                @click="showAddToGroupsModal = true; selectedGroupsForAssign = []; groupSearchQuery = ''"
+              />
+              <PMenuItem
+                :title="t('export')"
+                prepend-icon="lucide:download"
+                @click="showExportModal = true"
+              />
+              <PMenuItem
+                :title="`${t('archive')} (${selectedStudents.length})`"
+                prepend-icon="lucide:archive"
+                @click="archiveSelectedConfirm = true"
+              />
+              <PDivider />
+              <PMenuItem
+                :title="`${t('delete')} (${selectedStudents.length})`"
+                prepend-icon="lucide:trash-2"
+                danger
+                @click="deleteSelectedConfirm = true"
+              />
+            </PMenu>
           </div>
         </div>
 
@@ -97,14 +110,11 @@
             ]"
             :no-data-text="t('you-currently-have-no-students')"
             :items-per-page-text="t('rows-per-page')"
+            draggable-rows
           >
             <template #item.displayName="{ item }">
               <div class="student-name-cell">
-                <PAvatar :name="item.displayName" :size="28" />
-                <div class="student-name-col">
-                  <DecryptedName :user="item.id" />
-                  <!-- TODO: backend — needs email field on student -->
-                </div>
+                <DecryptedName :user="item.id" />
               </div>
             </template>
             <template #item.grade="{ item }">
@@ -128,7 +138,7 @@
                   variant="outline"
                   size="sm"
                   :text="t('restore')"
-                  @click="toggleArchiveStudent(item)"
+                  @click="confirmRestoreStudent(item)"
                 />
                 <PMenu v-else align-right>
                   <template #activator="{ props }">
@@ -178,8 +188,8 @@
       </div>
 
       <!-- Right column: Groups -->
-      <div class="group-section">
-        <div class="group-section-header content-card">
+      <div class="group-section content-card">
+        <div class="group-section-header">
           <div class="section-header-left">
             <LucideIcon name="shuffle" :size="20" class="section-icon" />
             <div>
@@ -196,25 +206,37 @@
           />
         </div>
 
+        <input
+          v-model="groupSearchFilter"
+          class="input"
+          :placeholder="t('search-group')"
+        />
+
         <div class="group-cards-list">
           <GroupCard
-            v-for="groupId in activeGroups"
+            v-for="groupId in filteredActiveGroups"
             :key="groupId"
             :group-id="groupId"
             @manage="openManageStudents(groupId)"
             @edit="openEditGroup(groupId)"
-            @archive="archiveGroup(groupId)"
+            @archive="confirmArchiveGroup(groupId)"
             @delete="confirmDeleteGroup(groupId)"
+            @drop-student="handleDropStudent(groupId, $event)"
+            @print-login-codes="handlePrintGroupLoginCodes(groupId)"
           />
 
-          <div v-if="showArchived && archivedGroups.length" class="archived-groups-section">
+          <p v-if="!filteredActiveGroups.length && groupSearchFilter" class="no-results-text">
+            {{ t('no-results') || 'No results' }}
+          </p>
+
+          <div v-if="archivedGroups.length" class="archived-groups-section">
             <p class="archived-label">{{ t('archived') }}</p>
             <GroupCard
               v-for="groupId in archivedGroups"
               :key="groupId"
               :group-id="groupId"
               archived
-              @unarchive="unarchiveGroup(groupId)"
+              @unarchive="confirmRestoreGroup(groupId)"
             />
           </div>
         </div>
@@ -226,6 +248,7 @@
       v-if="userModalUser"
       :id="userModalUser"
       @close="userModalUser = null"
+      @saved="showSuccessDialog(t('student-updated-successfully') || 'Student updated successfully')"
       @open-login-code="openLoginCodeModal({ id: $event }); userModalUser = null"
     />
 
@@ -238,8 +261,8 @@
     >
       <template #title>
         <div>
-          <h2 class="text-lg font-semibold text-zinc-950">{{ t('student-info') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('student-profile') }}</p>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('students-profile') }}</h2>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('complete-profile-information-for') }} {{ profileStudentInfo?.name || '' }}</p>
         </div>
       </template>
       <template #body>
@@ -249,24 +272,26 @@
             <LucideIcon name="user" :size="16" class="profile-section-icon" />
             <span class="profile-section-label">{{ t('basic-information') }}</span>
           </div>
-          <div class="profile-row">
-            <span class="profile-label">{{ t('name') }}</span>
-            <span class="profile-value">{{ profileStudentInfo?.name || '...' }}</span>
-          </div>
-          <div class="profile-row" v-if="profileStudentInfo?.nickname">
-            <span class="profile-label">{{ t('nickname') }}</span>
-            <span class="profile-value">{{ profileStudentInfo.nickname }}</span>
-          </div>
-          <div class="profile-row" v-if="profileUserGrade">
-            <span class="profile-label">{{ t('grade') }}</span>
-            <span class="profile-value">{{ profileUserGrade }}</span>
-          </div>
-          <div class="profile-row">
-            <span class="profile-label">{{ t('status') }}</span>
-            <PBadge
-              :variant="profileUserArchived ? 'warning' : 'info'"
-              :text="profileUserArchived ? t('archived') : t('active')"
-            />
+          <div class="profile-grid">
+            <div class="profile-cell">
+              <span class="profile-label">{{ t('name') }}</span>
+              <span class="profile-value">{{ profileStudentInfo?.name || '...' }}</span>
+            </div>
+            <div class="profile-cell" v-if="profileStudentInfo?.nickname">
+              <span class="profile-label">{{ t('nickname') }}</span>
+              <span class="profile-value">{{ profileStudentInfo.nickname }}</span>
+            </div>
+            <div class="profile-cell" v-if="profileUserGrade">
+              <span class="profile-label">{{ t('grade') }}</span>
+              <span class="profile-value">{{ profileUserGrade }}</span>
+            </div>
+            <div class="profile-cell">
+              <span class="profile-label">{{ t('status') }}</span>
+              <PBadge
+                :variant="profileUserArchived ? 'warning' : 'info'"
+                :text="profileUserArchived ? t('archived') : t('active')"
+              />
+            </div>
           </div>
         </div>
 
@@ -276,14 +301,15 @@
             <LucideIcon name="clock" :size="16" class="profile-section-icon" />
             <span class="profile-section-label">{{ t('account-activity') }}</span>
           </div>
-          <div class="profile-row">
-            <span class="profile-label">{{ t('account-created') }}</span>
-            <span class="profile-value" :class="{ 'profile-value--muted': !profileCreatedDate }">{{ profileCreatedDate || '—' }}</span>
-          </div>
-          <div class="profile-row">
-            <span class="profile-label">{{ t('last-login') }}</span>
-            <!-- TODO: backend — needs last-login tracking -->
-            <span class="profile-value profile-value--muted">—</span>
+          <div class="profile-grid">
+            <div class="profile-cell">
+              <span class="profile-label">{{ t('account-created') }}</span>
+              <span class="profile-value" :class="{ 'profile-value--muted': !profileCreatedDate }">{{ profileCreatedDate || '—' }}</span>
+            </div>
+            <div class="profile-cell">
+              <span class="profile-label">{{ t('last-login') }}</span>
+              <span class="profile-value profile-value--muted">—</span>
+            </div>
           </div>
         </div>
 
@@ -308,7 +334,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" :text="t('cancel')" @click="viewProfileUser = null" />
-        <PButton variant="primary" :text="t('edit')" @click="userModalUser = viewProfileUser; viewProfileUser = null" />
+        <PButton variant="primary" :text="t('edit-student')" @click="userModalUser = viewProfileUser; viewProfileUser = null" />
       </template>
     </PModal>
 
@@ -510,7 +536,7 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('edit') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('group-details') }}</p>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('modify-the-group-details') || 'Modify the group details' }}</p>
         </div>
       </template>
       <template #body>
@@ -579,6 +605,18 @@
       @cancel="resetPasswordStudent = null"
     />
 
+    <!-- Archive Group Confirmation -->
+    <PAlertDialog
+      v-if="archiveConfirmGroup"
+      variant="warning"
+      :title="`Are you sure you want to archive '${store.state.groups.groups[archiveConfirmGroup]?.name || ''}'?`"
+      :description="`This group contains ${store.getters['groups/members'](archiveConfirmGroup).length} students. If you archive it, they will not be unassigned from the group. You can restore the group later.`"
+      confirm-text="Archive Group"
+      :cancel-text="t('cancel')"
+      @confirm="executeArchiveGroup"
+      @cancel="archiveConfirmGroup = null"
+    />
+
     <!-- Delete Group Confirmation -->
     <PAlertDialog
       v-if="deleteConfirmGroup"
@@ -591,11 +629,60 @@
       @cancel="deleteConfirmGroup = null"
     />
 
+    <!-- Bulk Archive Selected Confirmation -->
+    <PAlertDialog
+      v-if="archiveSelectedConfirm"
+      variant="warning"
+      :title="`Archive ${selectedStudents.length} selected students?`"
+      description="Archived students will be hidden from the active list. You can restore them later."
+      confirm-text="Archive"
+      :cancel-text="t('cancel')"
+      @confirm="executeArchiveSelected"
+      @cancel="archiveSelectedConfirm = false"
+    />
+
+    <!-- Bulk Delete Selected Confirmation -->
+    <PAlertDialog
+      v-if="deleteSelectedConfirm"
+      variant="error"
+      :title="`Delete ${selectedStudents.length} selected students?`"
+      description="This action cannot be undone. Students will be removed from all groups."
+      confirm-text="Delete"
+      :cancel-text="t('cancel')"
+      @confirm="executeDeleteSelected"
+      @cancel="deleteSelectedConfirm = false"
+    />
+
+    <!-- Restore Student Confirmation -->
+    <PAlertDialog
+      v-if="restoreConfirmStudent"
+      variant="notification"
+      title="Restore this student?"
+      description="The student will be moved back to the active list."
+      confirm-text="Restore"
+      :cancel-text="t('cancel')"
+      @confirm="executeRestoreStudent"
+      @cancel="restoreConfirmStudent = null"
+    />
+
+    <!-- Restore Group Confirmation -->
+    <PAlertDialog
+      v-if="restoreConfirmGroup"
+      variant="notification"
+      :title="`Restore '${store.state.groups.groups[restoreConfirmGroup]?.name || ''}'?`"
+      description="The group and its students will be moved back to the active list."
+      confirm-text="Restore"
+      :cancel-text="t('cancel')"
+      @confirm="executeRestoreGroup"
+      @cancel="restoreConfirmGroup = null"
+    />
+
     <!-- Success Confirmation -->
     <PAlertDialog
       v-if="successDialog.show"
       variant="success"
       :title="successDialog.message"
+      :description="successDialog.subtitle"
       :confirm-text="t('done')"
       cancel-text=""
       @confirm="dismissSuccessDialog"
@@ -715,9 +802,9 @@
             <table class="bulk-entry-table">
               <thead>
                 <tr>
-                  <th>{{ t('name') }} *</th>
+                  <th>{{ t('name') }} <span class="required-label">* Required</span></th>
                   <th>{{ t('nickname') }}</th>
-                  <th>{{ t('grade') }} *</th>
+                  <th>{{ t('grade') }} <span class="required-label">* Required</span></th>
                   <th></th>
                 </tr>
               </thead>
@@ -733,7 +820,7 @@
                   </td>
                   <td>
                     <button class="bulk-delete-row" @click="bulkEntryRows.splice(index, 1)">
-                      <LucideIcon name="x" :size="14" />
+                      <LucideIcon name="trash-2" :size="14" />
                     </button>
                   </td>
                 </tr>
@@ -919,7 +1006,7 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('login-code') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('student-login-code') }}</p>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('view-and-download-login-code') }}</p>
         </div>
       </template>
       <template #body>
@@ -937,7 +1024,14 @@
           </div>
           <div class="login-code-passphrase">
             <span class="passphrase-label">{{ t('symbol-passphrase') }}</span>
-            <span class="passphrase-value">{{ loginCodePassphrase }}</span>
+            <div class="passphrase-icons">
+              <i
+                v-for="(char, index) in loginCodePassphrase"
+                :key="index"
+                :class="codeCharToIcon[char]"
+                class="passphrase-icon"
+              />
+            </div>
           </div>
         </div>
       </template>
@@ -996,6 +1090,7 @@ import TeacherStudentAgreementModal from './teacher-student-agreement-modal.vue'
 import GroupCard from '@/components/groups/GroupCard.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
+import codeCharToIcon from '@/utils/code-char-to-icon.js'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import { useToast } from '@/utils/useToast.js'
 import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
@@ -1027,6 +1122,7 @@ const newGroupName = ref('')
 const newGroupGrade = ref('')
 const newGroupSubject = ref('')
 const searchQuery = ref('')
+const groupSearchFilter = ref('')
 const selectedStudents = ref([])
 const addToGroupsResults = ref(null)
 const manageGroupId = ref(null)
@@ -1036,6 +1132,11 @@ const activeStatusFilters = ref([])
 const activeGroupFilters = ref([])
 const archiveConfirmStudent = ref(null)
 const deleteConfirmStudent = ref(null)
+const archiveSelectedConfirm = ref(false)
+const deleteSelectedConfirm = ref(false)
+const archiveConfirmGroup = ref(null)
+const restoreConfirmStudent = ref(null)
+const restoreConfirmGroup = ref(null)
 const resetPasswordStudent = ref(null)
 const loginCodeStudent = ref(null)
 const deleteConfirmGroup = ref(null)
@@ -1055,7 +1156,7 @@ const bulkEntryRows = ref([
   { name: '', nickname: '', grade: '' },
 ])
 // ── Toast notifications ──
-const { error: toastError } = useToast()
+const { error: toastError, success: toastSuccess, info: toastInfo } = useToast()
 const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
 
 // ── Loading states ──
@@ -1260,6 +1361,15 @@ async function openStudentProfile(studentId) {
 const activeGroups = computed(() => store.getters['groups/groups']('class', true))
 const archivedGroups = computed(() => store.getters['groups/archivedGroups']('class'))
 
+const filteredActiveGroups = computed(() => {
+  if (!groupSearchFilter.value) return activeGroups.value
+  const q = groupSearchFilter.value.toLowerCase()
+  return activeGroups.value.filter(gid => {
+    const name = store.state.groups.groups[gid]?.name || ''
+    return name.toLowerCase().includes(q)
+  })
+})
+
 async function handleCreateGroup() {
   const name = newGroupName.value.trim()
   if (!name) return
@@ -1275,10 +1385,11 @@ async function handleCreateGroup() {
     newGroupGrade.value = ''
     newGroupSubject.value = ''
     showCreateGroupModal.value = false
-    showSuccessDialog(t('success'), () => {
-      manageGroupShowBack.value = true
-      manageGroupId.value = id
-    })
+    showSuccessDialog(
+      t('group-created-successfully') || 'Group created successfully',
+      t('you-can-now-add-students-to-this-group') || 'You can now add students to this group',
+      () => { manageGroupShowBack.value = true; manageGroupId.value = id }
+    )
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1306,7 +1417,7 @@ async function handleSaveGroup() {
     await Agent.synced()
     await store.dispatch('groups/loadGroups')
     editGroupId.value = null
-    showSuccessDialog(t('success'))
+    showSuccessDialog(t('group-updated-successfully') || 'Group updated successfully')
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1315,8 +1426,14 @@ async function handleSaveGroup() {
   }
 }
 
-function archiveGroup(id) {
-  store.dispatch('groups/archive', id)
+function confirmArchiveGroup(id) {
+  archiveConfirmGroup.value = id
+}
+
+async function executeArchiveGroup() {
+  if (!archiveConfirmGroup.value) return
+  await store.dispatch('groups/archive', archiveConfirmGroup.value)
+  archiveConfirmGroup.value = null
 }
 
 function unarchiveGroup(id) {
@@ -1403,7 +1520,7 @@ async function executeDeleteStudent() {
       }
     }
     deleteConfirmStudent.value = null
-    showSuccessDialog(t('success'))
+    showSuccessDialog(t('student-removed-successfully') || 'Student removed successfully')
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1434,9 +1551,11 @@ async function executeResetPassword() {
     const usersState = await Agent.state('users')
     if (usersState[studentId]) usersState[studentId].secret = newSecret
     resetPasswordStudent.value = null
-    showSuccessDialog(t('success'), () => {
-      loginCodeStudent.value = { id: studentId }
-    })
+    showSuccessDialog(
+      t('password-reset-successfully') || 'Password reset successfully',
+      t('new-login-code-is-ready') || 'New login code is ready',
+      () => { loginCodeStudent.value = { id: studentId } }
+    )
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1456,13 +1575,66 @@ async function executeDeleteGroup() {
   try {
     await store.dispatch('groups/archive', deleteConfirmGroup.value)
     deleteConfirmGroup.value = null
-    showSuccessDialog(t('success'))
+    showSuccessDialog(t('group-deleted-successfully') || 'Group deleted successfully')
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
   } finally {
     deletingGroup.value = false
   }
+}
+
+async function executeArchiveSelected() {
+  const usersState = await Agent.state('users')
+  for (const s of selectedStudents.value) {
+    if (usersState[s.id]) usersState[s.id].archived = true
+  }
+  archiveSelectedConfirm.value = false
+  selectedStudents.value = []
+  showSuccessDialog(t('students-archived-successfully'))
+}
+
+async function executeDeleteSelected() {
+  deletingStudent.value = true
+  try {
+    const usersState = await Agent.state('users')
+    for (const s of selectedStudents.value) {
+      if (usersState[s.id]) usersState[s.id].archived = true
+      for (const gid of activeGroups.value) {
+        if (store.getters['groups/belongs'](s.id, gid)) {
+          await store.dispatch('groups/removeMember', { user_id: s.id, group_id: gid })
+        }
+      }
+    }
+    deleteSelectedConfirm.value = false
+    selectedStudents.value = []
+    showSuccessDialog(t('students-removed-successfully'))
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    deletingStudent.value = false
+  }
+}
+
+function confirmRestoreStudent(item) {
+  restoreConfirmStudent.value = item
+}
+
+async function executeRestoreStudent() {
+  if (!restoreConfirmStudent.value) return
+  await toggleArchiveStudent(restoreConfirmStudent.value)
+  restoreConfirmStudent.value = null
+}
+
+function confirmRestoreGroup(id) {
+  restoreConfirmGroup.value = id
+}
+
+async function executeRestoreGroup() {
+  if (!restoreConfirmGroup.value) return
+  store.dispatch('groups/unarchive', restoreConfirmGroup.value)
+  restoreConfirmGroup.value = null
 }
 
 const codeCharacterSet = 'abcdefghijklmnopqrstuvwxy'
@@ -1534,7 +1706,10 @@ async function createStudentAccount() {
     newStudentName.value = ''
     newStudentNickname.value = ''
     newStudentGrade.value = ''
-    showSuccessDialog(t('success'))
+    showSuccessDialog(
+      t('student-account-created') || 'Student account created',
+      t('login-code-is-ready-for-download') || 'Login code is ready for download'
+    )
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1827,6 +2002,24 @@ function copyToClipboard(text) {
   navigator.clipboard.writeText(text).catch(() => {})
 }
 
+async function handleDropStudent(groupId, studentId) {
+  const members = store.getters['groups/members'](groupId)
+  if (members.some(m => m.user_id === studentId)) {
+    toastInfo(t('student-already-in-group') || 'Student already in group')
+    return
+  }
+  await store.dispatch('groups/addMember', { user_id: studentId, group_id: groupId })
+  const groupName = store.state.groups.groups[groupId]?.name || t('unnamed')
+  toastSuccess(`${t('student-added-to-group') || 'Student added to'} ${groupName}`)
+}
+
+function handlePrintGroupLoginCodes(groupId) {
+  const members = store.getters['groups/members'](groupId)
+  const ids = members.map(m => m.user_id).join(',')
+  if (!ids) return
+  window.open(`/teacher/codes?students=${encodeURIComponent(ids)}`)
+}
+
 function printLoginCodes() {
   const ids = selectedStudents.value.map(s => s.id).join(',')
   window.open(`/teacher/codes?students=${encodeURIComponent(ids)}`)
@@ -1944,6 +2137,7 @@ function printLoginCodes() {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow-y: auto;
 }
 
 .group-section-header {
@@ -1957,6 +2151,13 @@ function printLoginCodes() {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.no-results-text {
+  font-size: 13px;
+  color: var(--color-slate-400);
+  text-align: center;
+  padding: 24px 0;
 }
 
 .archived-groups-section {
@@ -2104,6 +2305,16 @@ function printLoginCodes() {
   color: #334155;
 }
 
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+.profile-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .profile-row {
   display: flex;
   align-items: center;
@@ -2215,17 +2426,18 @@ function printLoginCodes() {
   font-size: 12px;
   font-weight: 600;
   color: var(--color-slate-500);
-  padding: 8px 6px;
+  padding: 10px 10px;
   border-bottom: 1px solid var(--color-slate-200);
   white-space: nowrap;
 }
 .bulk-entry-table td {
-  padding: 4px 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
 }
 .bulk-input {
   width: 100%;
   font-size: 13px;
-  padding: 6px 8px;
+  padding: 8px 12px;
   border: 1px solid var(--color-slate-200);
   border-radius: 6px;
 }
@@ -2244,6 +2456,11 @@ function printLoginCodes() {
 .bulk-delete-row:hover {
   background: #fee2e2;
   color: #dc2626;
+}
+.required-label {
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 11px;
 }
 
 /* Assign groups modal */
@@ -2334,11 +2551,14 @@ function printLoginCodes() {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.passphrase-value {
-  font-size: 18px;
-  font-weight: 600;
+.passphrase-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.passphrase-icon {
+  font-size: 20px;
   color: #334155;
-  letter-spacing: 0.1em;
 }
 
 /* Encryption key modal */

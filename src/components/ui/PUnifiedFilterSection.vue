@@ -4,19 +4,6 @@
     <button class="ufs-header" @click="toggleExpand">
       <LucideIcon v-if="icon" :name="icon" :size="14" class="ufs-header-icon" />
       <span class="ufs-header-label">{{ label }}</span>
-      <!-- Mini chips when collapsed -->
-      <div v-if="!isExpanded && modelValue.length" class="ufs-mini-chips">
-        <span
-          v-for="val in modelValue"
-          :key="val"
-          class="ufs-mini-chip"
-        >
-          {{ labelFor(val) }}
-          <button class="ufs-mini-chip-remove" @click.stop="removeValue(val)">
-            <LucideIcon name="x" :size="8" />
-          </button>
-        </span>
-      </div>
       <LucideIcon
         :name="isExpanded ? 'chevron-up' : 'chevron-down'"
         :size="12"
@@ -50,7 +37,7 @@
             class="ufs-option-checkbox"
             @change="toggle(opt.value)"
           />
-          <span class="ufs-option-label">{{ opt.label }}</span>
+          <span class="ufs-option-label" v-html="highlightMatch(opt.label, internalQuery)"></span>
           <span v-if="opt.count != null" class="ufs-option-count">{{ opt.count }}</span>
         </label>
         <div v-if="!filteredOptions.length" class="ufs-empty">
@@ -103,6 +90,12 @@ function toggle(value) {
 
 function removeValue(value) {
   emit('update:modelValue', props.modelValue.filter(v => v !== value))
+}
+
+function highlightMatch(text, query) {
+  if (!query) return text
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>')
 }
 
 function labelFor(value) {
@@ -186,47 +179,6 @@ watch(isExpanded, async (val) => {
   margin-left: auto;
 }
 
-.ufs-mini-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.ufs-mini-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 1px 6px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 3px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #2563eb;
-  white-space: nowrap;
-}
-
-.ufs-mini-chip-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  border: none;
-  background: transparent;
-  color: #2563eb;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 2px;
-}
-
-.ufs-mini-chip-remove:hover {
-  background: #dbeafe;
-}
-
 .ufs-body {
   padding: 0 0 8px;
 }
@@ -297,6 +249,13 @@ watch(isExpanded, async (val) => {
   flex: 1;
   font-size: 13px;
   color: #334155;
+}
+
+.ufs-option-label :deep(mark) {
+  background: #fef08a;
+  border-radius: 2px;
+  padding: 0 1px;
+  color: inherit;
 }
 
 .ufs-option-count {

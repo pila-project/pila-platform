@@ -405,7 +405,7 @@
         <span>{{ t('duplicate-info-text') }}</span>
       </div>
       <div style="margin-top: 16px;">
-        <PInput v-model="duplicateNewTitle" :label="t('new-assignment-title')" />
+        <PInput v-model="duplicateNewTitle" :label="t('new-assignment-title')" required />
       </div>
     </template>
     <template #footer>

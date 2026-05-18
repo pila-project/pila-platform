@@ -43,6 +43,7 @@
             v-model="form.name"
             label="Assignment Title"
             placeholder="e.g, Mathematics Quiz - Fractions"
+            required
           />
           <PInput
             v-model="form.description"
@@ -57,6 +58,7 @@
               label="Assignment type"
               placeholder="Assignment"
               :items="assignmentTypeOptions"
+              required
             />
             <PInput
               v-model="form.dueDate"

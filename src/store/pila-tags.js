@@ -8,6 +8,9 @@
 import URL_CONTENT_DATA from '@/utils/url-content-data.js'
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
+import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
+
+let firstLoad = true
 
 function existing_tag(state, content_id, tag_type, user) {
   let existing = null
@@ -70,9 +73,30 @@ export default {
     }
   },
   actions: {
-    async load({ commit, getters }) {
-      const tags = await Agent.query('pila_tags')
-      tags.forEach(tag => commit('add', tag))
+    async load({ commit, getters, rootState }) {
+      const userId = rootState.user
+      let usedCache = false
+
+      if (firstLoad && userId) {
+        const cached = await localCache.get(userId, 'pila_tags', 'all')
+        if (cached) {
+          usedCache = true
+          cached.forEach(tag => commit('add', tag))
+        }
+        firstLoad = false
+      }
+
+      if (usedCache) beginRevalidation()
+      try {
+        const tags = await Agent.query('pila_tags')
+        tags.forEach(tag => commit('add', tag))
+
+        if (userId) {
+          localCache.set(userId, 'pila_tags', 'all', tags)
+        }
+      } finally {
+        if (usedCache) endRevalidation()
+      }
 
       const myPILATaggedContent = getters.withTag('tracked')
       const myContent = await Agent.state('my-content')

@@ -1,5 +1,6 @@
 import getName from './name-and-translation-for-content.js'
 import getImageFromContent from './image-ref-for-content.js'
+import { localCache } from './local-cache.js'
 
 // ── Module-level caches — persist across component mounts ──
 const nameCache = new Map()
@@ -161,6 +162,29 @@ export async function prefetchBatch(ids, lang, partition, leafToCategory) {
 // ── Cache access (synchronous reads) ──
 
 export { nameCache, metadataCache, tagCache, imageCache, tagNameCache }
+
+// ── Disk persistence (IndexedDB) ──
+
+export async function seedFromDisk(userId) {
+  const cached = await localCache.get(userId, 'content', 'maps')
+  if (!cached) return false
+  if (cached.names) for (const [k, v] of cached.names) nameCache.set(k, v)
+  if (cached.metadata) for (const [k, v] of cached.metadata) metadataCache.set(k, v)
+  if (cached.tags) for (const [k, v] of cached.tags) tagCache.set(k, v)
+  if (cached.images) for (const [k, v] of cached.images) imageCache.set(k, v)
+  if (cached.tagNames) for (const [k, v] of cached.tagNames) tagNameCache.set(k, v)
+  return true
+}
+
+export function persistToDisk(userId) {
+  localCache.set(userId, 'content', 'maps', {
+    names: [...nameCache],
+    metadata: [...metadataCache],
+    tags: [...tagCache],
+    images: [...imageCache],
+    tagNames: [...tagNameCache],
+  })
+}
 
 // ── Invalidation ──
 
