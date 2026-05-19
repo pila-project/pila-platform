@@ -37,7 +37,7 @@
       </button>
     </div>
 
-    <!-- Dropdown panel -->
+    <!-- Dropdown panel (only renders when filter sections exist) -->
     <Transition
       enter-active-class="transition ease-out duration-100"
       enter-from-class="opacity-0 scale-95"
@@ -46,7 +46,7 @@
       leave-from-class="opacity-100 scale-100"
       leave-to-class="opacity-0 scale-95"
     >
-      <div v-show="isDropdownOpen" class="unified-filter-dropdown">
+      <div v-show="isDropdownOpen && hasSections" class="unified-filter-dropdown">
         <slot />
       </div>
     </Transition>
@@ -98,6 +98,8 @@ watch(() => props.searchQuery, (val) => {
 // Section registry
 const sections = shallowReactive(new Map())
 
+const hasSections = computed(() => sections.size > 0)
+
 function registerSection(id, meta) {
   sections.set(id, meta)
 }
@@ -129,7 +131,9 @@ const allChips = computed(() => {
 })
 
 function openDropdown() {
-  isDropdownOpen.value = true
+  if (hasSections.value) {
+    isDropdownOpen.value = true
+  }
   nextTick(() => {
     searchInputRef.value?.focus()
   })

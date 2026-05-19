@@ -1052,21 +1052,10 @@
       </template>
     </PModal>
 
-    <PModal
+    <EncryptionKeyModal
       v-if="showNamePasswordModal"
       @close="closeNamePasswordModal"
-      show-close-button
-      :close-button-text="t('done')"
-      width="600px"
-      :title="t('enter-encryption-key-word')"
-    >
-      <template #body>
-        <div class="encryption-key-body">
-          {{ t('enter-an-encryption-key-word-you-will-remember-t') }}
-          <input v-model="namePassword" class="input encryption-key-input" />
-        </div>
-      </template>
-    </PModal>
+    />
 
     <TeacherStudentAgreementModal
       v-if="showAcceptStudentAgreementModal"
@@ -1079,7 +1068,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
-import naclUtil from 'tweetnacl-util'
 import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
@@ -1094,7 +1082,8 @@ import codeCharToIcon from '@/utils/code-char-to-icon.js'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import { useToast } from '@/utils/useToast.js'
 import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
-import * as encryption from '@/utils/encryption.js'
+import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
+import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -1172,20 +1161,12 @@ const exporting = ref(false)
 const addingToGroups = ref(false)
 
 // ── Encryption key ──
-const namePassword = ref(localStorage.getItem(`zkek-${store.state.user}`) || '')
-const showNamePasswordModal = ref(!namePassword.value)
-const hasEncryptionKey = computed(() => !!namePassword.value)
-
-watch(namePassword, async (val) => {
-  localStorage.setItem(`zkek-${store.state.user}`, val)
-  const publicKeys = await Agent.state('user-info-public-keys')
-  const { publicKey: publicKeyBuffer } = await encryption.generateKeyPair(val)
-  publicKeys.public = naclUtil.encodeBase64(publicKeyBuffer)
-})
-
-function closeNamePasswordModal() {
-  showNamePasswordModal.value = false
-}
+const {
+  hasEncryptionKey,
+  showEncryptionKeyModal: showNamePasswordModal,
+  closeEncryptionKeyModal: closeNamePasswordModal,
+} = useEncryptionKey(store)
+showNamePasswordModal.value = !hasEncryptionKey.value
 
 // ── Users watcher ──
 let unwatchUsers
@@ -2028,7 +2009,6 @@ function printLoginCodes() {
 
 <style scoped>
 .admin-page {
-  padding: 32px 24px;
 }
 
 .admin-layout {
@@ -2559,20 +2539,6 @@ function printLoginCodes() {
 .passphrase-icon {
   font-size: 20px;
   color: #334155;
-}
-
-/* Encryption key modal */
-.encryption-key-body {
-  padding: 20px 42px;
-  text-align: center;
-  font-size: 14px;
-  color: var(--color-slate-600);
-}
-
-.encryption-key-input {
-  width: 60%;
-  text-align: center;
-  margin-top: 16px;
 }
 
 /* Mobile responsive */

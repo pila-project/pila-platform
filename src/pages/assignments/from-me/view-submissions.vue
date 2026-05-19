@@ -75,60 +75,46 @@
           <!-- Student submissions section -->
           <div class="vso-submissions">
             <h4 class="vso-section-label">{{ t('student-submissions') }}:</h4>
-            <input
-              v-model="studentSearch"
-              class="vso-search input"
+            <PUnifiedFilter
+              v-model:searchQuery="studentSearch"
               :placeholder="t('search-student')"
+              class="vso-search"
             />
 
             <!-- Student table -->
             <div class="vso-table-wrapper">
-              <table class="vso-table">
-                <thead>
-                  <tr>
-                    <th class="vso-th"><input type="checkbox" class="assign-checkbox" /></th>
-                    <th class="vso-th">{{ t('student-name') }}</th>
-                    <th class="vso-th">{{ t('submitted') }} <LucideIcon name="arrow-up-down" :size="10" /></th>
-                    <th class="vso-th">{{ t('assignment-status') }} <LucideIcon name="arrow-up-down" :size="10" /></th>
-                    <th class="vso-th">{{ t('feedback') }}</th>
-                    <th class="vso-th">{{ t('individual-submission') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(sid, i) in filteredStudents" :key="sid" class="vso-tr">
-                    <td class="vso-td"><input type="checkbox" class="assign-checkbox" /></td>
-                    <td class="vso-td">{{ getStudentDisplayName(sid, i) }}</td>
-                    <td class="vso-td">{{ getStudentSubmittedDate(sid) }}</td>
-                    <td class="vso-td">
-                      <span :class="getStudentStatusClass(sid)">{{ getStudentStatusText(sid) }}</span>
-                    </td>
-                    <td class="vso-td">
-                      <span v-if="getStudentStatusText(sid) === t('not-started')" class="vso-feedback-none">{{ t('no-submission') }}</span>
-                      <button v-else-if="hasStudentFeedback(sid)" class="vso-feedback-btn vso-feedback-edit" @click="openDetailView(i)">
-                        <LucideIcon name="pencil" :size="12" /> {{ t('edit-feedback') }}
-                      </button>
-                      <button v-else class="vso-feedback-btn vso-feedback-add" @click="openDetailView(i)">
-                        <LucideIcon name="plus" :size="12" /> {{ t('add-feedback') }}
-                      </button>
-                    </td>
-                    <td class="vso-td">
-                      <button class="vso-view-btn" @click="openDetailView(i)">{{ t('view') }}</button>
-                    </td>
-                  </tr>
-                  <tr v-if="filteredStudents.length === 0">
-                    <td colspan="6" class="vso-td" style="text-align: center; padding: 24px;">{{ t('no-students-found') }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Pagination info -->
-            <div class="vso-pagination">
-              <span class="vso-pagination-info">{{ selectedOverviewRows.size }} {{ t('of') }} {{ students.length }} {{ t('rows-selected') }}</span>
-              <div class="vso-pagination-nav">
-                <span class="vso-page-link" @click="">{{ t('previous') }}</span>
-                <span class="vso-page-link" @click="">{{ t('next') }}</span>
-              </div>
+              <PTable
+                :headers="vsTableHeaders"
+                :items="vsTableItems"
+                item-key="id"
+                selectable
+                :selected="selectedStudentItems"
+                @update:selected="selectedStudentItems = $event"
+                :no-data-text="t('no-students-found')"
+                :items-per-page="10"
+              >
+                <template #item.studentName="{ item }">
+                  {{ item.studentName }}
+                </template>
+                <template #item.submitted="{ item }">
+                  {{ item.submitted }}
+                </template>
+                <template #item.status="{ item }">
+                  <span :class="getStudentStatusClass(item.id)">{{ item.status }}</span>
+                </template>
+                <template #item.feedback="{ item }">
+                  <span v-if="getStudentStatusText(item.id) === t('not-started')" class="vso-feedback-none">{{ t('no-submission') }}</span>
+                  <button v-else-if="hasStudentFeedback(item.id)" class="vso-feedback-btn vso-feedback-edit" @click="openDetailView(item.id)">
+                    <LucideIcon name="pencil" :size="12" /> {{ t('edit-feedback') }}
+                  </button>
+                  <button v-else class="vso-feedback-btn vso-feedback-add" @click="openDetailView(item.id)">
+                    <LucideIcon name="plus" :size="12" /> {{ t('add-feedback') }}
+                  </button>
+                </template>
+                <template #item.submission="{ item }">
+                  <button class="vso-view-btn" @click="openDetailView(item.id)">{{ t('view') }}</button>
+                </template>
+              </PTable>
             </div>
           </div>
 
@@ -288,18 +274,12 @@
         <!-- Right sidebar: Overview/Details -->
         <div class="vs-sidebar-right">
           <!-- Tabs -->
-          <div class="vs-tabs">
-            <button
-              class="vs-tab"
-              :class="{ 'vs-tab-active': rightTab === 'overview' }"
-              @click="rightTab = 'overview'"
-            >{{ t('overview') }}</button>
-            <button
-              class="vs-tab"
-              :class="{ 'vs-tab-active': rightTab === 'details' }"
-              @click="rightTab = 'details'"
-            >{{ t('details') }}</button>
-          </div>
+          <PTabs
+            v-model="rightTab"
+            :tabs="rightTabDefs"
+            type="line"
+            stretch
+          />
 
           <!-- Overview tab -->
           <div v-if="rightTab === 'overview'" class="vs-tab-content">
@@ -428,6 +408,7 @@
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
+  import { PUnifiedFilter, PTable, PTabs } from '@/components/ui/index.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -446,6 +427,10 @@
   const selectedStudentIndex = ref(0)
   const selectedItemIndex = ref(0)
   const rightTab = ref('overview')
+  const rightTabDefs = computed(() => [
+    { key: 'overview', label: t('overview') },
+    { key: 'details', label: t('details') },
+  ])
   const performanceData = ref(null)
   const submittedAt = ref(null)
   const maxAttempts = ref('1')
@@ -453,7 +438,7 @@
 
   // Overview state
   const studentSearch = ref('')
-  const selectedOverviewRows = reactive(new Set())
+  const selectedStudentItems = ref([])
   const studentStatusCache = reactive({})
   const studentFeedbackCache = reactive({})
 
@@ -591,8 +576,26 @@
     return !!studentFeedbackCache[sid]
   }
 
-  function openDetailView(studentIndex) {
-    selectedStudentIndex.value = studentIndex
+  const vsTableHeaders = computed(() => [
+    { key: 'studentName', title: t('student-name') },
+    { key: 'submitted', title: t('submitted') },
+    { key: 'status', title: t('assignment-status') },
+    { key: 'feedback', title: t('feedback'), sortable: false },
+    { key: 'submission', title: t('individual-submission'), sortable: false },
+  ])
+
+  const vsTableItems = computed(() => {
+    return filteredStudents.value.map((sid, i) => ({
+      id: sid,
+      studentName: getStudentDisplayName(sid, i),
+      submitted: getStudentSubmittedDate(sid),
+      status: getStudentStatusText(sid),
+    }))
+  })
+
+  function openDetailView(studentId) {
+    const idx = students.value.indexOf(studentId)
+    selectedStudentIndex.value = idx >= 0 ? idx : 0
     viewMode.value = 'detail'
   }
 
@@ -1197,32 +1200,6 @@
   background: white;
 }
 
-.vs-tabs {
-  display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  flex-shrink: 0;
-}
-
-.vs-tab {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  background: none;
-  font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 150ms;
-}
-.vs-tab:hover {
-  color: #334155;
-}
-.vs-tab-active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
-}
-
 .vs-tab-content {
   flex: 1;
   overflow-y: auto;
@@ -1690,46 +1667,6 @@
   border-radius: 8px;
 }
 
-.vso-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.vso-th {
-  text-align: left;
-  padding: 10px 14px;
-  font-weight: 600;
-  font-size: 12px;
-  color: #64748b;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.vso-th :deep(svg) {
-  vertical-align: middle;
-  display: inline;
-  margin-left: 4px;
-  cursor: pointer;
-}
-
-.vso-tr {
-  border-bottom: 1px solid #f1f5f9;
-  transition: background 150ms;
-}
-
-.vso-tr:hover {
-  background: #f8fafc;
-}
-
-.vso-td {
-  padding: 10px 14px;
-  color: #334155;
-  vertical-align: middle;
-}
-
 /* Status badges */
 .vso-status-not-started {
   display: inline-block;
@@ -1827,36 +1764,6 @@
   border-color: #cbd5e1;
 }
 
-/* Pagination */
-.vso-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0 0;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.vso-pagination-info {
-  font-size: 12px;
-}
-
-.vso-pagination-nav {
-  display: flex;
-  gap: 16px;
-}
-
-.vso-page-link {
-  color: var(--color-primary-600, #4f46e5);
-  font-weight: 500;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.vso-page-link:hover {
-  text-decoration: underline;
-}
-
 /* Footer */
 .vso-footer {
   display: flex;
@@ -1949,14 +1856,6 @@
 
   .vso-search {
     max-width: 100%;
-  }
-
-  .vso-table-wrapper {
-    overflow-x: auto;
-  }
-
-  .vso-table {
-    min-width: 600px;
   }
 
   .vso-footer {

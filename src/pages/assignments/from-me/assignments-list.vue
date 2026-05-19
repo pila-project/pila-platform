@@ -1,6 +1,6 @@
 <template>
   <div class="page-container assign-page">
-    <h1 class="page-heading assign-heading capitalize">{{ t('assign-and-monitor') }}</h1>
+    <h1 class="page-heading assign-heading capitalize">{{ t('assignments') }}</h1>
 
     <div class="content-card assign-card">
       <!-- Card header -->
@@ -9,7 +9,7 @@
           <div>
             <h2 class="card-section-title flex items-center gap-2">
               <LucideIcon name="clipboard-list" :size="18" class="text-primary-600" />
-              <span class="capitalize">{{ t('assignments') }}</span>
+              <span>{{ titleCase(t('assignments')) }}</span>
             </h2>
             <p class="card-section-subtitle">{{ t('create-and-manage-assignments') }}</p>
           </div>
@@ -62,222 +62,160 @@
 
       <!-- Data table -->
       <div class="assign-table-wrapper">
-        <table class="assign-table">
-          <thead>
-            <tr class="assign-table-header">
-              <th class="assign-th assign-th-checkbox">
-                <input
-                  type="checkbox"
-                  class="assign-checkbox"
-                  :checked="allSelected"
-                  @change="toggleSelectAll"
-                />
-              </th>
-              <th class="assign-th assign-th-title assign-th-sortable" @click="toggleSort('title')">{{ t('assignment-title') }} <LucideIcon :name="sortIcon('title')" :size="10" class="assign-sort-icon" /></th>
-              <th class="assign-th assign-th-date assign-th-sortable" @click="toggleSort('dueDate')">{{ t('due-date') }} <LucideIcon :name="sortIcon('dueDate')" :size="10" class="assign-sort-icon" /></th>
-              <th class="assign-th assign-th-status assign-th-sortable" @click="toggleSort('status')">{{ t('publication-status') }} <LucideIcon :name="sortIcon('status')" :size="10" class="assign-sort-icon" /></th>
-              <th class="assign-th assign-th-assigned">{{ t('assigned-to') }}</th>
-              <th class="assign-th assign-th-submissions">{{ t('assignment-submissions') }}</th>
-              <th class="assign-th assign-th-actions">{{ t('actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="paginatedAssignments.length === 0" class="assign-row">
-              <td colspan="7" class="assign-td text-center" style="padding: 32px 16px; color: #64748b;">
-                {{ searchQuery || statusFilter.length || typeFilter.length ? t('no-assignments-match-filters') : t('no-data-available') }}
-              </td>
-            </tr>
-            <tr
-              v-for="item in paginatedAssignments"
-              :key="item"
-              class="assign-row"
-              :class="{ 'assign-row-selected': current === item }"
-              @click="handleRowClick(item)"
-            >
-              <!-- Checkbox -->
-              <td class="assign-td assign-td-checkbox" @click.stop>
-                <input
-                  type="checkbox"
-                  class="assign-checkbox"
-                  :checked="selectedRows.has(item)"
-                  @change="toggleRowSelection(item)"
-                />
-              </td>
-              <!-- Assignment Title -->
-              <td class="assign-td assign-td-title">
-                <div class="assign-cell-title">
-                  <vueScopeComponent :id="item" :path="['name']" />
-                  <span v-if="assignmentData[item]?.assignmentType" class="assign-type-dot"> . </span>
-                  <span v-if="assignmentData[item]?.assignmentType" :class="getTypeBadgeClass(assignmentData[item].assignmentType)">
-                    {{ t(assignmentData[item].assignmentType.toLowerCase()) }}
-                  </span>
-                </div>
-                <div class="assign-cell-desc">
-                  <vueScopeComponent :id="item" :path="['description']">
-                    <template v-slot="data">
-                      {{ data.value || t('no-description') }}
-                    </template>
-                  </vueScopeComponent>
-                </div>
-              </td>
-              <!-- Due Date -->
-              <td class="assign-td">
-                <span class="assign-cell-text">
-                  {{ getDueDate(item) }}
-                </span>
-              </td>
-              <!-- Publication status -->
-              <td class="assign-td">
-                <span :class="getStatusBadgeClass(item)">
-                  {{ t(getStatus(item).toLowerCase()) }}
-                </span>
-                <div v-if="getStatus(item) === 'Scheduled' && assignmentData[item]?.dueDate" class="assign-cell-desc">
-                  {{ t('for') }} {{ formatDate(assignmentData[item].dueDate) }}
-                </div>
-              </td>
-              <!-- Assigned to -->
-              <td class="assign-td">
-                <template v-if="getAssignedGroups(item).length > 0">
-                  <div class="assign-cell-title">
-                    <vueScopeComponent
-                      v-for="groupId in getAssignedGroups(item).slice(0, 1)"
-                      :key="groupId"
-                      :id="groupId"
-                      :path="['name']"
-                    />
-                  </div>
-                  <div class="assign-cell-desc">
-                    {{ getAssignedGroups(item).length }} {{ getAssignedGroups(item).length > 1 ? t('groups') : t('group') }}
-                  </div>
+        <PTable
+          :headers="tableHeaders"
+          :items="tableItems"
+          itemKey="id"
+          selectable
+          :selected="selectedItems"
+          @update:selected="selectedItems = $event"
+          clickableRows
+          :rowClass="(item) => item.id === current ? 'assign-row-current' : ''"
+          @click:row="(_, { item }) => handleRowClick(item.id)"
+          :noDataText="hasActiveFilters ? t('no-assignments-match-filters') : t('no-data-available')"
+          :itemsPerPage="10"
+          :itemsPerPageOptions="[
+            { value: 10, title: '10' },
+            { value: 25, title: '25' },
+            { value: 50, title: '50' },
+          ]"
+        >
+          <template #item.title="{ item }">
+            <div class="assign-cell-title">
+              <vueScopeComponent :id="item.id" :path="['name']" />
+              <span v-if="assignmentData[item.id]?.assignmentType" class="assign-type-dot"> . </span>
+              <span v-if="assignmentData[item.id]?.assignmentType" :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)">
+                {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
+              </span>
+            </div>
+            <div class="assign-cell-desc">
+              <vueScopeComponent :id="item.id" :path="['description']">
+                <template v-slot="data">
+                  {{ data.value || t('no-description') }}
                 </template>
-                <span v-else class="assign-cell-text">{{ t('not-assigned') }}</span>
-              </td>
-              <!-- Assignment submissions -->
-              <td class="assign-td assign-td-submissions">
-                <template v-if="getAssignedGroups(item).length > 0 && getSubmissionProgress(item) != null">
-                  <div class="assign-progress-track">
-                    <div class="assign-progress-fill" :style="{ width: getSubmissionProgress(item) + '%' }" />
-                  </div>
-                  <span class="assign-cell-desc">{{ getSubmissionProgress(item) }}%</span>
+              </vueScopeComponent>
+            </div>
+          </template>
+          <template #item.dueDate="{ item }">
+            <span class="assign-cell-text">
+              {{ getDueDate(item.id) }}
+            </span>
+          </template>
+          <template #item.status="{ item }">
+            <span :class="getStatusBadgeClass(item.id)">
+              {{ t(getStatus(item.id).toLowerCase()) }}
+            </span>
+            <div v-if="getStatus(item.id) === 'Scheduled' && assignmentData[item.id]?.dueDate" class="assign-cell-desc">
+              {{ t('for') }} {{ formatDate(assignmentData[item.id].dueDate) }}
+            </div>
+          </template>
+          <template #item.assignedTo="{ item }">
+            <template v-if="getAssignedGroups(item.id).length > 0">
+              <div class="assign-cell-title">
+                <vueScopeComponent
+                  v-for="groupId in getAssignedGroups(item.id).slice(0, 1)"
+                  :key="groupId"
+                  :id="groupId"
+                  :path="['name']"
+                />
+              </div>
+              <div class="assign-cell-desc">
+                {{ getAssignedGroups(item.id).length }} {{ getAssignedGroups(item.id).length > 1 ? t('groups') : t('group') }}
+              </div>
+            </template>
+            <span v-else class="assign-cell-text">{{ t('not-assigned') }}</span>
+          </template>
+          <template #item.submissions="{ item }">
+            <template v-if="getAssignedGroups(item.id).length > 0 && getSubmissionProgress(item.id) != null">
+              <div class="assign-progress-track">
+                <div class="assign-progress-fill" :style="{ width: getSubmissionProgress(item.id) + '%' }" />
+              </div>
+              <span class="assign-cell-desc">{{ getSubmissionProgress(item.id) }}%</span>
+            </template>
+            <span v-else class="assign-cell-text assign-cell-text--muted">—</span>
+          </template>
+          <template #item.actions="{ item }">
+            <div @click.stop>
+              <PMenu alignRight>
+                <template #activator="{ props: menuProps }">
+                  <button class="assign-action-btn" @click="menuProps.onClick">
+                    <LucideIcon name="ellipsis-vertical" :size="14" />
+                  </button>
                 </template>
-                <!-- TODO: backend — submission tracking not yet available -->
-                <span v-else class="assign-cell-text assign-cell-text--muted">—</span>
-              </td>
-              <!-- Actions -->
-              <td class="assign-td assign-td-actions" @click.stop>
-                <PMenu alignRight>
-                  <template #activator="{ props }">
-                    <button class="assign-action-btn" @click="props.onClick">
-                      <LucideIcon name="ellipsis-vertical" :size="14" />
-                    </button>
-                  </template>
+                <PMenuItem
+                  :title="t('view-assignment-details')"
+                  prepend-icon="lucide:eye"
+                  @click="viewDetails(item.id)"
+                />
+                <PMenuItem
+                  :title="t('edit-assignment')"
+                  prepend-icon="lucide:pencil"
+                  @click="openEdit(item.id)"
+                />
+                <template v-if="getStatus(item.id) === 'Published'">
                   <PMenuItem
-                    :title="t('view-assignment-details')"
-                    prepend-icon="lucide:eye"
-                    @click="viewDetails(item)"
+                    :title="t('view-submissions')"
+                    prepend-icon="lucide:bar-chart"
+                    @click="openSubmissions(item.id)"
                   />
                   <PMenuItem
-                    :title="t('edit-assignment')"
-                    prepend-icon="lucide:pencil"
-                    @click="openEdit(item)"
+                    :title="t('view-analytics-dashboard')"
+                    :prepend-icon="dashboardSubmenuItem === item.id ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+                    keepOpen
+                    @click.prevent="toggleDashboardSubmenu(item.id)"
                   />
-                  <template v-if="getStatus(item) === 'Published'">
+                  <template v-if="dashboardSubmenuItem === item.id">
                     <PMenuItem
-                      :title="t('view-submissions')"
-                      prepend-icon="lucide:bar-chart"
-                      @click="openSubmissions(item)"
+                      :title="t('app-specific-dashboard')"
+                      class="menu-item-indent"
+                      @click="openDashboard(item.id)"
                     />
                     <PMenuItem
-                      :title="t('view-analytics-dashboard')"
-                      :prepend-icon="dashboardSubmenuItem === item ? 'lucide:chevron-up' : 'lucide:chevron-down'"
-                      keepOpen
-                      @click.prevent="toggleDashboardSubmenu(item)"
+                      :title="t('live-monitoring-dashboard')"
+                      class="menu-item-indent"
+                      @click="openLiveDashboard(item.id)"
                     />
-                    <template v-if="dashboardSubmenuItem === item">
-                      <PMenuItem
-                        :title="t('app-specific-dashboard')"
-                        class="menu-item-indent"
-                        @click="openDashboard(item)"
-                      />
-                      <PMenuItem
-                        :title="t('live-monitoring-dashboard')"
-                        class="menu-item-indent"
-                        @click="openLiveDashboard(item)"
-                      />
-                      <PMenuItem
-                        v-if="assignmentContainsCandli"
-                        :title="t('competency-dashboard')"
-                        class="menu-item-indent"
-                        @click="openCandliDashboard(item)"
-                      />
-                      <PMenuItem
-                        v-if="assignmentContainsGenAI"
-                        :title="t('generative-ai-module-dashboard')"
-                        class="menu-item-indent"
-                        @click="openGenAIDashboard(item)"
-                      />
-                    </template>
+                    <PMenuItem
+                      v-if="assignmentContainsCandli"
+                      :title="t('competency-dashboard')"
+                      class="menu-item-indent"
+                      @click="openCandliDashboard(item.id)"
+                    />
+                    <PMenuItem
+                      v-if="assignmentContainsGenAI"
+                      :title="t('generative-ai-module-dashboard')"
+                      class="menu-item-indent"
+                      @click="openGenAIDashboard(item.id)"
+                    />
                   </template>
-                  <PMenuItem
-                    :title="t('duplicate')"
-                    prepend-icon="lucide:copy"
-                    @click="startDuplicate(item)"
-                  />
-                  <PMenuItem
-                    v-if="archivedIds[item]"
-                    :title="t('unarchive')"
-                    prepend-icon="lucide:archive-restore"
-                    @click="readd(item)"
-                  />
-                  <PMenuItem
-                    v-else
-                    :title="t('archive')"
-                    prepend-icon="lucide:archive"
-                    @click="startArchive(item)"
-                  />
-                  <PMenuItem
-                    :title="t('delete')"
-                    prepend-icon="lucide:trash-2"
-                    class="menu-item-danger"
-                    @click="startDelete(item)"
-                  />
-                </PMenu>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="assign-pagination">
-        <span class="assign-pagination-info">
-          {{ selectedRows.size }} {{ t('of') }} {{ assignmentsForActiveTable.length }} {{ t('rows-selected') }}
-        </span>
-        <div class="assign-pagination-center">
-          {{ t('rows-per-page') }}
-          <select class="assign-per-page-select" v-model.number="perPage" @change="currentPage = 1">
-            <option :value="10">10</option>
-            <option :value="25">25</option>
-            <option :value="50">50</option>
-          </select>
-        </div>
-        <div class="assign-pagination-right">
-          <span class="assign-page-label">{{ t('page') }} {{ currentPage }} {{ t('of') }} {{ totalPages }}</span>
-          <div class="assign-page-buttons">
-            <button class="assign-page-btn" :disabled="currentPage <= 1" @click="currentPage = 1">
-              <LucideIcon name="chevrons-left" :size="11" />
-            </button>
-            <button class="assign-page-btn" :disabled="currentPage <= 1" @click="currentPage--">
-              <LucideIcon name="chevron-left" :size="11" />
-            </button>
-            <button class="assign-page-btn" :disabled="currentPage >= totalPages" @click="currentPage++">
-              <LucideIcon name="chevron-right" :size="11" />
-            </button>
-            <button class="assign-page-btn" :disabled="currentPage >= totalPages" @click="currentPage = totalPages">
-              <LucideIcon name="chevrons-right" :size="11" />
-            </button>
-          </div>
-        </div>
+                </template>
+                <PMenuItem
+                  :title="t('duplicate')"
+                  prepend-icon="lucide:copy"
+                  @click="startDuplicate(item.id)"
+                />
+                <PMenuItem
+                  v-if="archivedIds[item.id]"
+                  :title="t('unarchive')"
+                  prepend-icon="lucide:archive-restore"
+                  @click="readd(item.id)"
+                />
+                <PMenuItem
+                  v-else
+                  :title="t('archive')"
+                  prepend-icon="lucide:archive"
+                  @click="startArchive(item.id)"
+                />
+                <PMenuItem
+                  :title="t('delete')"
+                  prepend-icon="lucide:trash-2"
+                  class="menu-item-danger"
+                  @click="startDelete(item.id)"
+                />
+              </PMenu>
+            </div>
+          </template>
+        </PTable>
       </div>
     </div>
   </div>
@@ -443,7 +381,7 @@
   import { useRouter } from 'vue-router'
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection } from '@/components/ui/index.js'
+  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable } from '@/components/ui/index.js'
   import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
@@ -463,13 +401,12 @@
   const store = useStore()
   const router = useRouter()
   function t(slug) { return store.getters.t(slug) }
+  function titleCase(str) { return str?.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) ?? '' }
 
   // ── Core state ──
   const current = ref(null)
   const showEditModal = ref(false)
   const showArchived = ref(false)
-  const currentPage = ref(1)
-  const perPage = ref(10)
   const previewing = ref(null)
   const showResultsModal = ref(false)
   const showCandliResultsModal = ref(false)
@@ -479,31 +416,12 @@
   const assignmentContainsBetty = ref(null)
   const dashboardUrl = ref(null)
   const searchQuery = ref('')
-  const selectedRows = reactive(new Set())
+  const selectedItems = ref([])
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
   const dashboardSubmenuItem = ref(null)
   const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
   const wasCreating = ref(false)
-
-  // ── Sort state ──
-  const sortField = ref(null) // 'title' | 'dueDate' | 'status'
-  const sortDir = ref('asc') // 'asc' | 'desc'
-
-  function toggleSort(field) {
-    if (sortField.value === field) {
-      if (sortDir.value === 'asc') sortDir.value = 'desc'
-      else { sortField.value = null; sortDir.value = 'asc' }
-    } else {
-      sortField.value = field
-      sortDir.value = 'asc'
-    }
-  }
-
-  function sortIcon(field) {
-    if (sortField.value !== field) return 'arrow-up-down'
-    return sortDir.value === 'asc' ? 'arrow-up' : 'arrow-down'
-  }
 
   // ── Filter state ──
   const statusFilter = ref([])
@@ -640,55 +558,31 @@
       })
     }
 
-    // Sort
-    if (sortField.value) {
-      const dir = sortDir.value === 'asc' ? 1 : -1
-      items = [...items].sort((a, b) => {
-        const da = assignmentData[a]
-        const db = assignmentData[b]
-        if (!da || !db) return 0
-        if (sortField.value === 'title') {
-          return dir * (da.name || '').localeCompare(db.name || '')
-        }
-        if (sortField.value === 'dueDate') {
-          const ta = da.dueDate ? new Date(da.dueDate).getTime() : 0
-          const tb = db.dueDate ? new Date(db.dueDate).getTime() : 0
-          return dir * (ta - tb)
-        }
-        if (sortField.value === 'status') {
-          return dir * getStatus(a).localeCompare(getStatus(b))
-        }
-        return 0
-      })
-    }
-
     return items
   })
 
-  // ── Pagination ──
-  const totalPages = computed(() => Math.max(1, Math.ceil(assignmentsForActiveTable.value.length / perPage.value)))
+  // ── PTable config ──
+  const tableHeaders = computed(() => [
+    { key: 'title', title: t('assignment-title') },
+    { key: 'dueDate', title: t('due-date') },
+    { key: 'status', title: t('publication-status') },
+    { key: 'assignedTo', title: t('assigned-to'), sortable: false },
+    { key: 'submissions', title: t('assignment-submissions'), sortable: false },
+    { key: 'actions', title: t('actions'), sortable: false },
+  ])
 
-  const paginatedAssignments = computed(() => {
-    const start = (currentPage.value - 1) * perPage.value
-    return assignmentsForActiveTable.value.slice(start, start + perPage.value)
+  const tableItems = computed(() => {
+    return assignmentsForActiveTable.value.map(id => ({
+      id,
+      title: assignmentData[id]?.name || '',
+      dueDate: assignmentData[id]?.dueDate ? new Date(assignmentData[id].dueDate).getTime() : 0,
+      status: getStatus(id),
+    }))
   })
 
-  // Reset to page 1 when filters change
-  watch(assignmentsForActiveTable, () => { currentPage.value = 1 })
-
-  // ── Select all checkbox ──
-  const allSelected = computed(() => {
-    if (assignmentsForActiveTable.value.length === 0) return false
-    return assignmentsForActiveTable.value.every(id => selectedRows.has(id))
+  const hasActiveFilters = computed(() => {
+    return searchQuery.value || statusFilter.value.length || typeFilter.value.length || dueDateFilter.value || assignedToFilter.value.length
   })
-
-  function toggleSelectAll() {
-    if (allSelected.value) {
-      assignmentsForActiveTable.value.forEach(id => selectedRows.delete(id))
-    } else {
-      assignmentsForActiveTable.value.forEach(id => selectedRows.add(id))
-    }
-  }
 
   // ── Status derivation ──
   function getStatus(id) {
@@ -737,11 +631,6 @@
 
   function handleRowClick(item) {
     current.value = current.value === item ? null : item
-  }
-
-  function toggleRowSelection(item) {
-    if (selectedRows.has(item)) selectedRows.delete(item)
-    else selectedRows.add(item)
   }
 
   function formatDate(ts) {
@@ -987,88 +876,8 @@
   margin-top: 16px;
 }
 
-.assign-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.assign-table-header {
-  background: #f8fafc;
-}
-
-.assign-th {
-  padding: 16px;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
-  white-space: nowrap;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.assign-th-checkbox { width: 48px; }
-.assign-th-title { min-width: 240px; }
-.assign-th-date { width: 140px; }
-.assign-th-status { width: 180px; }
-.assign-th-assigned { width: 195px; }
-.assign-th-submissions { width: 236px; }
-.assign-th-actions { width: 92px; }
-
-.assign-th-sortable {
-  cursor: pointer;
-  user-select: none;
-}
-.assign-th-sortable:hover {
-  color: #334155;
-}
-
-.assign-sort-icon {
-  font-size: 10px;
-  color: #94a3b8;
-  margin-left: 4px;
-  vertical-align: middle;
-  display: inline;
-}
-
-.assign-row {
-  border-bottom: 1px solid #e2e8f0;
-  cursor: pointer;
-  transition: background-color 100ms;
-}
-.assign-row:last-child {
-  border-bottom: none;
-}
-.assign-row:hover {
-  background: #f8fafc;
-}
-.assign-row-selected {
-  background: #eff6ff;
-}
-
-.assign-td {
-  padding: 12px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #334155;
-  vertical-align: middle;
-}
-
-.assign-td-checkbox {
-  width: 48px;
-  text-align: center;
-}
-
-.assign-checkbox {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 1.5px solid #cbd5e1;
-  cursor: pointer;
-  accent-color: #2563eb;
-}
-
-.assign-td-title {
-  max-width: 228px;
+:deep(.assign-row-current) {
+  background: #eff6ff !important;
 }
 
 .assign-cell-title {
@@ -1122,10 +931,6 @@
 }
 
 /* Progress bar */
-.assign-td-submissions {
-  min-width: 180px;
-}
-
 .assign-progress-track {
   width: 183px;
   height: 8px;
@@ -1142,10 +947,6 @@
 }
 
 /* Actions */
-.assign-td-actions {
-  text-align: center;
-}
-
 .assign-action-btn {
   width: 32px;
   height: 32px;
@@ -1227,84 +1028,6 @@
   color: #dc2626 !important;
 }
 
-/* Pagination */
-.assign-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0 0 0;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.assign-pagination-info {
-  font-size: 14px;
-  font-weight: 400;
-  color: #64748b;
-}
-
-.assign-pagination-center {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-}
-
-.assign-per-page-select {
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 14px;
-  color: #334155;
-  background: white;
-  cursor: pointer;
-}
-
-.assign-pagination-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.assign-page-label {
-  font-size: 14px;
-  font-weight: 400;
-  color: #334155;
-}
-
-.assign-page-buttons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.assign-page-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #64748b;
-  font-size: 11px;
-  transition: all 150ms;
-}
-.assign-page-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  color: #334155;
-}
-.assign-page-btn:disabled {
-  color: #cbd5e1;
-  cursor: not-allowed;
-}
-
-
 /* ── Mobile Responsive ── */
 @media (max-width: 768px) {
   .assign-card-header {
@@ -1326,68 +1049,14 @@
     gap: 8px;
   }
 
-  /* Horizontally scrollable table */
   .assign-table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     margin-top: 12px;
   }
 
-  .assign-table {
-    min-width: 700px;
-  }
-
-  .assign-th {
-    padding: 12px 10px;
-    font-size: 13px;
-  }
-
-  .assign-td {
-    padding: 10px;
-    font-size: 11px;
-  }
-
-  .assign-th-title { min-width: 180px; }
-  .assign-th-date { width: 100px; }
-  .assign-th-status { width: 120px; }
-  .assign-th-assigned { width: 140px; }
-  .assign-th-submissions { width: 160px; }
-  .assign-th-actions { width: 60px; }
-
-  .assign-td-title {
-    max-width: 180px;
-  }
-
   .assign-progress-track {
     width: 120px;
-  }
-
-  .assign-pagination {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-    padding: 12px 0 0;
-  }
-
-  .assign-pagination-nav {
-    width: 100%;
-    justify-content: flex-end;
-  }
-}
-
-@media (max-width: 480px) {
-  .assign-table {
-    min-width: 500px;
-  }
-
-  .assign-th-status,
-  .assign-th-assigned {
-    display: none;
-  }
-
-  .assign-td:nth-child(4),
-  .assign-td:nth-child(5) {
-    display: none;
   }
 }
 </style>

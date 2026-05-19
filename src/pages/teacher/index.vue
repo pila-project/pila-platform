@@ -106,6 +106,11 @@
               @click="$router.push('/teacher/support')"
             />
             <PMenuItem
+              :title="t('enter-encryption-key-word')"
+              prepend-icon="lucide:key-round"
+              @click="showEncryptionKeyModal = true"
+            />
+            <PMenuItem
               :title="t('log-out')"
               prepend-icon="lucide:log-out"
               danger
@@ -114,6 +119,11 @@
           </PMenu>
         </div>
       </nav>
+
+      <EncryptionKeyModal
+        v-if="showEncryptionKeyModal"
+        @close="showEncryptionKeyModal = false"
+      />
 
       <!-- Main content -->
       <main class="teacher-main">
@@ -143,8 +153,10 @@
   import languageChoices from '@/store/language-choices.js'
   import { logout as doLogout } from '@/utils/logout.js'
   import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
+  import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+  const showEncryptionKeyModal = ref(false)
   const store = useStore()
   const router = useRouter()
   const userInfo = ref({})

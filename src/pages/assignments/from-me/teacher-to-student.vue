@@ -74,72 +74,26 @@
         <span class="content-cta-title">{{ t('add-content-item-or-sequence') }}</span>
       </div>
 
-      <!-- Search + Show tabs -->
-      <div class="cb-toolbar">
-        <PInput
-          v-model="cbSearch"
-          :placeholder="t('search-content-title')"
-          icon="lucide:search"
-          class="cb-search"
-        />
-        <div class="cb-show-tabs">
-          <span class="cb-show-label">{{ t('show') }}:</span>
-          <button class="cb-tab" :class="{ 'cb-tab-active': cbShowTab === 'all' }" @click="cbShowTab = 'all'">{{ t('all-content') }}</button>
-          <button class="cb-tab" :class="{ 'cb-tab-active': cbShowTab === 'expert' }" @click="cbShowTab = 'expert'">{{ t('pila-content') }}</button>
-          <button class="cb-tab" :class="{ 'cb-tab-active': cbShowTab === 'mine' }" @click="cbShowTab = 'mine'">{{ t('my-content') }}</button>
-        </div>
-      </div>
-
-      <!-- Content table -->
-      <div class="ct-wrapper">
-        <div v-if="cbLoading" class="cb-loading">
-          <LucideIcon name="loader-2" :size="14" :spin="true" /> {{ t('loading') }}...
-        </div>
-        <table v-else-if="cbFilteredList.length" class="ct-table">
-          <thead>
-            <tr>
-              <th class="ct-th ct-th-check"><input type="checkbox" class="ct-checkbox" :checked="ctAllSelected" @change="ctToggleAll" /></th>
-              <th class="ct-th ct-th-title">{{ t('title-and-details') }} <LucideIcon name="arrow-up-down" :size="10" /></th>
-              <th class="ct-th">{{ t('last-modified') }} <LucideIcon name="arrow-up-down" :size="10" /></th>
-              <th class="ct-th">{{ t('content-type') }}</th>
-              <th class="ct-th">{{ t('grade') }}</th>
-              <th class="ct-th">{{ t('actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="id in cbFilteredList" :key="id" class="ct-tr" :class="{ 'ct-tr-selected': contentList.includes(id) }">
-              <td class="ct-td"><input type="checkbox" class="ct-checkbox" :checked="contentList.includes(id)" @change="ctToggleRow(id)" /></td>
-              <td class="ct-td ct-td-title">
-                <div class="ct-title-text">
-                  <NameOrTranslatedNameFromItemId :itemId="id" />
-                  <span class="ct-source-dot">.</span>
-                  <span class="ct-source-badge" :class="cbMyContent.includes(id) ? 'ct-source-mine' : 'ct-source-expert'">
-                    {{ cbMyContent.includes(id) ? t('my-content') : t('expert') }}
-                  </span>
-                </div>
-                <div class="ct-title-desc">{{ cbGetItemDescription(id) }}</div>
-              </td>
-              <td class="ct-td ct-td-date">{{ cbGetLastModified(id) }}</td>
-              <td class="ct-td">
-                <span :class="cbIsSequence(id) ? 'ct-type-sequence' : 'ct-type-item'">
-                  {{ cbIsSequence(id) ? t('sequence') : t('item') }}
-                </span>
-              </td>
-              <td class="ct-td"><span v-if="cbGetGrade(id)" class="ct-grade">{{ cbGetGrade(id) }}</span></td>
-              <td class="ct-td ct-td-actions">
-                <button class="ct-action-btn" @click.stop="previewing = id"><LucideIcon name="ellipsis-vertical" :size="14" /></button>
-                <span class="ct-drag"><LucideIcon name="grip-vertical" :size="14" /></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-else class="cb-empty">{{ t('no-content-found') }}</div>
-      </div>
-
-      <!-- Selected count -->
-      <div v-if="cbFilteredList.length" class="ct-selected-info">
-        {{ contentList.length }} {{ t('of') }} {{ cbFilteredList.length }} {{ t('rows-selected') }}.
-      </div>
+      <!-- Content browser (same as explore page) -->
+      <ContentBrowser
+        ref="step2BrowserRef"
+        :columns="2"
+        :per-page="6"
+        :per-page-options="[6, 12, 24]"
+        use-disk-cache
+      >
+        <template #card="{ id, source, grades }">
+          <TaggedContentCard
+            :id="id"
+            :checked="contentList.includes(id)"
+            :source="source"
+            :grades="grades"
+            @toggle-select="toggleStepContent(id)"
+            @preview="previewing = id"
+            @click="toggleStepContent(id)"
+          />
+        </template>
+      </ContentBrowser>
     </div>
 
 
@@ -340,56 +294,26 @@
           />
         </div>
 
-        <!-- Search + Show tabs -->
-        <div class="cb-toolbar">
-          <PInput
-            v-model="cbSearch"
-            :placeholder="t('search-content-title')"
-            icon="lucide:search"
-            class="cb-search"
-          />
-          <div class="cb-show-tabs">
-            <span class="cb-show-label">{{ t('show') }}:</span>
-            <button
-              class="cb-tab"
-              :class="{ 'cb-tab-active': cbShowTab === 'all' }"
-              @click="cbShowTab = 'all'"
-            >{{ t('all-content') }}</button>
-            <button
-              class="cb-tab"
-              :class="{ 'cb-tab-active': cbShowTab === 'expert' }"
-              @click="cbShowTab = 'expert'"
-            >{{ t('pila-content') }}</button>
-            <button
-              class="cb-tab"
-              :class="{ 'cb-tab-active': cbShowTab === 'mine' }"
-              @click="cbShowTab = 'mine'"
-            >{{ t('my-content') }}</button>
-          </div>
-        </div>
-
-        <!-- Content grid -->
+        <!-- Shared content browser (same as explore page) -->
         <div class="cb-grid-area">
-          <div v-if="cbLoading" class="cb-loading">
-            <LucideIcon name="loader-2" :size="14" :spin="true" /> {{ t('loading') }}...
-          </div>
-          <div v-else-if="!cbFilteredList.length" class="cb-empty">
-            {{ t('no-content-found') }}
-          </div>
-          <div v-else class="cb-grid">
-            <TaggedContentCard
-              v-for="id in cbFilteredList"
-              :key="id"
-              :id="id"
-              :checked="cbSelectedItems.has(id)"
-              :source="cbMyContent.includes(id) ? 'mine' : 'pila'"
-              :grades="cbGetItemGrades(id)"
-              @toggle-select="cbToggleSelection(id)"
-              @preview="previewing = id"
-              @add="cbToggleSelection(id)"
-              @click="cbToggleSelection(id)"
-            />
-          </div>
+          <ContentBrowser
+            :columns="3"
+            :per-page="12"
+            use-disk-cache
+          >
+            <template #card="{ id, source, grades }">
+              <TaggedContentCard
+                :id="id"
+                :checked="cbSelectedItems.has(id)"
+                :source="source"
+                :grades="grades"
+                @toggle-select="cbToggleSelection(id)"
+                @preview="previewing = id"
+                @add="cbToggleSelection(id)"
+                @click="cbToggleSelection(id)"
+              />
+            </template>
+          </ContentBrowser>
         </div>
       </div>
     </div>
@@ -403,19 +327,14 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch, onMounted } from 'vue'
+  import { ref, reactive, computed } from 'vue'
   import { useStore } from 'vuex'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
+  import ContentBrowser from '@/components/content/content-browser.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
-  import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import { PButton, PInput, PSelect } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
-  import { MY_CONTENT_TAG } from '@/utils/constants.js'
-  import {
-    nameCache, metadataCache, tagCache, tagNameCache,
-    loadTagHierarchy, prefetchBatch,
-  } from '@/utils/content-cache.js'
 
   const props = defineProps({
     id: String,
@@ -433,11 +352,7 @@
   const assignment = ref({ name: '', description: '', content: [] })
   const selectingContent = ref(false)
   const previewing = ref(null)
-
-  // ── Auto-load content data on Step 2 ──
-  watch(currentStep, (step) => {
-    if (step === 2) loadContentBrowser()
-  })
+  const step2BrowserRef = ref(null)
 
   // ── Step definitions ──
   const steps = [
@@ -536,7 +451,15 @@
   // ── Content selection ──
   function openContentBrowser() {
     selectingContent.value = true
-    loadContentBrowser()
+  }
+
+  function toggleStepContent(id) {
+    if (!Array.isArray(assignment.value.content)) {
+      assignment.value.content = assignment.value.content ? [assignment.value.content] : []
+    }
+    const idx = assignment.value.content.indexOf(id)
+    if (idx >= 0) assignment.value.content.splice(idx, 1)
+    else assignment.value.content.push(id)
   }
 
   function onContentSelect(id) {
@@ -562,42 +485,8 @@
     return [assignment.value.content]
   })
 
-  // ── Content browser (inline picker) ──
-  const cbLoading = ref(false)
-  const cbSearch = ref('')
-  const cbShowTab = ref('all')
-  const cbTaggedContent = ref([])
-  const cbMyContent = reactive([])
+  // ── Content browser (overlay modal selection) ──
   const cbSelectedItems = reactive(new Set())
-  const cbDataLoaded = ref(false)
-
-  const cbFilteredList = computed(() => {
-    let list = cbTaggedContent.value.map(t => t.target)
-    if (cbShowTab.value === 'mine') list = [...cbMyContent]
-    else if (cbShowTab.value === 'expert') list = list.filter(id => !cbMyContent.includes(id))
-    else list = [...new Set([...list, ...cbMyContent])]
-
-    if (cbSearch.value) {
-      const q = cbSearch.value.toLowerCase()
-      list = list.filter(id => {
-        const name = nameCache.get(id)
-        return name ? name.toLowerCase().includes(q) : true
-      })
-    }
-    return list
-  })
-
-  function cbGetItemGrades(id) {
-    const tags = tagCache.get(id) || {}
-    const labels = []
-    for (const leafIds of Object.values(tags)) {
-      for (const leafId of leafIds) {
-        const name = tagNameCache.get(leafId)
-        if (name) labels.push(name)
-      }
-    }
-    return labels.slice(0, 4)
-  }
 
   function cbToggleSelection(id) {
     if (cbSelectedItems.has(id)) cbSelectedItems.delete(id)
@@ -610,86 +499,6 @@
     }
     cbSelectedItems.clear()
     selectingContent.value = false
-  }
-
-  // ── Content table helpers ──
-  const ctAllSelected = computed(() => {
-    if (!cbFilteredList.value.length) return false
-    return cbFilteredList.value.every(id => contentList.value.includes(id))
-  })
-
-  function ctToggleRow(id) {
-    if (contentList.value.includes(id)) {
-      removeContent(id)
-    } else {
-      onContentSelect(id)
-    }
-  }
-
-  function ctToggleAll() {
-    if (ctAllSelected.value) {
-      assignment.value.content = []
-    } else {
-      assignment.value.content = [...cbFilteredList.value]
-    }
-  }
-
-  function cbIsSequence(id) {
-    const meta = metadataCache.get(id)
-    return meta?.active_type === 'application/json;type=sequence'
-  }
-
-  function cbGetItemDescription(id) {
-    // Description not always cached — return empty if not available
-    return ''
-  }
-
-  function cbGetLastModified(id) {
-    const meta = metadataCache.get(id)
-    if (meta?.updated) {
-      return new Date(meta.updated).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })
-    }
-    return '--'
-  }
-
-  function cbGetGrade(id) {
-    const tags = tagCache.get(id) || {}
-    for (const leafIds of Object.values(tags)) {
-      for (const leafId of leafIds) {
-        const name = tagNameCache.get(leafId)
-        if (name && name.toLowerCase().includes('grade')) return name
-      }
-    }
-    return null
-  }
-
-  async function loadContentBrowser() {
-    if (cbDataLoaded.value) return
-    cbLoading.value = true
-    try {
-      const partition = store.getters.tagPartition
-      const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
-      const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
-
-      const hierarchy = await loadTagHierarchy(partition, competencyTag)
-      const result = await Agent.query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
-      cbTaggedContent.value = result
-
-      // Load my content
-      const env = await Agent.environment()
-      const myContentResult = await Agent.query(
-        'taggings-for-tag', [env.auth.user, MY_CONTENT_TAG], 'tags.knowlearning.systems'
-      ).catch(() => [])
-      myContentResult.forEach(t => { if (!cbMyContent.includes(t.target)) cbMyContent.push(t.target) })
-
-      const allIds = [...new Set([...result.map(t => t.target), ...cbMyContent])]
-      await prefetchBatch(allIds, store.getters.language(), partition, hierarchy.leafToCategory)
-
-      cbDataLoaded.value = true
-    } catch (e) {
-      console.error('[content-browser] load error:', e)
-    }
-    cbLoading.value = false
   }
 
   // ── Save all settings to backend ──
@@ -986,201 +795,6 @@
   font-size: 14px;
   font-weight: 500;
   color: #2563eb;
-}
-
-/* ── Step 2: Content table ── */
-.ct-wrapper {
-  flex: 1;
-  overflow-y: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  min-height: 0;
-}
-
-.ct-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.ct-th {
-  text-align: left;
-  padding: 10px 14px;
-  font-weight: 600;
-  font-size: 12px;
-  color: #64748b;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.ct-th :deep(svg) {
-  vertical-align: middle;
-  display: inline;
-  margin-left: 4px;
-  cursor: pointer;
-}
-
-.ct-th-check {
-  width: 40px;
-  text-align: center;
-}
-
-.ct-th-title {
-  min-width: 240px;
-}
-
-.ct-checkbox {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  cursor: pointer;
-  accent-color: #2563eb;
-}
-
-.ct-tr {
-  border-bottom: 1px solid #f1f5f9;
-  transition: background 150ms;
-}
-
-.ct-tr:hover {
-  background: #f8fafc;
-}
-
-.ct-tr-selected {
-  background: #eff6ff;
-}
-
-.ct-td {
-  padding: 12px 14px;
-  color: #334155;
-  vertical-align: middle;
-}
-
-.ct-td:first-child {
-  text-align: center;
-}
-
-.ct-td-title {
-  max-width: 300px;
-}
-
-.ct-title-text {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 500;
-  color: #0f172a;
-}
-
-.ct-title-desc {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 280px;
-}
-
-.ct-source-dot {
-  color: #94a3b8;
-  font-weight: 700;
-}
-
-.ct-source-badge {
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.ct-source-expert {
-  color: #d97706;
-}
-
-.ct-source-mine {
-  color: #2563eb;
-}
-
-.ct-td-date {
-  white-space: nowrap;
-  color: #64748b;
-  font-size: 13px;
-}
-
-/* Content type badges */
-.ct-type-sequence {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  background: #fff7ed;
-  color: #ea580c;
-  border: 1px solid #fed7aa;
-}
-
-.ct-type-item {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
-}
-
-/* Grade badge */
-.ct-grade {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-  background: #f8fafc;
-  color: #334155;
-  border: 1px solid #e2e8f0;
-}
-
-/* Actions column */
-.ct-td-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.ct-action-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: none;
-  color: #94a3b8;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-}
-.ct-action-btn:hover {
-  color: #334155;
-  background: #f1f5f9;
-}
-
-.ct-drag {
-  color: #cbd5e1;
-  cursor: grab;
-  display: flex;
-  align-items: center;
-}
-
-/* Selected info */
-.ct-selected-info {
-  font-size: 13px;
-  color: #64748b;
-  padding: 4px 0;
-  flex-shrink: 0;
 }
 
 /* ── Step 3: Toggle switches ── */
@@ -1507,78 +1121,10 @@
   margin: 4px 0 0;
 }
 
-.cb-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-}
-
-.cb-search {
-  max-width: 320px;
-  flex: 1;
-}
-
-.cb-show-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.cb-show-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  margin-right: 4px;
-}
-
-.cb-tab {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 150ms;
-  white-space: nowrap;
-}
-
-.cb-tab:hover {
-  background: #f8fafc;
-}
-
-.cb-tab-active {
-  background: #eff6ff;
-  color: #2563eb;
-  border-color: #bfdbfe;
-}
-
 .cb-grid-area {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-}
-
-.cb-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.cb-loading,
-.cb-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 48px;
-  color: #64748b;
-  font-size: 14px;
 }
 
 /* ── Mobile Responsive ── */
@@ -1655,35 +1201,9 @@
     font-size: 16px;
   }
 
-  .cb-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .cb-search {
-    max-width: 100%;
-  }
-
-  .cb-show-tabs {
-    overflow-x: auto;
-  }
-
-  .cb-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
   .content-cta-centered {
     padding: 16px;
   }
 
-  .ct-wrapper {
-    overflow-x: auto;
-  }
-
-  .ct-table {
-    min-width: 600px;
-  }
 }
 </style>

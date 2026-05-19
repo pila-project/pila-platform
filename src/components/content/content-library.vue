@@ -103,72 +103,50 @@
           </div>
         </div>
 
-        <!-- Search + Show tabs -->
-        <div class="explore-toolbar">
-          <PUnifiedFilter
-            v-model:searchQuery="searchQuery"
-            :placeholder="t('search-content-title')"
-          >
-            <PUnifiedFilterSection
-              v-for="f in filterDefinitions"
-              :key="f.key"
-              :id="f.key"
-              :label="f.label"
-              :options="f.options"
-              v-model="activeFilters[f.key]"
-              searchable
-            />
-          </PUnifiedFilter>
+        <!-- Content browser (shared component) -->
+        <ContentBrowser
+          ref="browserRef"
+          :columns="3"
+          :per-page="12"
+          :per-page-options="[12, 24, 48]"
+          :extra-filter="sequenceFilterFn"
+          use-disk-cache
+        >
+          <!-- Selection toolbar -->
+          <template #above-grid>
+            <div v-if="selectedItems.size" class="selection-toolbar">
+              <PCheckbox
+                :modelValue="allSelected"
+                @update:modelValue="toggleSelectAll"
+              />
+              <span class="selection-count">{{ selectedItems.size }} {{ t('items-selected') }}</span>
+              <div style="flex:1" />
+              <PButton variant="ghost" size="sm" :text="t('deselect-all')" @click="deselectAll" />
+            </div>
 
-          <div class="toolbar-group">
-            <span class="toolbar-label">{{ t('show') }}:</span>
-            <PTabs v-model="activeShowTab" :tabs="showTabs" />
-          </div>
-        </div>
+            <!-- Empty state: selected sequence with no items -->
+            <div v-if="selectedSequence && selectedSequenceEmpty" class="empty-sequence-state">
+              <LucideIcon name="search" :size="48" class="text-slate-300 mb-4" />
+              <h3 class="text-base font-semibold text-zinc-950">{{ t('no-item-in-this-sequence') }}</h3>
+              <p class="text-sm text-slate-500 mt-1">{{ t('start-browsing-to-add-content') }}</p>
+              <PButton
+                variant="primary"
+                :text="t('browse-content')"
+                class="mt-4"
+                @click="selectedSequence = null"
+              />
+            </div>
+          </template>
 
-        <!-- Selection toolbar -->
-        <div v-if="selectedItems.size" class="selection-toolbar">
-          <PCheckbox
-            :modelValue="allSelected"
-            @update:modelValue="toggleSelectAll"
-          />
-          <span class="selection-count">{{ selectedItems.size }} {{ t('items-selected') }}</span>
-          <div style="flex:1" />
-          <PButton variant="ghost" size="sm" :text="t('deselect-all')" @click="deselectAll" />
-        </div>
-
-        <!-- Empty state: selected sequence with no items -->
-        <div v-if="selectedSequence && selectedSequenceEmpty" class="empty-sequence-state">
-          <LucideIcon name="search" :size="48" class="text-slate-300 mb-4" />
-          <h3 class="text-base font-semibold text-zinc-950">{{ t('no-item-in-this-sequence') }}</h3>
-          <p class="text-sm text-slate-500 mt-1">{{ t('start-browsing-to-add-content') }}</p>
-          <PButton
-            variant="primary"
-            :text="t('browse-content')"
-            class="mt-4"
-            @click="selectedSequence = null"
-          />
-        </div>
-
-        <!-- Content grid -->
-        <div v-else-if="loading" class="py-8 text-center text-slate-500">
-          <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-2" />{{ t('loading') }}...
-        </div>
-        <NoResultsFound v-else-if="!filteredContentList.length" />
-
-        <!-- Content grid -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <div
-            v-for="(id, index) in paginatedContentList"
-            :key="id + index"
-          >
+          <!-- Custom card rendering with explore-page features -->
+          <template #card="{ id, source, grades }">
             <TaggedContentCard
               :id="id"
               :selected="selfSelected === id"
               :checked="selectedItems.has(id)"
               :removable="myContent.includes(id)"
-              :source="myContent.includes(id) ? 'mine' : 'pila'"
-              :grades="getItemTagLabels(id)"
+              :source="source"
+              :grades="grades"
               :favorited="favorites.has(id)"
               @click="() => {
                 if (selfSelected === id) selfSelected = null
@@ -185,19 +163,8 @@
               @add="handleAddItem(id)"
               @copy-modify="handleCopyModify(id)"
             />
-          </div>
-        </div>
-
-        <!-- Pagination -->
-        <PPagination
-          v-if="filteredContentList.length > contentPerPage"
-          :totalItems="filteredContentList.length"
-          :currentPage="contentPage"
-          :perPage="contentPerPage"
-          :perPageOptions="[12, 24, 48]"
-          @update:currentPage="contentPage = $event"
-          @update:perPage="contentPerPage = $event; contentPage = 1"
-        />
+          </template>
+        </ContentBrowser>
 
 
         <PreviewModal
@@ -356,8 +323,8 @@
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import ContentMetadataPanel from './content-metadata-panel.vue'
-  import NoResultsFound from '@/components/common/no-results-found.vue'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
+  import ContentBrowser from './content-browser.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
   import SequenceCard from './sequence-card.vue'
   import CreateSequenceModal from './create-sequence-modal.vue'
@@ -369,42 +336,32 @@
   import setTagging from '@/utils/set-tagging.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
   import {
-    getContentName, getContentMetadata, getContentTags, getTagName,
-    nameCache, metadataCache, tagCache, tagNameCache,
-    loadTagHierarchy, getCachedTagHierarchy,
-    prefetchBatch, invalidate, invalidateNames,
-    seedFromDisk, persistToDisk,
+    nameCache, metadataCache,
+    getCachedTagHierarchy, prefetchBatch, invalidateNames,
   } from '@/utils/content-cache.js'
-  import { PButton, PCheckbox, PAlert, PAlertDialog, PModal, PTabs, PPagination, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
+  import { useContentLibrary } from '@/utils/useContentLibrary.js'
+  import { PButton, PCheckbox, PAlertDialog, PModal } from '@/components/ui/index.js'
   import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
 
   const store = useStore()
   const router = useRouter()
   function t(slug) { return store.getters.t(slug) }
 
-  const partition = store.getters.tagPartition
-  const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
-  const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
-  const user = ref(null)
+  // ── Shared content library (composable with module-level shared state) ──
+  const {
+    loading,
+    myContent,
+    myContentIds,
+    currentContentList,
+    filteredContentList,
+  } = useContentLibrary(store)
+
+  const browserRef = ref(null)
 
   // ── Core state ──
-  const loading = ref(true)
-  const taggedContent = ref([])
   const selfSelected = ref(null)
   const previewing = ref(null)
-  const searchQuery = ref('')
-  const activeShowTab = ref('all')
   const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
-
-  // ── Pagination state ──
-  const contentPage = ref(1)
-  const contentPerPage = ref(12)
-
-  // ── Filter state ──
-  const activeFilters = reactive({})
-
-  // ── Tag hierarchy (view-local ref, populated from cache) ──
-  const tagCategories = ref([])
 
   // ── Selection state ──
   const selectedItems = shallowReactive(new Set())
@@ -412,7 +369,7 @@
   // ── Sequence state ──
   const mobileSeqExpanded = ref(false)
   const mySequenceIds = ref([])
-  const sequenceVersion = ref(0) // bump to force SequenceCard re-render
+  const sequenceVersion = ref(0)
   const selectedSequence = ref(null)
   const showCreateSequence = ref(false)
   const sequenceToEdit = ref(null)
@@ -443,42 +400,7 @@
   // ── Add picker state ──
   const showAddPicker = ref(false)
   const pendingAddItems = ref([])
-  const addPickerStep = ref('choose') // 'choose' | 'sequence' | 'assignment'
-
-  // ── Show tabs (outside search bar) ──
-  const showTabs = computed(() => [
-    { label: t('all-content'), key: 'all' },
-    { label: t('pila-content'), key: 'pila' },
-    { label: t('my-content'), key: 'mine' },
-  ])
-
-  // ── Filter definitions (dynamic from tag hierarchy) ──
-  const filterDefinitions = computed(() => {
-    return tagCategories.value.map(cat => ({
-      key: cat.id,
-      label: cat.name,
-      options: uniqueTagValues(cat.id)
-    }))
-  })
-
-  function uniqueTagValues(categoryId) {
-    const counts = {}
-    for (const [, tags] of tagCache) {
-      const leafIds = tags[categoryId]
-      if (leafIds) {
-        for (const leafId of leafIds) {
-          counts[leafId] = (counts[leafId] || 0) + 1
-        }
-      }
-    }
-    return Object.entries(counts)
-      .map(([leafId, count]) => ({
-        value: leafId,
-        label: tagNameCache.get(leafId) || leafId.slice(0, 8),
-        count
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label))
-  }
+  const addPickerStep = ref('choose')
 
   // ── Favorites state ──
   const favorites = reactive(new Set())
@@ -501,58 +423,14 @@
     favoritesState.items = [...favorites]
   }
 
-  // ── Content data ──
-  const myContent = reactive([])
-
-  const currentContentList = computed(() => {
-    let l = taggedContent.value.map(t => t.target)
-    if (activeShowTab.value === 'mine') return [...myContent]
-    if (activeShowTab.value === 'pila') return l
-    return [...new Set([...l, ...myContent])]
-  })
-
-  const filteredContentList = computed(() => {
-    let list = currentContentList.value
-
-    // Filter by selected sequence
+  // ── Sequence filter for ContentBrowser ──
+  function sequenceFilterFn(list) {
     if (selectedSequence.value && selectedSequenceItems.value.length) {
       const seqItems = new Set(selectedSequenceItems.value)
-      list = list.filter(id => seqItems.has(id))
+      return list.filter(id => seqItems.has(id))
     }
-
-    // Search by name
-    if (searchQuery.value) {
-      const q = searchQuery.value.toLowerCase()
-      list = list.filter(id => {
-        const name = nameCache.get(id)
-        return name ? name.toLowerCase().includes(q) : true
-      })
-    }
-
-    // Tag-based filters
-    for (const [key, selected] of Object.entries(activeFilters)) {
-      if (selected && selected.length) {
-        list = list.filter(id => {
-          const tags = tagCache.get(id)
-          if (!tags || !tags[key]) return false
-          const vals = Array.isArray(tags[key]) ? tags[key] : [tags[key]]
-          return selected.some(v => vals.includes(v))
-        })
-      }
-    }
-
     return list
-  })
-
-  const paginatedContentList = computed(() => {
-    const start = (contentPage.value - 1) * contentPerPage.value
-    return filteredContentList.value.slice(start, start + contentPerPage.value)
-  })
-
-  // Reset page when filters change
-  watch([searchQuery, activeShowTab, () => JSON.stringify(activeFilters)], () => {
-    contentPage.value = 1
-  })
+  }
 
   const selectedSequenceName = computed(() => {
     if (!selectedSequence.value) return ''
@@ -560,22 +438,10 @@
   })
 
   const allSelected = computed(() => {
-    if (!filteredContentList.value.length) return false
-    return filteredContentList.value.every(id => selectedItems.has(id))
+    const list = browserRef.value?.displayList || filteredContentList.value
+    if (!list.length) return false
+    return list.every(id => selectedItems.has(id))
   })
-
-  // ── Tag label helpers ──
-  function getItemTagLabels(id) {
-    const tags = tagCache.get(id) || {}
-    const labels = []
-    for (const leafIds of Object.values(tags)) {
-      for (const leafId of leafIds) {
-        const name = tagNameCache.get(leafId)
-        if (name) labels.push(name)
-      }
-    }
-    return labels.slice(0, 4)
-  }
 
   // ── Selection helpers ──
   function toggleSelection(id) {
@@ -587,7 +453,8 @@
     if (allSelected.value) {
       deselectAll()
     } else {
-      filteredContentList.value.forEach(id => selectedItems.add(id))
+      const list = browserRef.value?.displayList || filteredContentList.value
+      list.forEach(id => selectedItems.add(id))
     }
   }
 
@@ -713,33 +580,8 @@
       selectedSequenceEmpty.value = false
       selectedSequenceItems.value = state.items || []
     }
-    // Force sequence cards to re-render so they show the new items
     sequenceVersion.value++
     showSuccessDialog(itemIds.length + ' ' + t('items-added-to-sequence'))
-  }
-
-  // ── Data loading (cache-backed) ──
-  async function loadContentData() {
-    loading.value = true
-
-    // Load tag hierarchy (cached — instant on revisit)
-    const hierarchy = await loadTagHierarchy(partition, competencyTag)
-    tagCategories.value = hierarchy.categories
-    for (const cat of hierarchy.categories) {
-      if (!activeFilters[cat.id]) activeFilters[cat.id] = []
-    }
-
-    // Fetch tagged content list (lightweight — just IDs)
-    const result = await Agent.query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
-    taggedContent.value = result
-
-    // Show content grid immediately — cards load their own images/names
-    loading.value = false
-
-    // Background: prefetch metadata + tags into cache for filters, tag pills, and sequence detection
-    const allIds = [...new Set([...result.map(t => t.target), ...myContent])]
-    prefetchBatch(allIds, store.getters.language(), partition, hierarchy.leafToCategory)
-      .then(() => loadMySequences())
   }
 
   function loadMySequences() {
@@ -753,7 +595,6 @@
     mySequenceIds.value = sequenceIds
   }
 
-  // ── Watch selected sequence ──
   watch(selectedSequence, async (id) => {
     if (id) await loadSequenceItems(id)
   })
@@ -764,38 +605,20 @@
       invalidateNames()
       const allIds = currentContentList.value
       if (allIds.length) {
-        await prefetchBatch(allIds, newLang, partition, getCachedTagHierarchy()?.leafToCategory)
+        await prefetchBatch(allIds, newLang, store.getters.tagPartition, getCachedTagHierarchy()?.leafToCategory)
       }
     }
   })
 
-  // ── Init (all async calls go here, no top-level await) ──
-  onMounted(async () => {
-    try {
-      const env = await Agent.environment()
-      user.value = env.auth.user
+  // ── Load sequences once content data is ready ──
+  watch(loading, (val) => {
+    if (!val) loadMySequences()
+  })
 
-      // Seed in-memory caches from IndexedDB for instant display
-      if (user.value) await seedFromDisk(user.value)
-
-      // Load my content
-      const myContentResult = await Agent.query(
-        'taggings-for-tag', [user.value, MY_CONTENT_TAG], 'tags.knowlearning.systems'
-      ).catch(() => [])
-      myContentResult.forEach(t => myContent.push(t.target))
-
-      // Load favorites
-      loadFavorites().catch(() => {})
-
-      // Load main content data (includes tag hierarchy)
-      await loadContentData()
-
-      // Persist updated caches to IndexedDB
-      if (user.value) persistToDisk(user.value)
-    } catch (e) {
-      console.error('[content-library] init error:', e)
-      loading.value = false
-    }
+  // ── Init (favorites — data loading handled by ContentBrowser) ──
+  onMounted(() => {
+    loadFavorites().catch(() => {})
+    if (!loading.value) loadMySequences()
   })
 </script>
 
@@ -821,34 +644,6 @@
   padding-bottom: 20px;
   margin-bottom: 22px;
   border-bottom: 1px solid #E2E8F0;
-}
-
-/* Explore toolbar */
-.explore-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.explore-toolbar :deep(.unified-filter) {
-  flex: 1;
-  min-width: 0;
-}
-
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-
-.toolbar-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #334155;
-  white-space: nowrap;
 }
 
 /* Selection toolbar */
@@ -1023,10 +818,6 @@
   }
   .mobile-sequences {
     display: flex;
-  }
-  .explore-toolbar {
-    flex-direction: column;
-    align-items: stretch;
   }
   .mobile-bottom-bar {
     display: block;

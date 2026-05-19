@@ -82,47 +82,29 @@
             <LucideIcon name="circle-plus" :size="24" class="content-cta-icon" />
             <div>
               <span class="content-cta-title">Add content item/sequence</span>
-              <span class="content-cta-desc">Drag and drop item from the explore page or create new one's</span>
+              <span class="content-cta-desc">Browse and select content from the library</span>
             </div>
           </div>
 
-          <!-- Inline content browser -->
-          <div v-if="browsingContent" class="content-browse-inline">
-            <div class="content-browse-toolbar">
-              <PInput
-                v-model="contentSearch"
-                placeholder="Search content..."
-                icon="lucide:search"
-                class="flex-1"
+          <!-- Inline content browser (same component as explore page) -->
+          <ContentBrowser
+            v-if="browsingContent"
+            :columns="2"
+            :per-page="6"
+            :per-page-options="[6, 12, 24]"
+            use-disk-cache
+          >
+            <template #card="{ id, source, grades }">
+              <TaggedContentCard
+                :id="id"
+                :checked="form.contentIds.includes(id)"
+                :source="source"
+                :grades="grades"
+                @click="previewingId = id"
+                @toggle-select="toggleContent(id)"
               />
-            </div>
-            <div class="content-browse-list">
-              <div
-                v-for="itemId in filteredBrowsableContent"
-                :key="itemId"
-                class="content-browse-row"
-                :class="{ 'content-browse-row-selected': form.contentIds.includes(itemId) }"
-                @click="toggleContent(itemId)"
-              >
-                <input
-                  type="checkbox"
-                  :checked="form.contentIds.includes(itemId)"
-                  class="content-browse-check"
-                  @click.stop
-                  @change="toggleContent(itemId)"
-                />
-                <div class="content-browse-info">
-                  <NameOrTranslatedNameFromItemId :itemId="itemId" />
-                </div>
-                <span class="content-browse-source" :class="myContentIds.has(itemId) ? 'source-mine' : 'source-expert'">
-                  {{ myContentIds.has(itemId) ? 'My content' : 'Expert' }}
-                </span>
-              </div>
-              <div v-if="!filteredBrowsableContent.length" class="text-xs text-slate-400 text-center py-4">
-                No content found
-              </div>
-            </div>
-          </div>
+            </template>
+          </ContentBrowser>
 
           <!-- Current selected content -->
           <div class="mt-3">
@@ -298,6 +280,7 @@
           text="Next"
           icon="lucide:arrow-right"
           :icon-right="true"
+          :disabled="!canProceed"
           @click="step++"
         />
         <PButton
@@ -306,6 +289,7 @@
           text="Create assignment"
           icon="lucide:arrow-right"
           :icon-right="true"
+          :disabled="!canProceed"
           :loading="creating"
           @click="createAssignment"
         />
@@ -321,19 +305,17 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
+import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
+import ContentBrowser from './content-browser.vue'
 import PreviewModal from '@/components/common/preview-modal.vue'
-import getName from '@/utils/name-and-translation-for-content.js'
-import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import { PModal, PInput, PButton, PSelect } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
-const partition = store.getters.tagPartition
-const pilaTag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
 
 const props = defineProps({
   contentIds: { type: Array, default: () => [] },
@@ -345,13 +327,7 @@ const step = ref(1)
 const creating = ref(false)
 const previewingId = ref(null)
 const browsingContent = ref(false)
-const contentSearch = ref('')
 const groupSearch = ref('')
-
-// Browsable content
-const allBrowsableContent = ref([])
-const contentNames = reactive(new Map())
-const myContentIds = reactive(new Set())
 
 // Groups
 const selectedGroups = reactive(new Set())
@@ -403,18 +379,6 @@ const filteredGroups = computed(() => {
   return groups.value
 })
 
-const filteredBrowsableContent = computed(() => {
-  let list = allBrowsableContent.value
-  if (contentSearch.value) {
-    const q = contentSearch.value.toLowerCase()
-    list = list.filter(id => {
-      const name = contentNames.get(id) || ''
-      return name.toLowerCase().includes(q)
-    })
-  }
-  return list
-})
-
 function toggleContent(id) {
   const idx = form.contentIds.indexOf(id)
   if (idx >= 0) form.contentIds.splice(idx, 1)
@@ -430,6 +394,14 @@ function toggleGroup(gid) {
   if (selectedGroups.has(gid)) selectedGroups.delete(gid)
   else selectedGroups.add(gid)
 }
+
+const canProceed = computed(() => {
+  if (step.value === 1) return form.name.trim() !== '' && form.assignmentType !== ''
+  if (step.value === 2) return form.contentIds.length > 0
+  if (step.value === 3) return true
+  if (step.value === 4) return selectedGroups.size > 0
+  return false
+})
 
 function onBack() {
   if (step.value === 2 && browsingContent.value) {
@@ -478,30 +450,6 @@ async function createAssignment() {
   }
 }
 
-onMounted(async () => {
-  try {
-    const env = await Agent.environment()
-    const userId = env.auth.user
-
-    const [pilaContent, myContent] = await Promise.all([
-      Agent.query('taggings-for-tag', [partition, pilaTag], 'tags.knowlearning.systems').catch(() => []),
-      Agent.query('taggings-for-tag', [userId, MY_CONTENT_TAG], 'tags.knowlearning.systems').catch(() => []),
-    ])
-
-    myContent.forEach(t => myContentIds.add(t.target))
-
-    const allIds = [...new Set([...pilaContent.map(t => t.target), ...myContent.map(t => t.target)])]
-    allBrowsableContent.value = allIds
-
-    // Load names
-    await Promise.allSettled(allIds.map(async (id) => {
-      const n = await getName(id, store.getters.language())
-      if (n) contentNames.set(id, n)
-    }))
-  } catch (e) {
-    console.warn('[CreateAssignmentModal] load error:', e)
-  }
-})
 </script>
 
 <style scoped>
@@ -640,70 +588,6 @@ onMounted(async () => {
   color: #334155;
   display: block;
   margin-top: 2px;
-}
-
-/* Content browser */
-.content-browse-inline {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 10px;
-  background: #f8fafc;
-}
-.content-browse-toolbar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.content-browse-list {
-  max-height: 240px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-.content-browse-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border-bottom: 1px solid #f1f5f9;
-  cursor: pointer;
-  transition: background 100ms;
-}
-.content-browse-row:hover {
-  background: #f1f5f9;
-}
-.content-browse-row:last-child {
-  border-bottom: none;
-}
-.content-browse-row-selected {
-  background: #eff6ff;
-}
-.content-browse-check {
-  width: 16px;
-  height: 16px;
-  accent-color: #2563eb;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.content-browse-info {
-  flex: 1;
-  min-width: 0;
-  font-size: 13px;
-  color: #334155;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.content-browse-source {
-  font-size: 11px;
-  font-weight: 500;
-  flex-shrink: 0;
-}
-.source-mine {
-  color: #2563eb;
-}
-.source-expert {
-  color: #f59e0b;
 }
 
 /* Current content */

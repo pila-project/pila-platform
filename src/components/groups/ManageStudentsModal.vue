@@ -39,9 +39,8 @@
             />
           </div>
           <div class="panel-search">
-            <input
-              v-model="availableSearch"
-              class="input"
+            <PUnifiedFilter
+              v-model:searchQuery="availableSearch"
               :placeholder="t('search-available-students')"
             />
           </div>
@@ -106,9 +105,8 @@
             />
           </div>
           <div class="panel-search">
-            <input
-              v-model="groupSearch"
-              class="input"
+            <PUnifiedFilter
+              v-model:searchQuery="groupSearch"
               :placeholder="t('search-group-students')"
             />
           </div>
@@ -173,7 +171,7 @@
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { PModal, PButton } from '@/components/ui/index.js'
+import { PModal, PButton, PUnifiedFilter } from '@/components/ui/index.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useToast } from '@/utils/useToast.js'
