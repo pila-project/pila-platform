@@ -90,6 +90,18 @@
       <i class="right fa-solid fa-pen-to-square" />
     </button>
 
+    <button
+      v-if="IS_THAILAND_DOMAIN"
+      class="custom-button"
+      @click="openLink('https://thaipilacreate.gforcesolution.com/')"
+    >
+      <div class="left">
+        <img src="/logo_pilathailand.png" alt="pila-thailand-image" class="btn-image">
+      </div>
+      <div class="center">{{ THAI PILA }}</div>
+      <i class="right fa-solid fa-pen-to-square" />
+    </button>
+
 
   </div>
 
@@ -137,6 +149,8 @@ const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 
 const userIdOrURL = ref('')
+
+const IS_THAILAND_DOMAIN = window.location.host === 'thailand.pilaproject.org'
 
 const showInvalidMessage = ref(false)
 const showSuccessMessage = ref(false)
