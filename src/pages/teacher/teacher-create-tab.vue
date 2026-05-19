@@ -96,7 +96,7 @@
       @click="openLink('https://thaipilacreate.gforcesolution.com/')"
     >
       <div class="left">
-        <img src="/logo_pilathailand.png" alt="pila-thailand-image" class="btn-image">
+        <img src="/icon_pilathailand.png" alt="pila-thailand-image" class="btn-image">
       </div>
       <div class="center">{{ "THAI PILA" }}</div>
       <i class="right fa-solid fa-pen-to-square" />
