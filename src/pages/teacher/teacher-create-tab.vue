@@ -98,7 +98,7 @@
       <div class="left">
         <img src="/logo_pilathailand.png" alt="pila-thailand-image" class="btn-image">
       </div>
-      <div class="center">{{ THAI PILA }}</div>
+      <div class="center">{{ "THAI PILA" }}</div>
       <i class="right fa-solid fa-pen-to-square" />
     </button>
 
