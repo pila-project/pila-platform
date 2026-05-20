@@ -1,0 +1,285 @@
+Page Name,English Text
+NEW - Admin Page,Student & group management
+NEW - Admin Page,Manage student accounts
+NEW - Admin Page,Search
+NEW - Admin Page,Status
+NEW - Admin Page,Group
+NEW - Admin Page,Groups
+NEW - Admin Page,Active
+NEW - Admin Page,Actions
+NEW - Admin Page,Organise students into groups
+NEW - Admin Page,Unnamed
+NEW - Admin Page,Manage students
+NEW - Admin Page,Assign students to group
+NEW - Admin Page,Manage students in
+NEW - Admin Page,Drag students between panels to add/remove them from the group
+NEW - Admin Page,Available students
+NEW - Admin Page,Search available students
+NEW - Admin Page,No available students
+NEW - Admin Page,Search group students
+NEW - Admin Page,No students in group
+NEW - Admin Page,Add selected
+NEW - Admin Page,Remove selected
+NEW - Admin Page,Add more students
+NEW - Admin Page,Students
+NEW - Admin Page,Students in group
+NEW - Admin Page,Add group
+NEW - Admin Page,Rows per page
+NEW - Admin Page,Edit
+NEW - Admin Page,Admins
+NEW - Admin Page,No one has been assigned this role
+NEW - Explore / Content Library Page,New sequence
+NEW - Explore / Content Library Page,My sequences
+NEW - Explore / Content Library Page,Organize content into learning sequences
+NEW - Explore / Content Library Page,Select a sequence
+NEW - Explore / Content Library Page,No sequences yet
+NEW - Explore / Content Library Page,Explore content library
+NEW - Explore / Content Library Page,"Discover, customise, and add content"
+NEW - Explore / Content Library Page,Search content title
+NEW - Explore / Content Library Page,Popular tags
+NEW - Explore / Content Library Page,View as
+NEW - Explore / Content Library Page,Sort
+NEW - Explore / Content Library Page,Filter
+NEW - Explore / Content Library Page,Show
+NEW - Explore / Content Library Page,Type
+NEW - Explore / Content Library Page,Deselect all
+NEW - Explore / Content Library Page,Select all
+NEW - Explore / Content Library Page,item(s) selected
+NEW - Explore / Content Library Page,No item in this sequence
+NEW - Explore / Content Library Page,Start browsing to add content
+NEW - Explore / Content Library Page,Browse content
+NEW - Explore / Content Library Page,This action cannot be undone
+NEW - Explore / Content Library Page,Assignment created successfully
+NEW - Explore / Content Library Page,Add item or sequence
+NEW - Explore / Content Library Page,Add to sequence
+NEW - Explore / Content Library Page,Add to assignment
+NEW - Explore / Content Library Page,Choose where to add the selected content
+NEW - Explore / Content Library Page,Choose a sequence to add to
+NEW - Explore / Content Library Page,Create new sequence
+NEW - Explore / Content Library Page,Create new assignment
+NEW - Explore / Content Library Page,Choose an assignment or create a new one
+NEW - Explore / Content Library Page,Back
+NEW - Explore / Content Library Page,All content
+NEW - Explore / Content Library Page,PILA content
+NEW - Explore / Content Library Page,Items
+NEW - Explore / Content Library Page,Untitled
+NEW - Explore / Content Library Page,Item
+NEW - Explore / Content Library Page,Sequence created successfully
+NEW - Explore / Content Library Page,Sequence updated
+NEW - Explore / Content Library Page,Sequence deleted
+NEW - Explore / Content Library Page,item(s) added to sequence
+NEW - Explore / Content Library Page,Content successfully copied and modified
+NEW - Explore / Content Library Page,Sequences
+NEW - Explore / Content Library Page,Delete
+NEW - Explore / Content Library Page,Confirm delete sequence
+NEW - Explore / Content Library Page,My content
+NEW - Sequence Card,New
+NEW - Sequence Card,Last modified
+NEW - Sequence Card,View sequence content
+NEW - Sequence Card,Edit sequence details
+NEW - Sequence Card,Preview sequence
+NEW - Sequence Card,Delete sequence
+NEW - Sequence Card,Show items
+NEW - Sequence Card,No items yet
+NEW - Sequence Card,Remove item?
+NEW - Sequence Card,Are you sure you want to remove this item from the sequence? The item itself won't be deleted.
+NEW - Copy & Modify Modal,Copy & modify content
+NEW - Copy & Modify Modal,Preview details
+NEW - Copy & Modify Modal,Step 1 of 2
+NEW - Copy & Modify Modal,Step 2 of 2
+NEW - Copy & Modify Modal,Create your own version of
+NEW - Copy & Modify Modal,A copy will be created in your content library
+NEW - Copy & Modify Modal,New Title
+NEW - Copy & Modify Modal,Copy of
+NEW - Copy & Modify Modal,Describe this content
+NEW - Copy & Modify Modal,Customization notes (optional)
+NEW - Copy & Modify Modal,Describe changes you plan to make
+NEW - Copy & Modify Modal,Drag and drop an image
+NEW - Copy & Modify Modal,Review existing content
+NEW - Copy & Modify Modal,Add content item or sequence
+NEW - Copy & Modify Modal,Search content
+NEW - Copy & Modify Modal,Expert
+NEW - Copy & Modify Modal,No content found
+NEW - Copy & Modify Modal,Title and details
+NEW - Copy & Modify Modal,No content items to preview
+NEW - Copy & Modify Modal,Find in My content
+NEW - Copy & Modify Modal,Create copy
+NEW - Copy & Modify Modal,Continue
+NEW - Copy & Modify Modal,Finish
+NEW - Copy & Modify Modal,Upload image
+NEW - Create Sequence Modal,Edit sequence
+NEW - Create Sequence Modal,Create a new sequence to organize your content
+NEW - Create Sequence Modal,"After creating, you can add items from the content library"
+NEW - Create Sequence Modal,Sequence name
+NEW - Create Sequence Modal,Sequence Title
+NEW - Create Sequence Modal,Enter sequence name
+NEW - Create Sequence Modal,Add a description for your sequence
+NEW - Create Sequence Modal,Create sequence
+NEW - Filters & UI,No options found
+NEW - Filters & UI,Clear filters
+NEW - Filters & UI,Property Filter
+NEW - Filters & UI,Reset all
+NEW - Filters & UI,No options available
+NEW - Filters & UI,Settings
+NEW - Filters & UI,Support
+NEW - Pre-existing Gaps,Assignment report
+NEW - Pre-existing Gaps,Steps to reproduce are required
+NEW - Pre-existing Gaps,You will be able to participate in research studies
+NEW - Assignments List Page,Create and manage assignments for your students
+NEW - Assignments List Page,New Assignment
+NEW - Assignments List Page,Search assignments
+NEW - Assignments List Page,Filters
+NEW - Assignments List Page,Assignment type
+NEW - Assignments List Page,Assigned to
+NEW - Assignments List Page,Due Date Range
+NEW - Assignments List Page,Assignment Title
+NEW - Assignments List Page,Due Date
+NEW - Assignments List Page,Publication status
+NEW - Assignments List Page,Assignment submissions
+NEW - Assignments List Page,No assignments match your filters
+NEW - Assignments List Page,No description
+NEW - Assignments List Page,Not assigned
+NEW - Assignments List Page,No submissions
+NEW - Assignments List Page,View assignment details
+NEW - Assignments List Page,Edit assignment
+NEW - Assignments List Page,View submissions
+NEW - Assignments List Page,Duplicate
+NEW - Assignments List Page,Unarchive
+NEW - Assignments List Page,Archive
+NEW - Assignments List Page,of
+NEW - Assignments List Page,row(s) selected
+NEW - Assignments List Page,Previous
+NEW - Assignments List Page,Next
+NEW - Assignments List Page,Delete Assignment
+NEW - Assignments List Page,Are you sure you want to delete this assignment? This action cannot be undone and all associated data will be permanently removed.
+NEW - Assignments List Page,Cancel
+NEW - Assignments List Page,Duplicate Assignment
+NEW - Assignments List Page,A copy of this assignment will be created with all settings preserved. The duplicate will be saved as a draft.
+NEW - Assignments List Page,Archive Assignment
+NEW - Assignments List Page,This assignment will be archived and hidden from the active list. You can unarchive it later from the archived view.
+NEW - Assignments List Page,Published
+NEW - Assignments List Page,Draft
+NEW - Assignments List Page,Scheduled
+NEW - Assignments List Page,Assignment
+NEW - Assignments List Page,Quiz
+NEW - Assignments List Page,Project
+NEW - Assignments List Page,Not set
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Loading...
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Create new assignment
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Step
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Step 1 of 4: Add title and instructions
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Step 2 of 4: Add content
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Step 3 of 4: Add assignment details
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Step 4 of 4: Assign and publish
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Done
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Add content item/sequence
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Drag and drop item from the explore page or create new ones
+NEW - Create/Edit Assignment Wizard (teacher-to-student),e.g. Mathematics Quiz - Fractions
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Instructions
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Provide detailed instructions for students
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Due date (Optional)
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Due time (Optional)
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Current item/sequence
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Preview
+NEW - Create/Edit Assignment Wizard (teacher-to-student),No items added yet
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Allow late submissions
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Students can submit after due date
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Maximum attempts
+NEW - Create/Edit Assignment Wizard (teacher-to-student),1 attempt
+NEW - Create/Edit Assignment Wizard (teacher-to-student),2 attempts
+NEW - Create/Edit Assignment Wizard (teacher-to-student),3 attempts
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Unlimited
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Feedback timing
+NEW - Create/Edit Assignment Wizard (teacher-to-student),At the end
+NEW - Create/Edit Assignment Wizard (teacher-to-student),After each question
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Never
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Shuffle questions
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Randomize question order for each student
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Show correct answers
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Display correct answers after submission
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Teacher notes (private)
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Add private notes for your reference...
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Assign to
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Search group(s)
+NEW - Create/Edit Assignment Wizard (teacher-to-student),No groups found
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Distribution options
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Publish immediately
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Students can start working right away
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Schedule for later
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Set a specific date and time to publish
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Save as draft
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Keep working on it before publishing
+NEW - Create/Edit Assignment Wizard (teacher-to-student),Create assignment
+NEW - View Assignment Details Modal,Complete information about
+NEW - View Assignment Details Modal,Assignment information
+NEW - View Assignment Details Modal,Title
+NEW - View Assignment Details Modal,No instructions provided
+NEW - View Assignment Details Modal,Assignment settings
+NEW - View Assignment Details Modal,Feedback timings
+NEW - View Assignment Details Modal,Late submissions
+NEW - View Assignment Details Modal,Allowed
+NEW - View Assignment Details Modal,Not allowed
+NEW - View Assignment Details Modal,Yes
+NEW - View Assignment Details Modal,No
+NEW - View Assignment Details Modal,Assignment group & students
+NEW - View Assignment Details Modal,No groups assigned
+NEW - View Assignment Details Modal,Content items
+NEW - View Assignment Details Modal,No content items added
+NEW - View Assignment Details Modal,Error loading assignment
+NEW - View Submissions Page,Points
+NEW - View Submissions Page,Score
+NEW - View Submissions Page,Questions
+NEW - View Submissions Page,Student
+NEW - View Submissions Page,Point
+NEW - View Submissions Page,Loading question...
+NEW - View Submissions Page,Result
+NEW - View Submissions Page,Correct
+NEW - View Submissions Page,Incorrect
+NEW - View Submissions Page,Not answered
+NEW - View Submissions Page,Feedback for this question
+NEW - View Submissions Page,Provide specific feedback for this item...
+NEW - View Submissions Page,This feedback will be shown to the student alongside their response
+NEW - View Submissions Page,Overview
+NEW - View Submissions Page,Details
+NEW - View Submissions Page,Assignment overview
+NEW - View Submissions Page,Answered
+NEW - View Submissions Page,Total items
+NEW - View Submissions Page,Partial
+NEW - View Submissions Page,Skipped
+NEW - View Submissions Page,Overall grade
+NEW - View Submissions Page,Score(%)
+NEW - View Submissions Page,Enter score out of 100
+NEW - View Submissions Page,Overall feedback
+NEW - View Submissions Page,Provide overall feedback for the student...
+NEW - View Submissions Page,This feedback will be visible to the student
+NEW - View Submissions Page,Teacher notes
+NEW - View Submissions Page,Private notes
+NEW - View Submissions Page,Add private notes for your references...
+NEW - View Submissions Page,Submission details
+NEW - View Submissions Page,Email
+NEW - View Submissions Page,Grade
+NEW - View Submissions Page,Submitted
+NEW - View Submissions Page,Time Spent
+NEW - View Submissions Page,Attempts
+NEW - View Submissions Page,Completion
+NEW - View Submissions Page,Auto Save
+NEW - View Submissions Page,Save Draft
+NEW - View Submissions Page,Mark as Graded
+NEW - View Submissions Page,Not started
+NEW - View Submissions Page,In Progress
+NEW - Pagination & Admin Page,Page
+NEW - Pagination & Admin Page,All
+NEW - Pagination & Admin Page,Archived
+NEW - Add Student Modal,Add students
+NEW - Add Student Modal,Choose how you would like to add students
+NEW - Add Student Modal,Create individual account
+NEW - Add Student Modal,Manually create a single student account
+NEW - Add Student Modal,Create bulk accounts
+NEW - Add Student Modal,Upload CSV or manually enter multiple students
+NEW - Add Student Modal,Link via SSO
+NEW - Add Student Modal,Connect existing accounts from Google or Microsoft
+NEW - Add Student Modal,Link student to you
+NEW - Add Student Modal,Coming soon
+NEW - Explore Card,Expert content
+NEW - Archive Confirmation,Are you sure you want to archive this student account?
+NEW - Archive Confirmation,Archive students to remove them from active lists while preserving data.
