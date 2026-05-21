@@ -20,48 +20,80 @@
 
       <h3>Variants</h3>
       <div class="showcase-row">
-        <PButton variant="primary" text="Button" icon="plus" />
-        <PButton variant="secondary" text="Button" icon="plus" />
-        <PButton variant="outline" text="Button" icon="plus" />
-        <PButton variant="ghost" text="Button" icon="plus" />
-        <PButton variant="danger" text="Button" icon="plus" />
-        <PButton variant="link" text="Button" icon="plus" />
+        <PButton variant="primary" text="Primary" />
+        <PButton variant="secondary" text="Secondary" />
+        <PButton variant="ghost" text="Ghost" />
+        <PButton variant="link" text="Link" />
+      </div>
+
+      <h3>Colors</h3>
+      <div class="showcase-row">
+        <PButton variant="primary" text="Primary" />
+        <PButton variant="primary" color="danger" text="Delete" />
+        <PButton variant="primary" color="warning" text="Archive" />
+        <PButton variant="primary" color="success" text="Confirm" />
+      </div>
+      <div class="showcase-row" style="margin-top: 8px;">
+        <PButton variant="secondary" text="Back" />
+        <PButton variant="secondary" color="danger" text="Cancel" />
+        <PButton variant="secondary" color="warning" text="Archive" />
+        <PButton variant="secondary" color="success" text="Approve" />
+      </div>
+      <div class="showcase-row" style="margin-top: 8px;">
+        <PButton variant="ghost" text="Ghost" />
+        <PButton variant="ghost" color="danger" text="Remove" />
+        <PButton variant="ghost" color="warning" text="Warning" />
+        <PButton variant="ghost" color="success" text="Success" />
       </div>
 
       <h3>Sizes</h3>
       <div class="showcase-row">
-        <PButton variant="primary" size="sm" text="Button" icon="plus" />
-        <PButton variant="primary" size="md" text="Button" icon="plus" />
-        <PButton variant="primary" size="lg" text="Button" icon="plus" />
+        <PButton variant="primary" size="xsm" text="Extra small" />
+        <PButton variant="primary" size="sm" text="Small" />
+        <PButton variant="primary" size="md" text="Medium" />
+        <PButton variant="primary" size="lg" text="Large" />
       </div>
       <div class="showcase-row" style="margin-top: 8px;">
-        <PButton variant="secondary" size="sm" text="Button" icon="plus" />
-        <PButton variant="secondary" size="md" text="Button" icon="plus" />
-        <PButton variant="secondary" size="lg" text="Button" icon="plus" />
+        <PButton variant="secondary" size="xsm" text="Extra small" />
+        <PButton variant="secondary" size="sm" text="Small" />
+        <PButton variant="secondary" size="md" text="Medium" />
+        <PButton variant="secondary" size="lg" text="Large" />
       </div>
-      <div class="showcase-row" style="margin-top: 8px;">
-        <PButton variant="danger" size="sm" text="Button" icon="plus" />
-        <PButton variant="danger" size="md" text="Button" icon="plus" />
-        <PButton variant="danger" size="lg" text="Button" icon="plus" />
+
+      <h3>With Icons</h3>
+      <div class="showcase-row">
+        <PButton variant="primary" icon="lucide:plus" text="Add student" />
+        <PButton variant="secondary" icon="lucide:printer" text="Print login code" />
+        <PButton variant="secondary" icon="lucide:upload" text="Bulk upload" />
+        <PButton variant="primary" icon="lucide:arrow-right" text="Next" iconRight />
       </div>
 
       <h3>Icon Only</h3>
       <div class="showcase-row">
-        <PButton variant="primary" icon="plus" iconOnly size="sm" />
-        <PButton variant="primary" icon="plus" iconOnly size="md" />
-        <PButton variant="primary" icon="xmark" iconOnly size="md" />
-        <PButton variant="secondary" icon="plus" iconOnly size="md" />
-        <PButton variant="outline" icon="plus" iconOnly size="md" />
-        <PButton variant="ghost" icon="plus" iconOnly size="md" />
-        <PButton variant="danger" icon="plus" iconOnly size="md" />
+        <PButton variant="primary" icon="lucide:plus" iconOnly size="sm" />
+        <PButton variant="primary" icon="lucide:plus" iconOnly size="md" />
+        <PButton variant="secondary" icon="lucide:plus" iconOnly size="md" />
+        <PButton variant="ghost" icon="lucide:plus" iconOnly size="md" />
+        <PButton variant="icon" icon="lucide:ellipsis-vertical" iconOnly size="sm" />
+        <PButton variant="icon" icon="lucide:x" iconOnly size="xsm" />
+        <PButton variant="icon" icon="lucide:pencil" iconOnly size="xsm" />
+        <PButton variant="icon" icon="lucide:trash-2" iconOnly size="xsm" />
       </div>
 
       <h3>States</h3>
       <div class="showcase-row">
         <PButton variant="primary" text="Default" />
         <PButton variant="primary" text="Disabled" disabled />
+        <PButton variant="primary" text="Loading" loading />
         <PButton variant="secondary" text="Default" />
         <PButton variant="secondary" text="Disabled" disabled />
+      </div>
+
+      <h3>Common patterns</h3>
+      <div class="showcase-row">
+        <PButton variant="secondary" text="Back" />
+        <PButton variant="secondary" color="danger" text="Cancel" />
+        <PButton variant="primary" text="Create account" />
       </div>
 
       <h3>In Context</h3>

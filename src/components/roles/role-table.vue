@@ -78,8 +78,8 @@
     @close="potentialRemoval = null"
   >
     <template #footer>
-      <PButton variant="secondary" :text="t('cancel')" @click="potentialRemoval = null" />
-      <PButton variant="danger" :text="t('remove')" @click="() => {
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="potentialRemoval = null" />
+      <PButton variant="primary" color="danger" :text="t('remove')" @click="() => {
         tag(potentialRemoval, null)
         potentialRemoval = null
       }" />
@@ -104,7 +104,7 @@
       />
     </template>
     <template #footer>
-      <PButton variant="secondary" :text="t('cancel')" @click="showAddDialog = false" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showAddDialog = false" />
       <PButton variant="primary" :text="t('add')" @click="submitNewTeacher(newRoleUser)" />
     </template>
   </PModal>

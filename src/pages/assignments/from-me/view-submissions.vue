@@ -13,9 +13,7 @@
               </h2>
               <p class="vso-subtitle">{{ t('review-student-submissions-and-provide-feedback') }}</p>
             </div>
-            <button class="wizard-close" @click="$emit('close')">
-              <LucideIcon name="x" :size="12" />
-            </button>
+            <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
           </div>
 
           <!-- Dashboard cards -->
@@ -104,15 +102,11 @@
                 </template>
                 <template #item.feedback="{ item }">
                   <span v-if="getStudentStatusText(item.id) === t('not-started')" class="vso-feedback-none">{{ t('no-submission') }}</span>
-                  <button v-else-if="hasStudentFeedback(item.id)" class="vso-feedback-btn vso-feedback-edit" @click="openDetailView(item.id)">
-                    <LucideIcon name="pencil" :size="12" /> {{ t('edit-feedback') }}
-                  </button>
-                  <button v-else class="vso-feedback-btn vso-feedback-add" @click="openDetailView(item.id)">
-                    <LucideIcon name="plus" :size="12" /> {{ t('add-feedback') }}
-                  </button>
+                  <PButton v-else-if="hasStudentFeedback(item.id)" variant="secondary" size="xsm" icon="lucide:pencil" :text="t('edit-feedback')" @click="openDetailView(item.id)" />
+                  <PButton v-else variant="primary" size="xsm" icon="lucide:plus" :text="t('add-feedback')" @click="openDetailView(item.id)" />
                 </template>
                 <template #item.submission="{ item }">
-                  <button class="vso-view-btn" @click="openDetailView(item.id)">{{ t('view') }}</button>
+                  <PButton variant="ghost" size="xsm" :text="t('view')" @click="openDetailView(item.id)" />
                 </template>
               </PTable>
             </div>
@@ -120,9 +114,9 @@
 
           <!-- Footer -->
           <div class="vso-footer">
-            <button class="vso-footer-back" @click="$emit('close')">{{ t('back') }}</button>
+            <PButton variant="secondary" :text="t('back')" @click="$emit('close')" />
             <div style="flex: 1;" />
-            <button class="vso-footer-cancel" @click="$emit('close')">{{ t('cancel') }}</button>
+            <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
           </div>
         </div>
       </template>
@@ -131,10 +125,7 @@
       <template v-else>
       <!-- Navigation bar -->
       <div class="vs-navbar">
-        <button class="vs-back" @click="viewMode = 'overview'">
-          <LucideIcon name="arrow-left" :size="14" />
-          {{ t('back') }}
-        </button>
+        <PButton variant="ghost" icon="lucide:arrow-left" :text="t('back')" @click="viewMode = 'overview'" />
         <div class="vs-student-info">
           <span class="vs-student-name">{{ currentStudentName }}</span>
           <span class="vs-student-subtitle">{{ assignmentName }}</span>
@@ -204,23 +195,11 @@
 
           <!-- Student switcher at bottom -->
           <div class="vs-student-nav">
-            <button
-              class="vs-student-nav-btn"
-              :disabled="selectedStudentIndex === 0"
-              @click="selectedStudentIndex--"
-            >
-              <LucideIcon name="chevron-left" :size="11" />
-            </button>
+            <PButton variant="secondary" size="xsm" icon="lucide:chevron-left" iconOnly :disabled="selectedStudentIndex === 0" @click="selectedStudentIndex--" />
             <span class="vs-student-nav-label">
               {{ selectedStudentIndex + 1 }} / {{ students.length }}
             </span>
-            <button
-              class="vs-student-nav-btn"
-              :disabled="selectedStudentIndex >= students.length - 1"
-              @click="selectedStudentIndex++"
-            >
-              <LucideIcon name="chevron-right" :size="11" />
-            </button>
+            <PButton variant="secondary" size="xsm" icon="lucide:chevron-right" iconOnly :disabled="selectedStudentIndex >= students.length - 1" @click="selectedStudentIndex++" />
           </div>
         </div>
 
@@ -391,8 +370,8 @@
               <input type="checkbox" v-model="autoSave" class="vs-checkbox" />
             </div>
             <div class="vs-footer-actions">
-              <button class="vs-btn-draft" @click="saveDraft">{{ t('save-draft') }}</button>
-              <button class="vs-btn-graded" @click="markAsGraded">{{ t('mark-as-graded') }}</button>
+              <PButton variant="secondary" :text="t('save-draft')" @click="saveDraft" />
+              <PButton variant="primary" color="success" :text="t('mark-as-graded')" @click="markAsGraded" />
             </div>
           </div>
         </div>
@@ -408,7 +387,7 @@
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
-  import { PUnifiedFilter, PTable, PTabs } from '@/components/ui/index.js'
+  import { PButton, PUnifiedFilter, PTable, PTabs } from '@/components/ui/index.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -1058,28 +1037,6 @@
   padding: 12px;
   border-top: 1px solid #e2e8f0;
   background: white;
-}
-
-.vs-student-nav-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-  font-size: 11px;
-}
-.vs-student-nav-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  color: #334155;
-}
-.vs-student-nav-btn:disabled {
-  color: #cbd5e1;
-  cursor: not-allowed;
 }
 
 .vs-student-nav-label {

@@ -37,7 +37,7 @@
       </div>
     </template>
     <template #footer>
-      <PButton variant="ghost" :text="t('cancel')" class="cancel-btn" @click="$emit('close')" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
       <PButton
         variant="primary"
         :text="isEdit ? t('save') : t('create-sequence')"

@@ -148,7 +148,7 @@
       </div>
     </template>
     <template #footer>
-      <PButton variant="secondary" :text="t('cancel')" @click="cancel" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="cancel" />
       <PButton variant="primary" :text="t('save-changes')" @click="save" />
     </template>
   </PModal>

@@ -28,7 +28,7 @@
     </template>
 
     <template v-slot:footer>
-      <PButton variant="secondary" :text="t('cancel')" @click="emit('close')" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="emit('close')" />
       <PButton
         variant="primary"
         :text="t('done')"

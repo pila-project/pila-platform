@@ -257,8 +257,8 @@
 
     <template #footer>
       <template v-if="step === 'success'">
-        <PButton variant="ghost" text="Continue browsing" @click="$emit('close')" />
-        <PButton variant="primary" text="Go to assignment" @click="$emit('close')" />
+        <PButton variant="secondary" :text="t('continue-browsing')" @click="$emit('close')" />
+        <PButton variant="primary" :text="t('go-to-assignment')" @click="$emit('close')" />
       </template>
       <template v-else>
         <PButton
@@ -269,9 +269,9 @@
         />
         <div class="flex-1" />
         <PButton
-          variant="ghost"
-          text="Cancel"
-          class="cancel-btn"
+          variant="secondary"
+          color="danger"
+          :text="t('cancel')"
           @click="$emit('close')"
         />
         <PButton

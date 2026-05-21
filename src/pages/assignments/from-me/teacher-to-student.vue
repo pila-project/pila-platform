@@ -9,9 +9,7 @@
         <h2 class="wizard-title">{{ props.editing ? t('edit-assignment') : t('create-new-assignment') }}</h2>
         <p class="wizard-subtitle">{{ stepSubtitles[currentStep - 1] }}</p>
       </div>
-      <button class="wizard-close" @click="$emit('close')">
-        <LucideIcon name="x" :size="12" />
-      </button>
+      <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
     </div>
     <div class="wizard-separator" />
 
@@ -271,9 +269,7 @@
         <!-- Header -->
         <div class="cb-modal-header">
           <h2 class="cb-modal-title">{{ t('add-content-item-or-sequence') }}</h2>
-          <button class="cb-close" @click="selectingContent = false">
-            <LucideIcon name="x" :size="12" />
-          </button>
+          <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="selectingContent = false" />
         </div>
 
         <!-- Explore content library header -->
@@ -615,26 +611,6 @@
   font-weight: 400;
   color: #334155;
   margin: 4px 0 0 0;
-}
-
-.wizard-close {
-  width: 28px;
-  height: 26px;
-  border-radius: 6px;
-  border: none;
-  background: #f1f5f9;
-  color: #64748b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  transition: all 150ms;
-  flex-shrink: 0;
-}
-.wizard-close:hover {
-  background: #e2e8f0;
-  color: #334155;
 }
 
 .wizard-separator {
@@ -1071,26 +1047,6 @@
   font-weight: 600;
   color: #1e293b;
   margin: 0;
-}
-
-.cb-close {
-  width: 28px;
-  height: 26px;
-  border-radius: 6px;
-  border: none;
-  background: #f1f5f9;
-  color: #64748b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  transition: all 150ms;
-  flex-shrink: 0;
-}
-.cb-close:hover {
-  background: #e2e8f0;
-  color: #334155;
 }
 
 .cb-header {

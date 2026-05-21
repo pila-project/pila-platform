@@ -141,9 +141,7 @@
               <span class="panel-student-name">
                 <DecryptedName :user="student.id" />
               </span>
-              <button class="panel-remove-btn" :title="t('remove')" @click="removeFromGroup(student.id)">
-                <LucideIcon name="trash-2" :size="14" />
-              </button>
+              <PButton variant="icon" size="xsm" icon="lucide:trash-2" iconOnly :title="t('remove')" @click="removeFromGroup(student.id)" />
               <span class="panel-drag-handle" :title="t('remove')">
                 <LucideIcon name="grip-vertical" :size="12" />
               </span>
@@ -158,10 +156,10 @@
 
     <template #footer>
       <div class="modal-footer-left">
-        <PButton v-if="showBack" variant="outline" :text="t('back')" @click="$emit('back')" />
+        <PButton v-if="showBack" variant="secondary" :text="t('back')" @click="$emit('back')" />
       </div>
       <div class="modal-footer-right">
-        <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
         <PButton variant="primary" :text="hasChanges ? t('update') : t('done')" :loading="flushing" @click="handleDone" />
       </div>
     </template>
@@ -501,25 +499,6 @@ async function handleDone() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.panel-remove-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: none;
-  border-radius: 6px;
-  color: var(--color-slate-400);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 150ms;
-}
-.panel-remove-btn:hover {
-  background: #fee2e2;
-  color: #dc2626;
 }
 
 .panel-drag-handle {

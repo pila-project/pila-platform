@@ -13,9 +13,7 @@
               <h2 class="details-title">{{ t('view-assignment-details') }}</h2>
               <p class="details-subtitle">{{ t('complete-information-about') }} {{ data.name }}</p>
             </div>
-            <button class="details-close" @click="$emit('close')">
-              <LucideIcon name="x" :size="12" />
-            </button>
+            <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
           </div>
 
           <div class="details-body">
@@ -126,7 +124,7 @@
                       </vueScopeComponent>
                     </span>
                   </div>
-                  <button class="preview-btn" @click="previewing = cid">{{ t('preview') }}</button>
+                  <PButton variant="secondary" size="xsm" :text="t('preview')" @click="previewing = cid" />
                 </div>
               </div>
             </div>
@@ -134,7 +132,7 @@
 
           <!-- Footer -->
           <div class="details-footer">
-            <PButton variant="ghost" :text="t('cancel')" @click="$emit('close')" />
+            <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
             <PButton variant="ghost" :text="t('edit-assignment')" @click="$emit('edit')" />
             <PButton variant="primary" :text="t('view-submissions')" @click="$emit('view-submissions')" />
           </div>
@@ -306,25 +304,6 @@
   font-size: 12px;
   color: #64748b;
   margin: 4px 0 0 0;
-}
-
-.details-close {
-  width: 28px;
-  height: 26px;
-  border-radius: 6px;
-  border: none;
-  background: #f1f5f9;
-  color: #64748b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-.details-close:hover {
-  background: #e2e8f0;
-  color: #334155;
 }
 
 /* Body */

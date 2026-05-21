@@ -22,13 +22,7 @@
               <h2 class="text-lg font-semibold text-zinc-950">{{ title }}</h2>
             </slot>
           </div>
-          <button
-            @click="close('top-x')"
-            class="ml-4 p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-            aria-label="Close"
-          >
-            <LucideIcon name="x" :size="18" />
-          </button>
+          <PButton variant="icon" size="sm" icon="lucide:x" iconOnly class="ml-4" aria-label="Close" @click="close('top-x')" />
         </div>
 
         <!-- Body -->

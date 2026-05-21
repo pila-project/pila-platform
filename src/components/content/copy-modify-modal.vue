@@ -189,7 +189,7 @@
 
     <template #footer>
       <template v-if="step === 1">
-        <PButton variant="ghost" :text="t('cancel')" @click="$emit('close')" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
         <PButton
           variant="primary"
           :text="t('create-copy')"

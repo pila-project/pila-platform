@@ -15,9 +15,7 @@
           <h3 class="sc-title">{{ seqState?.name || t('untitled') }}</h3>
           <PMenu align-right>
             <template #activator="{ props }">
-              <button class="sc-menu-trigger" @click.stop="props.onClick">
-                <LucideIcon name="ellipsis-vertical" :size="12" />
-              </button>
+              <PButton variant="icon" size="xsm" icon="lucide:ellipsis-vertical" iconOnly @click.stop="props.onClick" />
             </template>
             <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="expanded = true" />
             <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
@@ -103,6 +101,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { PMenu, PMenuItem, PAlertDialog } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import PButton from '@/components/ui/PButton.vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { getContentMetadata } from '@/utils/content-cache.js'
 
@@ -346,23 +345,6 @@ onMounted(async () => {
   font-weight: 500;
   color: #64748b;
   line-height: 16px;
-}
-
-.sc-menu-trigger {
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  cursor: pointer;
-  flex-shrink: 0;
-  font-size: 12px;
-}
-.sc-menu-trigger:hover {
-  color: #64748b;
 }
 
 /* ── Footer ── */

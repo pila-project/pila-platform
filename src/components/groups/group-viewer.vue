@@ -97,12 +97,7 @@
             :key="`possible-member-id-${id}`"
             class="flex items-center"
           >
-            <button
-              @click="$emit('selectUser', id)"
-              class="p-2 text-slate-400 hover:text-slate-700"
-            >
-              <LucideIcon name="pencil" :size="14" />
-            </button>
+            <PButton variant="icon" size="xsm" icon="lucide:pencil" iconOnly @click="$emit('selectUser', id)" />
             <DecryptedName :user="id" />
           </div>
         </div>

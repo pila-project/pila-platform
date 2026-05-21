@@ -40,7 +40,7 @@
       </PButton>
 
       <PButton
-        variant="text"
+        variant="link"
         @click="refreshStatus"
         :disabled="loading"
         :text="t('refresh-status')"
@@ -61,7 +61,7 @@
         <span>{{ t('you-can-revert-later-by-clearing-your-opt-out-ta') }}</span>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="confirmOpen = false" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="confirmOpen = false" />
         <PButton
           variant="primary"
           :disabled="loading"

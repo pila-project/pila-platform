@@ -42,7 +42,8 @@
 				@click="removeAll"
 				:text="t('remove-all')"
 				icon="minus-circle"
-				variant="danger"
+				variant="primary"
+				color="danger"
 			/>
 		</div>
 

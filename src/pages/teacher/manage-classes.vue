@@ -31,9 +31,7 @@
             />
             <PMenu v-if="selectedStudents.length" align-right>
               <template #activator="{ props }">
-                <button class="action-dots" @click="props.onClick">
-                  <LucideIcon name="ellipsis-vertical" :size="16" />
-                </button>
+                <PButton variant="icon" size="sm" icon="lucide:ellipsis-vertical" iconOnly @click="props.onClick" />
               </template>
               <PMenuItem
                 :title="t('add-to-groups')"
@@ -135,16 +133,14 @@
               <div class="action-cell">
                 <PButton
                   v-if="item.archived"
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   :text="t('restore')"
                   @click="confirmRestoreStudent(item)"
                 />
                 <PMenu v-else align-right>
                   <template #activator="{ props }">
-                    <button class="action-dots" @click="props.onClick">
-                      <LucideIcon name="ellipsis-vertical" :size="14" />
-                    </button>
+                    <PButton variant="icon" size="xsm" icon="lucide:ellipsis-vertical" iconOnly @click="props.onClick" />
                   </template>
                   <PMenuItem
                     :title="t('edit')"
@@ -333,7 +329,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="viewProfileUser = null" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="viewProfileUser = null" />
         <PButton variant="primary" :text="t('edit-student')" @click="userModalUser = viewProfileUser; viewProfileUser = null" />
       </template>
     </PModal>
@@ -422,7 +418,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="showAddStudentPicker = false; selectedPickerOption = null" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showAddStudentPicker = false; selectedPickerOption = null" />
         <PButton
           variant="primary"
           :text="t('next')"
@@ -470,9 +466,9 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="outline" :text="t('back')" @click="showCreateStudentForm = false; showAddStudentPicker = true" />
+        <PButton variant="secondary" :text="t('back')" @click="showCreateStudentForm = false; showAddStudentPicker = true" />
         <div style="flex: 1" />
-        <PButton variant="secondary" :text="t('cancel')" @click="showCreateStudentForm = false" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showCreateStudentForm = false" />
         <PButton
           variant="primary"
           :text="t('create')"
@@ -521,7 +517,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="showCreateGroupModal = false" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showCreateGroupModal = false" />
         <PButton variant="primary" :text="t('create')" @click="handleCreateGroup" :disabled="!newGroupName.trim()" :loading="creatingGroup" />
       </template>
     </PModal>
@@ -564,7 +560,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="editGroupId = null" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="editGroupId = null" />
         <PButton variant="primary" :text="t('save')" @click="handleSaveGroup" :disabled="!editGroupName.trim()" :loading="savingGroup" />
       </template>
     </PModal>
@@ -773,9 +769,9 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="outline" :text="t('back')" @click="showCSVUploadModal = false; showAddStudentPicker = true" />
+        <PButton variant="secondary" :text="t('back')" @click="showCSVUploadModal = false; showAddStudentPicker = true" />
         <div style="flex: 1" />
-        <PButton variant="secondary" :text="t('cancel')" @click="showCSVUploadModal = false" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showCSVUploadModal = false" />
         <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!csvFile" :loading="importingCSV" @click="handleCSVImport" />
       </template>
     </PModal>
@@ -796,7 +792,7 @@
       <template #body>
         <div class="bulk-entry-container">
           <div class="bulk-entry-toolbar">
-            <PButton variant="outline" size="sm" icon="lucide:plus" :text="t('add-row')" @click="addBulkRow" />
+            <PButton variant="secondary" size="sm" icon="lucide:plus" :text="t('add-row')" @click="addBulkRow" />
           </div>
           <div class="bulk-entry-table-wrapper">
             <table class="bulk-entry-table">
@@ -830,9 +826,9 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="outline" :text="t('back')" @click="showBulkEntryModal = false; showCSVUploadModal = true" />
+        <PButton variant="secondary" :text="t('back')" @click="showBulkEntryModal = false; showCSVUploadModal = true" />
         <div style="flex: 1" />
-        <PButton variant="secondary" :text="t('cancel')" @click="showBulkEntryModal = false" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showBulkEntryModal = false" />
         <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!validBulkRows" :loading="creatingBulk" @click="handleBulkCreate" />
       </template>
     </PModal>
@@ -883,9 +879,9 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="outline" :text="t('back')" @click="showSSOModal = false; showAddStudentPicker = true" />
+        <PButton variant="secondary" :text="t('back')" @click="showSSOModal = false; showAddStudentPicker = true" />
         <div style="flex: 1" />
-        <PButton variant="secondary" :text="t('cancel')" @click="showSSOModal = false" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showSSOModal = false" />
         <!-- TODO: backend — needs SSO OAuth integration (Google + Microsoft) -->
         <PButton variant="primary" :text="t('next')" :disabled="!selectedSSOProvider" @click="handleSSONext" />
       </template>
@@ -937,7 +933,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="showExportModal = false; exportFormat = null" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showExportModal = false; exportFormat = null" />
         <PButton variant="primary" :text="t('export')" :disabled="!exportFormat" :loading="exporting" @click="handleExport" />
       </template>
     </PModal>
@@ -985,7 +981,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="showAddToGroupsModal = false" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showAddToGroupsModal = false" />
         <PButton
           variant="primary"
           :text="`${t('add-to')} ${selectedGroupsForAssign.length} ${t('group')}`"
@@ -1036,8 +1032,8 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('cancel')" @click="loginCodeStudent = null" />
-        <PButton variant="primary" text="Download QR Code" @click="downloadQRCode" />
+        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="loginCodeStudent = null" />
+        <PButton variant="primary" :text="t('download-qr-code')" @click="downloadQRCode" />
       </template>
     </PModal>
 
@@ -2090,25 +2086,6 @@ function printLoginCodes() {
   align-items: center;
   gap: 4px;
 }
-
-.action-dots {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: none;
-  border-radius: 6px;
-  color: var(--color-slate-400);
-  cursor: pointer;
-  transition: all 150ms;
-}
-.action-dots:hover {
-  background: var(--color-slate-100);
-  color: var(--color-slate-700);
-}
-
 
 /* Group section (right) */
 .group-section {

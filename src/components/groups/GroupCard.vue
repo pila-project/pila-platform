@@ -10,9 +10,7 @@
       <h3 class="group-card-name">{{ groupName }}</h3>
       <PMenu align-right>
         <template #activator="{ props }">
-          <button class="group-card-menu-btn" @click="props.onClick">
-            <LucideIcon name="ellipsis-vertical" :size="16" />
-          </button>
+          <PButton variant="icon" size="sm" icon="lucide:ellipsis-vertical" iconOnly @click="props.onClick" />
         </template>
         <PMenuItem
           v-if="!archived"
@@ -70,10 +68,7 @@
       </div>
     </div>
 
-    <button v-if="!archived" class="group-card-add-link" @click="$emit('manage')">
-      <LucideIcon name="user-plus" :size="14" />
-      {{ t('add-more-students') }}
-    </button>
+    <PButton v-if="!archived" variant="link" size="sm" icon="lucide:user-plus" :text="t('add-more-students')" @click="$emit('manage')" />
   </div>
 </template>
 
@@ -82,6 +77,7 @@ import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import PButton from '@/components/ui/PButton.vue'
 
 const props = defineProps({
   groupId: { type: String, required: true },
@@ -150,23 +146,6 @@ function onDrop(event) {
   margin: 0;
 }
 
-.group-card-menu-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: none;
-  border-radius: 6px;
-  color: var(--color-slate-400);
-  cursor: pointer;
-  transition: all 150ms;
-}
-.group-card-menu-btn:hover {
-  background: var(--color-slate-100);
-  color: var(--color-slate-700);
-}
 
 .group-card-details {
   display: flex;
@@ -190,20 +169,5 @@ function onDrop(event) {
   color: #334155;
 }
 
-.group-card-add-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  color: var(--color-primary-600);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  transition: color 150ms;
-}
-.group-card-add-link:hover {
-  color: var(--color-primary-700);
-}
+
 </style>

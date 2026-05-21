@@ -138,9 +138,7 @@
             <div @click.stop>
               <PMenu alignRight>
                 <template #activator="{ props: menuProps }">
-                  <button class="assign-action-btn" @click="menuProps.onClick">
-                    <LucideIcon name="ellipsis-vertical" :size="14" />
-                  </button>
+                  <PButton variant="icon" size="sm" icon="lucide:ellipsis-vertical" iconOnly @click="menuProps.onClick" />
                 </template>
                 <PMenuItem
                   :title="t('view-assignment-details')"
@@ -348,7 +346,7 @@
     </template>
     <template #footer>
       <PButton variant="ghost" :text="t('back')" class="footer-back-btn" />
-      <PButton variant="ghost" :text="t('cancel')" class="footer-cancel-btn" @click="showDuplicateDialog = false" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showDuplicateDialog = false" />
       <PButton variant="primary" :text="t('duplicate-assignment')" @click="confirmDuplicate" />
     </template>
   </PModal>
