@@ -1158,6 +1158,7 @@ const addingToGroups = ref(false)
 
 // ── Encryption key ──
 const {
+  namePassword,
   hasEncryptionKey,
   showEncryptionKeyModal: showNamePasswordModal,
   closeEncryptionKeyModal: closeNamePasswordModal,
@@ -1211,6 +1212,22 @@ watch(
   },
   { immediate: true }
 )
+
+// Re-fetch decrypted names when the encryption key is set or changed
+watch(namePassword, async (newKey) => {
+  if (newKey) {
+    decryptedNames.clear()
+    const currentIds = students.value.map(s => s.id)
+    for (const id of currentIds) {
+      try {
+        const info = await store.getters.decryptUserInfo(id, false)
+        decryptedNames.set(id, info?.name || '')
+      } catch {
+        decryptedNames.set(id, '')
+      }
+    }
+  }
+})
 
 const filteredStudents = computed(() => {
   let items = students.value

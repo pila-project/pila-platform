@@ -167,8 +167,9 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
+import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 import { PModal, PButton, PUnifiedFilter, PCheckbox } from '@/components/ui/index.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -191,6 +192,8 @@ const groupSearch = ref('')
 const selectedAvailable = reactive(new Set())
 const selectedGroup = reactive(new Set())
 
+const { namePassword: encryptionKey } = useEncryptionKey(store)
+
 // Decrypted name lookup for search
 const nameMap = reactive({})
 
@@ -202,6 +205,13 @@ onMounted(async () => {
     } catch {
       nameMap[student.id] = ''
     }
+  }
+})
+
+// Re-decrypt student names when the encryption key is updated
+watch(encryptionKey, (newKey) => {
+  if (newKey) {
+    Object.keys(nameMap).forEach(k => delete nameMap[k])
   }
 })
 

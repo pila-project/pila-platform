@@ -388,6 +388,7 @@
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { PButton, PUnifiedFilter, PTable, PTabs, PCheckbox } from '@/components/ui/index.js'
+  import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -396,6 +397,8 @@
   const emit = defineEmits(['close', 'open-dashboard'])
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
+
+  const { namePassword: encryptionKey } = useEncryptionKey(store)
 
   // ── State ──
   const loading = ref(true)
@@ -739,8 +742,9 @@
     await loadGradingData()
   })
 
-  async function loadStudentInfo(userId) {
-    if (!userId || studentInfoCache[userId]) return
+  async function loadStudentInfo(userId, force = false) {
+    if (!userId) return
+    if (!force && studentInfoCache[userId]) return
     try {
       const info = await store.getters.decryptUserInfo(userId)
       studentInfoCache[userId] = info
@@ -748,6 +752,13 @@
       studentInfoCache[userId] = { name: t('unknown') }
     }
   }
+
+  // Re-fetch student info when the encryption key changes
+  watch(encryptionKey, (newKey) => {
+    if (newKey) {
+      Object.keys(studentInfoCache).forEach(k => delete studentInfoCache[k])
+    }
+  })
 
   // ── Init ──
   async function init() {

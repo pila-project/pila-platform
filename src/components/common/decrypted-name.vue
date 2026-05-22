@@ -13,8 +13,10 @@
 <script setup>
   import { reactive, computed, watch } from 'vue'
   import { useStore } from 'vuex'
+  import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 
   const store = useStore()
+  const { namePassword: encryptionKey } = useEncryptionKey(store)
 
   const props = defineProps({
     user: String,
@@ -41,15 +43,24 @@
     name: '...'
   })
 
-  watch(
-    () => props.user,
-    async () => {
+  async function decrypt() {
+    try {
       const i = await store.getters.decryptUserInfo(props.user, props.alias)
       Object.assign(info, i)
-    },
-    {
-      immediate: true
+    } catch (e) {
+      info.name = '...'
     }
+  }
+
+  // Re-decrypt when the user changes OR when the encryption key changes
+  watch(
+    [() => props.user, () => encryptionKey.value],
+    async () => {
+      if (props.user) {
+        await decrypt()
+      }
+    },
+    { immediate: true }
   )
 
   const displayName = computed(() => {
