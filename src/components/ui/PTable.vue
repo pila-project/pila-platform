@@ -4,11 +4,10 @@
       <thead>
         <tr class="bg-slate-50 border-b border-slate-200">
           <th v-if="selectable" scope="col" class="table-header-cell w-10">
-            <input
-              type="checkbox"
-              :checked="allSelected"
+            <PCheckbox
+              :modelValue="allSelected"
               :indeterminate="someSelected && !allSelected"
-              @change="toggleAll"
+              @update:modelValue="toggleAll"
             />
           </th>
           <th
@@ -66,11 +65,10 @@
               @dragend="draggableRows && onRowDragEnd($event, item)"
             >
               <td v-if="selectable" class="table-cell w-10">
-                <input
-                  type="checkbox"
-                  :checked="isSelected(item)"
+                <PCheckbox
+                  :modelValue="isSelected(item)"
+                  @update:modelValue="() => toggleSelect(item)"
                   @click.stop
-                  @change="toggleSelect(item)"
                 />
               </td>
               <td
@@ -177,7 +175,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import LucideIcon from './LucideIcon.vue'
-import { PButton } from './index.js'
+import { PButton, PCheckbox } from './index.js'
 
 const props = defineProps({
   headers: {
@@ -244,7 +242,25 @@ const sortedItems = computed(() => {
   const key = sortKey.value
   return [...props.items].sort((a, b) => {
     if (props.sortRaw) return sortOrder.value === 'asc' ? props.sortRaw(a, b) : props.sortRaw(b, a)
-    const va = a[key], vb = b[key]
+
+    const va = a[key]
+    const vb = b[key]
+
+    // Handle null/undefined
+    if (va == null && vb == null) return 0
+    if (va == null) return sortOrder.value === 'asc' ? -1 : 1
+    if (vb == null) return sortOrder.value === 'asc' ? 1 : -1
+
+    // String comparison: case-insensitive + natural numeric sort
+    if (typeof va === 'string' && typeof vb === 'string') {
+      const cmp = va.localeCompare(vb, undefined, {
+        sensitivity: 'base',
+        numeric: true
+      })
+      return sortOrder.value === 'asc' ? cmp : -cmp
+    }
+
+    // Fallback for numbers, dates, etc.
     if (va < vb) return sortOrder.value === 'asc' ? -1 : 1
     if (va > vb) return sortOrder.value === 'asc' ? 1 : -1
     return 0

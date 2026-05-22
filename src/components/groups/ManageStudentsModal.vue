@@ -47,11 +47,11 @@
           <div class="panel-list">
             <div class="panel-list-header">
               <label class="panel-checkbox-cell">
-                <input
-                  type="checkbox"
-                  :checked="allAvailableSelected"
+                <PCheckbox
+                  :modelValue="allAvailableSelected"
                   :indeterminate="someAvailableSelected && !allAvailableSelected"
-                  @change="toggleAllAvailable"
+                  size="sm"
+                  @update:modelValue="toggleAllAvailable"
                 />
               </label>
               <span class="panel-name-header">{{ t('name') }}</span>
@@ -66,10 +66,10 @@
               @dragend="onDragEnd"
             >
               <label class="panel-checkbox-cell">
-                <input
-                  type="checkbox"
-                  :checked="selectedAvailable.has(student.id)"
-                  @change="toggleAvailableSelection(student.id)"
+                <PCheckbox
+                  :modelValue="selectedAvailable.has(student.id)"
+                  size="sm"
+                  @update:modelValue="() => toggleAvailableSelection(student.id)"
                 />
               </label>
               <span class="panel-student-name">
@@ -113,11 +113,11 @@
           <div class="panel-list">
             <div class="panel-list-header">
               <label class="panel-checkbox-cell">
-                <input
-                  type="checkbox"
-                  :checked="allGroupSelected"
+                <PCheckbox
+                  :modelValue="allGroupSelected"
                   :indeterminate="someGroupSelected && !allGroupSelected"
-                  @change="toggleAllGroup"
+                  size="sm"
+                  @update:modelValue="toggleAllGroup"
                 />
               </label>
               <span class="panel-name-header">{{ t('name') }}</span>
@@ -132,10 +132,10 @@
               @dragend="onDragEnd"
             >
               <label class="panel-checkbox-cell">
-                <input
-                  type="checkbox"
-                  :checked="selectedGroup.has(student.id)"
-                  @change="toggleGroupSelection(student.id)"
+                <PCheckbox
+                  :modelValue="selectedGroup.has(student.id)"
+                  size="sm"
+                  @update:modelValue="() => toggleGroupSelection(student.id)"
                 />
               </label>
               <span class="panel-student-name">
@@ -169,7 +169,7 @@
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { PModal, PButton, PUnifiedFilter } from '@/components/ui/index.js'
+import { PModal, PButton, PUnifiedFilter, PCheckbox } from '@/components/ui/index.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useToast } from '@/utils/useToast.js'

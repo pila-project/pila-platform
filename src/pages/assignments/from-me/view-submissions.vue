@@ -367,7 +367,7 @@
           <div class="vs-footer">
             <div class="vs-auto-save">
               <span>{{ t('auto-save') }}</span>
-              <input type="checkbox" v-model="autoSave" class="vs-checkbox" />
+              <PCheckbox v-model="autoSave" size="sm" inputClass="vs-checkbox" />
             </div>
             <div class="vs-footer-actions">
               <PButton variant="secondary" :text="t('save-draft')" @click="saveDraft" />
@@ -387,7 +387,7 @@
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
-  import { PButton, PUnifiedFilter, PTable, PTabs } from '@/components/ui/index.js'
+  import { PButton, PUnifiedFilter, PTable, PTabs, PCheckbox } from '@/components/ui/index.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },

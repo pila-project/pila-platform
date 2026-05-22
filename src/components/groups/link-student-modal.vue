@@ -4,7 +4,7 @@
       <span>
         {{ t('per-the-pila-personal-data-protection-notice-or') }}
       </span>
-      <input type="checkbox" v-model="agreed" :disabled="agreed" >
+      <PCheckbox v-model="agreed" :disabled="agreed" size="sm" />
     </div>
 
     <div class="agreed" v-show="agreed">

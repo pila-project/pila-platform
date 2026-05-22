@@ -4,7 +4,7 @@
       <span>
         {{ t('per-the-pila-personal-data-protection-notice-or') }}
       </span>
-      <input type="checkbox" v-model="agreed" :disabled="agreed" >
+      <PCheckbox v-model="agreed" :disabled="agreed" size="sm" />
     </div>
 
     <div class="agreed" v-show="agreed">
@@ -20,8 +20,13 @@
 </template>
 
 <script>
+import { PCheckbox } from '@/components/ui/index.js'
+
 export default {
   name: 'link-student-modal',
+  components: {
+    PCheckbox
+  },
   data() {
     return {
       host: window.location.host,

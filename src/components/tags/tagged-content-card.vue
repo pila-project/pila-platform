@@ -11,12 +11,11 @@
       <!-- Checkbox -->
       <div class="pcard-overlay-tl">
         <span class="pcard-checkbox-wrap">
-          <input
-            type="checkbox"
-            class="pcard-checkbox"
-            :checked="checked"
+          <PCheckbox
+            :modelValue="checked"
+            @update:modelValue="$emit('toggle-select')"
+            size="sm"
             @click.stop
-            @change="$emit('toggle-select')"
           />
         </span>
       </div>
@@ -109,6 +108,7 @@
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import { getContentImage } from '@/utils/content-cache.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { PCheckbox } from '@/components/ui/index.js'
   import { PButton } from '@/components/ui/index.js'
 
   const store = useStore()
@@ -202,13 +202,13 @@
   border-radius: 4px;
 }
 
-.pcard-checkbox {
+.pcard-checkbox-wrap .pcheckbox {
   width: 14px;
   height: 14px;
   border-radius: 3.5px;
   border: 1.5px solid #64748b;
   cursor: pointer;
-  accent-color: #10B981;
+  accent-color: #2563eb;
 }
 
 /* Sequence count badge — green */

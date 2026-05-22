@@ -39,11 +39,11 @@
             :key="opt.value"
             class="filter-option"
           >
-            <input
-              type="checkbox"
-              :checked="modelValue.includes(opt.value)"
-              class="filter-option-checkbox"
-              @change="toggle(opt.value)"
+            <PCheckbox
+              :modelValue="modelValue.includes(opt.value)"
+              size="sm"
+              inputClass="filter-option-checkbox"
+              @update:modelValue="() => toggle(opt.value)"
             />
             <span class="filter-option-label">{{ opt.label }}</span>
             <span v-if="opt.count != null" class="filter-option-count">{{ opt.count }}</span>
@@ -70,6 +70,7 @@
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { PCheckbox } from '@/components/ui/index.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }

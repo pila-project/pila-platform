@@ -179,9 +179,17 @@
     padding: 16px 24px;
   }
 
-  /* Checkbox accent */
-  input[type="checkbox"] {
+  /* Checkbox accent - authoritative blue tick for all checkboxes */
+  input[type="checkbox"],
+  input[type="checkbox"].pcheckbox {
     accent-color: #2563eb;
+    /* Ensure consistent rendering */
+  }
+
+  /* Stronger base for the official PCheckbox */
+  .pcheckbox {
+    accent-color: #2563eb;
+    border-color: #cbd5e1;
   }
 
   /* Form Inputs */

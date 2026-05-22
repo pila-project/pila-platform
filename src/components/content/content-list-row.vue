@@ -5,12 +5,10 @@
     @click="$emit('click')"
   >
     <!-- Checkbox -->
-    <input
-      type="checkbox"
-      :checked="checked"
+    <PCheckbox
+      :modelValue="checked"
+      @update:modelValue="$emit('toggle-select')"
       class="list-checkbox"
-      @click.stop
-      @change="$emit('toggle-select')"
     />
 
     <!-- Thumbnail -->
@@ -61,7 +59,7 @@ import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { getContentImage, getContentMetadata } from '@/utils/content-cache.js'
-import { PButton, PBadge } from '@/components/ui/index.js'
+import { PButton, PBadge, PCheckbox } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
@@ -105,13 +103,14 @@ onMounted(async () => {
   background: #eff6ff;
 }
 
-.list-checkbox {
+/* Styles for the checkbox when used in list rows (targets the inner input rendered by PCheckbox) */
+.list-checkbox :deep(.pcheckbox) {
   width: 16px;
   height: 16px;
   border-radius: 3px;
   border: 1.5px solid #cbd5e1;
   cursor: pointer;
-  accent-color: #10b981;
+  accent-color: #2563eb;
   flex-shrink: 0;
 }
 

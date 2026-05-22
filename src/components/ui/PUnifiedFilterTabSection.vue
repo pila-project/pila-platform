@@ -41,11 +41,11 @@
           :key="opt.value"
           class="ufts-option"
         >
-          <input
-            type="checkbox"
-            :checked="modelValue.includes(opt.value)"
-            class="ufts-option-checkbox"
-            @change="toggle(opt.value)"
+          <PCheckbox
+            :modelValue="modelValue.includes(opt.value)"
+            size="sm"
+            @update:modelValue="() => toggle(opt.value)"
+            inputClass="ufts-option-checkbox"
           />
           <span class="ufts-option-label" v-html="highlightMatch(opt.label, internalQuery)"></span>
         </label>
@@ -60,6 +60,7 @@
 <script setup>
 import { ref, computed, inject, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import LucideIcon from './LucideIcon.vue'
+import { PCheckbox } from './index.js'
 import PTabs from './PTabs.vue'
 
 const props = defineProps({

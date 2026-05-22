@@ -31,11 +31,11 @@
           :key="opt.value"
           class="ufs-option"
         >
-          <input
-            type="checkbox"
-            :checked="modelValue.includes(opt.value)"
-            class="ufs-option-checkbox"
-            @change="toggle(opt.value)"
+          <PCheckbox
+            :modelValue="modelValue.includes(opt.value)"
+            size="sm"
+            @update:modelValue="() => toggle(opt.value)"
+            inputClass="ufs-option-checkbox"
           />
           <span class="ufs-option-label" v-html="highlightMatch(opt.label, internalQuery)"></span>
           <span v-if="opt.count != null" class="ufs-option-count">{{ opt.count }}</span>
@@ -51,6 +51,7 @@
 <script setup>
 import { ref, computed, inject, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import LucideIcon from './LucideIcon.vue'
+import { PCheckbox } from './index.js'
 
 const props = defineProps({
   id: { type: String, required: true },

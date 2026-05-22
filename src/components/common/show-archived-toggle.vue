@@ -1,6 +1,6 @@
 <template>
   <div class="show-archived-toggle">
-    <input v-model="modelValue" type="checkbox" :id="checkboxId" />
+    <PCheckbox v-model="modelValue" :id="checkboxId" size="sm" />
     <label :for="checkboxId">
       <em>{{ t('show-archived') }}</em>
     </label>
@@ -9,6 +9,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { PCheckbox } from '@/components/ui/index.js'
 import { useStore } from 'vuex'
 
 const store = useStore()

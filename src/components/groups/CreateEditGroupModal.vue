@@ -64,9 +64,9 @@
           :key="member + index"
         >
         	<td style="width: 30px; text-align: center; cursor: pointer;">
-        		<input
-        			type="checkbox"
-        			:checked="userInClass(member)"
+        		<PCheckbox
+        			:modelValue="userInClass(member)"
+        			size="sm"
         			@click="handleAddRemove($event, member)"
         		/>
         	</td>
@@ -88,12 +88,14 @@
 
 <script>
 import IconButton from '../icon-button.vue'
+import { PCheckbox } from '@/components/ui/index.js'
 import LinkStudentModal from './LinkStudentModal.vue'
 import DecryptedName from '../decrypted-name.vue'
 export default {
 	name: 'create-edit-group-modal',
 	components: {
 		IconButton,
+		PCheckbox,
 		LinkStudentModal,
 		DecryptedName
 	},

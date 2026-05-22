@@ -117,11 +117,11 @@
               :key="itemId"
               class="content-browser-row"
             >
-              <input
-                type="checkbox"
-                :checked="selectedContentIds.has(itemId)"
-                class="copy-item-check"
-                @change="toggleContentItem(itemId)"
+              <PCheckbox
+                :modelValue="selectedContentIds.has(itemId)"
+                size="sm"
+                inputClass="copy-item-check"
+                @update:modelValue="() => toggleContentItem(itemId)"
               />
               <span class="content-browser-name">
                 <NameOrTranslatedNameFromItemId :itemId="itemId" />
@@ -138,11 +138,11 @@
 
         <!-- Current items list -->
         <div class="copy-items-header mt-3">
-          <input
-            type="checkbox"
-            :checked="allItemsSelected"
-            class="copy-item-check"
-            @change="toggleAllItems"
+          <PCheckbox
+            :modelValue="allItemsSelected"
+            size="sm"
+            inputClass="copy-item-check"
+            @update:modelValue="toggleAllItems"
           />
           <span class="text-xs font-medium text-slate-500">{{ t('title-and-details') }}</span>
         </div>
@@ -155,11 +155,11 @@
             :key="itemId"
             class="copy-item-row"
           >
-            <input
-              type="checkbox"
-              :checked="selectedContentIds.has(itemId)"
-              class="copy-item-check"
-              @change="toggleContentItem(itemId)"
+            <PCheckbox
+              :modelValue="selectedContentIds.has(itemId)"
+              size="sm"
+              inputClass="copy-item-check"
+              @update:modelValue="() => toggleContentItem(itemId)"
             />
             <div class="copy-item-info">
               <span class="copy-item-title">
@@ -219,7 +219,7 @@ import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-
 import getName from '@/utils/name-and-translation-for-content.js'
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
-import { PModal, PInput, PButton } from '@/components/ui/index.js'
+import { PModal, PInput, PButton, PCheckbox } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useStore } from 'vuex'
 

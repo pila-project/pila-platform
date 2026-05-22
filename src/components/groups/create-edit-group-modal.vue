@@ -60,9 +60,9 @@
           :key="member + index"
         >
         	<td style="width: 30px; text-align: center; cursor: pointer;">
-        		<input
-        			type="checkbox"
-        			:checked="userInClass(member)"
+        		<PCheckbox
+        			:modelValue="userInClass(member)"
+        			size="sm"
         			@click="handleAddRemove($event, member)"
         		/>
         	</td>
@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import { PButton } from '@/components/ui/index.js'
+import { PButton, PCheckbox } from '@/components/ui/index.js'
 import LinkStudentModal from './link-student-modal.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 export default {

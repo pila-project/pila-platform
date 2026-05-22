@@ -14,16 +14,13 @@
     </td>
     <td><ContentName :id="id" /></td>
     <td v-for="tag in tags" :id="tag">
-      <input
-        type="checkbox"
-        v-if="$store.getters['pila_tags/hasTag'](id, tag)"
-        @click="$store.dispatch('pila_tags/untag', { content_id: id, tag_type: tag })"
-        checked
-      />
-      <input
-        type="checkbox"
-        v-else
-        @click="$store.dispatch('pila_tags/tag', { content_id: id, tag_type: tag })"
+      <PCheckbox
+        :modelValue="$store.getters['pila_tags/hasTag'](id, tag)"
+        size="sm"
+        @update:modelValue="val => {
+          const action = val ? 'tag' : 'untag'
+          $store.dispatch(`pila_tags/${action}`, { content_id: id, tag_type: tag })
+        }"
       />
     </td>
     <td>

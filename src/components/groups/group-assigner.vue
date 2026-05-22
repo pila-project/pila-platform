@@ -7,10 +7,10 @@
           :key="group_id"
         >
           <td>
-            <input
-              type="checkbox"
-              :checked="!!assignmentForGroup(group_id)"
-              @click="toggleAssignment(group_id)"
+            <PCheckbox
+              :modelValue="!!assignmentForGroup(group_id)"
+              size="sm"
+              @update:modelValue="() => toggleAssignment(group_id)"
             />
           </td>
           <td>
@@ -34,6 +34,7 @@
 
 <script>
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { PCheckbox } from '@/components/ui/index.js'
 
   export default {
     props: {
@@ -42,7 +43,8 @@
       assignment_type: String
     },
     components: {
-      vueScopeComponent
+      vueScopeComponent,
+      PCheckbox
     },
     computed: {
       assignments() {

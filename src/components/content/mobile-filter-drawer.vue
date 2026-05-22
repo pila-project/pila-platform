@@ -25,11 +25,11 @@
                 :key="opt.value"
                 class="filter-section-option"
               >
-                <input
-                  type="checkbox"
-                  :checked="isSelected(filter.key, opt.value)"
-                  class="filter-section-checkbox"
-                  @change="toggle(filter.key, opt.value)"
+                <PCheckbox
+                  :modelValue="isSelected(filter.key, opt.value)"
+                  size="sm"
+                  inputClass="filter-section-checkbox"
+                  @update:modelValue="() => toggle(filter.key, opt.value)"
                 />
                 <span>{{ opt.label }}</span>
               </label>
@@ -48,6 +48,7 @@
 import { reactive, computed } from 'vue'
 import { useStore } from 'vuex'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { PCheckbox } from '@/components/ui/index.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }

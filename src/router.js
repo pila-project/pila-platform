@@ -9,7 +9,7 @@ import StudentView from '@/pages/student/index.vue'
 import JoinTeacherView from '@/pages/student/join-teacher.vue'
 import AssignmentView from '@/pages/assignment/index.vue'
 import CandliStates from '@/pages/candli-states.vue'
-import ComponentShowcase from '@/pages/component-showcase.vue'
+
 
 // Wrap  async components in synchronous wrapper
 function makeRouteShell(loader, { cache = true } = {}) {
@@ -112,9 +112,6 @@ export default createRouter({
       path: '/candli-states',
       component: CandliStates
     },
-    {
-      path: '/components',
-      component: ComponentShowcase
-    }
+
   ]
 })

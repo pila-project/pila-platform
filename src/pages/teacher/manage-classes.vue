@@ -967,10 +967,10 @@
               :key="gid"
               class="assign-group-row"
             >
-              <input
-                type="checkbox"
-                :checked="selectedGroupsForAssign.includes(gid)"
-                @change="toggleGroupForAssign(gid)"
+              <PCheckbox
+                :modelValue="selectedGroupsForAssign.includes(gid)"
+                size="sm"
+                @update:modelValue="() => toggleGroupForAssign(gid)"
               />
               <span class="assign-group-name">{{ store.state.groups.groups[gid]?.name || t('unnamed') }}</span>
               <span v-if="store.state.groups.groups[gid]?.grade" class="assign-group-detail">{{ store.state.groups.groups[gid].grade }}</span>
@@ -1064,7 +1064,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
-import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip } from '@/components/ui/index.js'
+import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 
