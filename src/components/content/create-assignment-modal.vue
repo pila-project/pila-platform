@@ -128,9 +128,13 @@
                 <span class="flex-1 text-sm text-slate-700 truncate">
                   <NameOrTranslatedNameFromItemId :itemId="cid" />
                 </span>
-                <button class="content-remove-btn" @click="removeContent(cid)">
-                  <LucideIcon name="x" :size="12" />
-                </button>
+                <PButton
+                  variant="icon"
+                  size="xsm"
+                  icon="lucide:x"
+                  iconOnly
+                  @click="removeContent(cid)"
+                />
               </div>
             </div>
           </div>

@@ -86,14 +86,15 @@
                 <LucideIcon name="grip-vertical" :size="14" class="drag-handle" />
               </td>
               <td v-if="expandable" class="table-cell w-10 text-center">
-                <button
-                  class="btn btn-ghost btn-sm"
+                <PButton
+                  variant="ghost"
+                  size="xsm"
+                  :icon="isExpanded(item) ? 'lucide:chevron-up' : 'lucide:chevron-down'"
+                  iconOnly
                   @click.stop="toggleExpand(item)"
                   :aria-expanded="isExpanded(item)"
                   aria-label="Expand row"
-                >
-                  <LucideIcon :name="isExpanded(item) ? 'chevron-up' : 'chevron-down'" :size="12" />
-                </button>
+                />
               </td>
             </tr>
             <tr v-if="expandable && isExpanded(item)" class="table-row-expansion">
@@ -176,6 +177,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import LucideIcon from './LucideIcon.vue'
+import { PButton } from './index.js'
 
 const props = defineProps({
   headers: {

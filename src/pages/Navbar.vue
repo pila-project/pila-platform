@@ -15,11 +15,11 @@
           v-if="teacherViewButton"
           style="margin-right: 1em"
         >
-            <IconButton
-                icon="chalkboard-teacher"
+            <PButton
+                variant="secondary"
+                icon="lucide:users"
                 @click="goToTeacherView"
                 :text="t('teacher-view')"
-                background="#FFC442"
             />
         </span>
         <v-select
@@ -39,7 +39,7 @@
 <script setup>
 import languageChoices from '../store/languageChoices.js'
 import { useStore } from 'vuex'
-import IconButton from '../components/icon-button.vue'
+import { PButton } from '@/components/ui/index.js'
 const store = useStore()
 
 defineProps(['teacherViewButton'])

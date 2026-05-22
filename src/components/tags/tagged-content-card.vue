@@ -76,17 +76,29 @@
 
     <!-- Actions -->
     <div class="pcard-actions">
-      <button class="pcard-btn pcard-btn-preview" @click.stop="$emit('preview')">
-        <LucideIcon name="eye" :size="14" />
-        {{ t('preview') }}
-      </button>
-      <button class="pcard-btn pcard-btn-add" @click.stop="$emit('add')">
-        <LucideIcon name="plus" :size="14" />
-        {{ t('add') }}
-      </button>
-      <button class="pcard-btn-info" @click.stop="$emit('click')">
-        <LucideIcon name="info" :size="18" />
-      </button>
+      <PButton
+        variant="secondary"
+        size="sm"
+        icon="lucide:eye"
+        :text="t('preview')"
+        @click.stop="$emit('preview')"
+        class="flex-1"
+      />
+      <PButton
+        variant="primary"
+        size="sm"
+        icon="lucide:plus"
+        :text="t('add')"
+        @click.stop="$emit('add')"
+        class="flex-1"
+      />
+      <PButton
+        variant="ghost"
+        size="sm"
+        icon="lucide:info"
+        iconOnly
+        @click.stop="$emit('click')"
+      />
     </div>
   </div>
 </template>
@@ -97,6 +109,7 @@
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import { getContentImage } from '@/utils/content-cache.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
+  import { PButton } from '@/components/ui/index.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -378,61 +391,5 @@
   align-items: center;
   gap: 8px;
   padding: 12px;
-}
-
-.pcard-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  height: 36px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  cursor: pointer;
-  transition: all 150ms;
-  border: none;
-  flex: 1;
-}
-
-/* Preview button: white bg, blue text, slate border */
-.pcard-btn-preview {
-  background: white;
-  color: #2563eb;
-  border: 1px solid #e2e8f0;
-}
-.pcard-btn-preview:hover {
-  background: #f8fafc;
-}
-
-/* Add button: blue bg, white text */
-.pcard-btn-add {
-  background: #2563eb;
-  color: white;
-}
-.pcard-btn-add:hover {
-  background: #1d4ed8;
-}
-
-/* Info button */
-.pcard-btn-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #2563eb;
-  cursor: pointer;
-  transition: all 150ms;
-}
-.pcard-btn-info:hover {
-  background: #f8fafc;
-  color: #1d4ed8;
 }
 </style>

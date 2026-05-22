@@ -217,7 +217,7 @@
           </div>
         </template>
         <template #footer>
-          <PButton variant="outline" text="Cancel" @click="showAddStudentDialog = false" style="color: #ef4444;" />
+          <PButton variant="secondary" color="danger" text="Cancel" @click="showAddStudentDialog = false" />
           <PButton variant="primary" text="Next" @click="showAddStudentDialog = false" />
         </template>
       </PModal>
@@ -554,7 +554,7 @@
         </template>
         <template #footer>
           <PButton variant="outline" text="Back" @click="showStudentFormModal = false" />
-          <PButton variant="outline" text="Cancel" @click="showStudentFormModal = false" style="color: #ef4444;" />
+          <PButton variant="secondary" color="danger" text="Cancel" @click="showStudentFormModal = false" />
           <PButton variant="primary" text="Create account" @click="showStudentFormModal = false" />
         </template>
       </PModal>

@@ -41,11 +41,10 @@
         type="text"
         @keypress.enter="submitAccessCode"
       />
-      <IconButton
-        @click="submitAccessCode"
+      <PButton
+        variant="primary"
         :text="t('enter')"
-        background="green"
-        textColor="#f7f7f7"
+        @click="submitAccessCode"
       />
     </div>
     <p>
@@ -55,12 +54,12 @@
 </template>
 
 <script>
-  import IconButton from '../../components/icon-button.vue'
+  import { PButton } from '@/components/ui/index.js'
   import { DEFAULT_CODE_LIST, DOMAIN_CODE_LISTS } from '../../constants.js'
 
   export default {
     components: {
-      IconButton
+      PButton
     },
     data() {
       return {

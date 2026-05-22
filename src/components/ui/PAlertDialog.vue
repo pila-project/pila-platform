@@ -13,21 +13,19 @@
         </div>
         <slot />
         <div class="alert-actions">
-          <button
-            class="alert-btn alert-btn-confirm"
-            :class="`alert-btn-${variant}`"
+          <PButton
+            variant="primary"
+            :color="variant === 'error' ? 'danger' : variant === 'warning' ? 'warning' : ''"
+            :text="confirmText"
             @click="$emit('confirm')"
-          >
-            {{ confirmText }}
-          </button>
-          <button
+          />
+          <PButton
             v-if="cancelText"
-            class="alert-btn alert-btn-cancel"
-            :class="`alert-btn-cancel-${variant}`"
+            variant="secondary"
+            color="danger"
+            :text="cancelText"
             @click="$emit('cancel')"
-          >
-            {{ cancelText }}
-          </button>
+          />
         </div>
       </div>
     </div>
@@ -37,6 +35,7 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 import LucideIcon from './LucideIcon.vue'
+import { PButton } from './index.js'
 
 const props = defineProps({
   variant: {

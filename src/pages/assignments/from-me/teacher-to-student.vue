@@ -232,14 +232,13 @@
         v-if="currentStep > 1"
         variant="ghost"
         :text="t('back')"
-        class="footer-back"
         @click="currentStep--"
       />
       <div class="flex-1" />
       <PButton
-        variant="ghost"
+        variant="secondary"
+        color="danger"
         :text="t('cancel')"
-        class="footer-cancel"
         @click="$emit('close')"
       />
       <PButton
@@ -992,14 +991,6 @@
 
 .flex-1 {
   flex: 1;
-}
-
-.footer-back {
-  color: #2563eb !important;
-}
-
-.footer-cancel {
-  color: #dc2626 !important;
 }
 
 /* ── Content browser overlay modal ── */
