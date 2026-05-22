@@ -20,6 +20,7 @@
   const archived = ref(!!usersState[props.id]?.archived)
   const studentGrade = ref(usersState[props.id]?.grade || '')
   const studentStatus = ref(archived.value ? 'archived' : 'active')
+  const saving = ref(false)
 
   const teacherOwnedUserAccount = !!userData.providerEncryptedKey
 
@@ -65,19 +66,29 @@
   }
 
   async function save() {
-    if (teacherOwnedUserAccount && userSecret) {
-      await createUser(userSecret, providerSecret, editUserInfo)
-    }
-
-    // Save grade to users state
-    if (usersState[props.id]) {
-      usersState[props.id].grade = studentGrade.value || undefined
-
-      // Update archived status based on dropdown
-      const shouldBeArchived = studentStatus.value === 'archived'
-      if (shouldBeArchived !== !!usersState[props.id]?.archived) {
-        usersState[props.id].archived = shouldBeArchived
+    saving.value = true
+    try {
+      if (teacherOwnedUserAccount && userSecret) {
+        await createUser(userSecret, providerSecret, editUserInfo)
       }
+
+      // Save grade (and archived) to the top-level 'users' Agent state collection.
+      // We must await Agent.synced() so the write (including adding `grade` to
+      // legacy student records that never had the field) is flushed and visible
+      // to Agent.watch('users') listeners in manage-classes.vue etc.
+      if (usersState[props.id]) {
+        usersState[props.id].grade = studentGrade.value || undefined
+
+        // Update archived status based on dropdown
+        const shouldBeArchived = studentStatus.value === 'archived'
+        if (shouldBeArchived !== !!usersState[props.id]?.archived) {
+          usersState[props.id].archived = shouldBeArchived
+        }
+      }
+
+      await Agent.synced()
+    } finally {
+      saving.value = false
     }
 
     open.value = false
@@ -149,7 +160,7 @@
     </template>
     <template #footer>
       <PButton variant="secondary" color="danger" :text="t('cancel')" @click="cancel" />
-      <PButton variant="primary" :text="t('save-changes')" @click="save" />
+      <PButton variant="primary" :text="t('save-changes')" :loading="saving" :disabled="saving" @click="save" />
     </template>
   </PModal>
 </template>
