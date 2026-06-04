@@ -70,7 +70,7 @@
           :selected="selectedItems"
           @update:selected="selectedItems = $event"
           clickableRows
-          :rowClass="(item) => item.id === current ? 'assign-row-current' : ''"
+          :rowClass="assignmentRowClass"
           @click:row="(_, { item }) => handleRowClick(item.id)"
           :noDataText="hasActiveFilters ? t('no-assignments-match-filters') : t('no-data-available')"
           :itemsPerPage="10"
@@ -105,8 +105,8 @@
             <span :class="getStatusBadgeClass(item.id)">
               {{ t(getStatus(item.id).toLowerCase()) }}
             </span>
-            <div v-if="getStatus(item.id) === 'Scheduled' && assignmentData[item.id]?.dueDate" class="assign-cell-desc">
-              {{ t('for') }} {{ formatDate(assignmentData[item.id].dueDate) }}
+            <div v-if="getScheduledSubline(item.id)" class="assign-cell-desc">
+              {{ getScheduledSubline(item.id) }}
             </div>
           </template>
           <template #item.assignedTo="{ item }">
@@ -126,12 +126,14 @@
             <span v-else class="assign-cell-text">{{ t('not-assigned') }}</span>
           </template>
           <template #item.submissions="{ item }">
-            <template v-if="getAssignedGroups(item.id).length > 0 && getSubmissionProgress(item.id) != null">
-              <div class="assign-progress-track">
-                <div class="assign-progress-fill" :style="{ width: getSubmissionProgress(item.id) + '%' }" />
-              </div>
-              <span class="assign-cell-desc">{{ getSubmissionProgress(item.id) }}%</span>
-            </template>
+            <PButton
+              v-if="canViewSubmissions(item.id)"
+              variant="link"
+              size="sm"
+              icon="lucide:bar-chart"
+              :text="t('view-submissions')"
+              @click.stop="openSubmissions(item.id)"
+            />
             <span v-else class="assign-cell-text assign-cell-text--muted">—</span>
           </template>
           <template #item.actions="{ item }">
@@ -317,7 +319,7 @@
     v-if="showDeleteDialog"
     variant="error"
     :title="`${t('are-you-sure-you-want-to-delete')} &quot;${pendingActionName}&quot;?`"
-    :description="t('delete-assignment-warning-permanent')"
+    :description="t('delete-assignment-warning-archive') || t('archive-assignment-warning') || 'This removes the assignment from your active list. You can restore it from archived assignments.'"
     :confirmText="t('delete-assignment')"
     :cancelText="t('cancel')"
     @confirm="confirmDelete"
@@ -336,16 +338,12 @@
     </template>
     <template #body>
       <p class="duplicate-subtitle">{{ t('create-a-copy-of') }} "{{ duplicateSourceName }}"</p>
-      <div class="duplicate-info-banner">
-        <LucideIcon name="info" :size="14" class="info-banner-icon" />
-        <span>{{ t('duplicate-info-text') }}</span>
-      </div>
       <div style="margin-top: 16px;">
         <PInput v-model="duplicateNewTitle" :label="t('new-assignment-title')" required />
       </div>
     </template>
     <template #footer>
-      <PButton variant="ghost" :text="t('back')" class="footer-back-btn" />
+      <PButton variant="ghost" :text="t('back')" class="footer-back-btn" @click="showDuplicateDialog = false" />
       <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showDuplicateDialog = false" />
       <PButton variant="primary" :text="t('duplicate-assignment')" @click="confirmDuplicate" />
     </template>
@@ -380,7 +378,8 @@
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable } from '@/components/ui/index.js'
-  import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
+  import { useFeedback } from '@/composables/useFeedback.js'
+  import { useAssignmentArchive } from '@/composables/useAssignmentArchive.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
   import Dashboard from './dashboard/index.vue'
@@ -418,7 +417,11 @@
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
   const dashboardSubmenuItem = ref(null)
-  const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
+  const {
+    successDialog,
+    success: showSuccessDialog,
+    dismissSuccess: dismissSuccessDialog,
+  } = useFeedback()
   const wasCreating = ref(false)
 
   // ── Filter state ──
@@ -435,9 +438,11 @@
   ])
 
   const typeOptions = computed(() => [
+    { value: 'assessment', label: t('assessment') },
+    { value: 'practice', label: t('practice') },
+    { value: 'homework', label: t('homework') },
+    { value: 'learning', label: t('learning') },
     { value: 'Assignment', label: t('assignment') },
-    { value: 'Quiz', label: t('quiz') },
-    { value: 'Project', label: t('project') },
   ])
 
   const assignedToTabs = computed(() => [
@@ -483,7 +488,10 @@
         assignmentType: state.assignmentType || 'Assignment',
         dueDate: state.dueDate || null,
         dueTime: state.dueTime || null,
+        scheduledDate: state.scheduledDate || null,
+        scheduledTime: state.scheduledTime || null,
         status: state.status || null,
+        archived: !!state.archived,
       }
     } catch {
       assignmentData[id] = { name: '', description: '' }
@@ -534,7 +542,8 @@
     if (typeFilter.value.length > 0) {
       items = items.filter(id => {
         const data = assignmentData[id]
-        return data && typeFilter.value.includes(data.assignmentType || 'Assignment')
+        const type = (data?.assignmentType || 'Assignment').toLowerCase()
+        return data && typeFilter.value.some(v => v.toLowerCase() === type)
       })
     }
 
@@ -614,13 +623,25 @@
     return t('not-set')
   }
 
-  // ── Submission progress (placeholder until real submission tracking) ──
-  function getSubmissionProgress(id) {
-    // TODO: backend — replace with real submission data once backend tracking exists
-    const groups = getAssignedGroups(id)
-    if (groups.length === 0) return null // no groups = no progress to show
-    return null // show "—" until real tracking exists
+  function canViewSubmissions(id) {
+    if (getStatus(id) !== 'Published') return false
+    if (!getAssignedGroups(id).length) return false
+    const scheduled = assignmentData[id]?.scheduledDate
+    if (scheduled) {
+      const start = new Date(scheduled)
+      if (!Number.isNaN(start.getTime()) && start.getTime() > Date.now()) return false
+    }
+    return true
   }
+
+  function assignmentRowClass(item) {
+    const classes = []
+    if (archivedIds.value[item.id]) classes.push('table-row-archived')
+    if (item.id === current.value) classes.push('assign-row-current')
+    return classes.join(' ')
+  }
+
+  const { archiveAssignment, restoreAssignment } = useAssignmentArchive(props.assignable_item_type)
 
   // ── Helpers ──
   function getAssignedGroups(id) {
@@ -635,6 +656,24 @@
     if (!ts) return '--'
     const d = new Date(ts)
     return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  }
+
+  function formatTime(ts) {
+    if (!ts) return ''
+    if (typeof ts === 'string' && /^\d{1,2}:\d{2}/.test(ts)) return ts
+    const d = new Date(ts)
+    if (Number.isNaN(d.getTime())) return ''
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  }
+
+  function getScheduledSubline(id) {
+    if (getStatus(id) !== 'Scheduled') return ''
+    const data = assignmentData[id]
+    if (!data?.scheduledDate && !data?.scheduledTime) return ''
+    const parts = []
+    if (data.scheduledDate) parts.push(formatDate(data.scheduledDate))
+    if (data.scheduledTime) parts.push(formatTime(data.scheduledTime))
+    return `${t('for')} ${parts.join(' ')}`
   }
 
   // ── CRUD actions ──
@@ -655,7 +694,7 @@
   }
 
   async function readd(content_id) {
-    await store.dispatch('pila_tags/tag', { content_id, tag_type: props.assignable_item_type })
+    await doRestoreAssignment(content_id)
   }
 
   function remove(content_id) {
@@ -724,10 +763,28 @@
     showArchiveDialog.value = true
   }
 
+  async function doArchiveAssignment(contentId) {
+    try {
+      await archiveAssignment(contentId)
+      if (assignmentData[contentId]) assignmentData[contentId].archived = true
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async function doRestoreAssignment(contentId) {
+    try {
+      await restoreAssignment(contentId)
+      if (assignmentData[contentId]) assignmentData[contentId].archived = false
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   function confirmArchive() {
     const item = pendingActionItem.value
     if (!item) return
-    store.dispatch('pila_tags/untag', { content_id: item, tag_type: props.assignable_item_type })
+    doArchiveAssignment(item)
     if (current.value === item) current.value = null
     showArchiveDialog.value = false
     pendingActionItem.value = null
@@ -742,7 +799,7 @@
   function confirmDelete() {
     const item = pendingActionItem.value
     if (!item) return
-    store.dispatch('pila_tags/untag', { content_id: item, tag_type: props.assignable_item_type })
+    doArchiveAssignment(item)
     if (current.value === item) current.value = null
     showDeleteDialog.value = false
     pendingActionItem.value = null
@@ -872,6 +929,11 @@
   overflow: hidden;
   border: 1px solid #e2e8f0;
   margin-top: 16px;
+}
+
+.assign-table-wrapper :deep(.table-row-archived) {
+  opacity: 0.85;
+  background: #fffbeb;
 }
 
 :deep(.assign-row-current) {

@@ -64,34 +64,47 @@
       />
     </div>
 
-    <!-- ═══════════════ Step 2: Add Content ═══════════════ -->
+    <!-- ═══════════════ Step 2: Assignment content only (library opens in modal) ═══════════════ -->
     <div v-else-if="currentStep === 2" class="step-body step-body-wide">
-      <!-- Centered CTA -->
       <div class="content-cta-centered" @click="openContentBrowser">
         <LucideIcon name="circle-plus" :size="28" class="content-cta-icon" />
         <span class="content-cta-title">{{ t('add-content-item-or-sequence') }}</span>
+        <span class="content-cta-desc">{{ t('browse-and-select-content-from-library') || 'Browse and select content from the library' }}</span>
       </div>
 
-      <!-- Content browser (same as explore page) -->
-      <ContentBrowser
-        ref="step2BrowserRef"
-        :columns="2"
-        :per-page="6"
-        :per-page-options="[6, 12, 24]"
-        use-disk-cache
-      >
-        <template #card="{ id, source, grades }">
-          <TaggedContentCard
-            :id="id"
-            :checked="contentList.includes(id)"
-            :source="source"
-            :grades="grades"
-            @toggle-select="toggleStepContent(id)"
-            @preview="previewing = id"
-            @click="toggleStepContent(id)"
+      <div class="assignment-content-section">
+        <div class="assignment-content-header">
+          <span class="assignment-content-heading">
+            {{ t('current-item-sequence') || 'Current item/sequence' }} ({{ contentList.length }})
+          </span>
+          <PButton
+            v-if="contentList.length"
+            variant="ghost"
+            size="sm"
+            icon="lucide:eye"
+            :text="t('preview')"
+            @click="previewing = contentList[0]"
           />
-        </template>
-      </ContentBrowser>
+        </div>
+
+        <p v-if="!contentList.length" class="assignment-content-empty">
+          {{ t('no-items-added-yet') || 'No items added yet. Use the button above to add content from the library.' }}
+        </p>
+
+        <div v-else class="assignment-content-grid">
+          <TaggedContentCard
+            v-for="id in contentList"
+            :key="id"
+            :id="id"
+            :checked="true"
+            :removable="true"
+            :grades="assignmentContentGrades(id)"
+            @toggle-select="removeContent(id)"
+            @remove="removeContent(id)"
+            @preview="previewing = id"
+          />
+        </div>
+      </div>
     </div>
 
 
@@ -167,10 +180,10 @@
             v-for="gid in filteredGroups"
             :key="gid"
             class="group-card"
-            :class="{ 'group-card-selected': !!assignmentForGroup(gid) }"
+            :class="{ 'group-card-selected': isGroupSelected(gid) }"
             @click="toggleGroup(gid)"
           >
-            <div class="group-icon" :class="assignmentForGroup(gid) ? 'group-icon-green' : 'group-icon-blue'">
+            <div class="group-icon" :class="isGroupSelected(gid) ? 'group-icon-green' : 'group-icon-blue'">
               <LucideIcon name="users" :size="16" />
             </div>
             <div class="group-info">
@@ -180,7 +193,7 @@
               <span class="group-count">{{ t('students') }}</span>
             </div>
             <div class="group-check">
-              <LucideIcon v-if="assignmentForGroup(gid)" name="check" :size="14" />
+              <LucideIcon v-if="isGroupSelected(gid)" name="check" :size="14" />
             </div>
           </div>
           <div v-if="!filteredGroups.length" class="content-empty">
@@ -241,22 +254,34 @@
         :text="t('cancel')"
         @click="$emit('close')"
       />
-      <PButton
+      <PTooltip
         v-if="currentStep < 4"
-        variant="primary"
-        :text="t('next')"
-        icon="lucide:arrow-right"
-        :icon-right="true"
-        @click="currentStep++"
-      />
-      <PButton
+        :text="!canProceed ? stepBlockedReason : ''"
+        position="top"
+      >
+        <PButton
+          variant="primary"
+          :text="t('next')"
+          icon="lucide:arrow-right"
+          :icon-right="true"
+          :disabled="!canProceed"
+          @click="goNext"
+        />
+      </PTooltip>
+      <PTooltip
         v-else
-        variant="primary"
-        :text="t('create-assignment')"
-        icon="lucide:arrow-right"
-        :icon-right="true"
-        @click="saveAndClose"
-      />
+        :text="!canSave ? saveBlockedReason : ''"
+        position="top"
+      >
+        <PButton
+          variant="primary"
+          :text="t('create-assignment')"
+          icon="lucide:arrow-right"
+          :icon-right="true"
+          :disabled="!canSave"
+          @click="saveAndClose"
+        />
+      </PTooltip>
     </div>
   </div>
 
@@ -284,7 +309,8 @@
             v-if="cbSelectedItems.size"
             variant="primary"
             icon="lucide:plus"
-            :text="t('add-selected') + ' (' + cbSelectedItems.size + ')' + (assignment.name ? ' ' + t('to') + ' &quot;' + assignment.name + '&quot;' : '')"
+            :disabled="pickerNewSelectionCount === 0"
+            :text="addSelectedButtonLabel"
             @click="addSelectedContent"
           />
         </div>
@@ -299,13 +325,13 @@
             <template #card="{ id, source, grades }">
               <TaggedContentCard
                 :id="id"
-                :checked="cbSelectedItems.has(id)"
+                :checked="isInAssignmentContent(id) || cbSelectedItems.has(id)"
+                :in-assignment="isInAssignmentContent(id)"
                 :source="source"
                 :grades="grades"
-                @toggle-select="cbToggleSelection(id)"
+                @toggle-select="toggleModalContent(id)"
                 @preview="previewing = id"
-                @add="cbToggleSelection(id)"
-                @click="cbToggleSelection(id)"
+                @add="onPickerAdd(id)"
               />
             </template>
           </ContentBrowser>
@@ -328,18 +354,26 @@
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
   import ContentBrowser from '@/components/content/content-browser.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
-  import { PButton, PInput, PSelect } from '@/components/ui/index.js'
+  import { useContentLibrary } from '@/utils/useContentLibrary.js'
+  import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
+  import { useToast } from '@/utils/useToast.js'
+  import { PButton, PInput, PSelect, PTooltip } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const props = defineProps({
     id: String,
     editing: Boolean,
+    initialContentIds: {
+      type: Array,
+      default: () => [],
+    },
   })
 
   const emit = defineEmits(['close', 'saved', 'update:width'])
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
+  const { info: toastInfo } = useToast()
 
   // ── Wizard state ──
   const loading = ref(true)
@@ -347,7 +381,7 @@
   const assignment = ref({ name: '', description: '', content: [] })
   const selectingContent = ref(false)
   const previewing = ref(null)
-  const step2BrowserRef = ref(null)
+  const { getItemTagLabels } = useContentLibrary(store)
 
   // ── Step definitions ──
   const steps = [
@@ -403,7 +437,9 @@
     { value: 'draft', label: t('save-as-draft'), description: t('keep-working-before-publishing') },
   ])
 
-  // ── Group assignment logic (from GroupAssigner) ──
+  // ── Step 4: pending group assignments (applied on Save only) ──
+  const pendingGroupIds = ref(new Set())
+
   function assignmentsForItem() {
     return store.getters['assignments/assignments'](props.id, 'teacher-to-student')
   }
@@ -413,16 +449,48 @@
     return assignments.find(id => store.getters['assignments/get'](id).group_id === group_id)
   }
 
+  function isGroupSelected(group_id) {
+    return pendingGroupIds.value.has(group_id)
+  }
+
   function toggleGroup(group_id) {
-    const existing = assignmentForGroup(group_id)
-    if (existing) {
-      store.dispatch('assignments/unassign', existing)
-    } else {
-      store.dispatch('assignments/assign', {
-        group_id,
-        item_id: props.id,
-        assignment_type: 'teacher-to-student',
-      })
+    const next = new Set(pendingGroupIds.value)
+    if (next.has(group_id)) next.delete(group_id)
+    else next.add(group_id)
+    pendingGroupIds.value = next
+  }
+
+  function seedPendingGroupsFromStore() {
+    const assigned = store.getters['assignments/assignedGroups'](
+      props.id,
+      'teacher-to-student',
+      false
+    )
+    pendingGroupIds.value = new Set(assigned)
+  }
+
+  async function applyPendingGroupAssignments() {
+    const itemId = props.id
+    const assignmentType = 'teacher-to-student'
+    const currentlyAssigned = new Set(
+      store.getters['assignments/assignedGroups'](itemId, assignmentType, false)
+    )
+    const pending = pendingGroupIds.value
+
+    for (const groupId of currentlyAssigned) {
+      if (!pending.has(groupId)) {
+        const assignmentId = assignmentForGroup(groupId)
+        if (assignmentId) await store.dispatch('assignments/unassign', assignmentId)
+      }
+    }
+    for (const groupId of pending) {
+      if (!currentlyAssigned.has(groupId)) {
+        await store.dispatch('assignments/assign', {
+          group_id: groupId,
+          item_id: itemId,
+          assignment_type: assignmentType,
+        })
+      }
     }
   }
 
@@ -445,25 +513,21 @@
 
   // ── Content selection ──
   function openContentBrowser() {
+    cbSelectedItems.clear()
     selectingContent.value = true
   }
 
-  function toggleStepContent(id) {
-    if (!Array.isArray(assignment.value.content)) {
-      assignment.value.content = assignment.value.content ? [assignment.value.content] : []
-    }
-    const idx = assignment.value.content.indexOf(id)
-    if (idx >= 0) assignment.value.content.splice(idx, 1)
-    else assignment.value.content.push(id)
+  function assignmentContentGrades(id) {
+    return getItemTagLabels(id)
   }
 
   function onContentSelect(id) {
+    if (!id || assignmentContentIdSet.value.has(id)) return false
     if (!Array.isArray(assignment.value.content)) {
       assignment.value.content = assignment.value.content ? [assignment.value.content] : []
     }
-    if (!assignment.value.content.includes(id)) {
-      assignment.value.content.push(id)
-    }
+    assignment.value.content.push(id)
+    return true
   }
 
   function removeContent(id) {
@@ -476,9 +540,85 @@
 
   const contentList = computed(() => {
     if (!assignment.value.content) return []
-    if (Array.isArray(assignment.value.content)) return assignment.value.content
-    return [assignment.value.content]
+    const raw = Array.isArray(assignment.value.content)
+      ? assignment.value.content
+      : [assignment.value.content]
+    return [...new Set(normalizeAssignmentContent(raw))]
   })
+
+  /** O(1) membership — recomputed only when contentList changes. */
+  const assignmentContentIdSet = computed(() => new Set(contentList.value))
+
+  function isInAssignmentContent(id) {
+    return assignmentContentIdSet.value.has(id)
+  }
+
+  const step1Valid = computed(() =>
+    (assignment.value.name || '').trim() !== '' && !!assignmentType.value?.trim()
+  )
+
+  const step2Valid = computed(() => contentList.value.length > 0)
+
+  const step4SaveValid = computed(() => {
+    if (distributionOption.value === 'schedule') {
+      return !!scheduledDate.value && !!scheduledTime.value
+    }
+    if (distributionOption.value === 'publish') {
+      return pendingGroupIds.value.size > 0
+    }
+    return true
+  })
+
+  const canProceed = computed(() => {
+    if (currentStep.value === 1) return step1Valid.value
+    if (currentStep.value === 2) return step2Valid.value
+    return true
+  })
+
+  const canSave = computed(() =>
+    step1Valid.value && step2Valid.value && step4SaveValid.value
+  )
+
+  const stepBlockedReason = computed(() => {
+    if (currentStep.value === 1) {
+      const missing = []
+      if (!(assignment.value.name || '').trim()) missing.push(t('assignment-title'))
+      if (!assignmentType.value?.trim()) missing.push(t('assignment-type'))
+      if (missing.length === 2) {
+        return t('fill-required-fields-to-continue')
+          || 'Fill in all required fields to continue.'
+      }
+      if (missing.length) {
+        return `${t('required') || 'Required'}: ${missing.join(', ')}`
+      }
+    }
+    if (currentStep.value === 2 && !step2Valid.value) {
+      return t('add-at-least-one-content-item-to-continue')
+        || 'Add at least one content item to continue.'
+    }
+    return ''
+  })
+
+  const saveBlockedReason = computed(() => {
+    if (distributionOption.value === 'schedule' && (!scheduledDate.value || !scheduledTime.value)) {
+      return t('set-scheduled-date-and-time-to-save')
+        || 'Set a scheduled date and time to save.'
+    }
+    if (distributionOption.value === 'publish' && pendingGroupIds.value.size === 0) {
+      return t('assign-at-least-one-group-to-publish')
+        || 'Assign at least one group to publish immediately.'
+    }
+    if (!step1Valid.value || !step2Valid.value) {
+      return t('complete-required-steps-before-saving')
+        || 'Complete all required steps before saving.'
+    }
+    return ''
+  })
+
+  function goNext() {
+    if (!canProceed.value) return
+    currentStep.value++
+  }
 
   // ── Content browser (overlay modal selection) ──
   const cbSelectedItems = reactive(new Set())
@@ -488,12 +628,63 @@
     else cbSelectedItems.add(id)
   }
 
-  function addSelectedContent() {
+  const pickerNewSelectionCount = computed(() => {
+    let count = 0
     for (const id of cbSelectedItems) {
-      onContentSelect(id)
+      if (!assignmentContentIdSet.value.has(id)) count++
+    }
+    return count
+  })
+
+  const addSelectedButtonLabel = computed(() => {
+    const nameSuffix = assignment.value.name
+      ? ` ${t('to')} "${assignment.value.name}"`
+      : ''
+    const newCount = pickerNewSelectionCount.value
+    const total = cbSelectedItems.size
+    if (newCount > 0 && newCount < total) {
+      return `${t('add-selected')} (${newCount} ${t('new') || 'new'})${nameSuffix}`
+    }
+    if (newCount > 0) {
+      return `${t('add-selected')} (${newCount})${nameSuffix}`
+    }
+    return `${t('add-selected')} (${total})${nameSuffix}`
+  })
+
+  function toggleModalContent(id) {
+    if (isInAssignmentContent(id)) return
+    cbToggleSelection(id)
+  }
+
+  function onPickerAdd(id) {
+    if (isInAssignmentContent(id)) {
+      toastInfo(t('already-in-assignment') || 'This item is already in the assignment')
+      return
+    }
+    if (onContentSelect(id)) {
+      cbSelectedItems.delete(id)
+      selectingContent.value = false
+    }
+  }
+
+  function addSelectedContent() {
+    const newIds = [...cbSelectedItems].filter(id => !assignmentContentIdSet.value.has(id))
+    const skipped = cbSelectedItems.size - newIds.length
+    let added = 0
+    for (const id of newIds) {
+      if (onContentSelect(id)) added++
     }
     cbSelectedItems.clear()
-    selectingContent.value = false
+    if (added > 0) {
+      selectingContent.value = false
+      if (skipped > 0) {
+        toastInfo(
+          `${added} ${t('items-added') || 'added'}. ${skipped} ${t('already-in-assignment') || 'already in assignment'}.`,
+        )
+      }
+    } else if (skipped > 0) {
+      toastInfo(t('all-selected-already-in-assignment') || 'All selected items are already in this assignment')
+    }
   }
 
   // ── Save all settings to backend ──
@@ -501,7 +692,7 @@
     const state = await Agent.state(props.id)
     state.name = assignment.value.name || ''
     state.description = assignment.value.description || ''
-    state.content = assignment.value.content || []
+    state.content = [...contentList.value]
     state.assignmentType = assignmentType.value || 'Assignment'
     state.dueDate = dueDate.value || null
     state.dueTime = dueTime.value || null
@@ -521,7 +712,9 @@
   }
 
   async function saveAndClose() {
+    if (!canSave.value) return
     await saveSettings()
+    await applyPendingGroupAssignments()
     await Agent.synced()
     emit('saved')
     emit('close')
@@ -534,13 +727,10 @@
     if (props.editing) {
       // Editing existing assignment — load from backend
       const state = await Agent.state(props.id)
-      // Normalize content to array (backward compat with single-value)
-      if (state.content && !Array.isArray(state.content)) {
-        state.content = [state.content]
-      } else if (!state.content) {
-        state.content = []
+      assignment.value = {
+        ...state,
+        content: normalizeAssignmentContent(state.content),
       }
-      assignment.value = state
 
       // Load persisted settings
       if (state.assignmentType) assignmentType.value = state.assignmentType
@@ -557,9 +747,13 @@
       else if (state.status === 'Draft') distributionOption.value = 'draft'
       if (state.scheduledDate) scheduledDate.value = state.scheduledDate
       if (state.scheduledTime) scheduledTime.value = state.scheduledTime
+      seedPendingGroupsFromStore()
     } else {
-      // Creating new assignment — use local-only state (no backend call)
-      assignment.value = { name: '', description: '', content: [] }
+      const seedContent = props.initialContentIds?.length
+        ? [...props.initialContentIds]
+        : []
+      assignment.value = { name: '', description: '', content: seedContent }
+      pendingGroupIds.value = new Set()
     }
 
     loading.value = false
@@ -770,6 +964,47 @@
   font-size: 14px;
   font-weight: 500;
   color: #2563eb;
+}
+
+.content-cta-desc {
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+  max-width: 280px;
+}
+
+.assignment-content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assignment-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.assignment-content-heading {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.assignment-content-empty {
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+  padding: 16px 12px;
+  border: 1px dashed #e2e8f0;
+  border-radius: 8px;
+}
+
+.assignment-content-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 /* ── Step 3: Toggle switches ── */

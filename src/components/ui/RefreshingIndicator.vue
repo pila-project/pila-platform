@@ -7,7 +7,7 @@
   >
     <div v-if="isRevalidating" class="refreshing-indicator">
       <LucideIcon name="refresh-cw" :size="12" class="ri-icon" />
-      <span>Refreshing</span>
+      <span>Refreshing…</span>
     </div>
   </Transition>
 </template>

@@ -1,9 +1,11 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
+import { beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
 import {
   nameCache, tagCache, tagNameCache,
   loadTagHierarchy, getCachedTagHierarchy,
-  prefetchBatch, seedFromDisk, persistToDisk,
+  prefetchBatch, loadExploreCache, persistExploreCache,
+  restoreTagHierarchyFromCache, invalidateAll,
 } from '@/utils/content-cache.js'
 
 const PILA_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
@@ -16,6 +18,89 @@ const myContentIds = reactive(new Set())
 const tagCategories = ref([])
 const _loaded = ref(false)
 const _loading = ref(false)
+/** Shared across all useContentLibrary() callers (Explore grid + parent page). */
+const exploreUiLoading = ref(false)
+
+function hasExploreLists() {
+  return taggedContent.value.length > 0 || myContent.length > 0
+}
+
+function syncExploreLoading() {
+  exploreUiLoading.value = !hasExploreLists() && (!_loaded.value || _loading.value)
+}
+
+function idsEqual(a, b) {
+  if (a.length !== b.length) return false
+  return a.every((id, i) => id === b[i])
+}
+
+function taggingsEqual(a, b) {
+  if (a.length !== b.length) return false
+  return a.every((item, i) => item.target === b[i].target)
+}
+
+function categoriesEqual(a, b) {
+  if (a.length !== b.length) return false
+  return a.every((c, i) => c.id === b[i].id)
+}
+
+function applyMyContentIds(ids) {
+  myContent.splice(0, myContent.length, ...ids)
+  myContentIds.clear()
+  ids.forEach(id => myContentIds.add(id))
+}
+
+function seedListsFromCache(cached) {
+  let seeded = false
+  if (cached.taggedContent?.length) {
+    taggedContent.value = cached.taggedContent
+    seeded = true
+  }
+  if (cached.myContent?.length) {
+    applyMyContentIds(cached.myContent)
+    seeded = true
+  }
+  if (cached.tagCategories?.length) {
+    restoreTagHierarchyFromCache(cached.tagCategories, cached.leafToCategory)
+    tagCategories.value = cached.tagCategories
+    seeded = true
+  }
+  return seeded
+}
+
+function applyFreshExploreData(pilaContent, myContentResult, hierarchy) {
+  let listsChanged = false
+
+  if (!taggingsEqual(taggedContent.value, pilaContent)) {
+    taggedContent.value = pilaContent
+    listsChanged = true
+  }
+
+  const newMine = myContentResult.map(t => t.target)
+  if (!idsEqual(myContent, newMine)) {
+    applyMyContentIds(newMine)
+    listsChanged = true
+  }
+
+  if (!categoriesEqual(tagCategories.value, hierarchy.categories)) {
+    tagCategories.value = hierarchy.categories
+    listsChanged = true
+  }
+
+  return listsChanged
+}
+
+/** Clear in-memory explore state (e.g. on logout). */
+export function resetContentLibraryState() {
+  taggedContent.value = []
+  myContent.splice(0, myContent.length)
+  myContentIds.clear()
+  tagCategories.value = []
+  _loaded.value = false
+  _loading.value = false
+  exploreUiLoading.value = false
+  invalidateAll()
+}
 
 export function useContentLibrary(store) {
   const partition = store.getters.tagPartition
@@ -27,7 +112,7 @@ export function useContentLibrary(store) {
   const activeFilters = reactive({})
   const contentPage = ref(1)
   const contentPerPage = ref(12)
-  const loading = ref(!_loaded.value)
+  syncExploreLoading()
 
   // ── Tabs ──
   const showTabs = computed(() => [
@@ -129,93 +214,111 @@ export function useContentLibrary(store) {
     return myContentIds.has(id)
   }
 
-  // ── Shared data loading ──
-  async function ensureLoaded({ useDiskCache = false } = {}) {
+  // ── Shared data loading (stale-while-revalidate) ──
+  async function ensureLoaded({ useDiskCache = true } = {}) {
     if (_loaded.value) {
       initFilters()
-      loading.value = false
+      if (!hasExploreLists()) {
+        _loaded.value = false
+        return ensureLoaded({ useDiskCache })
+      }
+      syncExploreLoading()
       return
     }
 
     if (_loading.value) {
+      syncExploreLoading()
       await new Promise(resolve => {
         const stop = watch(_loaded, (v) => {
           if (v) { stop(); resolve() }
         })
       })
       initFilters()
-      loading.value = false
+      syncExploreLoading()
       return
     }
 
     _loading.value = true
-    loading.value = true
+    syncExploreLoading()
+
+    let userId = null
+    let usedCache = false
 
     try {
       const env = await Agent.environment()
-      const userId = env.auth.user
+      userId = env.auth.user
 
-      if (useDiskCache) {
-        await seedFromDisk(userId)
+      if (useDiskCache && userId) {
+        const cached = await loadExploreCache(userId)
+        if (cached) {
+          const listsFromCache = seedListsFromCache(cached)
+          if (listsFromCache) {
+            usedCache = true
+            initFilters()
+            _loaded.value = true
+            syncExploreLoading()
+          }
+        }
       }
 
-      const hierarchy = await loadTagHierarchy(partition, COMPETENCY_TAG)
-      tagCategories.value = hierarchy.categories
-      initFilters()
+      if (usedCache) beginRevalidation()
 
+      const hierarchy = await loadTagHierarchy(partition, COMPETENCY_TAG)
       const [pilaContent, myContentResult] = await Promise.all([
         Agent.query('taggings-for-tag', [partition, PILA_TAG], 'tags.knowlearning.systems').catch(() => []),
         Agent.query('taggings-for-tag', [userId, MY_CONTENT_TAG], 'tags.knowlearning.systems').catch(() => []),
       ])
 
-      taggedContent.value = pilaContent
-      for (const t of myContentResult) {
-        if (!myContentIds.has(t.target)) {
-          myContentIds.add(t.target)
-          myContent.push(t.target)
-        }
-      }
-
-      loading.value = false
+      applyFreshExploreData(pilaContent, myContentResult, hierarchy)
+      initFilters()
       _loaded.value = true
+      syncExploreLoading()
 
-      const allIds = [...new Set([...pilaContent.map(t => t.target), ...myContentResult.map(t => t.target)])]
-      await prefetchBatch(allIds, store.getters.language(), partition, hierarchy.leafToCategory)
+      const allIds = [...new Set([
+        ...pilaContent.map(t => t.target),
+        ...myContentResult.map(t => t.target),
+      ])]
+      const leafToCategory = getCachedTagHierarchy()?.leafToCategory
+      await prefetchBatch(allIds, store.getters.language(), partition, leafToCategory)
 
-      if (useDiskCache) {
-        persistToDisk(userId)
+      if (userId) {
+        persistExploreCache(userId, {
+          taggedContent: taggedContent.value,
+          myContent: [...myContent],
+          tagCategories: tagCategories.value,
+          leafToCategory: leafToCategory ? [...leafToCategory] : [],
+        })
       }
     } catch (e) {
       console.warn('[useContentLibrary] load error:', e)
-      loading.value = false
+      syncExploreLoading()
     } finally {
+      if (usedCache) endRevalidation()
       _loading.value = false
+      if (!_loaded.value && hasExploreLists()) _loaded.value = true
+      syncExploreLoading()
     }
   }
 
   return {
-    // Shared state
     taggedContent,
     myContent,
     myContentIds,
     tagCategories,
 
-    // Instance state
-    loading,
+    loading: exploreUiLoading,
     searchQuery,
     activeShowTab,
     activeFilters,
     contentPage,
     contentPerPage,
 
-    // Computeds
     showTabs,
     filterDefinitions,
     currentContentList,
     filteredContentList,
     paginatedContentList,
 
-    // Methods
     getItemTagLabels,
     isMyContent,
     ensureLoaded,

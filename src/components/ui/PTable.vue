@@ -111,8 +111,8 @@
       class="ptable-pagination"
     >
       <div class="ptable-pagination-info">
-        <span v-if="selectable" class="ptable-selected-count">
-          {{ selected.length }} of {{ items.length }} row(s) selected.
+        <span v-if="selectable && selectedCount > 0" class="ptable-selected-count">
+          {{ selectedCount }} {{ selectedCount === 1 ? 'row' : 'rows' }} selected.
         </span>
       </div>
       <div class="ptable-pagination-center">
@@ -173,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import LucideIcon from './LucideIcon.vue'
 import { PButton, PCheckbox } from './index.js'
 
@@ -295,6 +295,26 @@ function getItemId(item) {
 function isSelected(item) {
   return props.selected.some(s => getItemId(s) === getItemId(item))
 }
+
+const itemIdSet = computed(() => new Set(props.items.map(getItemId)))
+
+const selectedInList = computed(() =>
+  props.selected.filter(s => itemIdSet.value.has(getItemId(s)))
+)
+
+const selectedCount = computed(() => selectedInList.value.length)
+
+watch(
+  () => props.items,
+  () => {
+    if (!props.selectable) return
+    const pruned = selectedInList.value
+    if (pruned.length !== props.selected.length) {
+      emit('update:selected', pruned)
+    }
+  },
+  { deep: true }
+)
 
 const allSelected = computed(() =>
   paginatedItems.value.length > 0 && paginatedItems.value.every(item => isSelected(item))

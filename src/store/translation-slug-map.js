@@ -275,5 +275,17 @@ export default {
     "total": "fac631d0-12f2-4430-96b7-20ec1138d6e5",
     "created-by": "fc15495e-fc19-4f7e-9d91-1cfea8d56bf2",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
-    "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d"
+    "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d",
+    "view-students": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+    "download-login": "b2c3d4e5-f6a7-4890-b123-456789abcdef",
+    "archive-group-confirm-title": "c3d4e5f6-a7b8-4901-c234-56789abcdef0",
+    "archive-group-confirm-description": "d4e5f6a7-b8c9-4012-d345-6789abcdef01",
+    "bulk-archive-students-confirm-title": "e5f6a7b8-c9d0-4123-e456-789abcdef012",
+    "bulk-archive-students-confirm-description": "f6a7b8c9-d0e1-4234-f567-89abcdef0123",
+    "restore-student-confirm-title": "a7b8c9d0-e1f2-4345-a678-9abcdef01234",
+    "restore-student-confirm-description": "b8c9d0e1-f2a3-4456-b789-abcdef012345",
+    "restore-group-confirm-title": "c9d0e1f2-a3b4-4567-c890-abcdef0123456",
+    "restore-group-confirm-description": "d0e1f2a3-b4c5-4678-d901-abcdef01234567",
+    "no-students-in-group": "e1f2a3b4-c5d6-4789-e012-345abcdef0123456",
+    "without-login-codes": "f2a3b4c5-d6e7-4890-f123-456abcdef01234567"
 }

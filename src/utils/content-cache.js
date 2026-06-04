@@ -165,24 +165,83 @@ export { nameCache, metadataCache, tagCache, imageCache, tagNameCache }
 
 // ── Disk persistence (IndexedDB) ──
 
-export async function seedFromDisk(userId) {
-  const cached = await localCache.get(userId, 'content', 'maps')
-  if (!cached) return false
-  if (cached.names) for (const [k, v] of cached.names) nameCache.set(k, v)
-  if (cached.metadata) for (const [k, v] of cached.metadata) metadataCache.set(k, v)
-  if (cached.tags) for (const [k, v] of cached.tags) tagCache.set(k, v)
-  if (cached.images) for (const [k, v] of cached.images) imageCache.set(k, v)
-  if (cached.tagNames) for (const [k, v] of cached.tagNames) tagNameCache.set(k, v)
-  return true
+function applyMapsToMemory(maps) {
+  if (!maps) return
+  if (maps.names) for (const [k, v] of maps.names) nameCache.set(k, v)
+  if (maps.metadata) for (const [k, v] of maps.metadata) metadataCache.set(k, v)
+  if (maps.tags) for (const [k, v] of maps.tags) tagCache.set(k, v)
+  if (maps.images) for (const [k, v] of maps.images) imageCache.set(k, v)
+  if (maps.tagNames) for (const [k, v] of maps.tagNames) tagNameCache.set(k, v)
 }
 
+/** @deprecated use loadExploreCache */
+export async function seedFromDisk(userId) {
+  const data = await loadExploreCache(userId)
+  return !!data
+}
+
+/** Restore explore lists + item caches from IndexedDB (stale-while-revalidate seed). */
+export async function loadExploreCache(userId) {
+  let cached = await localCache.get(userId, 'content', 'explore')
+  if (!cached) {
+    const legacyMaps = await localCache.get(userId, 'content', 'maps')
+    if (!legacyMaps) return null
+    applyMapsToMemory(legacyMaps)
+    return { maps: legacyMaps, taggedContent: null, myContent: null, tagCategories: null, leafToCategory: null }
+  }
+  applyMapsToMemory(cached.maps)
+  return cached
+}
+
+export function restoreTagHierarchyFromCache(categories, leafToCategoryPairs) {
+  if (!categories?.length) return null
+  const leafToCategory = new Map(leafToCategoryPairs || [])
+  tagHierarchyData = { categories, leafToCategory }
+  return tagHierarchyData
+}
+
+export function persistExploreCache(userId, {
+  taggedContent,
+  myContent,
+  tagCategories,
+  leafToCategory,
+  sequences,
+}) {
+  localCache.get(userId, 'content', 'explore').then((existing) => {
+    localCache.set(userId, 'content', 'explore', {
+      taggedContent: taggedContent ?? existing?.taggedContent ?? null,
+      myContent: myContent ?? existing?.myContent ?? null,
+      tagCategories: tagCategories ?? existing?.tagCategories ?? null,
+      leafToCategory: leafToCategory ?? existing?.leafToCategory ?? [],
+      sequences: sequences ?? existing?.sequences,
+      maps: {
+        names: [...nameCache],
+        metadata: [...metadataCache],
+        tags: [...tagCache],
+        images: [...imageCache],
+        tagNames: [...tagNameCache],
+      },
+    })
+  })
+}
+
+/** Merge active/archived sequence ids into the explore disk entry. */
+export async function persistSequencesPanelCache(userId, { active, archived }) {
+  const existing = await localCache.get(userId, 'content', 'explore')
+  if (!existing) return
+  await localCache.set(userId, 'content', 'explore', {
+    ...existing,
+    sequences: { active, archived },
+  })
+}
+
+/** @deprecated use persistExploreCache */
 export function persistToDisk(userId) {
-  localCache.set(userId, 'content', 'maps', {
-    names: [...nameCache],
-    metadata: [...metadataCache],
-    tags: [...tagCache],
-    images: [...imageCache],
-    tagNames: [...tagNameCache],
+  persistExploreCache(userId, {
+    taggedContent: null,
+    myContent: null,
+    tagCategories: null,
+    leafToCategory: null,
   })
 }
 

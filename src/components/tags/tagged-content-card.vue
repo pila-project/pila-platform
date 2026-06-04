@@ -1,10 +1,14 @@
 <template>
   <div
     class="pcard"
-    :class="{ 'pcard-selected': props.selected }"
+    :class="{
+      'pcard-selected': props.selected,
+      'pcard-dragging': isDragging,
+      'pcard-in-assignment': inAssignment,
+    }"
     draggable="true"
-    @dragstart="$event.dataTransfer.setData('text', props.id)"
-    @click="$emit('click')"
+    @dragstart="onCardDragStart"
+    @dragend="onCardDragEnd"
   >
     <!-- Image area with overlays -->
     <div class="pcard-image-area">
@@ -21,6 +25,10 @@
       </div>
       <!-- Sequence count + Heart + Drag handle -->
       <div class="pcard-overlay-tr">
+        <span v-if="inAssignment" class="pcard-in-assignment-badge">
+          <LucideIcon name="check" :size="10" />
+          {{ t('in-assignment') || 'In assignment' }}
+        </span>
         <span v-if="sequenceCount" class="pcard-seq-count">
           {{ sequenceCount }}
           <LucideIcon name="folders" :size="12" />
@@ -28,9 +36,9 @@
         <button class="pcard-heart-btn" :class="{ 'pcard-heart-active': favorited }" @click.stop="$emit('toggle-favorite')">
           <LucideIcon name="heart" :size="14" />
         </button>
-        <button class="pcard-drag-handle" @click.stop>
+        <span class="pcard-drag-handle" aria-hidden="true">
           <LucideIcon name="grip-vertical" :size="12" />
-        </button>
+        </span>
       </div>
       <!-- Image -->
       <div class="pcard-image">
@@ -84,11 +92,12 @@
         class="flex-1"
       />
       <PButton
-        variant="primary"
+        :variant="inAssignment ? 'secondary' : 'primary'"
         size="sm"
-        icon="lucide:plus"
-        :text="t('add')"
-        @click.stop="$emit('add')"
+        :icon="inAssignment ? 'lucide:check' : 'lucide:plus'"
+        :text="inAssignment ? (t('added') || 'Added') : t('add')"
+        :disabled="inAssignment"
+        @click.stop="onAddClick"
         class="flex-1"
       />
       <PButton
@@ -96,7 +105,7 @@
         size="sm"
         icon="lucide:info"
         iconOnly
-        @click.stop="$emit('click')"
+        @click.stop="$emit('info')"
       />
     </div>
   </div>
@@ -132,9 +141,42 @@ import { PCheckbox } from '@/components/ui/index.js'
     duration: String,
     sequenceCount: Number,
     favorited: Boolean,
+    /** Item is already on the assignment being edited (picker UX). */
+    inAssignment: Boolean,
   })
 
-  defineEmits(['click', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
+  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
+
+  function onAddClick() {
+    if (!props.inAssignment) emit('add')
+  }
+
+  const isDragging = ref(false)
+
+  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions'
+
+  function setDragPayload(event) {
+    event.dataTransfer.setData('text/plain', props.id)
+    event.dataTransfer.setData('text', props.id)
+    event.dataTransfer.effectAllowed = 'move'
+  }
+
+  function onCardDragStart(event) {
+    if (event.target instanceof Element && event.target.closest(DRAG_BLOCK_SELECTOR)) {
+      event.preventDefault()
+      return
+    }
+    isDragging.value = true
+    setDragPayload(event)
+    const el = event.currentTarget
+    if (el instanceof HTMLElement) {
+      event.dataTransfer.setDragImage(el, Math.round(el.offsetWidth / 2), 48)
+    }
+  }
+
+  function onCardDragEnd() {
+    isDragging.value = false
+  }
 
   const displayGrades = props.grades || []
 
@@ -155,8 +197,8 @@ import { PCheckbox } from '@/components/ui/index.js'
   background: #f8fafc;
   border-radius: 16px;
   overflow: hidden;
-  cursor: pointer;
-  transition: box-shadow 150ms;
+  cursor: grab;
+  transition: box-shadow 150ms, opacity 150ms;
   display: flex;
   flex-direction: column;
 }
@@ -164,9 +206,34 @@ import { PCheckbox } from '@/components/ui/index.js'
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   border: 1px solid #cbd5e1;
 }
+.pcard-dragging {
+  cursor: grabbing;
+  opacity: 0.55;
+}
+.pcard-actions,
+.pcard-heart-btn,
+.pcard-checkbox-wrap {
+  cursor: pointer;
+}
 .pcard-selected {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   outline: 2px solid var(--color-primary-300);
+}
+.pcard-in-assignment {
+  outline: 2px solid #86efac;
+  background: #f0fdf4;
+}
+.pcard-in-assignment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #86efac;
 }
 
 /* ── Image area ── */
@@ -242,8 +309,15 @@ import { PCheckbox } from '@/components/ui/index.js'
 .pcard-heart-btn:hover {
   color: #ef4444;
 }
+.pcard-heart-btn:not(.pcard-heart-active) :deep(svg) {
+  fill: none;
+}
 .pcard-heart-active {
   color: #ef4444;
+}
+.pcard-heart-active :deep(svg) {
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 .pcard-drag-handle {
@@ -254,9 +328,8 @@ import { PCheckbox } from '@/components/ui/index.js'
   height: 24px;
   background: white;
   border-radius: 6px;
-  border: none;
   color: #64748b;
-  cursor: grab;
+  pointer-events: none;
 }
 .pcard-drag-handle:hover {
   color: #334155;

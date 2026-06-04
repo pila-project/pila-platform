@@ -1,16 +1,19 @@
 <template>
   <div
     class="group-card"
-    :class="{ 'group-card--drop-target': isDragOver }"
-    @dragover.prevent="onDragOver"
-    @dragleave="onDragLeave"
-    @drop.prevent="onDrop"
+    :class="{ 'group-card--drop-target': isDragOver && !archived }"
+    @dragover.prevent="!archived && onDragOver($event)"
+    @dragleave="!archived && onDragLeave()"
+    @drop.prevent="!archived && onDrop($event)"
   >
     <div class="group-card-header">
-      <h3 class="group-card-name">{{ groupName }}</h3>
+      <div class="group-card-title-row">
+        <h3 class="group-card-name">{{ groupName }}</h3>
+        <span v-if="archived" class="group-card-archived-badge">{{ t('archived') }}</span>
+      </div>
       <PMenu align-right>
-        <template #activator="{ props }">
-          <PButton variant="icon" size="sm" icon="lucide:ellipsis-vertical" iconOnly @click="props.onClick" />
+        <template #activator="{ props: menuProps }">
+          <PButton variant="icon" size="sm" icon="lucide:ellipsis-vertical" iconOnly @click="menuProps.onClick" />
         </template>
         <PMenuItem
           v-if="!archived"
@@ -38,7 +41,7 @@
         />
         <PMenuItem
           v-if="archived"
-          :title="t('unarchive')"
+          :title="t('restore') || 'Restore'"
           prepend-icon="lucide:archive-restore"
           @click="$emit('unarchive')"
         />
@@ -53,22 +56,41 @@
       </PMenu>
     </div>
 
-    <div class="group-card-details">
-      <div class="group-card-row" v-if="groupGrade">
+    <div class="group-card-divider" />
+
+    <div class="group-card-content" :class="{ 'group-card-content--archived': archived }">
+      <div class="group-card-row">
         <span class="group-card-label">{{ t('grade') }}</span>
-        <span class="group-card-value">{{ groupGrade }}</span>
-      </div>
-      <div class="group-card-row" v-if="groupSubject">
-        <span class="group-card-label">{{ t('subject') }}</span>
-        <span class="group-card-value">{{ groupSubject }}</span>
+        <span class="group-card-value">{{ groupGrade || '—' }}</span>
       </div>
       <div class="group-card-row">
-        <span class="group-card-label">{{ t('students') }}</span>
-        <span class="group-card-value">{{ memberCount }}</span>
+        <span class="group-card-label">{{ t('subject') }}</span>
+        <span class="group-card-value">{{ groupSubject || '—' }}</span>
+      </div>
+      <div class="group-card-students-row">
+        <div class="group-card-row group-card-row--inline">
+          <span class="group-card-label">{{ t('students') }}</span>
+          <span class="group-card-value">{{ memberCount }}</span>
+        </div>
+        <PButton
+          v-if="!archived"
+          variant="link"
+          size="xsm"
+          icon="lucide:users"
+          :text="t('view-students') || t('add-more-students')"
+          class="group-card-add-btn"
+          @click="$emit('manage')"
+        />
+        <button
+          v-else
+          type="button"
+          class="group-card-restore-btn"
+          @click="$emit('unarchive')"
+        >
+          {{ t('restore') || 'Restore' }}
+        </button>
       </div>
     </div>
-
-    <PButton v-if="!archived" variant="link" size="sm" icon="lucide:user-plus" :text="t('add-more-students')" @click="$emit('manage')" />
   </div>
 </template>
 
@@ -76,7 +98,6 @@
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
-import LucideIcon from '@/components/ui/LucideIcon.vue'
 import PButton from '@/components/ui/PButton.vue'
 
 const props = defineProps({
@@ -117,12 +138,12 @@ function onDrop(event) {
 
 <style scoped>
 .group-card {
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  background: #f8fafc;
   border-radius: 8px;
-  transition: all 150ms;
+  overflow: hidden;
+  transition: background 150ms, outline 150ms;
 }
 
 .group-card--drop-target {
@@ -135,39 +156,116 @@ function onDrop(event) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-slate-200);
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.group-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
 }
 
 .group-card-name {
   font-size: 14px;
   font-weight: 600;
+  line-height: 20px;
   color: #334155;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+.group-card-archived-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: #fff7ed;
+  border: 1px solid #ea580c;
+  color: #ea580c;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
 
-.group-card-details {
+.group-card-divider {
+  height: 1px;
+  margin: 0 16px;
+  background: #e2e8f0;
+}
+
+.group-card-content {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  padding: 6px 16px 16px;
+}
+
+.group-card-content--archived .group-card-label,
+.group-card-content--archived .group-card-value {
+  color: #949dab;
 }
 
 .group-card-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.group-card-row--inline {
+  flex: 1;
+  min-width: 0;
 }
 
 .group-card-label {
-  color: var(--color-slate-500);
+  flex-shrink: 0;
+  width: 60px;
+  color: #64748b;
+  font-weight: 400;
 }
 
 .group-card-value {
-  font-weight: 600;
+  font-weight: 500;
   color: #334155;
 }
 
+.group-card-students-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 
+.group-card-add-btn {
+  flex-shrink: 0;
+}
+
+.group-card-restore-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #2563eb;
+  background: #ffffff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.group-card-restore-btn:hover {
+  background: #eff6ff;
+}
 </style>

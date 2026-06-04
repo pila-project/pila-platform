@@ -8,6 +8,8 @@
   transition: color 120ms, background-color 120ms, border-color 120ms, box-shadow 80ms, filter 80ms;
   white-space: nowrap;
   cursor: pointer;
+  /* CMS slugs often ship lowercase; match Figma title-case button labels */
+  text-transform: capitalize;
 }
 .btn:focus { outline: none; }
 .btn:focus-visible {
@@ -186,10 +188,26 @@
     /* Ensure consistent rendering */
   }
 
-  /* Stronger base for the official PCheckbox */
+  /* Stronger base for the official PCheckbox (Figma #80 filled checked state) */
   .pcheckbox {
-    accent-color: #2563eb;
-    border-color: #cbd5e1;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  .pcheckbox:checked {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3.5 8.5L6.5 11.5L12.5 4.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .pcheckbox:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* Form Inputs */

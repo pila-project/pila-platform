@@ -18,6 +18,7 @@
           v-else-if="teacher"
           :id="id"
           :editing="editing"
+          :initial-content-ids="initialContentIds"
           @close="$emit('close')"
           @saved="$emit('saved')"
           @update:width="w => modalWidth = w"
@@ -37,6 +38,10 @@
     teacher: Boolean,
     researcher: Boolean,
     editing: Boolean,
+    initialContentIds: {
+      type: Array,
+      default: () => [],
+    },
   })
 
   const emit = defineEmits(['close', 'saved'])

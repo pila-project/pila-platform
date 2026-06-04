@@ -14,7 +14,9 @@
             </div>
           </div>
           <div class="section-header-actions">
+            <ShowArchivedToggle v-model="showArchivedStudents" />
             <PButton
+              v-if="!selectedStudents.length"
               icon="lucide:plus"
               variant="primary"
               :text="t('add-student')"
@@ -91,20 +93,19 @@
         </div>
 
         <!-- Student table -->
-        <div class="table-scroll-wrapper">
-          <PTable
+        <PTable
             :headers="studentHeaders"
             :items="filteredStudents"
             item-key="id"
             selectable
             :selected="selectedStudents"
-            @update:selected="selectedStudents = $event"
-            :items-per-page="10"
+            @update:selected="setSelectedStudents"
+            :row-class="studentRowClass"
+            :items-per-page="25"
             :items-per-page-options="[
               { value: 10, title: '10' },
               { value: 25, title: '25' },
-              { value: 50, title: '50' },
-              { value: -1, title: t('all') }
+              { value: 50, title: '50' }
             ]"
             :no-data-text="t('you-currently-have-no-students')"
             :items-per-page-text="t('rows-per-page')"
@@ -118,11 +119,8 @@
             <template #item.grade="{ item }">
               <span class="grade-cell">{{ item.grade || '--' }}</span>
             </template>
-            <template #item.status="{ item }">
-              <PBadge
-                :variant="item.archived ? 'warning' : 'info'"
-                :text="item.archived ? t('archived') : t('active')"
-              />
+            <template #item.lastLogin="{ item }">
+              <span class="last-login-cell">{{ formatLastLogin(item.id) }}</span>
             </template>
             <template #item.groupNames="{ item }">
               <PTooltip :text="item.groupNames">
@@ -179,7 +177,6 @@
               </div>
             </template>
           </PTable>
-        </div>
 
       </div>
 
@@ -187,30 +184,36 @@
       <div class="group-section content-card">
         <div class="group-section-header">
           <div class="section-header-left">
-            <LucideIcon name="shuffle" :size="20" class="section-icon" />
+            <LucideIcon name="users-round" :size="20" class="section-icon" />
             <div>
               <h2 class="card-section-title">{{ t('group') }} ({{ activeGroups.length }})</h2>
               <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
             </div>
           </div>
-          <PButton
-            icon="lucide:plus"
-            variant="primary"
-            :text="t('add-group')"
-            size="sm"
-            @click="showCreateGroupModal = true"
+          <div class="section-header-actions">
+            <ShowArchivedToggle v-model="showArchivedGroups" />
+            <PButton
+              icon="lucide:plus"
+              variant="primary"
+              :text="t('add-group')"
+              size="sm"
+              @click="showCreateGroupModal = true"
+            />
+          </div>
+        </div>
+
+        <div class="group-search-wrap">
+          <div class="group-search-divider" aria-hidden="true" />
+          <input
+            v-model="groupSearchFilter"
+            class="input group-search-input"
+            :placeholder="t('search-group')"
           />
         </div>
 
-        <input
-          v-model="groupSearchFilter"
-          class="input"
-          :placeholder="t('search-group')"
-        />
-
         <div class="group-cards-list">
           <GroupCard
-            v-for="groupId in filteredActiveGroups"
+            v-for="groupId in paginatedGroupIds"
             :key="groupId"
             :group-id="groupId"
             @manage="openManageStudents(groupId)"
@@ -221,20 +224,27 @@
             @print-login-codes="handlePrintGroupLoginCodes(groupId)"
           />
 
-          <p v-if="!filteredActiveGroups.length && groupSearchFilter" class="no-results-text">
+          <p v-if="!filteredActiveGroups.length && !archivedGroups.length && groupSearchFilter" class="no-results-text">
             {{ t('no-results') || 'No results' }}
           </p>
+          <PPagination
+            v-if="filteredActiveGroups.length > groupsPerPage"
+            :total-items="filteredActiveGroups.length"
+            v-model:current-page="groupListPage"
+            :per-page="groupsPerPage"
+            class="group-list-pagination"
+          />
 
-          <div v-if="archivedGroups.length" class="archived-groups-section">
-            <p class="archived-label">{{ t('archived') }}</p>
+          <template v-if="showArchivedGroups && filteredArchivedGroups.length">
+            <p class="archived-section-label">{{ t('archived') }}</p>
             <GroupCard
-              v-for="groupId in archivedGroups"
-              :key="groupId"
+              v-for="groupId in filteredArchivedGroups"
+              :key="'archived-' + groupId"
               :group-id="groupId"
               archived
               @unarchive="confirmRestoreGroup(groupId)"
             />
-          </div>
+          </template>
         </div>
       </div>
     </div>
@@ -330,6 +340,24 @@
       </template>
       <template #footer>
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="viewProfileUser = null" />
+        <PButton
+          v-if="viewProfileUser && !viewProfileUser.archived"
+          variant="secondary"
+          :text="t('download-login-code')"
+          @click="openLoginCodeModal(viewProfileUser); viewProfileUser = null"
+        />
+        <PButton
+          v-if="viewProfileUser && !viewProfileUser.archived"
+          variant="secondary"
+          :text="t('archive')"
+          @click="confirmArchiveStudent(viewProfileUser); viewProfileUser = null"
+        />
+        <PButton
+          v-if="viewProfileUser?.archived"
+          variant="secondary"
+          :text="t('restore') || 'Restore'"
+          @click="restoreConfirmStudent = viewProfileUser; viewProfileUser = null"
+        />
         <PButton variant="primary" :text="t('edit-student')" @click="userModalUser = viewProfileUser; viewProfileUser = null" />
       </template>
     </PModal>
@@ -340,7 +368,7 @@
       :students="students"
       :show-back="manageGroupShowBack"
       @close="manageGroupId = null; manageGroupShowBack = false"
-      @back="manageGroupId = null; manageGroupShowBack = false; showCreateGroupModal = true"
+      @back="handleManageGroupBack"
     />
 
     <!-- Add Student Option Picker -->
@@ -372,11 +400,6 @@
                 <span class="add-option-desc">{{ t('manually-create-single-student') }}</span>
               </div>
             </button>
-            <div class="add-student-card-link">
-              <button class="add-student-link-btn" @click="handleAddStudentLink">
-                {{ t('link-student-to-you') }} <LucideIcon name="arrow-right" :size="14" class="inline" />
-              </button>
-            </div>
           </div>
 
           <!-- Card 2: Create bulk accounts -->
@@ -393,14 +416,9 @@
                 <span class="add-option-desc">{{ t('upload-csv-or-enter-multiple') }}</span>
               </div>
             </button>
-            <div class="add-student-card-link">
-              <button class="add-student-link-btn" @click="handleAddStudentLink">
-                {{ t('link-students-to-you') }} <LucideIcon name="arrow-right" :size="14" class="inline" />
-              </button>
-            </div>
           </div>
 
-          <!-- Card 3: Link via SSO -->
+          <!-- Card 3: Link via SSO (teacher share link — /join/:teacher) -->
           <div
             class="add-student-card add-student-card--short"
             :class="{ 'add-student-card--selected': selectedPickerOption === 'sso' }"
@@ -565,12 +583,36 @@
       </template>
     </PModal>
 
+    <!-- Duplicate student name guard -->
+    <PAlertDialog
+      v-if="studentDuplicatePrompt"
+      variant="warning"
+      :title="t('duplicate-name-title') || 'Name already exists'"
+      :description="duplicateStudentDescription"
+      :confirm-text="t('continue-anyway') || 'Continue anyway'"
+      :cancel-text="t('cancel')"
+      @confirm="confirmStudentDuplicateProceed"
+      @cancel="cancelStudentDuplicateProceed"
+    />
+
+    <!-- Duplicate group name guard -->
+    <PAlertDialog
+      v-if="duplicatePrompt"
+      variant="warning"
+      :title="t('duplicate-name-title') || 'Name already exists'"
+      :description="duplicateGroupDescription"
+      :confirm-text="t('continue-anyway') || 'Continue anyway'"
+      :cancel-text="t('cancel')"
+      @confirm="confirmDuplicateProceed"
+      @cancel="cancelDuplicateProceed"
+    />
+
     <!-- Archive Confirmation -->
     <PAlertDialog
       v-if="archiveConfirmStudent"
       variant="warning"
       :title="t('archive-student-confirm-title')"
-      :description="t('archive-student-confirm-description')"
+      :description="t('archive-student-confirm-description') || 'This student will be hidden from your active list. You can restore them later from archived students.'"
       :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
       @confirm="executeArchiveStudent"
@@ -605,9 +647,9 @@
     <PAlertDialog
       v-if="archiveConfirmGroup"
       variant="warning"
-      :title="`Are you sure you want to archive '${store.state.groups.groups[archiveConfirmGroup]?.name || ''}'?`"
-      :description="`This group contains ${store.getters['groups/members'](archiveConfirmGroup).length} students. If you archive it, they will not be unassigned from the group. You can restore the group later.`"
-      confirm-text="Archive Group"
+      :title="archiveGroupConfirmTitle"
+      :description="archiveGroupConfirmDescription"
+      :confirm-text="t('archive') || 'Archive'"
       :cancel-text="t('cancel')"
       @confirm="executeArchiveGroup"
       @cancel="archiveConfirmGroup = null"
@@ -629,9 +671,9 @@
     <PAlertDialog
       v-if="archiveSelectedConfirm"
       variant="warning"
-      :title="`Archive ${selectedStudents.length} selected students?`"
-      description="Archived students will be hidden from the active list. You can restore them later."
-      confirm-text="Archive"
+      :title="bulkArchiveConfirmTitle"
+      :description="bulkArchiveConfirmDescription"
+      :confirm-text="t('archive') || 'Archive'"
       :cancel-text="t('cancel')"
       @confirm="executeArchiveSelected"
       @cancel="archiveSelectedConfirm = false"
@@ -653,9 +695,9 @@
     <PAlertDialog
       v-if="restoreConfirmStudent"
       variant="notification"
-      title="Restore this student?"
-      description="The student will be moved back to the active list."
-      confirm-text="Restore"
+      :title="t('restore-student-confirm-title') || 'Restore this student?'"
+      :description="t('restore-student-confirm-description') || 'The student will return to your active student list. Their groups and login code are unchanged.'"
+      :confirm-text="t('restore') || 'Restore'"
       :cancel-text="t('cancel')"
       @confirm="executeRestoreStudent"
       @cancel="restoreConfirmStudent = null"
@@ -665,12 +707,24 @@
     <PAlertDialog
       v-if="restoreConfirmGroup"
       variant="notification"
-      :title="`Restore '${store.state.groups.groups[restoreConfirmGroup]?.name || ''}'?`"
-      description="The group and its students will be moved back to the active list."
-      confirm-text="Restore"
+      :title="restoreGroupConfirmTitle"
+      :description="t('restore-group-confirm-description') || 'The group will return to your active groups list. Students stay assigned to this group.'"
+      :confirm-text="t('restore') || 'Restore'"
       :cancel-text="t('cancel')"
       @confirm="executeRestoreGroup"
       @cancel="restoreConfirmGroup = null"
+    />
+
+    <!-- Group created — add students or continue -->
+    <PAlertDialog
+      v-if="groupCreatedPromptId"
+      variant="success"
+      :title="t('group-created-successfully') || 'Group created successfully'"
+      :description="t('you-can-now-add-students-to-this-group') || 'You can now add students to this group'"
+      :confirm-text="t('add-students-to-group') || 'Add students to group'"
+      :cancel-text="t('continue-without-adding') || 'Continue without adding'"
+      @confirm="openGroupManageAfterCreate"
+      @cancel="groupCreatedPromptId = null"
     />
 
     <!-- Success Confirmation -->
@@ -747,7 +801,7 @@
       <template #body>
         <div class="modal-form-fields">
           <PFileUpload
-            accept=".csv"
+            accept=".csv,.xlsx,.xls"
             :label="t('drop-csv-file-here')"
             :description="t('csv-required-columns')"
             @file-selected="csvFile = $event"
@@ -833,59 +887,17 @@
       </template>
     </PModal>
 
-    <!-- SSO Provider Selection Modal -->
+    <!-- Google/Microsoft directory import — disabled until backend SSO OAuth (UIUX-32) -->
+    <!--
     <PModal
       v-if="showSSOModal"
       :title="t('link-via-sso')"
       width="460px"
       @close="showSSOModal = false"
     >
-      <template #title>
-        <div>
-          <h2 class="text-lg font-semibold text-zinc-950">{{ t('link-via-sso') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('connect-existing-google-microsoft') }}</p>
-        </div>
-      </template>
-      <template #body>
-        <div class="add-student-options">
-          <div
-            class="add-student-card add-student-card--short"
-            :class="{ 'add-student-card--selected': selectedSSOProvider === 'google' }"
-          >
-            <button class="add-student-card-header" @click="selectedSSOProvider = 'google'">
-              <div class="add-option-icon" style="background: #fef9c3; color: #d97706;">
-                <LucideIcon name="chrome" :size="16" />
-              </div>
-              <div class="add-option-text">
-                <span class="add-option-title">Google Workspace</span>
-                <span class="add-option-desc">{{ t('import-from-google') }}</span>
-              </div>
-            </button>
-          </div>
-          <div
-            class="add-student-card add-student-card--short"
-            :class="{ 'add-student-card--selected': selectedSSOProvider === 'microsoft' }"
-          >
-            <button class="add-student-card-header" @click="selectedSSOProvider = 'microsoft'">
-              <div class="add-option-icon" style="background: #dbeafe; color: #2563eb;">
-                <LucideIcon name="app-window" :size="16" />
-              </div>
-              <div class="add-option-text">
-                <span class="add-option-title">Microsoft 365</span>
-                <span class="add-option-desc">{{ t('import-from-microsoft') }}</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </template>
-      <template #footer>
-        <PButton variant="secondary" :text="t('back')" @click="showSSOModal = false; showAddStudentPicker = true" />
-        <div style="flex: 1" />
-        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showSSOModal = false" />
-        <!-- TODO: backend — needs SSO OAuth integration (Google + Microsoft) -->
-        <PButton variant="primary" :text="t('next')" :disabled="!selectedSSOProvider" @click="handleSSONext" />
-      </template>
+      ...
     </PModal>
+    -->
 
     <!-- Export Students Modal -->
     <PModal
@@ -961,6 +973,16 @@
             v-model="groupSearchQuery"
             :placeholder="t('search-groups')"
           />
+          <div v-if="selectedGroupsForAssign.length" class="selected-group-chips">
+            <span
+              v-for="gid in selectedGroupsForAssign"
+              :key="gid"
+              class="selected-group-chip"
+            >
+              {{ store.state.groups.groups[gid]?.name || t('unnamed') }}
+              <button type="button" class="chip-remove" @click="toggleGroupForAssign(gid)">×</button>
+            </span>
+          </div>
           <div class="assign-groups-list">
             <label
               v-for="gid in filteredGroupsForAssign"
@@ -1019,10 +1041,12 @@
             </Suspense>
           </div>
           <div class="login-code-passphrase">
-            <span class="passphrase-label">{{ t('symbol-passphrase') }}</span>
+            <span class="passphrase-label">{{ t('login-code') }}</span>
+            <code class="login-code-plain-text">{{ loginCodePlainText }}</code>
+            <span class="passphrase-label passphrase-label-secondary">{{ t('symbol-passphrase') }}</span>
             <div class="passphrase-icons">
               <i
-                v-for="(char, index) in loginCodePassphrase"
+                v-for="(char, index) in loginCodePassphraseIcons"
                 :key="index"
                 :class="codeCharToIcon[char]"
                 class="passphrase-icon"
@@ -1033,7 +1057,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="loginCodeStudent = null" />
-        <PButton variant="primary" :text="t('download-qr-code')" @click="downloadQRCode" />
+        <PButton variant="primary" :text="t('download-login') || t('download-login-code') || 'Download login'" @click="downloadLoginCard" />
       </template>
     </PModal>
 
@@ -1064,7 +1088,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
-import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox } from '@/components/ui/index.js'
+import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 
@@ -1075,11 +1099,14 @@ import GroupCard from '@/components/groups/GroupCard.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
 import codeCharToIcon from '@/utils/code-char-to-icon.js'
+import { formatLoginCodePlain } from '@/utils/login-code-display.js'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
-import { useToast } from '@/utils/useToast.js'
-import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
+import { useFeedback } from '@/composables/useFeedback.js'
+import { useBulkSelection } from '@/composables/useBulkSelection.js'
+import { useDuplicateGuard } from '@/composables/useDuplicateGuard.js'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
+import ShowArchivedToggle from '@/components/common/show-archived-toggle.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -1089,7 +1116,7 @@ const siteOrigin = window.location.origin
 const users = reactive({})
 const userModalUser = ref(null)
 const viewProfileUser = ref(null)
-const showArchived = computed(() => activeStatusFilters.value.includes(t('archived')))
+
 const showAcceptStudentAgreementModal = ref(false)
 const showLinkStudentModal = ref(false)
 const showAddStudentPicker = ref(false)
@@ -1108,7 +1135,11 @@ const newGroupGrade = ref('')
 const newGroupSubject = ref('')
 const searchQuery = ref('')
 const groupSearchFilter = ref('')
-const selectedStudents = ref([])
+const groupListPage = ref(1)
+const groupsPerPage = 6
+const showArchivedStudents = ref(false)
+const showArchivedGroups = ref(false)
+const pendingAfterAgreement = ref(null)
 const addToGroupsResults = ref(null)
 const manageGroupId = ref(null)
 const manageGroupShowBack = ref(false)
@@ -1122,6 +1153,7 @@ const deleteSelectedConfirm = ref(false)
 const archiveConfirmGroup = ref(null)
 const restoreConfirmStudent = ref(null)
 const restoreConfirmGroup = ref(null)
+const groupCreatedPromptId = ref(null)
 const resetPasswordStudent = ref(null)
 const loginCodeStudent = ref(null)
 const deleteConfirmGroup = ref(null)
@@ -1130,19 +1162,53 @@ const exportFormat = ref(null)
 const showCSVUploadModal = ref(false)
 const csvFile = ref(null)
 const showBulkEntryModal = ref(false)
-const showSSOModal = ref(false)
 const showAddToGroupsModal = ref(false)
 const selectedGroupsForAssign = ref([])
 const groupSearchQuery = ref('')
-const selectedSSOProvider = ref(null)
 const bulkEntryRows = ref([
   { name: '', nickname: '', grade: '' },
   { name: '', nickname: '', grade: '' },
   { name: '', nickname: '', grade: '' },
 ])
-// ── Toast notifications ──
-const { error: toastError, success: toastSuccess, info: toastInfo } = useToast()
-const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
+// ── Feedback (success modal, error toast) ──
+const {
+  successDialog,
+  success: showSuccessDialog,
+  dismissSuccess: dismissSuccessDialog,
+  error: toastError,
+  info: toastInfo,
+} = useFeedback()
+
+const {
+  duplicatePrompt,
+  runWithGuard,
+  confirmDuplicateProceed,
+  cancelDuplicateProceed,
+} = useDuplicateGuard({
+  getExistingNames: () =>
+    Object.values(store.state.groups.groups)
+      .filter(g => !g.archived)
+      .map(g => g.name || ''),
+})
+
+const {
+  duplicatePrompt: studentDuplicatePrompt,
+  runWithGuard: runStudentWithGuard,
+  confirmDuplicateProceed: confirmStudentDuplicateProceed,
+  cancelDuplicateProceed: cancelStudentDuplicateProceed,
+} = useDuplicateGuard({
+  getExistingNames: () => students.value.map(s => s.displayName),
+})
+
+const duplicateGroupDescription = computed(() => {
+  if (!duplicatePrompt.value) return ''
+  return `${t('duplicate-name-description') || 'An item named'} "${duplicatePrompt.value.existingName}" ${t('already-exists-continue') || 'already exists. Continue anyway?'}`
+})
+
+const duplicateStudentDescription = computed(() => {
+  if (!studentDuplicatePrompt.value) return ''
+  return `${t('duplicate-name-description') || 'A student named'} "${studentDuplicatePrompt.value.existingName}" ${t('already-exists-continue') || 'already exists. Continue anyway?'}`
+})
 
 // ── Loading states ──
 const creatingStudent = ref(false)
@@ -1182,8 +1248,8 @@ const myPILAUsers = computed(() => Object.keys(users))
 
 const students = computed(() => {
   const ids = [
-    ...myPILAUsers.value.filter(id => showArchived.value || !users[id]?.archived),
-    ...store.getters['groups/myStudents']().filter(id => !myPILAUsers.value.includes(id))
+    ...myPILAUsers.value,
+    ...store.getters['groups/myStudents']().filter(id => !myPILAUsers.value.includes(id)),
   ]
   return ids.map(id => {
     const groupIds = activeGroups.value.filter(gid => store.getters['groups/belongs'](id, gid))
@@ -1231,6 +1297,9 @@ watch(namePassword, async (newKey) => {
 
 const filteredStudents = computed(() => {
   let items = students.value
+  if (!showArchivedStudents.value) {
+    items = items.filter(s => !s.archived)
+  }
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
     items = items.filter(s =>
@@ -1253,13 +1322,35 @@ const filteredStudents = computed(() => {
       activeGroupFilters.value.some(gName => s.groupNames.toLowerCase().includes(gName.toLowerCase()))
     )
   }
+  if (showArchivedStudents.value) {
+    return [...items].sort((a, b) => {
+      if (a.archived === b.archived) return 0
+      return a.archived ? 1 : -1
+    })
+  }
   return items
 })
+
+const {
+  selected: selectedStudents,
+  setSelected: setSelectedStudents,
+} = useBulkSelection(filteredStudents, 'id')
+
+function studentRowClass(item) {
+  return item.archived ? 'table-row-archived' : ''
+}
+
+function formatLastLogin(id) {
+  const ts = users[id]?.lastLogin
+  if (!ts) return '—'
+  const d = new Date(ts)
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
+}
 
 const studentHeaders = computed(() => [
   { key: 'displayName', title: t('name') },
   { key: 'grade', title: t('grade') },
-  { key: 'status', title: t('status') },
+  { key: 'lastLogin', title: t('last-login'), sortable: false },
   { key: 'groupNames', title: t('groups') },
   { key: 'more', title: '', sortable: false, width: '60px' },
 ])
@@ -1364,9 +1455,40 @@ const filteredActiveGroups = computed(() => {
   })
 })
 
+const paginatedGroupIds = computed(() => {
+  const ids = filteredActiveGroups.value
+  const start = (groupListPage.value - 1) * groupsPerPage
+  return ids.slice(start, start + groupsPerPage)
+})
+
+const filteredArchivedGroups = computed(() => {
+  if (!groupSearchFilter.value) return archivedGroups.value
+  const q = groupSearchFilter.value.toLowerCase()
+  return archivedGroups.value.filter(gid => {
+    const name = store.state.groups.groups[gid]?.name || ''
+    return name.toLowerCase().includes(q)
+  })
+})
+
+watch(filteredActiveGroups, () => {
+  groupListPage.value = 1
+})
+
+function openGroupManageAfterCreate() {
+  const id = groupCreatedPromptId.value
+  groupCreatedPromptId.value = null
+  if (!id) return
+  manageGroupShowBack.value = true
+  manageGroupId.value = id
+}
+
 async function handleCreateGroup() {
   const name = newGroupName.value.trim()
   if (!name) return
+  runWithGuard(name, () => executeCreateGroup(name))
+}
+
+async function executeCreateGroup(name) {
   creatingGroup.value = true
   try {
     const id = await store.dispatch('groups/add', { type: 'class', name })
@@ -1379,11 +1501,7 @@ async function handleCreateGroup() {
     newGroupGrade.value = ''
     newGroupSubject.value = ''
     showCreateGroupModal.value = false
-    showSuccessDialog(
-      t('group-created-successfully') || 'Group created successfully',
-      t('you-can-now-add-students-to-this-group') || 'You can now add students to this group',
-      () => { manageGroupShowBack.value = true; manageGroupId.value = id }
-    )
+    groupCreatedPromptId.value = id
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1435,7 +1553,13 @@ function unarchiveGroup(id) {
 }
 
 function openManageStudents(groupId) {
+  manageGroupShowBack.value = false
   manageGroupId.value = groupId
+}
+
+function handleManageGroupBack() {
+  manageGroupId.value = null
+  manageGroupShowBack.value = false
 }
 
 // ── Student actions ──
@@ -1464,35 +1588,87 @@ async function toggleArchiveStudent(item) {
 
 const qrContainerRef = ref(null)
 
-const loginCodePassphrase = computed(() => {
+const loginCodePlainText = computed(() => {
   if (!loginCodeStudent.value) return '—'
-  const secret = users[loginCodeStudent.value.id]?.secret
-  return secret || '—'
+  return formatLoginCodePlain(users[loginCodeStudent.value.id]?.secret)
+})
+
+const loginCodePassphraseIcons = computed(() => {
+  if (!loginCodeStudent.value) return ''
+  return users[loginCodeStudent.value.id]?.secret || ''
+})
+
+const archiveGroupConfirmTitle = computed(() => {
+  if (!archiveConfirmGroup.value) return ''
+  const name = store.state.groups.groups[archiveConfirmGroup.value]?.name || ''
+  const tpl = t('archive-group-confirm-title')
+  return tpl && tpl !== 'archive-group-confirm-title'
+    ? tpl.replace('{name}', name)
+    : `Archive group "${name}"?`
+})
+
+const archiveGroupConfirmDescription = computed(() => {
+  if (!archiveConfirmGroup.value) return ''
+  const count = store.getters['groups/members'](archiveConfirmGroup.value).length
+  const tpl = t('archive-group-confirm-description')
+  return tpl && tpl !== 'archive-group-confirm-description'
+    ? tpl.replace('{count}', String(count))
+    : `This group has ${count} student(s). Archiving hides the group from your active list; students stay assigned. You can restore the group later from archived groups.`
+})
+
+const bulkArchiveConfirmTitle = computed(() => {
+  const n = selectedStudents.value.length
+  const tpl = t('bulk-archive-students-confirm-title')
+  return tpl && tpl !== 'bulk-archive-students-confirm-title'
+    ? tpl.replace('{count}', String(n))
+    : `Archive ${n} selected student${n === 1 ? '' : 's'}?`
+})
+
+const bulkArchiveConfirmDescription = computed(() => {
+  const tpl = t('bulk-archive-students-confirm-description')
+  return tpl && tpl !== 'bulk-archive-students-confirm-description'
+    ? tpl
+    : 'Archived students are hidden from your active list. They are not deleted. Restore them anytime from the archived students section.'
+})
+
+const restoreGroupConfirmTitle = computed(() => {
+  if (!restoreConfirmGroup.value) return ''
+  const name = store.state.groups.groups[restoreConfirmGroup.value]?.name || ''
+  const tpl = t('restore-group-confirm-title')
+  return tpl && tpl !== 'restore-group-confirm-title'
+    ? tpl.replace('{name}', name)
+    : `Restore "${name}"?`
 })
 
 function openLoginCodeModal(item) {
   loginCodeStudent.value = item
 }
 
-function downloadQRCode() {
-  if (!qrContainerRef.value) return
+function downloadLoginCard() {
+  if (!qrContainerRef.value || !loginCodeStudent.value) return
   const svg = qrContainerRef.value.querySelector('svg')
   if (!svg) return
+  const studentId = loginCodeStudent.value.id
+  const plainCode = formatLoginCodePlain(users[studentId]?.secret)
   const svgData = new XMLSerializer().serializeToString(svg)
   const canvas = document.createElement('canvas')
   canvas.width = 400
-  canvas.height = 400
+  canvas.height = 480
   const ctx = canvas.getContext('2d')
   const img = new Image()
   img.onload = () => {
     ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, 400, 400)
+    ctx.fillRect(0, 0, 400, 480)
     ctx.drawImage(img, 0, 0, 400, 400)
+    ctx.fillStyle = '#334155'
+    ctx.font = '600 22px ui-monospace, monospace'
+    ctx.textAlign = 'center'
+    ctx.fillText(plainCode, 200, 450)
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `login-code-${loginCodeStudent.value.id.slice(0, 8)}.png`
+      a.download = `login-${studentId.slice(0, 8)}.png`
       a.click()
       URL.revokeObjectURL(url)
     })
@@ -1649,26 +1825,31 @@ function handlePickerNext() {
   } else if (selectedPickerOption.value === 'sso') {
     showAddStudentPicker.value = false
     selectedPickerOption.value = null
-    showSSOModal.value = true
+    showLinkStudentModal.value = true
   }
 }
 
-function handleAddStudentIndividual() {
+async function handleAddStudentIndividual() {
   showAddStudentPicker.value = false
   selectedPickerOption.value = null
   if (!hasEncryptionKey.value) {
     showNamePasswordModal.value = true
     return
   }
+  const { studentDataProtectionAgreement } = await Agent.state()
+  if (!studentDataProtectionAgreement) {
+    pendingAfterAgreement.value = 'individual'
+    showAcceptStudentAgreementModal.value = true
+    return
+  }
+  openCreateStudentForm()
+}
+
+function openCreateStudentForm() {
   newStudentName.value = ''
   newStudentNickname.value = ''
   newStudentGrade.value = ''
   showCreateStudentForm.value = true
-}
-
-function handleAddStudentLink() {
-  showAddStudentPicker.value = false
-  showLinkStudentModal.value = true
 }
 
 async function handleAddStudent() {
@@ -1685,6 +1866,12 @@ async function createStudentAccount() {
     showAcceptStudentAgreementModal.value = true
     return
   }
+  const name = newStudentName.value.trim()
+  if (!name) return
+  runStudentWithGuard(name, () => executeCreateStudentAccount())
+}
+
+async function executeCreateStudentAccount() {
   creatingStudent.value = true
   try {
     const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
@@ -1702,7 +1889,8 @@ async function createStudentAccount() {
     newStudentGrade.value = ''
     showSuccessDialog(
       t('student-account-created') || 'Student account created',
-      t('login-code-is-ready-for-download') || 'Login code is ready for download'
+      null,
+      () => { loginCodeStudent.value = { id } }
     )
   } catch (e) {
     console.error(e)
@@ -1714,7 +1902,20 @@ async function createStudentAccount() {
 
 function onAgreementAccepted() {
   showAcceptStudentAgreementModal.value = false
-  // If the create form is open, re-trigger creation now that consent is given
+  const pending = pendingAfterAgreement.value
+  pendingAfterAgreement.value = null
+  if (pending === 'individual') {
+    openCreateStudentForm()
+    return
+  }
+  if (pending === 'bulk') {
+    handleBulkCreate()
+    return
+  }
+  if (pending === 'csv') {
+    handleCSVImport()
+    return
+  }
   if (showCreateStudentForm.value) {
     createStudentAccount()
   }
@@ -1784,11 +1985,20 @@ async function handleCSVImport() {
   const { studentDataProtectionAgreement } = await Agent.state()
   if (!studentDataProtectionAgreement) {
     showCSVUploadModal.value = false
+    pendingAfterAgreement.value = 'csv'
     showAcceptStudentAgreementModal.value = true
     return
   }
   importingCSV.value = true
   try {
+    const fileName = (csvFile.value?.name || '').toLowerCase()
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      toastError(
+        t('excel-save-as-csv-first')
+          || 'Excel files are listed for convenience — please save as CSV and upload that file.'
+      )
+      return
+    }
     const text = await csvFile.value.text()
     const lines = text.split(/\r?\n/).filter(l => l.trim())
     if (lines.length < 2) {
@@ -1843,6 +2053,7 @@ async function handleBulkCreate() {
   const { studentDataProtectionAgreement } = await Agent.state()
   if (!studentDataProtectionAgreement) {
     showBulkEntryModal.value = false
+    pendingAfterAgreement.value = 'bulk'
     showAcceptStudentAgreementModal.value = true
     return
   }
@@ -1878,12 +2089,6 @@ function downloadCSVTemplate() {
   a.download = 'student-import-template.csv'
   a.click()
   URL.revokeObjectURL(url)
-}
-
-function handleSSONext() {
-  // TODO: backend — needs SSO OAuth integration (Google + Microsoft)
-  console.warn('SSO integration not yet implemented — needs backend endpoint')
-  showSSOModal.value = false
 }
 
 async function handleExport() {
@@ -2004,19 +2209,35 @@ async function handleDropStudent(groupId, studentId) {
   }
   await store.dispatch('groups/addMember', { user_id: studentId, group_id: groupId })
   const groupName = store.state.groups.groups[groupId]?.name || t('unnamed')
-  toastSuccess(`${t('student-added-to-group') || 'Student added to'} ${groupName}`)
+  showSuccessDialog(
+    t('student-added-to-group') || 'Student added to group',
+    groupName
+  )
 }
 
 function handlePrintGroupLoginCodes(groupId) {
-  const members = store.getters['groups/members'](groupId)
-  const ids = members.map(m => m.user_id).join(',')
-  if (!ids) return
-  window.open(`/teacher/codes?students=${encodeURIComponent(ids)}`)
+  const memberIds = store.getters['groups/members'](groupId)
+  if (!memberIds.length) {
+    toastError(t('no-students-in-group') || 'This group has no students.')
+    return
+  }
+  const withCodes = memberIds.filter(id => users[id]?.secret && !users[id]?.archived)
+  if (!withCodes.length) {
+    toastError(t('no-active-users-with-login-codes') || 'No active users with login codes.')
+    return
+  }
+  window.open(`/teacher/codes?students=${encodeURIComponent(withCodes.join(','))}`)
 }
 
 function printLoginCodes() {
-  const ids = selectedStudents.value.map(s => s.id).join(',')
-  window.open(`/teacher/codes?students=${encodeURIComponent(ids)}`)
+  const ids = selectedStudents.value
+    .filter(s => users[s.id]?.secret && !users[s.id]?.archived)
+    .map(s => s.id)
+  if (!ids.length) {
+    toastError(t('no-active-users-with-login-codes') || 'No active users with login codes.')
+    return
+  }
+  window.open(`/teacher/codes?students=${encodeURIComponent(ids.join(','))}`)
 }
 </script>
 
@@ -2050,9 +2271,56 @@ function printLoginCodes() {
   gap: 10px;
 }
 
+.table-row-archived {
+  opacity: 0.85;
+  background: #fffbeb;
+}
+
+.selected-group-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.selected-group-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-primary-50);
+  color: var(--color-primary-800);
+  font-size: 13px;
+}
+
+.chip-remove {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: inherit;
+  padding: 0 2px;
+}
+
+.group-list-pagination {
+  margin-top: 8px;
+}
+
+.archived-section-label {
+  width: 100%;
+  margin: 12px 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-500);
+}
+
 .section-icon {
   font-size: 16px;
-  color: var(--color-slate-500);
+  color: var(--color-primary-600);
 }
 
 .section-header-actions {
@@ -2106,12 +2374,27 @@ function printLoginCodes() {
 
 /* Group section (right) */
 .group-section {
-  width: 320px;
+  width: 317px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
   overflow-y: auto;
+}
+
+.group-search-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.group-search-divider {
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.group-search-input {
+  height: 32px;
 }
 
 .group-section-header {
@@ -2124,7 +2407,7 @@ function printLoginCodes() {
 .group-cards-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .no-results-text {
@@ -2132,21 +2415,6 @@ function printLoginCodes() {
   color: var(--color-slate-400);
   text-align: center;
   padding: 24px 0;
-}
-
-.archived-groups-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.archived-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-slate-400);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 8px 0 0;
 }
 
 /* Add Student Option Picker */
@@ -2524,6 +2792,16 @@ function printLoginCodes() {
   color: var(--color-slate-500);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+.passphrase-label-secondary {
+  margin-top: 8px;
+}
+.login-code-plain-text {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  font-family: ui-monospace, monospace;
+  color: #334155;
 }
 .passphrase-icons {
   display: flex;

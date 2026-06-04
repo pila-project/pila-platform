@@ -12,7 +12,9 @@
         @click="showCreateSequence = true"
       />
       <div class="mobile-seq-section">
-        <h2 class="text-sm font-semibold text-zinc-950">{{ t('my-sequences') }} ({{ mySequenceIds.length }})</h2>
+        <h2 class="text-sm font-semibold text-zinc-950">
+          {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ mySequenceIds.length }})</span>
+        </h2>
         <p class="text-xs text-slate-500 mt-0.5">{{ t('organize-content-into-learning-sequences') }}</p>
         <button class="mobile-seq-selector" @click="mobileSeqExpanded = !mobileSeqExpanded">
           <span class="mobile-seq-selector-name">
@@ -21,23 +23,31 @@
           <LucideIcon :name="mobileSeqExpanded ? 'chevron-up' : 'chevron-down'" :size="12" class="text-slate-400" />
         </button>
         <div v-if="mobileSeqExpanded" class="mobile-seq-list">
-          <SequenceCard
-            v-for="seqId in mySequenceIds"
-            :key="seqId"
-            :id="seqId"
-            :active="selectedSequence === seqId"
-            :isNewest="newestSequenceId === seqId"
-            :version="sequenceVersion"
-            @select="selectSequence(seqId); mobileSeqExpanded = false"
-            @edit="editSequence(seqId)"
-            @delete="sequenceToDelete = seqId"
-            @archive="archiveSequence(seqId)"
-            @preview="sequenceToPreview = seqId"
-            @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
-          />
-          <div v-if="!loading && !mySequenceIds.length" class="text-xs text-slate-400 text-center py-4">
-            {{ t('no-sequences-yet') }}
+          <div v-if="sequencesPanelLoading" class="sequences-loading" aria-busy="true">
+            <LucideIcon name="loader-2" :size="14" :spin="true" />
+            {{ t('loading') }}
           </div>
+          <template v-else>
+            <SequenceCard
+              v-for="seqId in mySequenceIds"
+              :key="seqId"
+              :id="seqId"
+              :active="selectedSequence === seqId"
+              :archived="archivedSequenceIds.includes(seqId)"
+              :isNewest="newestSequenceId === seqId"
+              :version="sequenceVersion"
+              @select="selectSequence(seqId); mobileSeqExpanded = false"
+              @edit="editSequence(seqId)"
+              @delete="sequenceToDelete = seqId"
+              @archive="archiveSequence(seqId)"
+              @restore="restoreSequence(seqId)"
+              @preview="sequenceToPreview = seqId"
+              @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
+            />
+            <div v-if="!mySequenceIds.length" class="text-xs text-slate-400 text-center py-4">
+              {{ t('no-sequences-yet') }}
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -46,7 +56,9 @@
       <!-- Left panel: My sequences (desktop) -->
       <aside class="sequences-panel">
         <div class="sequences-card">
-          <h2 class="text-base font-semibold text-zinc-950">{{ t('my-sequences') }} ({{ mySequenceIds.length }})</h2>
+          <h2 class="text-base font-semibold text-zinc-950">
+            {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ mySequenceIds.length }})</span>
+          </h2>
           <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
           <PButton
             variant="primary"
@@ -55,28 +67,40 @@
             class="mt-3 w-full"
             @click="showCreateSequence = true"
           />
+          <PButton
+            v-if="archivedSequenceIds.length"
+            variant="secondary"
+            size="sm"
+            class="mt-2 w-full"
+            :text="showArchivedSequences ? (t('hide-archived') || 'Hide archived') : (t('show-archived') || 'Show archived')"
+            @click="toggleArchivedSequences"
+          />
 
           <!-- Sequence cards -->
-          <div class="mt-4 flex flex-col gap-3">
+          <div v-if="sequencesPanelLoading" class="sequences-loading mt-4" aria-busy="true">
+            <LucideIcon name="loader-2" :size="14" :spin="true" />
+            {{ t('loading') }}
+          </div>
+          <div v-else class="mt-4 flex flex-col gap-3">
             <SequenceCard
               v-for="seqId in mySequenceIds"
               :key="seqId"
               :id="seqId"
               :active="selectedSequence === seqId"
+              :archived="archivedSequenceIds.includes(seqId)"
               :isNewest="newestSequenceId === seqId"
               :version="sequenceVersion"
               @select="selectSequence(seqId)"
               @edit="editSequence(seqId)"
               @delete="sequenceToDelete = seqId"
               @archive="archiveSequence(seqId)"
+              @restore="restoreSequence(seqId)"
               @preview="sequenceToPreview = seqId"
               @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
             />
-          </div>
-
-          <!-- Empty state -->
-          <div v-if="!loading && !mySequenceIds.length" class="mt-4 text-xs text-slate-400 text-center py-6">
-            {{ t('no-sequences-yet') }}
+            <div v-if="!mySequenceIds.length" class="text-xs text-slate-400 text-center py-6">
+              {{ t('no-sequences-yet') }}
+            </div>
           </div>
         </div>
       </aside>
@@ -142,17 +166,12 @@
           <template #card="{ id, source, grades }">
             <TaggedContentCard
               :id="id"
-              :selected="selfSelected === id"
               :checked="selectedItems.has(id)"
               :removable="myContent.includes(id)"
               :source="source"
               :grades="grades"
               :favorited="favorites.has(id)"
-              @click="() => {
-                if (selfSelected === id) selfSelected = null
-                else selfSelected = id
-                $emit('select', selfSelected)
-              }"
+              @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
               @toggle-favorite="toggleFavorite(id)"
               @preview="previewing = id"
@@ -188,18 +207,33 @@
       />
     </div>
 
-    <!-- Metadata side panel -->
-    <div
-      v-if="selfSelected"
-      class="metadata-panel"
+    <!-- Content info modal (Q6) -->
+    <PModal
+      v-if="infoModalId"
+      width="480px"
+      no-pad-body
+      @close="infoModalId = null"
     >
-      <ContentMetadataPanel
-        :key="selfSelected"
-        @back="selfSelected = null"
-        :id="selfSelected"
-        :partition="partition"
-      />
-    </div>
+      <template #title>
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('content-info') || 'Content info' }}</h2>
+          <p class="text-xs text-slate-500 mt-0.5 truncate">
+            <NameOrTranslatedNameFromItemId :item-id="infoModalId" />
+          </p>
+        </div>
+      </template>
+      <template #body>
+        <ContentMetadataPanel
+          :key="infoModalId"
+          :id="infoModalId"
+          :partition="partition"
+          embedded
+        />
+      </template>
+      <template #footer>
+        <PButton variant="secondary" :text="t('close') || 'Close'" @click="infoModalId = null" />
+      </template>
+    </PModal>
 
     <!-- Create/Edit Sequence Modal -->
     <CreateSequenceModal
@@ -249,17 +283,29 @@
     />
 
     <!-- Create Assignment Modal -->
-    <CreateAssignmentModal
-      v-if="showCreateAssignment"
-      :contentIds="createAssignmentContentIds"
-      @close="showCreateAssignment = false; createAssignmentContentIds = []"
-      @created="showSuccessDialog(t('assignment-created-successfully'))"
+    <CreateEditAssignmentModal
+      v-if="createAssignmentId"
+      :id="createAssignmentId"
+      teacher
+      :initial-content-ids="createAssignmentContentIds"
+      @close="createAssignmentId = null; createAssignmentContentIds = []"
+      @saved="onExploreAssignmentSaved"
+    />
+
+    <!-- Edit assignment (from Explore “Go to assignment”) -->
+    <CreateEditAssignmentModal
+      v-if="editAssignmentId"
+      :id="editAssignmentId"
+      teacher
+      editing
+      @close="editAssignmentId = null"
+      @saved="editAssignmentId = null"
     />
 
     <!-- Add item/sequence picker -->
     <PModal
       v-if="showAddPicker"
-      :title="addPickerStep === 'choose' ? t('add-item-or-sequence') : addPickerStep === 'sequence' ? t('add-to-sequence') : t('add-to-assignment')"
+      :title="addPickerTitle"
       width="520px"
       @close="closeAddPicker"
     >
@@ -302,17 +348,82 @@
         <!-- Step 2b: Choose assignment -->
         <div v-else-if="addPickerStep === 'assignment'">
           <p class="text-sm text-slate-500 mb-4">{{ t('choose-assignment-or-create') }}:</p>
-          <div class="flex flex-col gap-2">
-            <button class="add-picker-option add-picker-new" @click="navigateToCreateAssignment">
+          <div v-if="assignmentPickerLoading" class="sequences-loading" aria-busy="true">
+            <LucideIcon name="loader-2" :size="14" :spin="true" />
+            {{ t('loading') }}
+          </div>
+          <div v-else class="flex flex-col gap-2">
+            <button
+              v-for="assignmentId in pickerAssignmentIds"
+              :key="assignmentId"
+              class="add-picker-option"
+              :disabled="!!assignmentSavingId"
+              @click="addItemsToAssignment(assignmentId, pendingAddItems)"
+            >
+              <LucideIcon
+                v-if="assignmentSavingId === assignmentId"
+                name="loader-2"
+                :size="14"
+                :spin="true"
+                class="text-primary-600 shrink-0"
+              />
+              <LucideIcon
+                v-else
+                name="clipboard-list"
+                :size="14"
+                class="text-primary-600 shrink-0"
+              />
+              <span class="add-picker-option-label">
+                {{ assignmentPickerData[assignmentId]?.name || t('untitled') }}
+              </span>
+              <span class="add-picker-option-status">{{ t(assignmentPickerStatus(assignmentId).toLowerCase()) }}</span>
+            </button>
+            <p v-if="!pickerAssignmentIds.length" class="text-xs text-slate-400 text-center py-2">
+              {{ t('no-data-available') }}
+            </p>
+            <button
+              class="add-picker-option add-picker-new"
+              :disabled="!!assignmentSavingId"
+              @click="navigateToCreateAssignment"
+            >
               <LucideIcon name="plus" :size="14" class="text-primary-600" />
               <span>{{ t('create-new-assignment') }}</span>
             </button>
           </div>
         </div>
+
+        <!-- Step 2c: Added to assignment (Figma success state) -->
+        <div v-else-if="addPickerStep === 'assignment-success'" class="add-picker-success">
+          <div class="add-picker-success-icon">
+            <LucideIcon name="check" :size="24" class="text-green-600" />
+          </div>
+          <h3 class="text-lg font-semibold text-zinc-950 mt-4 text-center">
+            {{ assignmentAddResult?.duplicate
+              ? (t('content-already-in-assignment') || 'Content is already in this assignment')
+              : (t('content-added-to-assignment') || 'Content added to assignment') }}
+          </h3>
+          <p class="text-sm text-slate-500 mt-2 text-center">
+            <template v-if="assignmentAddResult?.duplicate">
+              {{ assignmentAddResult.name }}
+            </template>
+            <template v-else>
+              {{ assignmentAddResult?.added }} {{ t('items-added-to-assignment') || 'item(s) added to' }}
+              “{{ assignmentAddResult?.name }}”
+            </template>
+          </p>
+        </div>
       </template>
 
-      <template v-if="addPickerStep !== 'choose'" #footer>
-        <PButton variant="ghost" :text="t('back')" icon="lucide:chevron-left" @click="addPickerStep = 'choose'" />
+      <template v-if="addPickerStep === 'assignment-success'" #footer>
+        <PButton variant="secondary" :text="t('continue-browsing') || 'Continue browsing'" @click="closeAddPicker" />
+        <PButton
+          variant="primary"
+          :text="t('go-to-assignment') || 'Go to assignment'"
+          @click="goToAssignmentFromPicker"
+        />
+      </template>
+      <template v-else-if="addPickerStep !== 'choose'" #footer>
+        <PButton variant="ghost" :text="t('back')" icon="lucide:chevron-left" @click="onAddPickerBack" />
       </template>
     </PModal>
   </div>
@@ -330,18 +441,23 @@
   import CreateSequenceModal from './create-sequence-modal.vue'
   import SequencePreviewModal from './sequence-preview-modal.vue'
   import SequenceName from './sequence-name.vue'
+  import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
   import CopyModifyModal from './copy-modify-modal.vue'
-  import CreateAssignmentModal from './create-assignment-modal.vue'
+  import { v4 as uuid } from 'uuid'
+  import CreateEditAssignmentModal from '@/pages/assignments/from-me/create-edit-assignment-modal.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import setTagging from '@/utils/set-tagging.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
   import {
     nameCache, metadataCache,
     getCachedTagHierarchy, prefetchBatch, invalidateNames,
+    getContentMetadata, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
   import { useContentLibrary } from '@/utils/useContentLibrary.js'
+  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+  import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import { PButton, PCheckbox, PAlertDialog, PModal } from '@/components/ui/index.js'
-  import { useSuccessDialog } from '@/utils/useSuccessDialog.js'
+  import { useFeedback } from '@/composables/useFeedback.js'
 
   const store = useStore()
   const router = useRouter()
@@ -359,9 +475,14 @@
   const browserRef = ref(null)
 
   // ── Core state ──
-  const selfSelected = ref(null)
+  const infoModalId = ref(null)
   const previewing = ref(null)
-  const { successDialog, showSuccessDialog, dismissSuccessDialog } = useSuccessDialog()
+  const {
+    successDialog,
+    success: showSuccessDialog,
+    dismissSuccess: dismissSuccessDialog,
+    error: showError,
+  } = useFeedback()
 
   // ── Selection state ──
   const selectedItems = shallowReactive(new Set())
@@ -369,6 +490,11 @@
   // ── Sequence state ──
   const mobileSeqExpanded = ref(false)
   const mySequenceIds = ref([])
+  const sequencesLoading = ref(true)
+  /** Spinner only when we have nothing to show yet (not blocked on full Explore load). */
+  const sequencesPanelLoading = computed(
+    () => sequencesLoading.value && mySequenceIds.value.length === 0,
+  )
   const sequenceVersion = ref(0)
   const selectedSequence = ref(null)
   const showCreateSequence = ref(false)
@@ -384,8 +510,11 @@
   const copyModifyId = ref(null)
 
   // ── Create assignment state ──
-  const showCreateAssignment = ref(false)
+  const createAssignmentId = ref(null)
   const createAssignmentContentIds = ref([])
+  const editAssignmentId = ref(null)
+  const showArchivedSequences = ref(false)
+  const archivedSequenceIds = ref([])
 
   function handleCopyModify(id) {
     copyModifyId.value = id
@@ -401,6 +530,109 @@
   const showAddPicker = ref(false)
   const pendingAddItems = ref([])
   const addPickerStep = ref('choose')
+  const TEACHER_ASSIGNMENT_TAG = 'teacher-created'
+  const TEACHER_ASSIGNMENT_TYPE = 'teacher-to-student'
+  const assignmentPickerData = reactive({})
+  const assignmentPickerLoading = ref(false)
+  const assignmentSavingId = ref(null)
+  const assignmentAddResult = ref(null)
+
+  const addPickerTitle = computed(() => {
+    if (addPickerStep.value === 'choose') return t('add-item-or-sequence')
+    if (addPickerStep.value === 'sequence') return t('add-to-sequence')
+    if (addPickerStep.value === 'assignment-success') return ''
+    return t('add-to-assignment')
+  })
+
+  const teacherAssignmentIds = computed(() =>
+    store.getters['pila_tags/withTag'](TEACHER_ASSIGNMENT_TAG),
+  )
+
+  const pickerAssignmentIds = computed(() =>
+    teacherAssignmentIds.value.filter((id) => !assignmentPickerData[id]?.archived),
+  )
+
+  function assignmentPickerStatus(id) {
+    const data = assignmentPickerData[id]
+    if (data?.status) return data.status
+    const groups = store.getters['assignments/assignedGroups'](id, TEACHER_ASSIGNMENT_TYPE, false)
+    return groups.length > 0 ? 'Published' : 'Draft'
+  }
+
+  async function loadAssignmentPickerEntry(id) {
+    if (assignmentPickerData[id]) return
+    try {
+      const state = await Agent.state(id)
+      assignmentPickerData[id] = {
+        name: state.name || '',
+        status: state.status || null,
+        archived: !!state.archived,
+      }
+    } catch {
+      assignmentPickerData[id] = { name: '', status: null, archived: false }
+    }
+  }
+
+  async function loadAssignmentPickerData() {
+    assignmentPickerLoading.value = true
+    try {
+      if (!teacherAssignmentIds.value.length) {
+        await store.dispatch('pila_tags/load')
+      }
+      const ids = store.getters['pila_tags/withTag'](TEACHER_ASSIGNMENT_TAG)
+      await Promise.allSettled(ids.map(loadAssignmentPickerEntry))
+    } finally {
+      assignmentPickerLoading.value = false
+    }
+  }
+
+  async function addItemsToAssignment(assignmentId, itemIds) {
+    if (!assignmentId || !itemIds?.length || assignmentSavingId.value) return
+    assignmentSavingId.value = assignmentId
+    const assignmentName = assignmentPickerData[assignmentId]?.name || t('untitled')
+    try {
+      const state = await Agent.state(assignmentId)
+      const content = normalizeAssignmentContent(state.content)
+      let added = 0
+      for (const id of itemIds) {
+        if (!id || content.includes(id)) continue
+        content.push(id)
+        added++
+      }
+      if (added > 0) {
+        state.content = content
+        await Agent.synced()
+        deselectAll()
+      }
+      assignmentAddResult.value = {
+        id: assignmentId,
+        name: assignmentName,
+        added,
+        duplicate: added === 0,
+      }
+      addPickerStep.value = 'assignment-success'
+    } catch (e) {
+      console.error('[Explore] addItemsToAssignment failed', assignmentId, e)
+      showError(t('something-went-wrong') || 'Something went wrong')
+    } finally {
+      assignmentSavingId.value = null
+    }
+  }
+
+  function goToAssignmentFromPicker() {
+    const id = assignmentAddResult.value?.id
+    closeAddPicker()
+    if (id) editAssignmentId.value = id
+  }
+
+  function onAddPickerBack() {
+    if (addPickerStep.value === 'assignment-success') {
+      addPickerStep.value = 'assignment'
+      assignmentAddResult.value = null
+      return
+    }
+    addPickerStep.value = 'choose'
+  }
 
   // ── Favorites state ──
   const favorites = reactive(new Set())
@@ -476,7 +708,7 @@
 
   async function loadSequenceItems(id) {
     const state = await Agent.state(id)
-    const items = state.items || []
+    const items = normalizeSequenceItems(state?.items)
     selectedSequenceItems.value = items
     selectedSequenceEmpty.value = items.length === 0
   }
@@ -532,6 +764,8 @@
     showAddPicker.value = false
     pendingAddItems.value = []
     addPickerStep.value = 'choose'
+    assignmentAddResult.value = null
+    assignmentSavingId.value = null
   }
 
   function openAddPicker(itemIds) {
@@ -539,6 +773,10 @@
     addPickerStep.value = 'choose'
     showAddPicker.value = true
   }
+
+  watch(addPickerStep, (step) => {
+    if (step === 'assignment') loadAssignmentPickerData()
+  })
 
   function handleAddItem(id) {
     if (selectedSequence.value) {
@@ -561,38 +799,129 @@
     const contentIds = [...pendingAddItems.value]
     closeAddPicker()
     createAssignmentContentIds.value = contentIds
-    showCreateAssignment.value = true
+    createAssignmentId.value = uuid()
+  }
+
+  async function onExploreAssignmentSaved() {
+    const id = createAssignmentId.value
+    if (id) {
+      await store.dispatch('pila_tags/tag', { content_id: id, tag_type: 'teacher-created' })
+    }
+    createAssignmentId.value = null
+    createAssignmentContentIds.value = []
+    showSuccessDialog(t('assignment-created-successfully'))
   }
 
   async function addItemsToSequence(sequenceId, itemIds) {
-    const state = await Agent.state(sequenceId)
-    if (!state.items) state.items = []
-    for (const id of itemIds) {
-      if (!state.items.includes(id)) {
-        state.items.push(id)
+    if (!sequenceId || !itemIds?.length) return
+    try {
+      const state = await Agent.state(sequenceId)
+      const items = normalizeSequenceItems(state?.items)
+      let added = 0
+      for (const id of itemIds) {
+        if (!id || items.includes(id)) continue
+        items.push(id)
+        added++
       }
+      if (!added) return
+      state.items = items
+      await Agent.synced()
+      showAddPicker.value = false
+      pendingAddItems.value = []
+      deselectAll()
+      if (selectedSequence.value === sequenceId) {
+        await loadSequenceItems(sequenceId)
+      }
+      sequenceVersion.value++
+      showSuccessDialog(added + ' ' + t('items-added-to-sequence'))
+    } catch (e) {
+      console.error('[Explore] addItemsToSequence failed', sequenceId, e)
     }
-    await Agent.synced()
-    showAddPicker.value = false
-    pendingAddItems.value = []
-    deselectAll()
-    if (selectedSequence.value === sequenceId) {
-      selectedSequenceEmpty.value = false
-      selectedSequenceItems.value = state.items || []
-    }
-    sequenceVersion.value++
-    showSuccessDialog(itemIds.length + ' ' + t('items-added-to-sequence'))
   }
 
-  function loadMySequences() {
-    const sequenceIds = []
+  function applySequenceLists(active, archived) {
+    archivedSequenceIds.value = archived
+    mySequenceIds.value = showArchivedSequences.value ? [...active, ...archived] : active
+  }
+
+  function seedSequencesFromMetadataCache() {
+    const active = []
     for (const id of myContent) {
       const meta = metadataCache.get(id)
-      if (meta?.active_type === 'application/json;type=sequence') {
-        sequenceIds.push(id)
-      }
+      if (meta?.active_type === 'application/json;type=sequence') active.push(id)
     }
-    mySequenceIds.value = sequenceIds
+    if (active.length) applySequenceLists(active, archivedSequenceIds.value)
+  }
+
+  async function applyCachedSequenceList() {
+    try {
+      const env = await Agent.environment()
+      const userId = env?.auth?.user
+      if (!userId) return false
+      const cached = await loadExploreCache(userId)
+      const seq = cached?.sequences
+      if (!seq?.active?.length) return false
+      applySequenceLists(seq.active, seq.archived || [])
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  let loadSequencesToken = 0
+
+  async function persistSequenceList(active, archived) {
+    try {
+      const env = await Agent.environment()
+      const userId = env?.auth?.user
+      if (userId) await persistSequencesPanelCache(userId, { active, archived })
+    } catch { /* ignore */ }
+  }
+
+  async function loadMySequences({ silent = false } = {}) {
+    const token = ++loadSequencesToken
+    if (!silent && !mySequenceIds.value.length) sequencesLoading.value = true
+    try {
+      const ids = [...myContent]
+      const metas = await Promise.all(
+        ids.map(id => getContentMetadata(id).catch(() => null)),
+      )
+      const sequenceIds = ids.filter(
+        (_, i) => metas[i]?.active_type === 'application/json;type=sequence',
+      )
+
+      const states = await Promise.allSettled(
+        sequenceIds.map(id => Agent.state(id)),
+      )
+
+      const active = []
+      const archived = []
+      sequenceIds.forEach((id, i) => {
+        const result = states[i]
+        const state = result.status === 'fulfilled' ? result.value : null
+        if (state?.archived) archived.push(id)
+        else active.push(id)
+      })
+
+      if (token !== loadSequencesToken) return
+      applySequenceLists(active, archived)
+      persistSequenceList(active, archived)
+    } finally {
+      if (token === loadSequencesToken) sequencesLoading.value = false
+    }
+  }
+
+  async function toggleArchivedSequences() {
+    showArchivedSequences.value = !showArchivedSequences.value
+    await loadMySequences()
+  }
+
+  async function restoreSequence(id) {
+    const state = await Agent.state(id)
+    state.archived = false
+    await Agent.synced()
+    await loadMySequences()
+    showSuccessDialog(t('sequence-restored') || 'Sequence restored')
   }
 
   watch(selectedSequence, async (id) => {
@@ -610,15 +939,22 @@
     }
   })
 
-  // ── Load sequences once content data is ready ──
+  // Refresh sequences when my-content list changes (e.g. after Explore prefetch)
+  watch(() => myContent.length, () => {
+    loadMySequences({ silent: mySequenceIds.value.length > 0 })
+  })
+
   watch(loading, (val) => {
-    if (!val) loadMySequences()
+    if (!val) loadMySequences({ silent: mySequenceIds.value.length > 0 })
   })
 
   // ── Init (favorites — data loading handled by ContentBrowser) ──
-  onMounted(() => {
+  onMounted(async () => {
     loadFavorites().catch(() => {})
-    if (!loading.value) loadMySequences()
+    const hadDiskList = await applyCachedSequenceList()
+    if (!hadDiskList) seedSequencesFromMetadataCache()
+    if (hadDiskList || mySequenceIds.value.length) sequencesLoading.value = false
+    loadMySequences({ silent: mySequenceIds.value.length > 0 })
   })
 </script>
 
@@ -632,6 +968,16 @@
 .sequences-panel {
   width: 247px;
   flex-shrink: 0;
+}
+
+.sequences-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 12px;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .sequences-card {
@@ -729,6 +1075,38 @@
 .add-picker-new {
   border-style: dashed;
   color: #2563eb;
+}
+.add-picker-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.add-picker-option-status {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #64748b;
+}
+.add-picker-option:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.add-picker-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 8px 8px;
+  text-align: center;
+}
+.add-picker-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: #dcfce7;
 }
 
 /* Metadata panel */

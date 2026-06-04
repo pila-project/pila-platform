@@ -26,8 +26,8 @@
 
     <slot name="above-grid" :filtered-list="displayList" />
 
-    <!-- Loading -->
-    <div v-if="loading" class="cb-loading">
+    <!-- Loading (only when we have nothing to show yet — avoids empty → loader flash) -->
+    <div v-if="showGridLoading" class="cb-loading">
       <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-1" />{{ t('loading') }}...
     </div>
 
@@ -37,7 +37,7 @@
     </slot>
 
     <!-- Grid -->
-    <div v-else class="cb-grid" :style="{ gridTemplateColumns: `repeat(${columns}, 1fr)` }">
+    <div v-else class="cb-grid" :style="{ gridTemplateColumns: 'repeat(' + columns + ', 1fr)' }">
       <div v-for="id in paginatedDisplayList" :key="id">
         <slot
           name="card"
@@ -82,7 +82,7 @@ const props = defineProps({
   perPageOptions: { type: Array, default: () => [12, 24, 48] },
   placeholder: { type: String, default: '' },
   extraFilter: { type: Function, default: null },
-  useDiskCache: { type: Boolean, default: false },
+  useDiskCache: { type: Boolean, default: true },
 })
 
 const store = useStore()
@@ -111,6 +111,9 @@ const displayList = computed(() => {
   if (props.extraFilter) return props.extraFilter(filteredContentList.value)
   return filteredContentList.value
 })
+
+/** Spinner while fetching; keep showing cached grid during background revalidate. */
+const showGridLoading = computed(() => loading.value && !displayList.value.length)
 
 const paginatedDisplayList = computed(() => {
   const start = (contentPage.value - 1) * contentPerPage.value

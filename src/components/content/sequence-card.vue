@@ -5,7 +5,7 @@
     @click="$emit('select')"
     @dragover.prevent="isDragOver = true"
     @dragleave="isDragOver = false"
-    @drop.prevent="onDrop"
+    @drop.prevent.stop="onDrop"
   >
     <!-- Header -->
     <div class="sc-header">
@@ -20,8 +20,19 @@
             <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="expanded = true" />
             <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
             <PMenuItem :title="t('preview-sequence')" prepend-icon="lucide:eye" @click="$emit('preview')" />
-            <PMenuItem :title="t('archive-sequence')" prepend-icon="lucide:archive" @click="$emit('archive')" />
-            <PMenuItem :title="t('delete-sequence')" prepend-icon="lucide:trash-2" danger @click="$emit('delete')" />
+            <PMenuItem
+              v-if="!archived"
+              :title="t('archive-sequence')"
+              prepend-icon="lucide:archive"
+              @click="$emit('archive')"
+            />
+            <PMenuItem
+              v-else
+              :title="t('restore') || 'Restore'"
+              prepend-icon="lucide:archive-restore"
+              @click="$emit('restore')"
+            />
+            <PMenuItem v-if="!archived" :title="t('delete-sequence')" prepend-icon="lucide:trash-2" danger @click="$emit('delete')" />
           </PMenu>
         </div>
         <p class="sc-desc">{{ seqState?.description || '' }}</p>
@@ -30,7 +41,13 @@
     </div>
 
     <!-- Footer: expand/collapse + item list -->
-    <div class="sc-footer" :class="{ 'sc-footer-expanded': expanded }">
+    <div
+      class="sc-footer"
+      :class="{ 'sc-footer-expanded': expanded }"
+      @dragover.prevent="onFooterDragOver"
+      @dragleave="onFooterDragLeave"
+      @drop.prevent.stop="onFooterDrop"
+    >
       <button class="sc-expand-btn" @click.stop="expanded = !expanded">
         {{ t('show-items') }} ({{ itemCount }})
         <LucideIcon :name="expanded ? 'chevron-up' : 'chevron-down'" :size="10" class="sc-chevron" />
@@ -50,8 +67,8 @@
           @dragstart.stop="onItemDragStart(i, $event)"
           @dragend="onItemDragEnd"
           @dragover.stop.prevent="onItemDragOver(i, $event)"
+          @drop.stop.prevent="onItemDrop(i, $event)"
           @dragleave="onItemDragLeave"
-          @drop.stop.prevent="onItemDrop(i)"
         >
           <!-- Row 1: drag handle + number + type badge + trash -->
           <div class="sc-item-top">
@@ -104,6 +121,7 @@ import LucideIcon from '@/components/ui/LucideIcon.vue'
 import PButton from '@/components/ui/PButton.vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { getContentMetadata } from '@/utils/content-cache.js'
+import { normalizeSequenceItems, isExternalExploreDrop } from '@/utils/sequence-items.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -111,11 +129,12 @@ function t(slug) { return store.getters.t(slug) }
 const props = defineProps({
   id: { type: String, required: true },
   active: Boolean,
+  archived: Boolean,
   isNewest: Boolean,
   version: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['select', 'edit', 'delete', 'archive', 'preview', 'drop-item'])
+const emit = defineEmits(['select', 'edit', 'delete', 'archive', 'restore', 'preview', 'drop-item'])
 
 const isDragOver = ref(false)
 
@@ -126,11 +145,10 @@ const isInternalDrag = ref(false)
 
 function onDrop(e) {
   isDragOver.value = false
-  if (isInternalDrag.value) return // ignore internal reorder drops on the card itself
-  const itemId = e.dataTransfer.getData('text')
-  if (itemId) {
-    emit('drop-item', itemId)
-  }
+  if (!isExternalExploreDrop(e.dataTransfer, null)) return
+  const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
+  expanded.value = true
+  emit('drop-item', itemId)
 }
 
 function onItemDragStart(index, e) {
@@ -146,7 +164,12 @@ function onItemDragEnd() {
   isInternalDrag.value = false
 }
 
-function onItemDragOver(index) {
+function onItemDragOver(index, e) {
+  if (e?.dataTransfer && isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
+    e.dataTransfer.dropEffect = 'copy'
+    dropTarget.value = null
+    return
+  }
   if (dragIndex.value === null || index === dragIndex.value) {
     dropTarget.value = null
     return
@@ -158,18 +181,58 @@ function onItemDragLeave() {
   dropTarget.value = null
 }
 
-async function onItemDrop(toIndex) {
-  const fromIndex = dragIndex.value
+function onFooterDragOver(e) {
+  if (isExternalExploreDrop(e.dataTransfer, null)) {
+    e.dataTransfer.dropEffect = 'copy'
+    isDragOver.value = true
+  }
+}
+
+function onFooterDragLeave() {
+  isDragOver.value = false
+}
+
+function onFooterDrop(e) {
+  onDrop(e)
+}
+
+async function onItemDrop(toIndex, e) {
   dropTarget.value = null
+  if (e && isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
+    const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
+    if (itemId) {
+      expanded.value = true
+      emit('drop-item', itemId)
+    }
+    return
+  }
+
+  const fromIndex = dragIndex.value
   if (fromIndex === null || fromIndex === toIndex || !seqState.value?.items) return
 
-  const items = seqState.value.items
+  const items = [...seqState.value.items]
   const [moved] = items.splice(fromIndex, 1)
   items.splice(toIndex, 0, moved)
-  await Agent.synced()
-  itemVersion.value++
+  await persistItemsToAgent(items)
   dragIndex.value = null
   isInternalDrag.value = false
+}
+
+async function persistItemsToAgent(items) {
+  const state = await Agent.state(props.id)
+  state.items = normalizeSequenceItems(items)
+  await Agent.synced()
+  applySeqStateFromAgent(state)
+  itemVersion.value++
+}
+
+function applySeqStateFromAgent(state) {
+  const items = normalizeSequenceItems(state?.items)
+  seqState.value = {
+    name: state?.name || '',
+    description: state?.description || '',
+    items,
+  }
 }
 
 const seqState = ref(null)
@@ -215,18 +278,31 @@ async function confirmRemoveItem() {
   const index = itemToDelete.value
   itemToDelete.value = null
   if (index !== null && seqState.value?.items) {
-    seqState.value.items.splice(index, 1)
-    await Agent.synced()
-    itemVersion.value++
+    const items = [...seqState.value.items]
+    items.splice(index, 1)
+    await persistItemsToAgent(items)
   }
 }
 
-// When parent signals a version change, refresh items without remounting
-watch(() => props.version, () => {
-  itemVersion.value++
-  if (expanded.value && items.value.length) {
-    items.value.forEach(id => loadItemMeta(id))
+async function reloadSequenceState() {
+  try {
+    const [state, meta] = await Promise.all([
+      Agent.state(props.id),
+      Agent.metadata(props.id),
+    ])
+    applySeqStateFromAgent(state)
+    metadata.value = meta
+    if (seqState.value.items.length) isNew.value = false
+    itemVersion.value++
+    await Promise.all(seqState.value.items.map(id => loadItemMeta(id)))
+  } catch (e) {
+    console.warn('[SequenceCard] failed to refresh', props.id, e)
   }
+}
+
+// When parent signals a version change (e.g. drag-drop add), reload from Agent
+watch(() => props.version, () => {
+  reloadSequenceState()
 })
 
 // Load item metadata when expanded or items change
@@ -246,11 +322,10 @@ onMounted(async () => {
       Agent.state(props.id),
       Agent.metadata(props.id),
     ])
-    seqState.value = state || { name: '', description: '', items: [] }
+    applySeqStateFromAgent(state)
     metadata.value = meta
 
-    const hasNoItems = !state?.items || state.items.length === 0
-    if (props.isNewest && hasNoItems) {
+    if (props.isNewest && !seqState.value.items.length) {
       isNew.value = true
     }
   } catch (e) {
