@@ -40,16 +40,20 @@
   import BettyDashboard from './betty-dashboard.vue'
   import RCTDashboard from './rct-dashboard.vue'
   import UrlDashboard from './url-dashboard.vue'
+  import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
 
   const props = defineProps({ assignment: String, url: String })
 
   const users = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
 
-  const content = (await Agent.state(props.assignment)).content
-  const id = (await Agent.state(content)).id
+  const assignmentState = await Agent.state(props.assignment)
+  const content = primaryAssignmentContentId(assignmentState)
+  const contentState = content ? await Agent.state(content) : null
+  const id = contentState?.id ?? content
   const customDashboardUrl = ref(null)
 
   const isRCTAssignment = async () => {
+    if (!content) return false
     const { domain } = await Agent.metadata(content)
     return domain === 'rct-problem-creator.pilaproject.org'
   }

@@ -169,7 +169,8 @@
     <!-- ═══════════════ Step 4: Assign & Publish ═══════════════ -->
     <div v-else class="step-body">
       <div class="assign-section">
-        <label class="field-label">{{ t('assign-to') }}</label>
+        <label class="field-label">{{ t('assign-to') }} ({{ t('optional') || 'Optional' }})</label>
+        <p class="field-hint">{{ t('assign-to-groups-optional-hint') || 'You can assign classes now or add them later from the assignments page.' }}</p>
         <PInput
           v-model="groupSearch"
           :placeholder="t('search-groups')"
@@ -209,31 +210,38 @@
         <div
           v-for="opt in distributionOptions"
           :key="opt.value"
-          class="radio-option"
-          @click="distributionOption = opt.value"
+          class="distribution-option"
         >
-          <div class="radio-circle" :class="{ selected: distributionOption === opt.value }">
-            <div v-if="distributionOption === opt.value" class="radio-dot" />
+          <div
+            class="radio-option"
+            @click="distributionOption = opt.value"
+          >
+            <div class="radio-circle" :class="{ selected: distributionOption === opt.value }">
+              <div v-if="distributionOption === opt.value" class="radio-dot" />
+            </div>
+            <div class="radio-content">
+              <span class="radio-label">{{ opt.label }}</span>
+              <span class="radio-desc">{{ opt.description }}</span>
+            </div>
           </div>
-          <div class="radio-content">
-            <span class="radio-label">{{ opt.label }}</span>
-            <span class="radio-desc">{{ opt.description }}</span>
-          </div>
-        </div>
-        <div v-if="distributionOption === 'schedule'" class="schedule-fields">
-          <div class="field-row">
-            <PInput
-              v-model="scheduledTime"
-              :label="t('due-time')"
-              type="time"
-              :placeholder="t('time-format-placeholder')"
-            />
-            <PInput
-              v-model="scheduledDate"
-              :label="t('due-date')"
-              type="date"
-              :placeholder="t('date-format-placeholder')"
-            />
+          <div
+            v-if="opt.value === 'schedule' && distributionOption === 'schedule'"
+            class="schedule-fields"
+          >
+            <div class="field-row">
+              <PInput
+                v-model="scheduledTime"
+                :label="t('due-time')"
+                type="time"
+                :placeholder="t('time-format-placeholder')"
+              />
+              <PInput
+                v-model="scheduledDate"
+                :label="t('due-date')"
+                type="date"
+                :placeholder="t('date-format-placeholder')"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -563,9 +571,6 @@
     if (distributionOption.value === 'schedule') {
       return !!scheduledDate.value && !!scheduledTime.value
     }
-    if (distributionOption.value === 'publish') {
-      return pendingGroupIds.value.size > 0
-    }
     return true
   })
 
@@ -603,10 +608,6 @@
     if (distributionOption.value === 'schedule' && (!scheduledDate.value || !scheduledTime.value)) {
       return t('set-scheduled-date-and-time-to-save')
         || 'Set a scheduled date and time to save.'
-    }
-    if (distributionOption.value === 'publish' && pendingGroupIds.value.size === 0) {
-      return t('assign-at-least-one-group-to-publish')
-        || 'Assign at least one group to publish immediately.'
     }
     if (!step1Valid.value || !step2Valid.value) {
       return t('complete-required-steps-before-saving')
@@ -932,6 +933,12 @@
   margin-bottom: 8px;
 }
 
+.field-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: -4px 0 10px;
+}
+
 /* ── Step 2: Wide body ── */
 .step-body-wide {
   gap: 12px;
@@ -1161,6 +1168,11 @@
   gap: 4px;
 }
 
+.distribution-option {
+  display: flex;
+  flex-direction: column;
+}
+
 .radio-option {
   display: flex;
   gap: 12px;
@@ -1210,8 +1222,8 @@
 }
 
 .schedule-fields {
-  margin-top: 12px;
-  padding-left: 28px;
+  margin: 4px 0 8px;
+  padding-left: 32px;
 }
 
 /* ── Footer ── */

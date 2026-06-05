@@ -87,6 +87,7 @@ import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { PModal, PButton } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { normalizeSequenceItems } from '@/utils/sequence-items.js'
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -102,7 +103,10 @@ const currentItemId = computed(() => seqState.value.items?.[currentIndex.value] 
 
 onMounted(async () => {
   const state = await Agent.state(props.id)
-  seqState.value = state
+  seqState.value = {
+    name: state?.name || '',
+    items: normalizeSequenceItems(state?.items),
+  }
   loaded.value = true
 })
 </script>

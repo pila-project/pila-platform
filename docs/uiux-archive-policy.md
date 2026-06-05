@@ -8,7 +8,7 @@ Platform policy for teacher-facing entities. **Restore** is always available via
 | **Group** | Yes | `groups/archive` dispatch | Delete | Soft-delete via store | `groups/unarchive` |
 | **Assignment** | Yes | `pila_tags/untag` + `Agent.state(id).archived = true` | Menu kept | Same soft-archive as archive (copy differs) | `pila_tags/tag` + `archived = false` |
 | **Group↔assignment link** | Via unassign | `assignments/unassign` sets link `archived` | — | — | Re-assign on wizard Save |
-| **Sequence (Explore)** | Yes | `Agent.state(id).archived = true` | Delete dialog | Currently archives (soft) | Filter archived + restore action (future) |
+| **Sequence (Explore)** | Yes | `Agent.state(id).archived = true` | — (removed) | — | Inline archived card + Restore; excluded from content grid and pickers |
 
 ## Copy rules
 

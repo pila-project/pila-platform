@@ -1,10 +1,14 @@
 <template>
   <Teleport to="body">
-    <div class="alert-overlay" @keydown.esc="$emit('cancel')">
-      <div class="alert-backdrop" @click="$emit('cancel')" />
-      <div class="alert-dialog" role="alertdialog" aria-modal="true">
+    <div class="alert-overlay" @keydown.esc="onCancel">
+      <div class="alert-backdrop" @click="onCancel" />
+      <div class="alert-dialog" role="alertdialog" aria-modal="true" @click.stop>
         <div class="alert-icon" :class="`alert-icon-${variant}`">
-          <LucideIcon v-if="isLucideIcon" :name="lucideIconName" :size="54" />
+          <LucideIcon
+            v-if="isLucideIcon"
+            :name="lucideIconName"
+            :size="variant === 'success' ? 24 : 54"
+          />
           <i v-else :class="variantIcon" />
         </div>
         <div class="alert-content">
@@ -17,14 +21,17 @@
             variant="primary"
             :color="variant === 'error' ? 'danger' : variant === 'warning' ? 'warning' : ''"
             :text="confirmText"
-            @click="$emit('confirm')"
+            :loading="confirmLoading"
+            :disabled="confirmLoading"
+            @click.stop="onConfirm"
           />
           <PButton
             v-if="cancelText"
             variant="secondary"
             color="danger"
             :text="cancelText"
-            @click="$emit('cancel')"
+            :disabled="confirmLoading"
+            @click.stop="onCancel"
           />
         </div>
       </div>
@@ -56,13 +63,23 @@ const props = defineProps({
     type: String,
     default: 'Cancel',
   },
+  confirmLoading: Boolean,
   width: {
     type: String,
     default: '380px',
   },
 })
 
-defineEmits(['confirm', 'cancel'])
+const emit = defineEmits(['confirm', 'cancel'])
+
+function onConfirm() {
+  if (props.confirmLoading) return
+  emit('confirm')
+}
+
+function onCancel() {
+  emit('cancel')
+}
 
 const variantIcons = {
   error: 'lucide:x-circle',
@@ -83,7 +100,7 @@ onBeforeUnmount(() => document.body.style.overflow = '')
 .alert-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 10050;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +138,13 @@ onBeforeUnmount(() => document.body.style.overflow = '')
 }
 
 .alert-icon-error { color: #dc2626; }
-.alert-icon-success { color: #16a34a; }
+.alert-icon-success {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  color: #16a34a;
+}
 .alert-icon-notification { color: #2563eb; }
 .alert-icon-warning { color: #ea580c; }
 

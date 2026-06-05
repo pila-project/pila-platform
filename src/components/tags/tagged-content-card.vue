@@ -47,6 +47,17 @@
           <LucideIcon name="image" :size="24" class="text-slate-300" />
         </div>
       </div>
+      <!-- Copy & modify (Explore hover) -->
+      <div v-if="showCopyModify" class="pcard-copy-overlay">
+        <button
+          type="button"
+          class="pcard-copy-modify-btn"
+          @click.stop="$emit('copy-modify')"
+        >
+          <LucideIcon name="files" :size="13" />
+          <span>{{ copyModifyLabel }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Content -->
@@ -112,7 +123,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import { getContentImage } from '@/utils/content-cache.js'
@@ -143,9 +154,18 @@ import { PCheckbox } from '@/components/ui/index.js'
     favorited: Boolean,
     /** Item is already on the assignment being edited (picker UX). */
     inAssignment: Boolean,
+    /** Show hover “Copy & modify” (Explore content library). */
+    showCopyModify: {
+      type: Boolean,
+      default: false,
+    },
   })
 
   const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
+
+  const copyModifyLabel = computed(() =>
+    t('copy-and-modify') || t('copy-and-modify-content') || 'Copy & modify',
+  )
 
   function onAddClick() {
     if (!props.inAssignment) emit('add')
@@ -153,7 +173,7 @@ import { PCheckbox } from '@/components/ui/index.js'
 
   const isDragging = ref(false)
 
-  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions'
+  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .pcard-copy-overlay'
 
   function setDragPayload(event) {
     event.dataTransfer.setData('text/plain', props.id)
@@ -240,6 +260,43 @@ import { PCheckbox } from '@/components/ui/index.js'
 .pcard-image-area {
   position: relative;
   background: #f1f5f9;
+}
+
+.pcard-copy-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms;
+}
+.pcard:hover .pcard-copy-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+.pcard-copy-modify-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #eab308;
+  background: #fde047;
+  color: #713f12;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(234, 179, 8, 0.35);
+  transition: background 150ms, border-color 150ms;
+}
+.pcard-copy-modify-btn:hover {
+  background: #facc15;
+  border-color: #ca8a04;
 }
 
 .pcard-overlay-tl {

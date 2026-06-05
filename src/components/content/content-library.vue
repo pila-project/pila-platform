@@ -12,10 +12,16 @@
         @click="showCreateSequence = true"
       />
       <div class="mobile-seq-section">
-        <h2 class="text-sm font-semibold text-zinc-950">
-          {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ mySequenceIds.length }})</span>
+        <h2 class="sequences-heading text-sm font-semibold text-zinc-950">
+          {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
         </h2>
         <p class="text-xs text-slate-500 mt-0.5">{{ t('organize-content-into-learning-sequences') }}</p>
+        <PInput
+          v-model="sequenceSearchQuery"
+          class="mt-2"
+          :placeholder="t('search-sequences') || 'Search sequences'"
+          icon="lucide:search"
+        />
         <button class="mobile-seq-selector" @click="mobileSeqExpanded = !mobileSeqExpanded">
           <span class="mobile-seq-selector-name">
             {{ selectedSequenceName || t('select-a-sequence') }}
@@ -29,23 +35,24 @@
           </div>
           <template v-else>
             <SequenceCard
-              v-for="seqId in mySequenceIds"
+              v-for="seqId in displayedSequenceIds"
               :key="seqId"
               :id="seqId"
               :active="selectedSequence === seqId"
               :archived="archivedSequenceIds.includes(seqId)"
+              :favorited="favorites.has(seqId)"
               :isNewest="newestSequenceId === seqId"
               :version="sequenceVersion"
               @select="selectSequence(seqId); mobileSeqExpanded = false"
+              @toggle-favorite="toggleFavorite(seqId)"
               @edit="editSequence(seqId)"
-              @delete="sequenceToDelete = seqId"
-              @archive="archiveSequence(seqId)"
-              @restore="restoreSequence(seqId)"
+              @archive="sequenceToArchive = seqId"
+              @restore="onRestoreSequence(seqId)"
               @preview="sequenceToPreview = seqId"
-              @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
+              @drop-item="payload => onDropItemToSequence(seqId, payload)"
             />
-            <div v-if="!mySequenceIds.length" class="text-xs text-slate-400 text-center py-4">
-              {{ t('no-sequences-yet') }}
+            <div v-if="!displayedSequenceIds.length && !sequencesPanelLoading" class="text-xs text-slate-400 text-center py-4">
+              {{ sequenceSearchQuery ? (t('no-sequences-match-search') || 'No sequences match your search') : t('no-sequences-yet') }}
             </div>
           </template>
         </div>
@@ -56,24 +63,22 @@
       <!-- Left panel: My sequences (desktop) -->
       <aside class="sequences-panel">
         <div class="sequences-card">
-          <h2 class="text-base font-semibold text-zinc-950">
-            {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ mySequenceIds.length }})</span>
+          <h2 class="sequences-heading text-base font-semibold text-zinc-950">
+            {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
           </h2>
           <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
+          <PInput
+            v-model="sequenceSearchQuery"
+            class="mt-3"
+            :placeholder="t('search-sequences') || 'Search sequences'"
+            icon="lucide:search"
+          />
           <PButton
             variant="primary"
             icon="lucide:plus"
             :text="t('new-sequence')"
             class="mt-3 w-full"
             @click="showCreateSequence = true"
-          />
-          <PButton
-            v-if="archivedSequenceIds.length"
-            variant="secondary"
-            size="sm"
-            class="mt-2 w-full"
-            :text="showArchivedSequences ? (t('hide-archived') || 'Hide archived') : (t('show-archived') || 'Show archived')"
-            @click="toggleArchivedSequences"
           />
 
           <!-- Sequence cards -->
@@ -83,23 +88,24 @@
           </div>
           <div v-else class="mt-4 flex flex-col gap-3">
             <SequenceCard
-              v-for="seqId in mySequenceIds"
+              v-for="seqId in displayedSequenceIds"
               :key="seqId"
               :id="seqId"
               :active="selectedSequence === seqId"
               :archived="archivedSequenceIds.includes(seqId)"
+              :favorited="favorites.has(seqId)"
               :isNewest="newestSequenceId === seqId"
               :version="sequenceVersion"
               @select="selectSequence(seqId)"
+              @toggle-favorite="toggleFavorite(seqId)"
               @edit="editSequence(seqId)"
-              @delete="sequenceToDelete = seqId"
-              @archive="archiveSequence(seqId)"
-              @restore="restoreSequence(seqId)"
+              @archive="sequenceToArchive = seqId"
+              @restore="onRestoreSequence(seqId)"
               @preview="sequenceToPreview = seqId"
-              @drop-item="itemId => addItemsToSequence(seqId, [itemId])"
+              @drop-item="payload => onDropItemToSequence(seqId, payload)"
             />
-            <div v-if="!mySequenceIds.length" class="text-xs text-slate-400 text-center py-6">
-              {{ t('no-sequences-yet') }}
+            <div v-if="!displayedSequenceIds.length" class="text-xs text-slate-400 text-center py-6">
+              {{ sequenceSearchQuery ? (t('no-sequences-match-search') || 'No sequences match your search') : t('no-sequences-yet') }}
             </div>
           </div>
         </div>
@@ -133,7 +139,7 @@
           :columns="3"
           :per-page="12"
           :per-page-options="[12, 24, 48]"
-          :extra-filter="sequenceFilterFn"
+          :extra-filter="contentExploreFilter"
           use-disk-cache
         >
           <!-- Selection toolbar -->
@@ -171,6 +177,7 @@
               :source="source"
               :grades="grades"
               :favorited="favorites.has(id)"
+              show-copy-modify
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
               @toggle-favorite="toggleFavorite(id)"
@@ -244,23 +251,27 @@
       @updated="onSequenceUpdated"
     />
 
-    <!-- Delete Confirmation -->
+    <!-- Archive confirmation -->
     <PAlertDialog
-      v-if="sequenceToDelete"
-      variant="error"
-      :title="t('delete-sequence')"
-      :description="sequenceToDeleteName ? `Are you sure you want to delete &quot;${sequenceToDeleteName}&quot;? This action cannot be undone.` : t('this-will-permanently-delete-the-sequence-and-cannot-be-undone')"
-      :confirmText="t('delete-sequence')"
-      :cancelText="t('cancel')"
-      @confirm="confirmDeleteSequence"
-      @cancel="sequenceToDelete = null"
+      v-if="sequenceToArchive"
+      variant="warning"
+      width="520px"
+      :title="t('archive-sequence')"
+      :description="archiveConfirmDescription"
+      :confirm-text="t('archive-sequence')"
+      :cancel-text="t('cancel')"
+      :confirm-loading="archiveConfirmLoading"
+      @confirm="confirmArchiveSequence"
+      @cancel="sequenceToArchive = null"
     />
 
-    <!-- Success Confirmation -->
+    <!-- Success (Figma Explore: 520px, green icon circle, title + body, single Done) -->
     <PAlertDialog
       v-if="successDialog.show"
       variant="success"
+      width="520px"
       :title="successDialog.message"
+      :description="successDialog.subtitle"
       :confirm-text="t('done')"
       cancel-text=""
       @confirm="dismissSuccessDialog"
@@ -302,130 +313,18 @@
       @saved="editAssignmentId = null"
     />
 
-    <!-- Add item/sequence picker -->
-    <PModal
+    <ExploreAddPickerModal
       v-if="showAddPicker"
-      :title="addPickerTitle"
-      width="520px"
+      :item-ids="pendingAddItems"
+      :sequence-ids="pickerSequenceIds"
+      :saving-assignment-id="assignmentSavingId"
+      :assignment-result="assignmentAddResult"
       @close="closeAddPicker"
-    >
-      <template #body>
-        <!-- Step 1: Choose type -->
-        <div v-if="addPickerStep === 'choose'">
-          <p class="text-sm text-slate-500 mb-4">{{ t('add-picker-description') }}</p>
-          <div class="add-picker-cards">
-            <button class="add-picker-card" @click="addPickerStep = 'assignment'">
-              <LucideIcon name="clipboard-list" :size="24" class="add-picker-card-icon" />
-              <span class="add-picker-card-label">{{ t('add-to-assignment') }}</span>
-            </button>
-            <button class="add-picker-card" @click="addPickerStep = 'sequence'">
-              <LucideIcon name="layers" :size="24" class="add-picker-card-icon" />
-              <span class="add-picker-card-label">{{ t('add-to-sequence') }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2a: Choose sequence -->
-        <div v-else-if="addPickerStep === 'sequence'">
-          <p class="text-sm text-slate-500 mb-4">{{ t('choose-sequence-to-add') }}:</p>
-          <div class="flex flex-col gap-2">
-            <button
-              v-for="seqId in mySequenceIds"
-              :key="seqId"
-              class="add-picker-option"
-              @click="addItemsToSequence(seqId, pendingAddItems)"
-            >
-              <LucideIcon name="layers" :size="14" class="text-primary-600" />
-              <SequenceName :id="seqId" />
-            </button>
-            <button class="add-picker-option add-picker-new" @click="closeAddPicker(); showCreateSequence = true">
-              <LucideIcon name="plus" :size="14" class="text-primary-600" />
-              <span>{{ t('create-new-sequence') }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2b: Choose assignment -->
-        <div v-else-if="addPickerStep === 'assignment'">
-          <p class="text-sm text-slate-500 mb-4">{{ t('choose-assignment-or-create') }}:</p>
-          <div v-if="assignmentPickerLoading" class="sequences-loading" aria-busy="true">
-            <LucideIcon name="loader-2" :size="14" :spin="true" />
-            {{ t('loading') }}
-          </div>
-          <div v-else class="flex flex-col gap-2">
-            <button
-              v-for="assignmentId in pickerAssignmentIds"
-              :key="assignmentId"
-              class="add-picker-option"
-              :disabled="!!assignmentSavingId"
-              @click="addItemsToAssignment(assignmentId, pendingAddItems)"
-            >
-              <LucideIcon
-                v-if="assignmentSavingId === assignmentId"
-                name="loader-2"
-                :size="14"
-                :spin="true"
-                class="text-primary-600 shrink-0"
-              />
-              <LucideIcon
-                v-else
-                name="clipboard-list"
-                :size="14"
-                class="text-primary-600 shrink-0"
-              />
-              <span class="add-picker-option-label">
-                {{ assignmentPickerData[assignmentId]?.name || t('untitled') }}
-              </span>
-              <span class="add-picker-option-status">{{ t(assignmentPickerStatus(assignmentId).toLowerCase()) }}</span>
-            </button>
-            <p v-if="!pickerAssignmentIds.length" class="text-xs text-slate-400 text-center py-2">
-              {{ t('no-data-available') }}
-            </p>
-            <button
-              class="add-picker-option add-picker-new"
-              :disabled="!!assignmentSavingId"
-              @click="navigateToCreateAssignment"
-            >
-              <LucideIcon name="plus" :size="14" class="text-primary-600" />
-              <span>{{ t('create-new-assignment') }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2c: Added to assignment (Figma success state) -->
-        <div v-else-if="addPickerStep === 'assignment-success'" class="add-picker-success">
-          <div class="add-picker-success-icon">
-            <LucideIcon name="check" :size="24" class="text-green-600" />
-          </div>
-          <h3 class="text-lg font-semibold text-zinc-950 mt-4 text-center">
-            {{ assignmentAddResult?.duplicate
-              ? (t('content-already-in-assignment') || 'Content is already in this assignment')
-              : (t('content-added-to-assignment') || 'Content added to assignment') }}
-          </h3>
-          <p class="text-sm text-slate-500 mt-2 text-center">
-            <template v-if="assignmentAddResult?.duplicate">
-              {{ assignmentAddResult.name }}
-            </template>
-            <template v-else>
-              {{ assignmentAddResult?.added }} {{ t('items-added-to-assignment') || 'item(s) added to' }}
-              “{{ assignmentAddResult?.name }}”
-            </template>
-          </p>
-        </div>
-      </template>
-
-      <template v-if="addPickerStep === 'assignment-success'" #footer>
-        <PButton variant="secondary" :text="t('continue-browsing') || 'Continue browsing'" @click="closeAddPicker" />
-        <PButton
-          variant="primary"
-          :text="t('go-to-assignment') || 'Go to assignment'"
-          @click="goToAssignmentFromPicker"
-        />
-      </template>
-      <template v-else-if="addPickerStep !== 'choose'" #footer>
-        <PButton variant="ghost" :text="t('back')" icon="lucide:chevron-left" @click="onAddPickerBack" />
-      </template>
-    </PModal>
+      @create-assignment="navigateToCreateAssignment"
+      @confirm-sequence="id => addItemsToSequence(id, pendingAddItems)"
+      @confirm-assignment="id => addItemsToAssignment(id, pendingAddItems)"
+      @go-to-assignment="goToAssignmentFromPicker"
+    />
   </div>
 </template>
 
@@ -440,7 +339,7 @@
   import SequenceCard from './sequence-card.vue'
   import CreateSequenceModal from './create-sequence-modal.vue'
   import SequencePreviewModal from './sequence-preview-modal.vue'
-  import SequenceName from './sequence-name.vue'
+  import ExploreAddPickerModal from './explore-add-picker-modal.vue'
   import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
   import CopyModifyModal from './copy-modify-modal.vue'
   import { v4 as uuid } from 'uuid'
@@ -449,14 +348,22 @@
   import setTagging from '@/utils/set-tagging.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
   import {
-    nameCache, metadataCache,
+    nameCache, metadataCache, invalidate,
     getCachedTagHierarchy, prefetchBatch, invalidateNames,
     getContentMetadata, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
-  import { useContentLibrary } from '@/utils/useContentLibrary.js'
-  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+  import { useContentLibrary, notifyTagIndexUpdated } from '@/utils/useContentLibrary.js'
+  import {
+    readSequenceItemIds,
+    appendItemsToSequence,
+  } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
-  import { PButton, PCheckbox, PAlertDialog, PModal } from '@/components/ui/index.js'
+  import {
+    loadExploreArchivedSequenceIds,
+    setExploreSequenceArchived,
+  } from '@/utils/explore-sequence-archive.js'
+  import { loadExploreFavorites, toggleExploreFavorite } from '@/utils/explore-favorites.js'
+  import { PButton, PCheckbox, PAlertDialog, PModal, PInput } from '@/components/ui/index.js'
   import { useFeedback } from '@/composables/useFeedback.js'
 
   const store = useStore()
@@ -499,9 +406,12 @@
   const selectedSequence = ref(null)
   const showCreateSequence = ref(false)
   const sequenceToEdit = ref(null)
-  const sequenceToDelete = ref(null)
-  const sequenceToDeleteName = ref('')
   const sequenceToPreview = ref(null)
+  const sequenceToArchive = ref(null)
+  const sequenceToArchiveName = ref('')
+  const archiveConfirmLoading = ref(false)
+  const sequenceSearchQuery = ref('')
+  const activeSequenceIds = ref([])
   const selectedSequenceEmpty = ref(true)
   const selectedSequenceItems = ref([])
   const newestSequenceId = ref(null)
@@ -513,8 +423,33 @@
   const createAssignmentId = ref(null)
   const createAssignmentContentIds = ref([])
   const editAssignmentId = ref(null)
-  const showArchivedSequences = ref(false)
   const archivedSequenceIds = ref([])
+
+  const archivedSequenceIdSet = computed(() => new Set(archivedSequenceIds.value))
+
+  const activeSequenceCount = computed(() => activeSequenceIds.value.length)
+
+  const archiveConfirmDescription = computed(() => {
+    const name = sequenceToArchiveName.value
+    if (name) {
+      return `Archive "${name}"? It will be removed from your active sequences. You can restore it later.`
+    }
+    return (
+      t('archive-sequence-confirm')
+      || 'Archive this sequence? It will be removed from your active sequences. You can restore it later.'
+    )
+  })
+
+  const displayedSequenceIds = computed(() => {
+    const q = sequenceSearchQuery.value.trim().toLowerCase()
+    if (!q) return mySequenceIds.value
+    return mySequenceIds.value.filter(id => {
+      const name = (nameCache.get(id) || '').toLowerCase()
+      return name.includes(q)
+    })
+  })
+
+  const pickerSequenceIds = computed(() => activeSequenceIds.value)
 
   function handleCopyModify(id) {
     copyModifyId.value = id
@@ -522,74 +457,27 @@
 
   function onCopyModifyCreated(id) {
     if (!myContent.includes(id)) myContent.push(id)
+    myContentIds.add(id)
+    metadataCache.set(id, { active_type: 'application/json;type=sequence' })
+    invalidate(id)
     copyModifyId.value = null
-    showSuccessDialog(t('content-copied-successfully'))
   }
 
   // ── Add picker state ──
   const showAddPicker = ref(false)
   const pendingAddItems = ref([])
-  const addPickerStep = ref('choose')
   const TEACHER_ASSIGNMENT_TAG = 'teacher-created'
-  const TEACHER_ASSIGNMENT_TYPE = 'teacher-to-student'
-  const assignmentPickerData = reactive({})
-  const assignmentPickerLoading = ref(false)
   const assignmentSavingId = ref(null)
   const assignmentAddResult = ref(null)
-
-  const addPickerTitle = computed(() => {
-    if (addPickerStep.value === 'choose') return t('add-item-or-sequence')
-    if (addPickerStep.value === 'sequence') return t('add-to-sequence')
-    if (addPickerStep.value === 'assignment-success') return ''
-    return t('add-to-assignment')
-  })
-
-  const teacherAssignmentIds = computed(() =>
-    store.getters['pila_tags/withTag'](TEACHER_ASSIGNMENT_TAG),
-  )
-
-  const pickerAssignmentIds = computed(() =>
-    teacherAssignmentIds.value.filter((id) => !assignmentPickerData[id]?.archived),
-  )
-
-  function assignmentPickerStatus(id) {
-    const data = assignmentPickerData[id]
-    if (data?.status) return data.status
-    const groups = store.getters['assignments/assignedGroups'](id, TEACHER_ASSIGNMENT_TYPE, false)
-    return groups.length > 0 ? 'Published' : 'Draft'
-  }
-
-  async function loadAssignmentPickerEntry(id) {
-    if (assignmentPickerData[id]) return
-    try {
-      const state = await Agent.state(id)
-      assignmentPickerData[id] = {
-        name: state.name || '',
-        status: state.status || null,
-        archived: !!state.archived,
-      }
-    } catch {
-      assignmentPickerData[id] = { name: '', status: null, archived: false }
-    }
-  }
-
-  async function loadAssignmentPickerData() {
-    assignmentPickerLoading.value = true
-    try {
-      if (!teacherAssignmentIds.value.length) {
-        await store.dispatch('pila_tags/load')
-      }
-      const ids = store.getters['pila_tags/withTag'](TEACHER_ASSIGNMENT_TAG)
-      await Promise.allSettled(ids.map(loadAssignmentPickerEntry))
-    } finally {
-      assignmentPickerLoading.value = false
-    }
-  }
 
   async function addItemsToAssignment(assignmentId, itemIds) {
     if (!assignmentId || !itemIds?.length || assignmentSavingId.value) return
     assignmentSavingId.value = assignmentId
-    const assignmentName = assignmentPickerData[assignmentId]?.name || t('untitled')
+    let assignmentName = t('untitled')
+    try {
+      const st = await Agent.state(assignmentId)
+      assignmentName = st?.name || assignmentName
+    } catch { /* ignore */ }
     try {
       const state = await Agent.state(assignmentId)
       const content = normalizeAssignmentContent(state.content)
@@ -610,7 +498,6 @@
         added,
         duplicate: added === 0,
       }
-      addPickerStep.value = 'assignment-success'
     } catch (e) {
       console.error('[Explore] addItemsToAssignment failed', assignmentId, e)
       showError(t('something-went-wrong') || 'Something went wrong')
@@ -625,43 +512,39 @@
     if (id) editAssignmentId.value = id
   }
 
-  function onAddPickerBack() {
-    if (addPickerStep.value === 'assignment-success') {
-      addPickerStep.value = 'assignment'
-      assignmentAddResult.value = null
-      return
-    }
-    addPickerStep.value = 'choose'
-  }
-
-  // ── Favorites state ──
+  // ── Favorites (Agent state `my-favorites` — content items + sequences) ──
   const favorites = reactive(new Set())
   let favoritesState = null
 
   async function loadFavorites() {
-    favoritesState = await Agent.state('my-favorites')
-    if (favoritesState && Array.isArray(favoritesState.items)) {
-      favoritesState.items.forEach(id => favorites.add(id))
+    try {
+      const loaded = await loadExploreFavorites()
+      favoritesState = loaded.state
+      favorites.clear()
+      loaded.ids.forEach(id => favorites.add(id))
+    } catch (e) {
+      console.warn('[Explore] loadFavorites failed', e)
     }
   }
 
   async function toggleFavorite(id) {
-    if (favorites.has(id)) {
-      favorites.delete(id)
-    } else {
-      favorites.add(id)
+    try {
+      favoritesState = await toggleExploreFavorite(id, favorites, favoritesState)
+    } catch (e) {
+      console.error('[Explore] toggleFavorite failed', id, e)
+      showError(t('something-went-wrong') || 'Something went wrong')
     }
-    if (!favoritesState) favoritesState = await Agent.state('my-favorites')
-    favoritesState.items = [...favorites]
   }
 
-  // ── Sequence filter for ContentBrowser ──
-  function sequenceFilterFn(list) {
-    if (selectedSequence.value && selectedSequenceItems.value.length) {
+  // ── Content browser filter (sequence scope + hide archived sequences) ──
+  function contentExploreFilter(list) {
+    const archived = archivedSequenceIdSet.value
+    let result = list.filter(id => !archived.has(id))
+    if (selectedSequence.value && !archived.has(selectedSequence.value) && selectedSequenceItems.value.length) {
       const seqItems = new Set(selectedSequenceItems.value)
-      return list.filter(id => seqItems.has(id))
+      result = result.filter(id => seqItems.has(id))
     }
-    return list
+    return result
   }
 
   const selectedSequenceName = computed(() => {
@@ -696,6 +579,7 @@
 
   // ── Sequence helpers ──
   function selectSequence(id) {
+    if (archivedSequenceIdSet.value.has(id)) return
     if (selectedSequence.value === id) {
       selectedSequence.value = null
       selectedSequenceItems.value = []
@@ -707,13 +591,27 @@
   }
 
   async function loadSequenceItems(id) {
-    const state = await Agent.state(id)
-    const items = normalizeSequenceItems(state?.items)
-    selectedSequenceItems.value = items
-    selectedSequenceEmpty.value = items.length === 0
+    try {
+      const items = await readSequenceItemIds(id)
+      selectedSequenceItems.value = items
+      selectedSequenceEmpty.value = items.length === 0
+    } catch (e) {
+      console.warn('[Explore] loadSequenceItems failed', id, e)
+      selectedSequenceItems.value = []
+      selectedSequenceEmpty.value = true
+    }
+  }
+
+  function onDropItemToSequence(seqId, payload) {
+    const itemId = typeof payload === 'string' ? payload : payload?.itemId
+    const insertIndex = typeof payload === 'object' && payload?.index != null
+      ? payload.index
+      : -1
+    if (itemId) addItemsToSequence(seqId, [itemId], { insertIndex })
   }
 
   function editSequence(id) {
+    if (archivedSequenceIdSet.value.has(id)) return
     sequenceToEdit.value = id
   }
 
@@ -731,52 +629,67 @@
     showSuccessDialog(t('sequence-updated'))
   }
 
-  async function archiveSequence(id) {
-    const state = await Agent.state(id)
-    state.archived = true
-    await Agent.synced()
-    mySequenceIds.value = mySequenceIds.value.filter(s => s !== id)
-    if (selectedSequence.value === id) selectedSequence.value = null
-    showSuccessDialog(t('sequence-archived'))
+  const archivingSequenceIds = new Set()
+
+  function onRestoreSequence(id) {
+    void restoreSequence(id).catch((e) => {
+      console.error('[Explore] restoreSequence unhandled', id, e)
+      showError(t('something-went-wrong') || 'Something went wrong')
+    })
   }
 
-  async function confirmDeleteSequence() {
-    const id = sequenceToDelete.value
-    if (!id) return
-    const state = await Agent.state(id)
-    state.archived = true
-    await Agent.synced()
-    mySequenceIds.value = mySequenceIds.value.filter(s => s !== id)
-    if (selectedSequence.value === id) selectedSequence.value = null
-    sequenceToDelete.value = null
-    sequenceToDeleteName.value = ''
-    showSuccessDialog(t('sequence-deleted'))
+  async function confirmArchiveSequence() {
+    const id = sequenceToArchive.value
+    if (!id || archiveConfirmLoading.value) return
+    archiveConfirmLoading.value = true
+    try {
+      await setExploreSequenceArchived(id, true)
+      sequenceToArchive.value = null
+      sequenceToArchiveName.value = ''
+      if (selectedSequence.value === id) {
+        selectedSequence.value = null
+        selectedSequenceItems.value = []
+        selectedSequenceEmpty.value = true
+      }
+      await loadMySequences({ silent: true })
+      showSuccessDialog(
+        'Sequence archived',
+        'This sequence has been moved to your archived list. It no longer appears among active sequences or when adding content to assignments. You can restore it anytime from the sequences panel.',
+      )
+    } catch (e) {
+      console.error('[Explore] archiveSequence failed', id, e)
+      showError(t('something-went-wrong') || 'Something went wrong')
+    } finally {
+      archiveConfirmLoading.value = false
+    }
   }
 
-  watch(sequenceToDelete, async (id) => {
-    if (!id) { sequenceToDeleteName.value = ''; return }
-    const state = await Agent.state(id)
-    sequenceToDeleteName.value = state?.name || ''
+  watch(sequenceToArchive, async (id) => {
+    if (!id) {
+      sequenceToArchiveName.value = ''
+      return
+    }
+    try {
+      const state = await Agent.state(id)
+      sequenceToArchiveName.value = state?.name || ''
+    } catch {
+      sequenceToArchiveName.value = ''
+    }
   })
 
   // ── Add to sequence/assignment ──
   function closeAddPicker() {
     showAddPicker.value = false
     pendingAddItems.value = []
-    addPickerStep.value = 'choose'
     assignmentAddResult.value = null
     assignmentSavingId.value = null
   }
 
   function openAddPicker(itemIds) {
     pendingAddItems.value = itemIds
-    addPickerStep.value = 'choose'
+    assignmentAddResult.value = null
     showAddPicker.value = true
   }
-
-  watch(addPickerStep, (step) => {
-    if (step === 'assignment') loadAssignmentPickerData()
-  })
 
   function handleAddItem(id) {
     if (selectedSequence.value) {
@@ -812,36 +725,32 @@
     showSuccessDialog(t('assignment-created-successfully'))
   }
 
-  async function addItemsToSequence(sequenceId, itemIds) {
-    if (!sequenceId || !itemIds?.length) return
+  async function addItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {
+    if (!sequenceId || !itemIds?.length || archivedSequenceIdSet.value.has(sequenceId)) return
     try {
-      const state = await Agent.state(sequenceId)
-      const items = normalizeSequenceItems(state?.items)
-      let added = 0
-      for (const id of itemIds) {
-        if (!id || items.includes(id)) continue
-        items.push(id)
-        added++
-      }
+      const { added, items } = await appendItemsToSequence(sequenceId, itemIds, { insertIndex })
       if (!added) return
-      state.items = items
-      await Agent.synced()
       showAddPicker.value = false
       pendingAddItems.value = []
       deselectAll()
       if (selectedSequence.value === sequenceId) {
-        await loadSequenceItems(sequenceId)
+        selectedSequenceItems.value = items
+        selectedSequenceEmpty.value = items.length === 0
       }
       sequenceVersion.value++
-      showSuccessDialog(added + ' ' + t('items-added-to-sequence'))
+      showSuccessDialog(
+        added === 1 ? '1 item added to sequence' : `${added} items added to sequence`,
+      )
     } catch (e) {
       console.error('[Explore] addItemsToSequence failed', sequenceId, e)
+      showError(t('something-went-wrong') || 'Something went wrong')
     }
   }
 
   function applySequenceLists(active, archived) {
+    activeSequenceIds.value = active
     archivedSequenceIds.value = archived
-    mySequenceIds.value = showArchivedSequences.value ? [...active, ...archived] : active
+    mySequenceIds.value = [...active, ...archived]
   }
 
   function seedSequencesFromMetadataCache() {
@@ -890,41 +799,56 @@
         (_, i) => metas[i]?.active_type === 'application/json;type=sequence',
       )
 
-      const states = await Promise.allSettled(
-        sequenceIds.map(id => Agent.state(id)),
-      )
+      const [archivedIdSet, states] = await Promise.all([
+        loadExploreArchivedSequenceIds(),
+        Promise.allSettled(sequenceIds.map(id => Agent.state(id))),
+      ])
 
       const active = []
       const archived = []
       sequenceIds.forEach((id, i) => {
         const result = states[i]
         const state = result.status === 'fulfilled' ? result.value : null
-        if (state?.archived) archived.push(id)
+        if (state?.name) nameCache.set(id, state.name)
+        if (archivedIdSet.has(id) || state?.archived) archived.push(id)
         else active.push(id)
       })
 
       if (token !== loadSequencesToken) return
       applySequenceLists(active, archived)
       persistSequenceList(active, archived)
+
+      const partition = store.getters.tagPartition
+      const hierarchy = getCachedTagHierarchy()?.leafToCategory
+      await prefetchBatch([...active, ...archived], store.getters.language(), partition, hierarchy)
     } finally {
       if (token === loadSequencesToken) sequencesLoading.value = false
     }
   }
 
-  async function toggleArchivedSequences() {
-    showArchivedSequences.value = !showArchivedSequences.value
-    await loadMySequences()
-  }
-
   async function restoreSequence(id) {
-    const state = await Agent.state(id)
-    state.archived = false
-    await Agent.synced()
-    await loadMySequences()
-    showSuccessDialog(t('sequence-restored') || 'Sequence restored')
+    if (!id || archivingSequenceIds.has(id)) return
+    archivingSequenceIds.add(id)
+    try {
+      await setExploreSequenceArchived(id, false)
+      await loadMySequences({ silent: true })
+      showSuccessDialog(
+        'Sequence restored',
+        'This sequence is back in your active list. You can edit it, add items, and include it in assignments again.',
+      )
+    } catch (e) {
+      console.error('[Explore] restoreSequence failed', id, e)
+      showError(t('something-went-wrong') || 'Something went wrong')
+    } finally {
+      archivingSequenceIds.delete(id)
+    }
   }
 
   watch(selectedSequence, async (id) => {
+    if (id && archivedSequenceIdSet.value.has(id)) {
+      selectedSequence.value = null
+      return
+    }
     if (id) await loadSequenceItems(id)
   })
 
@@ -935,6 +859,7 @@
       const allIds = currentContentList.value
       if (allIds.length) {
         await prefetchBatch(allIds, newLang, store.getters.tagPartition, getCachedTagHierarchy()?.leafToCategory)
+        notifyTagIndexUpdated()
       }
     }
   })
@@ -966,8 +891,12 @@
 }
 
 .sequences-panel {
-  width: 247px;
+  width: 264px;
   flex-shrink: 0;
+}
+
+.sequences-heading {
+  white-space: nowrap;
 }
 
 .sequences-loading {
@@ -1021,93 +950,6 @@
 }
 
 
-
-/* Add picker cards */
-.add-picker-cards {
-  display: flex;
-  gap: 12px;
-}
-.add-picker-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 24px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: white;
-  cursor: pointer;
-  transition: all 150ms;
-}
-.add-picker-card:hover {
-  border-color: #2563eb;
-  background: #eff6ff;
-}
-.add-picker-card-icon {
-  color: #2563eb;
-}
-.add-picker-card-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-}
-
-/* Add picker list options */
-.add-picker-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  font-size: 14px;
-  color: #334155;
-  text-align: left;
-  transition: all 150ms;
-}
-.add-picker-option:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-.add-picker-new {
-  border-style: dashed;
-  color: #2563eb;
-}
-.add-picker-option-label {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.add-picker-option-status {
-  flex-shrink: 0;
-  font-size: 11px;
-  color: #64748b;
-}
-.add-picker-option:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-.add-picker-success {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px 8px 8px;
-  text-align: center;
-}
-.add-picker-success-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 9999px;
-  background: #dcfce7;
-}
 
 /* Metadata panel */
 .metadata-panel {

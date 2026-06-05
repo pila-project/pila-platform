@@ -39,14 +39,18 @@ export function getContentName(id, lang) {
 export function getContentMetadata(id) {
   if (metadataCache.has(id)) return Promise.resolve(metadataCache.get(id))
   return dedupedFetch(`meta:${id}`, async () => {
-    const meta = await Agent.metadata(id)
-    const entry = {
-      active_type: meta.active_type,
-      owner: meta.owner,
-      updated: meta.updated,
+    try {
+      const meta = await Agent.metadata(id)
+      const entry = {
+        active_type: meta.active_type,
+        owner: meta.owner,
+        updated: meta.updated,
+      }
+      metadataCache.set(id, entry)
+      return entry
+    } catch {
+      return null
     }
-    metadataCache.set(id, entry)
-    return entry
   })
 }
 

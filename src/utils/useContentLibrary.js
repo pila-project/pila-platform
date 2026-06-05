@@ -16,6 +16,8 @@ const taggedContent = ref([])
 const myContent = reactive([])
 const myContentIds = reactive(new Set())
 const tagCategories = ref([])
+/** Bumped when tagCache is filled so filter option lists recompute (Map is not reactive). */
+const tagIndexVersion = ref(0)
 const _loaded = ref(false)
 const _loading = ref(false)
 /** Shared across all useContentLibrary() callers (Explore grid + parent page). */
@@ -27,6 +29,10 @@ function hasExploreLists() {
 
 function syncExploreLoading() {
   exploreUiLoading.value = !hasExploreLists() && (!_loaded.value || _loading.value)
+}
+
+function notifyTagIndexUpdated() {
+  tagIndexVersion.value++
 }
 
 function idsEqual(a, b) {
@@ -90,12 +96,16 @@ function applyFreshExploreData(pilaContent, myContentResult, hierarchy) {
   return listsChanged
 }
 
+/** Call after prefetchBatch (or disk cache restore) so filter dropdowns pick up tagCache. */
+export { notifyTagIndexUpdated }
+
 /** Clear in-memory explore state (e.g. on logout). */
 export function resetContentLibraryState() {
   taggedContent.value = []
   myContent.splice(0, myContent.length)
   myContentIds.clear()
   tagCategories.value = []
+  tagIndexVersion.value = 0
   _loaded.value = false
   _loading.value = false
   exploreUiLoading.value = false
@@ -123,6 +133,7 @@ export function useContentLibrary(store) {
 
   // ── Filter definitions from tag hierarchy ──
   const filterDefinitions = computed(() => {
+    void tagIndexVersion.value
     return tagCategories.value.map(cat => ({
       key: cat.id,
       label: tagNameCache.get(cat.id) || cat.name,
@@ -256,6 +267,7 @@ export function useContentLibrary(store) {
             usedCache = true
             initFilters()
             _loaded.value = true
+            notifyTagIndexUpdated()
             syncExploreLoading()
           }
         }
@@ -280,6 +292,7 @@ export function useContentLibrary(store) {
       ])]
       const leafToCategory = getCachedTagHierarchy()?.leafToCategory
       await prefetchBatch(allIds, store.getters.language(), partition, leafToCategory)
+      notifyTagIndexUpdated()
 
       if (userId) {
         persistExploreCache(userId, {

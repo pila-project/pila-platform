@@ -15,12 +15,7 @@
       </div>
     </template>
     <template #body>
-      <div v-if="!isEdit" class="info-banner">
-        <LucideIcon name="info" :size="14" class="text-primary-500" />
-        <span>{{ t('after-creating-sequence-info') }}</span>
-      </div>
-
-      <div class="flex flex-col gap-4" :class="{ 'mt-4': !isEdit }">
+      <div class="flex flex-col gap-4">
         <PInput
           v-model="name"
           :label="t('sequence-title')"
@@ -52,7 +47,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import { PModal, PInput, PButton } from '@/components/ui/index.js'
-import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -101,19 +95,4 @@ async function submit() {
 }
 </script>
 
-<style scoped>
-.info-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px;
-  background: #eff6ff;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #1e40af;
-}
-.cancel-btn {
-  color: #dc2626 !important;
-  border-color: #fecaca !important;
-}
-</style>
+

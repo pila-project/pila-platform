@@ -1,39 +1,53 @@
 <template>
   <div
     class="sc"
-    :class="{ 'sc-active': active, 'sc-dragover': isDragOver }"
-    @click="$emit('select')"
-    @dragover.prevent="isDragOver = true"
-    @dragleave="isDragOver = false"
+    :class="{ 'sc-active': active && !archived, 'sc-archived': archived, 'sc-dragover': isDragOver && !archived }"
+    @click="onCardClick"
+    @dragover.prevent="!archived && (isDragOver = true)"
+    @dragleave="!archived && (isDragOver = false)"
     @drop.prevent.stop="onDrop"
   >
     <!-- Header -->
     <div class="sc-header">
       <div class="sc-header-content">
-        <div v-if="isNew" class="sc-new-badge">{{ t('new') }}</div>
+        <div v-if="isNew && !archived" class="sc-new-badge">{{ t('new') }}</div>
         <div class="sc-title-row">
           <h3 class="sc-title">{{ seqState?.name || t('untitled') }}</h3>
-          <PMenu align-right>
+          <span v-if="archived" class="sc-archived-badge">{{ t('archived') }}</span>
+          <div class="sc-title-actions">
+            <button
+              v-if="!archived"
+              type="button"
+              class="sc-heart-btn"
+              :class="{ 'sc-heart-btn--active': favorited }"
+              :aria-pressed="favorited"
+              :aria-label="favorited ? (t('remove-from-favorites') || 'Remove from favorites') : (t('add-to-favorites') || 'Add to favorites')"
+              @click.stop="$emit('toggle-favorite')"
+            >
+              <LucideIcon name="heart" :size="14" />
+            </button>
+            <PMenu align-right>
             <template #activator="{ props }">
               <PButton variant="icon" size="xsm" icon="lucide:ellipsis-vertical" iconOnly @click.stop="props.onClick" />
             </template>
-            <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="expanded = true" />
-            <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
-            <PMenuItem :title="t('preview-sequence')" prepend-icon="lucide:eye" @click="$emit('preview')" />
-            <PMenuItem
-              v-if="!archived"
-              :title="t('archive-sequence')"
-              prepend-icon="lucide:archive"
-              @click="$emit('archive')"
-            />
+            <template v-if="!archived">
+              <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="expanded = true" />
+              <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
+              <PMenuItem :title="t('preview-sequence')" prepend-icon="lucide:eye" @click="$emit('preview')" />
+              <PMenuItem
+                :title="t('archive-sequence')"
+                prepend-icon="lucide:archive"
+                @click="$emit('archive')"
+              />
+            </template>
             <PMenuItem
               v-else
               :title="t('restore') || 'Restore'"
               prepend-icon="lucide:archive-restore"
               @click="$emit('restore')"
             />
-            <PMenuItem v-if="!archived" :title="t('delete-sequence')" prepend-icon="lucide:trash-2" danger @click="$emit('delete')" />
-          </PMenu>
+            </PMenu>
+          </div>
         </div>
         <p class="sc-desc">{{ seqState?.description || '' }}</p>
         <span class="sc-modified">{{ t('last-modified') }} - {{ lastModifiedDate }}</span>
@@ -48,12 +62,13 @@
       @dragleave="onFooterDragLeave"
       @drop.prevent.stop="onFooterDrop"
     >
-      <button class="sc-expand-btn" @click.stop="expanded = !expanded">
+      <button v-if="!archived" class="sc-expand-btn" @click.stop="expanded = !expanded">
         {{ t('show-items') }} ({{ itemCount }})
         <LucideIcon :name="expanded ? 'chevron-up' : 'chevron-down'" :size="10" class="sc-chevron" />
       </button>
+      <p v-else class="sc-archived-meta">{{ t('show-items') }} ({{ itemCount }})</p>
 
-      <div v-if="expanded && items.length" class="sc-items">
+      <div v-if="!archived && expanded && items.length" class="sc-items">
         <div
           v-for="(itemId, i) in items"
           :key="itemId"
@@ -94,7 +109,7 @@
           </p>
         </div>
       </div>
-      <div v-else-if="expanded" class="sc-empty">
+      <div v-else-if="!archived && expanded" class="sc-empty">
         {{ t('no-items-yet') }}
       </div>
     </div>
@@ -121,7 +136,12 @@ import LucideIcon from '@/components/ui/LucideIcon.vue'
 import PButton from '@/components/ui/PButton.vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { getContentMetadata } from '@/utils/content-cache.js'
-import { normalizeSequenceItems, isExternalExploreDrop } from '@/utils/sequence-items.js'
+import {
+  normalizeSequenceItems,
+  removeItemFromSequence,
+  reorderSequenceItems,
+  isExternalExploreDrop,
+} from '@/utils/sequence-items.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -130,13 +150,19 @@ const props = defineProps({
   id: { type: String, required: true },
   active: Boolean,
   archived: Boolean,
+  favorited: Boolean,
   isNewest: Boolean,
   version: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['select', 'edit', 'delete', 'archive', 'restore', 'preview', 'drop-item'])
+const emit = defineEmits(['select', 'edit', 'archive', 'restore', 'preview', 'drop-item', 'toggle-favorite'])
 
 const isDragOver = ref(false)
+
+function onCardClick() {
+  if (props.archived) return
+  emit('select')
+}
 
 // ── Internal reorder drag state ──
 const dragIndex = ref(null)
@@ -144,14 +170,21 @@ const dropTarget = ref(null)
 const isInternalDrag = ref(false)
 
 function onDrop(e) {
+  if (props.archived) return
   isDragOver.value = false
   if (!isExternalExploreDrop(e.dataTransfer, null)) return
   const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
+  emitExternalDrop(itemId)
+}
+
+function emitExternalDrop(itemId, index = -1) {
+  if (!itemId) return
   expanded.value = true
-  emit('drop-item', itemId)
+  emit('drop-item', index >= 0 ? { itemId, index } : itemId)
 }
 
 function onItemDragStart(index, e) {
+  if (props.archived) return
   dragIndex.value = index
   isInternalDrag.value = true
   e.dataTransfer.effectAllowed = 'move'
@@ -200,30 +233,27 @@ async function onItemDrop(toIndex, e) {
   dropTarget.value = null
   if (e && isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
     const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
-    if (itemId) {
-      expanded.value = true
-      emit('drop-item', itemId)
-    }
+    emitExternalDrop(itemId, toIndex)
     return
   }
 
   const fromIndex = dragIndex.value
   if (fromIndex === null || fromIndex === toIndex || !seqState.value?.items) return
 
-  const items = [...seqState.value.items]
-  const [moved] = items.splice(fromIndex, 1)
-  items.splice(toIndex, 0, moved)
-  await persistItemsToAgent(items)
   dragIndex.value = null
   isInternalDrag.value = false
-}
-
-async function persistItemsToAgent(items) {
-  const state = await Agent.state(props.id)
-  state.items = normalizeSequenceItems(items)
-  await Agent.synced()
-  applySeqStateFromAgent(state)
-  itemVersion.value++
+  if (props.archived) return
+  try {
+    const { items } = await reorderSequenceItems(props.id, fromIndex, toIndex)
+    applySeqStateFromAgent({
+      name: seqState.value?.name || '',
+      description: seqState.value?.description || '',
+      items,
+    })
+    itemVersion.value++
+  } catch (e) {
+    console.warn('[SequenceCard] reorder failed', props.id, e)
+  }
 }
 
 function applySeqStateFromAgent(state) {
@@ -255,7 +285,7 @@ const lastModifiedDate = computed(() => {
 })
 
 async function loadItemMeta(itemId) {
-  if (itemMeta[itemId]) return
+  if (!itemId || itemMeta[itemId]) return
   try {
     const [state, meta] = await Promise.all([
       Agent.state(itemId),
@@ -277,10 +307,17 @@ function removeItem(index) {
 async function confirmRemoveItem() {
   const index = itemToDelete.value
   itemToDelete.value = null
-  if (index !== null && seqState.value?.items) {
-    const items = [...seqState.value.items]
-    items.splice(index, 1)
-    await persistItemsToAgent(items)
+  if (index === null || index === undefined || props.archived) return
+  try {
+    const { items } = await removeItemFromSequence(props.id, index)
+    applySeqStateFromAgent({
+      name: seqState.value?.name || '',
+      description: seqState.value?.description || '',
+      items,
+    })
+    itemVersion.value++
+  } catch (e) {
+    console.warn('[SequenceCard] remove item failed', props.id, e)
   }
 }
 
@@ -294,13 +331,13 @@ async function reloadSequenceState() {
     metadata.value = meta
     if (seqState.value.items.length) isNew.value = false
     itemVersion.value++
-    await Promise.all(seqState.value.items.map(id => loadItemMeta(id)))
+    await Promise.allSettled(seqState.value.items.map(id => loadItemMeta(id)))
   } catch (e) {
     console.warn('[SequenceCard] failed to refresh', props.id, e)
   }
 }
 
-// When parent signals a version change (e.g. drag-drop add), reload from Agent
+// Parent bumped version after a successful add — refresh card (ignore Agent read errors)
 watch(() => props.version, () => {
   reloadSequenceState()
 })
@@ -310,7 +347,7 @@ watch(
   () => expanded.value && items.value,
   (val) => {
     if (val && items.value.length) {
-      items.value.forEach(id => loadItemMeta(id))
+      void Promise.allSettled(items.value.map(id => loadItemMeta(id)))
     }
   },
   { immediate: true }
@@ -351,6 +388,35 @@ onMounted(async () => {
   border-color: #2563eb;
   box-shadow: 0 0 0 1px #2563eb;
 }
+.sc-archived {
+  opacity: 0.85;
+  background: #fffbeb;
+  border-color: #fde68a;
+  cursor: default;
+}
+.sc-archived:hover {
+  border-color: #fde68a;
+}
+.sc-archived-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #fff7ed;
+  border: 1px solid #ea580c;
+  color: #ea580c;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 14px;
+}
+.sc-archived-meta {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  line-height: 16px;
+}
 .sc-dragover {
   border-color: #10b981;
   background: #f0fdf4;
@@ -388,6 +454,45 @@ onMounted(async () => {
   align-items: flex-start;
   justify-content: space-between;
   gap: 4px;
+}
+
+.sc-title-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.sc-heart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 150ms;
+}
+
+.sc-heart-btn:hover {
+  color: #ef4444;
+}
+
+.sc-heart-btn:not(.sc-heart-btn--active) :deep(svg) {
+  fill: none;
+}
+
+.sc-heart-btn--active {
+  color: #ef4444;
+}
+
+.sc-heart-btn--active :deep(svg) {
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 .sc-title {

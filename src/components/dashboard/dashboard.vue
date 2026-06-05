@@ -35,21 +35,22 @@
 </template>
 
 <script setup>
+  import { ref } from 'vue'
   import StudentResultsRow from './student-results-row.vue'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
+  import {
+    primaryAssignmentContentId,
+    loadDashboardSequenceItems,
+  } from '@/utils/dashboard-sequence-items.js'
 
   const props = defineProps({
     users: Array,
     assignment: String
   })
 
-  const { content } = await Agent.state(props.assignment)
-
-  const sequenceItems = await (
-    Agent
-      .state(content)
-      .then(c => Object.values(c.items).map(({ id }) => id))
-  )
+  const assignmentState = await Agent.state(props.assignment)
+  const content = primaryAssignmentContentId(assignmentState)
+  const sequenceItems = ref(await loadDashboardSequenceItems(content))
 </script>
 
 <style>
