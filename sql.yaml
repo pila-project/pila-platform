@@ -189,6 +189,20 @@ postgres:
           SELECT unnest($admins_from_tags::TEXT[]) AS value
         ) admin_ids
     role-assignments: SELECT * FROM role_assignments($REQUESTER, $admin_ids::TEXT[])
+    is-teacher:
+      external:
+        teacher_ids:
+          domain: tags.knowlearning.systems
+          query: taggings-intersection
+          params:
+          - $TAG_PARTITION
+          - $TEACHER_TAG_SET
+      body: |
+        SELECT (
+          $REQUESTER = ANY(COALESCE($teacher_ids::TEXT[], ARRAY[]::TEXT[]))
+          OR
+          $REQUESTER = ANY(COALESCE($admin_ids::TEXT[], ARRAY[]::TEXT[]))
+        ) AS value
     requested-roles: |
       SELECT
         role_requests.role AS role,
