@@ -20,7 +20,7 @@
           :editing="editing"
           :initial-content-ids="initialContentIds"
           @close="$emit('close')"
-          @saved="$emit('saved')"
+          @saved="$emit('saved', $event)"
           @update:width="w => modalWidth = w"
         />
       </div>

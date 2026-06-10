@@ -14,7 +14,6 @@
             </div>
           </div>
           <div class="section-header-actions">
-            <ShowArchivedToggle v-model="showArchivedStudents" />
             <PButton
               v-if="!selectedStudents.length"
               icon="lucide:plus"
@@ -23,41 +22,38 @@
               size="sm"
               @click="showAddStudentPicker = true"
             />
-            <PButton
-              v-if="hasEncryptionKey && selectedStudents.length"
-              icon="lucide:printer"
-              variant="secondary"
-              :text="t('print-login-codes')"
-              size="sm"
-              @click="printLoginCodes"
-            />
-            <PMenu v-if="selectedStudents.length" align-right>
-              <template #activator="{ props }">
-                <PButton variant="icon" size="sm" icon="lucide:ellipsis-vertical" iconOnly @click="props.onClick" />
-              </template>
-              <PMenuItem
-                :title="t('add-to-groups')"
-                prepend-icon="lucide:users"
+            <template v-else>
+              <PButton
+                v-if="hasEncryptionKey"
+                icon="lucide:printer"
+                variant="secondary"
+                :text="t('print-login-codes')"
+                size="sm"
+                @click="printLoginCodes"
+              />
+              <PButton
+                icon="lucide:users"
+                variant="secondary"
+                :text="t('add-students-to-group') || t('add-to-groups')"
+                size="sm"
                 @click="showAddToGroupsModal = true; selectedGroupsForAssign = []; groupSearchQuery = ''"
               />
-              <PMenuItem
-                :title="t('export')"
-                prepend-icon="lucide:download"
-                @click="showExportModal = true"
-              />
-              <PMenuItem
-                :title="`${t('archive')} (${selectedStudents.length})`"
-                prepend-icon="lucide:archive"
+              <PButton
+                icon="lucide:archive"
+                variant="secondary"
+                :text="`${t('archive')} (${selectedStudents.length})`"
+                size="sm"
                 @click="archiveSelectedConfirm = true"
               />
-              <PDivider />
-              <PMenuItem
-                :title="`${t('delete')} (${selectedStudents.length})`"
-                prepend-icon="lucide:trash-2"
-                danger
-                @click="deleteSelectedConfirm = true"
+              <PButton
+                v-if="showStudentExport"
+                icon="lucide:download"
+                variant="secondary"
+                :text="t('export')"
+                size="sm"
+                @click="showExportModal = true"
               />
-            </PMenu>
+            </template>
           </div>
         </div>
 
@@ -118,6 +114,12 @@
             </template>
             <template #item.grade="{ item }">
               <span class="grade-cell">{{ item.grade || '--' }}</span>
+            </template>
+            <template #item.status="{ item }">
+              <PBadge
+                :variant="item.archived ? 'warning' : 'info'"
+                :text="item.archived ? t('archived') : t('active')"
+              />
             </template>
             <template #item.lastLogin="{ item }">
               <span class="last-login-cell">{{ formatLastLogin(item.id) }}</span>
@@ -186,12 +188,11 @@
           <div class="section-header-left">
             <LucideIcon name="users-round" :size="20" class="section-icon" />
             <div>
-              <h2 class="card-section-title">{{ t('group') }} ({{ activeGroups.length }})</h2>
+              <h2 class="card-section-title">{{ t('group') }} ({{ allGroupsCount }})</h2>
               <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
             </div>
           </div>
           <div class="section-header-actions">
-            <ShowArchivedToggle v-model="showArchivedGroups" />
             <PButton
               icon="lucide:plus"
               variant="primary"
@@ -202,13 +203,19 @@
           </div>
         </div>
 
-        <div class="group-search-wrap">
-          <div class="group-search-divider" aria-hidden="true" />
-          <input
-            v-model="groupSearchFilter"
-            class="input group-search-input"
+        <div class="search-and-filters">
+          <PUnifiedFilter
+            v-model:searchQuery="groupSearchFilter"
             :placeholder="t('search-group')"
-          />
+          >
+            <PUnifiedFilterSection
+              id="group-status"
+              :label="t('status')"
+              icon="badge-check"
+              :options="groupStatusFilterOptions"
+              v-model="groupStatusFilters"
+            />
+          </PUnifiedFilter>
         </div>
 
         <div class="group-cards-list">
@@ -216,35 +223,26 @@
             v-for="groupId in paginatedGroupIds"
             :key="groupId"
             :group-id="groupId"
+            :archived="archivedGroupIdSet.has(groupId)"
             @manage="openManageStudents(groupId)"
             @edit="openEditGroup(groupId)"
             @archive="confirmArchiveGroup(groupId)"
             @delete="confirmDeleteGroup(groupId)"
+            @unarchive="confirmRestoreGroup(groupId)"
             @drop-student="handleDropStudent(groupId, $event)"
             @print-login-codes="handlePrintGroupLoginCodes(groupId)"
           />
 
-          <p v-if="!filteredActiveGroups.length && !archivedGroups.length && groupSearchFilter" class="no-results-text">
+          <p v-if="!filteredGroups.length && groupSearchFilter.trim()" class="no-results-text">
             {{ t('no-results') || 'No results' }}
           </p>
           <PPagination
-            v-if="filteredActiveGroups.length > groupsPerPage"
-            :total-items="filteredActiveGroups.length"
+            v-if="filteredGroups.length > groupsPerPage"
+            :total-items="filteredGroups.length"
             v-model:current-page="groupListPage"
             :per-page="groupsPerPage"
             class="group-list-pagination"
           />
-
-          <template v-if="showArchivedGroups && filteredArchivedGroups.length">
-            <p class="archived-section-label">{{ t('archived') }}</p>
-            <GroupCard
-              v-for="groupId in filteredArchivedGroups"
-              :key="'archived-' + groupId"
-              :group-id="groupId"
-              archived
-              @unarchive="confirmRestoreGroup(groupId)"
-            />
-          </template>
         </div>
       </div>
     </div>
@@ -679,18 +677,6 @@
       @cancel="archiveSelectedConfirm = false"
     />
 
-    <!-- Bulk Delete Selected Confirmation -->
-    <PAlertDialog
-      v-if="deleteSelectedConfirm"
-      variant="error"
-      :title="`Delete ${selectedStudents.length} selected students?`"
-      description="This action cannot be undone. Students will be removed from all groups."
-      confirm-text="Delete"
-      :cancel-text="t('cancel')"
-      @confirm="executeDeleteSelected"
-      @cancel="deleteSelectedConfirm = false"
-    />
-
     <!-- Restore Student Confirmation -->
     <PAlertDialog
       v-if="restoreConfirmStudent"
@@ -1106,7 +1092,12 @@ import { useBulkSelection } from '@/composables/useBulkSelection.js'
 import { useDuplicateGuard } from '@/composables/useDuplicateGuard.js'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
-import ShowArchivedToggle from '@/components/common/show-archived-toggle.vue'
+import {
+  defaultActiveStatusFilters,
+  buildStatusFilterOptions,
+  matchesStatusFilter,
+  filterGroupIdsByStatus,
+} from '@/utils/status-filter.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -1137,19 +1128,17 @@ const searchQuery = ref('')
 const groupSearchFilter = ref('')
 const groupListPage = ref(1)
 const groupsPerPage = 6
-const showArchivedStudents = ref(false)
-const showArchivedGroups = ref(false)
 const pendingAfterAgreement = ref(null)
 const addToGroupsResults = ref(null)
 const manageGroupId = ref(null)
 const manageGroupShowBack = ref(false)
 const activeGradeFilters = ref([])
-const activeStatusFilters = ref([])
+const activeStatusFilters = ref(defaultActiveStatusFilters())
 const activeGroupFilters = ref([])
+const groupStatusFilters = ref(defaultActiveStatusFilters())
 const archiveConfirmStudent = ref(null)
 const deleteConfirmStudent = ref(null)
 const archiveSelectedConfirm = ref(false)
-const deleteSelectedConfirm = ref(false)
 const archiveConfirmGroup = ref(null)
 const restoreConfirmStudent = ref(null)
 const restoreConfirmGroup = ref(null)
@@ -1295,46 +1284,51 @@ watch(namePassword, async (newKey) => {
   }
 })
 
-const filteredStudents = computed(() => {
-  let items = students.value
-  if (!showArchivedStudents.value) {
-    items = items.filter(s => !s.archived)
-  }
+function applyStudentListFilters(items) {
+  let result = items
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
-    items = items.filter(s =>
-      s.displayName.toLowerCase().includes(q) ||
-      s.id.toLowerCase().includes(q) ||
-      s.groupNames.toLowerCase().includes(q)
+    result = result.filter(s =>
+      s.displayName.toLowerCase().includes(q)
+      || s.id.toLowerCase().includes(q)
+      || s.groupNames.toLowerCase().includes(q),
     )
   }
   if (activeGradeFilters.value.length) {
-    items = items.filter(s => s.grade && activeGradeFilters.value.includes(s.grade))
+    result = result.filter(s => s.grade && activeGradeFilters.value.includes(s.grade))
   }
-  if (activeStatusFilters.value.length) {
-    items = items.filter(s => {
-      const label = s.archived ? t('archived') : t('active')
-      return activeStatusFilters.value.includes(label)
-    })
-  }
+  result = result.filter(s =>
+    matchesStatusFilter(activeStatusFilters.value, s.archived),
+  )
   if (activeGroupFilters.value.length) {
-    items = items.filter(s =>
-      activeGroupFilters.value.some(gName => s.groupNames.toLowerCase().includes(gName.toLowerCase()))
+    result = result.filter(s =>
+      activeGroupFilters.value.some(gName => s.groupNames.toLowerCase().includes(gName.toLowerCase())),
     )
   }
-  if (showArchivedStudents.value) {
-    return [...items].sort((a, b) => {
-      if (a.archived === b.archived) return 0
-      return a.archived ? 1 : -1
-    })
-  }
-  return items
+  return result
+}
+
+const filteredStudents = computed(() => {
+  const items = applyStudentListFilters(students.value)
+  return [...items].sort((a, b) => {
+    if (a.archived === b.archived) return 0
+    return a.archived ? 1 : -1
+  })
 })
 
 const {
   selected: selectedStudents,
   setSelected: setSelectedStudents,
 } = useBulkSelection(filteredStudents, 'id')
+
+const THAILAND_STUDENT_EXPORT_DISABLED_HOSTS = new Set([
+  'thailand.pilaproject.org',
+  'dev.gforcesolution.com',
+  'pila.gforcesolution.com',
+])
+const showStudentExport = computed(
+  () => !THAILAND_STUDENT_EXPORT_DISABLED_HOSTS.has(window.location.host),
+)
 
 function studentRowClass(item) {
   return item.archived ? 'table-row-archived' : ''
@@ -1350,6 +1344,7 @@ function formatLastLogin(id) {
 const studentHeaders = computed(() => [
   { key: 'displayName', title: t('name') },
   { key: 'grade', title: t('grade') },
+  { key: 'status', title: t('status'), sortable: false },
   { key: 'lastLogin', title: t('last-login'), sortable: false },
   { key: 'groupNames', title: t('groups') },
   { key: 'more', title: '', sortable: false, width: '60px' },
@@ -1367,10 +1362,9 @@ const gradeFilterOptions = computed(() => {
   return grades.map(g => ({ value: g, label: g }))
 })
 
-const statusFilterOptions = computed(() => [
-  { value: t('active'), label: t('active') },
-  { value: t('archived'), label: t('archived') },
-])
+const statusFilterOptions = computed(() => buildStatusFilterOptions(t))
+
+const groupStatusFilterOptions = computed(() => buildStatusFilterOptions(t))
 
 const groupFilterOptions = computed(() =>
   activeGroups.value.map(gid => {
@@ -1446,31 +1440,28 @@ async function openStudentProfile(studentId) {
 const activeGroups = computed(() => store.getters['groups/groups']('class', true))
 const archivedGroups = computed(() => store.getters['groups/archivedGroups']('class'))
 
-const filteredActiveGroups = computed(() => {
-  if (!groupSearchFilter.value) return activeGroups.value
-  const q = groupSearchFilter.value.toLowerCase()
-  return activeGroups.value.filter(gid => {
-    const name = store.state.groups.groups[gid]?.name || ''
-    return name.toLowerCase().includes(q)
-  })
-})
+const archivedGroupIdSet = computed(() => new Set(archivedGroups.value))
+
+const allGroupsCount = computed(() => activeGroups.value.length + archivedGroups.value.length)
+
+const filteredGroups = computed(() =>
+  filterGroupIdsByStatus({
+    activeIds: activeGroups.value,
+    archivedIds: archivedGroups.value,
+    archivedIdSet: archivedGroupIdSet.value,
+    selectedStatuses: groupStatusFilters.value,
+    searchQuery: groupSearchFilter.value,
+    getSearchText: (gid) => store.state.groups.groups[gid]?.name || '',
+  }),
+)
 
 const paginatedGroupIds = computed(() => {
-  const ids = filteredActiveGroups.value
+  const ids = filteredGroups.value
   const start = (groupListPage.value - 1) * groupsPerPage
   return ids.slice(start, start + groupsPerPage)
 })
 
-const filteredArchivedGroups = computed(() => {
-  if (!groupSearchFilter.value) return archivedGroups.value
-  const q = groupSearchFilter.value.toLowerCase()
-  return archivedGroups.value.filter(gid => {
-    const name = store.state.groups.groups[gid]?.name || ''
-    return name.toLowerCase().includes(q)
-  })
-})
-
-watch(filteredActiveGroups, () => {
+watch(filteredGroups, () => {
   groupListPage.value = 1
 })
 
@@ -1762,29 +1753,6 @@ async function executeArchiveSelected() {
   archiveSelectedConfirm.value = false
   selectedStudents.value = []
   showSuccessDialog(t('students-archived-successfully'))
-}
-
-async function executeDeleteSelected() {
-  deletingStudent.value = true
-  try {
-    const usersState = await Agent.state('users')
-    for (const s of selectedStudents.value) {
-      if (usersState[s.id]) usersState[s.id].archived = true
-      for (const gid of activeGroups.value) {
-        if (store.getters['groups/belongs'](s.id, gid)) {
-          await store.dispatch('groups/removeMember', { user_id: s.id, group_id: gid })
-        }
-      }
-    }
-    deleteSelectedConfirm.value = false
-    selectedStudents.value = []
-    showSuccessDialog(t('students-removed-successfully'))
-  } catch (e) {
-    console.error(e)
-    toastError(t('something-went-wrong'))
-  } finally {
-    deletingStudent.value = false
-  }
 }
 
 function confirmRestoreStudent(item) {
@@ -2306,16 +2274,6 @@ function printLoginCodes() {
 
 .group-list-pagination {
   margin-top: 8px;
-}
-
-.archived-section-label {
-  width: 100%;
-  margin: 12px 0 4px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-neutral-500);
 }
 
 .section-icon {

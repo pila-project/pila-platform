@@ -250,18 +250,31 @@
     <!-- Footer -->
     <div class="wizard-footer">
       <PButton
+        variant="secondary"
+        color="danger"
+        :text="t('cancel')"
+        @click="$emit('close')"
+      />
+      <PButton
         v-if="currentStep > 1"
         variant="ghost"
         :text="t('back')"
         @click="currentStep--"
       />
       <div class="flex-1" />
-      <PButton
-        variant="secondary"
-        color="danger"
-        :text="t('cancel')"
-        @click="$emit('close')"
-      />
+      <PTooltip
+        v-if="!props.editing"
+        :text="!canSaveDraft ? draftBlockedReason : ''"
+        position="top"
+      >
+        <PButton
+          variant="secondary"
+          :text="t('save-as-draft') || 'Save as draft'"
+          :loading="savingDraft"
+          :disabled="!canSaveDraft"
+          @click="saveDraft"
+        />
+      </PTooltip>
       <PTooltip
         v-if="currentStep < 4"
         :text="!canProceed ? stepBlockedReason : ''"
@@ -283,7 +296,7 @@
       >
         <PButton
           variant="primary"
-          :text="t('create-assignment')"
+          :text="props.editing ? (t('save-changes') || 'Save changes') : t('create-assignment')"
           icon="lucide:arrow-right"
           :icon-right="true"
           :disabled="!canSave"
@@ -381,7 +394,8 @@
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
-  const { info: toastInfo } = useToast()
+  const { info: toastInfo, error: toastError } = useToast()
+  const savingDraft = ref(false)
 
   // ── Wizard state ──
   const loading = ref(true)
@@ -616,6 +630,16 @@
     return ''
   })
 
+  const canSaveDraft = computed(() => (assignment.value.name || '').trim() !== '')
+
+  const draftBlockedReason = computed(() => {
+    if (!canSaveDraft.value) {
+      return t('assignment-title-required-for-draft')
+        || 'Enter an assignment title to save a draft.'
+    }
+    return ''
+  })
+
   function goNext() {
     if (!canProceed.value) return
     currentStep.value++
@@ -623,11 +647,6 @@
 
   // ── Content browser (overlay modal selection) ──
   const cbSelectedItems = reactive(new Set())
-
-  function cbToggleSelection(id) {
-    if (cbSelectedItems.has(id)) cbSelectedItems.delete(id)
-    else cbSelectedItems.add(id)
-  }
 
   const pickerNewSelectionCount = computed(() => {
     let count = 0
@@ -653,8 +672,16 @@
   })
 
   function toggleModalContent(id) {
-    if (isInAssignmentContent(id)) return
-    cbToggleSelection(id)
+    const inAssignment = isInAssignmentContent(id)
+    const inPickerSelection = cbSelectedItems.has(id)
+
+    if (inAssignment || inPickerSelection) {
+      if (inAssignment) removeContent(id)
+      if (inPickerSelection) cbSelectedItems.delete(id)
+      return
+    }
+
+    cbSelectedItems.add(id)
   }
 
   function onPickerAdd(id) {
@@ -689,7 +716,7 @@
   }
 
   // ── Save all settings to backend ──
-  async function saveSettings() {
+  async function saveSettings({ asDraft = false } = {}) {
     const state = await Agent.state(props.id)
     state.name = assignment.value.name || ''
     state.description = assignment.value.description || ''
@@ -703,12 +730,34 @@
     state.shuffleQuestions = shuffleQuestions.value
     state.showAnswers = showAnswers.value
     state.teacherNotes = teacherNotes.value || ''
-    state.status = distributionOption.value === 'publish' ? 'Published'
-      : distributionOption.value === 'schedule' ? 'Scheduled'
-      : 'Draft'
-    if (distributionOption.value === 'schedule') {
+    if (asDraft) {
+      state.status = 'Draft'
+      distributionOption.value = 'draft'
+    } else {
+      state.status = distributionOption.value === 'publish' ? 'Published'
+        : distributionOption.value === 'schedule' ? 'Scheduled'
+        : 'Draft'
+    }
+    if (distributionOption.value === 'schedule' && !asDraft) {
       state.scheduledDate = scheduledDate.value || null
       state.scheduledTime = scheduledTime.value || null
+    }
+  }
+
+  async function saveDraft() {
+    if (!canSaveDraft.value || savingDraft.value) return
+    savingDraft.value = true
+    try {
+      await saveSettings({ asDraft: true })
+      await applyPendingGroupAssignments()
+      await Agent.synced()
+      emit('saved', { asDraft: true })
+      emit('close')
+    } catch (e) {
+      console.error('[TeacherToStudent] save draft error:', e)
+      toastError(t('something-went-wrong') || 'Something went wrong. Please try again.')
+    } finally {
+      savingDraft.value = false
     }
   }
 
@@ -717,7 +766,7 @@
     await saveSettings()
     await applyPendingGroupAssignments()
     await Agent.synced()
-    emit('saved')
+    emit('saved', { asDraft: distributionOption.value === 'draft' })
     emit('close')
   }
 

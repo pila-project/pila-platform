@@ -1,7 +1,7 @@
 <template>
   <div class="unified-filter" ref="containerRef">
     <!-- Search bar -->
-    <div class="unified-filter-bar" :class="{ 'unified-filter-bar-focused': isDropdownOpen }" @click="openDropdown">
+    <div class="unified-filter-bar" :class="{ 'unified-filter-bar-focused': isDropdownOpen }" @click.stop="openDropdown">
       <LucideIcon name="search" :size="14" class="unified-filter-search-icon" />
       <div class="unified-filter-bar-content">
         <!-- Inline chips for active filters -->
@@ -37,19 +37,18 @@
       </button>
     </div>
 
-    <!-- Dropdown panel (only renders when filter sections exist) -->
-    <Transition
-      enter-active-class="transition ease-out duration-100"
-      enter-from-class="opacity-0 scale-95"
-      enter-to-class="opacity-100 scale-100"
-      leave-active-class="transition ease-in duration-75"
-      leave-from-class="opacity-100 scale-100"
-      leave-to-class="opacity-0 scale-95"
-    >
-      <div v-show="isDropdownOpen && hasSections" class="unified-filter-dropdown">
+    <!-- Mount sections always (v-show) so they register before first open; teleport avoids card overflow clipping -->
+    <Teleport to="body">
+      <div
+        v-show="isDropdownOpen && hasSections"
+        ref="dropdownRef"
+        class="unified-filter-dropdown"
+        :style="dropdownStyle"
+        @click.stop
+      >
         <slot />
       </div>
-    </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -76,8 +75,10 @@ const props = defineProps({
 const emit = defineEmits(['update:searchQuery'])
 
 const containerRef = ref(null)
+const dropdownRef = ref(null)
 const searchInputRef = ref(null)
 const isDropdownOpen = ref(false)
+const anchorRect = ref(null)
 const expandedSection = ref(null)
 const localSearchQuery = ref(props.searchQuery)
 
@@ -130,11 +131,30 @@ const allChips = computed(() => {
   return chips
 })
 
-function openDropdown() {
-  if (hasSections.value) {
-    isDropdownOpen.value = true
+function updateAnchorRect() {
+  if (containerRef.value) {
+    anchorRect.value = containerRef.value.getBoundingClientRect()
   }
+}
+
+const dropdownStyle = computed(() => {
+  if (!anchorRect.value) return {}
+  const r = anchorRect.value
+  return {
+    position: 'fixed',
+    top: `${r.bottom + 4}px`,
+    left: `${r.left}px`,
+    width: `${r.width}px`,
+    zIndex: 9999,
+  }
+})
+
+function openDropdown() {
+  if (!hasSections.value) return
+  updateAnchorRect()
+  isDropdownOpen.value = true
   nextTick(() => {
+    updateAnchorRect()
     searchInputRef.value?.focus()
   })
 }
@@ -154,17 +174,31 @@ function clearAll() {
 }
 
 function handleClickOutside(e) {
-  if (containerRef.value && !containerRef.value.contains(e.target)) {
+  const inContainer = containerRef.value?.contains(e.target)
+  const inDropdown = dropdownRef.value?.contains(e.target)
+  if (!inContainer && !inDropdown) {
     closeDropdown()
   }
 }
 
+function onScrollOrResize() {
+  if (isDropdownOpen.value) updateAnchorRect()
+}
+
+watch(isDropdownOpen, (open) => {
+  if (open) nextTick(updateAnchorRect)
+})
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('scroll', onScrollOrResize, true)
+  window.addEventListener('resize', onScrollOrResize)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('scroll', onScrollOrResize, true)
+  window.removeEventListener('resize', onScrollOrResize)
 })
 
 // Provide to child sections
@@ -292,11 +326,6 @@ provide('unifiedFilter', {
 }
 
 .unified-filter-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 50;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;

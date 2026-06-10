@@ -17,7 +17,15 @@
           <div class="login-code-secret">
             <span class="login-code-label">{{ t('login-code') }}</span>
             <code class="login-code-plain">{{ formatLoginCodePlain(users[id]?.secret) }}</code>
-            <div class="login-code-icons" aria-hidden="true">{{ loginCodeIconsFor(id) }}</div>
+            <span class="login-code-label login-code-label-secondary">{{ t('symbol-passphrase') }}</span>
+            <div class="login-code-icons" aria-hidden="true">
+              <i
+                v-for="(char, index) in users[id]?.secret || ''"
+                :key="`${id}-${index}`"
+                :class="codeCharToIcon[char]"
+                class="login-code-icon"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -30,7 +38,8 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
-import { formatLoginCodePlain, formatLoginCodeIcons } from '@/utils/login-code-display.js'
+import { formatLoginCodePlain } from '@/utils/login-code-display.js'
+import codeCharToIcon from '@/utils/code-char-to-icon.js'
 
 const props = defineProps({
   studentIds: {
@@ -51,11 +60,6 @@ const studentIds = computed(() =>
   props.studentIds.filter(id => !props.users[id]?.archived)
 )
 
-function loginCodeIconsFor(id) {
-  return formatLoginCodeIcons(props.users[id]?.secret)
-}
-
-
 </script>
 
 <style scoped>
@@ -73,6 +77,8 @@ function loginCodeIconsFor(id) {
   border: 1px solid var(--color-slate-200);
   border-radius: 8px;
   padding: 16px;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 .login-code-card-header {
   display: flex;
@@ -102,9 +108,20 @@ function loginCodeIconsFor(id) {
   letter-spacing: 0.12em;
   font-family: ui-monospace, monospace;
 }
+.login-code-label-secondary {
+  margin-top: 8px;
+}
+
 .login-code-icons {
-  font-size: 14px;
-  color: var(--color-slate-500);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 4px;
+}
+
+.login-code-icon {
+  font-size: 20px;
+  color: #334155;
 }
 </style>

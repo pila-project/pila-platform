@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import LoginCodesView from '@/components/teacher/LoginCodesView.vue'
 import { PButton } from '@/components/ui/index.js'
-import LucideIcon from '@/components/ui/LucideIcon.vue'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -28,6 +27,10 @@ const usersWithCodes = computed(() =>
 const usersMissingCodes = computed(() =>
   visibleUsers.value.filter(id => !users[id]?.secret)
 )
+
+function printCodes() {
+  window.print()
+}
 </script>
 
 <template>
@@ -37,7 +40,7 @@ const usersMissingCodes = computed(() =>
         variant="primary"
         icon="lucide:printer"
         :text="t('print') || 'Print'"
-        @click="window.print()"
+        @click="printCodes"
       />
     </div>
     <p v-if="usersMissingCodes.length" class="codes-missing no-print">

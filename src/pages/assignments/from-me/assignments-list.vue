@@ -685,9 +685,11 @@
   }
 
   const wasSaved = ref(false)
+  const lastSaveWasDraft = ref(false)
 
-  function onAssignmentSaved() {
+  function onAssignmentSaved(meta) {
     wasSaved.value = true
+    lastSaveWasDraft.value = meta?.asDraft === true
     if (wasCreating.value && current.value) {
       store.dispatch('pila_tags/tag', { content_id: current.value, tag_type: props.assignable_item_type })
     }
@@ -886,13 +888,17 @@
           delete assignmentData[current.value]
           loadAssignmentData(current.value)
         }
-        // Show success dialog after creating a new assignment
-        if (wasCreating.value) {
+        if (lastSaveWasDraft.value) {
+          showSuccessDialog(t('draft-saved-successfully') || 'Draft saved successfully')
+        } else if (wasCreating.value) {
           showSuccessDialog(t('assignment-successfully-created'))
+        } else {
+          showSuccessDialog(t('assignment-updated-successfully') || 'Assignment updated successfully')
         }
       }
       wasCreating.value = false
       wasSaved.value = false
+      lastSaveWasDraft.value = false
     }
   })
 </script>

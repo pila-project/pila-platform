@@ -715,14 +715,18 @@
     createAssignmentId.value = uuid()
   }
 
-  async function onExploreAssignmentSaved() {
+  async function onExploreAssignmentSaved(meta) {
     const id = createAssignmentId.value
     if (id) {
       await store.dispatch('pila_tags/tag', { content_id: id, tag_type: 'teacher-created' })
     }
     createAssignmentId.value = null
     createAssignmentContentIds.value = []
-    showSuccessDialog(t('assignment-created-successfully'))
+    if (meta?.asDraft) {
+      showSuccessDialog(t('draft-saved-successfully') || 'Draft saved successfully')
+    } else {
+      showSuccessDialog(t('assignment-created-successfully'))
+    }
   }
 
   async function addItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {

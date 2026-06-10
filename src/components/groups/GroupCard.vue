@@ -77,7 +77,7 @@
           variant="link"
           size="xsm"
           icon="lucide:users"
-          :text="t('view-students') || t('add-more-students')"
+          :text="t('view-students')"
           class="group-card-add-btn"
           @click="$emit('manage')"
         />

@@ -42,7 +42,15 @@
             <PUnifiedFilter
               v-model:searchQuery="availableSearch"
               :placeholder="t('search-available-students')"
-            />
+            >
+              <PUnifiedFilterSection
+                id="available-status"
+                :label="t('status')"
+                icon="badge-check"
+                :options="statusFilterOptions"
+                v-model="availableStatusFilters"
+              />
+            </PUnifiedFilter>
           </div>
           <div class="panel-list">
             <div class="panel-list-header">
@@ -72,9 +80,17 @@
                   @update:modelValue="() => toggleAvailableSelection(student.id)"
                 />
               </label>
-              <span class="panel-student-name">
-                <DecryptedName :user="student.id" />
-              </span>
+              <div class="panel-student-name-cell">
+                <span class="panel-student-name">
+                  <DecryptedName :user="student.id" />
+                </span>
+                <PBadge
+                  v-if="student.archived"
+                  variant="warning"
+                  :text="t('archived')"
+                  class="panel-archived-badge"
+                />
+              </div>
               <span class="panel-drag-handle" :title="t('add')">
                 <LucideIcon name="grip-vertical" :size="12" />
               </span>
@@ -170,7 +186,12 @@
 import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
-import { PModal, PButton, PUnifiedFilter, PCheckbox } from '@/components/ui/index.js'
+import { PModal, PButton, PBadge, PUnifiedFilter, PUnifiedFilterSection, PCheckbox } from '@/components/ui/index.js'
+import {
+  defaultActiveStatusFilters,
+  buildStatusFilterOptions,
+  matchesStatusFilter,
+} from '@/utils/status-filter.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useToast } from '@/utils/useToast.js'
@@ -189,6 +210,8 @@ const { error: toastError } = useToast()
 
 const availableSearch = ref('')
 const groupSearch = ref('')
+const availableStatusFilters = ref(defaultActiveStatusFilters())
+const statusFilterOptions = computed(() => buildStatusFilterOptions(t))
 const selectedAvailable = reactive(new Set())
 const selectedGroup = reactive(new Set())
 
@@ -225,17 +248,20 @@ const groupName = computed(() => store.state.groups.groups[props.groupId]?.name 
 const groupMembers = computed(() => store.getters['groups/members'](props.groupId))
 
 const groupStudents = computed(() =>
-  props.students.filter(s => groupMembers.value.includes(s.id))
+  props.students.filter(s => groupMembers.value.includes(s.id) && !s.archived),
 )
 
 const availableStudents = computed(() =>
-  props.students.filter(s => !groupMembers.value.includes(s.id))
+  props.students.filter(s => !groupMembers.value.includes(s.id)),
 )
 
 const filteredAvailable = computed(() => {
-  if (!availableSearch.value) return availableStudents.value
+  let list = availableStudents.value.filter(s =>
+    matchesStatusFilter(availableStatusFilters.value, s.archived),
+  )
+  if (!availableSearch.value) return list
   const q = availableSearch.value.toLowerCase()
-  return availableStudents.value.filter(s => (nameMap[s.id] || '').includes(q))
+  return list.filter(s => (nameMap[s.id] || '').includes(q))
 })
 
 const filteredGroup = computed(() => {
@@ -501,6 +527,14 @@ async function handleDone() {
   opacity: 0.4;
 }
 
+.panel-student-name-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .panel-student-name {
   flex: 1;
   font-size: 14px;
@@ -509,6 +543,10 @@ async function handleDone() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.panel-archived-badge {
+  flex-shrink: 0;
 }
 
 .panel-drag-handle {

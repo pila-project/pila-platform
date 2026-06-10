@@ -276,7 +276,6 @@ export default {
     "created-by": "fc15495e-fc19-4f7e-9d91-1cfea8d56bf2",
     "your-content": "fd643305-d167-4c97-8256-39a7e5dfc614",
     "dashboard": "fe4c0822-02da-4ed2-8629-e1aa4db8647d",
-    "view-students": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
     "download-login": "b2c3d4e5-f6a7-4890-b123-456789abcdef",
     "archive-group-confirm-title": "c3d4e5f6-a7b8-4901-c234-56789abcdef0",
     "archive-group-confirm-description": "d4e5f6a7-b8c9-4012-d345-6789abcdef01",
