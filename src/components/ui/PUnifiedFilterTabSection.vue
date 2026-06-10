@@ -22,35 +22,45 @@
         />
       </div>
 
-      <!-- Search input -->
-      <div class="ufts-search">
-        <LucideIcon name="search" :size="12" class="ufts-search-icon" />
-        <input
-          ref="tabSearchRef"
-          v-model="internalQuery"
-          type="text"
-          placeholder="Search"
-          class="ufts-search-input"
-        />
-      </div>
-
-      <!-- Options list -->
-      <div class="ufts-options">
-        <label
-          v-for="opt in filteredOptions"
-          :key="opt.value"
-          class="ufts-option"
-        >
-          <PCheckbox
-            :modelValue="modelValue.includes(opt.value)"
-            size="sm"
-            @update:modelValue="() => toggle(opt.value)"
-            inputClass="ufts-option-checkbox"
+      <div class="ufts-panel" :class="{ 'ufts-panel--compact': compactPanel }">
+        <!-- Search input -->
+        <div class="ufts-search">
+          <LucideIcon name="search" :size="12" class="ufts-search-icon" />
+          <input
+            ref="tabSearchRef"
+            v-model="internalQuery"
+            type="text"
+            placeholder="Search"
+            class="ufts-search-input"
           />
-          <span class="ufts-option-label" v-html="highlightMatch(opt.label, internalQuery)"></span>
-        </label>
-        <div v-if="!filteredOptions.length" class="ufts-empty">
-          No options found
+        </div>
+
+        <!-- Options list -->
+        <div class="ufts-options">
+          <label
+            v-for="opt in filteredOptions"
+            :key="opt.value"
+            class="ufts-option"
+          >
+            <PCheckbox
+              :modelValue="modelValue.includes(opt.value)"
+              size="sm"
+              @update:modelValue="() => toggle(opt.value)"
+              inputClass="ufts-option-checkbox"
+            />
+            <span class="ufts-option-content">
+              <span class="ufts-option-label" v-html="highlightMatch(opt.label, internalQuery)"></span>
+              <PBadge
+                v-if="showOptionTags && opt.tag"
+                :variant="tagVariant(opt.tag)"
+                :text="opt.tagLabel || opt.tag"
+                class="ufts-option-tag"
+              />
+            </span>
+          </label>
+          <div v-if="!filteredOptions.length" class="ufts-empty">
+            No options found
+          </div>
         </div>
       </div>
     </div>
@@ -60,7 +70,7 @@
 <script setup>
 import { ref, computed, inject, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import LucideIcon from './LucideIcon.vue'
-import { PCheckbox } from './index.js'
+import { PCheckbox, PBadge } from './index.js'
 import PTabs from './PTabs.vue'
 
 const props = defineProps({
@@ -71,6 +81,7 @@ const props = defineProps({
   options: { type: Object, default: () => ({}) },
   modelValue: { type: Array, default: () => [] },
   activeTab: { type: String, default: '' },
+  compactPanel: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue', 'update:activeTab'])
@@ -82,6 +93,13 @@ const tabSearchRef = ref(null)
 const localActiveTab = computed(() => props.activeTab || (props.tabs[0]?.key ?? ''))
 
 const isExpanded = computed(() => expandedSection.value === props.id)
+const showOptionTags = computed(() => localActiveTab.value === 'all')
+
+function tagVariant(tag) {
+  if (tag === 'group') return 'info'
+  if (tag === 'student') return 'secondary'
+  return 'outline'
+}
 
 // Get options for the active tab
 const currentTabOptions = computed(() => {
@@ -228,6 +246,14 @@ watch(isExpanded, async (val) => {
   margin-bottom: 8px;
 }
 
+.ufts-panel--compact {
+  width: 50%;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px;
+  background: #fff;
+}
+
 .ufts-search {
   display: flex;
   align-items: center;
@@ -289,10 +315,26 @@ watch(isExpanded, async (val) => {
   flex-shrink: 0;
 }
 
+.ufts-option-content {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .ufts-option-label {
   flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: #334155;
+}
+
+.ufts-option-tag {
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 6px;
 }
 
 .ufts-option-label :deep(mark) {

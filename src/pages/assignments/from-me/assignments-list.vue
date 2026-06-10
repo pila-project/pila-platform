@@ -56,6 +56,7 @@
             :options="assignedToOptions"
             v-model="assignedToFilter"
             v-model:activeTab="assignedToTab"
+            compact-panel
           />
         </PUnifiedFilter>
       </div>
@@ -372,7 +373,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch } from 'vue'
+  import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router'
   import { v4 as uuid } from 'uuid'
@@ -451,15 +452,91 @@
     { key: 'students', label: t('student') },
   ])
 
+  const ASSIGNED_TO_GROUP_PREFIX = 'group:'
+  const ASSIGNED_TO_STUDENT_PREFIX = 'student:'
+
+  const users = reactive({})
+  const decryptedNames = reactive(new Map())
+
+  let unwatchUsers
+  onMounted(() => {
+    unwatchUsers = Agent.watch('users', ({ state }) => {
+      Object.entries(state).forEach(([key, value]) => { users[key] = value })
+    })
+  })
+  onBeforeUnmount(() => { if (unwatchUsers) unwatchUsers() })
+
+  const activeGroupIds = computed(() => store.getters['groups/groups']('class', true))
+
+  const teacherStudentIds = computed(() => {
+    const myPILAUsers = Object.keys(users)
+    return [
+      ...myPILAUsers,
+      ...store.getters['groups/myStudents']().filter(id => !myPILAUsers.includes(id)),
+    ]
+  })
+
+  watch(
+    teacherStudentIds,
+    (ids) => {
+      for (const id of ids) {
+        if (decryptedNames.has(id)) continue
+        store.getters.decryptUserInfo(id, false)
+          .then(info => { decryptedNames.set(id, info?.name || '') })
+          .catch(() => { decryptedNames.set(id, '') })
+      }
+    },
+    { immediate: true },
+  )
+
   const assignedToOptions = computed(() => {
-    const groupEntries = Object.entries(store.state.groups.groups)
-      .filter(([, g]) => !g.archived)
-      .map(([id, g]) => ({ value: id, label: g.name || t('unnamed') }))
+    const groupEntries = activeGroupIds.value
+      .map(gid => {
+        const name = store.state.groups.groups[gid]?.name?.trim()
+        if (!name) return null
+        return {
+          value: `${ASSIGNED_TO_GROUP_PREFIX}${gid}`,
+          label: name,
+          tag: 'group',
+          tagLabel: t('group'),
+        }
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.label.localeCompare(b.label))
+
+    const studentEntries = teacherStudentIds.value
+      .map(id => {
+        const name = decryptedNames.get(id)?.trim()
+        if (!name) return null
+        return {
+          value: `${ASSIGNED_TO_STUDENT_PREFIX}${id}`,
+          label: name,
+          tag: 'student',
+          tagLabel: t('student'),
+        }
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.label.localeCompare(b.label))
+
     return {
       group: groupEntries,
-      students: [],
+      students: studentEntries,
     }
   })
+
+  function assignmentMatchesAssignedToFilter(assignmentId, filterValues) {
+    const groups = getAssignedGroups(assignmentId)
+    return filterValues.some(val => {
+      if (val.startsWith(ASSIGNED_TO_GROUP_PREFIX)) {
+        return groups.includes(val.slice(ASSIGNED_TO_GROUP_PREFIX.length))
+      }
+      if (val.startsWith(ASSIGNED_TO_STUDENT_PREFIX)) {
+        const studentId = val.slice(ASSIGNED_TO_STUDENT_PREFIX.length)
+        return groups.some(gid => store.getters['groups/belongs'](studentId, gid))
+      }
+      return groups.includes(val)
+    })
+  }
 
   // ── Confirmation dialog state ──
   const showDeleteDialog = ref(false)
@@ -559,10 +636,7 @@
 
     // Assigned to filter
     if (assignedToFilter.value.length > 0) {
-      items = items.filter(id => {
-        const groups = getAssignedGroups(id)
-        return assignedToFilter.value.some(val => groups.includes(val))
-      })
+      items = items.filter(id => assignmentMatchesAssignedToFilter(id, assignedToFilter.value))
     }
 
     return items
