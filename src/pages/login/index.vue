@@ -23,6 +23,14 @@
         </div>
         <div
           class="login-button"
+          @click="login('line')"
+        >
+          <img class="login-button-icon" src="/external-logos/line.svg" />
+          <div class="login-button-divider"></div>
+          <div>{{ t('log-in-with') }} LINE</div>
+        </div>
+        <div
+          class="login-button"
           @click="login('microsoft')"
         >
           <img class="login-button-icon" src="/external-logos/microsoft.png" />
