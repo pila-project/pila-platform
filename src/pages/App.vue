@@ -23,7 +23,7 @@
   import LoginMenu from './login/index.vue'
   import AccessCodeScreen from './login/AccessCodeScreen.vue'
   import PToastContainer from '@/components/ui/PToastContainer.vue'
-  import { SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
+  import { SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
 
   export default {
     components: {

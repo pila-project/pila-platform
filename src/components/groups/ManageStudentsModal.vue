@@ -462,6 +462,7 @@ async function discardAndClose() {
   reverting.value = true
   try {
     await revertChanges()
+    await store.dispatch('groups/loadMembers')
   } finally {
     reverting.value = false
   }

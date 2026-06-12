@@ -396,7 +396,7 @@
 <script setup>
   import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
   import { useStore } from 'vuex'
-  import { useRouter } from 'vue-router'
+  import { useRouter, onBeforeRouteLeave } from 'vue-router'
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable } from '@/components/ui/index.js'
@@ -500,6 +500,8 @@
     window.removeEventListener('pagehide', handlePageHide)
     closeOpenDashboardSession().catch(() => {})
   })
+
+  onBeforeRouteLeave(() => closeOpenDashboardSession().catch(() => {}))
 
   const activeGroupIds = computed(() => store.getters['groups/groups']('class', true))
 
@@ -992,14 +994,14 @@
     return assignmentContainsBetty.value || assignmentContainsGenAI.value ? 'activity' : 'live-monitoring'
   }
 
-  async function openDashboardWithXapi(item, dashboard) {
+  async function openDashboardWithXapi(item, dashboard, { skipReassess = false } = {}) {
     current.value = item
-    await reassessContents()
+    if (!skipReassess) await reassessContents()
 
     if (dashboard === 'competency') showCandliResultsModal.value = true
     else if (dashboard === 'generative-ai-module') showGenAIDashboardModal.value = true
     else {
-      resultsDashboardType.value = dashboard === 'app-specific' ? primaryDashboardType() : dashboard
+      resultsDashboardType.value = dashboard
       showResultsModal.value = true
     }
 
@@ -1008,7 +1010,9 @@
   }
 
   async function openDashboard(item) {
-    await openDashboardWithXapi(item, 'app-specific')
+    current.value = item
+    await reassessContents()
+    await openDashboardWithXapi(item, primaryDashboardType(), { skipReassess: true })
   }
 
   async function openCandliDashboard(item) {
