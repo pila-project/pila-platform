@@ -47,14 +47,15 @@ export default {
           .flat()
       ))
     },
-    to: (state, getters) => (user_id, assignment_type) => {
+    to: (state, _getters, _rootState, rootGetters) => (user_id, assignment_type) => {
       return (
         Object
           .keys(state)
-          .filter(id => !state[id].archived)
           .filter(id => {
-            const { item_id } = state[id]
-            return getters.assignedStudents(item_id, assignment_type).includes(user_id)
+            const assignment = state[id]
+            return !assignment.archived
+              && assignment.assignment_type === assignment_type
+              && rootGetters['groups/belongs'](user_id, assignment.group_id)
           })
       )
     }
@@ -68,7 +69,12 @@ export default {
         assigner_id,
         archived
       }
-    }
+    },
+    setAssignmentArchived(state, { id, archived }) {
+      if (state[id]) {
+        state[id] = { ...state[id], archived }
+      }
+    },
   },
   actions: {
     async load({commit, dispatch, rootState}, poll) {
@@ -124,9 +130,10 @@ export default {
       await Agent.synced()
       await dispatch('load')
     },
-    async unassign({ dispatch }, assignment_id) {
-      const state = await Agent.state(assignment_id)
-      state.archived = true
+    async unassign({ commit, dispatch }, assignment_id) {
+      const agentState = await Agent.state(assignment_id)
+      agentState.archived = true
+      commit('setAssignmentArchived', { id: assignment_id, archived: true })
       await Agent.synced()
       await dispatch('load')
     }

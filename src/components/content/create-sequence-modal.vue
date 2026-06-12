@@ -52,6 +52,10 @@ const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
+import {
+  EMPTY_SEQUENCE_ITEMS,
+  isValidMapSequenceItems,
+} from '@/utils/sequence-items.js'
 
 const props = defineProps({
   id: String, // if set, we're editing
@@ -79,16 +83,25 @@ async function submit() {
     state.name = name.value.trim()
     state.description = description.value.trim()
     await Agent.synced()
-    emit('updated')
+    emit('updated', {
+      id: props.id,
+      name: name.value.trim(),
+      description: description.value.trim(),
+    })
   } else {
     const id = await Agent.create({
       active_type: 'application/json;type=sequence',
       active: {
         name: name.value.trim(),
         description: description.value.trim(),
-        items: [],
+        items: { ...EMPTY_SEQUENCE_ITEMS },
       },
     })
+    const state = await Agent.state(id)
+    if (!isValidMapSequenceItems(state.items)) {
+      state.items = { ...EMPTY_SEQUENCE_ITEMS }
+      await Agent.synced()
+    }
     await setTagging({ tag: MY_CONTENT_TAG, target: id, value: true })
     emit('created', id)
   }

@@ -230,16 +230,16 @@
           >
             <div class="field-row">
               <PInput
-                v-model="scheduledTime"
-                :label="t('due-time')"
-                type="time"
-                :placeholder="t('time-format-placeholder')"
-              />
-              <PInput
                 v-model="scheduledDate"
-                :label="t('due-date')"
+                :label="t('publication-date')"
                 type="date"
                 :placeholder="t('date-format-placeholder')"
+              />
+              <PInput
+                v-model="scheduledTime"
+                :label="t('publication-time')"
+                type="time"
+                :placeholder="t('time-format-placeholder')"
               />
             </div>
           </div>
@@ -369,7 +369,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed } from 'vue'
+  import { ref, reactive, computed, watch } from 'vue'
   import { useStore } from 'vuex'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
@@ -437,30 +437,47 @@
   const feedbackTimingOptions = computed(() => [t('at-the-end'), t('after-each-question'), t('never')])
 
   // ── Step 4: Assign & Publish ──
+  const DEFAULT_PUBLICATION_TIME = '08:00'
+
   const groupSearch = ref('')
   const distributionOption = ref('publish')
   const scheduledDate = ref('')
   const scheduledTime = ref('')
 
+  watch(distributionOption, (value) => {
+    if (value === 'schedule' && !scheduledTime.value) {
+      scheduledTime.value = DEFAULT_PUBLICATION_TIME
+    }
+  })
+
   const groups = computed(() => store.getters['groups/groups']('class', true))
 
+  // ── Step 4: pending group assignments (applied on Save only) ──
+  const pendingGroupIds = ref(new Set())
+
   const filteredGroups = computed(() => {
-    if (!groupSearch.value) return groups.value
-    const q = groupSearch.value.toLowerCase()
-    return groups.value.filter(gid => {
-      const group = store.state.groups.groups[gid]
-      return group?.name?.toLowerCase().includes(q)
+    let ids = groups.value
+    if (groupSearch.value) {
+      const q = groupSearch.value.toLowerCase()
+      ids = ids.filter(gid => {
+        const group = store.state.groups.groups[gid]
+        return group?.name?.toLowerCase().includes(q)
+      })
+    }
+    const selected = pendingGroupIds.value
+    return [...ids].sort((a, b) => {
+      const aSelected = selected.has(a) ? 0 : 1
+      const bSelected = selected.has(b) ? 0 : 1
+      if (aSelected !== bSelected) return aSelected - bSelected
+      return ids.indexOf(a) - ids.indexOf(b)
     })
   })
 
   const distributionOptions = computed(() => [
     { value: 'publish', label: t('publish-immediately'), description: t('students-can-start-right-away') },
-    { value: 'schedule', label: t('schedule-for-later'), description: t('set-specific-date-time') },
+    { value: 'schedule', label: t('schedule-for-later'), description: t('set-publication-date') },
     { value: 'draft', label: t('save-as-draft'), description: t('keep-working-before-publishing') },
   ])
-
-  // ── Step 4: pending group assignments (applied on Save only) ──
-  const pendingGroupIds = ref(new Set())
 
   function assignmentsForItem() {
     return store.getters['assignments/assignments'](props.id, 'teacher-to-student')
@@ -583,7 +600,7 @@
 
   const step4SaveValid = computed(() => {
     if (distributionOption.value === 'schedule') {
-      return !!scheduledDate.value && !!scheduledTime.value
+      return !!scheduledDate.value
     }
     return true
   })
@@ -619,9 +636,8 @@
   })
 
   const saveBlockedReason = computed(() => {
-    if (distributionOption.value === 'schedule' && (!scheduledDate.value || !scheduledTime.value)) {
-      return t('set-scheduled-date-and-time-to-save')
-        || 'Set a scheduled date and time to save.'
+    if (distributionOption.value === 'schedule' && !scheduledDate.value) {
+      return t('set-publication-date-to-save')
     }
     if (!step1Valid.value || !step2Valid.value) {
       return t('complete-required-steps-before-saving')
@@ -740,7 +756,7 @@
     }
     if (distributionOption.value === 'schedule' && !asDraft) {
       state.scheduledDate = scheduledDate.value || null
-      state.scheduledTime = scheduledTime.value || null
+      state.scheduledTime = scheduledTime.value || DEFAULT_PUBLICATION_TIME
     }
   }
 
@@ -796,7 +812,11 @@
       else if (state.status === 'Scheduled') distributionOption.value = 'schedule'
       else if (state.status === 'Draft') distributionOption.value = 'draft'
       if (state.scheduledDate) scheduledDate.value = state.scheduledDate
-      if (state.scheduledTime) scheduledTime.value = state.scheduledTime
+      if (state.scheduledTime) {
+        scheduledTime.value = state.scheduledTime
+      } else if (state.status === 'Scheduled') {
+        scheduledTime.value = DEFAULT_PUBLICATION_TIME
+      }
       seedPendingGroupsFromStore()
     } else {
       const seedContent = props.initialContentIds?.length

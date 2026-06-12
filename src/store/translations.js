@@ -1,4 +1,5 @@
 import translationSlugMap from './translation-slug-map.js'
+import translationDefaults from './translation-defaults.js'
 import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
@@ -13,11 +14,12 @@ export default {
   getters: {
     t: (state, _getters, rootState) => slug => {
       const humanize = s => s.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+      const fallback = () => translationDefaults[slug] ?? humanize(slug)
       const target = translationSlugMap[slug]
       const lang = rootState.language
-      if (!target) return humanize(slug)
-      if (!state.translations?.[lang]) return humanize(slug)
-      if (!state.translations[lang][target]) return humanize(slug)
+      if (!target) return fallback()
+      if (!state.translations?.[lang]) return fallback()
+      if (!state.translations[lang][target]) return fallback()
       return state.translations[lang][target]
     }
   },

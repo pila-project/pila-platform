@@ -5,16 +5,18 @@
       'pcard-selected': props.selected,
       'pcard-dragging': isDragging,
       'pcard-in-assignment': inAssignment,
+      'pcard-no-drag': !draggable,
     }"
-    draggable="true"
+    :draggable="draggable || undefined"
     @dragstart="onCardDragStart"
     @dragend="onCardDragEnd"
   >
     <!-- Image area with overlays -->
     <div class="pcard-image-area">
-      <!-- Checkbox -->
+      <!-- Explore: checkbox / Sequence view: order badge -->
       <div class="pcard-overlay-tl">
-        <span class="pcard-checkbox-wrap">
+        <span v-if="sequenceView" class="pcard-order-badge">{{ orderLabel }}</span>
+        <span v-else class="pcard-checkbox-wrap">
           <PCheckbox
             :modelValue="checked"
             @update:modelValue="$emit('toggle-select')"
@@ -23,26 +25,28 @@
           />
         </span>
       </div>
-      <!-- Sequence count + Heart + Drag handle -->
+      <!-- Explore overlays / Sequence view: drag handle only -->
       <div class="pcard-overlay-tr">
-        <span v-if="inAssignment" class="pcard-in-assignment-badge">
-          <LucideIcon name="check" :size="10" />
-          {{ t('in-assignment') || 'In assignment' }}
-        </span>
-        <span v-if="sequenceCount" class="pcard-seq-count">
-          {{ sequenceCount }}
-          <LucideIcon name="folders" :size="12" />
-        </span>
-        <button class="pcard-heart-btn" :class="{ 'pcard-heart-active': favorited }" @click.stop="$emit('toggle-favorite')">
-          <LucideIcon name="heart" :size="14" />
-        </button>
-        <span class="pcard-drag-handle" aria-hidden="true">
+        <template v-if="!sequenceView">
+          <span v-if="inAssignment" class="pcard-in-assignment-badge">
+            <LucideIcon name="check" :size="10" />
+            {{ t('in-assignment') || 'In assignment' }}
+          </span>
+          <span v-if="sequenceCount" class="pcard-seq-count">
+            {{ sequenceCount }}
+            <LucideIcon name="folders" :size="12" />
+          </span>
+          <button class="pcard-heart-btn" :class="{ 'pcard-heart-active': favorited }" @click.stop="$emit('toggle-favorite')">
+            <LucideIcon name="heart" :size="14" />
+          </button>
+        </template>
+        <span v-if="draggable || sequenceView" class="pcard-drag-handle" aria-hidden="true">
           <LucideIcon name="grip-vertical" :size="12" />
         </span>
       </div>
       <!-- Image -->
       <div class="pcard-image">
-        <img v-if="image" :src="image" style="pointer-events: none;" />
+        <img v-if="image" :src="image" loading="lazy" decoding="async" style="pointer-events: none;" />
         <div v-else class="pcard-image-placeholder">
           <LucideIcon name="image" :size="24" class="text-slate-300" />
         </div>
@@ -103,11 +107,22 @@
         class="flex-1"
       />
       <PButton
-        :variant="inAssignment ? 'secondary' : 'primary'"
+        v-if="sequenceView"
+        variant="secondary"
+        color="danger"
         size="sm"
-        :icon="inAssignment ? 'lucide:check' : 'lucide:plus'"
-        :text="inAssignment ? (t('added') || 'Added') : t('add')"
-        :disabled="inAssignment"
+        icon="lucide:trash-2"
+        :text="t('delete')"
+        @click.stop="$emit('remove')"
+        class="flex-1"
+      />
+      <PButton
+        v-else
+        :variant="addDisabled ? 'secondary' : 'primary'"
+        size="sm"
+        :icon="addDisabled ? 'lucide:check' : 'lucide:plus'"
+        :text="addDisabled ? (t('added') || 'Added') : t('add')"
+        :disabled="addDisabled"
         @click.stop="onAddClick"
         class="flex-1"
       />
@@ -126,7 +141,7 @@
   import { ref, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
-  import { getContentImage } from '@/utils/content-cache.js'
+  import { getContentImage, imageCache } from '@/utils/content-cache.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { PCheckbox } from '@/components/ui/index.js'
   import { PButton } from '@/components/ui/index.js'
@@ -154,11 +169,17 @@ import { PCheckbox } from '@/components/ui/index.js'
     favorited: Boolean,
     /** Item is already on the assignment being edited (picker UX). */
     inAssignment: Boolean,
+    /** Item is already in the sequence being viewed (Explore sequence scope). */
+    inSequence: Boolean,
     /** Show hover “Copy & modify” (Explore content library). */
     showCopyModify: {
       type: Boolean,
       default: false,
     },
+    /** Sequence content modal: order badge, delete action, no add/checkbox. */
+    sequenceView: Boolean,
+    orderIndex: { type: Number, default: null },
+    draggable: { type: Boolean, default: true },
   })
 
   const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
@@ -167,8 +188,15 @@ import { PCheckbox } from '@/components/ui/index.js'
     t('copy-and-modify') || t('copy-and-modify-content') || 'Copy & modify',
   )
 
+  const addDisabled = computed(() => props.inAssignment || props.inSequence)
+
+  const orderLabel = computed(() => {
+    if (props.orderIndex == null) return ''
+    return String(props.orderIndex + 1).padStart(2, '0')
+  })
+
   function onAddClick() {
-    if (!props.inAssignment) emit('add')
+    if (!addDisabled.value) emit('add')
   }
 
   const isDragging = ref(false)
@@ -182,6 +210,10 @@ import { PCheckbox } from '@/components/ui/index.js'
   }
 
   function onCardDragStart(event) {
+    if (!props.draggable) {
+      event.preventDefault()
+      return
+    }
     if (event.target instanceof Element && event.target.closest(DRAG_BLOCK_SELECTOR)) {
       event.preventDefault()
       return
@@ -204,8 +236,12 @@ import { PCheckbox } from '@/components/ui/index.js'
 
   onMounted(async () => {
     try {
+      if (imageCache.has(props.id)) {
+        image.value = imageCache.get(props.id)
+        return
+      }
       image.value = await getContentImage(props.id)
-    } catch (e) {
+    } catch {
       // silently fail — card renders without image
     }
   })
@@ -229,6 +265,23 @@ import { PCheckbox } from '@/components/ui/index.js'
 .pcard-dragging {
   cursor: grabbing;
   opacity: 0.55;
+}
+.pcard-no-drag {
+  cursor: default;
+}
+.pcard-order-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  background: white;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .pcard-actions,
 .pcard-heart-btn,

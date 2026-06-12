@@ -45,14 +45,6 @@
                 size="sm"
                 @click="archiveSelectedConfirm = true"
               />
-              <PButton
-                v-if="showStudentExport"
-                icon="lucide:download"
-                variant="secondary"
-                :text="t('export')"
-                size="sm"
-                @click="showExportModal = true"
-              />
             </template>
           </div>
         </div>
@@ -168,13 +160,6 @@
                     prepend-icon="lucide:key-round"
                     @click="resetPasswordStudent = item"
                   />
-                  <PDivider />
-                  <PMenuItem
-                    :title="t('remove-student')"
-                    prepend-icon="lucide:trash-2"
-                    danger
-                    @click="deleteConfirmStudent = item"
-                  />
                 </PMenu>
               </div>
             </template>
@@ -227,7 +212,6 @@
             @manage="openManageStudents(groupId)"
             @edit="openEditGroup(groupId)"
             @archive="confirmArchiveGroup(groupId)"
-            @delete="confirmDeleteGroup(groupId)"
             @unarchive="confirmRestoreGroup(groupId)"
             @drop-student="handleDropStudent(groupId, $event)"
             @print-login-codes="handlePrintGroupLoginCodes(groupId)"
@@ -241,6 +225,9 @@
             :total-items="filteredGroups.length"
             v-model:current-page="groupListPage"
             :per-page="groupsPerPage"
+            :per-page-options="[]"
+            layout="stacked"
+            :show-row-count="false"
             class="group-list-pagination"
           />
         </div>
@@ -312,7 +299,10 @@
             </div>
             <div class="profile-cell">
               <span class="profile-label">{{ t('last-login') }}</span>
-              <span class="profile-value profile-value--muted">—</span>
+              <span
+                class="profile-value"
+                :class="{ 'profile-value--muted': !getLastLoginTimestamp(viewProfileUser) }"
+              >{{ formatLastLogin(viewProfileUser) }}</span>
             </div>
           </div>
         </div>
@@ -364,9 +354,7 @@
       v-if="manageGroupId"
       :group-id="manageGroupId"
       :students="students"
-      :show-back="manageGroupShowBack"
-      @close="manageGroupId = null; manageGroupShowBack = false"
-      @back="handleManageGroupBack"
+      @close="manageGroupId = null"
     />
 
     <!-- Add Student Option Picker -->
@@ -593,6 +581,19 @@
       @cancel="cancelStudentDuplicateProceed"
     />
 
+    <!-- Bulk upload duplicate student name guard -->
+    <PAlertDialog
+      v-if="bulkDuplicatePrompt"
+      variant="warning"
+      :title="t('duplicate-name-title') || 'Name already exists'"
+      :description="bulkDuplicateDescription"
+      :confirm-text="t('continue-anyway') || 'Continue anyway'"
+      :cancel-text="t('cancel')"
+      :confirm-loading="bulkDuplicateConfirmLoading"
+      @confirm="confirmBulkDuplicateProceed"
+      @cancel="cancelBulkDuplicateProceed"
+    />
+
     <!-- Duplicate group name guard -->
     <PAlertDialog
       v-if="duplicatePrompt"
@@ -610,23 +611,11 @@
       v-if="archiveConfirmStudent"
       variant="warning"
       :title="t('archive-student-confirm-title')"
-      :description="t('archive-student-confirm-description') || 'This student will be hidden from your active list. You can restore them later from archived students.'"
+      :description="t('archive-student-confirm-description')"
       :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
       @confirm="executeArchiveStudent"
       @cancel="archiveConfirmStudent = null"
-    />
-
-    <!-- Delete Student Confirmation -->
-    <PAlertDialog
-      v-if="deleteConfirmStudent"
-      variant="error"
-      :title="t('delete-student-confirm-title')"
-      :description="t('delete-student-confirm-description')"
-      :confirm-text="t('delete')"
-      :cancel-text="t('cancel')"
-      @confirm="executeDeleteStudent"
-      @cancel="deleteConfirmStudent = null"
     />
 
     <!-- Reset Password Confirmation -->
@@ -653,18 +642,6 @@
       @cancel="archiveConfirmGroup = null"
     />
 
-    <!-- Delete Group Confirmation -->
-    <PAlertDialog
-      v-if="deleteConfirmGroup"
-      variant="error"
-      :title="`${t('delete-group-confirm-title')} '${store.state.groups.groups[deleteConfirmGroup]?.name || ''}'?`"
-      :description="`${t('delete-group-confirm-description')} (${store.getters['groups/members'](deleteConfirmGroup).length} ${t('student')})`"
-      :confirm-text="t('delete-group')"
-      :cancel-text="t('cancel')"
-      @confirm="executeDeleteGroup"
-      @cancel="deleteConfirmGroup = null"
-    />
-
     <!-- Bulk Archive Selected Confirmation -->
     <PAlertDialog
       v-if="archiveSelectedConfirm"
@@ -681,8 +658,8 @@
     <PAlertDialog
       v-if="restoreConfirmStudent"
       variant="notification"
-      :title="t('restore-student-confirm-title') || 'Restore this student?'"
-      :description="t('restore-student-confirm-description') || 'The student will return to your active student list. Their groups and login code are unchanged.'"
+      :title="t('restore-student-confirm-title')"
+      :description="t('restore-student-confirm-description')"
       :confirm-text="t('restore') || 'Restore'"
       :cancel-text="t('cancel')"
       @confirm="executeRestoreStudent"
@@ -694,7 +671,7 @@
       v-if="restoreConfirmGroup"
       variant="notification"
       :title="restoreGroupConfirmTitle"
-      :description="t('restore-group-confirm-description') || 'The group will return to your active groups list. Students stay assigned to this group.'"
+      :description="t('restore-group-confirm-description')"
       :confirm-text="t('restore') || 'Restore'"
       :cancel-text="t('cancel')"
       @confirm="executeRestoreGroup"
@@ -885,57 +862,6 @@
     </PModal>
     -->
 
-    <!-- Export Students Modal -->
-    <PModal
-      v-if="showExportModal"
-      :title="t('export')"
-      width="500px"
-      @close="showExportModal = false"
-    >
-      <template #title>
-        <div>
-          <h2 class="text-lg font-semibold text-zinc-950">{{ t('export') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ selectedStudents.length }} {{ t('student') }} {{ t('selected') }}</p>
-        </div>
-      </template>
-      <template #body>
-        <div class="add-student-options">
-          <div
-            class="add-student-card add-student-card--short"
-            :class="{ 'add-student-card--selected': exportFormat === 'csv' }"
-          >
-            <button class="add-student-card-header" @click="exportFormat = 'csv'">
-              <div class="add-option-icon" style="background: #dcfce7; color: #16a34a;">
-                <LucideIcon name="table" :size="16" />
-              </div>
-              <div class="add-option-text">
-                <span class="add-option-title">CSV</span>
-                <span class="add-option-desc">{{ t('spreadsheet-format') }}</span>
-              </div>
-            </button>
-          </div>
-          <div
-            class="add-student-card add-student-card--short"
-            :class="{ 'add-student-card--selected': exportFormat === 'pdf' }"
-          >
-            <button class="add-student-card-header" @click="exportFormat = 'pdf'">
-              <div class="add-option-icon" style="background: #fef3c7; color: #d97706;">
-                <LucideIcon name="file-text" :size="16" />
-              </div>
-              <div class="add-option-text">
-                <span class="add-option-title">PDF</span>
-                <span class="add-option-desc">{{ t('formatted-document') }}</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </template>
-      <template #footer>
-        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showExportModal = false; exportFormat = null" />
-        <PButton variant="primary" :text="t('export')" :disabled="!exportFormat" :loading="exporting" @click="handleExport" />
-      </template>
-    </PModal>
-
     <!-- Add Students to Groups Modal -->
     <PModal
       v-if="showAddToGroupsModal"
@@ -1042,7 +968,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="loginCodeStudent = null" />
+        <PButton variant="secondary" color="danger" :text="t('close')" @click="loginCodeStudent = null" />
         <PButton variant="primary" :text="t('download-login') || t('download-login-code') || 'Download login'" @click="downloadLoginCard" />
       </template>
     </PModal>
@@ -1089,7 +1015,7 @@ import { formatLoginCodePlain } from '@/utils/login-code-display.js'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { useBulkSelection } from '@/composables/useBulkSelection.js'
-import { useDuplicateGuard } from '@/composables/useDuplicateGuard.js'
+import { useDuplicateGuard, partitionBulkStudentRows, findDuplicateName } from '@/composables/useDuplicateGuard.js'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
 import {
@@ -1127,17 +1053,15 @@ const newGroupSubject = ref('')
 const searchQuery = ref('')
 const groupSearchFilter = ref('')
 const groupListPage = ref(1)
-const groupsPerPage = 6
+const groupsPerPage = 4
 const pendingAfterAgreement = ref(null)
 const addToGroupsResults = ref(null)
 const manageGroupId = ref(null)
-const manageGroupShowBack = ref(false)
 const activeGradeFilters = ref([])
 const activeStatusFilters = ref(defaultActiveStatusFilters())
 const activeGroupFilters = ref([])
 const groupStatusFilters = ref(defaultActiveStatusFilters())
 const archiveConfirmStudent = ref(null)
-const deleteConfirmStudent = ref(null)
 const archiveSelectedConfirm = ref(false)
 const archiveConfirmGroup = ref(null)
 const restoreConfirmStudent = ref(null)
@@ -1145,9 +1069,8 @@ const restoreConfirmGroup = ref(null)
 const groupCreatedPromptId = ref(null)
 const resetPasswordStudent = ref(null)
 const loginCodeStudent = ref(null)
-const deleteConfirmGroup = ref(null)
-const showExportModal = ref(false)
-const exportFormat = ref(null)
+
+
 const showCSVUploadModal = ref(false)
 const csvFile = ref(null)
 const showBulkEntryModal = ref(false)
@@ -1199,16 +1122,109 @@ const duplicateStudentDescription = computed(() => {
   return `${t('duplicate-name-description') || 'A student named'} "${studentDuplicatePrompt.value.existingName}" ${t('already-exists-continue') || 'already exists. Continue anyway?'}`
 })
 
+const bulkDuplicatePrompt = ref(null)
+const bulkDuplicateConfirmLoading = ref(false)
+
+function getStudentExistingNames() {
+  return students.value
+    .map(s => s.displayName)
+    .filter(name => name && name !== '…')
+}
+
+async function ensureDecryptedStudentNames() {
+  await Promise.all(
+    students.value.map(async ({ id }) => {
+      const cached = decryptedNames.get(id)
+      if (cached && cached !== '…') return
+      try {
+        const info = await store.getters.decryptUserInfo(id, false)
+        decryptedNames.set(id, info?.name || '')
+      } catch {
+        decryptedNames.set(id, '')
+      }
+    }),
+  )
+}
+
+function getOtherGroupNames(excludeGroupId) {
+  return Object.entries(store.state.groups.groups)
+    .filter(([id, g]) => !g.archived && id !== excludeGroupId)
+    .map(([, g]) => g.name || '')
+}
+
+function runEditGroupNameGuard(name, excludeGroupId, proceed) {
+  const match = findDuplicateName(name, getOtherGroupNames(excludeGroupId))
+  if (match) {
+    duplicatePrompt.value = { name, existingName: match, proceed }
+    return false
+  }
+  proceed()
+  return true
+}
+
+const bulkDuplicateDescription = computed(() => {
+  const prompt = bulkDuplicatePrompt.value
+  if (!prompt) return ''
+
+  const duplicateCount = prompt.skippedExisting.length + prompt.skippedBatch.length
+  const parts = [
+    t('bulk-duplicate-students-intro').replace('{count}', String(duplicateCount)),
+  ]
+
+  if (prompt.skippedExisting.length) {
+    const names = prompt.skippedExisting
+      .map(item => `"${item.existingName}" (${item.name})`)
+      .join(', ')
+    parts.push(`${t('bulk-duplicate-already-exists')} ${names}`)
+  }
+
+  if (prompt.skippedBatch.length) {
+    const names = prompt.skippedBatch.map(item => `"${item.name}"`).join(', ')
+    parts.push(`${t('bulk-duplicate-repeated-in-upload')} ${names}`)
+  }
+
+  parts.push(
+    t('bulk-duplicate-students-summary')
+      .replace('{create}', String(prompt.toCreate.length))
+      .replace('{skip}', String(duplicateCount)),
+  )
+
+  return parts.join(' ')
+})
+
+function confirmBulkDuplicateProceed() {
+  const prompt = bulkDuplicatePrompt.value
+  if (!prompt?.proceed) return
+  bulkDuplicateConfirmLoading.value = true
+  Promise.resolve(prompt.proceed())
+    .finally(() => {
+      bulkDuplicateConfirmLoading.value = false
+      bulkDuplicatePrompt.value = null
+    })
+}
+
+function cancelBulkDuplicateProceed() {
+  bulkDuplicatePrompt.value = null
+}
+
+function promptBulkDuplicates(partition, proceed) {
+  if (!partition.skippedCount) {
+    proceed(partition.toCreate, 0)
+    return
+  }
+  bulkDuplicatePrompt.value = {
+    ...partition,
+    proceed: () => proceed(partition.toCreate, partition.skippedCount),
+  }
+}
+
 // ── Loading states ──
 const creatingStudent = ref(false)
 const creatingBulk = ref(false)
 const importingCSV = ref(false)
 const creatingGroup = ref(false)
 const savingGroup = ref(false)
-const deletingStudent = ref(false)
 const resettingPassword = ref(false)
-const deletingGroup = ref(false)
-const exporting = ref(false)
 const addingToGroups = ref(false)
 
 // ── Encryption key ──
@@ -1321,21 +1337,18 @@ const {
   setSelected: setSelectedStudents,
 } = useBulkSelection(filteredStudents, 'id')
 
-const THAILAND_STUDENT_EXPORT_DISABLED_HOSTS = new Set([
-  'thailand.pilaproject.org',
-  'dev.gforcesolution.com',
-  'pila.gforcesolution.com',
-])
-const showStudentExport = computed(
-  () => !THAILAND_STUDENT_EXPORT_DISABLED_HOSTS.has(window.location.host),
-)
-
 function studentRowClass(item) {
   return item.archived ? 'table-row-archived' : ''
 }
 
+function getLastLoginTimestamp(id) {
+  const u = users[id]
+  if (!u) return null
+  return u.lastLogin ?? u.last_login ?? u.lastlogin ?? null
+}
+
 function formatLastLogin(id) {
-  const ts = users[id]?.lastLogin
+  const ts = getLastLoginTimestamp(id)
   if (!ts) return '—'
   const d = new Date(ts)
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
@@ -1344,8 +1357,8 @@ function formatLastLogin(id) {
 const studentHeaders = computed(() => [
   { key: 'displayName', title: t('name') },
   { key: 'grade', title: t('grade') },
-  { key: 'status', title: t('status'), sortable: false },
   { key: 'lastLogin', title: t('last-login'), sortable: false },
+  { key: 'status', title: t('status'), sortable: false },
   { key: 'groupNames', title: t('groups') },
   { key: 'more', title: '', sortable: false, width: '60px' },
 ])
@@ -1461,15 +1474,19 @@ const paginatedGroupIds = computed(() => {
   return ids.slice(start, start + groupsPerPage)
 })
 
-watch(filteredGroups, () => {
+watch([groupSearchFilter, groupStatusFilters], () => {
   groupListPage.value = 1
+})
+
+watch(filteredGroups, (ids) => {
+  const totalPages = Math.max(1, Math.ceil(ids.length / groupsPerPage))
+  if (groupListPage.value > totalPages) groupListPage.value = totalPages
 })
 
 function openGroupManageAfterCreate() {
   const id = groupCreatedPromptId.value
   groupCreatedPromptId.value = null
   if (!id) return
-  manageGroupShowBack.value = true
   manageGroupId.value = id
 }
 
@@ -1510,11 +1527,16 @@ function openEditGroup(groupId) {
 }
 
 async function handleSaveGroup() {
-  if (!editGroupName.value.trim() || !editGroupId.value) return
+  const name = editGroupName.value.trim()
+  if (!name || !editGroupId.value) return
+  runEditGroupNameGuard(name, editGroupId.value, () => executeSaveGroup(name))
+}
+
+async function executeSaveGroup(name) {
   savingGroup.value = true
   try {
     const groupState = await Agent.state(editGroupId.value)
-    groupState.name = editGroupName.value.trim()
+    groupState.name = name
     groupState.grade = editGroupGrade.value || undefined
     groupState.subject = editGroupSubject.value || undefined
     await Agent.synced()
@@ -1544,13 +1566,7 @@ function unarchiveGroup(id) {
 }
 
 function openManageStudents(groupId) {
-  manageGroupShowBack.value = false
   manageGroupId.value = groupId
-}
-
-function handleManageGroupBack() {
-  manageGroupId.value = null
-  manageGroupShowBack.value = false
 }
 
 // ── Student actions ──
@@ -1592,69 +1608,108 @@ const loginCodePassphraseIcons = computed(() => {
 const archiveGroupConfirmTitle = computed(() => {
   if (!archiveConfirmGroup.value) return ''
   const name = store.state.groups.groups[archiveConfirmGroup.value]?.name || ''
-  const tpl = t('archive-group-confirm-title')
-  return tpl && tpl !== 'archive-group-confirm-title'
-    ? tpl.replace('{name}', name)
-    : `Archive group "${name}"?`
+  return t('archive-group-confirm-title').replace('{name}', name)
 })
 
 const archiveGroupConfirmDescription = computed(() => {
   if (!archiveConfirmGroup.value) return ''
   const count = store.getters['groups/members'](archiveConfirmGroup.value).length
-  const tpl = t('archive-group-confirm-description')
-  return tpl && tpl !== 'archive-group-confirm-description'
-    ? tpl.replace('{count}', String(count))
-    : `This group has ${count} student(s). Archiving hides the group from your active list; students stay assigned. You can restore the group later from archived groups.`
+  return t('archive-group-confirm-description').replace('{count}', String(count))
 })
 
 const bulkArchiveConfirmTitle = computed(() => {
   const n = selectedStudents.value.length
-  const tpl = t('bulk-archive-students-confirm-title')
-  return tpl && tpl !== 'bulk-archive-students-confirm-title'
-    ? tpl.replace('{count}', String(n))
-    : `Archive ${n} selected student${n === 1 ? '' : 's'}?`
+  return t('bulk-archive-students-confirm-title').replace('{count}', String(n))
 })
 
-const bulkArchiveConfirmDescription = computed(() => {
-  const tpl = t('bulk-archive-students-confirm-description')
-  return tpl && tpl !== 'bulk-archive-students-confirm-description'
-    ? tpl
-    : 'Archived students are hidden from your active list. They are not deleted. Restore them anytime from the archived students section.'
-})
+const bulkArchiveConfirmDescription = computed(() => t('bulk-archive-students-confirm-description'))
 
 const restoreGroupConfirmTitle = computed(() => {
   if (!restoreConfirmGroup.value) return ''
   const name = store.state.groups.groups[restoreConfirmGroup.value]?.name || ''
-  const tpl = t('restore-group-confirm-title')
-  return tpl && tpl !== 'restore-group-confirm-title'
-    ? tpl.replace('{name}', name)
-    : `Restore "${name}"?`
+  return t('restore-group-confirm-title').replace('{name}', name)
 })
 
 function openLoginCodeModal(item) {
   loginCodeStudent.value = item
 }
 
-function downloadLoginCard() {
+function truncateCanvasText(ctx, text, maxWidth) {
+  if (!text) return ''
+  if (ctx.measureText(text).width <= maxWidth) return text
+  let truncated = text
+  while (truncated.length > 1 && ctx.measureText(`${truncated}...`).width > maxWidth) {
+    truncated = truncated.slice(0, -1)
+  }
+  return truncated.length < text.length ? `${truncated}...` : truncated
+}
+
+async function resolveLoginCodeStudentName(student) {
+  const fromItem = student?.displayName
+  if (fromItem && fromItem !== '…') return fromItem
+
+  const cached = decryptedNames.get(student.id)
+  if (cached && cached !== '…') return cached
+
+  try {
+    const info = await store.getters.decryptUserInfo(student.id, false)
+    const name = info?.name || ''
+    if (name) decryptedNames.set(student.id, name)
+    return name
+  } catch {
+    return ''
+  }
+}
+
+async function downloadLoginCard() {
   if (!qrContainerRef.value || !loginCodeStudent.value) return
   const svg = qrContainerRef.value.querySelector('svg')
   if (!svg) return
-  const studentId = loginCodeStudent.value.id
+
+  const student = loginCodeStudent.value
+  const studentId = student.id
+  const studentName = await resolveLoginCodeStudentName(student)
   const plainCode = formatLoginCodePlain(users[studentId]?.secret)
   const svgData = new XMLSerializer().serializeToString(svg)
   const canvas = document.createElement('canvas')
-  canvas.width = 400
-  canvas.height = 480
+  const width = 400
+  const height = 520
+  canvas.width = width
+  canvas.height = height
   const ctx = canvas.getContext('2d')
   const img = new Image()
   img.onload = () => {
+    const qrSize = 300
+    const horizontalPadding = 24
+    const nameY = 40
+    const qrY = studentName ? 64 : 40
+    const codeY = qrY + qrSize + 44
+
     ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, 400, 480)
-    ctx.drawImage(img, 0, 0, 400, 400)
+    ctx.fillRect(0, 0, width, height)
+
+    if (studentName) {
+      ctx.fillStyle = '#334155'
+      ctx.font = '600 18px system-ui, -apple-system, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText(
+        truncateCanvasText(ctx, studentName, width - horizontalPadding * 2),
+        width / 2,
+        nameY,
+      )
+    }
+
+    ctx.drawImage(img, (width - qrSize) / 2, qrY, qrSize, qrSize)
+
+    ctx.fillStyle = '#64748b'
+    ctx.font = '500 12px system-ui, -apple-system, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(t('login-code').toUpperCase(), width / 2, codeY - 18)
+
     ctx.fillStyle = '#334155'
     ctx.font = '600 22px ui-monospace, monospace'
-    ctx.textAlign = 'center'
-    ctx.fillText(plainCode, 200, 450)
+    ctx.fillText(plainCode, width / 2, codeY)
+
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -1665,29 +1720,6 @@ function downloadLoginCard() {
     })
   }
   img.src = 'data:image/svg+xml;base64,' + btoa(svgData)
-}
-
-async function executeDeleteStudent() {
-  // TODO: backend — replace with hard-delete once backend endpoint exists
-  if (!deleteConfirmStudent.value) return
-  deletingStudent.value = true
-  try {
-    const studentId = deleteConfirmStudent.value.id
-    const usersState = await Agent.state('users')
-    if (usersState[studentId]) usersState[studentId].archived = true
-    for (const gid of activeGroups.value) {
-      if (store.getters['groups/belongs'](studentId, gid)) {
-        await store.dispatch('groups/removeMember', { user_id: studentId, group_id: gid })
-      }
-    }
-    deleteConfirmStudent.value = null
-    showSuccessDialog(t('student-removed-successfully') || 'Student removed successfully')
-  } catch (e) {
-    console.error(e)
-    toastError(t('something-went-wrong'))
-  } finally {
-    deletingStudent.value = false
-  }
 }
 
 async function executeResetPassword() {
@@ -1722,26 +1754,6 @@ async function executeResetPassword() {
     toastError(t('something-went-wrong'))
   } finally {
     resettingPassword.value = false
-  }
-}
-
-function confirmDeleteGroup(groupId) {
-  deleteConfirmGroup.value = groupId
-}
-
-async function executeDeleteGroup() {
-  // TODO: backend — replace with hard-delete once backend endpoint exists
-  if (!deleteConfirmGroup.value) return
-  deletingGroup.value = true
-  try {
-    await store.dispatch('groups/archive', deleteConfirmGroup.value)
-    deleteConfirmGroup.value = null
-    showSuccessDialog(t('group-deleted-successfully') || 'Group deleted successfully')
-  } catch (e) {
-    console.error(e)
-    toastError(t('something-went-wrong'))
-  } finally {
-    deletingGroup.value = false
   }
 }
 
@@ -1889,7 +1901,7 @@ function onAgreementAccepted() {
   }
 }
 
-// ── Bulk / Export / SSO handlers ──
+// ── Bulk / SSO handlers ──
 
 async function createSingleStudent(name, nickname, grade) {
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
@@ -1942,6 +1954,71 @@ function parseCSVLine(line) {
 
 const validGrades = new Set(['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
 
+function formatBulkCreateResultMessage(created, skipped) {
+  if (skipped > 0) {
+    const reason = t('bulk-duplicate-skipped-reason') || 'duplicate names'
+    return `${created} ${t('student')} ${t('created')}, ${skipped} ${t('skipped')} (${reason})`
+  }
+  return `${created} ${t('student')} ${t('created')}`
+}
+
+function parseCSVStudentRows(lines) {
+  const header = lines[0].toLowerCase()
+  const hasHeader = header.includes('name')
+  const dataLines = hasHeader ? lines.slice(1) : lines
+  const candidateRows = []
+  let invalidSkipped = 0
+
+  for (const line of dataLines) {
+    const cols = parseCSVLine(line)
+    const name = cols[0] || ''
+    const nickname = cols[1] || ''
+    const grade = cols[2] || ''
+    if (!name.trim()) {
+      invalidSkipped++
+      continue
+    }
+    if (grade && !validGrades.has(grade)) {
+      invalidSkipped++
+      continue
+    }
+    candidateRows.push({ name, nickname, grade })
+  }
+
+  return { candidateRows, invalidSkipped }
+}
+
+async function executeCSVImport(rows, duplicateSkipped, invalidSkipped = 0) {
+  importingCSV.value = true
+  try {
+    let created = 0
+    let failed = 0
+    for (const row of rows) {
+      try {
+        await createSingleStudent(row.name, row.nickname, row.grade)
+        created++
+      } catch (e) {
+        console.error('Failed to create student from CSV row:', e)
+        failed++
+      }
+    }
+    showCSVUploadModal.value = false
+    csvFile.value = null
+    const skipped = invalidSkipped + duplicateSkipped + failed
+    const msg = formatBulkCreateResultMessage(created, skipped)
+    if (created > 0) {
+      showSuccessDialog(msg)
+    } else {
+      toastError(msg)
+    }
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  } finally {
+    importingCSV.value = false
+  }
+}
+
 async function handleCSVImport() {
   if (!csvFile.value) return
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
@@ -1957,7 +2034,6 @@ async function handleCSVImport() {
     showAcceptStudentAgreementModal.value = true
     return
   }
-  importingCSV.value = true
   try {
     const fileName = (csvFile.value?.name || '').toLowerCase()
     if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
@@ -1973,31 +2049,33 @@ async function handleCSVImport() {
       toastError(t('something-went-wrong'))
       return
     }
-    const header = lines[0].toLowerCase()
-    const hasHeader = header.includes('name')
-    const dataLines = hasHeader ? lines.slice(1) : lines
+    const { candidateRows, invalidSkipped } = parseCSVStudentRows(lines)
+    await ensureDecryptedStudentNames()
+    const partition = partitionBulkStudentRows(candidateRows, getStudentExistingNames())
+    promptBulkDuplicates(partition, (toCreate, duplicateSkipped) =>
+      executeCSVImport(toCreate, duplicateSkipped, invalidSkipped),
+    )
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
+  }
+}
+
+async function executeBulkCreate(rows, duplicateSkipped) {
+  creatingBulk.value = true
+  try {
     let created = 0
-    let skipped = 0
-    for (const line of dataLines) {
-      const cols = parseCSVLine(line)
-      const name = cols[0] || ''
-      const nickname = cols[1] || ''
-      const grade = cols[2] || ''
-      if (!name.trim()) { skipped++; continue }
-      if (grade && !validGrades.has(grade)) { skipped++; continue }
-      try {
-        await createSingleStudent(name, nickname, grade)
-        created++
-      } catch (e) {
-        console.error('Failed to create student from CSV row:', e)
-        skipped++
-      }
+    for (const row of rows) {
+      await createSingleStudent(row.name, row.nickname, row.grade)
+      created++
     }
-    showCSVUploadModal.value = false
-    csvFile.value = null
-    const msg = skipped > 0
-      ? `${created} ${t('student')} ${t('created')}, ${skipped} ${t('skipped')}`
-      : `${created} ${t('student')} ${t('created')}`
+    showBulkEntryModal.value = false
+    bulkEntryRows.value = [
+      { name: '', nickname: '', grade: '' },
+      { name: '', nickname: '', grade: '' },
+      { name: '', nickname: '', grade: '' },
+    ]
+    const msg = formatBulkCreateResultMessage(created, duplicateSkipped)
     if (created > 0) {
       showSuccessDialog(msg)
     } else {
@@ -2007,7 +2085,7 @@ async function handleCSVImport() {
     console.error(e)
     toastError(t('something-went-wrong'))
   } finally {
-    importingCSV.value = false
+    creatingBulk.value = false
   }
 }
 
@@ -2025,27 +2103,11 @@ async function handleBulkCreate() {
     showAcceptStudentAgreementModal.value = true
     return
   }
-  creatingBulk.value = true
-  try {
-    const rows = bulkEntryRows.value.filter(r => r.name.trim() && r.grade)
-    let created = 0
-    for (const row of rows) {
-      await createSingleStudent(row.name, row.nickname, row.grade)
-      created++
-    }
-    showBulkEntryModal.value = false
-    bulkEntryRows.value = [
-      { name: '', nickname: '', grade: '' },
-      { name: '', nickname: '', grade: '' },
-      { name: '', nickname: '', grade: '' },
-    ]
-    showSuccessDialog(`${created} ${t('student')} ${t('created')}`)
-  } catch (e) {
-    console.error(e)
-    toastError(t('something-went-wrong'))
-  } finally {
-    creatingBulk.value = false
-  }
+  const rows = bulkEntryRows.value.filter(r => r.name.trim() && r.grade)
+  if (!rows.length) return
+  await ensureDecryptedStudentNames()
+  const partition = partitionBulkStudentRows(rows, getStudentExistingNames())
+  promptBulkDuplicates(partition, executeBulkCreate)
 }
 
 function downloadCSVTemplate() {
@@ -2057,64 +2119,6 @@ function downloadCSVTemplate() {
   a.download = 'student-import-template.csv'
   a.click()
   URL.revokeObjectURL(url)
-}
-
-async function handleExport() {
-  exporting.value = true
-  try {
-    const studentData = []
-    for (const student of selectedStudents.value) {
-      let info = { name: '' }
-      try {
-        info = await store.getters.decryptUserInfo(student.id, false)
-      } catch (e) { /* fallback */ }
-      studentData.push({
-        name: info?.name || '',
-        nickname: info?.nickname || '',
-        grade: student.grade || '',
-        status: student.archived ? 'Archived' : 'Active',
-        groups: student.groupNames || '',
-      })
-    }
-
-    if (exportFormat.value === 'csv') {
-      const header = 'Name,Nickname,Grade,Status,Groups\n'
-      const rows = studentData.map(s =>
-        [s.name, s.nickname, s.grade, s.status, `"${s.groups}"`].join(',')
-      ).join('\n')
-      const blob = new Blob([header + rows], { type: 'text/csv' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'students-export.csv'
-      a.click()
-      URL.revokeObjectURL(url)
-    } else if (exportFormat.value === 'pdf') {
-      const html = `<html><head><title>Students Export</title><style>
-        body { font-family: sans-serif; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
-        th { background: #f1f5f9; font-weight: 600; }
-      </style></head><body>
-      <h2>Students Export</h2>
-      <table><thead><tr><th>Name</th><th>Nickname</th><th>Grade</th><th>Status</th><th>Groups</th></tr></thead>
-      <tbody>${studentData.map(s => `<tr><td>${s.name}</td><td>${s.nickname}</td><td>${s.grade}</td><td>${s.status}</td><td>${s.groups}</td></tr>`).join('')}</tbody></table>
-      </body></html>`
-      const w = window.open('', '_blank')
-      w.document.write(html)
-      w.document.close()
-      w.print()
-    }
-
-    showExportModal.value = false
-    exportFormat.value = null
-    showSuccessDialog(t('success'))
-  } catch (e) {
-    console.error(e)
-    toastError(t('something-went-wrong'))
-  } finally {
-    exporting.value = false
-  }
 }
 
 const filteredGroupsForAssign = computed(() => {

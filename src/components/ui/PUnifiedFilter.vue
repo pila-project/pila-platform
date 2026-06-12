@@ -1,31 +1,43 @@
 <template>
   <div class="unified-filter" ref="containerRef">
     <!-- Search bar -->
-    <div class="unified-filter-bar" :class="{ 'unified-filter-bar-focused': isDropdownOpen }" @click.stop="openDropdown">
+    <div
+      class="unified-filter-bar"
+      :class="{
+        'unified-filter-bar-focused': isDropdownOpen,
+        'unified-filter-bar-compact': compact,
+      }"
+      @click.stop="openDropdown"
+    >
       <LucideIcon name="search" :size="14" class="unified-filter-search-icon" />
-      <div class="unified-filter-bar-content">
-        <!-- Inline chips for active filters -->
-        <span
-          v-for="chip in allChips"
-          :key="chip.id"
-          class="unified-chip"
+      <div class="unified-filter-scroll-wrap" :class="{ 'unified-filter-scroll-wrap--fade': compact }">
+        <div
+          class="unified-filter-bar-content"
+          :class="{ 'unified-filter-bar-content--scrollable': compact }"
         >
-          <span class="unified-chip-label">{{ chip.sectionLabel }}</span>
-          <span class="unified-chip-eq">=</span>
-          <span class="unified-chip-value">{{ chip.valueLabel }}</span>
-          <button class="unified-chip-remove" @click.stop="chip.remove()">
-            <LucideIcon name="x" :size="10" />
-          </button>
-        </span>
-        <!-- Search input -->
-        <input
-          ref="searchInputRef"
-          v-model="localSearchQuery"
-          :placeholder="allChips.length ? '' : placeholder"
-          class="unified-filter-input"
-          @focus="openDropdown"
-          @keydown.escape="closeDropdown"
-        />
+          <!-- Inline chips for active filters -->
+          <span
+            v-for="chip in allChips"
+            :key="chip.id"
+            class="unified-chip"
+          >
+            <span class="unified-chip-label">{{ chip.sectionLabel }}</span>
+            <span class="unified-chip-eq">=</span>
+            <span class="unified-chip-value">{{ chip.valueLabel }}</span>
+            <button class="unified-chip-remove" @click.stop="chip.remove()">
+              <LucideIcon name="x" :size="10" />
+            </button>
+          </span>
+          <!-- Search input -->
+          <input
+            ref="searchInputRef"
+            v-model="localSearchQuery"
+            :placeholder="allChips.length ? '' : placeholder"
+            class="unified-filter-input"
+            @focus="openDropdown"
+            @keydown.escape="closeDropdown"
+          />
+        </div>
       </div>
       <!-- Clear all button -->
       <button
@@ -69,6 +81,11 @@ const props = defineProps({
   debounce: {
     type: Number,
     default: 500,
+  },
+  /** Narrow containers: single-line bar, horizontal scroll + right fade instead of wrapping. */
+  compact: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -244,13 +261,44 @@ provide('unifiedFilter', {
   flex-shrink: 0;
 }
 
+.unified-filter-scroll-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.unified-filter-scroll-wrap--fade {
+  position: relative;
+  overflow: hidden;
+}
+
+.unified-filter-scroll-wrap--fade::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, transparent, white);
+  pointer-events: none;
+}
+
 .unified-filter-bar-content {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  flex: 1;
   min-width: 0;
+}
+
+.unified-filter-bar-content--scrollable {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.unified-filter-bar-content--scrollable::-webkit-scrollbar {
+  display: none;
 }
 
 .unified-chip {

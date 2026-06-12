@@ -301,9 +301,8 @@ export default {
         await dispatch('loadMembers')
       }
     },
-    async flushMembers({ dispatch }) {
+    async flushMembers() {
       await Agent.synced()
-      await dispatch('loadMembers')
     }
   }
 }

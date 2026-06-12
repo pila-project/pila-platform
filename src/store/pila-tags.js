@@ -68,6 +68,11 @@ export default {
     add(state, { id, content_id, tag_type, user_id, updated, archived }) {
       state[id] = { content_id, tag_type, user_id, updated, archived }
     },
+    setArchived(state, { id, archived }) {
+      if (state[id]) {
+        state[id] = { ...state[id], archived }
+      }
+    },
     remove(state, id) {
       delete state[id]
     }
@@ -117,8 +122,9 @@ export default {
       const existing = await existing_tag(state, content_id, tag_type, user)
 
       if (existing) {
-        const state = await Agent.state(existing)
-        state.archived = false
+        const tagState = await Agent.state(existing)
+        tagState.archived = false
+        commit('setArchived', { id: existing, archived: false })
       }
       else await Agent.create({
         active_type: 'application/json;type=pila_tag',
@@ -128,18 +134,19 @@ export default {
       await Agent.synced()
       await dispatch('load')
     },
-    async untag({ state, dispatch }, { content_id, tag_type }) {
+    async untag({ state, commit, dispatch }, { content_id, tag_type }) {
       const { auth: { user } } = await Agent.environment()
       const existing = await existing_tag(state, content_id, tag_type, user)
 
       if (existing) {
-        const state = await Agent.state(existing)
-        state.archived = true
+        const tagState = await Agent.state(existing)
+        tagState.archived = true
+        commit('setArchived', { id: existing, archived: true })
 
         await Agent.synced()
         await dispatch('load')
       }
-      else await dispatch('tag', {content_id, tag_type, archived: true })
+      else await dispatch('tag', { content_id, tag_type, archived: true })
     }
   }
 }

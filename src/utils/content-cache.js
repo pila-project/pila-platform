@@ -2,6 +2,9 @@ import getName from './name-and-translation-for-content.js'
 import getImageFromContent from './image-ref-for-content.js'
 import { localCache } from './local-cache.js'
 
+/** Disk cache TTL for explore lists, metadata maps, and image blobs. */
+const CONTENT_CACHE_TTL = 60 * 60 * 1000 // 1 hour
+
 // ── Module-level caches — persist across component mounts ──
 const nameCache = new Map()
 const metadataCache = new Map()
@@ -11,6 +14,39 @@ const tagNameCache = new Map()
 
 // In-flight deduplication — prevents duplicate requests for the same key
 const pending = new Map()
+
+let cachedUserId = null
+
+async function getUserId() {
+  if (cachedUserId) return cachedUserId
+  try {
+    const env = await Agent.environment()
+    cachedUserId = env?.auth?.user ?? null
+  } catch {
+    cachedUserId = null
+  }
+  return cachedUserId
+}
+
+async function loadImageBlobFromDisk(userId, id) {
+  try {
+    const blob = await localCache.get(userId, 'content-images', id, CONTENT_CACHE_TTL)
+    if (!blob) return null
+    const url = URL.createObjectURL(blob)
+    imageCache.set(id, url)
+    return url
+  } catch {
+    return null
+  }
+}
+
+function persistImageBlob(userId, id, url) {
+  if (!userId || !url || url.startsWith('/') || url.startsWith('blob:') || url.startsWith('data:')) return
+  fetch(url)
+    .then(res => res.blob())
+    .then(blob => localCache.set(userId, 'content-images', id, blob))
+    .catch(() => {})
+}
 
 // Tag hierarchy (loaded once, persists)
 let tagHierarchyData = null // { categories: [{id, name, leafIds}], leafToCategory: Map }
@@ -65,8 +101,15 @@ export function getContentType(id) {
 export function getContentImage(id) {
   if (imageCache.has(id)) return Promise.resolve(imageCache.get(id))
   return dedupedFetch(`img:${id}`, async () => {
+    const userId = await getUserId()
+    if (userId) {
+      const diskUrl = await loadImageBlobFromDisk(userId, id)
+      if (diskUrl) return diskUrl
+    }
+
     const url = await getImageFromContent(id)
     imageCache.set(id, url)
+    if (userId) persistImageBlob(userId, id, url)
     return url
   })
 }
@@ -150,17 +193,26 @@ export function getCachedTagHierarchy() {
 
 // ── Batch prefetch ──
 
-export async function prefetchBatch(ids, lang, partition, leafToCategory) {
-  await Promise.allSettled(
-    ids.map(async (id) => {
-      await Promise.allSettled([
-        getContentName(id, lang),
-        getContentMetadata(id),
-        getContentImage(id),
-        getContentTags(id, partition, leafToCategory),
-      ])
-    })
-  )
+export async function prefetchBatch(ids, lang, partition, leafToCategory, { priorityIds = [] } = {}) {
+  const priority = new Set(priorityIds)
+  const ordered = [
+    ...ids.filter(id => priority.has(id)),
+    ...ids.filter(id => !priority.has(id)),
+  ]
+
+  const prefetchOne = async (id) => {
+    await Promise.allSettled([
+      getContentName(id, lang),
+      getContentMetadata(id),
+      getContentImage(id),
+      getContentTags(id, partition, leafToCategory),
+    ])
+  }
+
+  if (priority.size) {
+    await Promise.allSettled(priorityIds.map(prefetchOne))
+  }
+  await Promise.allSettled(ordered.filter(id => !priority.has(id)).map(prefetchOne))
 }
 
 // ── Cache access (synchronous reads) ──
@@ -186,9 +238,9 @@ export async function seedFromDisk(userId) {
 
 /** Restore explore lists + item caches from IndexedDB (stale-while-revalidate seed). */
 export async function loadExploreCache(userId) {
-  let cached = await localCache.get(userId, 'content', 'explore')
+  let cached = await localCache.get(userId, 'content', 'explore', CONTENT_CACHE_TTL)
   if (!cached) {
-    const legacyMaps = await localCache.get(userId, 'content', 'maps')
+    const legacyMaps = await localCache.get(userId, 'content', 'maps', CONTENT_CACHE_TTL)
     if (!legacyMaps) return null
     applyMapsToMemory(legacyMaps)
     return { maps: legacyMaps, taggedContent: null, myContent: null, tagCategories: null, leafToCategory: null }
@@ -211,7 +263,7 @@ export function persistExploreCache(userId, {
   leafToCategory,
   sequences,
 }) {
-  localCache.get(userId, 'content', 'explore').then((existing) => {
+  localCache.get(userId, 'content', 'explore', CONTENT_CACHE_TTL).then((existing) => {
     localCache.set(userId, 'content', 'explore', {
       taggedContent: taggedContent ?? existing?.taggedContent ?? null,
       myContent: myContent ?? existing?.myContent ?? null,
@@ -231,7 +283,7 @@ export function persistExploreCache(userId, {
 
 /** Merge active/archived sequence ids into the explore disk entry. */
 export async function persistSequencesPanelCache(userId, { active, archived }) {
-  const existing = await localCache.get(userId, 'content', 'explore')
+  const existing = await localCache.get(userId, 'content', 'explore', CONTENT_CACHE_TTL)
   if (!existing) return
   await localCache.set(userId, 'content', 'explore', {
     ...existing,

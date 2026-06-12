@@ -6,6 +6,7 @@ import storeDef from '@/store/index.js'
 import basicContentManagementTests from './basic-content-management.js'
 import adminContentManagementTests from './admin-content-management.js'
 import studentsJoiningTeachersTests from './students-joining-teachers.js'
+import assignmentGroupVisibilityTests from './assignment-group-visibility.js'
 
 export default function runTests() {
   window.Agent = browserAgent()
@@ -52,6 +53,7 @@ function waitForStoreLoadThenRunTests (store) {
           basicContentManagementTests(store)
           adminContentManagementTests(store)
           studentsJoiningTeachersTests(store)
+          assignmentGroupVisibilityTests()
         })
       }
       unwatch()

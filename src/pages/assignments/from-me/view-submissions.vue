@@ -389,6 +389,7 @@
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { PButton, PUnifiedFilter, PTable, PTabs, PCheckbox } from '@/components/ui/index.js'
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
+  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -783,11 +784,7 @@
     if (contentId.value) {
       try {
         const seqState = await Agent.state(contentId.value)
-        if (seqState.items) {
-          sequenceItems.value = Array.isArray(seqState.items)
-            ? seqState.items
-            : Object.values(seqState.items).map(item => item.id || item)
-        }
+        sequenceItems.value = normalizeSequenceItems(seqState.items)
       } catch {
         sequenceItems.value = []
       }

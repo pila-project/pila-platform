@@ -16,7 +16,23 @@
           {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
         </h2>
         <p class="text-xs text-slate-500 mt-0.5">{{ t('organize-content-into-learning-sequences') }}</p>
+        <PUnifiedFilter
+          v-if="isTeacherExplore"
+          v-model:searchQuery="sequenceSearchQuery"
+          class="mt-2 sequences-filter"
+          compact
+          :placeholder="t('search-sequences') || 'Search sequences'"
+        >
+          <PUnifiedFilterSection
+            id="sequence-status-mobile"
+            :label="t('status')"
+            icon="badge-check"
+            :options="sequenceStatusFilterOptions"
+            v-model="sequenceStatusFilters"
+          />
+        </PUnifiedFilter>
         <PInput
+          v-else
           v-model="sequenceSearchQuery"
           class="mt-2"
           :placeholder="t('search-sequences') || 'Search sequences'"
@@ -24,7 +40,7 @@
         />
         <button class="mobile-seq-selector" @click="mobileSeqExpanded = !mobileSeqExpanded">
           <span class="mobile-seq-selector-name">
-            {{ selectedSequenceName || t('select-a-sequence') }}
+            {{ t('my-sequences') }}
           </span>
           <LucideIcon :name="mobileSeqExpanded ? 'chevron-up' : 'chevron-down'" :size="12" class="text-slate-400" />
         </button>
@@ -38,17 +54,17 @@
               v-for="seqId in displayedSequenceIds"
               :key="seqId"
               :id="seqId"
-              :active="selectedSequence === seqId"
               :archived="archivedSequenceIds.includes(seqId)"
               :favorited="favorites.has(seqId)"
               :isNewest="newestSequenceId === seqId"
               :version="sequenceVersion"
-              @select="selectSequence(seqId); mobileSeqExpanded = false"
               @toggle-favorite="toggleFavorite(seqId)"
               @edit="editSequence(seqId)"
               @archive="sequenceToArchive = seqId"
               @restore="onRestoreSequence(seqId)"
               @preview="sequenceToPreview = seqId"
+              @view-content="openSequenceContent(seqId)"
+              @items-changed="sequenceVersion++"
               @drop-item="payload => onDropItemToSequence(seqId, payload)"
             />
             <div v-if="!displayedSequenceIds.length && !sequencesPanelLoading" class="text-xs text-slate-400 text-center py-4">
@@ -67,7 +83,23 @@
             {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
           </h2>
           <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
+          <PUnifiedFilter
+            v-if="isTeacherExplore"
+            v-model:searchQuery="sequenceSearchQuery"
+            class="mt-3 sequences-filter"
+            compact
+            :placeholder="t('search-sequences') || 'Search sequences'"
+          >
+            <PUnifiedFilterSection
+              id="sequence-status"
+              :label="t('status')"
+              icon="badge-check"
+              :options="sequenceStatusFilterOptions"
+              v-model="sequenceStatusFilters"
+            />
+          </PUnifiedFilter>
           <PInput
+            v-else
             v-model="sequenceSearchQuery"
             class="mt-3"
             :placeholder="t('search-sequences') || 'Search sequences'"
@@ -91,17 +123,17 @@
               v-for="seqId in displayedSequenceIds"
               :key="seqId"
               :id="seqId"
-              :active="selectedSequence === seqId"
               :archived="archivedSequenceIds.includes(seqId)"
               :favorited="favorites.has(seqId)"
               :isNewest="newestSequenceId === seqId"
               :version="sequenceVersion"
-              @select="selectSequence(seqId)"
               @toggle-favorite="toggleFavorite(seqId)"
               @edit="editSequence(seqId)"
               @archive="sequenceToArchive = seqId"
               @restore="onRestoreSequence(seqId)"
               @preview="sequenceToPreview = seqId"
+              @view-content="openSequenceContent(seqId)"
+              @items-changed="sequenceVersion++"
               @drop-item="payload => onDropItemToSequence(seqId, payload)"
             />
             <div v-if="!displayedSequenceIds.length" class="text-xs text-slate-400 text-center py-6">
@@ -154,18 +186,6 @@
               <PButton variant="ghost" size="sm" :text="t('deselect-all')" @click="deselectAll" />
             </div>
 
-            <!-- Empty state: selected sequence with no items -->
-            <div v-if="selectedSequence && selectedSequenceEmpty" class="empty-sequence-state">
-              <LucideIcon name="search" :size="48" class="text-slate-300 mb-4" />
-              <h3 class="text-base font-semibold text-zinc-950">{{ t('no-item-in-this-sequence') }}</h3>
-              <p class="text-sm text-slate-500 mt-1">{{ t('start-browsing-to-add-content') }}</p>
-              <PButton
-                variant="primary"
-                :text="t('browse-content')"
-                class="mt-4"
-                @click="selectedSequence = null"
-              />
-            </div>
           </template>
 
           <!-- Custom card rendering with explore-page features -->
@@ -285,6 +305,16 @@
       @close="sequenceToPreview = null"
     />
 
+    <!-- Sequence content workspace (view / reorder / delete / preview items) -->
+    <SequenceContentModal
+      v-if="sequenceToView"
+      :id="sequenceToView"
+      :archived="archivedSequenceIds.includes(sequenceToView)"
+      :version="sequenceVersion"
+      @close="sequenceToView = null"
+      @changed="sequenceVersion++"
+    />
+
     <!-- Copy & Modify Modal -->
     <CopyModifyModal
       v-if="copyModifyId"
@@ -331,7 +361,7 @@
 <script setup>
   import { ref, reactive, shallowReactive, computed, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
-  import { useRouter } from 'vue-router'
+  import { useRoute, useRouter } from 'vue-router'
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
   import ContentBrowser from './content-browser.vue'
@@ -339,6 +369,7 @@
   import SequenceCard from './sequence-card.vue'
   import CreateSequenceModal from './create-sequence-modal.vue'
   import SequencePreviewModal from './sequence-preview-modal.vue'
+  import SequenceContentModal from './sequence-content-modal.vue'
   import ExploreAddPickerModal from './explore-add-picker-modal.vue'
   import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
   import CopyModifyModal from './copy-modify-modal.vue'
@@ -353,22 +384,27 @@
     getContentMetadata, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
   import { useContentLibrary, notifyTagIndexUpdated } from '@/utils/useContentLibrary.js'
-  import {
-    readSequenceItemIds,
-    appendItemsToSequence,
-  } from '@/utils/sequence-items.js'
+  import { appendItemsToSequence, isValidSequenceAgentState } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import {
     loadExploreArchivedSequenceIds,
     setExploreSequenceArchived,
   } from '@/utils/explore-sequence-archive.js'
   import { loadExploreFavorites, toggleExploreFavorite } from '@/utils/explore-favorites.js'
-  import { PButton, PCheckbox, PAlertDialog, PModal, PInput } from '@/components/ui/index.js'
+  import { PButton, PCheckbox, PAlertDialog, PModal, PInput, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
   import { useFeedback } from '@/composables/useFeedback.js'
+  import {
+    defaultActiveStatusFilters,
+    buildStatusFilterOptions,
+    matchesStatusFilter,
+  } from '@/utils/status-filter.js'
 
   const store = useStore()
+  const route = useRoute()
   const router = useRouter()
   function t(slug) { return store.getters.t(slug) }
+
+  const isTeacherExplore = computed(() => route.path.startsWith('/teacher'))
 
   // ── Shared content library (composable with module-level shared state) ──
   const {
@@ -377,6 +413,7 @@
     myContentIds,
     currentContentList,
     filteredContentList,
+    ensureLoaded,
   } = useContentLibrary(store)
 
   const browserRef = ref(null)
@@ -398,22 +435,22 @@
   const mobileSeqExpanded = ref(false)
   const mySequenceIds = ref([])
   const sequencesLoading = ref(true)
-  /** Spinner only when we have nothing to show yet (not blocked on full Explore load). */
+  /** Spinner while sequences fetch or my-content list is not ready yet. */
   const sequencesPanelLoading = computed(
-    () => sequencesLoading.value && mySequenceIds.value.length === 0,
+    () => (sequencesLoading.value || loading.value) && mySequenceIds.value.length === 0,
   )
   const sequenceVersion = ref(0)
-  const selectedSequence = ref(null)
   const showCreateSequence = ref(false)
   const sequenceToEdit = ref(null)
   const sequenceToPreview = ref(null)
+  const sequenceToView = ref(null)
   const sequenceToArchive = ref(null)
   const sequenceToArchiveName = ref('')
   const archiveConfirmLoading = ref(false)
   const sequenceSearchQuery = ref('')
+  const sequenceStatusFilters = ref(defaultActiveStatusFilters())
+  const sequenceStatusFilterOptions = computed(() => buildStatusFilterOptions(t))
   const activeSequenceIds = ref([])
-  const selectedSequenceEmpty = ref(true)
-  const selectedSequenceItems = ref([])
   const newestSequenceId = ref(null)
 
   // ── Copy & modify state ──
@@ -441,9 +478,16 @@
   })
 
   const displayedSequenceIds = computed(() => {
+    let ids = mySequenceIds.value
+    if (isTeacherExplore.value) {
+      ids = ids.filter(id => matchesStatusFilter(
+        sequenceStatusFilters.value,
+        archivedSequenceIdSet.value.has(id),
+      ))
+    }
     const q = sequenceSearchQuery.value.trim().toLowerCase()
-    if (!q) return mySequenceIds.value
-    return mySequenceIds.value.filter(id => {
+    if (!q) return ids
+    return ids.filter(id => {
       const name = (nameCache.get(id) || '').toLowerCase()
       return name.includes(q)
     })
@@ -536,21 +580,11 @@
     }
   }
 
-  // ── Content browser filter (sequence scope + hide archived sequences) ──
+  // ── Content browser filter (hide items tagged as archived sequences) ──
   function contentExploreFilter(list) {
     const archived = archivedSequenceIdSet.value
-    let result = list.filter(id => !archived.has(id))
-    if (selectedSequence.value && !archived.has(selectedSequence.value) && selectedSequenceItems.value.length) {
-      const seqItems = new Set(selectedSequenceItems.value)
-      result = result.filter(id => seqItems.has(id))
-    }
-    return result
+    return list.filter(id => !archived.has(id))
   }
-
-  const selectedSequenceName = computed(() => {
-    if (!selectedSequence.value) return ''
-    return nameCache.get(selectedSequence.value) || t('untitled')
-  })
 
   const allSelected = computed(() => {
     const list = browserRef.value?.displayList || filteredContentList.value
@@ -578,28 +612,9 @@
   }
 
   // ── Sequence helpers ──
-  function selectSequence(id) {
+  function openSequenceContent(id) {
     if (archivedSequenceIdSet.value.has(id)) return
-    if (selectedSequence.value === id) {
-      selectedSequence.value = null
-      selectedSequenceItems.value = []
-      selectedSequenceEmpty.value = true
-    } else {
-      selectedSequence.value = id
-      loadSequenceItems(id)
-    }
-  }
-
-  async function loadSequenceItems(id) {
-    try {
-      const items = await readSequenceItemIds(id)
-      selectedSequenceItems.value = items
-      selectedSequenceEmpty.value = items.length === 0
-    } catch (e) {
-      console.warn('[Explore] loadSequenceItems failed', id, e)
-      selectedSequenceItems.value = []
-      selectedSequenceEmpty.value = true
-    }
+    sequenceToView.value = id
   }
 
   function onDropItemToSequence(seqId, payload) {
@@ -624,8 +639,14 @@
     showSuccessDialog(t('sequence-created-successfully'))
   }
 
-  async function onSequenceUpdated() {
+  async function onSequenceUpdated(payload) {
+    const id = payload?.id || sequenceToEdit.value
     sequenceToEdit.value = null
+    if (id && payload?.name) {
+      nameCache.set(id, payload.name)
+      invalidate(id)
+    }
+    sequenceVersion.value++
     showSuccessDialog(t('sequence-updated'))
   }
 
@@ -646,11 +667,7 @@
       await setExploreSequenceArchived(id, true)
       sequenceToArchive.value = null
       sequenceToArchiveName.value = ''
-      if (selectedSequence.value === id) {
-        selectedSequence.value = null
-        selectedSequenceItems.value = []
-        selectedSequenceEmpty.value = true
-      }
+      if (sequenceToView.value === id) sequenceToView.value = null
       await loadMySequences({ silent: true })
       showSuccessDialog(
         'Sequence archived',
@@ -692,20 +709,11 @@
   }
 
   function handleAddItem(id) {
-    if (selectedSequence.value) {
-      addItemsToSequence(selectedSequence.value, [id])
-    } else {
-      openAddPicker([id])
-    }
+    openAddPicker([id])
   }
 
   function addSelectedToSequence() {
-    const items = [...selectedItems]
-    if (selectedSequence.value) {
-      addItemsToSequence(selectedSequence.value, items)
-    } else {
-      openAddPicker(items)
-    }
+    openAddPicker([...selectedItems])
   }
 
   function navigateToCreateAssignment() {
@@ -737,10 +745,6 @@
       showAddPicker.value = false
       pendingAddItems.value = []
       deselectAll()
-      if (selectedSequence.value === sequenceId) {
-        selectedSequenceItems.value = items
-        selectedSequenceEmpty.value = items.length === 0
-      }
       sequenceVersion.value++
       showSuccessDialog(
         added === 1 ? '1 item added to sequence' : `${added} items added to sequence`,
@@ -773,8 +777,30 @@
       if (!userId) return false
       const cached = await loadExploreCache(userId)
       const seq = cached?.sequences
-      if (!seq?.active?.length) return false
-      applySequenceLists(seq.active, seq.archived || [])
+      if (!seq?.active?.length && !seq?.archived?.length) return false
+      applySequenceLists(seq.active || [], seq.archived || [])
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /** Seed sequence ids from disk-cached my-content + metadata (before network). */
+  async function seedSequencesFromExploreDiskCache() {
+    try {
+      const env = await Agent.environment()
+      const userId = env?.auth?.user
+      if (!userId) return false
+      const cached = await loadExploreCache(userId)
+      const ids = cached?.myContent
+      if (!ids?.length) return false
+      const active = []
+      for (const id of ids) {
+        const meta = metadataCache.get(id)
+        if (meta?.active_type === 'application/json;type=sequence') active.push(id)
+      }
+      if (!active.length) return false
+      applySequenceLists(active, cached?.sequences?.archived || archivedSequenceIds.value)
       return true
     } catch {
       return false
@@ -792,6 +818,8 @@
   }
 
   async function loadMySequences({ silent = false } = {}) {
+    if (loading.value && myContent.length === 0) return
+
     const token = ++loadSequencesToken
     if (!silent && !mySequenceIds.value.length) sequencesLoading.value = true
     try {
@@ -813,8 +841,9 @@
       sequenceIds.forEach((id, i) => {
         const result = states[i]
         const state = result.status === 'fulfilled' ? result.value : null
-        if (state?.name) nameCache.set(id, state.name)
-        if (archivedIdSet.has(id) || state?.archived) archived.push(id)
+        if (!isValidSequenceAgentState(state)) return
+        if (state.name) nameCache.set(id, state.name)
+        if (archivedIdSet.has(id) || state.archived) archived.push(id)
         else active.push(id)
       })
 
@@ -848,14 +877,6 @@
     }
   }
 
-  watch(selectedSequence, async (id) => {
-    if (id && archivedSequenceIdSet.value.has(id)) {
-      selectedSequence.value = null
-      return
-    }
-    if (id) await loadSequenceItems(id)
-  })
-
   // ── Invalidate name cache on language change ──
   watch(() => store.getters.language(), async (newLang, oldLang) => {
     if (newLang && oldLang && newLang !== oldLang) {
@@ -869,21 +890,31 @@
   })
 
   // Refresh sequences when my-content list changes (e.g. after Explore prefetch)
-  watch(() => myContent.length, () => {
+  watch(() => myContent.length, (len, prev) => {
+    if (len === prev) return
     loadMySequences({ silent: mySequenceIds.value.length > 0 })
   })
 
-  watch(loading, (val) => {
-    if (!val) loadMySequences({ silent: mySequenceIds.value.length > 0 })
+  watch(loading, (isLoading, wasLoading) => {
+    if (wasLoading && !isLoading) {
+      loadMySequences({ silent: mySequenceIds.value.length > 0 })
+    }
   })
 
-  // ── Init (favorites — data loading handled by ContentBrowser) ──
+  // ── Init: load my-content + sequences in parallel (shared ensureLoaded with ContentBrowser) ──
   onMounted(async () => {
     loadFavorites().catch(() => {})
+    const exploreReady = ensureLoaded({ useDiskCache: true })
+
     const hadDiskList = await applyCachedSequenceList()
-    if (!hadDiskList) seedSequencesFromMetadataCache()
-    if (hadDiskList || mySequenceIds.value.length) sequencesLoading.value = false
-    loadMySequences({ silent: mySequenceIds.value.length > 0 })
+    if (!hadDiskList) {
+      await seedSequencesFromExploreDiskCache()
+      if (!mySequenceIds.value.length) seedSequencesFromMetadataCache()
+    }
+    if (mySequenceIds.value.length) sequencesLoading.value = false
+
+    await exploreReady
+    await loadMySequences({ silent: mySequenceIds.value.length > 0 })
   })
 </script>
 
@@ -917,6 +948,11 @@
   background: white;
   border-radius: 12px;
   padding: 20px 12px 12px 12px;
+  min-width: 0;
+}
+
+.sequences-filter {
+  min-width: 0;
 }
 
 .content-lib-header {
@@ -942,18 +978,6 @@
   font-weight: 500;
   color: #1e40af;
 }
-
-/* Empty sequence state */
-.empty-sequence-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 24px;
-  text-align: center;
-}
-
-
 
 /* Metadata panel */
 .metadata-panel {

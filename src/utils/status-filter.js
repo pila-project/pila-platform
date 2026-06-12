@@ -44,7 +44,11 @@ export function filterGroupIdsByStatus({
   return ids.sort((a, b) => {
     const aArchived = archivedIdSet.has(a)
     const bArchived = archivedIdSet.has(b)
-    if (aArchived === bArchived) return 0
-    return aArchived ? 1 : -1
+    if (aArchived !== bArchived) return aArchived ? 1 : -1
+
+    const nameCmp = getSearchText(a).localeCompare(getSearchText(b), undefined, { sensitivity: 'base' })
+    if (nameCmp !== 0) return nameCmp
+
+    return a.localeCompare(b)
   })
 }

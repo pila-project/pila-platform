@@ -68,9 +68,10 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useContentLibrary } from '@/utils/useContentLibrary.js'
+import { prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
 import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
 import NoResultsFound from '@/components/common/no-results-found.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -119,6 +120,17 @@ const paginatedDisplayList = computed(() => {
   const start = (contentPage.value - 1) * contentPerPage.value
   return displayList.value.slice(start, start + contentPerPage.value)
 })
+
+watch(paginatedDisplayList, (ids) => {
+  if (!ids.length || !props.useDiskCache) return
+  prefetchBatch(
+    ids,
+    store.getters.language(),
+    store.getters.tagPartition,
+    getCachedTagHierarchy()?.leafToCategory,
+    { priorityIds: ids },
+  ).catch(() => {})
+}, { immediate: true })
 
 onMounted(() => ensureLoaded({ useDiskCache: props.useDiskCache }))
 

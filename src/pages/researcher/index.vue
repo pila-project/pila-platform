@@ -23,7 +23,7 @@
     <div v-if="tab === 'files'">
       <Files />
     </div>
-    <AssignmentsFromMe
+    <ResearcherStudiesList
       v-if="tab === 'studies'"
       assignable_item_type="researcher-created"
       assignment_type="researcher-to-teacher"
@@ -37,7 +37,7 @@
   import Groups from '@/components/groups/group-viewer.vue'
   import RoleRequester from '@/components/roles/role-requester.vue'
   import Files from '@/components/content/file-browser.vue'
-  import AssignmentsFromMe from '@/pages/assignments/from-me/assignments-list.vue'
+  import ResearcherStudiesList from '@/pages/researcher/researcher-studies-list.vue'
 
   import ContentLibrary from '@/components/content/content-library.vue'
 
@@ -48,7 +48,7 @@
       ContentLibrary,
       Files,
       RoleRequester,
-      AssignmentsFromMe
+      ResearcherStudiesList
     },
     data() {
       return {

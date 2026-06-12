@@ -15,6 +15,7 @@ import {
   HOST_TO_PARTITION,
   HOST_TO_FIRST_LOAD_LANGUAGE
 } from '@/utils/constants.js'
+import { recordAuthLastLogin } from '@/utils/record-last-login.js'
 
 export default {
   modules: {
@@ -117,6 +118,7 @@ export default {
       commit('load', auth)
 
       if (state.user && state.provider !== 'anonymous') {
+        await recordAuthLastLogin(auth).catch(e => console.warn('[Store] lastLogin failed:', e))
         const start = Date.now()
         const pilaSession = await Agent.state(await Agent.create({
           active_type: 'application/json;type=pila_sessions',
@@ -153,19 +155,12 @@ export default {
         store.dispatch('assignments/load')
       ])
 
-      const timeout = new Promise(resolve => setTimeout(() => resolve(null), 10000))
-      const results = await Promise.race([allDispatches, timeout])
-
-      if (results) {
-        results.forEach((r, i) => {
-          if (r.status === 'rejected') {
-            console.error(`[Store] ${dispatchNames[i]} failed:`, r.reason)
-          }
-        })
-      } else {
-        console.warn('[Store] initialization timed out — showing login')
-        store.commit('load', { user: null, provider: 'anonymous' })
-      }
+      const results = await allDispatches
+      results.forEach((r, i) => {
+        if (r.status === 'rejected') {
+          console.error(`[Store] ${dispatchNames[i]} failed:`, r.reason)
+        }
+      })
 
       store.dispatch('loaded', true)
     }

@@ -295,7 +295,7 @@ import { validate as isUUID } from 'uuid'
 import getName from '@/utils/name-and-translation-for-content.js'
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
-import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+import { normalizeSequenceItems, createMapSequenceItems } from '@/utils/sequence-items.js'
 import { getContentMetadata, invalidate } from '@/utils/content-cache.js'
 import { PModal, PInput, PButton, PTable, PBadge, PMenu, PMenuItem } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -470,7 +470,7 @@ function onTableSelectionChange(rows) {
 }
 
 function buildCopyItems() {
-  return [...sequenceItemIds.value]
+  return createMapSequenceItems(sequenceItemIds.value)
 }
 
 function openContentBrowser() {

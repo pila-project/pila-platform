@@ -291,16 +291,25 @@ export function useContentLibrary(store) {
         ...myContentResult.map(t => t.target),
       ])]
       const leafToCategory = getCachedTagHierarchy()?.leafToCategory
-      await prefetchBatch(allIds, store.getters.language(), partition, leafToCategory)
-      notifyTagIndexUpdated()
 
-      if (userId) {
-        persistExploreCache(userId, {
-          taggedContent: taggedContent.value,
-          myContent: [...myContent],
-          tagCategories: tagCategories.value,
-          leafToCategory: leafToCategory ? [...leafToCategory] : [],
-        })
+      const persistAfterPrefetch = () => {
+        notifyTagIndexUpdated()
+        if (userId) {
+          persistExploreCache(userId, {
+            taggedContent: taggedContent.value,
+            myContent: [...myContent],
+            tagCategories: tagCategories.value,
+            leafToCategory: leafToCategory ? [...leafToCategory] : [],
+          })
+        }
+      }
+
+      const prefetch = prefetchBatch(allIds, store.getters.language(), partition, leafToCategory)
+      if (usedCache) {
+        prefetch.then(persistAfterPrefetch).catch(() => {})
+      } else {
+        await prefetch
+        persistAfterPrefetch()
       }
     } catch (e) {
       console.warn('[useContentLibrary] load error:', e)

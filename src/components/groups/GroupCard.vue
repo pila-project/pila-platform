@@ -45,14 +45,6 @@
           prepend-icon="lucide:archive-restore"
           @click="$emit('unarchive')"
         />
-        <PDivider v-if="!archived" />
-        <PMenuItem
-          v-if="!archived"
-          :title="t('delete-group')"
-          prepend-icon="lucide:trash-2"
-          danger
-          @click="$emit('delete')"
-        />
       </PMenu>
     </div>
 
@@ -97,7 +89,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
-import { PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'
+import { PMenu, PMenuItem } from '@/components/ui/index.js'
 import PButton from '@/components/ui/PButton.vue'
 
 const props = defineProps({
@@ -115,7 +107,7 @@ const groupSubject = computed(() => groupData.value.subject || '')
 const memberCount = computed(() => store.getters['groups/members'](props.groupId).length)
 
 const isDragOver = ref(false)
-const emit = defineEmits(['manage', 'edit', 'archive', 'unarchive', 'delete', 'print-login-codes', 'drop-student'])
+const emit = defineEmits(['manage', 'edit', 'archive', 'unarchive', 'print-login-codes', 'drop-student'])
 
 function onDragOver() {
   isDragOver.value = true

@@ -30,11 +30,18 @@
           :placeholder="t('search-assignments')"
         >
           <PUnifiedFilterSection
-            id="status"
+            id="archive-status"
+            :label="t('status')"
+            icon="badge-check"
+            :options="archiveStatusFilterOptions"
+            v-model="archiveStatusFilters"
+          />
+          <PUnifiedFilterSection
+            id="publication-status"
             :label="t('publication-status')"
             icon="table"
-            :options="statusOptions"
-            v-model="statusFilter"
+            :options="publicationStatusOptions"
+            v-model="publicationStatusFilter"
           />
           <PUnifiedFilterSection
             id="type"
@@ -207,12 +214,6 @@
                   prepend-icon="lucide:archive"
                   @click="startArchive(item.id)"
                 />
-                <PMenuItem
-                  :title="t('delete')"
-                  prepend-icon="lucide:trash-2"
-                  class="menu-item-danger"
-                  @click="startDelete(item.id)"
-                />
               </PMenu>
             </div>
           </template>
@@ -316,16 +317,6 @@
   </PModal>
 
   <!-- Confirmation Dialogs -->
-  <PAlertDialog
-    v-if="showDeleteDialog"
-    variant="error"
-    :title="`${t('are-you-sure-you-want-to-delete')} &quot;${pendingActionName}&quot;?`"
-    :description="t('delete-assignment-warning-archive') || t('archive-assignment-warning') || 'This removes the assignment from your active list. You can restore it from archived assignments.'"
-    :confirmText="t('delete-assignment')"
-    :cancelText="t('cancel')"
-    @confirm="confirmDelete"
-    @cancel="showDeleteDialog = false"
-  />
   <PModal
     v-if="showDuplicateDialog"
     @close="showDuplicateDialog = false"
@@ -349,16 +340,46 @@
       <PButton variant="primary" :text="t('duplicate-assignment')" @click="confirmDuplicate" />
     </template>
   </PModal>
-  <PAlertDialog
+  <PModal
     v-if="showArchiveDialog"
-    variant="warning"
-    :title="t('are-you-sure-you-want-to-archive-this-assignment')"
-    :description="`${t('archive')} &quot;${pendingActionName}&quot; ${t('to-remove-from-active-lists-while-preserving-data')}`"
-    :confirmText="t('archive-assignment')"
-    :cancelText="t('cancel')"
-    @confirm="confirmArchive"
-    @cancel="showArchiveDialog = false"
-  />
+    width="520px"
+    @close="closeArchiveDialog"
+  >
+    <template #title>
+      <span class="flex items-center gap-2">
+        <LucideIcon name="archive" :size="16" />
+        {{ archiveDialogTitle }}
+      </span>
+    </template>
+    <template #body>
+      <p class="archive-dialog-intro">{{ archiveDialogIntro }}</p>
+      <div class="archive-scope-options">
+        <div
+          v-for="opt in archiveScopeOptions"
+          :key="opt.value"
+          class="archive-scope-option"
+          @click="archiveScope = opt.value"
+        >
+          <div class="archive-scope-radio" :class="{ 'archive-scope-radio--selected': archiveScope === opt.value }">
+            <div v-if="archiveScope === opt.value" class="archive-scope-radio-dot" />
+          </div>
+          <div class="archive-scope-content">
+            <span class="archive-scope-label">{{ opt.label }}</span>
+            <span class="archive-scope-desc">{{ opt.description }}</span>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template #footer>
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="closeArchiveDialog" />
+      <PButton
+        variant="primary"
+        :text="archiveConfirmLabel"
+        :loading="archiveConfirmLoading"
+        @click="confirmArchive"
+      />
+    </template>
+  </PModal>
 
   <!-- Success Confirmation -->
   <PAlertDialog
@@ -390,6 +411,11 @@
   import CandliDashboard from './candli-dashboard.vue'
   import GenAIDashboard from './gen-ai-dashboard.vue'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
+  import {
+    STATUS_FILTER,
+    defaultActiveStatusFilters,
+    buildStatusFilterOptions,
+  } from '@/utils/status-filter.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -404,7 +430,6 @@
   // ── Core state ──
   const current = ref(null)
   const showEditModal = ref(false)
-  const showArchived = ref(false)
   const previewing = ref(null)
   const showResultsModal = ref(false)
   const showCandliResultsModal = ref(false)
@@ -426,13 +451,16 @@
   const wasCreating = ref(false)
 
   // ── Filter state ──
-  const statusFilter = ref([])
+  const archiveStatusFilters = ref(defaultActiveStatusFilters())
+  const publicationStatusFilter = ref([])
   const typeFilter = ref([])
   const dueDateFilter = ref(null)
   const assignedToFilter = ref([])
   const assignedToTab = ref('all')
 
-  const statusOptions = computed(() => [
+  const archiveStatusFilterOptions = computed(() => buildStatusFilterOptions(t))
+
+  const publicationStatusOptions = computed(() => [
     { value: 'Published', label: t('published') },
     { value: 'Draft', label: t('draft') },
     { value: 'Scheduled', label: t('scheduled') },
@@ -539,9 +567,10 @@
   }
 
   // ── Confirmation dialog state ──
-  const showDeleteDialog = ref(false)
   const showDuplicateDialog = ref(false)
   const showArchiveDialog = ref(false)
+  const archiveScope = ref('me')
+  const archiveConfirmLoading = ref(false)
   const pendingActionItem = ref(null)
   const duplicateNewTitle = ref('')
   const duplicateSourceName = ref('')
@@ -550,6 +579,47 @@
     if (!pendingActionItem.value) return ''
     return assignmentData[pendingActionItem.value]?.name || t('this-assignment')
   })
+
+  const pendingArchiveGroupCount = computed(() => {
+    if (!pendingActionItem.value) return 0
+    return getAssignedGroups(pendingActionItem.value).length
+  })
+
+  const archiveDialogTitle = computed(() => t('archive-assignment-confirm-title'))
+
+  const archiveDialogIntro = computed(() =>
+    t('archive-assignment-confirm-intro').replace('{name}', pendingActionName.value),
+  )
+
+  const archiveScopeOptions = computed(() => {
+    const groupCount = pendingArchiveGroupCount.value
+    const groupsPhrase = groupCount === 1
+      ? t('archive-assignment-one-group')
+      : t('archive-assignment-n-groups').replace('{count}', String(groupCount))
+
+    return [
+      {
+        value: 'me',
+        label: t('archive-assignment-for-me-label'),
+        description: groupCount > 0
+          ? t('archive-assignment-for-me-description').replace('{groups}', groupsPhrase)
+          : t('archive-assignment-for-me-description-draft'),
+      },
+      {
+        value: 'all',
+        label: t('archive-assignment-for-all-label'),
+        description: groupCount > 0
+          ? t('archive-assignment-for-all-description').replace('{groups}', groupsPhrase)
+          : t('archive-assignment-for-all-description-draft'),
+      },
+    ]
+  })
+
+  const archiveConfirmLabel = computed(() =>
+    archiveScope.value === 'all'
+      ? t('archive-assignment-for-all-label')
+      : t('archive-assignment-for-me-label'),
+  )
 
   // ── Assignment data cache (for search/filter) ──
   const assignmentData = reactive({})
@@ -587,8 +657,14 @@
   )
 
   const allAssignments = computed(() => {
-    if (showArchived.value) return [...assignable_items.value, ...archived_assignable_items.value]
-    return assignable_items.value
+    const ids = []
+    if (archiveStatusFilters.value.includes(STATUS_FILTER.ACTIVE)) {
+      ids.push(...assignable_items.value)
+    }
+    if (archiveStatusFilters.value.includes(STATUS_FILTER.ARCHIVED)) {
+      ids.push(...archived_assignable_items.value)
+    }
+    return ids
   })
 
   // Load data for all assignments
@@ -610,9 +686,9 @@
       })
     }
 
-    // Status filter
-    if (statusFilter.value.length > 0) {
-      items = items.filter(id => statusFilter.value.includes(getStatus(id)))
+    // Publication status filter
+    if (publicationStatusFilter.value.length > 0) {
+      items = items.filter(id => publicationStatusFilter.value.includes(getStatus(id)))
     }
 
     // Type filter
@@ -661,8 +737,19 @@
     }))
   })
 
+  const hasNonDefaultArchiveStatusFilter = computed(() => {
+    const defaults = defaultActiveStatusFilters()
+    return archiveStatusFilters.value.length !== defaults.length
+      || !defaults.every(status => archiveStatusFilters.value.includes(status))
+  })
+
   const hasActiveFilters = computed(() => {
-    return searchQuery.value || statusFilter.value.length || typeFilter.value.length || dueDateFilter.value || assignedToFilter.value.length
+    return searchQuery.value
+      || hasNonDefaultArchiveStatusFilter.value
+      || publicationStatusFilter.value.length
+      || typeFilter.value.length
+      || dueDateFilter.value
+      || assignedToFilter.value.length
   })
 
   // ── Status derivation ──
@@ -697,14 +784,20 @@
     return t('not-set')
   }
 
+  function getPublicationDateTime(data) {
+    if (!data?.scheduledDate) return null
+    const time = data.scheduledTime || '00:00'
+    const dt = new Date(`${data.scheduledDate}T${time}`)
+    if (!Number.isNaN(dt.getTime())) return dt
+    const fallback = new Date(data.scheduledDate)
+    return Number.isNaN(fallback.getTime()) ? null : fallback
+  }
+
   function canViewSubmissions(id) {
     if (getStatus(id) !== 'Published') return false
     if (!getAssignedGroups(id).length) return false
-    const scheduled = assignmentData[id]?.scheduledDate
-    if (scheduled) {
-      const start = new Date(scheduled)
-      if (!Number.isNaN(start.getTime()) && start.getTime() > Date.now()) return false
-    }
+    const publishAt = getPublicationDateTime(assignmentData[id])
+    if (publishAt && publishAt.getTime() > Date.now()) return false
     return true
   }
 
@@ -715,7 +808,7 @@
     return classes.join(' ')
   }
 
-  const { archiveAssignment, restoreAssignment } = useAssignmentArchive(props.assignable_item_type)
+  const { archiveAssignment, archiveAssignmentForAll, restoreAssignment } = useAssignmentArchive(props.assignable_item_type)
 
   // ── Helpers ──
   function getAssignedGroups(id) {
@@ -743,11 +836,10 @@
   function getScheduledSubline(id) {
     if (getStatus(id) !== 'Scheduled') return ''
     const data = assignmentData[id]
-    if (!data?.scheduledDate && !data?.scheduledTime) return ''
-    const parts = []
-    if (data.scheduledDate) parts.push(formatDate(data.scheduledDate))
+    if (!data?.scheduledDate) return ''
+    const parts = [formatDate(data.scheduledDate)]
     if (data.scheduledTime) parts.push(formatTime(data.scheduledTime))
-    return `${t('for')} ${parts.join(' ')}`
+    return `${t('publishes-on')} ${parts.join(' ')}`
   }
 
   // ── CRUD actions ──
@@ -771,11 +863,6 @@
 
   async function readd(content_id) {
     await doRestoreAssignment(content_id)
-  }
-
-  function remove(content_id) {
-    store.dispatch('pila_tags/untag', { content_id, tag_type: props.assignable_item_type })
-    if (current.value === content_id) current.value = null
   }
 
   function openEdit(item) {
@@ -836,16 +923,23 @@
   // ── Archive ──
   function startArchive(item) {
     pendingActionItem.value = item
+    archiveScope.value = 'me'
     showArchiveDialog.value = true
   }
 
-  async function doArchiveAssignment(contentId) {
-    try {
+  function closeArchiveDialog() {
+    showArchiveDialog.value = false
+    archiveConfirmLoading.value = false
+    pendingActionItem.value = null
+  }
+
+  async function doArchiveAssignment(contentId, scope = 'me') {
+    if (scope === 'all') {
+      await archiveAssignmentForAll(contentId, props.assignment_type)
+    } else {
       await archiveAssignment(contentId)
-      if (assignmentData[contentId]) assignmentData[contentId].archived = true
-    } catch (e) {
-      console.error(e)
     }
+    if (assignmentData[contentId]) assignmentData[contentId].archived = true
   }
 
   async function doRestoreAssignment(contentId) {
@@ -857,28 +951,22 @@
     }
   }
 
-  function confirmArchive() {
+  async function confirmArchive() {
     const item = pendingActionItem.value
-    if (!item) return
-    doArchiveAssignment(item)
-    if (current.value === item) current.value = null
-    showArchiveDialog.value = false
-    pendingActionItem.value = null
-  }
-
-  // ── Delete ──
-  function startDelete(item) {
-    pendingActionItem.value = item
-    showDeleteDialog.value = true
-  }
-
-  function confirmDelete() {
-    const item = pendingActionItem.value
-    if (!item) return
-    doArchiveAssignment(item)
-    if (current.value === item) current.value = null
-    showDeleteDialog.value = false
-    pendingActionItem.value = null
+    if (!item || archiveConfirmLoading.value) return
+    archiveConfirmLoading.value = true
+    try {
+      await doArchiveAssignment(item, archiveScope.value)
+      if (current.value === item) current.value = null
+      const successKey = archiveScope.value === 'all'
+        ? 'archive-assignment-archived-for-all-success'
+        : 'archive-assignment-archived-for-me-success'
+      showSuccessDialog(t(successKey))
+      closeArchiveDialog()
+    } catch (e) {
+      console.error(e)
+      archiveConfirmLoading.value = false
+    }
   }
 
   // ── Dashboard ──
@@ -1198,5 +1286,75 @@
   .assign-progress-track {
     width: 120px;
   }
+}
+
+.archive-dialog-intro {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #64748b;
+  margin: 0 0 16px;
+}
+
+.archive-scope-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.archive-scope-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms;
+}
+
+.archive-scope-option:hover {
+  background: #f8fafc;
+}
+
+.archive-scope-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.archive-scope-radio--selected {
+  border-color: #2563eb;
+}
+
+.archive-scope-radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.archive-scope-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.archive-scope-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.archive-scope-desc {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #64748b;
 }
 </style>

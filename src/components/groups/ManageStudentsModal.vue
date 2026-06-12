@@ -171,13 +171,8 @@
     </template>
 
     <template #footer>
-      <div class="modal-footer-left">
-        <PButton v-if="showBack" variant="secondary" :text="t('back')" @click="$emit('back')" />
-      </div>
-      <div class="modal-footer-right">
-        <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
-        <PButton variant="primary" :text="hasChanges ? t('update') : t('done')" :loading="flushing" @click="handleDone" />
-      </div>
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
+      <PButton variant="primary" :text="hasChanges ? t('update') : t('done')" :loading="flushing" @click="handleDone" />
     </template>
   </PModal>
 </template>
@@ -199,10 +194,9 @@ import { useToast } from '@/utils/useToast.js'
 const props = defineProps({
   groupId: { type: String, required: true },
   students: { type: Array, default: () => [] },
-  showBack: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['close', 'back'])
+const emit = defineEmits(['close'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -573,15 +567,6 @@ async function handleDone() {
   text-align: center;
   color: var(--color-slate-400);
   font-size: 13px;
-}
-
-/* Footer layout */
-.modal-footer-left {
-  margin-right: auto;
-}
-.modal-footer-right {
-  display: flex;
-  gap: 8px;
 }
 
 /* Mobile */
