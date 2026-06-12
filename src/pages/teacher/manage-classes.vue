@@ -1590,6 +1590,7 @@ async function toggleArchiveStudent(item) {
   const usersState = await Agent.state('users')
   if (usersState[item.id]) {
     usersState[item.id].archived = !item.archived
+    await Agent.synced()
   }
 }
 
@@ -1762,6 +1763,7 @@ async function executeArchiveSelected() {
   for (const s of selectedStudents.value) {
     if (usersState[s.id]) usersState[s.id].archived = true
   }
+  await Agent.synced()
   archiveSelectedConfirm.value = false
   selectedStudents.value = []
   showSuccessDialog(t('students-archived-successfully'))
@@ -1863,6 +1865,7 @@ async function executeCreateStudentAccount() {
     const id = await createUser(userSecret, providerSecret, info)
     const usersState = await Agent.state('users')
     usersState[id] = { grade: newStudentGrade.value || undefined, secret: userSecret }
+    await Agent.synced()
     showCreateStudentForm.value = false
     newStudentName.value = ''
     newStudentNickname.value = ''
@@ -2002,6 +2005,7 @@ async function executeCSVImport(rows, duplicateSkipped, invalidSkipped = 0) {
         failed++
       }
     }
+    if (created > 0) await Agent.synced()
     showCSVUploadModal.value = false
     csvFile.value = null
     const skipped = invalidSkipped + duplicateSkipped + failed
@@ -2069,6 +2073,7 @@ async function executeBulkCreate(rows, duplicateSkipped) {
       await createSingleStudent(row.name, row.nickname, row.grade)
       created++
     }
+    if (created > 0) await Agent.synced()
     showBulkEntryModal.value = false
     bulkEntryRows.value = [
       { name: '', nickname: '', grade: '' },
@@ -2174,8 +2179,7 @@ function copyToClipboard(text) {
 }
 
 async function handleDropStudent(groupId, studentId) {
-  const members = store.getters['groups/members'](groupId)
-  if (members.some(m => m.user_id === studentId)) {
+  if (store.getters['groups/belongs'](studentId, groupId)) {
     toastInfo(t('student-already-in-group') || 'Student already in group')
     return
   }

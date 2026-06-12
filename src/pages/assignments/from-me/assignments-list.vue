@@ -911,6 +911,7 @@
     if (sourceState.dueTime) newState.dueTime = sourceState.dueTime
 
     store.dispatch('pila_tags/tag', { content_id: newId, tag_type: props.assignable_item_type })
+    await Agent.synced()
 
     // Load data for the new duplicate
     delete assignmentData[newId]

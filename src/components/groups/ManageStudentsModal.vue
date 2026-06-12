@@ -2,7 +2,7 @@
   <PModal
     :title="t('assign-students-to-group')"
     width="800px"
-    @close="$emit('close')"
+    @close="onRequestClose"
   >
     <template #title>
       <div>
@@ -171,17 +171,28 @@
     </template>
 
     <template #footer>
-      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="onRequestClose" />
       <PButton variant="primary" :text="hasChanges ? t('update') : t('done')" :loading="flushing" @click="handleDone" />
     </template>
   </PModal>
+
+  <PAlertDialog
+    v-if="showDiscardConfirm"
+    variant="warning"
+    :title="t('discard-changes') || 'Discard changes?'"
+    :description="t('unsaved-changes-will-be-lost') || 'Unsaved changes will be lost.'"
+    :confirmText="t('discard') || 'Discard'"
+    :cancelText="t('cancel')"
+    @confirm="discardAndClose"
+    @cancel="showDiscardConfirm = false"
+  />
 </template>
 
 <script setup>
 import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
-import { PModal, PButton, PBadge, PUnifiedFilter, PUnifiedFilterSection, PCheckbox } from '@/components/ui/index.js'
+import { PModal, PButton, PBadge, PUnifiedFilter, PUnifiedFilterSection, PCheckbox, PAlertDialog } from '@/components/ui/index.js'
 import {
   defaultActiveStatusFilters,
   buildStatusFilterOptions,
@@ -363,20 +374,30 @@ function onDrop(target) {
 
 // Deferred persistence: collect promises, flush on Done/Update
 const pendingOps = ref([])
+const changeLog = ref([])
 const flushing = ref(false)
-const hasChanges = computed(() => pendingOps.value.length > 0)
+const reverting = ref(false)
+const showDiscardConfirm = ref(false)
+const hasChanges = computed(() => changeLog.value.length > 0)
+
+function queueMemberOp(dispatchPromise, entry) {
+  pendingOps.value.push(dispatchPromise)
+  changeLog.value.push(entry)
+}
 
 // Actions — optimistic commit is instant, Agent persistence is deferred
 function addToGroup(userId) {
-  pendingOps.value.push(
-    store.dispatch('groups/addMember', { user_id: userId, group_id: props.groupId, defer: true })
+  queueMemberOp(
+    store.dispatch('groups/addMember', { user_id: userId, group_id: props.groupId, defer: true }),
+    { type: 'add', userId },
   )
 }
 
 function removeFromGroup(userId) {
   selectedGroup.delete(userId)
-  pendingOps.value.push(
-    store.dispatch('groups/removeMember', { user_id: userId, group_id: props.groupId, defer: true })
+  queueMemberOp(
+    store.dispatch('groups/removeMember', { user_id: userId, group_id: props.groupId, defer: true }),
+    { type: 'remove', userId },
   )
 }
 
@@ -398,9 +419,51 @@ async function handleDone() {
     try {
       await Promise.all(pendingOps.value)
       await store.dispatch('groups/flushMembers')
+      changeLog.value = []
+      pendingOps.value = []
     } finally {
       flushing.value = false
     }
+  }
+  emit('close')
+}
+
+function onRequestClose() {
+  if (hasChanges.value) {
+    showDiscardConfirm.value = true
+    return
+  }
+  emit('close')
+}
+
+async function revertChanges() {
+  const log = [...changeLog.value].reverse()
+  for (const change of log) {
+    if (change.type === 'add') {
+      await store.dispatch('groups/removeMember', {
+        user_id: change.userId,
+        group_id: props.groupId,
+        defer: true,
+      })
+    } else {
+      await store.dispatch('groups/addMember', {
+        user_id: change.userId,
+        group_id: props.groupId,
+        defer: true,
+      })
+    }
+  }
+  changeLog.value = []
+  pendingOps.value = []
+}
+
+async function discardAndClose() {
+  showDiscardConfirm.value = false
+  reverting.value = true
+  try {
+    await revertChanges()
+  } finally {
+    reverting.value = false
   }
   emit('close')
 }
