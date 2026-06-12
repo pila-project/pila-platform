@@ -260,7 +260,7 @@
   <!-- Dashboard Modals -->
   <PModal
     v-if="showResultsModal"
-    @close="showResultsModal = false"
+    @close="closeDashboard(resultsDashboardType)"
     :closeButtonText="t('close')"
     showCloseButton
     width="90vw"
@@ -280,7 +280,7 @@
   </PModal>
   <PModal
     v-if="showCandliResultsModal"
-    @close="showCandliResultsModal = false"
+    @close="closeDashboard('competency')"
     showCloseButton
     :closeButtonText="t('close')"
     width="90vw"
@@ -300,7 +300,7 @@
   </PModal>
   <PModal
     v-if="showGenAIDashboardModal"
-    @close="showGenAIDashboardModal = false"
+    @close="closeDashboard('generative-ai-module')"
     showCloseButton
     :closeButtonText="t('close')"
     width="90vw"
@@ -443,6 +443,8 @@
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
   const dashboardSubmenuItem = ref(null)
+  const openDashboardSession = ref(null)
+  const resultsDashboardType = ref('live-monitoring')
   const {
     successDialog,
     success: showSuccessDialog,
@@ -491,8 +493,13 @@
     unwatchUsers = Agent.watch('users', ({ state }) => {
       Object.entries(state).forEach(([key, value]) => { users[key] = value })
     })
+    window.addEventListener('pagehide', handlePageHide)
   })
-  onBeforeUnmount(() => { if (unwatchUsers) unwatchUsers() })
+  onBeforeUnmount(() => {
+    if (unwatchUsers) unwatchUsers()
+    window.removeEventListener('pagehide', handlePageHide)
+    closeOpenDashboardSession().catch(() => {})
+  })
 
   const activeGroupIds = computed(() => store.getters['groups/groups']('class', true))
 
@@ -981,28 +988,75 @@
     await reassessContents()
   }
 
-  async function openDashboard(item) {
+  function primaryDashboardType() {
+    return assignmentContainsBetty.value || assignmentContainsGenAI.value ? 'activity' : 'live-monitoring'
+  }
+
+  async function openDashboardWithXapi(item, dashboard) {
     current.value = item
     await reassessContents()
-    showResultsModal.value = true
+
+    if (dashboard === 'competency') showCandliResultsModal.value = true
+    else if (dashboard === 'generative-ai-module') showGenAIDashboardModal.value = true
+    else {
+      resultsDashboardType.value = dashboard === 'app-specific' ? primaryDashboardType() : dashboard
+      showResultsModal.value = true
+    }
+
+    openDashboardSession.value = { assignment: item, dashboard }
+    await writeDashboardXapi('opened-dashboard', item, dashboard)
+  }
+
+  async function openDashboard(item) {
+    await openDashboardWithXapi(item, 'app-specific')
   }
 
   async function openCandliDashboard(item) {
-    current.value = item
-    await reassessContents()
-    showCandliResultsModal.value = true
+    await openDashboardWithXapi(item, 'competency')
   }
 
   async function openLiveDashboard(item) {
-    current.value = item
-    await reassessContents()
-    showResultsModal.value = true
+    await openDashboardWithXapi(item, 'live-monitoring')
   }
 
   async function openGenAIDashboard(item) {
-    current.value = item
-    await reassessContents()
-    showGenAIDashboardModal.value = true
+    await openDashboardWithXapi(item, 'generative-ai-module')
+  }
+
+  async function closeDashboard(dashboard) {
+    if (dashboard === 'competency') showCandliResultsModal.value = false
+    else if (dashboard === 'generative-ai-module') showGenAIDashboardModal.value = false
+    else showResultsModal.value = false
+
+    await closeOpenDashboardSession()
+  }
+
+  function handlePageHide() {
+    closeOpenDashboardSession().catch(() => {})
+  }
+
+  async function closeOpenDashboardSession() {
+    const session = openDashboardSession.value
+    if (!session) return
+
+    openDashboardSession.value = null
+    await writeDashboardXapi('closed-dashboard', session.assignment, session.dashboard)
+  }
+
+  async function writeDashboardXapi(verb, assignment, dashboard) {
+    if (!assignment) return
+
+    const { auth: { user } } = await Agent.environment()
+    const xapi = await Agent.state(`teacher-dashboard-${assignment}-xapi`)
+    xapi.xapi = {
+      actor: user,
+      authority: user,
+      verb,
+      object: assignment,
+      extensions: {
+        dashboard,
+      },
+    }
   }
 
   async function handleOpenDashboardFromSubmissions(type) {
@@ -1011,8 +1065,9 @@
       await openCandliDashboard(current.value)
     } else if (type === 'genai') {
       await openGenAIDashboard(current.value)
+    } else if (type === 'live') {
+      await openLiveDashboard(current.value)
     } else {
-      // 'app' and 'live' both use the main results modal
       await openDashboard(current.value)
     }
   }

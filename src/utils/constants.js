@@ -104,7 +104,11 @@ export const DOMAIN_CODE_LISTS = {
   'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': ['jason', 'thai_access'],
   'polska-rct-2025.pilaproject.org': ['25-DOSTEP-RCT'],
   'france-rct-2025.pilaproject.org': ['25-ACCES-RCT'],
-  'ui-dev.pilaproject.org': ['ACCESS']
+  'ui-dev.pilaproject.org': ['ACCESS'],
+  'deutschland-rct-2026.pilaproject.org': ['26-PILA-RCT'],
+  'nederland-rct-2026.pilaproject.org': ['26-PILA-RCT'],
+  'latvija-rct-2026.pilaproject.org': ['26-PILA-RCT'],
+  'slovensko-rct-2026.pilaproject.org': ['26-PILA-RCT'],
 }
 
 export const DOMAIN_DATA_PROTECTION_LINKS = {
@@ -131,12 +135,21 @@ export const HOST_TO_PARTITION = {
   'polska-rct-2025.pilaproject.org': 'PILA Poland RCT 2025',
   'france-rct-2025.pilaproject.org': 'PILA France RCT 2025',
   'testing.pilaproject.org': 'PILA Testing',
-  'ui-dev.pilaproject.org': 'PILA UI Development'
+  'ui-dev.pilaproject.org': 'PILA UI Development',
+  'deutschland-rct-2026.pilaproject.org': 'PILA Germany RCT 2026',
+  'nederland-rct-2026.pilaproject.org': 'PILA Netherlands RCT 2026',
+  'latvija-rct-2026.pilaproject.org': 'PILA Latvia RCT 2026',
+  'slovensko-rct-2026.pilaproject.org': 'PILA Slovakia RCT 2026',
 }
 
 export const SIMPLIFIED_STUDY_DOMAINS = [
   'polska-rct-2025.pilaproject.org',
   'france-rct-2025.pilaproject.org',
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898',
+  'deutschland-rct-2026.pilaproject.org',
+  'nederland-rct-2026.pilaproject.org',
+  'latvija-rct-2026.pilaproject.org',
+  'slovensko-rct-2026.pilaproject.org',
 ]
 
 export const HOST_TO_EXTRA_TEACHER_TAGS = {
@@ -156,10 +169,18 @@ export const HOST_TO_EXTRA_TEACHER_TAGS = {
 export const HOST_TO_FIRST_LOAD_LANGUAGE = {
   'polska-rct-2025.pilaproject.org': 'pl',
   'france-rct-2025.pilaproject.org': 'fr',
-  'thailand.pilaproject.org': 'th'
+  'thailand.pilaproject.org': 'th',
+  'deutschland-rct-2026.pilaproject.org': 'de',
+  'nederland-rct-2026.pilaproject.org': 'nl',
+  'latvija-rct-2026.pilaproject.org': 'lv',
+  'slovensko-rct-2026.pilaproject.org': 'sk',
 }
 
 export const HOST_TO_FORCED_ASSIGNMENT_LANGUAGE = {
   'polska-rct-2025.pilaproject.org': 'pl',
-  'france-rct-2025.pilaproject.org': 'fr'
+  'france-rct-2025.pilaproject.org': 'fr',
+  'deutschland-rct-2026.pilaproject.org': 'de',
+  'nederland-rct-2026.pilaproject.org': 'nl',
+  'latvija-rct-2026.pilaproject.org': 'lv',
+  'slovensko-rct-2026.pilaproject.org': 'sk',
 }
