@@ -82,11 +82,8 @@
           @click:row="(_, { item }) => handleRowClick(item.id)"
           :noDataText="hasActiveFilters ? t('no-assignments-match-filters') : t('no-data-available')"
           :itemsPerPage="10"
-          :itemsPerPageOptions="[
-            { value: 10, title: '10' },
-            { value: 25, title: '25' },
-            { value: 50, title: '50' },
-          ]"
+          :itemsPerPageText="t('rows-per-page')"
+          :itemsPerPageOptions="assignmentTablePerPageOptions"
         >
           <template #item.title="{ item }">
             <div class="assign-cell-title">
@@ -416,6 +413,7 @@
     defaultActiveStatusFilters,
     buildStatusFilterOptions,
   } from '@/utils/status-filter.js'
+  import { tablePerPageOptions } from '@/utils/pagination-options.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -425,6 +423,7 @@
   const store = useStore()
   const router = useRouter()
   function t(slug) { return store.getters.t(slug) }
+  const assignmentTablePerPageOptions = computed(() => tablePerPageOptions(t))
   function titleCase(str) { return str?.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) ?? '' }
 
   // ── Core state ──

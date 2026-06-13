@@ -1,19 +1,31 @@
 <template>
-  <div class="pagination" :class="{ 'pagination--stacked': layout === 'stacked' }">
-    <div v-if="showRowCount || perPageOptions.length" class="pagination-info">
+  <div
+    class="pagination"
+    :class="{
+      'pagination--stacked': layout === 'stacked',
+      'pagination--no-nav': !showPageControls,
+    }"
+  >
+    <div v-if="showRowCount || normalizedOptions.length" class="pagination-info">
       <span v-if="showRowCount">{{ startItem }}–{{ endItem }} of {{ totalItems }}</span>
-      <span v-if="perPageOptions.length" class="pagination-per-page">
-        Rows per page:
+      <span v-if="normalizedOptions.length" class="pagination-per-page">
+        {{ perPageLabel }}:
         <select
           :value="perPage"
           class="pagination-select"
           @change="$emit('update:perPage', Number($event.target.value))"
         >
-          <option v-for="opt in perPageOptions" :key="opt" :value="opt">{{ opt }}</option>
+          <option
+            v-for="opt in normalizedOptions"
+            :key="opt.value"
+            :value="opt.value"
+          >
+            {{ opt.title }}
+          </option>
         </select>
       </span>
     </div>
-    <div class="pagination-controls">
+    <div v-if="showPageControls" class="pagination-controls">
       <button
         class="pagination-btn"
         :disabled="currentPage <= 1"
@@ -22,7 +34,13 @@
       >
         <LucideIcon name="chevron-left" :size="12" />
       </button>
-      <span class="pagination-page-info">
+      <PPageNumbers
+        v-if="totalPages > 1"
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @select="$emit('update:currentPage', $event)"
+      />
+      <span v-else class="pagination-page-info">
         Page {{ currentPage }} of {{ totalPages }}
       </span>
       <button
@@ -40,6 +58,8 @@
 <script setup>
 import { computed } from 'vue'
 import LucideIcon from './LucideIcon.vue'
+import PPageNumbers from './PPageNumbers.vue'
+import { ALL_PER_PAGE, isAllPerPage, normalizePerPageOptions } from '@/utils/pagination-options.js'
 
 const props = defineProps({
   totalItems: {
@@ -56,7 +76,11 @@ const props = defineProps({
   },
   perPageOptions: {
     type: Array,
-    default: () => [10, 25, 50],
+    default: () => [10, 25, 50, ALL_PER_PAGE],
+  },
+  perPageLabel: {
+    type: String,
+    default: 'Rows per page',
   },
   showRowCount: {
     type: Boolean,
@@ -71,9 +95,31 @@ const props = defineProps({
 
 defineEmits(['update:currentPage', 'update:perPage'])
 
-const totalPages = computed(() => Math.max(1, Math.ceil(props.totalItems / props.perPage)))
-const startItem = computed(() => (props.currentPage - 1) * props.perPage + 1)
-const endItem = computed(() => Math.min(props.currentPage * props.perPage, props.totalItems))
+const normalizedOptions = computed(() => normalizePerPageOptions(props.perPageOptions))
+
+const effectivePerPage = computed(() => (
+  isAllPerPage(props.perPage) ? props.totalItems || 1 : props.perPage
+))
+
+const totalPages = computed(() => (
+  isAllPerPage(props.perPage)
+    ? 1
+    : Math.max(1, Math.ceil(props.totalItems / effectivePerPage.value))
+))
+
+const showPageControls = computed(() => !isAllPerPage(props.perPage) && totalPages.value > 1)
+
+const startItem = computed(() => {
+  if (!props.totalItems) return 0
+  if (isAllPerPage(props.perPage)) return 1
+  return (props.currentPage - 1) * props.perPage + 1
+})
+
+const endItem = computed(() => {
+  if (!props.totalItems) return 0
+  if (isAllPerPage(props.perPage)) return props.totalItems
+  return Math.min(props.currentPage * props.perPage, props.totalItems)
+})
 </script>
 
 <style>
@@ -113,6 +159,6 @@ const endItem = computed(() => Math.min(props.currentPage * props.perPage, props
 }
 
 .pagination--stacked .pagination-select {
-  max-width: 52px;
+  max-width: 72px;
 }
 </style>

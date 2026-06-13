@@ -59,15 +59,12 @@
           :disabled="currentIndex === 0"
           @click="currentIndex--"
         />
-        <div class="preview-dots">
-          <button
-            v-for="(_, i) in seqState.items"
-            :key="i"
-            class="preview-dot"
-            :class="{ 'preview-dot-active': i === currentIndex }"
-            @click="currentIndex = i"
-          >{{ i + 1 }}</button>
-        </div>
+        <PPageNumbers
+          v-if="seqState.items.length > 1"
+          :current-page="currentIndex + 1"
+          :total-pages="seqState.items.length"
+          @select="currentIndex = $event - 1"
+        />
         <PButton
           variant="primary"
           text="Next"
@@ -85,7 +82,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
-import { PModal, PButton } from '@/components/ui/index.js'
+import { PModal, PButton, PPageNumbers } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { normalizeSequenceItems } from '@/utils/sequence-items.js'
 
@@ -188,34 +185,5 @@ onMounted(async () => {
   gap: 12px;
 }
 
-.preview-dots {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
 
-.preview-dot {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 150ms;
-}
-.preview-dot:hover {
-  background: #f8fafc;
-}
-.preview-dot-active {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
-}
 </style>

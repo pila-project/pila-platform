@@ -56,11 +56,12 @@
 
     <!-- Pagination -->
     <PPagination
-      v-if="displayList.length > contentPerPage"
+      v-if="showPagination"
       :totalItems="displayList.length"
       :currentPage="contentPage"
       :perPage="contentPerPage"
-      :perPageOptions="perPageOptions"
+      :perPageOptions="perPageOptionsForPagination"
+      :perPageLabel="t('rows-per-page')"
       @update:currentPage="contentPage = $event"
       @update:perPage="contentPerPage = $event; contentPage = 1"
     />
@@ -76,6 +77,11 @@ import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
 import NoResultsFound from '@/components/common/no-results-found.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { PUnifiedFilter, PUnifiedFilterSection, PTabs, PPagination } from '@/components/ui/index.js'
+import {
+  ALL_PER_PAGE,
+  isAllPerPage,
+  normalizePerPageOptions,
+} from '@/utils/pagination-options.js'
 
 const props = defineProps({
   columns: { type: Number, default: 3 },
@@ -116,7 +122,21 @@ const displayList = computed(() => {
 /** Spinner while fetching; keep showing cached grid during background revalidate. */
 const showGridLoading = computed(() => loading.value && !displayList.value.length)
 
+const perPageOptionsForPagination = computed(() => {
+  const opts = props.perPageOptions?.length ? props.perPageOptions : [12, 24, 48]
+  const normalized = normalizePerPageOptions(opts, t)
+  if (!normalized.some((opt) => opt.value === ALL_PER_PAGE)) {
+    normalized.push({ value: ALL_PER_PAGE, title: t('all') || 'All' })
+  }
+  return normalized
+})
+
+const showPagination = computed(() => (
+  perPageOptionsForPagination.value.length > 0 && displayList.value.length > 0
+))
+
 const paginatedDisplayList = computed(() => {
+  if (isAllPerPage(contentPerPage.value)) return displayList.value
   const start = (contentPage.value - 1) * contentPerPage.value
   return displayList.value.slice(start, start + contentPerPage.value)
 })

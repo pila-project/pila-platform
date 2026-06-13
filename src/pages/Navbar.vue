@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import languageChoices from '../store/languageChoices.js'
+import languageChoices from '../store/language-choices.js'
 import { useStore } from 'vuex'
 import { PButton } from '@/components/ui/index.js'
 const store = useStore()

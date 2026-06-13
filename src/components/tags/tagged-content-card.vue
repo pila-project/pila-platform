@@ -3,11 +3,13 @@
     class="pcard"
     :class="{
       'pcard-selected': props.selected,
+      'pcard-checked': assignmentPicker && checked && !inAssignment,
       'pcard-dragging': isDragging,
       'pcard-in-assignment': inAssignment,
-      'pcard-no-drag': !draggable,
+      'pcard-no-drag': !isDraggable,
+      'pcard-assignment-picker': assignmentPicker,
     }"
-    :draggable="draggable || undefined"
+    :draggable="isDraggable || undefined"
     @dragstart="onCardDragStart"
     @dragend="onCardDragEnd"
   >
@@ -32,15 +34,20 @@
             <LucideIcon name="check" :size="10" />
             {{ t('in-assignment') || 'In assignment' }}
           </span>
-          <span v-if="sequenceCount" class="pcard-seq-count">
+          <span v-if="!assignmentPicker && sequenceCount" class="pcard-seq-count">
             {{ sequenceCount }}
             <LucideIcon name="folders" :size="12" />
           </span>
-          <button class="pcard-heart-btn" :class="{ 'pcard-heart-active': favorited }" @click.stop="$emit('toggle-favorite')">
+          <button
+            v-if="!assignmentPicker"
+            class="pcard-heart-btn"
+            :class="{ 'pcard-heart-active': favorited }"
+            @click.stop="$emit('toggle-favorite')"
+          >
             <LucideIcon name="heart" :size="14" />
           </button>
         </template>
-        <span v-if="draggable || sequenceView" class="pcard-drag-handle" aria-hidden="true">
+        <span v-if="isDraggable || sequenceView" class="pcard-drag-handle" aria-hidden="true">
           <LucideIcon name="grip-vertical" :size="12" />
         </span>
       </div>
@@ -96,8 +103,8 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="pcard-actions">
+    <!-- Actions (hidden in assignment content picker — use checkbox + bulk add) -->
+    <div v-if="!assignmentPicker" class="pcard-actions">
       <PButton
         variant="secondary"
         size="sm"
@@ -180,7 +187,11 @@ import { PCheckbox } from '@/components/ui/index.js'
     sequenceView: Boolean,
     orderIndex: { type: Number, default: null },
     draggable: { type: Boolean, default: true },
+    /** Assignment wizard content picker: checkbox + in-assignment badge only. */
+    assignmentPicker: Boolean,
   })
+
+  const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
 
   const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
 
@@ -210,7 +221,7 @@ import { PCheckbox } from '@/components/ui/index.js'
   }
 
   function onCardDragStart(event) {
-    if (!props.draggable) {
+    if (!isDraggable.value) {
       event.preventDefault()
       return
     }
@@ -268,6 +279,34 @@ import { PCheckbox } from '@/components/ui/index.js'
 }
 .pcard-no-drag {
   cursor: default;
+}
+.pcard-assignment-picker {
+  cursor: default;
+  overflow: visible;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+}
+.pcard-assignment-picker:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.pcard-assignment-picker.pcard-checked,
+.pcard-assignment-picker.pcard-selected {
+  border-color: var(--color-primary-300, #93c5fd);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+.pcard-assignment-picker.pcard-in-assignment {
+  border-color: #86efac;
+  outline: none;
+  background: #f0fdf4;
+}
+.pcard-assignment-picker .pcard-image-area {
+  overflow: hidden;
+  border-radius: 14px 14px 0 0;
+}
+.pcard-assignment-picker .pcard-content {
+  padding-bottom: 12px;
 }
 .pcard-order-badge {
   display: inline-flex;

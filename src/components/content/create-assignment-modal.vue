@@ -67,12 +67,6 @@
               type="date"
             />
           </div>
-          <PInput
-            v-model="form.dueTime"
-            label="Due time(Optional)"
-            placeholder="--:-- --"
-            type="time"
-          />
         </div>
 
         <!-- Step 2: Add Content -->
@@ -91,7 +85,7 @@
             v-if="browsingContent"
             :columns="2"
             :per-page="6"
-            :per-page-options="[6, 12, 24]"
+            :per-page-options="assignmentGridPerPageOptions"
             use-disk-cache
           >
             <template #card="{ id, source, grades }">
@@ -318,8 +312,11 @@ import ContentBrowser from './content-browser.vue'
 import PreviewModal from '@/components/common/preview-modal.vue'
 import { PModal, PInput, PButton, PSelect } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { gridPerPageOptions } from '@/utils/pagination-options.js'
 
 const store = useStore()
+function t(slug) { return store.getters.t(slug) }
+const assignmentGridPerPageOptions = computed(() => gridPerPageOptions(t, [6, 12, 24]))
 
 const props = defineProps({
   contentIds: { type: Array, default: () => [] },
@@ -342,7 +339,6 @@ const form = reactive({
   description: '',
   assignmentType: '',
   dueDate: '',
-  dueTime: '',
   contentIds: [...props.contentIds],
   allowLate: true,
   maxAttempts: '',

@@ -1,9 +1,10 @@
 <template>
-	<PILAModal
+	<PModal
 		showCloseButton
 		@close="modalClose($event)"
 		:closeButtonText="t('create-account')"
 		class="teacher-agreement-modal"
+		width="800px"
 	>
 		<template v-slot:title>
 			{{ t('terms-of-service-and-data-protection-notice') }}
@@ -33,11 +34,11 @@
 				</div>
 			</div>
 		</template>
-	</PILAModal>
+	</PModal>
 </template>
 
 <script>
-import PILAModal from '../../components/PILAModal.vue'
+import { PModal } from '@/components/ui/index.js'
 import {
 	DOMAIN_DATA_PROTECTION_LINKS,
 	HOST_TO_PARTITION,
@@ -50,7 +51,7 @@ const PARTITION = HOST_TO_PARTITION[window.location.host]
 
 export default {
 	name: 'teacher-agreement',
-	components: { PILAModal },
+	components: { PModal },
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
 		async modalClose(e) {
@@ -116,9 +117,6 @@ export default {
 
 
 <style >
-.teacher-agreement .teacher-agreement-modal > .modal-content {
-	margin-top: 5vh;
-}
 .teacher-agreement .teacher-agreement-body {
 	padding: 10px 30px 0 20px;
 	color: #1b1b83;

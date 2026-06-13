@@ -160,11 +160,8 @@
               selectable
               :selected="tableSelectedRows"
               :items-per-page="10"
-              :items-per-page-options="[
-                { value: 10, title: '10' },
-                { value: 25, title: '25' },
-                { value: 50, title: '50' },
-              ]"
+              :items-per-page-text="t('rows-per-page')"
+              :items-per-page-options="sequenceTablePerPageOptions"
               draggable-rows
               :no-data-text="translateOr('no-matching-items', 'No matching items')"
               @update:selected="onTableSelectionChange"
@@ -303,12 +300,14 @@ import PreviewModal from '@/components/common/preview-modal.vue'
 import CopyModifyContentPicker from './copy-modify-content-picker.vue'
 import { useStore } from 'vuex'
 import { useFeedback } from '@/composables/useFeedback.js'
+import { tablePerPageOptions } from '@/utils/pagination-options.js'
 
 const MODAL_WIDTH = '984px'
 const SUCCESS_MODAL_WIDTH = '520px'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+const sequenceTablePerPageOptions = computed(() => tablePerPageOptions(t))
 
 function translateOr(slug, fallback) {
   const value = t(slug)

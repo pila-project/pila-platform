@@ -200,6 +200,7 @@ export function useContentLibrary(store) {
   })
 
   const paginatedContentList = computed(() => {
+    if (contentPerPage.value === -1) return filteredContentList.value
     const start = (contentPage.value - 1) * contentPerPage.value
     return filteredContentList.value.slice(start, start + contentPerPage.value)
   })

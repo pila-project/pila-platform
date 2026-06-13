@@ -63,4 +63,9 @@ export default {
   'set-publication-date': 'Set when this assignment will be published to students',
   'set-publication-date-to-save': 'Set a publication date to save.',
   'publishes-on': 'Publishes on',
+
+  'view-students': 'View students',
+  'download-login': 'Download login',
+  'without-login-codes': 'without login codes (not shown below).',
+  'view-and-download-login-code': 'View and download login code',
 }

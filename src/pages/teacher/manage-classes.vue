@@ -90,11 +90,7 @@
             @update:selected="setSelectedStudents"
             :row-class="studentRowClass"
             :items-per-page="25"
-            :items-per-page-options="[
-              { value: 10, title: '10' },
-              { value: 25, title: '25' },
-              { value: 50, title: '50' }
-            ]"
+            :items-per-page-options="studentTablePerPageOptions"
             :no-data-text="t('you-currently-have-no-students')"
             :items-per-page-text="t('rows-per-page')"
             draggable-rows
@@ -1014,6 +1010,7 @@ import codeCharToIcon from '@/utils/code-char-to-icon.js'
 import { formatLoginCodePlain } from '@/utils/login-code-display.js'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import { useFeedback } from '@/composables/useFeedback.js'
+import { tablePerPageOptions } from '@/utils/pagination-options.js'
 import { useBulkSelection } from '@/composables/useBulkSelection.js'
 import { useDuplicateGuard, partitionBulkStudentRows, findDuplicateName } from '@/composables/useDuplicateGuard.js'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
@@ -1027,6 +1024,7 @@ import {
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+const studentTablePerPageOptions = computed(() => tablePerPageOptions(t))
 
 // ── State ──
 const siteOrigin = window.location.origin

@@ -107,8 +107,9 @@
 
     <!-- Pagination -->
     <div
-      v-if="showPagination"
+      v-if="showPaginationBar"
       class="ptable-pagination"
+      :class="{ 'ptable-pagination--no-nav': !showPageNavigation }"
     >
       <div class="ptable-pagination-info">
         <span v-if="selectable && selectedCount > 0" class="ptable-selected-count">
@@ -131,8 +132,8 @@
           </option>
         </select>
       </div>
-      <div class="ptable-pagination-right">
-        <span class="ptable-page-label">Page {{ currentPage }} of {{ totalPages }}</span>
+      <div v-if="showPageNavigation" class="ptable-pagination-right">
+        <span v-if="totalPages <= 1" class="ptable-page-label">Page {{ currentPage }} of {{ totalPages }}</span>
         <div class="ptable-page-buttons">
           <button
             class="ptable-page-btn"
@@ -150,6 +151,12 @@
           >
             <LucideIcon name="chevron-left" :size="12" />
           </button>
+          <PPageNumbers
+            v-if="totalPages > 1"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @select="currentPage = $event"
+          />
           <button
             class="ptable-page-btn"
             :disabled="currentPage >= totalPages"
@@ -176,6 +183,7 @@
 import { ref, computed, watch } from 'vue'
 import LucideIcon from './LucideIcon.vue'
 import { PButton, PCheckbox } from './index.js'
+import PPageNumbers from './PPageNumbers.vue'
 
 const props = defineProps({
   headers: {
@@ -227,7 +235,14 @@ const expandedRows = ref(new Set())
 
 const perPageOptions = computed(() => props.itemsPerPageOptions)
 
-const showPagination = computed(() => currentPerPage.value !== -1)
+/** Keep footer hidden when parent fixed itemsPerPage to -1 (e.g. researcher studies). */
+const showPaginationBar = computed(() => {
+  if (!props.itemsPerPageOptions.length) return false
+  if (props.itemsPerPage === -1 && currentPerPage.value === -1) return false
+  return true
+})
+
+const showPageNavigation = computed(() => currentPerPage.value !== -1)
 
 const totalColumns = computed(() => {
   let cols = props.headers.length
@@ -387,17 +402,17 @@ function toggleExpand(item) {
 }
 
 .ptable-pagination {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: 12px 16px;
   border-top: 1px solid #e2e8f0;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
 .ptable-pagination-info {
-  flex-shrink: 0;
+  grid-column: 1;
+  justify-self: start;
 }
 
 .ptable-selected-count {
@@ -407,6 +422,8 @@ function toggleExpand(item) {
 }
 
 .ptable-pagination-center {
+  grid-column: 2;
+  justify-self: center;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -426,10 +443,11 @@ function toggleExpand(item) {
 }
 
 .ptable-pagination-right {
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
 }
 
 .ptable-page-label {

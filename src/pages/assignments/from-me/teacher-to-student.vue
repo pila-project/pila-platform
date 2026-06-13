@@ -56,12 +56,6 @@
           type="date"
         />
       </div>
-      <PInput
-        v-model="dueTime"
-        :label="t('due-time')"
-        :placeholder="t('time-format-placeholder')"
-        type="time"
-      />
     </div>
 
     <!-- ═══════════════ Step 2: Assignment content only (library opens in modal) ═══════════════ -->
@@ -257,9 +251,9 @@
       />
       <PButton
         v-if="currentStep > 1"
-        variant="ghost"
+        variant="outline"
         :text="t('back')"
-        @click="currentStep--"
+        @click="onBack"
       />
       <div class="flex-1" />
       <PTooltip
@@ -313,8 +307,19 @@
       <div class="cb-modal">
         <!-- Header -->
         <div class="cb-modal-header">
+          <div class="cb-modal-header-side">
+            <PButton
+              variant="outline"
+              size="sm"
+              icon="lucide:arrow-left"
+              :text="t('back')"
+              @click="selectingContent = false"
+            />
+          </div>
           <h2 class="cb-modal-title">{{ t('add-content-item-or-sequence') }}</h2>
-          <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="selectingContent = false" />
+          <div class="cb-modal-header-side cb-modal-header-side--end">
+            <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="selectingContent = false" />
+          </div>
         </div>
 
         <!-- Explore content library header -->
@@ -346,13 +351,12 @@
             <template #card="{ id, source, grades }">
               <TaggedContentCard
                 :id="id"
+                assignment-picker
                 :checked="isInAssignmentContent(id) || cbSelectedItems.has(id)"
                 :in-assignment="isInAssignmentContent(id)"
                 :source="source"
                 :grades="grades"
                 @toggle-select="toggleModalContent(id)"
-                @preview="previewing = id"
-                @add="onPickerAdd(id)"
               />
             </template>
           </ContentBrowser>
@@ -423,7 +427,7 @@
   // ── Step 1: Title & Instructions (visual-only fields) ──
   const assignmentType = ref('')
   const dueDate = ref('')
-  const dueTime = ref('')
+  const DEFAULT_DUE_TIME = '00:00'
   const assignmentTypeOptions = computed(() => [t('assessment'), t('practice'), t('homework'), t('learning')])
 
   // ── Step 3: Assignment Details (all visual-only) ──
@@ -661,6 +665,14 @@
     currentStep.value++
   }
 
+  function onBack() {
+    if (currentStep.value === 2 && selectingContent.value) {
+      selectingContent.value = false
+      return
+    }
+    currentStep.value--
+  }
+
   // ── Content browser (overlay modal selection) ──
   const cbSelectedItems = reactive(new Set())
 
@@ -700,17 +712,6 @@
     cbSelectedItems.add(id)
   }
 
-  function onPickerAdd(id) {
-    if (isInAssignmentContent(id)) {
-      toastInfo(t('already-in-assignment') || 'This item is already in the assignment')
-      return
-    }
-    if (onContentSelect(id)) {
-      cbSelectedItems.delete(id)
-      selectingContent.value = false
-    }
-  }
-
   function addSelectedContent() {
     const newIds = [...cbSelectedItems].filter(id => !assignmentContentIdSet.value.has(id))
     const skipped = cbSelectedItems.size - newIds.length
@@ -739,7 +740,7 @@
     state.content = [...contentList.value]
     state.assignmentType = assignmentType.value || 'Assignment'
     state.dueDate = dueDate.value || null
-    state.dueTime = dueTime.value || null
+    state.dueTime = dueDate.value ? DEFAULT_DUE_TIME : null
     state.allowLate = allowLate.value
     state.maxAttempts = maxAttempts.value || '1 attempt'
     state.feedbackTiming = feedbackTiming.value || 'At the end'
@@ -801,7 +802,6 @@
       // Load persisted settings
       if (state.assignmentType) assignmentType.value = state.assignmentType
       if (state.dueDate) dueDate.value = state.dueDate
-      if (state.dueTime) dueTime.value = state.dueTime
       if (state.allowLate !== undefined) allowLate.value = state.allowLate
       if (state.maxAttempts) maxAttempts.value = state.maxAttempts
       if (state.feedbackTiming) feedbackTiming.value = state.feedbackTiming
@@ -1081,6 +1081,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  padding: 2px;
 }
 
 /* ── Step 3: Toggle switches ── */
@@ -1157,6 +1158,7 @@
   margin-top: 4px;
   max-height: 200px;
   overflow-y: auto;
+  padding: 2px;
 }
 
 .group-card {
@@ -1344,12 +1346,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e2e8f0;
   flex-shrink: 0;
 }
 
+.cb-modal-header-side {
+  flex: 0 0 88px;
+}
+
+.cb-modal-header-side--end {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .cb-modal-title {
+  flex: 1;
+  text-align: center;
   font-size: 18px;
   font-weight: 600;
   color: #1e293b;
@@ -1388,6 +1402,7 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  padding: 2px 4px 4px;
 }
 
 /* ── Mobile Responsive ── */

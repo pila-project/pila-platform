@@ -170,7 +170,7 @@
           ref="browserRef"
           :columns="3"
           :per-page="12"
-          :per-page-options="[12, 24, 48]"
+          :per-page-options="exploreGridPerPageOptions"
           :extra-filter="contentExploreFilter"
           use-disk-cache
         >
@@ -333,7 +333,15 @@
       @saved="onExploreAssignmentSaved"
     />
 
-    <!-- Edit assignment (from Explore “Go to assignment”) -->
+    <!-- View assignment details (from Explore “Go to assignment”) -->
+    <ViewAssignmentDetailsModal
+      v-if="viewAssignmentDetailsId"
+      :id="viewAssignmentDetailsId"
+      @close="viewAssignmentDetailsId = null"
+      @edit="openEditFromAssignmentDetails"
+    />
+
+    <!-- Edit assignment (from details modal or elsewhere) -->
     <CreateEditAssignmentModal
       v-if="editAssignmentId"
       :id="editAssignmentId"
@@ -375,6 +383,7 @@
   import CopyModifyModal from './copy-modify-modal.vue'
   import { v4 as uuid } from 'uuid'
   import CreateEditAssignmentModal from '@/pages/assignments/from-me/create-edit-assignment-modal.vue'
+  import ViewAssignmentDetailsModal from '@/pages/assignments/from-me/view-assignment-details-modal.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import setTagging from '@/utils/set-tagging.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
@@ -398,6 +407,7 @@
     buildStatusFilterOptions,
     matchesStatusFilter,
   } from '@/utils/status-filter.js'
+  import { gridPerPageOptions } from '@/utils/pagination-options.js'
 
   const store = useStore()
   const route = useRoute()
@@ -405,6 +415,7 @@
   function t(slug) { return store.getters.t(slug) }
 
   const isTeacherExplore = computed(() => route.path.startsWith('/teacher'))
+  const exploreGridPerPageOptions = computed(() => gridPerPageOptions(t))
 
   // ── Shared content library (composable with module-level shared state) ──
   const {
@@ -459,6 +470,7 @@
   // ── Create assignment state ──
   const createAssignmentId = ref(null)
   const createAssignmentContentIds = ref([])
+  const viewAssignmentDetailsId = ref(null)
   const editAssignmentId = ref(null)
   const archivedSequenceIds = ref([])
 
@@ -553,6 +565,12 @@
   function goToAssignmentFromPicker() {
     const id = assignmentAddResult.value?.id
     closeAddPicker()
+    if (id) viewAssignmentDetailsId.value = id
+  }
+
+  function openEditFromAssignmentDetails() {
+    const id = viewAssignmentDetailsId.value
+    viewAssignmentDetailsId.value = null
     if (id) editAssignmentId.value = id
   }
 
@@ -633,7 +651,7 @@
   async function onSequenceCreated(id) {
     if (!myContent.includes(id)) myContent.push(id)
     metadataCache.set(id, { active_type: 'application/json;type=sequence' })
-    mySequenceIds.value.unshift(id)
+    promoteActiveSequence(id)
     newestSequenceId.value = id
     showCreateSequence.value = false
     showSuccessDialog(t('sequence-created-successfully'))
@@ -646,6 +664,7 @@
       nameCache.set(id, payload.name)
       invalidate(id)
     }
+    if (id) promoteActiveSequence(id)
     sequenceVersion.value++
     showSuccessDialog(t('sequence-updated'))
   }
@@ -755,6 +774,22 @@
     }
   }
 
+  function sequenceUpdatedTimestamp(meta) {
+    if (!meta?.updated) return 0
+    const ts = new Date(meta.updated).getTime()
+    return Number.isFinite(ts) ? ts : 0
+  }
+
+  function sortSequenceIdsNewestFirst(ids, updatedById) {
+    return [...ids].sort((a, b) => (updatedById.get(b) ?? 0) - (updatedById.get(a) ?? 0))
+  }
+
+  function promoteActiveSequence(id) {
+    if (!id || archivedSequenceIds.value.includes(id)) return
+    activeSequenceIds.value = [id, ...activeSequenceIds.value.filter(x => x !== id)]
+    mySequenceIds.value = [...activeSequenceIds.value, ...archivedSequenceIds.value]
+  }
+
   function applySequenceLists(active, archived) {
     activeSequenceIds.value = active
     archivedSequenceIds.value = archived
@@ -838,6 +873,10 @@
 
       const active = []
       const archived = []
+      const updatedById = new Map(
+        ids.map((id, i) => [id, sequenceUpdatedTimestamp(metas[i])]),
+      )
+
       sequenceIds.forEach((id, i) => {
         const result = states[i]
         const state = result.status === 'fulfilled' ? result.value : null
@@ -848,7 +887,10 @@
       })
 
       if (token !== loadSequencesToken) return
-      applySequenceLists(active, archived)
+      applySequenceLists(
+        sortSequenceIdsNewestFirst(active, updatedById),
+        sortSequenceIdsNewestFirst(archived, updatedById),
+      )
       persistSequenceList(active, archived)
 
       const partition = store.getters.tagPartition

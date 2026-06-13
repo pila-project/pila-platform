@@ -197,7 +197,7 @@
         <div class="eap-footer-split">
           <PButton variant="outline" :text="t('back')" @click="$emit('close')" />
           <div class="eap-footer-actions">
-            <PButton variant="danger" :text="t('cancel')" @click="$emit('close')" />
+            <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
             <PButton
               variant="primary"
               :text="t('next')"
@@ -212,7 +212,7 @@
         <div class="eap-footer-split">
           <PButton variant="outline" :text="t('back')" @click="goBack" />
           <div class="eap-footer-actions">
-            <PButton variant="danger" :text="t('cancel')" @click="$emit('close')" />
+            <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
             <PButton
               variant="primary"
               :text="t('next')"
@@ -227,7 +227,7 @@
         <div class="eap-footer-split">
           <PButton variant="outline" :text="t('back')" @click="goBack" />
           <div class="eap-footer-actions">
-            <PButton variant="danger" :text="t('cancel')" @click="$emit('close')" />
+            <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
             <PButton
               variant="primary"
               :text="t('add-to-selected-assignment') || 'Add to the selected assignment'"
@@ -243,7 +243,7 @@
         <div class="eap-footer-split">
           <PButton variant="outline" :text="t('back')" @click="goBack" />
           <div class="eap-footer-actions">
-            <PButton variant="danger" :text="t('cancel')" @click="$emit('close')" />
+            <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
             <PButton
               variant="primary"
               :text="t('add-to-sequence')"
@@ -570,7 +570,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 0 24px 8px;
+  padding: 20px 24px;
 }
 
 .eap-section-label {
@@ -584,6 +584,7 @@ onMounted(() => {
 .eap-choice-row {
   display: flex;
   gap: 17px;
+  padding: 2px;
 }
 
 .eap-choice-card {
@@ -677,7 +678,7 @@ onMounted(() => {
   gap: 12px;
   max-height: 280px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 2px 8px 2px 2px;
 }
 
 .eap-radio-card {
@@ -801,7 +802,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 24px 8px;
+  padding: 20px 24px;
   text-align: center;
 }
 

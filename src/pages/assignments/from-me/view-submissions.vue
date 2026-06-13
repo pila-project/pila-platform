@@ -90,6 +90,8 @@
                 @update:selected="selectedStudentItems = $event"
                 :no-data-text="t('no-students-found')"
                 :items-per-page="10"
+                :items-per-page-text="t('rows-per-page')"
+                :items-per-page-options="submissionTablePerPageOptions"
               >
                 <template #item.studentName="{ item }">
                   {{ item.studentName }}
@@ -390,6 +392,7 @@
   import { PButton, PUnifiedFilter, PTable, PTabs, PCheckbox } from '@/components/ui/index.js'
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+  import { tablePerPageOptions } from '@/utils/pagination-options.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -398,6 +401,7 @@
   const emit = defineEmits(['close', 'open-dashboard'])
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
+  const submissionTablePerPageOptions = computed(() => tablePerPageOptions(t))
 
   const { namePassword: encryptionKey } = useEncryptionKey(store)
 
@@ -773,10 +777,10 @@
 
     if (assignState.dueDate) {
       const d = new Date(assignState.dueDate)
-      assignmentDueDate.value = d.toLocaleString('en-US', {
-        month: 'numeric', day: 'numeric', year: 'numeric',
-        hour: 'numeric', minute: '2-digit', second: '2-digit',
-        hour12: true
+      assignmentDueDate.value = d.toLocaleDateString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
       })
     }
 
