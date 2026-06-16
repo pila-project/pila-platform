@@ -4,26 +4,22 @@
     @click="$emit('select', id)"
   >
     <div
-      v-if="URL_CONTENT_DATA[id]"
+      v-if="urlContentName"
       class="content-name"
     >
-      {{ URL_CONTENT_DATA[id].name }}
+      {{ urlContentName }}
     </div>
     <div
-      v-else-if="sequenceTitle"
+      v-else-if="sequenceDisplayName"
       class="content-name"
     >
-      {{ sequenceTitle }}
+      {{ sequenceDisplayName }}
     </div>
     <div
       v-else-if="isBettyLink(id)"
       class="content-name"
     >
-      <vueScopeComponent
-        :id="id.split('/')[4]"
-        metadata
-        :path="['name']"
-      />
+      <NameOrTranslatedNameFromItemId :itemId="id" />
     </div>
     <div class="preview-image">
       <img v-if="isCandliLink(id)" src="/candli-logo.svg" />
@@ -51,15 +47,16 @@
 
 <script>
   import CardIconsBar from './card-icons-bar.vue'
+  import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
   import URL_CONTENT_DATA from '../url-content-data.js'
   import contentTags from '../content-tags.js'
-  import { validate as isUUID } from 'uuid'
-  import { vueScopeComponent, vueEmbedComponent } from '@knowlearning/agents/vue.js'
+  import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
+  import { localizedNameFromValue } from '../name-and-translation-for-content.js'
 
   export default {
     components: {
       CardIconsBar,
-      vueScopeComponent,
+      NameOrTranslatedNameFromItemId,
       vueEmbedComponent
     },
     props: {
@@ -88,14 +85,20 @@
       })
     },
     computed: {
-      URL_CONTENT_DATA() {
-        return URL_CONTENT_DATA
+      currentLanguage() {
+        return this.$store.getters.language()
+      },
+      urlContentName() {
+        return localizedNameFromValue(URL_CONTENT_DATA[this.id]?.name, this.currentLanguage)
+      },
+      sequenceDisplayName() {
+        return localizedNameFromValue(this.sequenceTitle, this.currentLanguage)
       }
     },
     data() {
       return {
         isSequenceId: false,
-        sequenceTitle: false
+        sequenceTitle: null
       }
     },
     methods: {

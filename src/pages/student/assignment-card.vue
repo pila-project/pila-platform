@@ -36,21 +36,40 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { computed, ref, watch } from 'vue'
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
-  import { CANDLI_SEQUENCES } from '../../constants.js'
-  import DecryptedName from '../../components/decrypted-name.vue'
+  import getName, { localizedNameFromValue } from '../../name-and-translation-for-content.js'
   const store = useStore()
 
   const props = defineProps(['assignment', 'selected'])
   const assignment = await Agent.state(props.assignment)
   const assignmentItem = await Agent.state(assignment.item_id)
   const assignmentMetadata = await Agent.metadata(props.assignment)
-  const name = assignmentItem.name
+  const name = ref('')
+  const selectedLanguage = computed(() => store.getters.language())
+  let nameLoadRun = 0
   const content = await Agent.state(assignmentItem.content)
   const metadata = await Agent.metadata(assignmentItem.content)
   let image = ref('')
+
+  watch(
+    selectedLanguage,
+    async (language) => {
+      const runId = ++nameLoadRun
+
+      try {
+        const translatedName = await getName(assignment.item_id, language)
+        if (runId === nameLoadRun) name.value = translatedName || ''
+      } catch (error) {
+        console.warn(`Unable to load translated assignment item name for ${assignment.item_id}.`, error)
+        if (runId === nameLoadRun) {
+          name.value = localizedNameFromValue(assignmentItem.name, language)
+        }
+      }
+    },
+    { immediate: true }
+  )
 
   if (isUUID(content.image)) image = await Agent.download(content.image).url()
   else if (content.image) image = content.image
