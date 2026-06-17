@@ -52,7 +52,7 @@
 </template>
 
 <script>
-  import Navbar from '@/pages/navbar.vue'
+  import Navbar from '@/pages/Navbar.vue'
   import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
   import { PAvatar, PMenu, PMenuItem, PDivider } from '@/components/ui/index.js'

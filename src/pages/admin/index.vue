@@ -77,7 +77,7 @@
 <script setup>
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
-  import Navbar from '@/pages/navbar.vue'
+  import Navbar from '@/pages/Navbar.vue'
   import RoleManager from './roles.vue'
   import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'
