@@ -62,18 +62,36 @@ export default {
 				Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems'),
 				Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
 			])
-			// "self" treatement taggings
-			const n = allTreatmentTaggings.filter(({ contributor, target}) => contributor === target)
-			// "self" control taggings
-			const m = allControlTaggings.filter(({ contributor, target}) => contributor === target)
 
-			const p = 1 // desired ratio of m:n
-			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
-			else tagSelfWith(CONTROL_TAG, PARTITION)
+			const treatmentSelfTaggings = allTreatmentTaggings.filter(
+				({ contributor, target}) => contributor === target
+			)
+			const controlSelfTaggings = allControlTaggings.filter(
+				({ contributor, target}) => contributor === target
+			)
 
-			// if (!existingTreatmentTagging.length && !existingControlTagging.length) {
-			// 	tagSelfWith((Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG), PARTITION)
-			// }
+			const newestTreatment = newestTimestamp(treatmentSelfTaggings)
+			const newestControl = newestTimestamp(controlSelfTaggings)
+
+			// Apply the OPPOSITE tag from whichever group has the newest self-tagging.
+			if (newestTreatment > newestControl) {
+				tagSelfWith(CONTROL_TAG, PARTITION)
+			} else if (newestControl > newestTreatment) {
+				tagSelfWith(TREATMENT_TAG, PARTITION)
+			} else {
+				// fallback for no existing taggings, or exact tie
+				tagSelfWith(Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG, PARTITION)
+			}
+
+			function newestTimestamp(arr) {
+				return arr.reduce(
+					(newest, item) =>
+						item.timestamp && item.timestamp > newest
+							? item.timestamp
+							: newest,
+						""
+				)
+			}
 
 			async function tagSelfWith(tag, partition) {
 				const tags = await Agent.state('tags')
