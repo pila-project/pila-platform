@@ -55,13 +55,18 @@ export default {
 		t(slug) { return this.$store.getters.t(slug) },
 		async modalClose(e) {
 			const { auth: { user }} = await Agent.environment()
-			const [ existingTreatmentTagging, existingControlTagging ] = await Promise.all([
-				Agent.query('tagging-for-target', [ PARTITION, TREATMENT_TAG, user ], 'tags.knowlearning.systems'),
-				Agent.query('tagging-for-target', [ PARTITION, CONTROL_TAG, user ], 'tags.knowlearning.systems')
+			// GOAL :: Apply TCTCTC... pattern for incoming teachers.
+			// Do this by looking at taggings where the 'contributor' is the same as the 'target'
+			// to exclude manual overwrites in the tagging domain
+			const [ allTreatmentTaggings, allControlTaggings ] = await Promise.all([
+				Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems'),
+				Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
 			])
+			// "self" treatement taggings
+			const n = allTreatmentTaggings.filter(({ contributor, target}) => contributor === target)
+			// "self" control taggings
+			const m = allControlTaggings.filter(({ contributor, target}) => contributor === target)
 
-			const n = taggedAsTreatment.length
-			const m = taggedAsControl.length
 			const p = 1 // desired ratio of m:n
 			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
 			else tagSelfWith(CONTROL_TAG, PARTITION)
