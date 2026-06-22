@@ -60,15 +60,15 @@ export default {
 				Agent.query('tagging-for-target', [ PARTITION, CONTROL_TAG, user ], 'tags.knowlearning.systems')
 			])
 
-			// const n = taggedAsTreatment.length
-			// const m = taggedAsControl.length
-			// const p = 1 // desired ratio of m:n
-			// if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
-			// else tagSelfWith(CONTROL_TAG, PARTITION)
+			const n = taggedAsTreatment.length
+			const m = taggedAsControl.length
+			const p = 1 // desired ratio of m:n
+			if (p*n <= m) tagSelfWith(TREATMENT_TAG, PARTITION)
+			else tagSelfWith(CONTROL_TAG, PARTITION)
 
-			if (!existingTreatmentTagging.length && !existingControlTagging.length) {
-				tagSelfWith((Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG), PARTITION)
-			}
+			// if (!existingTreatmentTagging.length && !existingControlTagging.length) {
+			// 	tagSelfWith((Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG), PARTITION)
+			// }
 
 			async function tagSelfWith(tag, partition) {
 				const tags = await Agent.state('tags')
