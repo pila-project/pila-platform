@@ -197,6 +197,8 @@ postgres:
           params:
           - $TAG_PARTITION
           - $TEACHER_TAG_SET
+      domains:
+        - thaipilacreate.gforcesolution.com
       body: |
         SELECT (
           $REQUESTER = ANY(COALESCE($teacher_ids::TEXT[], ARRAY[]::TEXT[]))
