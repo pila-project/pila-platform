@@ -63,11 +63,16 @@ function dedupedFetch(key, fetchFn) {
 
 // ── Public API ──
 
+function nameCacheKey(id, lang) {
+  return `${id}:${lang || 'en'}`
+}
+
 export function getContentName(id, lang) {
-  if (nameCache.has(id)) return Promise.resolve(nameCache.get(id))
-  return dedupedFetch(`name:${id}:${lang}`, async () => {
+  const key = nameCacheKey(id, lang)
+  if (nameCache.has(key)) return Promise.resolve(nameCache.get(key))
+  return dedupedFetch(`name:${key}`, async () => {
     const name = await getName(id, lang)
-    if (name) nameCache.set(id, name)
+    if (name) nameCache.set(key, name)
     return name
   })
 }
@@ -304,7 +309,9 @@ export function persistToDisk(userId) {
 // ── Invalidation ──
 
 export function invalidate(id) {
-  nameCache.delete(id)
+  for (const key of nameCache.keys()) {
+    if (key.startsWith(`${id}:`)) nameCache.delete(key)
+  }
   metadataCache.delete(id)
   tagCache.delete(id)
   imageCache.delete(id)
