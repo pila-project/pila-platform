@@ -98,16 +98,16 @@
             <template #item.displayName="{ item }">
               <div class="student-name-cell">
                 <DecryptedName :user="item.id" />
+                <PBadge
+                  v-if="item.archived"
+                  variant="warning"
+                  :text="t('archived')"
+                  class="student-archived-badge"
+                />
               </div>
             </template>
             <template #item.grade="{ item }">
               <span class="grade-cell">{{ item.grade || '--' }}</span>
-            </template>
-            <template #item.status="{ item }">
-              <PBadge
-                :variant="item.archived ? 'warning' : 'info'"
-                :text="item.archived ? t('archived') : t('active')"
-              />
             </template>
             <template #item.lastLogin="{ item }">
               <span class="last-login-cell">{{ formatLastLogin(item.id) }}</span>
@@ -204,6 +204,7 @@
             v-for="groupId in paginatedGroupIds"
             :key="groupId"
             :group-id="groupId"
+            :students="students"
             :archived="archivedGroupIdSet.has(groupId)"
             @manage="openManageStudents(groupId)"
             @edit="openEditGroup(groupId)"
@@ -1021,6 +1022,7 @@ import {
   matchesStatusFilter,
   filterGroupIdsByStatus,
 } from '@/utils/status-filter.js'
+import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -1261,7 +1263,6 @@ const students = computed(() => {
       id,
       displayName: decryptedNames.get(id) || '…',
       archived: !!users[id]?.archived,
-      status: users[id]?.archived ? t('archived') : t('active'),
       grade: users[id]?.grade || '',
       groupNames,
       groupIds,
@@ -1356,7 +1357,6 @@ const studentHeaders = computed(() => [
   { key: 'displayName', title: t('name') },
   { key: 'grade', title: t('grade') },
   { key: 'lastLogin', title: t('last-login'), sortable: false },
-  { key: 'status', title: t('status'), sortable: false },
   { key: 'groupNames', title: t('groups') },
   { key: 'more', title: '', sortable: false, width: '60px' },
 ])
@@ -1420,7 +1420,7 @@ const profileUserGroups = computed(() => {
         id: gid,
         name: groupData.name || t('unnamed'),
         detail,
-        memberCount: store.getters['groups/members'](gid).length,
+        memberCount: activeStudentCountInGroup(gid, students.value, store),
       }
     })
 })
@@ -2309,6 +2309,10 @@ function printLoginCodes() {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+.student-archived-badge {
+  flex-shrink: 0;
 }
 .student-name-col {
   display: flex;

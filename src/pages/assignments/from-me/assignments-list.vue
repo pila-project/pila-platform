@@ -133,10 +133,9 @@
           <template #item.submissions="{ item }">
             <PButton
               v-if="canViewSubmissions(item.id)"
-              variant="link"
+              variant="secondary"
               size="sm"
-              icon="lucide:bar-chart"
-              :text="t('view-submissions')"
+              :text="t('view')"
               @click.stop="openSubmissions(item.id)"
             />
             <span v-else class="assign-cell-text assign-cell-text--muted">—</span>
@@ -157,43 +156,6 @@
                   prepend-icon="lucide:pencil"
                   @click="openEdit(item.id)"
                 />
-                <template v-if="getStatus(item.id) === 'Published'">
-                  <PMenuItem
-                    :title="t('view-submissions')"
-                    prepend-icon="lucide:bar-chart"
-                    @click="openSubmissions(item.id)"
-                  />
-                  <PMenuItem
-                    :title="t('view-analytics-dashboard')"
-                    :prepend-icon="dashboardSubmenuItem === item.id ? 'lucide:chevron-up' : 'lucide:chevron-down'"
-                    keepOpen
-                    @click.prevent="toggleDashboardSubmenu(item.id)"
-                  />
-                  <template v-if="dashboardSubmenuItem === item.id">
-                    <PMenuItem
-                      :title="t('app-specific-dashboard')"
-                      class="menu-item-indent"
-                      @click="openDashboard(item.id)"
-                    />
-                    <PMenuItem
-                      :title="t('live-monitoring-dashboard')"
-                      class="menu-item-indent"
-                      @click="openLiveDashboard(item.id)"
-                    />
-                    <PMenuItem
-                      v-if="assignmentContainsCandli"
-                      :title="t('competency-dashboard')"
-                      class="menu-item-indent"
-                      @click="openCandliDashboard(item.id)"
-                    />
-                    <PMenuItem
-                      v-if="assignmentContainsGenAI"
-                      :title="t('generative-ai-module-dashboard')"
-                      class="menu-item-indent"
-                      @click="openGenAIDashboard(item.id)"
-                    />
-                  </template>
-                </template>
                 <PMenuItem
                   :title="t('duplicate')"
                   prepend-icon="lucide:copy"
@@ -243,7 +205,6 @@
     :id="current"
     @close="showDetailsModal = false"
     @edit="showDetailsModal = false; openEdit(current)"
-    @view-submissions="showDetailsModal = false; openSubmissions(current)"
   />
 
   <!-- View Submissions -->
@@ -316,7 +277,7 @@
   <!-- Confirmation Dialogs -->
   <PModal
     v-if="showDuplicateDialog"
-    @close="showDuplicateDialog = false"
+    @close="closeDuplicateDialog"
     width="500px"
   >
     <template #title>
@@ -327,14 +288,23 @@
     </template>
     <template #body>
       <p class="duplicate-subtitle">{{ t('create-a-copy-of') }} "{{ duplicateSourceName }}"</p>
+      <div class="duplicate-info-banner">
+        <LucideIcon name="info" :size="16" class="info-banner-icon" />
+        <span>{{ t('duplicate-assignment-description') }}</span>
+      </div>
       <div style="margin-top: 16px;">
         <PInput v-model="duplicateNewTitle" :label="t('new-assignment-title')" required />
       </div>
     </template>
     <template #footer>
-      <PButton variant="ghost" :text="t('back')" class="footer-back-btn" @click="showDuplicateDialog = false" />
-      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showDuplicateDialog = false" />
-      <PButton variant="primary" :text="t('duplicate-assignment')" @click="confirmDuplicate" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="closeDuplicateDialog" />
+      <PButton
+        variant="primary"
+        :text="t('duplicate-assignment')"
+        :disabled="!canConfirmDuplicate"
+        :loading="duplicateConfirmLoading"
+        @click="confirmDuplicate"
+      />
     </template>
   </PModal>
   <PModal
@@ -441,13 +411,13 @@
   const selectedItems = ref([])
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
-  const dashboardSubmenuItem = ref(null)
   const openDashboardSession = ref(null)
   const resultsDashboardType = ref('live-monitoring')
   const {
     successDialog,
     success: showSuccessDialog,
     dismissSuccess: dismissSuccessDialog,
+    error: toastError,
   } = useFeedback()
   const wasCreating = ref(false)
 
@@ -582,6 +552,13 @@
   const pendingActionItem = ref(null)
   const duplicateNewTitle = ref('')
   const duplicateSourceName = ref('')
+  const duplicateConfirmLoading = ref(false)
+
+  const canConfirmDuplicate = computed(() => {
+    const title = duplicateNewTitle.value.trim()
+    if (!title) return false
+    return title.toLowerCase() !== duplicateSourceName.value.trim().toLowerCase()
+  })
 
   const pendingActionName = computed(() => {
     if (!pendingActionItem.value) return ''
@@ -732,17 +709,23 @@
     { key: 'dueDate', title: t('due-date') },
     { key: 'status', title: t('publication-status') },
     { key: 'assignedTo', title: t('assigned-to'), sortable: false },
-    { key: 'submissions', title: t('assignment-submissions'), sortable: false },
+    { key: 'submissions', title: t('reporting-dashboard'), sortable: false },
     { key: 'actions', title: t('actions'), sortable: false },
   ])
 
+  function getAssignmentUpdated(id) {
+    return store.getters['pila_tags/tagUpdatedForContent'](id, props.assignable_item_type)
+  }
+
   const tableItems = computed(() => {
-    return assignmentsForActiveTable.value.map(id => ({
+    const items = assignmentsForActiveTable.value.map(id => ({
       id,
       title: assignmentData[id]?.name || '',
       dueDate: assignmentData[id]?.dueDate ? new Date(assignmentData[id].dueDate).getTime() : 0,
       status: getStatus(id),
+      updated: getAssignmentUpdated(id),
     }))
+    return items.sort((a, b) => b.updated - a.updated)
   })
 
   const hasNonDefaultArchiveStatusFilter = computed(() => {
@@ -899,34 +882,69 @@
     pendingActionItem.value = item
     const name = assignmentData[item]?.name || t('new-assignment')
     duplicateSourceName.value = name
-    duplicateNewTitle.value = name
+    duplicateNewTitle.value = `${t('copy-of')} ${name}`
     showDuplicateDialog.value = true
+  }
+
+  function closeDuplicateDialog({ force = false } = {}) {
+    if (!force && duplicateConfirmLoading.value) return
+    showDuplicateDialog.value = false
+    pendingActionItem.value = null
+    duplicateNewTitle.value = ''
+    duplicateSourceName.value = ''
+  }
+
+  function copyAssignmentState(sourceState, newState, title) {
+    newState.name = title
+    newState.description = sourceState.description || ''
+    newState.content = Array.isArray(sourceState.content)
+      ? [...sourceState.content]
+      : (sourceState.content || null)
+    newState.assignmentType = sourceState.assignmentType || 'Assignment'
+    newState.dueDate = sourceState.dueDate || null
+    newState.dueTime = sourceState.dueTime || null
+    newState.allowLate = sourceState.allowLate
+    newState.maxAttempts = sourceState.maxAttempts || '1 attempt'
+    newState.feedbackTiming = sourceState.feedbackTiming || 'At the end'
+    newState.shuffleQuestions = sourceState.shuffleQuestions
+    newState.showAnswers = sourceState.showAnswers
+    newState.teacherNotes = sourceState.teacherNotes || ''
+    newState.status = 'Draft'
+    newState.scheduledDate = null
+    newState.scheduledTime = null
   }
 
   async function confirmDuplicate() {
     const sourceId = pendingActionItem.value
-    if (!sourceId) return
+    if (!sourceId || !canConfirmDuplicate.value || duplicateConfirmLoading.value) return
 
+    duplicateConfirmLoading.value = true
     const newId = uuid()
-    const sourceState = await Agent.state(sourceId)
-    const newState = await Agent.state(newId)
 
-    newState.name = duplicateNewTitle.value || (sourceState.name || '') + ' (Copy)'
-    newState.description = sourceState.description || ''
-    newState.content = sourceState.content || null
-    if (sourceState.assignmentType) newState.assignmentType = sourceState.assignmentType
-    if (sourceState.dueDate) newState.dueDate = sourceState.dueDate
-    if (sourceState.dueTime) newState.dueTime = sourceState.dueTime
+    try {
+      const sourceState = await Agent.state(sourceId)
+      const newState = await Agent.state(newId)
+      const title = duplicateNewTitle.value.trim()
 
-    store.dispatch('pila_tags/tag', { content_id: newId, tag_type: props.assignable_item_type })
-    await Agent.synced()
+      copyAssignmentState(sourceState, newState, title)
 
-    // Load data for the new duplicate
-    delete assignmentData[newId]
-    loadAssignmentData(newId)
+      await Agent.synced()
+      await store.dispatch('pila_tags/tag', {
+        content_id: newId,
+        tag_type: props.assignable_item_type,
+      })
 
-    showDuplicateDialog.value = false
-    pendingActionItem.value = null
+      delete assignmentData[newId]
+      await loadAssignmentData(newId)
+
+      closeDuplicateDialog({ force: true })
+      showSuccessDialog(t('assignment-successfully-created'))
+    } catch (e) {
+      console.error('[assignments-list] duplicate error:', e)
+      toastError(t('something-went-wrong') || 'Something went wrong. Please try again.')
+    } finally {
+      duplicateConfirmLoading.value = false
+    }
   }
 
   // ── Archive ──
@@ -979,16 +997,6 @@
   }
 
   // ── Dashboard ──
-  async function toggleDashboardSubmenu(item) {
-    if (dashboardSubmenuItem.value === item) {
-      dashboardSubmenuItem.value = null
-      return
-    }
-    dashboardSubmenuItem.value = item
-    current.value = item
-    await reassessContents()
-  }
-
   function primaryDashboardType() {
     return assignmentContainsBetty.value || assignmentContainsGenAI.value ? 'activity' : 'live-monitoring'
   }
@@ -1276,12 +1284,6 @@
   background: #fef2f2 !important;
 }
 
-/* Dashboard submenu indent */
-.menu-item-indent {
-  padding-left: 32px !important;
-  font-size: 13px;
-}
-
 /* Duplicate modal */
 .duplicate-subtitle {
   font-size: 14px;
@@ -1305,10 +1307,6 @@
 .info-banner-icon {
   flex-shrink: 0;
   margin-top: 2px;
-}
-
-.footer-back-btn {
-  color: #2563eb !important;
 }
 
 .footer-cancel-btn {

@@ -8,8 +8,10 @@
       'pcard-in-assignment': inAssignment,
       'pcard-no-drag': !isDraggable,
       'pcard-assignment-picker': assignmentPicker,
+      'pcard-fixed': useFixedLayout,
     }"
     :draggable="isDraggable || undefined"
+    @click="onCardClick"
     @dragstart="onCardDragStart"
     @dragend="onCardDragEnd"
   >
@@ -89,22 +91,82 @@
       </h3>
 
       <!-- Description -->
-      <p class="pcard-description">
+      <p v-if="props.description" class="pcard-description">
         {{ props.description }}
       </p>
 
       <!-- Tag pills -->
-      <div class="pcard-tags">
-        <span v-for="grade in displayGrades" :key="grade" class="pcard-grade">{{ grade }}</span>
-        <span v-if="duration" class="pcard-duration">
-          <LucideIcon name="clock-2" :size="12" />
-          {{ duration }}
-        </span>
+      <div ref="tagsWrapRef" class="pcard-tags-wrap">
+        <div v-if="useFixedLayout" class="pcard-tags-measure" aria-hidden="true">
+          <span
+            v-for="(grade, index) in displayGrades"
+            :key="'measure-' + grade + '-' + index"
+            :ref="el => setMeasureTagRef(el, index)"
+            class="pcard-grade"
+          >{{ grade }}</span>
+          <span ref="moreBadgeMeasureRef" class="pcard-grade pcard-grade-more">+99</span>
+          <span v-if="duration" ref="durationMeasureRef" class="pcard-duration">
+            <LucideIcon name="clock-2" :size="12" />
+            {{ duration }}
+          </span>
+        </div>
+
+        <div class="pcard-tags" :class="{ 'pcard-tags--single-line': useFixedLayout }">
+          <template v-if="useFixedLayout">
+            <span
+              v-for="(grade, index) in visibleGrades"
+              :key="grade + '-' + index"
+              class="pcard-grade"
+            >{{ grade }}</span>
+            <span
+              v-if="hiddenGradeCount > 0"
+              ref="moreBadgeRef"
+              class="pcard-grade pcard-grade-more"
+              @mouseenter="openOverflowPopup"
+              @mouseleave="scheduleCloseOverflowPopup"
+              @click.stop
+            >
+              +{{ hiddenGradeCount }}
+            </span>
+          </template>
+          <template v-else>
+            <span
+              v-for="(grade, index) in displayGrades"
+              :key="grade + '-' + index"
+              class="pcard-grade"
+            >{{ grade }}</span>
+          </template>
+          <span v-if="duration" class="pcard-duration">
+            <LucideIcon name="clock-2" :size="12" />
+            {{ duration }}
+          </span>
+        </div>
       </div>
     </div>
 
-    <!-- Actions (hidden in assignment content picker — use checkbox + bulk add) -->
-    <div v-if="!assignmentPicker" class="pcard-actions">
+    <!-- Actions -->
+    <div v-if="assignmentPicker" class="pcard-actions">
+      <PButton
+        variant="secondary"
+        size="sm"
+        icon="lucide:eye"
+        :text="t('preview')"
+        @click.stop="$emit('preview')"
+        class="flex-1"
+      />
+    </div>
+    <div v-else-if="assignmentContentView" class="pcard-actions">
+      <PButton
+        variant="secondary"
+        color="danger"
+        size="sm"
+        icon="lucide:trash-2"
+        :text="t('delete')"
+        @click.stop="$emit('remove')"
+        class="flex-1"
+      />
+    </div>
+    <div v-else class="pcard-actions">
       <PButton
         variant="secondary"
         size="sm"
@@ -142,10 +204,27 @@
       />
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="overflowPopupOpen && hiddenGradeCount > 0"
+      class="pcard-tags-popup"
+      :style="overflowPopupStyle"
+      @mouseenter="openOverflowPopup"
+      @mouseleave="scheduleCloseOverflowPopup"
+      @click.stop
+    >
+      <span
+        v-for="(grade, index) in hiddenGrades"
+        :key="'hidden-' + grade + '-' + index"
+        class="pcard-grade"
+      >{{ grade }}</span>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
   import { useStore } from 'vuex'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import { getContentImage, imageCache } from '@/utils/content-cache.js'
@@ -189,9 +268,12 @@ import { PCheckbox } from '@/components/ui/index.js'
     draggable: { type: Boolean, default: true },
     /** Assignment wizard content picker: checkbox + in-assignment badge only. */
     assignmentPicker: Boolean,
+    /** Assignment wizard step 2 list: order badge + delete only (no preview/info). */
+    assignmentContentView: Boolean,
   })
 
   const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
+  const useFixedLayout = computed(() => !props.sequenceView)
 
   const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
 
@@ -210,9 +292,14 @@ import { PCheckbox } from '@/components/ui/index.js'
     if (!addDisabled.value) emit('add')
   }
 
+  function onCardClick() {
+    if (!props.assignmentPicker) return
+    emit('toggle-select')
+  }
+
   const isDragging = ref(false)
 
-  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .pcard-copy-overlay'
+  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .pcard-copy-overlay, .pcard-grade-more, .pcard-tags-popup'
 
   function setDragPayload(event) {
     event.dataTransfer.setData('text/plain', props.id)
@@ -241,11 +328,146 @@ import { PCheckbox } from '@/components/ui/index.js'
     isDragging.value = false
   }
 
-  const displayGrades = props.grades || []
+  const TAG_GAP = 5
+  const displayGrades = computed(() => props.grades || [])
+  const visibleCount = ref(0)
+  const overflowPopupOpen = ref(false)
+
+  const tagsWrapRef = ref(null)
+  const moreBadgeRef = ref(null)
+  const moreBadgeMeasureRef = ref(null)
+  const durationMeasureRef = ref(null)
+  const measureTagRefs = ref([])
+  const overflowPopupStyle = ref({})
+
+  const visibleGrades = computed(() => displayGrades.value.slice(0, visibleCount.value))
+  const hiddenGrades = computed(() => displayGrades.value.slice(visibleCount.value))
+  const hiddenGradeCount = computed(() => hiddenGrades.value.length)
+
+  let overflowPopupTimer = null
+  let resizeObserver = null
+
+  function setMeasureTagRef(el, index) {
+    if (el) measureTagRefs.value[index] = el
+    else delete measureTagRefs.value[index]
+  }
+
+  function measureEl(el) {
+    return el?.offsetWidth ?? 0
+  }
+
+  function rowWidth(tagWidths, visible, hiddenCount, durationWidth) {
+    let used = 0
+
+    for (let i = 0; i < visible; i++) {
+      used += tagWidths[i] + (i > 0 ? TAG_GAP : 0)
+    }
+
+    if (hiddenCount > 0 && moreBadgeMeasureRef.value) {
+      moreBadgeMeasureRef.value.textContent = `+${hiddenCount}`
+      used += (visible > 0 ? TAG_GAP : 0) + measureEl(moreBadgeMeasureRef.value)
+    }
+
+    if (durationWidth > 0) {
+      used += (used > 0 ? TAG_GAP : 0) + durationWidth
+    }
+
+    return used
+  }
+
+  async function recalculateVisibleTags() {
+    if (!useFixedLayout.value) return
+
+    await nextTick()
+
+    const wrap = tagsWrapRef.value
+    const grades = displayGrades.value
+    if (!wrap) return
+
+    if (!grades.length) {
+      visibleCount.value = 0
+      return
+    }
+
+    const containerWidth = wrap.clientWidth
+    const tagEls = measureTagRefs.value.filter(Boolean)
+    const tagWidths = tagEls.map(measureEl)
+    const durationWidth = props.duration ? measureEl(durationMeasureRef.value) : 0
+
+    if (rowWidth(tagWidths, grades.length, 0, durationWidth) <= containerWidth) {
+      visibleCount.value = grades.length
+      return
+    }
+
+    for (let visible = grades.length - 1; visible >= 0; visible--) {
+      const hidden = grades.length - visible
+      if (rowWidth(tagWidths, visible, hidden, durationWidth) <= containerWidth) {
+        visibleCount.value = visible
+        return
+      }
+    }
+
+    visibleCount.value = 0
+  }
+
+  function updateOverflowPopupPosition() {
+    const badge = moreBadgeRef.value
+    if (!badge) return
+
+    const rect = badge.getBoundingClientRect()
+    overflowPopupStyle.value = {
+      position: 'fixed',
+      top: `${rect.bottom + 6}px`,
+      left: `${rect.left}px`,
+      zIndex: '9999',
+    }
+  }
+
+  function openOverflowPopup() {
+    clearTimeout(overflowPopupTimer)
+    updateOverflowPopupPosition()
+    overflowPopupOpen.value = true
+  }
+
+  function scheduleCloseOverflowPopup() {
+    clearTimeout(overflowPopupTimer)
+    overflowPopupTimer = setTimeout(() => {
+      overflowPopupOpen.value = false
+    }, 200)
+  }
+
+  function setupTagResizeObserver() {
+    resizeObserver?.disconnect()
+    if (!useFixedLayout.value || !tagsWrapRef.value) return
+
+    resizeObserver = new ResizeObserver(() => {
+      recalculateVisibleTags()
+      if (overflowPopupOpen.value) updateOverflowPopupPosition()
+    })
+    resizeObserver.observe(tagsWrapRef.value)
+  }
+
+  function onWindowChange() {
+    if (overflowPopupOpen.value) updateOverflowPopupPosition()
+  }
+
+  watch(
+    [displayGrades, () => props.duration, useFixedLayout],
+    () => {
+      overflowPopupOpen.value = false
+      recalculateVisibleTags()
+    },
+    { deep: true },
+  )
 
   const image = ref(null)
 
   onMounted(async () => {
+    setupTagResizeObserver()
+    recalculateVisibleTags()
+    window.addEventListener('scroll', onWindowChange, true)
+    window.addEventListener('resize', onWindowChange)
+
     try {
       if (imageCache.has(props.id)) {
         image.value = imageCache.get(props.id)
@@ -255,6 +477,13 @@ import { PCheckbox } from '@/components/ui/index.js'
     } catch {
       // silently fail — card renders without image
     }
+  })
+
+  onUnmounted(() => {
+    resizeObserver?.disconnect()
+    clearTimeout(overflowPopupTimer)
+    window.removeEventListener('scroll', onWindowChange, true)
+    window.removeEventListener('resize', onWindowChange)
   })
 </script>
 
@@ -269,9 +498,38 @@ import { PCheckbox } from '@/components/ui/index.js'
   display: flex;
   flex-direction: column;
 }
-.pcard:hover {
+.pcard-fixed {
+  overflow: visible;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+.pcard-fixed.pcard-assignment-picker {
+  border-width: 2px;
+}
+.pcard-fixed .pcard-image {
+  height: 144px;
+}
+.pcard-fixed .pcard-content {
+  flex: 0 0 auto;
+  gap: 4px;
+  overflow: visible;
+}
+.pcard-fixed .pcard-title {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+.pcard-fixed .pcard-description {
+  flex-shrink: 0;
+}
+.pcard-fixed .pcard-actions {
+  flex-shrink: 0;
+}
+.pcard:hover:not(.pcard-fixed) {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   border: 1px solid #cbd5e1;
+}
+.pcard-fixed:hover {
+  border-color: #cbd5e1;
 }
 .pcard-dragging {
   cursor: grabbing;
@@ -281,14 +539,13 @@ import { PCheckbox } from '@/components/ui/index.js'
   cursor: default;
 }
 .pcard-assignment-picker {
-  cursor: default;
+  cursor: pointer;
   overflow: visible;
   border: 2px solid transparent;
   box-sizing: border-box;
 }
 .pcard-assignment-picker:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 .pcard-assignment-picker.pcard-checked,
 .pcard-assignment-picker.pcard-selected {
@@ -305,9 +562,7 @@ import { PCheckbox } from '@/components/ui/index.js'
   overflow: hidden;
   border-radius: 14px 14px 0 0;
 }
-.pcard-assignment-picker .pcard-content {
-  padding-bottom: 12px;
-}
+
 .pcard-order-badge {
   display: inline-flex;
   align-items: center;
@@ -517,6 +772,9 @@ import { PCheckbox } from '@/components/ui/index.js'
 .pcard-source-row {
   padding-top: 4px;
 }
+.pcard-fixed .pcard-source-row {
+  padding-top: 2px;
+}
 
 .pcard-source {
   display: inline-flex;
@@ -551,7 +809,7 @@ import { PCheckbox } from '@/components/ui/index.js'
   font-weight: 500;
   color: #334155;
   line-height: 1.4;
-  margin-top: 10px;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -572,12 +830,39 @@ import { PCheckbox } from '@/components/ui/index.js'
 }
 
 /* Tag pills row */
+.pcard-tags-wrap {
+  position: relative;
+  flex-shrink: 0;
+  min-height: 28px;
+}
+.pcard-fixed .pcard-tags-wrap {
+  height: 28px;
+  margin-bottom: 15px;
+  overflow: visible;
+}
+.pcard-tags-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  white-space: nowrap;
+  height: 0;
+  overflow: hidden;
+}
 .pcard-tags {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
   padding-bottom: 2px;
   align-items: center;
+}
+.pcard-tags--single-line {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  height: 28px;
+  padding-bottom: 0;
 }
 
 .pcard-grade {
@@ -591,6 +876,34 @@ import { PCheckbox } from '@/components/ui/index.js'
   color: #334155;
   line-height: 16px;
   background: white;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.pcard-grade-more {
+  cursor: default;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+.pcard-tags-popup {
+  position: fixed;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: max-content;
+  max-width: min(240px, 70vw);
+  padding: 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+.pcard-tags-popup::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
 }
 
 /* Duration badge */
@@ -605,6 +918,8 @@ import { PCheckbox } from '@/components/ui/index.js'
   font-size: 12px;
   font-weight: 500;
   line-height: 16px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* ── Actions row ── */

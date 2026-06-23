@@ -60,7 +60,7 @@
               :source="isMyContent(itemId) ? 'mine' : 'pila'"
               :grades="getItemTagLabels(itemId)"
               :description="itemDescriptions[itemId] || ''"
-              @preview="previewing = itemId"
+              @preview="openPreview(itemId)"
               @info="infoModalId = itemId"
               @remove="requestRemove(i)"
             />
@@ -94,6 +94,12 @@
     width="90vw"
     height="90vh"
     @close="previewing = null"
+  />
+
+  <SequencePreviewModal
+    v-if="sequenceToPreview"
+    :id="sequenceToPreview"
+    @close="sequenceToPreview = null"
   />
 
   <PModal
@@ -153,6 +159,8 @@ import { PModal, PButton, PAlertDialog } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
 import PreviewModal from '@/components/common/preview-modal.vue'
+import SequencePreviewModal from './sequence-preview-modal.vue'
+import { openContentPreview } from '@/utils/open-content-preview.js'
 import ContentMetadataPanel from './content-metadata-panel.vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { useContentLibrary } from '@/utils/useContentLibrary.js'
@@ -189,6 +197,11 @@ const draftIds = ref([])
 const itemDescriptions = reactive({})
 
 const previewing = ref(null)
+const sequenceToPreview = ref(null)
+
+function openPreview(id) {
+  void openContentPreview(id, { previewing, sequenceToPreview })
+}
 const infoModalId = ref(null)
 const itemToDelete = ref(null)
 const showDiscardConfirm = ref(false)

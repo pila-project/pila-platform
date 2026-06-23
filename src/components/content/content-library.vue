@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container explore-page">
+  <div ref="explorePageRef" class="page-container explore-page">
     <h1 class="page-heading explore-heading capitalize">{{ t('explore') }}</h1>
 
     <!-- Mobile: inline sequence section -->
@@ -29,6 +29,13 @@
             icon="badge-check"
             :options="sequenceStatusFilterOptions"
             v-model="sequenceStatusFilters"
+          />
+          <PUnifiedFilterSection
+            id="sequence-favorites-mobile"
+            :label="t('favorites')"
+            icon="heart"
+            :options="favoritesFilterOptions"
+            v-model="sequenceFavoritesFilters"
           />
         </PUnifiedFilter>
         <PInput
@@ -68,7 +75,7 @@
               @drop-item="payload => onDropItemToSequence(seqId, payload)"
             />
             <div v-if="!displayedSequenceIds.length && !sequencesPanelLoading" class="text-xs text-slate-400 text-center py-4">
-              {{ sequenceSearchQuery ? (t('no-sequences-match-search') || 'No sequences match your search') : t('no-sequences-yet') }}
+              {{ sequenceEmptyMessage }}
             </div>
           </template>
         </div>
@@ -79,65 +86,75 @@
       <!-- Left panel: My sequences (desktop) -->
       <aside class="sequences-panel">
         <div class="sequences-card">
-          <h2 class="sequences-heading text-base font-semibold text-zinc-950">
-            {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
-          </h2>
-          <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
-          <PUnifiedFilter
-            v-if="isTeacherExplore"
-            v-model:searchQuery="sequenceSearchQuery"
-            class="mt-3 sequences-filter"
-            compact
-            :placeholder="t('search-sequences') || 'Search sequences'"
-          >
-            <PUnifiedFilterSection
-              id="sequence-status"
-              :label="t('status')"
-              icon="badge-check"
-              :options="sequenceStatusFilterOptions"
-              v-model="sequenceStatusFilters"
+          <div class="sequences-card-header">
+            <h2 class="sequences-heading text-base font-semibold text-zinc-950">
+              {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
+            </h2>
+            <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
+            <PUnifiedFilter
+              v-if="isTeacherExplore"
+              v-model:searchQuery="sequenceSearchQuery"
+              class="mt-3 sequences-filter"
+              compact
+              :placeholder="t('search-sequences') || 'Search sequences'"
+            >
+              <PUnifiedFilterSection
+                id="sequence-status"
+                :label="t('status')"
+                icon="badge-check"
+                :options="sequenceStatusFilterOptions"
+                v-model="sequenceStatusFilters"
+              />
+              <PUnifiedFilterSection
+                id="sequence-favorites"
+                :label="t('favorites')"
+                icon="heart"
+                :options="favoritesFilterOptions"
+                v-model="sequenceFavoritesFilters"
+              />
+            </PUnifiedFilter>
+            <PInput
+              v-else
+              v-model="sequenceSearchQuery"
+              class="mt-3"
+              :placeholder="t('search-sequences') || 'Search sequences'"
+              icon="lucide:search"
             />
-          </PUnifiedFilter>
-          <PInput
-            v-else
-            v-model="sequenceSearchQuery"
-            class="mt-3"
-            :placeholder="t('search-sequences') || 'Search sequences'"
-            icon="lucide:search"
-          />
-          <PButton
-            variant="primary"
-            icon="lucide:plus"
-            :text="t('new-sequence')"
-            class="mt-3 w-full"
-            @click="showCreateSequence = true"
-          />
-
-          <!-- Sequence cards -->
-          <div v-if="sequencesPanelLoading" class="sequences-loading mt-4" aria-busy="true">
-            <LucideIcon name="loader-2" :size="14" :spin="true" />
-            {{ t('loading') }}
+            <PButton
+              variant="primary"
+              icon="lucide:plus"
+              :text="t('new-sequence')"
+              class="mt-3 w-full"
+              @click="showCreateSequence = true"
+            />
           </div>
-          <div v-else class="mt-4 flex flex-col gap-3">
-            <SequenceCard
-              v-for="seqId in displayedSequenceIds"
-              :key="seqId"
-              :id="seqId"
-              :archived="archivedSequenceIds.includes(seqId)"
-              :favorited="favorites.has(seqId)"
-              :isNewest="newestSequenceId === seqId"
-              :version="sequenceVersion"
-              @toggle-favorite="toggleFavorite(seqId)"
-              @edit="editSequence(seqId)"
-              @archive="sequenceToArchive = seqId"
-              @restore="onRestoreSequence(seqId)"
-              @preview="sequenceToPreview = seqId"
-              @view-content="openSequenceContent(seqId)"
-              @items-changed="sequenceVersion++"
-              @drop-item="payload => onDropItemToSequence(seqId, payload)"
-            />
-            <div v-if="!displayedSequenceIds.length" class="text-xs text-slate-400 text-center py-6">
-              {{ sequenceSearchQuery ? (t('no-sequences-match-search') || 'No sequences match your search') : t('no-sequences-yet') }}
+
+          <div class="sequences-list-scroll">
+            <div v-if="sequencesPanelLoading" class="sequences-loading" aria-busy="true">
+              <LucideIcon name="loader-2" :size="14" :spin="true" />
+              {{ t('loading') }}
+            </div>
+            <div v-else class="flex flex-col gap-3">
+              <SequenceCard
+                v-for="seqId in displayedSequenceIds"
+                :key="seqId"
+                :id="seqId"
+                :archived="archivedSequenceIds.includes(seqId)"
+                :favorited="favorites.has(seqId)"
+                :isNewest="newestSequenceId === seqId"
+                :version="sequenceVersion"
+                @toggle-favorite="toggleFavorite(seqId)"
+                @edit="editSequence(seqId)"
+                @archive="sequenceToArchive = seqId"
+                @restore="onRestoreSequence(seqId)"
+                @preview="sequenceToPreview = seqId"
+                @view-content="openSequenceContent(seqId)"
+                @items-changed="sequenceVersion++"
+                @drop-item="payload => onDropItemToSequence(seqId, payload)"
+              />
+              <div v-if="!displayedSequenceIds.length" class="text-xs text-slate-400 text-center py-6">
+                {{ sequenceEmptyMessage }}
+              </div>
             </div>
           </div>
         </div>
@@ -168,12 +185,38 @@
         <!-- Content browser (shared component) -->
         <ContentBrowser
           ref="browserRef"
+          fill-height
           :columns="3"
           :per-page="12"
           :per-page-options="exploreGridPerPageOptions"
           :extra-filter="contentExploreFilter"
+          :favorites-filters="contentFavoritesFilters"
+          :content-type-filters="contentTypeFilters"
           use-disk-cache
         >
+          <template #filter-sections>
+            <PUnifiedFilterSection
+              id="content-type"
+              :label="t('content-type')"
+              icon="layers"
+              :options="contentTypeFilterOptions"
+              v-model="contentTypeFilters"
+            />
+            <PUnifiedFilterSection
+              id="content-favorites"
+              :label="t('favorites')"
+              icon="heart"
+              :options="favoritesFilterOptions"
+              v-model="contentFavoritesFilters"
+            />
+          </template>
+
+          <template #empty>
+            <p class="content-favorites-empty text-sm text-slate-500 text-center py-8">
+              {{ contentEmptyMessage }}
+            </p>
+          </template>
+
           <!-- Selection toolbar -->
           <template #above-grid>
             <div v-if="selectedItems.size" class="selection-toolbar">
@@ -201,7 +244,7 @@
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
               @toggle-favorite="toggleFavorite(id)"
-              @preview="previewing = id"
+              @preview="handleExplorePreview(id)"
               @remove="() => {
                 setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
                 myContent.splice(myContent.indexOf(id), 1)
@@ -367,7 +410,8 @@
 </template>
 
 <script setup>
-  import { ref, reactive, shallowReactive, computed, watch, onMounted } from 'vue'
+  import { ref, reactive, shallowReactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+  import { createDragAutoScroll } from '@/utils/drag-auto-scroll.js'
   import { useStore } from 'vuex'
   import { useRoute, useRouter } from 'vue-router'
   import ContentMetadataPanel from './content-metadata-panel.vue'
@@ -392,7 +436,8 @@
     getCachedTagHierarchy, prefetchBatch, invalidateNames,
     getContentMetadata, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
-  import { useContentLibrary, notifyTagIndexUpdated } from '@/utils/useContentLibrary.js'
+  import { useContentLibrary, notifyTagIndexUpdated, registerMyContentItem } from '@/utils/useContentLibrary.js'
+  import { openContentPreview } from '@/utils/open-content-preview.js'
   import { appendItemsToSequence, isValidSequenceAgentState } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import {
@@ -407,6 +452,18 @@
     buildStatusFilterOptions,
     matchesStatusFilter,
   } from '@/utils/status-filter.js'
+  import {
+    defaultFavoritesFilters,
+    buildFavoritesFilterOptions,
+    isFavoritesFilterActive,
+    matchesFavoritesFilter,
+  } from '@/utils/explore-favorites-filter.js'
+  import {
+    defaultContentTypeFilters,
+    buildContentTypeFilterOptions,
+    isSequencesOnlyFilterActive,
+    matchesContentTypeFilter,
+  } from '@/utils/explore-content-type-filter.js'
   import { gridPerPageOptions } from '@/utils/pagination-options.js'
 
   const store = useStore()
@@ -420,14 +477,35 @@
   // ── Shared content library (composable with module-level shared state) ──
   const {
     loading,
+    searchQuery: contentSearchQuery,
     myContent,
-    myContentIds,
     currentContentList,
     filteredContentList,
     ensureLoaded,
   } = useContentLibrary(store)
 
   const browserRef = ref(null)
+  const explorePageRef = ref(null)
+
+  const dragAutoScroll = createDragAutoScroll(() => {
+    const root = explorePageRef.value
+    if (!root) return []
+    return [
+      root.querySelector('.sequences-list-scroll'),
+      root.querySelector('.cb-scroll-body'),
+    ].filter(Boolean)
+  })
+
+  function onExploreDragStart(e) {
+    const types = e.dataTransfer?.types
+    if (!types?.length) return
+    const hasItem = [...types].some(t => t === 'text/plain' || t === 'text')
+    if (hasItem) dragAutoScroll.start()
+  }
+
+  function onExploreDragEnd() {
+    dragAutoScroll.stop()
+  }
 
   // ── Core state ──
   const infoModalId = ref(null)
@@ -460,7 +538,12 @@
   const archiveConfirmLoading = ref(false)
   const sequenceSearchQuery = ref('')
   const sequenceStatusFilters = ref(defaultActiveStatusFilters())
+  const sequenceFavoritesFilters = ref(defaultFavoritesFilters())
+  const contentFavoritesFilters = ref(defaultFavoritesFilters())
+  const contentTypeFilters = ref(defaultContentTypeFilters())
   const sequenceStatusFilterOptions = computed(() => buildStatusFilterOptions(t))
+  const favoritesFilterOptions = computed(() => buildFavoritesFilterOptions(t))
+  const contentTypeFilterOptions = computed(() => buildContentTypeFilterOptions(t))
   const activeSequenceIds = ref([])
   const newestSequenceId = ref(null)
 
@@ -475,6 +558,7 @@
   const archivedSequenceIds = ref([])
 
   const archivedSequenceIdSet = computed(() => new Set(archivedSequenceIds.value))
+  const mySequenceIdSet = computed(() => new Set(mySequenceIds.value))
 
   const activeSequenceCount = computed(() => activeSequenceIds.value.length)
 
@@ -496,6 +580,11 @@
         sequenceStatusFilters.value,
         archivedSequenceIdSet.value.has(id),
       ))
+      ids = ids.filter(id => matchesFavoritesFilter(
+        sequenceFavoritesFilters.value,
+        id,
+        favorites,
+      ))
     }
     const q = sequenceSearchQuery.value.trim().toLowerCase()
     if (!q) return ids
@@ -505,17 +594,52 @@
     })
   })
 
+  const sequenceEmptyMessage = computed(() => {
+    if (isFavoritesFilterActive(sequenceFavoritesFilters.value)) {
+      if (sequenceSearchQuery.value.trim()) {
+        return t('no-favorites-match-search') || 'No favorites match your search'
+      }
+      return t('no-favorites-yet') || 'No favorites yet'
+    }
+    if (sequenceSearchQuery.value.trim()) {
+      return t('no-sequences-match-search') || 'No sequences match your search'
+    }
+    return t('no-sequences-yet')
+  })
+
+  const contentEmptyMessage = computed(() => {
+    const hasSearch = !!contentSearchQuery.value.trim()
+    if (isSequencesOnlyFilterActive(contentTypeFilters.value)) {
+      if (hasSearch) {
+        return t('no-sequences-match-search') || 'No sequences match your search'
+      }
+      return t('no-sequences-yet')
+    }
+    if (isFavoritesFilterActive(contentFavoritesFilters.value)) {
+      if (hasSearch) {
+        return t('no-favorites-match-search') || 'No favorites match your search'
+      }
+      return t('no-favorites-yet') || 'No favorites yet'
+    }
+    return t('no-results-found') || 'No results found'
+  })
+
   const pickerSequenceIds = computed(() => activeSequenceIds.value)
 
   function handleCopyModify(id) {
     copyModifyId.value = id
   }
 
-  function onCopyModifyCreated(id) {
-    if (!myContent.includes(id)) myContent.push(id)
-    myContentIds.add(id)
-    metadataCache.set(id, { active_type: 'application/json;type=sequence' })
-    invalidate(id)
+  function handleExplorePreview(id) {
+    void openContentPreview(id, { previewing, sequenceToPreview })
+  }
+
+  async function onCopyModifyCreated(id) {
+    await ensureSequenceMetadataCached(id)
+    registerMyContentItem(id)
+    promoteActiveSequence(id)
+    newestSequenceId.value = id
+    await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
     copyModifyId.value = null
   }
 
@@ -598,10 +722,21 @@
     }
   }
 
-  // ── Content browser filter (hide items tagged as archived sequences) ──
+  // ── Content browser filter (hide archived sequences + optional favorites) ──
   function contentExploreFilter(list) {
     const archived = archivedSequenceIdSet.value
-    return list.filter(id => !archived.has(id))
+    let result = list.filter(id => !archived.has(id))
+    if (isSequencesOnlyFilterActive(contentTypeFilters.value)) {
+      result = result.filter(id => matchesContentTypeFilter(
+        contentTypeFilters.value,
+        id,
+        mySequenceIdSet.value,
+      ))
+    }
+    if (isFavoritesFilterActive(contentFavoritesFilters.value)) {
+      result = result.filter(id => favorites.has(id))
+    }
+    return result
   }
 
   const allSelected = computed(() => {
@@ -649,10 +784,11 @@
   }
 
   async function onSequenceCreated(id) {
-    if (!myContent.includes(id)) myContent.push(id)
-    metadataCache.set(id, { active_type: 'application/json;type=sequence' })
+    await ensureSequenceMetadataCached(id)
+    registerMyContentItem(id)
     promoteActiveSequence(id)
     newestSequenceId.value = id
+    await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
     showCreateSequence.value = false
     showSuccessDialog(t('sequence-created-successfully'))
   }
@@ -664,7 +800,11 @@
       nameCache.set(id, payload.name)
       invalidate(id)
     }
-    if (id) promoteActiveSequence(id)
+    if (id) {
+      await ensureSequenceMetadataCached(id)
+      promoteActiveSequence(id)
+      await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
+    }
     sequenceVersion.value++
     showSuccessDialog(t('sequence-updated'))
   }
@@ -774,8 +914,25 @@
     }
   }
 
-  function sequenceUpdatedTimestamp(meta) {
-    if (!meta?.updated) return 0
+  async function ensureSequenceMetadataCached(id) {
+    invalidate(id)
+    const meta = await getContentMetadata(id).catch(() => null)
+    if (meta?.updated) return
+    if (meta) {
+      metadataCache.set(id, { ...meta, updated: new Date().toISOString() })
+      return
+    }
+    metadataCache.set(id, {
+      active_type: 'application/json;type=sequence',
+      updated: new Date().toISOString(),
+    })
+  }
+
+  function sequenceUpdatedTimestamp(meta, id) {
+    if (!meta?.updated) {
+      if (id && id === newestSequenceId.value) return Date.now()
+      return 0
+    }
     const ts = new Date(meta.updated).getTime()
     return Number.isFinite(ts) ? ts : 0
   }
@@ -874,7 +1031,7 @@
       const active = []
       const archived = []
       const updatedById = new Map(
-        ids.map((id, i) => [id, sequenceUpdatedTimestamp(metas[i])]),
+        ids.map((id, i) => [id, sequenceUpdatedTimestamp(metas[i], id)]),
       )
 
       sequenceIds.forEach((id, i) => {
@@ -887,15 +1044,14 @@
       })
 
       if (token !== loadSequencesToken) return
-      applySequenceLists(
-        sortSequenceIdsNewestFirst(active, updatedById),
-        sortSequenceIdsNewestFirst(archived, updatedById),
-      )
-      persistSequenceList(active, archived)
+      const sortedActive = sortSequenceIdsNewestFirst(active, updatedById)
+      const sortedArchived = sortSequenceIdsNewestFirst(archived, updatedById)
+      applySequenceLists(sortedActive, sortedArchived)
+      persistSequenceList(sortedActive, sortedArchived)
 
       const partition = store.getters.tagPartition
       const hierarchy = getCachedTagHierarchy()?.leafToCategory
-      await prefetchBatch([...active, ...archived], store.getters.language(), partition, hierarchy)
+      await prefetchBatch([...sortedActive, ...sortedArchived], store.getters.language(), partition, hierarchy)
     } finally {
       if (token === loadSequencesToken) sequencesLoading.value = false
     }
@@ -945,6 +1101,13 @@
 
   // ── Init: load my-content + sequences in parallel (shared ensureLoaded with ContentBrowser) ──
   onMounted(async () => {
+    const root = explorePageRef.value
+    if (root) {
+      root.addEventListener('dragstart', onExploreDragStart)
+      root.addEventListener('dragend', onExploreDragEnd)
+      root.addEventListener('drop', onExploreDragEnd)
+    }
+
     loadFavorites().catch(() => {})
     const exploreReady = ensureLoaded({ useDiskCache: true })
 
@@ -958,18 +1121,51 @@
     await exploreReady
     await loadMySequences({ silent: mySequenceIds.value.length > 0 })
   })
+
+  onBeforeUnmount(() => {
+    dragAutoScroll.stop()
+    const root = explorePageRef.value
+    if (root) {
+      root.removeEventListener('dragstart', onExploreDragStart)
+      root.removeEventListener('dragend', onExploreDragEnd)
+      root.removeEventListener('drop', onExploreDragEnd)
+    }
+  })
 </script>
 
 <style scoped>
+.explore-page {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.explore-page .page-heading {
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
 .explore-columns {
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  align-items: stretch;
 }
 
 .sequences-panel {
   width: 264px;
   flex-shrink: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
 }
 
 .sequences-heading {
@@ -991,6 +1187,47 @@
   border-radius: 12px;
   padding: 20px 12px 12px 12px;
   min-width: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sequences-card-header {
+  flex-shrink: 0;
+}
+
+.sequences-list-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  margin-top: 16px;
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.content-library-card {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-self: stretch;
+}
+
+.content-library-card .content-lib-header {
+  flex-shrink: 0;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+}
+
+.content-library-card :deep(.content-browser--fill) {
+  flex: 1;
+  min-height: 0;
 }
 
 .sequences-filter {
@@ -998,8 +1235,6 @@
 }
 
 .content-lib-header {
-  padding-bottom: 20px;
-  margin-bottom: 22px;
   border-bottom: 1px solid #E2E8F0;
 }
 
@@ -1092,13 +1327,43 @@
   gap: 8px;
 }
 
-/* Responsive */
+/* Responsive: keep pane scroll on tablet when stacked */
 @media (max-width: 1023px) {
+  .explore-page {
+    height: 100%;
+    overflow: hidden;
+  }
+
   .explore-columns {
     flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
   }
+
   .sequences-panel {
     width: 100%;
+    flex: 0 1 42%;
+    min-height: 200px;
+    max-height: 46vh;
+  }
+
+  .sequences-card {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sequences-list-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .content-library-card {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
   }
 }
 

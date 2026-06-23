@@ -9,13 +9,14 @@
             <div>
               <h2 class="vso-title">
                 <LucideIcon name="bar-chart" :size="16" class="vso-title-icon" />
-                {{ t('view-submissions') }} - {{ assignmentName }}
+                {{ t('reporting-dashboard') }} — {{ assignmentName }}
               </h2>
               <p class="vso-subtitle">{{ t('review-student-submissions-and-provide-feedback') }}</p>
             </div>
             <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
           </div>
 
+          <div class="vso-scroll-body">
           <!-- Dashboard cards -->
           <div class="vso-dashboards">
             <h4 class="vso-section-label">{{ t('view-dashboards') }}:</h4>
@@ -38,12 +39,29 @@
                   <span class="vso-dcard-link">{{ t('view-dashboard') }} &rsaquo;</span>
                 </div>
               </div>
-              <div class="vso-dcard" @click="$emit('open-dashboard', 'competency')">
+              <div
+                v-if="assignmentContainsCandli"
+                class="vso-dcard"
+                @click="$emit('open-dashboard', 'competency')"
+              >
                 <div class="vso-dcard-icon vso-dcard-icon-green">
                   <LucideIcon name="grid-2x2" :size="20" />
                 </div>
                 <div class="vso-dcard-info">
                   <span class="vso-dcard-title">{{ t('competency-dashboard') }}</span>
+                  <span class="vso-dcard-link">{{ t('view-dashboard') }} &rsaquo;</span>
+                </div>
+              </div>
+              <div
+                v-if="assignmentContainsGenAI"
+                class="vso-dcard"
+                @click="$emit('open-dashboard', 'genai')"
+              >
+                <div class="vso-dcard-icon vso-dcard-icon-purple">
+                  <LucideIcon name="sparkles" :size="20" />
+                </div>
+                <div class="vso-dcard-info">
+                  <span class="vso-dcard-title">{{ t('generative-ai-module-dashboard') }}</span>
                   <span class="vso-dcard-link">{{ t('view-dashboard') }} &rsaquo;</span>
                 </div>
               </div>
@@ -112,6 +130,7 @@
                 </template>
               </PTable>
             </div>
+          </div>
           </div>
 
           <!-- Footer -->
@@ -393,6 +412,7 @@
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
+  import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -422,6 +442,8 @@
   const submittedAt = ref(null)
   const maxAttempts = ref('1')
   const assignmentDueDate = ref('--')
+  const assignmentContainsCandli = ref(false)
+  const assignmentContainsGenAI = ref(false)
 
   // Overview state
   const studentSearch = ref('')
@@ -784,7 +806,16 @@
       })
     }
 
-    // Load sequence items
+    // Load sequence items + dashboard availability
+    const rawContent = assignState.content
+    const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
+    assignmentContainsCandli.value = false
+    assignmentContainsGenAI.value = false
+    for (const id of contentIds) {
+      if (CANDLI_SEQUENCES[id]) assignmentContainsCandli.value = true
+      if (GEN_AI_SEQUENCES[id]) assignmentContainsGenAI.value = true
+    }
+
     if (contentId.value) {
       try {
         const seqState = await Agent.state(contentId.value)
@@ -1463,11 +1494,11 @@
 .vso-container {
   width: 100%;
   max-width: 1300px;
-  height: 90%;
+  max-height: 90vh;
   background: white;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   border-radius: 16px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
@@ -1476,8 +1507,16 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-shrink: 0;
   padding: 24px 28px 16px;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.vso-scroll-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .vso-title {
@@ -1561,6 +1600,11 @@
   color: #059669;
 }
 
+.vso-dcard-icon-purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
 .vso-dcard-info {
   display: flex;
   flex-direction: column;
@@ -1618,10 +1662,6 @@
 /* Submissions section */
 .vso-submissions {
   padding: 0 28px 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
 }
 
 .vso-search {
@@ -1630,10 +1670,12 @@
 }
 
 .vso-table-wrapper {
-  flex: 1;
-  overflow-y: auto;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
+}
+
+.vso-table-wrapper :deep(.overflow-auto) {
+  overflow: visible;
 }
 
 /* Status badges */
@@ -1737,6 +1779,7 @@
 .vso-footer {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   padding: 16px 28px;
   border-top: 1px solid #e2e8f0;
   gap: 12px;
@@ -1780,6 +1823,10 @@
 
   .vso-container {
     max-height: 95vh;
+  }
+
+  .vso-scroll-body {
+    -webkit-overflow-scrolling: touch;
   }
 
   .vso-header {

@@ -62,7 +62,17 @@ export default {
           .values(state)
           .some(({ tag_type, content_id : cid, archived }) => tag_type === type && !archived && content_id === cid )
         )
-    }
+    },
+    tagUpdatedForContent: state => (content_id, tag_type) => {
+      for (const entry of Object.values(state)) {
+        if (entry.content_id === content_id && entry.tag_type === tag_type) {
+          if (!entry.updated) return 0
+          const ts = new Date(entry.updated).getTime()
+          return Number.isFinite(ts) ? ts : 0
+        }
+      }
+      return 0
+    },
   },
   mutations: {
     add(state, { id, content_id, tag_type, user_id, updated, archived }) {

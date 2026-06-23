@@ -91,9 +91,11 @@ import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { PMenu, PMenuItem } from '@/components/ui/index.js'
 import PButton from '@/components/ui/PButton.vue'
+import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
 
 const props = defineProps({
   groupId: { type: String, required: true },
+  students: { type: Array, default: () => [] },
   archived: Boolean,
 })
 
@@ -104,7 +106,9 @@ const groupData = computed(() => store.state.groups.groups[props.groupId] || {})
 const groupName = computed(() => groupData.value.name || t('unnamed'))
 const groupGrade = computed(() => groupData.value.grade || '')
 const groupSubject = computed(() => groupData.value.subject || '')
-const memberCount = computed(() => store.getters['groups/members'](props.groupId).length)
+const memberCount = computed(() =>
+  activeStudentCountInGroup(props.groupId, props.students, store),
+)
 
 const isDragOver = ref(false)
 const emit = defineEmits(['manage', 'edit', 'archive', 'unarchive', 'print-login-codes', 'drop-student'])

@@ -28,7 +28,7 @@
           @drop.prevent="onDrop('available')"
         >
           <div class="panel-title-row">
-            <h3 class="panel-title">{{ t('available-students') }} ({{ availableStudents.length }})</h3>
+            <h3 class="panel-title">{{ t('available-students') }} ({{ visibleAvailableStudents.length }})</h3>
             <PButton
               v-if="selectedAvailable.size"
               variant="secondary"
@@ -196,11 +196,14 @@ import { PModal, PButton, PBadge, PUnifiedFilter, PUnifiedFilterSection, PCheckb
 import {
   defaultActiveStatusFilters,
   buildStatusFilterOptions,
-  matchesStatusFilter,
 } from '@/utils/status-filter.js'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useToast } from '@/utils/useToast.js'
+import {
+  activeStudentsInGroup,
+  availableStudentsForStatus,
+} from '@/utils/group-student-counts.js'
 
 const props = defineProps({
   groupId: { type: String, required: true },
@@ -250,23 +253,23 @@ const dragTarget = ref(null)
 
 const groupName = computed(() => store.state.groups.groups[props.groupId]?.name || t('unnamed'))
 
-const groupMembers = computed(() => store.getters['groups/members'](props.groupId))
-
 const groupStudents = computed(() =>
-  props.students.filter(s => groupMembers.value.includes(s.id) && !s.archived),
+  activeStudentsInGroup(props.groupId, props.students, store),
 )
 
-const availableStudents = computed(() =>
-  props.students.filter(s => !groupMembers.value.includes(s.id)),
+const visibleAvailableStudents = computed(() =>
+  availableStudentsForStatus(
+    props.students,
+    props.groupId,
+    store,
+    availableStatusFilters.value,
+  ),
 )
 
 const filteredAvailable = computed(() => {
-  let list = availableStudents.value.filter(s =>
-    matchesStatusFilter(availableStatusFilters.value, s.archived),
-  )
-  if (!availableSearch.value) return list
+  if (!availableSearch.value) return visibleAvailableStudents.value
   const q = availableSearch.value.toLowerCase()
-  return list.filter(s => (nameMap[s.id] || '').includes(q))
+  return visibleAvailableStudents.value.filter(s => (nameMap[s.id] || '').includes(q))
 })
 
 const filteredGroup = computed(() => {

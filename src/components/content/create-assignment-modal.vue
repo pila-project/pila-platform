@@ -94,7 +94,7 @@
                 :checked="form.contentIds.includes(id)"
                 :source="source"
                 :grades="grades"
-                @click="previewingId = id"
+                @click="openPreview(id)"
                 @toggle-select="toggleContent(id)"
               />
             </template>
@@ -110,7 +110,7 @@
                 size="sm"
                 icon="lucide:eye"
                 text="Preview"
-                @click="previewingId = form.contentIds[0]"
+                @click="openPreview(form.contentIds[0])"
               />
             </div>
             <div v-if="!form.contentIds.length" class="text-xs text-slate-400 py-3">
@@ -300,6 +300,12 @@
     :id="previewingId"
     @close="previewingId = null"
   />
+
+  <SequencePreviewModal
+    v-if="sequenceToPreview"
+    :id="sequenceToPreview"
+    @close="sequenceToPreview = null"
+  />
 </template>
 
 <script setup>
@@ -310,6 +316,8 @@ import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-
 import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
 import ContentBrowser from './content-browser.vue'
 import PreviewModal from '@/components/common/preview-modal.vue'
+import SequencePreviewModal from './sequence-preview-modal.vue'
+import { openContentPreview } from '@/utils/open-content-preview.js'
 import { PModal, PInput, PButton, PSelect } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { gridPerPageOptions } from '@/utils/pagination-options.js'
@@ -327,6 +335,11 @@ const emit = defineEmits(['close', 'created'])
 const step = ref(1)
 const creating = ref(false)
 const previewingId = ref(null)
+const sequenceToPreview = ref(null)
+
+function openPreview(id) {
+  void openContentPreview(id, { previewing: previewingId, sequenceToPreview })
+}
 const browsingContent = ref(false)
 const groupSearch = ref('')
 

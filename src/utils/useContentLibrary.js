@@ -56,6 +56,13 @@ function applyMyContentIds(ids) {
   ids.forEach(id => myContentIds.add(id))
 }
 
+/** Optimistic single-item registration after create/copy-modify (keeps array + Set in sync). */
+export function registerMyContentItem(id) {
+  if (!id) return
+  if (!myContent.includes(id)) myContent.push(id)
+  myContentIds.add(id)
+}
+
 function seedListsFromCache(cached) {
   let seeded = false
   if (cached.taggedContent?.length) {

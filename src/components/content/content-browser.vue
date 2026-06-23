@@ -1,5 +1,5 @@
 <template>
-  <div class="content-browser">
+  <div class="content-browser" :class="{ 'content-browser--fill': fillHeight }">
     <!-- Search + filters -->
     <div class="cb-toolbar">
       <PUnifiedFilter
@@ -7,6 +7,7 @@
         :placeholder="placeholder || t('search-content-title')"
         class="flex-1"
       >
+        <slot name="filter-sections" />
         <PUnifiedFilterSection
           v-for="f in filterDefinitions"
           :key="f.key"
@@ -24,47 +25,49 @@
       </div>
     </div>
 
-    <slot name="above-grid" :filtered-list="displayList" />
+    <div :class="fillHeight ? 'cb-scroll-body' : 'cb-body'">
+      <slot name="above-grid" :filtered-list="displayList" />
 
-    <!-- Loading (only when we have nothing to show yet — avoids empty → loader flash) -->
-    <div v-if="showGridLoading" class="cb-loading">
-      <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-1" />{{ t('loading') }}...
-    </div>
+      <!-- Loading (only when we have nothing to show yet — avoids empty → loader flash) -->
+      <div v-if="showGridLoading" class="cb-loading">
+        <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-1" />{{ t('loading') }}...
+      </div>
 
-    <!-- Empty -->
-    <slot v-else-if="!displayList.length" name="empty">
-      <NoResultsFound />
-    </slot>
+      <!-- Empty -->
+      <slot v-else-if="!displayList.length" name="empty">
+        <NoResultsFound />
+      </slot>
 
-    <!-- Grid -->
-    <div v-else class="cb-grid" :style="{ gridTemplateColumns: 'repeat(' + columns + ', 1fr)' }">
-      <div v-for="id in paginatedDisplayList" :key="id">
-        <slot
-          name="card"
-          :id="id"
-          :source="isMyContent(id) ? 'mine' : 'pila'"
-          :grades="getItemTagLabels(id)"
-        >
-          <TaggedContentCard
+      <!-- Grid -->
+      <div v-else class="cb-grid" :style="{ gridTemplateColumns: 'repeat(' + columns + ', 1fr)' }">
+        <div v-for="id in paginatedDisplayList" :key="id">
+          <slot
+            name="card"
             :id="id"
             :source="isMyContent(id) ? 'mine' : 'pila'"
             :grades="getItemTagLabels(id)"
-          />
-        </slot>
+          >
+            <TaggedContentCard
+              :id="id"
+              :source="isMyContent(id) ? 'mine' : 'pila'"
+              :grades="getItemTagLabels(id)"
+            />
+          </slot>
+        </div>
       </div>
-    </div>
 
-    <!-- Pagination -->
-    <PPagination
-      v-if="showPagination"
-      :totalItems="displayList.length"
-      :currentPage="contentPage"
-      :perPage="contentPerPage"
-      :perPageOptions="perPageOptionsForPagination"
-      :perPageLabel="t('rows-per-page')"
-      @update:currentPage="contentPage = $event"
-      @update:perPage="contentPerPage = $event; contentPage = 1"
-    />
+      <!-- Pagination -->
+      <PPagination
+        v-if="showPagination"
+        :totalItems="displayList.length"
+        :currentPage="contentPage"
+        :perPage="contentPerPage"
+        :perPageOptions="perPageOptionsForPagination"
+        :perPageLabel="t('rows-per-page')"
+        @update:currentPage="contentPage = $event"
+        @update:perPage="contentPerPage = $event; contentPage = 1"
+      />
+    </div>
   </div>
 </template>
 
@@ -89,6 +92,11 @@ const props = defineProps({
   perPageOptions: { type: Array, default: () => [12, 24, 48] },
   placeholder: { type: String, default: '' },
   extraFilter: { type: Function, default: null },
+  /** When provided, changing this resets pagination (e.g. explore favorites filter). */
+  favoritesFilters: { type: Array, default: null },
+  contentTypeFilters: { type: Array, default: null },
+  /** Explore: toolbar fixed, grid scrolls inside the pane. */
+  fillHeight: Boolean,
   useDiskCache: { type: Boolean, default: true },
 })
 
@@ -141,6 +149,16 @@ const paginatedDisplayList = computed(() => {
   return displayList.value.slice(start, start + contentPerPage.value)
 })
 
+watch(
+  () => JSON.stringify([
+    props.favoritesFilters ?? [],
+    props.contentTypeFilters ?? [],
+  ]),
+  () => {
+    contentPage.value = 1
+  },
+)
+
 watch(paginatedDisplayList, (ids) => {
   if (!ids.length || !props.useDiskCache) return
   prefetchBatch(
@@ -166,6 +184,28 @@ defineExpose({
 </script>
 
 <style scoped>
+.content-browser--fill {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.content-browser--fill .cb-toolbar {
+  flex-shrink: 0;
+}
+
+.cb-scroll-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
 .cb-toolbar {
   display: flex;
   align-items: center;

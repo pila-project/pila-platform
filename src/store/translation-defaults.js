@@ -64,6 +64,17 @@ export default {
   'set-publication-date-to-save': 'Set a publication date to save.',
   'publishes-on': 'Publishes on',
 
+  'reporting-dashboard': 'Reporting Dashboard',
+  'view': 'View',
+
+  'favorites': 'Favorites',
+  'favorites-only': 'Favorites only',
+  'no-favorites-yet': 'No favorites yet',
+  'no-favorites-match-search': 'No favorites match your search',
+
+  'content-type': 'Content type',
+  'sequences-only': 'Sequences only',
+
   'view-students': 'View students',
   'download-login': 'Download login',
   'without-login-codes': 'without login codes (not shown below).',

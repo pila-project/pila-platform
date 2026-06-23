@@ -242,8 +242,23 @@
 
 .teacher-main {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   background: var(--color-slate-100);
+}
+
+/* Explore: fixed viewport — panes scroll internally, not the main shell */
+.teacher-main:has(.explore-page) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-main:has(.explore-page) .explore-page {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .sidebar {

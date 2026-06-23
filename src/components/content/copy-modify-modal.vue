@@ -121,7 +121,7 @@
               size="sm"
               icon="lucide:eye"
               :text="t('preview')"
-              @click="previewingId = sequenceItemIds[0]"
+              @click="openPreview(sequenceItemIds[0])"
             />
           </div>
 
@@ -210,7 +210,7 @@
                   <PMenuItem
                     :title="t('preview')"
                     prepend-icon="lucide:eye"
-                    @click="previewingId = item.id"
+                    @click="openPreview(item.id)"
                   />
                   <PMenuItem
                     :title="t('remove') || 'Remove'"
@@ -274,7 +274,7 @@
     :existing-item-ids="sequenceItemIds"
     :copy-title="form.title"
     @add="onPickerAddItems"
-    @preview="previewingId = $event"
+    @preview="openPreview($event)"
   />
 
   <PreviewModal
@@ -283,6 +283,12 @@
     width="90vw"
     height="90vh"
     @close="previewingId = null"
+  />
+
+  <SequencePreviewModal
+    v-if="sequenceToPreview"
+    :id="sequenceToPreview"
+    @close="sequenceToPreview = null"
   />
 </template>
 
@@ -297,6 +303,8 @@ import { getContentMetadata, invalidate } from '@/utils/content-cache.js'
 import { PModal, PInput, PButton, PTable, PBadge, PMenu, PMenuItem } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import PreviewModal from '@/components/common/preview-modal.vue'
+import SequencePreviewModal from './sequence-preview-modal.vue'
+import { openContentPreview } from '@/utils/open-content-preview.js'
 import CopyModifyContentPicker from './copy-modify-content-picker.vue'
 import { useStore } from 'vuex'
 import { useFeedback } from '@/composables/useFeedback.js'
@@ -345,6 +353,11 @@ const step = ref(1)
 const saving = ref(false)
 const createdId = ref(null)
 const previewingId = ref(null)
+const sequenceToPreview = ref(null)
+
+function openPreview(id) {
+  void openContentPreview(id, { previewing: previewingId, sequenceToPreview })
+}
 const originalName = ref('...')
 const originalDescription = ref('')
 const originalItems = ref([])

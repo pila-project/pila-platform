@@ -124,7 +124,7 @@
                       </vueScopeComponent>
                     </span>
                   </div>
-                  <PButton variant="secondary" size="xsm" :text="t('preview')" @click="previewing = cid" />
+                  <PButton variant="secondary" size="xsm" :text="t('preview')" @click="openPreview(cid)" />
                 </div>
               </div>
             </div>
@@ -133,8 +133,7 @@
           <!-- Footer -->
           <div class="details-footer">
             <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
-            <PButton variant="ghost" :text="t('edit-assignment')" @click="$emit('edit')" />
-            <PButton variant="primary" :text="t('view-submissions')" @click="$emit('view-submissions')" />
+            <PButton variant="primary" :text="t('edit-assignment')" @click="$emit('edit')" />
           </div>
         </template>
       </div>
@@ -146,6 +145,12 @@
     :id="previewing"
     @close="previewing = null"
   />
+
+  <SequencePreviewModal
+    v-if="sequenceToPreview"
+    :id="sequenceToPreview"
+    @close="sequenceToPreview = null"
+  />
 </template>
 
 <script setup>
@@ -155,12 +160,14 @@
   import { PButton } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
+  import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
+  import { openContentPreview } from '@/utils/open-content-preview.js'
 
   const props = defineProps({
     id: { type: String, required: true },
   })
 
-  const emit = defineEmits(['close', 'edit', 'view-submissions'])
+  const emit = defineEmits(['close', 'edit'])
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -168,6 +175,11 @@
   const loading = ref(true)
   const data = ref({})
   const previewing = ref(null)
+  const sequenceToPreview = ref(null)
+
+  function openPreview(id) {
+    void openContentPreview(id, { previewing, sequenceToPreview })
+  }
 
   const assignedGroups = computed(() =>
     store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false)

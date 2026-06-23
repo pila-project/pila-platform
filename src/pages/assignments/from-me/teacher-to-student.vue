@@ -77,7 +77,7 @@
             size="sm"
             icon="lucide:eye"
             :text="t('preview')"
-            @click="previewing = contentList[0]"
+            @click="openPreview(contentList[0])"
           />
         </div>
 
@@ -85,18 +85,39 @@
           {{ t('no-items-added-yet') || 'No items added yet. Use the button above to add content from the library.' }}
         </p>
 
-        <div v-else class="assignment-content-grid">
-          <TaggedContentCard
-            v-for="id in contentList"
+        <div
+          v-else
+          class="assignment-content-grid"
+          @dragover.prevent
+          @drop.prevent
+        >
+          <div
+            v-for="(id, i) in contentList"
             :key="id"
-            :id="id"
-            :checked="true"
-            :removable="true"
-            :grades="assignmentContentGrades(id)"
-            @toggle-select="removeContent(id)"
-            @remove="removeContent(id)"
-            @preview="previewing = id"
-          />
+            class="assignment-content-card-wrap"
+            :class="{
+              'assignment-content-card-wrap--dragging': contentDragIndex === i,
+              'assignment-content-card-wrap--drop-before': contentDropTarget === i && contentDropTarget < contentDragIndex,
+              'assignment-content-card-wrap--drop-after': contentDropTarget === i && contentDropTarget > contentDragIndex,
+            }"
+            draggable="true"
+            @dragstart.stop="onContentCardDragStart(i, $event)"
+            @dragend="onContentCardDragEnd"
+            @dragover.stop.prevent="onContentCardDragOver(i)"
+            @drop.stop.prevent="onContentCardDrop(i)"
+            @dragleave="onContentCardDragLeave"
+          >
+            <TaggedContentCard
+              :id="id"
+              sequence-view
+              assignment-content-view
+              :order-index="i"
+              :draggable="false"
+              :source="isMyContent(id) ? 'mine' : 'pila'"
+              :grades="assignmentContentGrades(id)"
+              @remove="removeContent(id)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -170,7 +191,7 @@
           :placeholder="t('search-groups')"
           icon="lucide:search"
         />
-        <div class="group-list">
+        <div ref="groupListRef" class="group-list">
           <div
             v-for="gid in filteredGroups"
             :key="gid"
@@ -357,6 +378,7 @@
                 :source="source"
                 :grades="grades"
                 @toggle-select="toggleModalContent(id)"
+                @preview="openPreview(id)"
               />
             </template>
           </ContentBrowser>
@@ -365,21 +387,35 @@
     </div>
   </Teleport>
 
-  <PreviewModal
-    v-if="previewing"
-    :id="previewing"
-    @close="previewing = null"
-  />
+  <Teleport to="body">
+    <div v-if="previewing" class="wizard-preview-stack">
+      <PreviewModal
+        :id="previewing"
+        @close="previewing = null"
+      />
+    </div>
+  </Teleport>
+
+  <Teleport to="body">
+    <div v-if="sequenceToPreview" class="wizard-preview-stack">
+      <SequencePreviewModal
+        :id="sequenceToPreview"
+        @close="sequenceToPreview = null"
+      />
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch } from 'vue'
+  import { ref, reactive, computed, watch, nextTick } from 'vue'
   import { useStore } from 'vuex'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
   import ContentBrowser from '@/components/content/content-browser.vue'
   import PreviewModal from '@/components/common/preview-modal.vue'
+  import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
   import { useContentLibrary } from '@/utils/useContentLibrary.js'
+  import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import { useToast } from '@/utils/useToast.js'
   import { PButton, PInput, PSelect, PTooltip } from '@/components/ui/index.js'
@@ -407,7 +443,16 @@
   const assignment = ref({ name: '', description: '', content: [] })
   const selectingContent = ref(false)
   const previewing = ref(null)
-  const { getItemTagLabels } = useContentLibrary(store)
+  const sequenceToPreview = ref(null)
+  const { getItemTagLabels, isMyContent } = useContentLibrary(store)
+
+  const CONTENT_REORDER_MIME = 'text/x-assignment-content-reorder'
+  const contentDragIndex = ref(null)
+  const contentDropTarget = ref(null)
+
+  function openPreview(id) {
+    void openContentPreview(id, { previewing, sequenceToPreview })
+  }
 
   // ── Step definitions ──
   const steps = [
@@ -444,6 +489,7 @@
   const DEFAULT_PUBLICATION_TIME = '08:00'
 
   const groupSearch = ref('')
+  const groupListRef = ref(null)
   const distributionOption = ref('publish')
   const scheduledDate = ref('')
   const scheduledTime = ref('')
@@ -458,22 +504,34 @@
 
   // ── Step 4: pending group assignments (applied on Save only) ──
   const pendingGroupIds = ref(new Set())
+  /** Stable list order while on step 4 — selected groups pin to top only when entering the step. */
+  const groupDisplayOrder = ref([])
 
-  const filteredGroups = computed(() => {
-    let ids = groups.value
-    if (groupSearch.value) {
-      const q = groupSearch.value.toLowerCase()
-      ids = ids.filter(gid => {
-        const group = store.state.groups.groups[gid]
-        return group?.name?.toLowerCase().includes(q)
-      })
-    }
-    const selected = pendingGroupIds.value
+  function buildGroupDisplayOrder(ids, selected) {
     return [...ids].sort((a, b) => {
       const aSelected = selected.has(a) ? 0 : 1
       const bSelected = selected.has(b) ? 0 : 1
       if (aSelected !== bSelected) return aSelected - bSelected
       return ids.indexOf(a) - ids.indexOf(b)
+    })
+  }
+
+  function syncGroupDisplayOrder() {
+    groupDisplayOrder.value = buildGroupDisplayOrder(groups.value, pendingGroupIds.value)
+    nextTick(() => groupListRef.value?.scrollTo({ top: 0 }))
+  }
+
+  watch(currentStep, (step, prev) => {
+    if (step === 4 && prev !== 4) syncGroupDisplayOrder()
+  })
+
+  const filteredGroups = computed(() => {
+    const base = groupDisplayOrder.value.length ? groupDisplayOrder.value : groups.value
+    if (!groupSearch.value) return base
+    const q = groupSearch.value.toLowerCase()
+    return base.filter(gid => {
+      const group = store.state.groups.groups[gid]
+      return group?.name?.toLowerCase().includes(q)
     })
   })
 
@@ -579,6 +637,55 @@
     } else if (assignment.value.content === id) {
       assignment.value.content = []
     }
+  }
+
+  function reorderAssignmentContent(fromIndex, toIndex) {
+    if (
+      fromIndex === null
+      || fromIndex === undefined
+      || fromIndex === toIndex
+      || fromIndex < 0
+      || toIndex < 0
+    ) {
+      return
+    }
+    const ids = contentList.value
+    if (fromIndex >= ids.length || toIndex >= ids.length) return
+    const next = [...ids]
+    const [moved] = next.splice(fromIndex, 1)
+    next.splice(toIndex, 0, moved)
+    assignment.value.content = next
+  }
+
+  function onContentCardDragStart(index, e) {
+    contentDragIndex.value = index
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData(CONTENT_REORDER_MIME, String(index))
+  }
+
+  function onContentCardDragEnd() {
+    contentDragIndex.value = null
+    contentDropTarget.value = null
+  }
+
+  function onContentCardDragOver(index) {
+    if (contentDragIndex.value === null || index === contentDragIndex.value) {
+      contentDropTarget.value = null
+      return
+    }
+    contentDropTarget.value = index
+  }
+
+  function onContentCardDragLeave() {
+    contentDropTarget.value = null
+  }
+
+  function onContentCardDrop(toIndex) {
+    contentDropTarget.value = null
+    const fromIndex = contentDragIndex.value
+    contentDragIndex.value = null
+    if (fromIndex === null) return
+    reorderAssignmentContent(fromIndex, toIndex)
   }
 
   const contentList = computed(() => {
@@ -1084,6 +1191,28 @@
   padding: 2px;
 }
 
+.assignment-content-card-wrap {
+  cursor: grab;
+  border-radius: 16px;
+  transition: box-shadow 120ms, opacity 120ms;
+}
+
+.assignment-content-card-wrap:active {
+  cursor: grabbing;
+}
+
+.assignment-content-card-wrap--dragging {
+  opacity: 0.45;
+}
+
+.assignment-content-card-wrap--drop-before {
+  box-shadow: inset 0 3px 0 0 #2563eb;
+}
+
+.assignment-content-card-wrap--drop-after {
+  box-shadow: inset 0 -3px 0 0 #2563eb;
+}
+
 /* ── Step 3: Toggle switches ── */
 .toggle-row {
   display: flex;
@@ -1309,6 +1438,13 @@
 
 .flex-1 {
   flex: 1;
+}
+
+/* Preview/sequence modals must sit above the content-browser overlay (z-index 60). */
+.wizard-preview-stack {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
 }
 
 /* ── Content browser overlay modal ── */
