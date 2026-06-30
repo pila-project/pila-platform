@@ -56,42 +56,18 @@ export default {
 		async modalClose(e) {
 			const { auth: { user }} = await Agent.environment()
 			// GOAL :: Apply TCTCTC... pattern for incoming teachers.
-			// Do this by looking at taggings where the 'contributor' is the same as the 'target'
-			// to exclude manual overwrites in the tagging domain
+			// Look at the total T or C taggings, if even T, if odd C
 			const [ allTreatmentTaggings, allControlTaggings ] = await Promise.all([
 				Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems'),
 				Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
 			])
 
-			const treatmentSelfTaggings = allTreatmentTaggings.filter(
-				({ contributor, target}) => contributor === target
-			)
-			const controlSelfTaggings = allControlTaggings.filter(
-				({ contributor, target}) => contributor === target
-			)
+			const totalAssignments =
+				allTreatmentTaggings.length +
+				allControlTaggings.length
 
-			const newestTreatment = newestTimestamp(treatmentSelfTaggings)
-			const newestControl = newestTimestamp(controlSelfTaggings)
-
-			// Apply the OPPOSITE tag from whichever group has the newest self-tagging.
-			if (newestTreatment > newestControl) {
-				tagSelfWith(CONTROL_TAG, PARTITION)
-			} else if (newestControl > newestTreatment) {
-				tagSelfWith(TREATMENT_TAG, PARTITION)
-			} else {
-				// fallback for no existing taggings, or exact tie
-				tagSelfWith(Math.random() > 0.5 ? TREATMENT_TAG : CONTROL_TAG, PARTITION)
-			}
-
-			function newestTimestamp(arr) {
-				return arr.reduce(
-					(newest, item) =>
-						item.timestamp && item.timestamp > newest
-							? item.timestamp
-							: newest,
-						""
-				)
-			}
+			if (totalAssignments % 2 === 0) tagSelfWith(TREATMENT_TAG, PARTITION)
+			else tagSelfWith(CONTROL_TAG, PARTITION)
 
 			async function tagSelfWith(tag, partition) {
 				const tags = await Agent.state('tags')
