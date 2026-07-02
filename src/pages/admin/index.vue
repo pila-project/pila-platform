@@ -34,9 +34,21 @@
         />
         <v-list-item
           prepend-icon="fa-solid fa-person-chalkboard"
-          :title="t('teachers')"
+          :title="t('admin')"
           :active="tab === 'teachers'"
           @click="tab = 'teachers'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-book-open"
+          title="Content"
+          :active="tab === 'content'"
+          @click="tab = 'content'"
+        />
+        <v-list-item
+          prepend-icon="fa-solid fa-list-check"
+          title="Assign"
+          :active="tab === 'assign'"
+          @click="tab = 'assign'"
         />
         <v-list-item
           prepend-icon="fa-solid fa-clipboard-check"
@@ -45,6 +57,7 @@
           @click="tab = 'role-requests'"
         />
         <v-list-item
+          v-if="!isSimplifiedStudyDomain"
           prepend-icon="fa-solid fa-magnifying-glass-chart"
           :title="t('reports')"
           :active="tab === 'reports'"
@@ -84,6 +97,8 @@
         v-if="['admins', 'teachers', 'trainers', 'role-requests'].includes(tab)"
         :role="tab"
       />
+      <AdminContent v-else-if="tab === 'content'" />
+      <AdminAssign v-else-if="tab === 'assign'" />
       <AdminReports v-else-if="tab === 'reports'" />
       <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
       <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
@@ -99,6 +114,8 @@
   import { useStore } from 'vuex'
   import Navbar from '../Navbar.vue'
   import RoleManager from './roles.vue'
+  import AdminContent from './content.vue'
+  import AdminAssign from './assign.vue'
   import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'

@@ -82,6 +82,7 @@ export const PILA_CONTENT_TAG = "1a53db50-e248-11ee-ab5f-07f4a7408770"
 export const MANDATORY_RESOURCES_TAG = "24af6b80-1174-11f0-9b08-0156640831c5"
 export const OPTIONAL_RESOURCES_TAG = "e5e89470-11ab-11f0-bd10-df9c846cb093"
 export const MY_CONTENT_TAG = '86220090-480f-11f0-a2e7-298d7c5ad755'
+export const ADMIN_CONTENT_TAG = 'ed58ea00-7629-11f1-bfa2-b1dfd57e5efd'
 
 export const CONTROL_TAG = '41ad5640-ab69-11f0-b8c9-a1d0807d9f84' // Control
 export const TREATMENT_TAG = '472a84d0-ab69-11f0-b8c9-a1d0807d9f84' // Treatment

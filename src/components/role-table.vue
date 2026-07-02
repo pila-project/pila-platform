@@ -7,12 +7,22 @@
     >
       {{ t('download') }}
     </v-btn>
+    <v-btn
+      v-if="props.approvalColumns"
+      class="ml-4"
+      color="primary"
+      prepend-icon="fa-solid fa-user-plus"
+      text="Create teacher account"
+      @click="showCreateTeacherAccountDialog = true"
+    />
   </div>
   <v-data-table
     sticky
+    v-model:sort-by="sortBy"
     :items="taggings"
     :loading="loading"
     :headers="headers"
+    :items-per-page="itemsPerPage"
     :no-data-text="t('no-one-has-been-assigned-this-role')"
     :items-per-page-text="t('items-per-page')"
     :items-per-page-options="[
@@ -24,9 +34,28 @@
     ]"
   >
     <template v-slot:item.target="data">
+      <span v-if="props.approvalColumns">
+        {{ data.item.target }}
+      </span>
+      <DecryptedName
+        v-else
+        avatar
+        :user="data.item.target"
+      />
+    </template>
+    <template v-slot:item.userName="data">
       <DecryptedName
         avatar
         :user="data.item.target"
+      />
+    </template>
+    <template v-slot:item.approvalDateMs="data">
+      {{ formatDate(data.item.approvalDate) }}
+    </template>
+    <template v-slot:item.approvedByName="data">
+      <DecryptedName
+        avatar
+        :user="data.item.contributor"
       />
     </template>
     <template
@@ -61,7 +90,15 @@
     </template>
     <template v-slot:item.edit="data">
       <v-btn
-        v-if="editable"
+        v-if="editable && props.approvalColumns"
+        color="error"
+        variant="tonal"
+        prepend-icon="fa-solid fa-xmark"
+        text="Remove access"
+        @click="potentialRemoval = data.item.target"
+      />
+      <v-btn
+        v-else-if="editable"
         variant="plain"
         icon="fa-solid fa-xmark"
         @click="potentialRemoval = data.item.target"
@@ -90,7 +127,7 @@
     </template>
   </v-dialog>
   <v-dialog
-    v-if="editable"
+    v-if="editable && !props.approvalColumns"
     max-width="500"
   >
     <template v-slot:activator="{ props: activatorProps }">
@@ -121,14 +158,77 @@
       </v-card>
     </template>
   </v-dialog>
+  <v-dialog
+    v-if="props.approvalColumns"
+    v-model="showCreateTeacherAccountDialog"
+    max-width="500"
+  >
+    <v-card title="Create teacher account">
+      <v-card-text>
+        <v-text-field
+          autofocus
+          v-model="newTeacherName"
+          label="User name"
+          :rules="teacherNameRules"
+          required
+        />
+        <v-text-field
+          v-if="!providerSecret"
+          v-model="newProviderSecret"
+          :label="t('enter-encryption-key-word')"
+          required
+        />
+        <p class="text-body-2 text-medium-emphasis">
+          This will create a PILA 8-element login code and QR code, then approve the account for teacher access.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          :text="t('cancel')"
+          @click="showCreateTeacherAccountDialog = false"
+        />
+        <v-btn
+          color="primary"
+          text="Create"
+          :loading="creatingTeacherAccount"
+          :disabled="!canCreateTeacherAccount"
+          @click="createTeacherAccount"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
+    v-if="props.approvalColumns"
+    v-model="showCreatedTeacherAccountDialog"
+    max-width="500"
+  >
+    <v-card title="Teacher login code">
+      <v-card-text>
+        <UserInfoCard
+          v-if="createdTeacherAccount"
+          :id="createdTeacherAccount"
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          :text="t('close')"
+          @click="showCreatedTeacherAccountDialog = false"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
   import { ref, reactive, computed } from 'vue'
   import { validate as isUUID } from 'uuid'
   import DecryptedName from './decrypted-name.vue'
+  import UserInfoCard from './user-info-card.vue'
   import { useStore } from 'vuex'
   import { json2csv } from 'json-2-csv'
+  import { createUser, randomUserSecret, saveProviderSecret } from '../user-utils.js'
 
   const store = useStore()
 
@@ -156,6 +256,10 @@
       type: Array,
       default: () => []
     },
+    approvalColumns: {
+      type: Boolean,
+      default: false
+    },
     editable: {
       type: Boolean,
       default: true
@@ -171,16 +275,41 @@
   const taggings = ref([])
   const newRoleUser = ref('')
   const potentialRemoval = ref(null)
-
-  const headers = [
-    { key: 'target', title: t('user') }
+  const showCreateTeacherAccountDialog = ref(false)
+  const showCreatedTeacherAccountDialog = ref(false)
+  const newTeacherName = ref('')
+  const newProviderSecret = ref('')
+  const providerSecret = ref(localStorage.getItem(`zkek-${store.state.user}`) || '')
+  const creatingTeacherAccount = ref(false)
+  const createdTeacherAccount = ref(null)
+  const sortBy = ref(props.approvalColumns ? [{ key: 'approvalDateMs', order: 'desc' }] : [])
+  const itemsPerPage = props.approvalColumns ? -1 : 10
+  const effectiveRelatedTags = props.approvalColumns ? [] : props.relatedTags
+  const hasTeacherNameLetter = computed(() => /\p{L}/u.test(newTeacherName.value || ''))
+  const teacherNameRules = [
+    () => hasTeacherNameLetter.value || 'Enter at least one letter.'
   ]
+  const canCreateTeacherAccount = computed(() => (
+    hasTeacherNameLetter.value
+      && (!!providerSecret.value || !!newProviderSecret.value)
+      && !creatingTeacherAccount.value
+  ))
 
-  fetchTaggings()
+  const headers = props.approvalColumns
+    ? [
+      { key: 'userName', title: 'User name' },
+      { key: 'target', title: 'User ID' },
+      { key: 'approvalDateMs', title: 'Approval date' },
+      { key: 'approvedByName', title: 'Approved by' },
+      { key: 'edit', title: 'Remove access', sortable: false }
+    ]
+    : [
+      { key: 'target', title: t('user') }
+    ]
 
   const relatedTagStates = reactive({})
 
-  props.relatedTags.forEach(({ id, editable }) => {
+  effectiveRelatedTags.forEach(({ id, editable }) => {
     relatedTagStates[id] = {}
     Agent
       .query(
@@ -197,7 +326,7 @@
   })
 
   const relatedTagTemplateData = computed(() => {
-    return props.relatedTags.map(({ id, editable, values }, index) => ({
+    return effectiveRelatedTags.map(({ id, editable, values }, index) => ({
       id,
       editable,
       values,
@@ -211,8 +340,12 @@
     headers.push({ key, title: t(name) })
   }))
 
-  headers.push({ key: 'contributor', title: t('assigned-by') })
-  headers.push({ key: 'edit', title: '' })
+  if (!props.approvalColumns) {
+    headers.push({ key: 'contributor', title: t('assigned-by') })
+    headers.push({ key: 'edit', title: '' })
+  }
+
+  fetchTaggings()
 
   function setRelatedTag(relatedTagId, target, value) {
     relatedTagStates[relatedTagId][target] = value
@@ -233,6 +366,34 @@
     fetchTaggings()
   }
 
+  async function createTeacherAccount() {
+    if (!canCreateTeacherAccount.value) return
+
+    creatingTeacherAccount.value = true
+
+    try {
+      if (!providerSecret.value && newProviderSecret.value) {
+        providerSecret.value = newProviderSecret.value
+        await saveProviderSecret(store.state.user, providerSecret.value)
+      }
+
+      const id = await createUser(
+        randomUserSecret(),
+        providerSecret.value,
+        { name: newTeacherName.value.trim() }
+      )
+
+      await tag(id, true)
+      createdTeacherAccount.value = id
+      showCreateTeacherAccountDialog.value = false
+      showCreatedTeacherAccountDialog.value = true
+      newTeacherName.value = ''
+      newProviderSecret.value = ''
+    } finally {
+      creatingTeacherAccount.value = false
+    }
+  }
+
   async function fetchTaggings() {
     loading.value = true
     const query = props.descendentTaggings ? 'my-descendent-taggings-for-tag' : 'taggings-for-tag'
@@ -243,14 +404,19 @@
           result.forEach(
             o => relatedTagTemplateData.value.forEach(({ key }) => o[key] = true)
           )
-          taggings.value = result
+          return result
         })
     )
+      .then(async result => {
+        taggings.value = props.approvalColumns
+          ? await Promise.all(result.map(enrichApprovalTagging))
+          : result
+      })
 
     taggings
       .value
       .forEach(result => {
-        props.relatedTags.forEach(({ id, editable }) => {
+        effectiveRelatedTags.forEach(({ id, editable }) => {
           if (relatedTagStates[id][result.target]) return
           relatedTagStates[id][result.target] = false
         })
@@ -289,5 +455,49 @@
 
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
+  }
+
+  async function enrichApprovalTagging(tagging) {
+    const approvalDate = tagging.updated || tagging.created
+    const [userName, approvedByName] = await Promise.all([
+      userNameFor(tagging.target),
+      userNameFor(tagging.contributor)
+    ])
+
+    return {
+      ...tagging,
+      userName,
+      approvedByName,
+      approvalDate,
+      approvalDateMs: dateMs(approvalDate)
+    }
+  }
+
+  async function userNameFor(user) {
+    if (!user) return ''
+
+    try {
+      const info = await store.getters.decryptUserInfo(user)
+      return info?.name || user
+    } catch (error) {
+      console.warn(`Unable to load user name for ${user}.`, error)
+      return user
+    }
+  }
+
+  function dateMs(date) {
+    if (!date) return 0
+
+    const ms = new Date(date).getTime()
+    return Number.isNaN(ms) ? 0 : ms
+  }
+
+  function formatDate(date) {
+    if (!date) return ''
+
+    const parsed = new Date(date)
+    return Number.isNaN(parsed.getTime())
+      ? date
+      : parsed.toLocaleDateString()
   }
 </script>

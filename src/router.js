@@ -42,6 +42,7 @@ function makeRouteShell(loader, { cache = true } = {}) {
 // TeacherView child routes wrapped in shells
 const ManageClasses = makeRouteShell(() => import('./pages/teacher/manage-classes.vue'))
 const AssignmentsFromMe = makeRouteShell(() => import('./assignments/from-me/all.vue'))
+const AssignmentsToMe = makeRouteShell(() => import('./assignments/to-me/all.vue'))
 const ContentLibrary = makeRouteShell(() => import('./components/content-library.vue'))
 const TeacherCreateTab = makeRouteShell(() => import('./pages/teacher/teacher-create-tab.vue'))
 const TeacherResourcesPage = makeRouteShell(() => import('./pages/teacher/resources-page.vue'))
@@ -72,6 +73,14 @@ export default createRouter({
             assignable_item_type: 'teacher-created',
             assignment_type: 'teacher-to-student'
           }
+        },
+        {
+          path: 'tasks/:id?',
+          component: AssignmentsToMe,
+          props: route => ({
+            type: 'researcher-to-teacher',
+            id: route.params.id
+          })
         },
         { path: 'content', component: ContentLibrary },
         { path: 'create', component: TeacherCreateTab },
