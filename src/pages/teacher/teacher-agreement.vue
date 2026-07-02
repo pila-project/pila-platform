@@ -38,15 +38,7 @@
 
 <script>
 import PILAModal from '../../components/PILAModal.vue'
-import {
-	DOMAIN_DATA_PROTECTION_LINKS,
-	HOST_TO_PARTITION,
-	SIMPLIFIED_STUDY_DOMAINS,
-	TREATMENT_TAG,
-	CONTROL_TAG
-} from '../../constants.js'
-
-const PARTITION = HOST_TO_PARTITION[window.location.host]
+import { DOMAIN_DATA_PROTECTION_LINKS } from '../../constants.js'
 
 export default {
 	name: 'teacher-agreement',
@@ -54,27 +46,6 @@ export default {
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
 		async modalClose(e) {
-			const { auth: { user }} = await Agent.environment()
-			// GOAL :: Apply TCTCTC... pattern for incoming teachers.
-			// Look at the total T or C taggings, if even T, if odd C
-			const [ allTreatmentTaggings, allControlTaggings ] = await Promise.all([
-				Agent.query('taggings-for-tag', [ PARTITION, TREATMENT_TAG ], 'tags.knowlearning.systems'),
-				Agent.query('taggings-for-tag', [ PARTITION, CONTROL_TAG ], 'tags.knowlearning.systems')
-			])
-
-			const totalAssignments =
-				allTreatmentTaggings.length +
-				allControlTaggings.length
-
-			if (totalAssignments % 2 === 0) tagSelfWith(TREATMENT_TAG, PARTITION)
-			else tagSelfWith(CONTROL_TAG, PARTITION)
-
-			async function tagSelfWith(tag, partition) {
-				const tags = await Agent.state('tags')
-				if (!tags[tag]) tags[tag] = {}
-				tags[tag][user] = { partition, value: true}
-			}
-
 			if (e === 'primary-button') this.$store.dispatch('acceptTeacherAgreement')
 		}
 	},
@@ -82,9 +53,6 @@ export default {
 		teacherDataProtectionLink() {
 			return DOMAIN_DATA_PROTECTION_LINKS[location.host]
 			    || DOMAIN_DATA_PROTECTION_LINKS.default
-		},
-		isSimplifiedDomain() {
-			return SIMPLIFIED_STUDY_DOMAINS.includes(location.host)
 		}
 	}
 }
