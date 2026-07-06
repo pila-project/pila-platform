@@ -109,7 +109,7 @@
     addingContent.value = true
     try {
       await setTagging({ tag: ADMIN_CONTENT_TAG, target: content, value: true }, partition)
-      await fetchAdminContent()
+      addAdminContent(content)
       contentIdOrURL.value = ''
       showSuccessMessage.value = true
     } finally {
@@ -119,7 +119,7 @@
 
   async function removeContent(id) {
     await setTagging({ tag: ADMIN_CONTENT_TAG, target: id, value: null }, partition)
-    await fetchAdminContent()
+    removeAdminContent(id)
   }
 
   async function fetchAdminContent() {
@@ -128,6 +128,16 @@
       .query('taggings-for-tag', [partition, ADMIN_CONTENT_TAG], 'tags.knowlearning.systems')
       .then(taggings => taggings.map(({ target }) => target))
     loading.value = false
+  }
+
+  function addAdminContent(id) {
+    if (!adminContent.value.includes(id)) {
+      adminContent.value = [id, ...adminContent.value]
+    }
+  }
+
+  function removeAdminContent(id) {
+    adminContent.value = adminContent.value.filter(contentId => contentId !== id)
   }
 
   async function isValidInput(input) {
