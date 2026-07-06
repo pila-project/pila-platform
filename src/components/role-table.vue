@@ -10,6 +10,13 @@
     <v-btn
       v-if="props.approvalColumns"
       class="ml-4"
+      prepend-icon="fa-solid fa-user-check"
+      text="Add Teacher By Id"
+      @click="showAddTeacherByIdDialog = true"
+    />
+    <v-btn
+      v-if="props.approvalColumns"
+      class="ml-4"
       color="primary"
       prepend-icon="fa-solid fa-user-plus"
       text="Create teacher account"
@@ -159,6 +166,34 @@
     </template>
   </v-dialog>
   <v-dialog
+    v-if="editable && props.approvalColumns"
+    v-model="showAddTeacherByIdDialog"
+    max-width="500"
+  >
+    <v-card title="Add Teacher By Id">
+      <v-card-text>
+        <v-text-field
+          autofocus
+          v-model="newRoleUser"
+          :label="t('user-id')"
+          :rules="[validateUUID]"
+          @keypress.enter="submitNewTeacherById"
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          :text="t('add')"
+          @click="submitNewTeacherById"
+        />
+        <v-btn
+          :text="t('cancel')"
+          @click="showAddTeacherByIdDialog = false"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
     v-if="props.approvalColumns"
     v-model="showCreateTeacherAccountDialog"
     max-width="500"
@@ -243,6 +278,13 @@
       isActive.value = false
     }
   }
+  function submitNewTeacherById() {
+    if (isUUID(newRoleUser.value)) {
+      tag(newRoleUser.value, true)
+      showAddTeacherByIdDialog.value = false
+      newRoleUser.value = ''
+    }
+  }
 
   const props = defineProps({
     partition: String,
@@ -275,6 +317,7 @@
   const taggings = ref([])
   const newRoleUser = ref('')
   const potentialRemoval = ref(null)
+  const showAddTeacherByIdDialog = ref(false)
   const showCreateTeacherAccountDialog = ref(false)
   const showCreatedTeacherAccountDialog = ref(false)
   const newTeacherName = ref('')
