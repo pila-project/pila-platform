@@ -43,7 +43,7 @@
             Select content to manage teacher assignments.
           </v-card-text>
           <v-card-text v-else>
-            <v-progress-linear v-if="loadingTeachers" indeterminate />
+            <v-progress-linear v-if="loadingTeachers || loadingAssignments" indeterminate />
             <div v-else-if="!teachers.length" class="text-medium-emphasis">
               No approved teachers found.
             </div>
@@ -71,6 +71,7 @@
                         hide-details
                         density="compact"
                         :model-value="isTeacherAssigned(teacher)"
+                        :disabled="isExternallyAssigned(teacher)"
                         @update:model-value="assigned => toggleTeacherAssignment(teacher, assigned)"
                       />
                       <span
@@ -78,6 +79,12 @@
                         class="text-caption text-medium-emphasis"
                       >
                         Updating...
+                      </span>
+                      <span
+                        v-else-if="isExternallyAssigned(teacher)"
+                        class="text-caption text-medium-emphasis"
+                      >
+                        Assigned by another admin
                       </span>
                     </div>
                   </td>
@@ -107,8 +114,7 @@
 </template>
 
 <script setup>
-  import { reactive, ref } from 'vue'
-  import { v5 as uuidv5 } from 'uuid'
+  import { reactive, ref, watch } from 'vue'
   import { useStore } from 'vuex'
   import DecryptedName from '../../components/decrypted-name.vue'
   import PreviewModal from '../../components/PreviewModal.vue'
@@ -119,8 +125,6 @@
   const TEACHER_ASSIGNMENT_TYPE = 'researcher-to-teacher'
   const ASSIGNABLE_ITEM_TYPE = 'application/json;type=study'
   const TEACHER_ASSIGNMENT_GROUP_TYPE = 'teachers'
-  const ASSIGNABLE_ITEM_NAMESPACE = 'f4ab946c-51b1-4be1-a74e-0c9ae0bfd8f1'
-  const TEACHER_GROUP_NAMESPACE = 'bca03b3f-f702-4a23-b25c-551b44c729a1'
 
   const store = useStore()
   const partition = store.getters.tagPartition
@@ -131,29 +135,17 @@
   const teachers = ref([])
   const loadingContent = ref(true)
   const loadingTeachers = ref(true)
+  const loadingAssignments = ref(false)
   const updatingTeachers = reactive({})
   const optimisticTeacherAssignments = reactive({})
+  const teacherAssignments = reactive({})
+  const externalTeacherAssignments = reactive({})
+  let assignmentRefreshId = 0
 
   fetchAdminContent()
   fetchTeachers()
 
-  function assignableItemId(contentId) {
-    return uuidv5(contentId, ASSIGNABLE_ITEM_NAMESPACE)
-  }
-
-  function teacherGroupId(teacherId) {
-    return uuidv5(`${partition}:${teacherId}`, TEACHER_GROUP_NAMESPACE)
-  }
-
-  function assignmentForTeacher(teacherId) {
-    if (!selectedContent.value) return null
-
-    const groupId = teacherGroupId(teacherId)
-    const itemId = assignableItemId(selectedContent.value)
-    return store
-      .getters['assignments/assignments'](itemId, TEACHER_ASSIGNMENT_TYPE)
-      .find(id => store.getters['assignments/get'](id).group_id === groupId)
-  }
+  watch(selectedContent, refreshTeacherAssignments)
 
   function assignmentStateKey(teacherId) {
     return JSON.stringify([selectedContent.value, teacherId])
@@ -171,7 +163,11 @@
       return optimisticTeacherAssignments[assignmentStateKey(teacherId)]
     }
 
-    return !!assignmentForTeacher(teacherId)
+    return !!teacherAssignments[teacherId] || !!externalTeacherAssignments[teacherId]
+  }
+
+  function isExternallyAssigned(teacherId) {
+    return !!externalTeacherAssignments[teacherId] && !teacherAssignments[teacherId]
   }
 
   async function toggleTeacherAssignment(teacherId, assigned) {
@@ -183,18 +179,19 @@
     updatingTeachers[teacherId] = true
 
     try {
-      const assignmentId = assignmentForTeacher(teacherId)
+      const assignmentId = teacherAssignments[teacherId]
       if (!nextAssigned && assignmentId) {
         await store.dispatch('assignments/unassign', assignmentId)
-      } else if (nextAssigned && !assignmentId) {
-        const itemId = await ensureAssignableItem(selectedContent.value)
-        const groupId = await ensureTeacherGroup(teacherId)
+      } else if (nextAssigned && !assignmentId && !externalTeacherAssignments[teacherId]) {
+        const itemId = await createAssignableItem(selectedContent.value)
+        const groupId = await createTeacherGroup(teacherId)
         await store.dispatch('assignments/assign', {
           group_id: groupId,
           item_id: itemId,
           assignment_type: TEACHER_ASSIGNMENT_TYPE
         })
       }
+      await refreshTeacherAssignments()
     } catch (error) {
       if (hadOptimisticAssignment) {
         optimisticTeacherAssignments[key] = previousOptimisticAssignment
@@ -207,35 +204,23 @@
     }
   }
 
-  async function ensureAssignableItem(contentId) {
-    const id = assignableItemId(contentId)
-    const [item, metadata] = await Promise.all([
-      Agent.state(id),
-      Agent.metadata(id)
-    ])
-
-    if (metadata.active_type !== ASSIGNABLE_ITEM_TYPE) {
-      metadata.active_type = ASSIGNABLE_ITEM_TYPE
-    }
-
-    item.content = contentId
-    item.name ||= await contentName(contentId)
-    item.description ||= ''
-    item.files ||= []
-
-    await Agent.synced()
-    await store.dispatch('pila_tags/tag', {
-      content_id: id,
-      tag_type: 'admin-approved'
+  async function createAssignableItem(contentId) {
+    const id = Agent.create({
+      active_type: ASSIGNABLE_ITEM_TYPE,
+      active: {
+        content: contentId,
+        name: await contentName(contentId),
+        description: '',
+        files: []
+      }
     })
+    await Agent.synced()
     return id
   }
 
-  async function ensureTeacherGroup(teacherId) {
-    const groupId = teacherGroupId(teacherId)
+  async function createTeacherGroup(teacherId) {
     const name = await teacherName(teacherId)
-    await store.dispatch('groups/add', {
-      id: groupId,
+    const groupId = await store.dispatch('groups/add', {
       type: TEACHER_ASSIGNMENT_GROUP_TYPE,
       name
     })
@@ -244,6 +229,73 @@
       user_id: teacherId
     })
     return groupId
+  }
+
+  async function assignmentInfoForTeacher(teacherId, contentId) {
+    const assignmentIds = store.getters['assignments/to'](teacherId, TEACHER_ASSIGNMENT_TYPE)
+    const currentUser = store.state.user
+    let external = null
+
+    for (const assignmentId of assignmentIds) {
+      const assignment = store.getters['assignments/get'](assignmentId)
+      if (!assignment) continue
+
+      try {
+        const item = await Agent.state(assignment.item_id)
+        if (item.content !== contentId) continue
+
+        if (assignment.assigner_id === currentUser) {
+          return { own: assignmentId, external }
+        }
+        external ||= assignmentId
+      } catch (error) {
+        console.warn(`Unable to inspect teacher assignment ${assignmentId}.`, error)
+      }
+    }
+
+    return { own: null, external }
+  }
+
+  async function refreshTeacherAssignments() {
+    const refreshId = ++assignmentRefreshId
+    const contentId = selectedContent.value
+
+    if (!contentId || !teachers.value.length) {
+      clearAssignmentState()
+      loadingAssignments.value = false
+      return
+    }
+
+    loadingAssignments.value = true
+    try {
+      const entries = await Promise.all(
+        teachers.value.map(async teacherId => [
+          teacherId,
+          await assignmentInfoForTeacher(teacherId, contentId)
+        ])
+      )
+
+      if (refreshId !== assignmentRefreshId) return
+
+      clearAssignmentState()
+      entries.forEach(([teacherId, { own, external }]) => {
+        if (own) teacherAssignments[teacherId] = own
+        if (external) externalTeacherAssignments[teacherId] = external
+      })
+    } finally {
+      if (refreshId === assignmentRefreshId) {
+        loadingAssignments.value = false
+      }
+    }
+  }
+
+  function clearAssignmentState() {
+    Object.keys(teacherAssignments).forEach(teacherId => {
+      delete teacherAssignments[teacherId]
+    })
+    Object.keys(externalTeacherAssignments).forEach(teacherId => {
+      delete externalTeacherAssignments[teacherId]
+    })
   }
 
   async function contentName(contentId) {
@@ -274,6 +326,7 @@
       selectedContent.value = adminContent.value[0]
     }
     loadingContent.value = false
+    await refreshTeacherAssignments()
   }
 
   async function fetchTeachers() {
@@ -282,6 +335,7 @@
       .query('taggings-for-tag', [partition, TEACHER_TAG], 'tags.knowlearning.systems')
       .then(taggings => taggings.map(({ target }) => target))
     loadingTeachers.value = false
+    await refreshTeacherAssignments()
   }
 </script>
 
