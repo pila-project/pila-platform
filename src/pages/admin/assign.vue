@@ -103,7 +103,7 @@
 
   const TEACHER_ASSIGNMENT_TYPE = 'researcher-to-teacher'
   const ASSIGNABLE_ITEM_TYPE = 'application/json;type=study'
-  const TEACHER_ASSIGNMENT_GROUP_TYPE = 'admin-teacher-assignment-target'
+  const TEACHER_ASSIGNMENT_GROUP_TYPE = 'teachers'
   const ASSIGNABLE_ITEM_NAMESPACE = 'f4ab946c-51b1-4be1-a74e-0c9ae0bfd8f1'
   const TEACHER_GROUP_NAMESPACE = 'bca03b3f-f702-4a23-b25c-551b44c729a1'
 
@@ -177,6 +177,10 @@
     item.files ||= []
 
     await Agent.synced()
+    await store.dispatch('pila_tags/tag', {
+      content_id: id,
+      tag_type: 'admin-approved'
+    })
     return id
   }
 
