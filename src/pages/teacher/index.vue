@@ -44,6 +44,12 @@
           exact
         />
         <v-list-item
+          prepend-icon="fa-solid fa-list-check"
+          title="Your tasks"
+          to="tasks"
+          exact
+        />
+        <v-list-item
           prepend-icon="fa-solid fa-magnifying-glass-plus"
           :title="t('explore')"
           to="content"
