@@ -58,13 +58,28 @@
               <tbody>
                 <tr v-for="teacher in teachers" :key="teacher">
                   <td>
-                    <v-checkbox
-                      hide-details
-                      density="compact"
-                      :model-value="!!assignmentForTeacher(teacher)"
-                      :disabled="updatingTeachers[teacher]"
-                      @update:model-value="toggleTeacherAssignment(teacher)"
-                    />
+                    <div class="assignment-toggle-cell">
+                      <v-progress-circular
+                        v-if="updatingTeachers[teacher]"
+                        indeterminate
+                        size="24"
+                        width="3"
+                        color="primary"
+                      />
+                      <v-checkbox
+                        v-else
+                        hide-details
+                        density="compact"
+                        :model-value="isTeacherAssigned(teacher)"
+                        @update:model-value="assigned => toggleTeacherAssignment(teacher, assigned)"
+                      />
+                      <span
+                        v-if="updatingTeachers[teacher]"
+                        class="text-caption text-medium-emphasis"
+                      >
+                        Updating...
+                      </span>
+                    </div>
                   </td>
                   <td>
                     <DecryptedName
@@ -117,6 +132,7 @@
   const loadingContent = ref(true)
   const loadingTeachers = ref(true)
   const updatingTeachers = reactive({})
+  const optimisticTeacherAssignments = reactive({})
 
   fetchAdminContent()
   fetchTeachers()
@@ -139,14 +155,38 @@
       .find(id => store.getters['assignments/get'](id).group_id === groupId)
   }
 
-  async function toggleTeacherAssignment(teacherId) {
+  function assignmentStateKey(teacherId) {
+    return JSON.stringify([selectedContent.value, teacherId])
+  }
+
+  function hasOptimisticAssignment(teacherId) {
+    return Object.prototype.hasOwnProperty.call(
+      optimisticTeacherAssignments,
+      assignmentStateKey(teacherId)
+    )
+  }
+
+  function isTeacherAssigned(teacherId) {
+    if (hasOptimisticAssignment(teacherId)) {
+      return optimisticTeacherAssignments[assignmentStateKey(teacherId)]
+    }
+
+    return !!assignmentForTeacher(teacherId)
+  }
+
+  async function toggleTeacherAssignment(teacherId, assigned) {
+    const nextAssigned = !!assigned
+    const key = assignmentStateKey(teacherId)
+    const hadOptimisticAssignment = hasOptimisticAssignment(teacherId)
+    const previousOptimisticAssignment = optimisticTeacherAssignments[key]
+    optimisticTeacherAssignments[key] = nextAssigned
     updatingTeachers[teacherId] = true
 
     try {
       const assignmentId = assignmentForTeacher(teacherId)
-      if (assignmentId) {
+      if (!nextAssigned && assignmentId) {
         await store.dispatch('assignments/unassign', assignmentId)
-      } else {
+      } else if (nextAssigned && !assignmentId) {
         const itemId = await ensureAssignableItem(selectedContent.value)
         const groupId = await ensureTeacherGroup(teacherId)
         await store.dispatch('assignments/assign', {
@@ -155,6 +195,13 @@
           assignment_type: TEACHER_ASSIGNMENT_TYPE
         })
       }
+    } catch (error) {
+      if (hadOptimisticAssignment) {
+        optimisticTeacherAssignments[key] = previousOptimisticAssignment
+      } else {
+        delete optimisticTeacherAssignments[key]
+      }
+      console.warn(`Unable to update teacher assignment for ${teacherId}.`, error)
     } finally {
       updatingTeachers[teacherId] = false
     }
@@ -237,3 +284,12 @@
     loadingTeachers.value = false
   }
 </script>
+
+<style scoped>
+  .assignment-toggle-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 112px;
+  }
+</style>

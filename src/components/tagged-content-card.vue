@@ -39,7 +39,14 @@
   const store = useStore()
   function t(slug) { return store.getters.t(slug)}
 
-  const props = defineProps(['id', 'selected', 'removable'])
+  const props = defineProps({
+    id: {
+      type: String,
+      required: true
+    },
+    selected: Boolean,
+    removable: Boolean
+  })
 
   const image = await displayContentImage(props.id)
 
