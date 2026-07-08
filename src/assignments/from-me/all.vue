@@ -128,10 +128,10 @@
                 :text="assignmentContainsBetty || assignmentContainsGenAI ? t('activity-dashboard') : t('live-monitoring-dashboard')"
                 background="#FFC442"
               />
-              <br v-if="assignmentContainsCandli">
+              <br v-if="candliGames.length">
               <IconButton
                 icon="dashboard"
-                v-if="assignmentContainsCandli"
+                v-if="candliGames.length"
                 @click="openDashboard('competency')"
                 :text="t('competency-dashboard')"
                 background="rgb(107, 234, 201)"
@@ -227,6 +227,7 @@
       <div style="position: absolute; width: 100%; height: 100%;">
         <CandliDashboard
           :assignment="current"
+          :games="candliGames"
         />
       </div>
     </template>
@@ -293,7 +294,7 @@
         previewing: null,
         showResultsModal: false,
         showCandliResultsModal: false,
-        assignmentContainsCandli: null,
+        candliGames: [],
         assignmentContainsGenAI: null,
         assignmentContainsBetty: null,
         showGenAIDashboardModal: false,
@@ -364,15 +365,36 @@
         this.$router.push(`/teacher/support?assignment=${this.current}`)
       },
       async reassessContents() {
-        this.assignmentContainsCandli = null
+        this.candliGames = []
         this.assignmentContainsGenAI = null
         this.assignmentContainsBetty = null
         if (this.current) {
           await Agent
             .state(this.current)
             .then(async ({ content }) => {
-              console.log('CONTENTTT!', content)
-              this.assignmentContainsCandli = !!CANDLI_SEQUENCES[content]
+              console.log('CONTENT', content)
+              this.candliGames = CANDLI_SEQUENCES[content] || []
+
+              Agent.state(content).then(({ items }) => {
+                console.log('got ITEMS', items)
+                if (Array.isArray(items)) {
+                  items.forEach(item => {
+                    if (!item?.id) return
+
+                    Agent.metadata(item.id).then(async ({domain}) => {
+                      console.log('GOT DOMAIN METADATA', domain)
+                      if (domain === 'customize-candli.pilaproject.org') {
+                        //  TODO: id is the customized game id for that domain,
+                        //        but if dashboard expects generic game id, we'll
+                        //        have to fetch it
+                        const { game } = await Agent.state(item.id)
+                        this.candliGames.push(game)
+                      }
+                    })
+                  })
+                }
+              })
+
               this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
 
               if ((await Agent.state(content)).id?.includes('betty')) {
