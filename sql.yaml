@@ -4,6 +4,7 @@ variables:
   TREATMENT_TAG_SET: [ 472a84d0-ab69-11f0-b8c9-a1d0807d9f84 ]
   CONTROL_TAG_SET: [ 41ad5640-ab69-11f0-b8c9-a1d0807d9f84 ]
   TEACHER_TAG_SET: [ 49bf66a0-ed49-11ee-be89-5b04faf266ea ]
+  ADMIN_CONTENT_TAG_SET: [ ed58ea00-7629-11f1-bfa2-b1dfd57e5efd ]
 authorize:
   sameDomain:
     postgres: same_domain_authorization
@@ -31,6 +32,19 @@ postgres:
         item_id: TEXT
         assignment_type: TEXT
         archived: BOOLEAN
+    admin_teacher_assignments:
+      type: application/json;type=admin_teacher_assignment
+      columns:
+        teacher_id: TEXT
+        content_id: TEXT
+        starts_at: TIMESTAMP
+        ends_at: TIMESTAMP
+        archived: BOOLEAN
+      indices:
+        admin_teacher_assignments_teacher_id:
+          column: teacher_id
+        admin_teacher_assignments_content_id:
+          column: content_id
     groups:
       type: application/json;type=group
       columns:
@@ -164,6 +178,69 @@ postgres:
               SELECT unnest(role_assignments.admin_ids), 'admin', 'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f', NULL
           ;
         END;
+    latest_admin_teacher_assignments:
+      returns:
+        id: TEXT
+        teacher_id: TEXT
+        content_id: TEXT
+        starts_at: TIMESTAMP
+        ends_at: TIMESTAMP
+        archived: BOOLEAN
+        assigned_by: TEXT
+        updated: TIMESTAMP
+      arguments:
+      - name: admin_ids
+        type: TEXT[]
+      - name: filter_teacher_id
+        type: TEXT
+      - name: filter_content_id
+        type: TEXT
+      language: PLpgSQL
+      body: |
+        BEGIN
+          RETURN QUERY
+            WITH ranked_assignments AS (
+              SELECT
+                ata.id,
+                ata.teacher_id,
+                ata.content_id,
+                ata.starts_at,
+                ata.ends_at,
+                ata.archived,
+                m.owner AS assigned_by,
+                m.updated,
+                ROW_NUMBER() OVER (
+                  PARTITION BY ata.teacher_id, ata.content_id
+                  ORDER BY m.updated DESC NULLS LAST, m.id DESC
+                ) AS assignment_rank
+              FROM admin_teacher_assignments ata
+              JOIN metadata m ON m.id = ata.id
+              WHERE m.owner = ANY(COALESCE(
+                latest_admin_teacher_assignments.admin_ids,
+                ARRAY[]::TEXT[]
+              ))
+                AND (
+                  latest_admin_teacher_assignments.filter_teacher_id IS NULL
+                  OR ata.teacher_id = latest_admin_teacher_assignments.filter_teacher_id
+                )
+                AND (
+                  latest_admin_teacher_assignments.filter_content_id IS NULL
+                  OR ata.content_id = latest_admin_teacher_assignments.filter_content_id
+                )
+            )
+            SELECT
+              ranked.id,
+              ranked.teacher_id,
+              ranked.content_id,
+              ranked.starts_at,
+              ranked.ends_at,
+              ranked.archived,
+              ranked.assigned_by,
+              ranked.updated
+            FROM ranked_assignments ranked
+            WHERE ranked.assignment_rank = 1
+          ;
+        END;
   queries:
     admin_ids:
       external:
@@ -189,6 +266,44 @@ postgres:
           SELECT unnest($admins_from_tags::TEXT[]) AS value
         ) admin_ids
     role-assignments: SELECT * FROM role_assignments($REQUESTER, $admin_ids::TEXT[])
+    admin-assigned-to-me:
+      external:
+        active_admin_content_ids:
+          domain: tags.knowlearning.systems
+          query: taggings-intersection
+          params:
+          - $TAG_PARTITION
+          - $ADMIN_CONTENT_TAG_SET
+      body: |
+        SELECT latest.*
+        FROM latest_admin_teacher_assignments(
+          $admin_ids::TEXT[],
+          $REQUESTER,
+          NULL::TEXT
+        ) latest
+        WHERE latest.teacher_id = $REQUESTER
+          AND latest.content_id = ANY(COALESCE(
+            $active_admin_content_ids::TEXT[],
+            ARRAY[]::TEXT[]
+          ))
+          AND latest.archived IS FALSE
+          AND (
+            latest.starts_at IS NULL
+            OR latest.starts_at <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+          )
+          AND (
+            latest.ends_at IS NULL
+            OR latest.ends_at > (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+          )
+    admin-assignments-for-content: |
+      SELECT latest.*
+      FROM latest_admin_teacher_assignments(
+        $admin_ids::TEXT[],
+        NULL::TEXT,
+        $1
+      ) latest
+      WHERE $REQUESTER = ANY(COALESCE($admin_ids::TEXT[], ARRAY[]::TEXT[]))
+        AND latest.content_id = $1
     is-teacher:
       external:
         teacher_ids:
@@ -199,6 +314,7 @@ postgres:
           - $TEACHER_TAG_SET
       domains:
         - thaipilacreate.gforcesolution.com
+        - thaipilacreate.eef.or.th
       body: |
         SELECT (
           $REQUESTER = ANY(COALESCE($teacher_ids::TEXT[], ARRAY[]::TEXT[]))

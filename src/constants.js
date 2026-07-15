@@ -126,7 +126,7 @@ export const HOST_TO_TITLE = {
 }
 
 export const HOST_TO_PARTITION = {
-  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA',
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898' : 'PILA Dev',
   'app.pilaproject.org': 'PILA',
   'cambodia.pilaproject.org': 'PILA Cambodia',
   'thailand.pilaproject.org': 'PILA Thailand',

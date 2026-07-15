@@ -23,6 +23,8 @@
       <v-btn
         v-if="props.removable"
         :text="t('remove')"
+        :loading="props.removing"
+        :disabled="props.removeDisabled"
         @click.stop="$emit('remove')"
       />
     </template>
@@ -45,7 +47,9 @@
       required: true
     },
     selected: Boolean,
-    removable: Boolean
+    removable: Boolean,
+    removing: Boolean,
+    removeDisabled: Boolean
   })
 
   const image = await displayContentImage(props.id)

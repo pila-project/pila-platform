@@ -10,13 +10,6 @@
     <v-btn
       v-if="props.approvalColumns"
       class="ml-4"
-      prepend-icon="fa-solid fa-user-check"
-      text="Add Teacher By Id"
-      @click="showAddTeacherByIdDialog = true"
-    />
-    <v-btn
-      v-if="props.approvalColumns"
-      class="ml-4"
       color="primary"
       prepend-icon="fa-solid fa-user-plus"
       text="Create teacher account"
@@ -29,6 +22,7 @@
     :items="taggings"
     :loading="loading"
     :headers="headers"
+    :must-sort="props.approvalColumns"
     :items-per-page="itemsPerPage"
     :no-data-text="t('no-one-has-been-assigned-this-role')"
     :items-per-page-text="t('items-per-page')"
@@ -166,34 +160,6 @@
     </template>
   </v-dialog>
   <v-dialog
-    v-if="editable && props.approvalColumns"
-    v-model="showAddTeacherByIdDialog"
-    max-width="500"
-  >
-    <v-card title="Add Teacher By Id">
-      <v-card-text>
-        <v-text-field
-          autofocus
-          v-model="newRoleUser"
-          :label="t('user-id')"
-          :rules="[validateUUID]"
-          @keypress.enter="submitNewTeacherById"
-        />
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          :text="t('add')"
-          @click="submitNewTeacherById"
-        />
-        <v-btn
-          :text="t('cancel')"
-          @click="showAddTeacherByIdDialog = false"
-        />
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog
     v-if="props.approvalColumns"
     v-model="showCreateTeacherAccountDialog"
     max-width="500"
@@ -278,14 +244,6 @@
       isActive.value = false
     }
   }
-  function submitNewTeacherById() {
-    if (isUUID(newRoleUser.value)) {
-      tag(newRoleUser.value, true)
-      showAddTeacherByIdDialog.value = false
-      newRoleUser.value = ''
-    }
-  }
-
   const props = defineProps({
     partition: String,
     tag: String,
@@ -317,7 +275,6 @@
   const taggings = ref([])
   const newRoleUser = ref('')
   const potentialRemoval = ref(null)
-  const showAddTeacherByIdDialog = ref(false)
   const showCreateTeacherAccountDialog = ref(false)
   const showCreatedTeacherAccountDialog = ref(false)
   const newTeacherName = ref('')
@@ -342,6 +299,7 @@
     ? [
       { key: 'userName', title: 'User name' },
       { key: 'target', title: 'User ID' },
+      { key: 'accountType', title: 'Account type' },
       { key: 'approvalDateMs', title: 'Approval date' },
       { key: 'approvedByName', title: 'Approved by' },
       { key: 'edit', title: 'Remove access', sortable: false }
@@ -501,18 +459,30 @@
   }
 
   async function enrichApprovalTagging(tagging) {
-    const approvalDate = tagging.updated || tagging.created
-    const [userName, approvedByName] = await Promise.all([
+    const approvalDate = tagging.timestamp || tagging.updated || tagging.created
+    const [userName, approvedByName, accountType] = await Promise.all([
       userNameFor(tagging.target),
-      userNameFor(tagging.contributor)
+      userNameFor(tagging.contributor),
+      accountTypeFor(tagging.target)
     ])
 
     return {
       ...tagging,
       userName,
       approvedByName,
+      accountType,
       approvalDate,
       approvalDateMs: dateMs(approvalDate)
+    }
+  }
+
+  async function accountTypeFor(user) {
+    try {
+      const userData = await Agent.state(user)
+      return userData?.providerEncryptedKey ? 'PILA-created' : 'SSO'
+    } catch (error) {
+      console.warn(`Unable to determine account type for ${user}.`, error)
+      return 'Unknown'
     }
   }
 

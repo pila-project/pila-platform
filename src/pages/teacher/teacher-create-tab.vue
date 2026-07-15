@@ -93,7 +93,7 @@
     <button
       v-if="IS_THAILAND_DOMAIN"
       class="custom-button"
-      @click="openLink('https://thaipilacreate.gforcesolution.com/')"
+      @click="openLink('https://thaipilacreate.eef.or.th/')"
     >
       <div class="left">
         <img src="/icon_pilathailand.png" alt="pila-thailand-image" class="btn-image">

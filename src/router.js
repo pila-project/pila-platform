@@ -78,7 +78,6 @@ export default createRouter({
           path: 'tasks/:id?',
           component: AssignmentsToMe,
           props: route => ({
-            type: 'researcher-to-teacher',
             id: route.params.id
           })
         },
