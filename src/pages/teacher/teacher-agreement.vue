@@ -11,10 +11,13 @@
 		<template v-slot:body>
 			<div class="teacher-agreement">
 				<div class="teacher-agreement-body">
-					<p style="margin-bottom: 24px;">
+					<p v-if="!isSimplifiedStudyDomain" style="margin-bottom: 24px;">
 						{{ t('by-creating-my-teacher-account-i-agree-to-the-te') }}
 					</p>
-					<p>
+					<p v-else style="margin-bottom: 24px;">
+						{{ t('by-creating-my-teacher-account-i-agree-to-the-pr') }}
+					</p>
+					<p v-if="!isSimplifiedStudyDomain">
 						<a
 							href="https://pilaproject.org/about-pila/terms-and-conditions-for-teachers"
 							target="_blank"
@@ -38,7 +41,7 @@
 
 <script>
 import PILAModal from '../../components/PILAModal.vue'
-import { DOMAIN_DATA_PROTECTION_LINKS } from '../../constants.js'
+import { DOMAIN_DATA_PROTECTION_LINKS, SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
 
 export default {
 	name: 'teacher-agreement',
@@ -52,14 +55,17 @@ export default {
 	computed: {
 		teacherDataProtectionLink() {
 			return DOMAIN_DATA_PROTECTION_LINKS[location.host]
-			    || DOMAIN_DATA_PROTECTION_LINKS.default
+				|| DOMAIN_DATA_PROTECTION_LINKS.default
+		},
+		isSimplifiedStudyDomain() {
+			return SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 		}
 	}
 }
 </script>
 
 
-<style >
+<style>
 .teacher-agreement .teacher-agreement-modal > .modal-content {
 	margin-top: 5vh;
 }
