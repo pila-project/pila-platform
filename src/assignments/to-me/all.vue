@@ -13,7 +13,7 @@
       variant="tonal"
     >
       <div class="error-content">
-        <span>Unable to load your tasks.</span>
+        <span>{{ t('unable-to-load-your-tasks') }}</span>
         <v-btn
           size="small"
           variant="text"

@@ -46,7 +46,7 @@
         <v-list-item
           prepend-icon="fa-solid fa-list-check"
           v-if="isSimplifiedStudyDomain"
-          title="Your tasks"
+          :title="t('your-tasks')"
           to="tasks"
           exact
         />
