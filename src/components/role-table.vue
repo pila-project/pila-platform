@@ -10,10 +10,19 @@
     <v-btn
       v-if="props.approvalColumns"
       class="ml-4"
+      :color="adminSecret ? undefined : 'warning'"
+      variant="tonal"
+      prepend-icon="fa-solid fa-key"
+      text="Encryption key"
+      @click="openAdminEncryptionKeyDialog(false)"
+    />
+    <v-btn
+      v-if="props.approvalColumns"
+      class="ml-2"
       color="primary"
       prepend-icon="fa-solid fa-user-plus"
       text="Create teacher account"
-      @click="showCreateTeacherAccountDialog = true"
+      @click="openCreateTeacherAccountDialog"
     />
   </div>
   <v-data-table
@@ -57,6 +66,16 @@
       <DecryptedName
         avatar
         :user="data.item.contributor"
+      />
+    </template>
+    <template v-slot:item.credentials="data">
+      <v-btn
+        v-if="data.item.accountType === 'PILA-created'"
+        size="small"
+        variant="tonal"
+        prepend-icon="fa-solid fa-key"
+        text="View code"
+        @click="openTeacherCredentials(data.item)"
       />
     </template>
     <template
@@ -161,6 +180,47 @@
   </v-dialog>
   <v-dialog
     v-if="props.approvalColumns"
+    v-model="showAdminEncryptionKeyDialog"
+    max-width="500"
+    @afterLeave="clearAdminEncryptionKeyDialog"
+  >
+    <v-card title="Admin encryption key">
+      <v-card-text>
+        <p class="text-body-2 text-medium-emphasis mb-4">
+          This key encrypts the names and login codes for every teacher account you create. It is saved only on this device.
+        </p>
+        <v-text-field
+          autofocus
+          v-model="adminSecretDraft"
+          label="Encryption key"
+          :type="showAdminSecret ? 'text' : 'password'"
+          :append-inner-icon="showAdminSecret ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"
+          :error-messages="adminSecretError"
+          autocomplete="off"
+          @click:append-inner="showAdminSecret = !showAdminSecret"
+          @keydown.enter="saveAdminEncryptionKey"
+        />
+        <p class="text-caption text-medium-emphasis">
+          Editing this value does not re-encrypt accounts created with a different key.
+        </p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          :text="t('cancel')"
+          @click="cancelAdminEncryptionKeyDialog"
+        />
+        <v-btn
+          color="primary"
+          text="Save key"
+          :disabled="!adminSecretDraft"
+          @click="saveAdminEncryptionKey"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
+    v-if="props.approvalColumns"
     v-model="showCreateTeacherAccountDialog"
     max-width="500"
   >
@@ -173,12 +233,9 @@
           :rules="teacherNameRules"
           required
         />
-        <v-text-field
-          v-if="!providerSecret"
-          v-model="newProviderSecret"
-          :label="t('enter-encryption-key-word')"
-          required
-        />
+        <p class="text-body-2 text-medium-emphasis mb-2">
+          The admin encryption key saved on this device will be used.
+        </p>
         <p class="text-body-2 text-medium-emphasis">
           This will create a PILA 8-element login code and QR code, then approve the account for teacher access.
         </p>
@@ -203,19 +260,106 @@
     v-if="props.approvalColumns"
     v-model="showCreatedTeacherAccountDialog"
     max-width="500"
+    @afterLeave="createdTeacherAccount = null"
   >
     <v-card title="Teacher login code">
       <v-card-text>
-        <UserInfoCard
+        <LoginCodeCard
           v-if="createdTeacherAccount"
-          :id="createdTeacherAccount"
+          :name="createdTeacherAccount.name"
+          :loginCode="createdTeacherAccount.loginCode"
         />
       </v-card-text>
       <v-card-actions>
+        <v-btn
+          prepend-icon="fa-solid fa-download"
+          text="Save"
+          @click="downloadLoginCode(createdTeacherAccount)"
+        />
+        <v-btn
+          prepend-icon="fa-solid fa-print"
+          text="Print"
+          @click="printLoginCode(createdTeacherAccount)"
+        />
         <v-spacer />
         <v-btn
           :text="t('close')"
           @click="showCreatedTeacherAccountDialog = false"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
+    v-if="props.approvalColumns"
+    v-model="showTeacherCredentialsDialog"
+    max-width="500"
+    @afterLeave="clearTeacherCredentials"
+  >
+    <v-card title="Teacher login code">
+      <v-card-text>
+        <div v-if="loadingTeacherCredentials" class="text-center pa-6">
+          <v-progress-circular indeterminate color="primary" />
+        </div>
+        <LoginCodeCard
+          v-else-if="decryptedTeacherCredentials"
+          :name="decryptedTeacherCredentials.name"
+          :loginCode="decryptedTeacherCredentials.loginCode"
+        />
+        <v-alert
+          v-else-if="teacherCredentialRecordUnavailable"
+          type="info"
+          variant="tonal"
+          text="No saved login code is available for this teacher. Accounts created before encrypted credential storage was enabled cannot be recovered."
+        />
+        <div v-else>
+          <v-alert
+            type="warning"
+            variant="tonal"
+            :text="credentialKeyError || 'Set the admin encryption key used when this teacher account was created.'"
+            class="mb-4"
+          />
+          <v-btn
+            block
+            variant="tonal"
+            prepend-icon="fa-solid fa-key"
+            text="Update admin encryption key"
+            @click="openAdminEncryptionKeyDialog(false)"
+          />
+          <v-divider class="my-5" />
+          <p class="text-body-2 mb-2">Super-admin access</p>
+          <v-text-field
+            v-model="superAdminKeyInput"
+            label="Super-admin key"
+            type="password"
+            :error-messages="superAdminKeyError"
+            @keydown.enter="unlockWithSuperAdminKey"
+          />
+          <v-btn
+            block
+            variant="text"
+            text="Unlock once with super-admin key"
+            :disabled="!superAdminKeyInput"
+            @click="unlockWithSuperAdminKey"
+          />
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <template v-if="decryptedTeacherCredentials">
+          <v-btn
+            prepend-icon="fa-solid fa-download"
+            text="Save"
+            @click="downloadLoginCode(decryptedTeacherCredentials)"
+          />
+          <v-btn
+            prepend-icon="fa-solid fa-print"
+            text="Print"
+            @click="printLoginCode(decryptedTeacherCredentials)"
+          />
+        </template>
+        <v-spacer />
+        <v-btn
+          :text="t('close')"
+          @click="showTeacherCredentialsDialog = false"
         />
       </v-card-actions>
     </v-card>
@@ -226,10 +370,19 @@
   import { ref, reactive, computed } from 'vue'
   import { validate as isUUID } from 'uuid'
   import DecryptedName from './decrypted-name.vue'
-  import UserInfoCard from './user-info-card.vue'
+  import LoginCodeCard from './login-code-card.vue'
   import { useStore } from 'vuex'
   import { json2csv } from 'json-2-csv'
-  import { createUser, randomUserSecret, saveProviderSecret } from '../user-utils.js'
+  import { createUser, randomUserSecret } from '../user-utils.js'
+  import { downloadLoginCode, printLoginCode } from '../login-code-document.js'
+  import {
+    createTeacherLoginCredentialRecord,
+    decryptTeacherLoginCredentialRecord,
+    getStoredAdminCredentialSecret,
+    readTeacherLoginCredentialRecord,
+    storeAdminCredentialSecret,
+    writeTeacherLoginCredentialRecord
+  } from '../teacher-login-credentials.js'
 
   const store = useStore()
 
@@ -275,13 +428,25 @@
   const taggings = ref([])
   const newRoleUser = ref('')
   const potentialRemoval = ref(null)
+  const showAdminEncryptionKeyDialog = ref(false)
   const showCreateTeacherAccountDialog = ref(false)
   const showCreatedTeacherAccountDialog = ref(false)
+  const showTeacherCredentialsDialog = ref(false)
   const newTeacherName = ref('')
-  const newProviderSecret = ref('')
-  const providerSecret = ref(localStorage.getItem(`zkek-${store.state.user}`) || '')
+  const adminSecret = ref(getStoredAdminCredentialSecret(store.state.user))
+  const adminSecretDraft = ref('')
+  const showAdminSecret = ref(false)
+  const adminSecretError = ref('')
+  const createTeacherAfterKeySave = ref(false)
   const creatingTeacherAccount = ref(false)
   const createdTeacherAccount = ref(null)
+  const teacherCredentialRecord = ref(null)
+  const decryptedTeacherCredentials = ref(null)
+  const teacherCredentialRecordUnavailable = ref(false)
+  const loadingTeacherCredentials = ref(false)
+  const credentialKeyError = ref('')
+  const superAdminKeyInput = ref('')
+  const superAdminKeyError = ref('')
   const sortBy = ref(props.approvalColumns ? [{ key: 'approvalDateMs', order: 'desc' }] : [])
   const itemsPerPage = props.approvalColumns ? -1 : 10
   const effectiveRelatedTags = props.approvalColumns ? [] : props.relatedTags
@@ -291,7 +456,7 @@
   ]
   const canCreateTeacherAccount = computed(() => (
     hasTeacherNameLetter.value
-      && (!!providerSecret.value || !!newProviderSecret.value)
+      && !!adminSecret.value
       && !creatingTeacherAccount.value
   ))
 
@@ -302,6 +467,7 @@
       { key: 'accountType', title: 'Account type' },
       { key: 'approvalDateMs', title: 'Approval date' },
       { key: 'approvedByName', title: 'Approved by' },
+      { key: 'credentials', title: 'Login code', sortable: false },
       { key: 'edit', title: 'Remove access', sortable: false }
     ]
     : [
@@ -367,32 +533,173 @@
     fetchTaggings()
   }
 
+  function openCreateTeacherAccountDialog() {
+    if (adminSecret.value) showCreateTeacherAccountDialog.value = true
+    else openAdminEncryptionKeyDialog(true)
+  }
+
+  function openAdminEncryptionKeyDialog(openCreateAfterSave = false) {
+    adminSecretDraft.value = adminSecret.value
+    showAdminSecret.value = false
+    adminSecretError.value = ''
+    showAdminEncryptionKeyDialog.value = true
+    createTeacherAfterKeySave.value = openCreateAfterSave
+  }
+
+  function cancelAdminEncryptionKeyDialog() {
+    createTeacherAfterKeySave.value = false
+    showAdminEncryptionKeyDialog.value = false
+  }
+
+  async function saveAdminEncryptionKey() {
+    if (!adminSecretDraft.value) return
+
+    adminSecretError.value = ''
+    let decryptedCredentials = null
+
+    if (teacherCredentialRecord.value && !decryptedTeacherCredentials.value) {
+      try {
+        const result = await decryptTeacherLoginCredentialRecord(
+          teacherCredentialRecord.value,
+          adminSecretDraft.value
+        )
+        if (result.keyType !== 'admin') {
+          adminSecretError.value = 'Use the one-time super-admin field instead of saving the super-admin key.'
+          return
+        }
+        decryptedCredentials = result.credentials
+      } catch (_error) {
+        adminSecretError.value = 'That key cannot decrypt this teacher account.'
+        return
+      }
+    }
+
+    storeAdminCredentialSecret(store.state.user, adminSecretDraft.value)
+    adminSecret.value = adminSecretDraft.value
+    if (decryptedCredentials) {
+      decryptedTeacherCredentials.value = decryptedCredentials
+      credentialKeyError.value = ''
+    }
+
+    showAdminEncryptionKeyDialog.value = false
+  }
+
+  function clearAdminEncryptionKeyDialog() {
+    const openCreateAfterSave = createTeacherAfterKeySave.value && !!adminSecret.value
+    adminSecretDraft.value = ''
+    showAdminSecret.value = false
+    adminSecretError.value = ''
+    createTeacherAfterKeySave.value = false
+    if (openCreateAfterSave) showCreateTeacherAccountDialog.value = true
+  }
+
   async function createTeacherAccount() {
     if (!canCreateTeacherAccount.value) return
 
     creatingTeacherAccount.value = true
 
     try {
-      if (!providerSecret.value && newProviderSecret.value) {
-        providerSecret.value = newProviderSecret.value
-        await saveProviderSecret(store.state.user, providerSecret.value)
+      const credentials = {
+        loginCode: randomUserSecret(),
+        name: newTeacherName.value.trim()
       }
-
-      const id = await createUser(
-        randomUserSecret(),
-        providerSecret.value,
-        { name: newTeacherName.value.trim() }
+      const id = await createUser(credentials.loginCode, adminSecret.value, {
+        name: credentials.name
+      })
+      const credentialRecord = await createTeacherLoginCredentialRecord(
+        credentials,
+        adminSecret.value
       )
 
+      await writeTeacherLoginCredentialRecord(Agent, id, credentialRecord)
+
       await tag(id, true)
-      createdTeacherAccount.value = id
+      createdTeacherAccount.value = { id, ...credentials }
       showCreateTeacherAccountDialog.value = false
       showCreatedTeacherAccountDialog.value = true
       newTeacherName.value = ''
-      newProviderSecret.value = ''
     } finally {
       creatingTeacherAccount.value = false
     }
+  }
+
+  async function openTeacherCredentials(teacher) {
+    showTeacherCredentialsDialog.value = true
+    loadingTeacherCredentials.value = true
+    teacherCredentialRecord.value = null
+    decryptedTeacherCredentials.value = null
+    teacherCredentialRecordUnavailable.value = false
+    credentialKeyError.value = ''
+    superAdminKeyInput.value = ''
+    superAdminKeyError.value = ''
+
+    try {
+      const owners = [...new Set([store.state.user, teacher.contributor].filter(Boolean))]
+      for (const owner of owners) {
+        teacherCredentialRecord.value = await readTeacherLoginCredentialRecord(
+          Agent,
+          teacher.target,
+          owner
+        )
+        if (teacherCredentialRecord.value) break
+      }
+
+      if (!teacherCredentialRecord.value) {
+        teacherCredentialRecordUnavailable.value = true
+        return
+      }
+
+      const storedKey = getStoredAdminCredentialSecret(store.state.user)
+      if (storedKey) {
+        try {
+          const { credentials, keyType } = await decryptTeacherLoginCredentialRecord(
+            teacherCredentialRecord.value,
+            storedKey
+          )
+          if (keyType !== 'admin') throw new Error('The saved key is not an admin key.')
+          decryptedTeacherCredentials.value = credentials
+          return
+        } catch (_error) {
+          credentialKeyError.value = 'The key saved on this device is not valid for this teacher.'
+        }
+      } else {
+        credentialKeyError.value = 'No admin encryption key is saved on this device.'
+      }
+    } catch (error) {
+      console.warn('Unable to load teacher credentials.', error)
+      teacherCredentialRecordUnavailable.value = true
+    } finally {
+      loadingTeacherCredentials.value = false
+    }
+  }
+
+  async function unlockWithSuperAdminKey() {
+    if (!teacherCredentialRecord.value || !superAdminKeyInput.value) return
+
+    superAdminKeyError.value = ''
+    try {
+      const { credentials, keyType } = await decryptTeacherLoginCredentialRecord(
+        teacherCredentialRecord.value,
+        superAdminKeyInput.value
+      )
+      if (keyType !== 'super-admin') {
+        superAdminKeyError.value = 'This is an admin key. Save it using the Encryption key dialog.'
+        return
+      }
+      decryptedTeacherCredentials.value = credentials
+      superAdminKeyInput.value = ''
+    } catch (error) {
+      superAdminKeyError.value = error.message
+    }
+  }
+
+  function clearTeacherCredentials() {
+    teacherCredentialRecord.value = null
+    decryptedTeacherCredentials.value = null
+    teacherCredentialRecordUnavailable.value = false
+    credentialKeyError.value = ''
+    superAdminKeyInput.value = ''
+    superAdminKeyError.value = ''
   }
 
   async function fetchTaggings() {
