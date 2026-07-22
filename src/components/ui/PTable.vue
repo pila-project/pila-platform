@@ -57,6 +57,7 @@
                 isSelected(item) ? 'table-row-selected' : '',
                 isExpanded(item) ? 'table-row-expanded' : '',
                 item._disabled ? 'table-row-disabled' : '',
+                multiDragActive && isSelected(item) ? 'table-row-multi-drag' : '',
               ]"
               :style="rowStyle ? rowStyle(item) : {}"
               :draggable="draggableRows || undefined"
@@ -180,7 +181,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import LucideIcon from './LucideIcon.vue'
 import { PButton, PCheckbox } from './index.js'
 import PPageNumbers from './PPageNumbers.vue'
@@ -223,6 +224,22 @@ const props = defineProps({
   },
   expandable: Boolean,
   draggableRows: Boolean,
+  /**
+   * Label for an item in the multi-drag ghost (e.g. student display name).
+   * @type {(item: object) => string}
+   */
+  getDragLabel: {
+    type: Function,
+    default: null,
+  },
+  /**
+   * Count line for multi-drag ghost, e.g. (n) => `${n} students`.
+   * @type {(count: number) => string}
+   */
+  formatDragCount: {
+    type: Function,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['click:row', 'update:selected', 'dragstart', 'dragend'])
@@ -232,6 +249,14 @@ const currentPerPage = ref(props.itemsPerPage)
 const sortKey = ref(null)
 const sortOrder = ref('asc')
 const expandedRows = ref(new Set())
+/** True while dragging a multi-row selection (highlights all selected rows). */
+const multiDragActive = ref(false)
+let dragGhostEl = null
+
+onBeforeUnmount(() => {
+  multiDragActive.value = false
+  cleanupDragGhost()
+})
 
 const perPageOptions = computed(() => props.itemsPerPageOptions)
 
@@ -363,13 +388,136 @@ function isExpanded(item) {
   return expandedRows.value.has(getItemId(item))
 }
 
+/**
+ * If the dragged row is part of a multi-selection, drag the whole selection.
+ * Otherwise drag only that row.
+ */
+function resolveDragItems(item) {
+  if (props.selectable && props.selected?.length > 1 && isSelected(item)) {
+    return [...props.selected]
+  }
+  return [item]
+}
+
+function itemDragLabel(item) {
+  if (typeof props.getDragLabel === 'function') {
+    const label = props.getDragLabel(item)
+    if (label) return String(label)
+  }
+  return item?.displayName || item?.name || String(getItemId(item) ?? '')
+}
+
+function countDragLabel(count) {
+  if (typeof props.formatDragCount === 'function') {
+    return props.formatDragCount(count)
+  }
+  return count === 1 ? '1 row' : `${count} rows`
+}
+
+function cleanupDragGhost() {
+  if (dragGhostEl?.parentNode) {
+    dragGhostEl.parentNode.removeChild(dragGhostEl)
+  }
+  dragGhostEl = null
+}
+
+/** Compact chip so multi-select drag is visibly “N rows”, not a single table row ghost. */
+function setMultiRowDragImage(event, items) {
+  cleanupDragGhost()
+  const lead = itemDragLabel(items[0])
+  const countText = countDragLabel(items.length)
+
+  const el = document.createElement('div')
+  el.setAttribute('aria-hidden', 'true')
+  Object.assign(el.style, {
+    position: 'fixed',
+    top: '-9999px',
+    left: '-9999px',
+    zIndex: '100000',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+    minWidth: '160px',
+    maxWidth: '240px',
+    padding: '10px 12px',
+    borderRadius: '8px',
+    background: '#1e293b',
+    color: '#fff',
+    boxShadow: '0 8px 24px rgb(15 23 42 / 0.28), 0 0 0 1px rgb(255 255 255 / 0.08)',
+    fontFamily: 'inherit',
+    pointerEvents: 'none',
+  })
+
+  // Stacked layers suggest multiple cards
+  const stack = document.createElement('div')
+  Object.assign(stack.style, {
+    position: 'absolute',
+    inset: '4px -3px -3px 4px',
+    borderRadius: '8px',
+    background: '#334155',
+    zIndex: '-1',
+  })
+  const stack2 = stack.cloneNode()
+  Object.assign(stack2.style, {
+    inset: '7px -5px -5px 7px',
+    background: '#475569',
+    zIndex: '-2',
+  })
+  el.appendChild(stack2)
+  el.appendChild(stack)
+
+  const leadEl = document.createElement('div')
+  Object.assign(leadEl.style, {
+    fontSize: '13px',
+    fontWeight: '600',
+    lineHeight: '1.3',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+  leadEl.textContent = lead || countText
+
+  const countEl = document.createElement('div')
+  Object.assign(countEl.style, {
+    fontSize: '11px',
+    fontWeight: '500',
+    lineHeight: '1.3',
+    color: '#cbd5e1',
+  })
+  countEl.textContent = countText
+
+  el.appendChild(leadEl)
+  el.appendChild(countEl)
+  document.body.appendChild(el)
+  dragGhostEl = el
+
+  event.dataTransfer.setDragImage(el, 16, 16)
+  // Browser snapshots the node; remove next frame
+  requestAnimationFrame(() => cleanupDragGhost())
+}
+
 function onRowDragStart(event, item) {
+  const dragItems = resolveDragItems(item)
+  const ids = dragItems.map(getItemId).filter(id => id != null && id !== '')
+  // Always include `ids` (array). Keep top-level `id` as the primary for older consumers.
+  const payload = {
+    id: ids[0] ?? getItemId(item),
+    ids,
+  }
   event.dataTransfer.effectAllowed = 'copy'
-  event.dataTransfer.setData('application/json', JSON.stringify(item))
-  emit('dragstart', { event, item })
+  event.dataTransfer.setData('application/json', JSON.stringify(payload))
+
+  multiDragActive.value = ids.length > 1
+  if (ids.length > 1) {
+    setMultiRowDragImage(event, dragItems)
+  }
+
+  emit('dragstart', { event, item, items: dragItems, ids })
 }
 
 function onRowDragEnd(event, item) {
+  multiDragActive.value = false
+  cleanupDragGhost()
   emit('dragend', { event, item })
 }
 
@@ -392,6 +540,13 @@ function toggleExpand(item) {
 }
 .drag-handle:active {
   cursor: grabbing;
+}
+
+/* While multi-dragging, keep the whole selection visually “in motion” */
+.table-row-multi-drag {
+  opacity: 0.72;
+  outline: 1px dashed #93c5fd;
+  outline-offset: -1px;
 }
 
 .sort-icon {

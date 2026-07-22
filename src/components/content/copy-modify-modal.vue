@@ -52,13 +52,13 @@
           <PInput
             v-model="form.notes"
             :label="customizationNotesLabel"
-            :placeholder="t('describe-changes-planned') || 'Describe changes you plan to make'"
+            :placeholder="t('describe-changes-planned')"
             multiline
             :rows="2"
           />
 
           <div>
-            <label class="text-sm font-medium text-slate-700 block mb-1">{{ t('upload-image') || 'Upload image' }}</label>
+            <label class="text-sm font-medium text-slate-700 block mb-1">{{ t('upload-image') }}</label>
             <div
               class="image-upload-area"
               :class="{ 'image-upload-dragover': imageDragover }"
@@ -75,8 +75,8 @@
               </div>
               <div v-else class="image-upload-placeholder">
                 <LucideIcon name="upload" :size="28" class="text-slate-400" />
-                <span class="text-sm font-medium text-primary-600">{{ t('upload-image') || 'Upload image' }}</span>
-                <span class="text-xs text-slate-500">{{ t('drag-and-drop-image') || 'Drag and drop image' }}</span>
+                <span class="text-sm font-medium text-primary-600">{{ t('upload-image') }}</span>
+                <span class="text-xs text-slate-500">{{ t('drag-and-drop-image') }}</span>
               </div>
               <input
                 ref="imageInputRef"
@@ -107,7 +107,7 @@
         <button type="button" class="add-content-cta" @click="openContentBrowser">
           <LucideIcon name="circle-plus" :size="28" class="text-slate-500" />
           <span class="add-content-cta-label">{{ t('add-content-item-or-sequence') }}</span>
-          <span class="add-content-cta-desc">{{ t('browse-and-select-content-from-library') || 'Browse and select content from the library' }}</span>
+          <span class="add-content-cta-desc">{{ t('browse-and-select-content-from-library') }}</span>
         </button>
 
         <div class="cm-table-section">
@@ -148,7 +148,7 @@
                 color="danger"
                 size="sm"
                 icon="lucide:trash-2"
-                :text="t('remove') || 'Remove'"
+                :text="t('remove')"
                 @click="removeSelectedItems"
               />
             </div>
@@ -203,7 +203,7 @@
                       size="xsm"
                       icon="lucide:ellipsis-vertical"
                       iconOnly
-                      :aria-label="t('actions') || 'Actions'"
+                      :aria-label="t('actions')"
                       @click.stop="menuProps.onClick"
                     />
                   </template>
@@ -213,7 +213,7 @@
                     @click="openPreview(item.id)"
                   />
                   <PMenuItem
-                    :title="t('remove') || 'Remove'"
+                    :title="t('remove')"
                     prepend-icon="lucide:trash-2"
                     danger
                     @click="removeItemFromSequence(item.id)"
@@ -246,7 +246,7 @@
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
         <PButton
           variant="primary"
-          :text="t('next') || 'Next'"
+          :text="t('next')"
           :disabled="!form.title.trim()"
           @click="step = 2"
         />
@@ -257,7 +257,7 @@
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
         <PButton
           variant="primary"
-          :text="t('create-copy') || 'Create copy'"
+          :text="t('create-copy')"
           :loading="saving"
           :disabled="!sequenceItemIds.length"
           @click="createCopy"
@@ -419,7 +419,7 @@ const tableHeaders = computed(() => [
   { key: 'title', title: translateOr('title-and-details', 'Title & details'), sortable: false },
   { key: 'modified', title: translateOr('last-modified', 'Last modified') },
   { key: 'type', title: translateOr('content-type', 'Content type'), sortable: false },
-  { key: 'grade', title: t('grade') || 'Grade', sortable: false },
+  { key: 'grade', title: t('grade'), sortable: false },
   { key: 'actions', title: translateOr('actions', 'Actions'), sortable: false },
 ])
 
@@ -643,7 +643,7 @@ async function createCopy() {
     step.value = 'success'
   } catch (e) {
     console.error('[CopyModifyModal] create error:', e)
-    showError(t('something-went-wrong') || 'Something went wrong. Please try again.')
+    showError(t('something-went-wrong'))
   } finally {
     saving.value = false
   }

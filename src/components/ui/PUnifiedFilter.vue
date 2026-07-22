@@ -10,10 +10,14 @@
       @click.stop="openDropdown"
     >
       <LucideIcon name="search" :size="14" class="unified-filter-search-icon" />
-      <div class="unified-filter-scroll-wrap" :class="{ 'unified-filter-scroll-wrap--fade': compact }">
+      <div
+        class="unified-filter-scroll-wrap"
+        :class="{ 'unified-filter-scroll-wrap--fade': showEndFade }"
+      >
         <div
+          ref="barContentRef"
           class="unified-filter-bar-content"
-          :class="{ 'unified-filter-bar-content--scrollable': compact }"
+          @scroll="updateScrollFade"
         >
           <!-- Inline chips for active filters -->
           <span
@@ -82,7 +86,7 @@ const props = defineProps({
     type: Number,
     default: 500,
   },
-  /** Narrow containers: single-line bar, horizontal scroll + right fade instead of wrapping. */
+  /** @deprecated Layout is always single-line with horizontal chip scroll; kept for existing call sites. */
   compact: {
     type: Boolean,
     default: false,
@@ -93,7 +97,9 @@ const emit = defineEmits(['update:searchQuery'])
 
 const containerRef = ref(null)
 const dropdownRef = ref(null)
+const barContentRef = ref(null)
 const searchInputRef = ref(null)
+const showEndFade = ref(false)
 const isDropdownOpen = ref(false)
 const anchorRect = ref(null)
 const expandedSection = ref(null)
@@ -198,21 +204,63 @@ function handleClickOutside(e) {
   }
 }
 
+function updateScrollFade() {
+  const el = barContentRef.value
+  if (!el) {
+    showEndFade.value = false
+    return
+  }
+  const overflow = el.scrollWidth > el.clientWidth + 1
+  const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1
+  showEndFade.value = overflow && !atEnd
+}
+
+function scrollChipsIntoView() {
+  const el = barContentRef.value
+  if (!el) return
+  el.scrollLeft = el.scrollWidth
+  updateScrollFade()
+}
+
 function onScrollOrResize() {
   if (isDropdownOpen.value) updateAnchorRect()
+  updateScrollFade()
 }
+
+let barResizeObserver = null
 
 watch(isDropdownOpen, (open) => {
   if (open) nextTick(updateAnchorRect)
 })
 
+watch(
+  () => allChips.value.length,
+  (len, prev) => {
+    nextTick(() => {
+      if (prev != null && len > prev) scrollChipsIntoView()
+      else updateScrollFade()
+    })
+  },
+)
+
+watch(localSearchQuery, () => nextTick(updateScrollFade))
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('scroll', onScrollOrResize, true)
   window.addEventListener('resize', onScrollOrResize)
+
+  nextTick(() => {
+    updateScrollFade()
+    if (barContentRef.value) {
+      barResizeObserver = new ResizeObserver(() => updateScrollFade())
+      barResizeObserver.observe(barContentRef.value)
+    }
+  })
 })
 
 onBeforeUnmount(() => {
+  barResizeObserver?.disconnect()
   document.removeEventListener('click', handleClickOutside)
   window.removeEventListener('scroll', onScrollOrResize, true)
   window.removeEventListener('resize', onScrollOrResize)
@@ -264,9 +312,6 @@ provide('unifiedFilter', {
 .unified-filter-scroll-wrap {
   flex: 1;
   min-width: 0;
-}
-
-.unified-filter-scroll-wrap--fade {
   position: relative;
   overflow: hidden;
 }
@@ -280,24 +325,24 @@ provide('unifiedFilter', {
   width: 20px;
   background: linear-gradient(to right, transparent, white);
   pointer-events: none;
+  z-index: 1;
 }
 
 .unified-filter-bar-content {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 6px;
   min-width: 0;
-}
-
-.unified-filter-bar-content--scrollable {
-  flex-wrap: nowrap;
+  width: 100%;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.unified-filter-bar-content--scrollable::-webkit-scrollbar {
+.unified-filter-bar-content::-webkit-scrollbar {
   display: none;
 }
 
@@ -312,6 +357,7 @@ provide('unifiedFilter', {
   font-weight: 500;
   white-space: nowrap;
   height: 24px;
+  flex-shrink: 0;
 }
 
 .unified-chip-label { color: #64748b; }
@@ -339,7 +385,7 @@ provide('unifiedFilter', {
 }
 
 .unified-filter-input {
-  flex: 1;
+  flex: 1 0 80px;
   min-width: 80px;
   border: none;
   outline: none;

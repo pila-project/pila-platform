@@ -23,3 +23,5 @@ export const layout = {
   tableRowHeight: '52px',
   headerHeight: '56px',
 }
+
+export { Z_LAYERS, Z_LAYER_VARS } from './z-layers.js'

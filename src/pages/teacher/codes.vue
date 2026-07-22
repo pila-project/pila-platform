@@ -39,20 +39,20 @@ function printCodes() {
       <PButton
         variant="primary"
         icon="lucide:printer"
-        :text="t('print') || 'Print'"
+        :text="t('print')"
         @click="printCodes"
       />
     </div>
     <p v-if="usersMissingCodes.length" class="codes-missing no-print">
-      {{ usersMissingCodes.length }} {{ t('student') || 'student' }}{{ usersMissingCodes.length === 1 ? '' : 's' }}
-      {{ t('without-login-codes') || 'without login codes (not shown below).' }}
+      {{ usersMissingCodes.length }} {{ t('student') }}{{ usersMissingCodes.length === 1 ? '' : 's' }}
+      {{ t('without-login-codes') }}
     </p>
     <LoginCodesView v-if="usersWithCodes.length" :student-ids="usersWithCodes" :users="users" />
     <p v-if="!visibleUsers.length" class="codes-empty">
-      {{ t('no-students-selected') || 'No students selected.' }}
+      {{ t('no-students-selected') }}
     </p>
     <p v-else-if="!usersWithCodes.length" class="codes-empty">
-      {{ t('no-active-users-with-login-codes') || 'No active users with login codes.' }}
+      {{ t('no-active-users-with-login-codes') }}
     </p>
   </div>
 </template>

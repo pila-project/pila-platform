@@ -53,14 +53,20 @@ export default {
 
       const key = localStorage.getItem(`zkek-${state.user}`)
 
-      const createdUserInfo = await getTeacherCreatedUserInfo(user, key)
+      // Wrong / missing key must not throw — fall through to anonymous like trunk blob path
+      let createdUserInfo = null
+      try {
+        createdUserInfo = await getTeacherCreatedUserInfo(user, key)
+      } catch (error) {
+        console.warn('[decryptUserInfo] teacher-created decrypt failed', error)
+      }
 
       if (createdUserInfo) return createdUserInfo
 
       let info = { name: `${getters.t('anonymous')}_${user.slice(0,4)}`, picture: null }
       const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
       const { secretKey: mySecretKey} = await generateKeyPair(key)
-      const toTry = Object.values(encryptedUserInfo)
+      const toTry = Object.values(encryptedUserInfo || {})
       let success = false
       while (toTry.length && !success) {
         const { publicKey: theirPublicKey, encryptedInfo } = toTry.pop()
@@ -78,7 +84,70 @@ export default {
         } catch (error) { console.warn(error) }
       }
       return info
-    }
+    },
+
+    /**
+     * Soft probe: does the current zkek decrypt at least one of these users?
+     * Returns 'missing' | 'ok' | 'invalid' | 'unknown'
+     * - missing: no key stored
+     * - ok: at least one encrypted payload decrypted
+     * - invalid: had encrypted data to try, all failed (likely wrong key)
+     * - unknown: no encrypted student data available to test
+     */
+    probeEncryptionKey: (state) => async (userIds = []) => {
+      const key = localStorage.getItem(`zkek-${state.user}`)
+      if (!key) return 'missing'
+
+      let attempted = 0
+      const maxAttempts = 12
+
+      for (const user of userIds) {
+        if (attempted >= maxAttempts) break
+        if (!user) continue
+
+        try {
+          const publicInfo = await Agent.state('user-info', user)
+          if (publicInfo?.name) continue
+        } catch { /* ignore */ }
+
+        // Teacher-created accounts (symmetric)
+        try {
+          const { providerEncryptedInfo } = await Agent.state(user)
+          if (providerEncryptedInfo) {
+            attempted++
+            try {
+              const secretKey = await generateKeyPair(key).then(p => p.secretKey)
+              decryptSymmetric(secretKey, providerEncryptedInfo)
+              return 'ok'
+            } catch {
+              continue
+            }
+          }
+        } catch { /* ignore */ }
+
+        // Linked / multi-teacher encrypted blobs
+        try {
+          const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
+          const blobs = Object.values(encryptedUserInfo || {})
+          if (!blobs.length) continue
+          attempted++
+          const { secretKey: mySecretKey } = await generateKeyPair(key)
+          for (const { publicKey: theirPublicKey, encryptedInfo } of blobs) {
+            try {
+              decrypt(
+                mySecretKey,
+                decodeBase64(theirPublicKey),
+                decodeBase64(encryptedInfo)
+              )
+              return 'ok'
+            } catch { /* try next blob */ }
+          }
+        } catch { /* ignore */ }
+      }
+
+      if (attempted === 0) return 'unknown'
+      return 'invalid'
+    },
   },
   mutations: {
     loaded(state, loaded) { state.loaded = loaded},

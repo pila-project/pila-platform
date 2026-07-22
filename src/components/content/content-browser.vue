@@ -134,7 +134,7 @@ const perPageOptionsForPagination = computed(() => {
   const opts = props.perPageOptions?.length ? props.perPageOptions : [12, 24, 48]
   const normalized = normalizePerPageOptions(opts, t)
   if (!normalized.some((opt) => opt.value === ALL_PER_PAGE)) {
-    normalized.push({ value: ALL_PER_PAGE, title: t('all') || 'All' })
+    normalized.push({ value: ALL_PER_PAGE, title: t('all') })
   }
   return normalized
 })

@@ -1,3 +1,29 @@
+/*
+ * Overlay layer utilities — z-index tiers live in tokens.css (--z-modal, etc.).
+ * Use overlay-shell--{modal|nested|preview} on fixed full-viewport shells.
+ */
+.overlay-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.overlay-shell--modal { z-index: var(--z-modal); }
+.overlay-shell--nested { z-index: var(--z-modal-nested); }
+.overlay-shell--preview { z-index: var(--z-modal-preview); }
+
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.overlay-panel {
+  position: relative;
+  z-index: 1;
+}
+
 /* Buttons — unlayered so they can't be overridden by scoped/utility CSS */
 .btn {
   display: inline-flex;

@@ -15,6 +15,8 @@ export default {
     "add-content-by-id-or-url": "bb11f58d-f083-44a5-b332-60dcfd5445b4",
     "add-content-item-or-sequence": "d972682e-5470-11f1-9d21-7fc8083abde0",
     "add-content-item-sequence": "d9779851-5470-11f1-9d21-7fc8083abde0",
+    "add-content-item-sequence-cta-title": "d9779851-5470-11f1-9d21-7fc8083abde0",
+    "add-content-to-assignment": "d96f33de-5470-11f1-9d21-7fc8083abde0",
     "add-group": "d96c74c3-5470-11f1-9d21-7fc8083abde0",
     "add-item-or-sequence": "d96f0ccf-5470-11f1-9d21-7fc8083abde0",
     "add-more-students": "d96c4da0-5470-11f1-9d21-7fc8083abde0",

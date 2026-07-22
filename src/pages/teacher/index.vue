@@ -73,7 +73,12 @@
         <div class="user-card-wrapper">
           <PMenu openUp>
             <template #activator="{ props }">
-              <button class="user-card" @click="props.onClick" @click.shift="alertUserName">
+              <button
+                class="user-card"
+                :aria-label="encryptionAttentionAriaLabel"
+                @click="props.onClick"
+                @click.shift="alertUserName"
+              >
                 <PAvatar
                   :image="userInfo.picture"
                   :name="userInfo.name"
@@ -83,7 +88,17 @@
                   <div class="user-card-name">{{ userInfo.name }}</div>
                   <div class="user-card-role">{{ t(store.getters['roles/role']()) }}</div>
                 </div>
-                <LucideIcon v-if="sidebarOpen" name="arrow-up-down" :size="14" class="user-card-chevron" />
+                <span v-if="sidebarOpen" class="user-card-trailing">
+                  <span
+                    v-if="needsEncryptionAttention"
+                    class="user-card-attention-icon"
+                    :title="encryptionAttentionTitle"
+                    aria-hidden="true"
+                  >
+                    <LucideIcon name="circle-alert" :size="14" />
+                  </span>
+                  <LucideIcon name="chevron-up" :size="14" class="user-card-chevron" />
+                </span>
               </button>
             </template>
             <PMenuItem
@@ -108,6 +123,8 @@
             <PMenuItem
               :title="t('enter-encryption-key-word')"
               prepend-icon="lucide:key-round"
+              :attention="needsEncryptionAttention"
+              :append-icon="needsEncryptionAttention ? 'lucide:circle-alert' : undefined"
               @click="showEncryptionKeyModal = true"
             />
             <PMenuItem
@@ -154,11 +171,25 @@
   import { logout as doLogout } from '@/utils/logout.js'
   import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
   import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
+  import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const showEncryptionKeyModal = ref(false)
   const store = useStore()
   const router = useRouter()
+  const {
+    needsEncryptionAttention,
+    isEncryptionKeyMissing,
+    isEncryptionKeyInvalid,
+  } = useEncryptionKey(store)
+
+  const encryptionAttentionTitle = computed(() => {
+    if (isEncryptionKeyInvalid.value) return t('encryption-key-invalid-badge')
+    if (isEncryptionKeyMissing.value) return t('encryption-key-missing-badge')
+    return undefined
+  })
+  const encryptionAttentionAriaLabel = computed(() => encryptionAttentionTitle.value)
+
   const userInfo = ref({})
   const userIsTrainer = ref(null)
   const sidebarOpen = ref(true)
@@ -432,6 +463,21 @@
   font-weight: 400;
   color: #334155;
   text-transform: capitalize;
+}
+
+.user-card-trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.user-card-attention-icon {
+  display: inline-flex;
+  color: var(--color-danger-600, #dc2626);
+  flex-shrink: 0;
+  line-height: 0;
 }
 
 .user-card-chevron {

@@ -56,7 +56,7 @@
       <div class="preview-nav">
         <PButton
           variant="ghost"
-          text="Previous"
+          :text="t('previous')"
           icon="lucide:chevron-left"
           :disabled="currentIndex === 0"
           @click="currentIndex--"
@@ -69,7 +69,7 @@
         />
         <PButton
           :variant="nested ? 'ghost' : 'primary'"
-          text="Next"
+          :text="t('next')"
           icon="lucide:chevron-right"
           :icon-right="true"
           :disabled="currentIndex >= seqState.items.length - 1"
@@ -81,7 +81,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useStore } from 'vuex'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { PButton, PPageNumbers } from '@/components/ui/index.js'
@@ -91,6 +92,9 @@ import { getContentMetadata } from '@/utils/content-cache.js'
 import { isSequenceContentMeta } from '@/utils/open-content-preview.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
 import SequencePreviewBody from './sequence-preview-body.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const MAX_NESTING_DEPTH = 12
 
@@ -180,16 +184,38 @@ async function ensureCurrentItemType() {
 }
 
 async function loadSequence() {
+  if (!props.sequenceId) {
+    seqState.value = { name: '', items: [] }
+    loaded.value = true
+    emitHeader()
+    return
+  }
+
   loaded.value = false
+  itemIsSequence.value = {}
   try {
     const state = await Agent.state(props.sequenceId)
     const items = normalizeSequenceItems(state?.items)
+    // Help diagnose unreadable catalog shapes without breaking the empty UX.
+    if (!items.length && state?.items != null) {
+      const raw = state.items
+      const kind = Array.isArray(raw) ? `array(${raw.length})` : typeof raw
+      console.warn(
+        '[SequencePreviewBody] no readable items after normalize',
+        props.sequenceId,
+        kind,
+      )
+    }
     seqState.value = {
       name: state?.name || '',
       items,
     }
     currentIndex.value = 0
     await preloadItemTypes(items)
+  } catch (e) {
+    console.warn('[SequencePreviewBody] failed to load sequence', props.sequenceId, e)
+    seqState.value = { name: '', items: [] }
+    currentIndex.value = 0
   } finally {
     loaded.value = true
     emitHeader()
@@ -201,9 +227,14 @@ watch(currentIndex, async () => {
   emitHeader()
 })
 
-onMounted(() => {
-  void loadSequence()
-})
+// immediate: load on mount; re-run if parent reuses the component with a new id
+watch(
+  () => props.sequenceId,
+  () => {
+    void loadSequence()
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>

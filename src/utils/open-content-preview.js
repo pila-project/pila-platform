@@ -8,12 +8,25 @@ export function isSequenceContentMeta(meta) {
 
 export async function isSequenceContentId(id) {
   if (!id) return false
+  return resolveIsSequence(id)
+}
+
+async function resolveIsSequence(id) {
   try {
     const meta = await getContentMetadata(id)
-    return isSequenceContentMeta(meta)
-  } catch {
-    return false
+    if (meta) return isSequenceContentMeta(meta)
+  } catch (e) {
+    console.warn('[openContentPreview] metadata failed', id, e)
   }
+
+  try {
+    const meta = await Agent.metadata(id)
+    if (meta?.active_type) return isSequenceContentMeta(meta)
+  } catch (e) {
+    console.warn('[openContentPreview] Agent.metadata fallback failed', id, e)
+  }
+
+  return false
 }
 
 /**
@@ -23,13 +36,7 @@ export async function isSequenceContentId(id) {
 export async function openContentPreview(id, { previewing, sequenceToPreview } = {}) {
   if (!id) return
 
-  let isSequence = false
-  try {
-    const meta = await getContentMetadata(id)
-    isSequence = isSequenceContentMeta(meta)
-  } catch (e) {
-    console.warn('[openContentPreview] metadata failed', id, e)
-  }
+  const isSequence = await resolveIsSequence(id)
 
   if (isSequence && sequenceToPreview) {
     sequenceToPreview.value = id

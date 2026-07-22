@@ -63,13 +63,13 @@
       <div class="content-cta-centered" @click="openContentBrowser">
         <LucideIcon name="circle-plus" :size="28" class="content-cta-icon" />
         <span class="content-cta-title">{{ t('add-content-item-or-sequence') }}</span>
-        <span class="content-cta-desc">{{ t('browse-and-select-content-from-library') || 'Browse and select content from the library' }}</span>
+        <span class="content-cta-desc">{{ t('browse-and-select-content-from-library') }}</span>
       </div>
 
       <div class="assignment-content-section">
         <div class="assignment-content-header">
           <span class="assignment-content-heading">
-            {{ t('current-item-sequence') || 'Current item/sequence' }} ({{ contentList.length }})
+            {{ t('current-item-sequence') }} ({{ contentList.length }})
           </span>
           <PButton
             v-if="contentList.length"
@@ -82,7 +82,7 @@
         </div>
 
         <p v-if="!contentList.length" class="assignment-content-empty">
-          {{ t('no-items-added-yet') || 'No items added yet. Use the button above to add content from the library.' }}
+          {{ t('no-items-added-yet') }}
         </p>
 
         <div
@@ -115,6 +115,7 @@
               :draggable="false"
               :source="isMyContent(id) ? 'mine' : 'pila'"
               :grades="assignmentContentGrades(id)"
+              @preview="openPreview(id)"
               @remove="removeContent(id)"
             />
           </div>
@@ -184,8 +185,8 @@
     <!-- ═══════════════ Step 4: Assign & Publish ═══════════════ -->
     <div v-else class="step-body">
       <div class="assign-section">
-        <label class="field-label">{{ t('assign-to') }} ({{ t('optional') || 'Optional' }})</label>
-        <p class="field-hint">{{ t('assign-to-groups-optional-hint') || 'You can assign classes now or add them later from the assignments page.' }}</p>
+        <label class="field-label">{{ t('assign-to') }} ({{ t('optional') }})</label>
+        <p class="field-hint">{{ t('assign-to-groups-optional-hint') }}</p>
         <PInput
           v-model="groupSearch"
           :placeholder="t('search-groups')"
@@ -284,7 +285,7 @@
       >
         <PButton
           variant="secondary"
-          :text="t('save-as-draft') || 'Save as draft'"
+          :text="t('save-as-draft')"
           :loading="savingDraft"
           :disabled="!canSaveDraft"
           @click="saveDraft"
@@ -311,7 +312,7 @@
       >
         <PButton
           variant="primary"
-          :text="props.editing ? (t('save-changes') || 'Save changes') : t('create-assignment')"
+          :text="props.editing ? (t('save-changes')) : t('create-assignment')"
           icon="lucide:arrow-right"
           :icon-right="true"
           :disabled="!canSave"
@@ -388,21 +389,17 @@
   </Teleport>
 
   <Teleport to="body">
-    <div v-if="previewing" class="wizard-preview-stack">
-      <PreviewModal
-        :id="previewing"
-        @close="previewing = null"
-      />
-    </div>
-  </Teleport>
+    <PreviewModal
+      v-if="previewing"
+      :id="previewing"
+      @close="previewing = null"
+    />
 
-  <Teleport to="body">
-    <div v-if="sequenceToPreview" class="wizard-preview-stack">
-      <SequencePreviewModal
-        :id="sequenceToPreview"
-        @close="sequenceToPreview = null"
-      />
-    </div>
+    <SequencePreviewModal
+      v-if="sequenceToPreview"
+      :id="sequenceToPreview"
+      @close="sequenceToPreview = null"
+    />
   </Teleport>
 </template>
 
@@ -430,7 +427,7 @@
     },
   })
 
-  const emit = defineEmits(['close', 'saved', 'update:width'])
+  const emit = defineEmits(['close', 'saved', 'update:width', 'preview-active'])
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -453,6 +450,12 @@
   function openPreview(id) {
     void openContentPreview(id, { previewing, sequenceToPreview })
   }
+
+  const previewActive = computed(() => !!(previewing.value || sequenceToPreview.value))
+
+  watch(previewActive, (active) => {
+    emit('preview-active', active)
+  }, { immediate: true })
 
   // ── Step definitions ──
   const steps = [
@@ -733,15 +736,13 @@
       if (!assignmentType.value?.trim()) missing.push(t('assignment-type'))
       if (missing.length === 2) {
         return t('fill-required-fields-to-continue')
-          || 'Fill in all required fields to continue.'
       }
       if (missing.length) {
-        return `${t('required') || 'Required'}: ${missing.join(', ')}`
+        return `${t('required')}: ${missing.join(', ')}`
       }
     }
     if (currentStep.value === 2 && !step2Valid.value) {
       return t('add-at-least-one-content-item-to-continue')
-        || 'Add at least one content item to continue.'
     }
     return ''
   })
@@ -752,7 +753,6 @@
     }
     if (!step1Valid.value || !step2Valid.value) {
       return t('complete-required-steps-before-saving')
-        || 'Complete all required steps before saving.'
     }
     return ''
   })
@@ -762,7 +762,6 @@
   const draftBlockedReason = computed(() => {
     if (!canSaveDraft.value) {
       return t('assignment-title-required-for-draft')
-        || 'Enter an assignment title to save a draft.'
     }
     return ''
   })
@@ -798,7 +797,7 @@
     const newCount = pickerNewSelectionCount.value
     const total = cbSelectedItems.size
     if (newCount > 0 && newCount < total) {
-      return `${t('add-selected')} (${newCount} ${t('new') || 'new'})${nameSuffix}`
+      return `${t('add-selected')} (${newCount} ${t('new')})${nameSuffix}`
     }
     if (newCount > 0) {
       return `${t('add-selected')} (${newCount})${nameSuffix}`
@@ -831,11 +830,11 @@
       selectingContent.value = false
       if (skipped > 0) {
         toastInfo(
-          `${added} ${t('items-added') || 'added'}. ${skipped} ${t('already-in-assignment') || 'already in assignment'}.`,
+          `${added} ${t('items-added')}. ${skipped} ${t('already-in-assignment')}.`,
         )
       }
     } else if (skipped > 0) {
-      toastInfo(t('all-selected-already-in-assignment') || 'All selected items are already in this assignment')
+      toastInfo(t('all-selected-already-in-assignment'))
     }
   }
 
@@ -879,7 +878,7 @@
       emit('close')
     } catch (e) {
       console.error('[TeacherToStudent] save draft error:', e)
-      toastError(t('something-went-wrong') || 'Something went wrong. Please try again.')
+      toastError(t('something-went-wrong'))
     } finally {
       savingDraft.value = false
     }
@@ -1440,18 +1439,11 @@
   flex: 1;
 }
 
-/* Preview/sequence modals must sit above the content-browser overlay (z-index 60). */
-.wizard-preview-stack {
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-}
-
 /* ── Content browser overlay modal ── */
 .cb-overlay {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: var(--z-modal-nested);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1465,7 +1457,7 @@
 
 .cb-modal {
   position: relative;
-  z-index: 61;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   background: white;

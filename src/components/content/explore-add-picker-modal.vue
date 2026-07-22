@@ -41,7 +41,7 @@
       <!-- Step 2a: Assignment — new vs existing -->
       <div v-else-if="step === 'assignment-choice'" class="eap-body">
         <p class="eap-section-label">
-          {{ t('where-add-content') || 'Where would you like to add this content?' }}
+          {{ t('where-add-content') }}
         </p>
         <div class="eap-choice-row">
           <button
@@ -65,7 +65,7 @@
               <LucideIcon name="file-pen" :size="21" />
             </div>
             <span class="eap-choice-label eap-choice-label--multiline">
-              {{ t('add-to-existing-assignment') || 'Add to an existing assignment' }}
+              {{ t('add-to-existing-assignment') }}
             </span>
           </button>
         </div>
@@ -75,7 +75,7 @@
       <div v-else-if="step === 'assignment-list'" class="eap-body">
         <PInput
           v-model="assignmentSearch"
-          :placeholder="t('search-assignments') || 'Search assignments...'"
+          :placeholder="t('search-assignments')"
           icon="lucide:search"
         />
         <div v-if="assignmentsLoading" class="eap-loading" aria-busy="true">
@@ -125,10 +125,10 @@
           <p v-if="previewItem.modified" class="eap-preview-meta">{{ previewItem.modified }}</p>
         </div>
 
-        <p class="eap-section-label">{{ t('select-target-sequence') || 'Select target sequence' }}</p>
+        <p class="eap-section-label">{{ t('select-target-sequence') }}</p>
         <PInput
           v-model="sequenceSearch"
-          :placeholder="t('search-sequences') || 'Search sequences...'"
+          :placeholder="t('search-sequences')"
           icon="lucide:search"
         />
         <div v-if="sequencesLoading" class="eap-loading" aria-busy="true">
@@ -177,15 +177,15 @@
         </div>
         <h3 class="eap-success-title">
           {{ assignmentResult?.duplicate
-            ? (t('content-already-in-assignment') || 'Content is already in this assignment')
-            : (t('content-added-to-assignment') || 'Content added to assignment') }}
+            ? (t('content-already-in-assignment'))
+            : (t('content-added-to-assignment')) }}
         </h3>
         <p class="eap-success-desc">
           <template v-if="assignmentResult?.duplicate">
             {{ assignmentResult.name }}
           </template>
           <template v-else>
-            {{ assignmentResult?.added }} {{ t('items-added-to-assignment') || 'item(s) added to' }}
+            {{ assignmentResult?.added }} {{ t('items-added-to-assignment') }}
             “{{ assignmentResult?.name }}”
           </template>
         </p>
@@ -230,7 +230,7 @@
             <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
             <PButton
               variant="primary"
-              :text="t('add-to-selected-assignment') || 'Add to the selected assignment'"
+              :text="t('add-to-selected-assignment')"
               :disabled="!selectedAssignmentId || !!savingAssignmentId"
               :loading="!!savingAssignmentId"
               @click="onConfirmAssignment"
@@ -256,10 +256,10 @@
 
       <template v-else-if="step === 'assignment-success'">
         <div class="eap-footer-actions eap-footer-actions--end">
-          <PButton variant="secondary" :text="t('continue-browsing') || 'Continue browsing'" @click="$emit('close')" />
+          <PButton variant="secondary" :text="t('continue-browsing')" @click="$emit('close')" />
           <PButton
             variant="primary"
-            :text="t('go-to-assignment') || 'Go to assignment'"
+            :text="t('go-to-assignment')"
             @click="$emit('go-to-assignment')"
           />
         </div>
@@ -275,7 +275,12 @@ import { useStore } from 'vuex'
 import { PModal, PButton, PInput, PBadge } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import ExploreAddPickerHeader from './explore-add-picker-header.vue'
-import { nameCache, getContentMetadata } from '@/utils/content-cache.js'
+import {
+  getCachedContentName,
+  nameCacheVersion,
+  setCachedLegacyName,
+  getContentMetadata,
+} from '@/utils/content-cache.js'
 
 const props = defineProps({
   itemIds: { type: Array, default: () => [] },
@@ -313,42 +318,42 @@ const sequencesLoading = ref(false)
 const previewItem = ref(null)
 
 const contentLabel = computed(() => {
+  void nameCacheVersion.value
   const ids = props.itemIds
   if (!ids?.length) return ''
   if (ids.length === 1) {
-    return nameCache.get(ids[0]) || t('untitled')
+    return getCachedContentName(ids[0], store.getters.language()) || t('untitled')
   }
-  return `${ids.length} ${t('items-selected') || 'items'}`
+  return `${ids.length} ${t('items-selected')}`
 })
 
 const headerTitle = computed(() => {
   if (step.value === 'choose') return t('add-item-or-sequence')
   if (step.value === 'assignment-choice') {
-    return t('add-content-to-assignment') || 'Add to assignment'
+    return t('add-content-to-assignment')
   }
   if (step.value === 'assignment-list') {
-    return t('add-to-existing-assignment-title') || 'Add to an existing assignment'
+    return t('add-to-existing-assignment-title')
   }
   if (step.value === 'sequence-list') return t('add-to-sequence')
   return ''
 })
 
 const headerSubtitle = computed(() => {
-  const quoted = contentLabel.value ? `“${contentLabel.value}”` : t('selected-content') || 'the selected content'
+  const quoted = contentLabel.value ? `“${contentLabel.value}”` : t('selected-content')
   if (step.value === 'choose') {
     return (
       t('add-picker-subtitle')
-      || 'Add the selected item/sequence to an existing assignment or create a new assignment.'
     )
   }
   if (step.value === 'assignment-choice') {
-    return t('add-to-assignment-choice-subtitle') || `Choose how you want to add ${quoted} to an assignment.`
+    return t('add-to-assignment-choice-subtitle').replace('{name}', quoted)
   }
   if (step.value === 'assignment-list') {
-    return t('add-to-existing-assignment-subtitle') || `Choose an assignment you want to add ${quoted} to.`
+    return t('add-to-existing-assignment-subtitle').replace('{name}', quoted)
   }
   if (step.value === 'sequence-list') {
-    return t('add-to-sequence-subtitle') || 'Add this item to an existing sequence'
+    return t('add-to-sequence-subtitle')
   }
   return ''
 })
@@ -393,7 +398,7 @@ function assignmentBadges(id) {
   const badges = []
   const data = assignmentData[id]
   if (data?.dueDate) {
-    badges.push(`${t('due-date') || 'Due date'} - ${formatDate(data.dueDate)}`)
+    badges.push(`${t('due-date')} - ${formatDate(data.dueDate)}`)
   }
   const status = assignmentPickerStatus(id)
   if (status) badges.push(t(status.toLowerCase()))
@@ -411,7 +416,7 @@ function sequenceBadges(id) {
   const badges = []
   const data = sequenceData[id]
   if (data?.updated) {
-    badges.push(`${t('last-modified') || 'Last modified'} - ${formatDate(data.updated)}`)
+    badges.push(`${t('last-modified')} - ${formatDate(data.updated)}`)
   }
   return badges
 }
@@ -427,7 +432,7 @@ async function loadAssignmentEntry(id) {
       dueDate: state.dueDate || null,
       archived: !!state.archived,
     }
-    if (state.name) nameCache.set(id, state.name)
+    if (state.name) setCachedLegacyName(id, state.name)
   } catch {
     assignmentData[id] = { name: '', description: '', archived: false }
   }
@@ -458,7 +463,7 @@ async function loadSequenceEntry(id) {
       description: state?.description || '',
       updated: meta?.updated || null,
     }
-    if (state?.name) nameCache.set(id, state.name)
+    if (state?.name) setCachedLegacyName(id, state.name)
   } catch {
     sequenceData[id] = { name: '', description: '' }
   }
@@ -484,16 +489,21 @@ async function loadPreviewItem() {
       Agent.state(id),
       getContentMetadata(id),
     ])
-    const name = nameCache.get(id) || state?.name || t('untitled')
+    const lang = store.getters.language()
+    const name = getCachedContentName(id, lang) || state?.name || t('untitled')
     previewItem.value = {
       name,
       description: state?.description || '',
       modified: meta?.updated
-        ? `${t('last-modified') || 'Last modified'} - ${formatDate(meta.updated)}`
+        ? `${t('last-modified')} - ${formatDate(meta.updated)}`
         : '',
     }
   } catch {
-    previewItem.value = { name: nameCache.get(id) || t('untitled'), description: '', modified: '' }
+    previewItem.value = {
+      name: getCachedContentName(id, store.getters.language()) || t('untitled'),
+      description: '',
+      modified: '',
+    }
   }
 }
 

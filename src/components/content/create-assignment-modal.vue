@@ -6,7 +6,7 @@
   >
     <template v-if="step !== 'success'" #title>
       <div>
-        <h2 class="text-lg font-semibold text-zinc-950">Create new assignment</h2>
+        <h2 class="text-lg font-semibold text-zinc-950">{{ t('create-new-assignment') }}</h2>
         <p class="text-xs text-slate-500 mt-0.5">{{ stepSubtitles[step - 1] }}</p>
       </div>
     </template>
@@ -17,9 +17,9 @@
         <div class="success-icon-ring">
           <LucideIcon name="check" :size="24" class="text-green-600" />
         </div>
-        <h3 class="text-lg font-semibold text-zinc-950 mt-4">New assignment has been successfully created</h3>
+        <h3 class="text-lg font-semibold text-zinc-950 mt-4">{{ t('new-assignment-successfully-created') }}</h3>
         <p class="text-sm text-slate-500 mt-2">
-          A new assignment "{{ form.name }}" has been created and "content" has been successfully added to it.
+          {{ t('new-assignment-created-with-content').replace('{name}', form.name) }}
         </p>
       </div>
 
@@ -31,7 +31,7 @@
               <div class="step-circle" :class="stepCircleClass(s.num)">
                 <LucideIcon :name="s.icon" :size="13" />
               </div>
-              <span class="step-label" :class="stepLabelClass(s.num)">Step {{ s.num }}</span>
+              <span class="step-label" :class="stepLabelClass(s.num)">{{ t('step-n').replace('{n}', String(s.num)) }}</span>
             </div>
             <div v-if="s.num < 4" class="step-trail" :class="stepTrailClass(s.num)" />
           </div>
@@ -41,29 +41,29 @@
         <div v-if="step === 1" class="step-body">
           <PInput
             v-model="form.name"
-            label="Assignment Title"
-            placeholder="e.g, Mathematics Quiz - Fractions"
+            :label="t('assignment-title')"
+            :placeholder="t('assignment-title-placeholder')"
             required
           />
           <PInput
             v-model="form.description"
-            label="Instructions"
-            placeholder="Provide detailed instructions for students"
+            :label="t('instructions')"
+            :placeholder="t('instructions-placeholder')"
             multiline
             :rows="4"
           />
           <div class="field-row">
             <PSelect
               v-model="form.assignmentType"
-              label="Assignment type"
-              placeholder="Assignment"
+              :label="t('assignment-type')"
+              :placeholder="t('assignment')"
               :items="assignmentTypeOptions"
               required
             />
             <PInput
               v-model="form.dueDate"
-              label="Due date(Optional)"
-              placeholder="mm/dd/yyyy"
+              :label="t('due-date-optional')"
+              :placeholder="t('date-format-placeholder')"
               type="date"
             />
           </div>
@@ -75,8 +75,8 @@
           <div class="content-cta" @click="browsingContent = !browsingContent">
             <LucideIcon name="circle-plus" :size="24" class="content-cta-icon" />
             <div>
-              <span class="content-cta-title">Add content item/sequence</span>
-              <span class="content-cta-desc">Browse and select content from the library</span>
+              <span class="content-cta-title">{{ t('add-content-item-sequence-cta-title') }}</span>
+              <span class="content-cta-desc">{{ t('browse-and-select-content-from-library') }}</span>
             </div>
           </div>
 
@@ -103,18 +103,18 @@
           <!-- Current selected content -->
           <div class="mt-3">
             <div class="content-current-header">
-              <span class="text-sm font-medium text-slate-700">Current item/sequence ({{ form.contentIds.length }})</span>
+              <span class="text-sm font-medium text-slate-700">{{ t('current-item-sequence-count').replace('{count}', String(form.contentIds.length)) }}</span>
               <PButton
                 v-if="form.contentIds.length"
                 variant="ghost"
                 size="sm"
                 icon="lucide:eye"
-                text="Preview"
+                :text="t('preview')"
                 @click="openPreview(form.contentIds[0])"
               />
             </div>
             <div v-if="!form.contentIds.length" class="text-xs text-slate-400 py-3">
-              no items added yet
+              {{ t('no-items-added-yet') }}
             </div>
             <div v-else class="content-selected-list">
               <div v-for="cid in form.contentIds" :key="cid" class="content-selected-item">
@@ -138,8 +138,8 @@
         <div v-else-if="step === 3" class="step-body">
           <div class="toggle-row">
             <div class="toggle-content">
-              <span class="toggle-label">Allow late submissions</span>
-              <span class="toggle-desc">Students can submit after due date</span>
+              <span class="toggle-label">{{ t('allow-late-submissions') }}</span>
+              <span class="toggle-desc">{{ t('students-can-submit-after-due-date') }}</span>
             </div>
             <button class="toggle-switch" :class="{ active: form.allowLate }" @click="form.allowLate = !form.allowLate">
               <span class="toggle-thumb" />
@@ -149,22 +149,22 @@
           <div class="field-row">
             <PSelect
               v-model="form.maxAttempts"
-              label="Maximum attempts"
-              placeholder="1 attempt"
+              :label="t('maximum-attempts')"
+              :placeholder="t('1-attempt')"
               :items="maxAttemptsOptions"
             />
             <PSelect
               v-model="form.feedbackTiming"
-              label="Feedback timing"
-              placeholder="At the end"
+              :label="t('feedback-timing')"
+              :placeholder="t('at-the-end')"
               :items="feedbackTimingOptions"
             />
           </div>
 
           <div class="toggle-row">
             <div class="toggle-content">
-              <span class="toggle-label">Shuffle questions</span>
-              <span class="toggle-desc">Randomize question order for each student</span>
+              <span class="toggle-label">{{ t('shuffle-questions') }}</span>
+              <span class="toggle-desc">{{ t('randomize-question-order-for-each-student') }}</span>
             </div>
             <button class="toggle-switch" :class="{ active: form.shuffleQuestions }" @click="form.shuffleQuestions = !form.shuffleQuestions">
               <span class="toggle-thumb" />
@@ -173,8 +173,8 @@
 
           <div class="toggle-row">
             <div class="toggle-content">
-              <span class="toggle-label">Show correct answers</span>
-              <span class="toggle-desc">Display correct answers after submission</span>
+              <span class="toggle-label">{{ t('show-correct-answers') }}</span>
+              <span class="toggle-desc">{{ t('display-correct-answers-after-submission') }}</span>
             </div>
             <button class="toggle-switch" :class="{ active: form.showAnswers }" @click="form.showAnswers = !form.showAnswers">
               <span class="toggle-thumb" />
@@ -185,8 +185,8 @@
 
           <PInput
             v-model="form.teacherNotes"
-            label="Teacher notes (private)"
-            placeholder="Add private notes for your reference..."
+            :label="t('teacher-notes-private')"
+            :placeholder="t('add-private-notes-placeholder')"
             multiline
             :rows="3"
           />
@@ -195,10 +195,10 @@
         <!-- Step 4: Assign & Publish -->
         <div v-else-if="step === 4" class="step-body">
           <div class="assign-section">
-            <label class="field-label">Assign to</label>
+            <label class="field-label">{{ t('assign-to') }}</label>
             <PInput
               v-model="groupSearch"
-              placeholder="Search group(s)"
+              :placeholder="t('search-groups')"
               icon="lucide:search"
             />
             <div class="group-list">
@@ -225,7 +225,7 @@
                 </div>
               </div>
               <div v-if="!filteredGroups.length" class="text-xs text-slate-400 py-3">
-                No groups found
+                {{ t('no-groups-found') }}
               </div>
             </div>
           </div>
@@ -233,7 +233,7 @@
           <div class="wizard-separator" />
 
           <div class="distribution-section">
-            <label class="field-label">Distribution options</label>
+            <label class="field-label">{{ t('distribution-options') }}</label>
             <div
               v-for="opt in distributionOptions"
               :key="opt.value"
@@ -262,7 +262,7 @@
         <PButton
           v-if="step > 1"
           variant="ghost"
-          text="Back"
+          :text="t('back')"
           @click="onBack"
         />
         <div class="flex-1" />
@@ -275,7 +275,7 @@
         <PButton
           v-if="step < 4"
           variant="primary"
-          text="Next"
+          :text="t('next')"
           icon="lucide:arrow-right"
           :icon-right="true"
           :disabled="!canProceed"
@@ -284,7 +284,7 @@
         <PButton
           v-else
           variant="primary"
-          text="Create assignment"
+          :text="t('create-assignment')"
           icon="lucide:arrow-right"
           :icon-right="true"
           :disabled="!canProceed"
@@ -369,21 +369,22 @@ const steps = [
   { num: 4, icon: 'graduation-cap' },
 ]
 
-const stepSubtitles = [
-  'Step 1 of 4: Add title and instructions',
-  'Step 2 of 4: Add content',
-  'Step 3 of 4: Add assignment details',
-  'Step 4 of 4: Assign and publish',
-]
+const stepSubtitles = computed(() => [
+  t('step-1-of-4-title-instructions'),
+  t('step-2-of-4-add-content'),
+  t('step-3-of-4-assignment-details'),
+  t('step-4-of-4-assign-publish'),
+])
 
 const assignmentTypeOptions = ['Assignment', 'Quiz', 'Project']
+// Option values stay English (form data). Labels for pure display use t().
 const maxAttemptsOptions = ['1 attempt', '2 attempts', '3 attempts', 'Unlimited']
 const feedbackTimingOptions = ['At the end', 'After each question', 'Never']
-const distributionOptions = [
-  { value: 'publish', label: 'Publish immediately', description: 'Students can start working right away' },
-  { value: 'schedule', label: 'Schedule for later', description: 'Set a specific date and time to publish' },
-  { value: 'draft', label: 'Save as draft', description: 'Keep working on it before publishing' },
-]
+const distributionOptions = computed(() => [
+  { value: 'publish', label: t('publish-immediately'), description: t('students-can-start-working-right-away') },
+  { value: 'schedule', label: t('schedule-for-later'), description: t('set-a-specific-date-and-time-to-publish') },
+  { value: 'draft', label: t('save-as-draft'), description: t('keep-working-on-it-before-publishing') },
+])
 
 const groups = computed(() => store.getters['groups/groups']('class', true))
 

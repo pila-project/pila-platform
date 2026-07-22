@@ -1,11 +1,14 @@
 <template>
   <PModal width="90vw" height="90vh" no-pad-body @close="onRequestClose">
     <template #title>
-      <div>
-        <span class="font-semibold text-zinc-950">{{ seqName || t('untitled') }}</span>
-        <span v-if="draftIds.length" class="text-sm font-normal text-slate-500 ml-2">
-          {{ draftIds.length }} {{ draftIds.length === 1 ? (t('item') || 'item') : (t('items') || 'items') }}
-        </span>
+      <div class="scm-title-block">
+        <div class="scm-title-row">
+          <span class="scm-title-name">{{ seqName || t('untitled') }}</span>
+          <span v-if="loaded && draftIds.length" class="scm-title-meta">
+            {{ draftIds.length }} {{ draftIds.length === 1 ? (t('item')) : (t('items')) }}
+          </span>
+        </div>
+        <p v-if="seqDescription" class="scm-description">{{ seqDescription }}</p>
       </div>
     </template>
 
@@ -26,7 +29,7 @@
           <LucideIcon name="layers" :size="32" class="text-slate-300 mb-3" />
           <p class="text-sm text-slate-500">{{ t('no-items-yet') }}</p>
           <p v-if="!archived" class="text-xs text-slate-400 mt-1">
-            {{ t('drag-content-here') || 'Drag content here to add items' }}
+            {{ t('drag-content-here') }}
           </p>
         </div>
 
@@ -104,13 +107,14 @@
 
   <PModal
     v-if="infoModalId"
+    layer="nested"
     width="480px"
     no-pad-body
     @close="infoModalId = null"
   >
     <template #title>
       <div>
-        <h2 class="text-lg font-semibold text-zinc-950">{{ t('content-info') || 'Content info' }}</h2>
+        <h2 class="text-lg font-semibold text-zinc-950">{{ t('content-info') }}</h2>
         <p class="text-xs text-slate-500 mt-0.5 truncate">
           <NameOrTranslatedNameFromItemId :item-id="infoModalId" />
         </p>
@@ -125,7 +129,7 @@
       />
     </template>
     <template #footer>
-      <PButton variant="secondary" :text="t('close') || 'Close'" @click="infoModalId = null" />
+      <PButton variant="secondary" :text="t('close')" @click="infoModalId = null" />
     </template>
   </PModal>
 
@@ -143,9 +147,9 @@
   <PAlertDialog
     v-if="showDiscardConfirm"
     variant="warning"
-    :title="t('discard-changes') || 'Discard changes?'"
-    :description="t('unsaved-changes-will-be-lost') || 'Unsaved changes will be lost.'"
-    :confirmText="t('discard') || 'Discard'"
+    :title="t('discard-changes')"
+    :description="t('unsaved-changes-will-be-lost')"
+    :confirmText="t('discard')"
     :cancelText="t('cancel')"
     @confirm="discardAndClose"
     @cancel="showDiscardConfirm = false"
@@ -192,6 +196,7 @@ const { getItemTagLabels, isMyContent, ensureLoaded } = useContentLibrary(store)
 const loaded = ref(false)
 const saving = ref(false)
 const seqName = ref('')
+const seqDescription = ref('')
 const savedIds = ref([])
 const draftIds = ref([])
 const itemDescriptions = reactive({})
@@ -222,8 +227,9 @@ function idsEqual(a, b) {
   return a.every((id, i) => id === b[i])
 }
 
-function applyLoadedState(name, ids) {
+function applyLoadedState(name, description, ids) {
   seqName.value = name || ''
+  seqDescription.value = description || ''
   const keepDraft = dirty.value && !idsEqual(draftIds.value, ids)
   savedIds.value = [...ids]
   if (!keepDraft) {
@@ -239,7 +245,7 @@ async function loadSequenceMeta() {
       return
     }
     const ids = normalizeSequenceItems(state.items)
-    applyLoadedState(state.name, ids)
+    applyLoadedState(state.name, state.description, ids)
     void prefetchItemMeta(ids)
   } catch (e) {
     console.warn('[SequenceContentModal] failed to load', props.id, e)
@@ -448,6 +454,44 @@ onMounted(() => {
   min-height: 0;
   overflow-y: auto;
   padding: 20px 24px;
+}
+
+.scm-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding-right: 8px;
+}
+
+.scm-title-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.scm-title-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #09090b;
+  line-height: 1.3;
+}
+
+.scm-title-meta {
+  font-size: 14px;
+  font-weight: 400;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.scm-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #64748b;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .scm-grid {

@@ -1,5 +1,6 @@
 <template>
   <PModal
+    layer="preview"
     @close="$emit('close')"
     showCloseButton
     :closeButtonText="t('close')"

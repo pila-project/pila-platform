@@ -10,7 +10,7 @@ export function buildFavoritesFilterOptions(t) {
   return [
     {
       value: FAVORITES_FILTER.ONLY,
-      label: t('favorites-only') || 'Favorites only',
+      label: t('favorites-only'),
     },
   ]
 }

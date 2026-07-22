@@ -852,7 +852,7 @@
 .vs-overlay {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: var(--z-modal-nested);
   display: flex;
   flex-direction: column;
 }

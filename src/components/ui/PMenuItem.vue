@@ -8,8 +8,8 @@
     <button
       role="menuitem"
       tabindex="-1"
-      class="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
-      :class="{ 'bg-primary-50 text-primary-600': active }"
+      class="menu-item-btn w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors"
+      :class="buttonClasses"
       :data-keep-open="keepOpen || undefined"
       @click="$emit('click', $event)"
       @keydown.enter.prevent="$emit('click', $event)"
@@ -21,8 +21,14 @@
       </span>
       <span class="flex-1">{{ title }}</span>
       <template v-if="appendIcon && !hasSubmenu">
-        <LucideIcon v-if="appendIcon.startsWith('lucide:')" :name="appendIcon.slice(7)" :size="14" class="w-5 text-center text-slate-400" />
-        <i v-else :class="appendIcon" class="w-5 text-center text-slate-400" />
+        <LucideIcon
+          v-if="appendIcon.startsWith('lucide:')"
+          :name="appendIcon.slice(7)"
+          :size="14"
+          class="w-5 text-center"
+          :class="appendIconClass"
+        />
+        <i v-else :class="[appendIcon, appendIconClass, 'w-5 text-center']" />
       </template>
       <LucideIcon v-if="hasSubmenu" name="chevron-right" :size="12" class="w-5 text-center text-slate-400" />
     </button>
@@ -45,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, useSlots } from 'vue'
+import { ref, useSlots, computed } from 'vue'
 import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
@@ -54,6 +60,8 @@ const props = defineProps({
   appendIcon: String,
   active: Boolean,
   danger: Boolean,
+  /** Needs-attention state (e.g. missing encryption key) */
+  attention: Boolean,
   keepOpen: Boolean,
 })
 
@@ -63,12 +71,46 @@ const slots = useSlots()
 const hasSubmenu = !!slots.submenu
 const showSubmenu = ref(false)
 
-const iconStyle = props.danger ? { color: 'var(--color-danger-600)' } : { color: 'var(--color-slate-400)' }
+const buttonClasses = computed(() => {
+  if (props.attention) return 'menu-item-attention'
+  if (props.danger) return 'menu-item-danger text-slate-700 hover:bg-slate-50'
+  if (props.active) return 'bg-primary-50 text-primary-600'
+  return 'text-slate-700 hover:bg-slate-50'
+})
+
+const iconStyle = computed(() => {
+  if (props.danger || props.attention) return { color: 'var(--color-danger-600)' }
+  return { color: 'var(--color-slate-400)' }
+})
+
+const appendIconClass = computed(() => {
+  if (props.attention || props.danger) return 'menu-item-append-attention'
+  return 'text-slate-400'
+})
 </script>
 
 <style scoped>
 .menu-item-wrapper {
   position: relative;
+}
+
+.menu-item-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.menu-item-attention {
+  background: var(--color-danger-50);
+  color: var(--color-danger-600);
+}
+
+.menu-item-attention:hover {
+  background: #fecaca;
+}
+
+.menu-item-append-attention {
+  color: var(--color-danger-600);
 }
 
 .submenu {

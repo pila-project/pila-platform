@@ -87,19 +87,30 @@
         >
           <template #item.title="{ item }">
             <div class="assign-cell-title">
-              <vueScopeComponent :id="item.id" :path="['name']" />
+              <PTooltip :text="assignmentData[item.id]?.name || ''" block only-if-overflow class="assign-cell-title-text-wrap">
+                <span class="assign-cell-title-text">
+                  <vueScopeComponent :id="item.id" :path="['name']" />
+                </span>
+              </PTooltip>
               <span v-if="assignmentData[item.id]?.assignmentType" class="assign-type-dot"> . </span>
               <span v-if="assignmentData[item.id]?.assignmentType" :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)">
                 {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
               </span>
             </div>
-            <div class="assign-cell-desc">
-              <vueScopeComponent :id="item.id" :path="['description']">
-                <template v-slot="data">
-                  {{ data.value || t('no-description') }}
-                </template>
-              </vueScopeComponent>
-            </div>
+            <PTooltip
+              :text="assignmentData[item.id]?.description || ''"
+              position="top"
+              block
+              only-if-overflow
+            >
+              <div class="assign-cell-desc assign-cell-desc--clamp">
+                <vueScopeComponent :id="item.id" :path="['description']">
+                  <template v-slot="data">
+                    {{ data.value || t('no-description') }}
+                  </template>
+                </vueScopeComponent>
+              </div>
+            </PTooltip>
           </template>
           <template #item.dueDate="{ item }">
             <span class="assign-cell-text">
@@ -366,7 +377,7 @@
   import { useRouter, onBeforeRouteLeave } from 'vue-router'
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable } from '@/components/ui/index.js'
+  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable, PTooltip } from '@/components/ui/index.js'
   import { useFeedback } from '@/composables/useFeedback.js'
   import { useAssignmentArchive } from '@/composables/useAssignmentArchive.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -941,7 +952,7 @@
       showSuccessDialog(t('assignment-successfully-created'))
     } catch (e) {
       console.error('[assignments-list] duplicate error:', e)
-      toastError(t('something-went-wrong') || 'Something went wrong. Please try again.')
+      toastError(t('something-went-wrong'))
     } finally {
       duplicateConfirmLoading.value = false
     }
@@ -1118,11 +1129,11 @@
           loadAssignmentData(current.value)
         }
         if (lastSaveWasDraft.value) {
-          showSuccessDialog(t('draft-saved-successfully') || 'Draft saved successfully')
+          showSuccessDialog(t('draft-saved-successfully'))
         } else if (wasCreating.value) {
           showSuccessDialog(t('assignment-successfully-created'))
         } else {
-          showSuccessDialog(t('assignment-updated-successfully') || 'Assignment updated successfully')
+          showSuccessDialog(t('assignment-updated-successfully'))
         }
       }
       wasCreating.value = false
@@ -1176,10 +1187,30 @@
 }
 
 .assign-cell-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  min-width: 0;
   font-size: 12px;
   font-weight: 500;
   color: #334155;
   line-height: 1.4;
+}
+
+.assign-cell-title-text-wrap {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.assign-cell-title-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assign-cell-title-text :deep(*) {
+  display: inline;
 }
 
 .assign-cell-desc {
@@ -1188,6 +1219,14 @@
   color: #64748b;
   margin-top: 2px;
   line-height: 1.4;
+}
+
+.assign-cell-desc--clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 .assign-cell-text {
@@ -1263,10 +1302,12 @@
 
 /* Assignment type tags (inline next to title) */
 .assign-type-dot {
+  flex-shrink: 0;
   color: #94a3b8;
   font-weight: 400;
 }
 .assign-type-tag {
+  flex-shrink: 0;
   font-size: 12px;
   font-weight: 500;
 }

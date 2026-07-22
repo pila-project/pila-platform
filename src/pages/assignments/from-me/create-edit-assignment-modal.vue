@@ -22,6 +22,7 @@
           @close="$emit('close')"
           @saved="$emit('saved', $event)"
           @update:width="w => modalWidth = w"
+          @preview-active="childPreviewActive = $event"
         />
       </div>
     </div>
@@ -30,6 +31,7 @@
 
 <script setup>
   import { ref, onMounted, onBeforeUnmount } from 'vue'
+  import { lockBodyScroll, unlockBodyScroll } from '@/utils/body-scroll-lock.js'
   import ResearcherToTeacherAssignment from './researcher-to-teacher.vue'
   import TeacherToStudentAssignment from './teacher-to-student.vue'
 
@@ -47,20 +49,21 @@
   const emit = defineEmits(['close', 'saved'])
   const modalRef = ref(null)
   const modalWidth = ref('984px')
+  const childPreviewActive = ref(false)
 
   function handleKeydown(e) {
-    if (e.key === 'Escape') emit('close')
+    if (e.key === 'Escape' && !childPreviewActive.value) emit('close')
   }
 
   onMounted(() => {
     document.addEventListener('keydown', handleKeydown)
-    document.body.style.overflow = 'hidden'
+    lockBodyScroll()
     modalRef.value?.focus()
   })
 
   onBeforeUnmount(() => {
     document.removeEventListener('keydown', handleKeydown)
-    document.body.style.overflow = ''
+    unlockBodyScroll()
   })
 </script>
 
@@ -68,7 +71,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,7 +85,7 @@
 
 .modal-dialog {
   position: relative;
-  z-index: 50;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   background: white;

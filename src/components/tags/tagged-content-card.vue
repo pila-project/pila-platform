@@ -144,29 +144,37 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div v-if="assignmentPicker" class="pcard-actions">
+    <!-- Actions — @click.stop on container blocks native bubble to card root (assignment picker). -->
+    <div v-if="assignmentPicker" class="pcard-actions" @click.stop>
       <PButton
         variant="secondary"
         size="sm"
         icon="lucide:eye"
         :text="t('preview')"
-        @click.stop="$emit('preview')"
+        @click="onPreviewClick"
         class="flex-1"
       />
     </div>
-    <div v-else-if="assignmentContentView" class="pcard-actions">
+    <div v-else-if="assignmentContentView" class="pcard-actions" @click.stop>
+      <PButton
+        variant="secondary"
+        size="sm"
+        icon="lucide:eye"
+        :text="t('preview')"
+        @click="onPreviewClick"
+        class="flex-1"
+      />
       <PButton
         variant="secondary"
         color="danger"
         size="sm"
         icon="lucide:trash-2"
         :text="t('delete')"
-        @click.stop="$emit('remove')"
+        @click="onRemoveClick"
         class="flex-1"
       />
     </div>
-    <div v-else class="pcard-actions">
+    <div v-else class="pcard-actions" @click.stop>
       <PButton
         variant="secondary"
         size="sm"
@@ -268,7 +276,7 @@ import { PCheckbox } from '@/components/ui/index.js'
     draggable: { type: Boolean, default: true },
     /** Assignment wizard content picker: checkbox + in-assignment badge only. */
     assignmentPicker: Boolean,
-    /** Assignment wizard step 2 list: order badge + delete only (no preview/info). */
+    /** Assignment wizard step 2 list: order badge, preview, delete. */
     assignmentContentView: Boolean,
   })
 
@@ -290,6 +298,16 @@ import { PCheckbox } from '@/components/ui/index.js'
 
   function onAddClick() {
     if (!addDisabled.value) emit('add')
+  }
+
+  function onPreviewClick(event) {
+    event?.stopPropagation?.()
+    emit('preview')
+  }
+
+  function onRemoveClick(event) {
+    event?.stopPropagation?.()
+    emit('remove')
   }
 
   function onCardClick() {

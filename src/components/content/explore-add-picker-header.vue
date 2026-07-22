@@ -13,15 +13,19 @@
       icon="lucide:x"
       iconOnly
       class="eap-close"
-      aria-label="Close"
+      :aria-label="t('close')"
       @click="$emit('close')"
     />
   </div>
 </template>
 
 <script setup>
+import { useStore } from 'vuex'
 import PButton from '@/components/ui/PButton.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 defineProps({
   title: { type: String, required: true },

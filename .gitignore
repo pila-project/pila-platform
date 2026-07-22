@@ -25,6 +25,9 @@ figma-reference/
 
 src/pages/component-showcase.vue
 
+# Local-only notes / handoffs (do not commit contents)
+local/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

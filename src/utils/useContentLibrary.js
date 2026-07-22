@@ -2,7 +2,8 @@ import { ref, reactive, computed, watch } from 'vue'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import { beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
 import {
-  nameCache, tagCache, tagNameCache,
+  nameCacheVersion, getCachedContentName,
+  tagCache, tagNameCache,
   loadTagHierarchy, getCachedTagHierarchy,
   prefetchBatch, loadExploreCache, persistExploreCache,
   restoreTagHierarchyFromCache, invalidateAll,
@@ -182,13 +183,15 @@ export function useContentLibrary(store) {
   })
 
   const filteredContentList = computed(() => {
+    void nameCacheVersion.value
     let list = currentContentList.value
+    const lang = store.getters.language()
 
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase()
       list = list.filter(id => {
-        const name = nameCache.get(id)
-        return name ? name.toLowerCase().includes(q) : true
+        const name = getCachedContentName(id, lang)
+        return name ? name.toLowerCase().includes(q) : false
       })
     }
 

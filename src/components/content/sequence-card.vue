@@ -7,21 +7,25 @@
     @dragleave="!archived && (isDragOver = false)"
     @drop.prevent.stop="onDrop"
   >
-    <!-- Header -->
+    <!-- Header — double-click opens view sequence content (UIUX-90) -->
     <div class="sc-header">
-      <div class="sc-header-content">
+      <div
+        class="sc-header-content sc-header-content--openable"
+        :title="t('view-sequence-content')"
+        @dblclick="openSequenceContent"
+      >
         <div v-if="isNew && !archived" class="sc-new-badge">{{ t('new') }}</div>
         <div class="sc-title-row">
           <h3 class="sc-title">{{ seqState?.name || t('untitled') }}</h3>
           <span v-if="archived" class="sc-archived-badge">{{ t('archived') }}</span>
-          <div class="sc-title-actions">
+          <div class="sc-title-actions" @dblclick.stop>
             <button
               v-if="!archived"
               type="button"
               class="sc-heart-btn"
               :class="{ 'sc-heart-btn--active': favorited }"
               :aria-pressed="favorited"
-              :aria-label="favorited ? (t('remove-from-favorites') || 'Remove from favorites') : (t('add-to-favorites') || 'Add to favorites')"
+              :aria-label="favorited ? (t('remove-from-favorites')) : (t('add-to-favorites'))"
               @click.stop="$emit('toggle-favorite')"
             >
               <LucideIcon name="heart" :size="14" />
@@ -42,7 +46,7 @@
             </template>
             <PMenuItem
               v-else
-              :title="t('restore') || 'Restore'"
+              :title="t('restore')"
               prepend-icon="lucide:archive-restore"
               @click="$emit('restore')"
             />
@@ -136,6 +140,10 @@ function onFooterDragLeave() {
 
 function onFooterDrop(e) {
   onDrop(e)
+}
+
+function openSequenceContent() {
+  emit('view-content')
 }
 
 function applySeqStateFromAgent(state) {
@@ -271,6 +279,15 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.sc-header-content--openable {
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.sc-header-content--openable:hover {
+  background: #f8fafc;
 }
 
 .sc-new-badge {

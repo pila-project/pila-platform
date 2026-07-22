@@ -28,4 +28,5 @@ export { default as PUnifiedFilterDateSection } from './PUnifiedFilterDateSectio
 export { default as PUnifiedFilterTabSection } from './PUnifiedFilterTabSection.vue'
 export { default as PFileUpload } from './PFileUpload.vue'
 export { default as PTooltip } from './PTooltip.vue'
+export { default as PTruncatedText } from './PTruncatedText.vue'
 export { default as PToastContainer } from './PToastContainer.vue'

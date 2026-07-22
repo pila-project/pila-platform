@@ -8,7 +8,9 @@
   >
     <div class="group-card-header">
       <div class="group-card-title-row">
-        <h3 class="group-card-name">{{ groupName }}</h3>
+        <PTooltip :text="groupName" block only-if-overflow class="group-card-name-wrap">
+          <h3 class="group-card-name">{{ groupName }}</h3>
+        </PTooltip>
         <span v-if="archived" class="group-card-archived-badge">{{ t('archived') }}</span>
       </div>
       <PMenu align-right>
@@ -41,7 +43,7 @@
         />
         <PMenuItem
           v-if="archived"
-          :title="t('restore') || 'Restore'"
+          :title="t('restore')"
           prepend-icon="lucide:archive-restore"
           @click="$emit('unarchive')"
         />
@@ -57,7 +59,9 @@
       </div>
       <div class="group-card-row">
         <span class="group-card-label">{{ t('subject') }}</span>
-        <span class="group-card-value">{{ groupSubject || '—' }}</span>
+        <PTooltip :text="groupSubject" block only-if-overflow class="group-card-value-wrap">
+          <span class="group-card-value group-card-value--truncate">{{ groupSubject || '—' }}</span>
+        </PTooltip>
       </div>
       <div class="group-card-students-row">
         <div class="group-card-row group-card-row--inline">
@@ -79,7 +83,7 @@
           class="group-card-restore-btn"
           @click="$emit('unarchive')"
         >
-          {{ t('restore') || 'Restore' }}
+          {{ t('restore') }}
         </button>
       </div>
     </div>
@@ -89,7 +93,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
-import { PMenu, PMenuItem } from '@/components/ui/index.js'
+import { PMenu, PMenuItem, PTooltip } from '@/components/ui/index.js'
 import PButton from '@/components/ui/PButton.vue'
 import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
 
@@ -105,7 +109,12 @@ function t(slug) { return store.getters.t(slug) }
 const groupData = computed(() => store.state.groups.groups[props.groupId] || {})
 const groupName = computed(() => groupData.value.name || t('unnamed'))
 const groupGrade = computed(() => groupData.value.grade || '')
-const groupSubject = computed(() => groupData.value.subject || '')
+/** Supports string today; joins arrays when multi-subject (UIUX-110) lands */
+const groupSubject = computed(() => {
+  const subject = groupData.value.subject
+  if (Array.isArray(subject)) return subject.filter(Boolean).join(', ')
+  return subject || ''
+})
 const memberCount = computed(() =>
   activeStudentCountInGroup(props.groupId, props.students, store),
 )
@@ -125,8 +134,12 @@ function onDrop(event) {
   isDragOver.value = false
   try {
     const data = JSON.parse(event.dataTransfer.getData('application/json'))
-    if (data?.id) {
-      emit('drop-student', data.id)
+    // Multi-select drag sends { ids: [...] }; single may still send { id } only.
+    const ids = Array.isArray(data?.ids) && data.ids.length
+      ? data.ids.filter(Boolean)
+      : (data?.id ? [data.id] : [])
+    if (ids.length) {
+      emit('drop-student', ids)
     }
   } catch (e) { /* ignore invalid drop data */ }
 }
@@ -160,6 +173,11 @@ function onDrop(event) {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.group-card-name-wrap {
   min-width: 0;
   flex: 1;
 }
@@ -230,6 +248,18 @@ function onDrop(event) {
 .group-card-value {
   font-weight: 500;
   color: #334155;
+}
+
+.group-card-value-wrap {
+  min-width: 0;
+  flex: 1;
+}
+
+.group-card-value--truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .group-card-students-row {

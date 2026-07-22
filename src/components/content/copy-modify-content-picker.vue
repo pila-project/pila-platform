@@ -101,7 +101,7 @@ const addSelectedButtonLabel = computed(() => {
   const total = cbSelectedItems.size
   const titleSuffix = props.copyTitle ? ` ${t('to')} "${props.copyTitle}"` : ''
   if (newCount > 0 && newCount < total) {
-    return `${t('add-selected')} (${newCount} ${t('new') || 'new'})${titleSuffix}`
+    return `${t('add-selected')} (${newCount} ${t('new')})${titleSuffix}`
   }
   if (newCount > 0) {
     return `${t('add-selected')} (${newCount})${titleSuffix}`
@@ -117,7 +117,7 @@ function toggleSelection(id) {
 
 function addOne(id) {
   if (isInCopy(id)) {
-    toastInfo(t('already-in-sequence') || 'This item is already in the sequence')
+    toastInfo(t('already-in-sequence'))
     return
   }
   emit('add', [id])
@@ -130,7 +130,7 @@ function addSelected() {
   const skipped = cbSelectedItems.size - newIds.length
   if (!newIds.length) {
     if (skipped > 0) {
-      toastInfo(t('all-selected-already-in-sequence') || 'All selected items are already in this sequence')
+      toastInfo(t('all-selected-already-in-sequence'))
     }
     return
   }
@@ -139,7 +139,7 @@ function addSelected() {
   close()
   if (skipped > 0) {
     toastInfo(
-      `${newIds.length} ${t('items-added') || 'added'}. ${skipped} ${t('already-in-sequence') || 'already in sequence'}.`,
+      `${newIds.length} ${t('items-added')}. ${skipped} ${t('already-in-sequence')}.`,
     )
   }
 }
@@ -149,7 +149,7 @@ function addSelected() {
 .cb-overlay {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: var(--z-modal-nested);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,7 +161,7 @@ function addSelected() {
 }
 .cb-modal {
   position: relative;
-  z-index: 61;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   background: white;

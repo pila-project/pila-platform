@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import getName from './name-and-translation-for-content.js'
 import getImageFromContent from './image-ref-for-content.js'
 import { localCache } from './local-cache.js'
@@ -63,8 +64,34 @@ function dedupedFetch(key, fetchFn) {
 
 // ── Public API ──
 
-function nameCacheKey(id, lang) {
+/** Bumped when nameCache entries change so search filters can recompute. */
+export const nameCacheVersion = ref(0)
+
+function bumpNameCacheVersion() {
+  nameCacheVersion.value++
+}
+
+export function nameCacheKey(id, lang) {
   return `${id}:${lang || 'en'}`
+}
+
+/** Sync read: lang-keyed content name, with legacy bare-id fallback (sequences). */
+export function getCachedContentName(id, lang) {
+  if (!id) return null
+  return nameCache.get(nameCacheKey(id, lang)) ?? nameCache.get(id) ?? null
+}
+
+export function setCachedContentName(id, name, lang) {
+  if (!id || !name) return
+  nameCache.set(nameCacheKey(id, lang), name)
+  bumpNameCacheVersion()
+}
+
+/** Sequences / assignments store display names under bare id. */
+export function setCachedLegacyName(id, name) {
+  if (!id || !name) return
+  nameCache.set(id, name)
+  bumpNameCacheVersion()
 }
 
 export function getContentName(id, lang) {
@@ -72,7 +99,10 @@ export function getContentName(id, lang) {
   if (nameCache.has(key)) return Promise.resolve(nameCache.get(key))
   return dedupedFetch(`name:${key}`, async () => {
     const name = await getName(id, lang)
-    if (name) nameCache.set(key, name)
+    if (name) {
+      nameCache.set(key, name)
+      bumpNameCacheVersion()
+    }
     return name
   })
 }
@@ -228,7 +258,10 @@ export { nameCache, metadataCache, tagCache, imageCache, tagNameCache }
 
 function applyMapsToMemory(maps) {
   if (!maps) return
-  if (maps.names) for (const [k, v] of maps.names) nameCache.set(k, v)
+  if (maps.names) {
+    for (const [k, v] of maps.names) nameCache.set(k, v)
+    bumpNameCacheVersion()
+  }
   if (maps.metadata) for (const [k, v] of maps.metadata) metadataCache.set(k, v)
   if (maps.tags) for (const [k, v] of maps.tags) tagCache.set(k, v)
   if (maps.images) for (const [k, v] of maps.images) imageCache.set(k, v)

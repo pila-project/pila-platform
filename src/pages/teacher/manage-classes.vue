@@ -34,7 +34,7 @@
               <PButton
                 icon="lucide:users"
                 variant="secondary"
-                :text="t('add-students-to-group') || t('add-to-groups')"
+                :text="t('add-students-to-group')"
                 size="sm"
                 @click="showAddToGroupsModal = true; selectedGroupsForAssign = []; groupSearchQuery = ''"
               />
@@ -80,6 +80,26 @@
           </PUnifiedFilter>
         </div>
 
+        <PAlert
+          v-if="showEncryptionBanner"
+          variant="warning"
+          icon="lucide:triangle-alert"
+          closable
+          class="encryption-key-banner"
+          @close="encryptionBannerDismissed = true"
+        >
+          <div class="encryption-key-banner-body">
+            <span>{{ encryptionBannerText }}</span>
+            <button
+              type="button"
+              class="encryption-key-banner-cta"
+              @click="showNamePasswordModal = true"
+            >
+              {{ t('enter-encryption-key-word') }}
+            </button>
+          </div>
+        </PAlert>
+
         <!-- Student table -->
         <PTable
             :headers="studentHeaders"
@@ -94,6 +114,8 @@
             :no-data-text="t('you-currently-have-no-students')"
             :items-per-page-text="t('rows-per-page')"
             draggable-rows
+            :get-drag-label="studentDragLabel"
+            :format-drag-count="formatStudentDragCount"
           >
             <template #item.displayName="{ item }">
               <div class="student-name-cell">
@@ -113,7 +135,7 @@
               <span class="last-login-cell">{{ formatLastLogin(item.id) }}</span>
             </template>
             <template #item.groupNames="{ item }">
-              <PTooltip :text="item.groupNames">
+              <PTooltip :text="item.groupNames" only-if-overflow>
                 <span class="groups-cell">{{ item.groupNames || '--' }}</span>
               </PTooltip>
             </template>
@@ -215,7 +237,7 @@
           />
 
           <p v-if="!filteredGroups.length && groupSearchFilter.trim()" class="no-results-text">
-            {{ t('no-results') || 'No results' }}
+            {{ t('no-results') }}
           </p>
           <PPagination
             v-if="filteredGroups.length > groupsPerPage"
@@ -236,7 +258,7 @@
       v-if="userModalUser"
       :id="userModalUser"
       @close="userModalUser = null"
-      @saved="showSuccessDialog(t('student-updated-successfully') || 'Student updated successfully')"
+      @saved="showSuccessDialog(t('student-updated-successfully'))"
       @open-login-code="openLoginCodeModal({ id: $event }); userModalUser = null"
     />
 
@@ -340,7 +362,7 @@
         <PButton
           v-if="viewProfileUser?.archived"
           variant="secondary"
-          :text="t('restore') || 'Restore'"
+          :text="t('restore')"
           @click="restoreConfirmStudent = viewProfileUser; viewProfileUser = null"
         />
         <PButton variant="primary" :text="t('edit-student')" @click="userModalUser = viewProfileUser; viewProfileUser = null" />
@@ -533,7 +555,7 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('edit') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('modify-the-group-details') || 'Modify the group details' }}</p>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('modify-the-group-details') }}</p>
         </div>
       </template>
       <template #body>
@@ -570,9 +592,9 @@
     <PAlertDialog
       v-if="studentDuplicatePrompt"
       variant="warning"
-      :title="t('duplicate-name-title') || 'Name already exists'"
+      :title="t('duplicate-name-title')"
       :description="duplicateStudentDescription"
-      :confirm-text="t('continue-anyway') || 'Continue anyway'"
+      :confirm-text="t('continue')"
       :cancel-text="t('cancel')"
       @confirm="confirmStudentDuplicateProceed"
       @cancel="cancelStudentDuplicateProceed"
@@ -582,9 +604,9 @@
     <PAlertDialog
       v-if="bulkDuplicatePrompt"
       variant="warning"
-      :title="t('duplicate-name-title') || 'Name already exists'"
+      :title="t('duplicate-name-title')"
       :description="bulkDuplicateDescription"
-      :confirm-text="t('continue-anyway') || 'Continue anyway'"
+      :confirm-text="t('continue')"
       :cancel-text="t('cancel')"
       :confirm-loading="bulkDuplicateConfirmLoading"
       @confirm="confirmBulkDuplicateProceed"
@@ -595,9 +617,9 @@
     <PAlertDialog
       v-if="duplicatePrompt"
       variant="warning"
-      :title="t('duplicate-name-title') || 'Name already exists'"
+      :title="t('duplicate-name-title')"
       :description="duplicateGroupDescription"
-      :confirm-text="t('continue-anyway') || 'Continue anyway'"
+      :confirm-text="t('continue')"
       :cancel-text="t('cancel')"
       @confirm="confirmDuplicateProceed"
       @cancel="cancelDuplicateProceed"
@@ -633,7 +655,7 @@
       variant="warning"
       :title="archiveGroupConfirmTitle"
       :description="archiveGroupConfirmDescription"
-      :confirm-text="t('archive') || 'Archive'"
+      :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
       @confirm="executeArchiveGroup"
       @cancel="archiveConfirmGroup = null"
@@ -645,7 +667,7 @@
       variant="warning"
       :title="bulkArchiveConfirmTitle"
       :description="bulkArchiveConfirmDescription"
-      :confirm-text="t('archive') || 'Archive'"
+      :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
       @confirm="executeArchiveSelected"
       @cancel="archiveSelectedConfirm = false"
@@ -657,7 +679,7 @@
       variant="notification"
       :title="t('restore-student-confirm-title')"
       :description="t('restore-student-confirm-description')"
-      :confirm-text="t('restore') || 'Restore'"
+      :confirm-text="t('restore')"
       :cancel-text="t('cancel')"
       @confirm="executeRestoreStudent"
       @cancel="restoreConfirmStudent = null"
@@ -669,7 +691,7 @@
       variant="notification"
       :title="restoreGroupConfirmTitle"
       :description="t('restore-group-confirm-description')"
-      :confirm-text="t('restore') || 'Restore'"
+      :confirm-text="t('restore')"
       :cancel-text="t('cancel')"
       @confirm="executeRestoreGroup"
       @cancel="restoreConfirmGroup = null"
@@ -679,10 +701,10 @@
     <PAlertDialog
       v-if="groupCreatedPromptId"
       variant="success"
-      :title="t('group-created-successfully') || 'Group created successfully'"
-      :description="t('you-can-now-add-students-to-this-group') || 'You can now add students to this group'"
-      :confirm-text="t('add-students-to-group') || 'Add students to group'"
-      :cancel-text="t('continue-without-adding') || 'Continue without adding'"
+      :title="t('group-created-successfully')"
+      :description="t('you-can-now-add-students-to-this-group')"
+      :confirm-text="t('add-students-to-group')"
+      :cancel-text="t('continue-without-adding')"
       @confirm="openGroupManageAfterCreate"
       @cancel="groupCreatedPromptId = null"
     />
@@ -703,7 +725,7 @@
     <PAlertDialog
       v-if="addToGroupsResults"
       variant="success"
-      title="Students successfully added to the groups"
+      :title="t('students-successfully-added-to-the-groups')"
       :confirm-text="t('continue')"
       cancel-text=""
       width="512px"
@@ -966,7 +988,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" color="danger" :text="t('close')" @click="loginCodeStudent = null" />
-        <PButton variant="primary" :text="t('download-login') || t('download-login-code') || 'Download login'" @click="downloadLoginCard" />
+        <PButton variant="primary" :text="t('download-login')" @click="downloadLoginCard" />
       </template>
     </PModal>
 
@@ -997,7 +1019,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
-import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
+import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlert, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 
@@ -1114,12 +1136,12 @@ const {
 
 const duplicateGroupDescription = computed(() => {
   if (!duplicatePrompt.value) return ''
-  return `${t('duplicate-name-description') || 'An item named'} "${duplicatePrompt.value.existingName}" ${t('already-exists-continue') || 'already exists. Continue anyway?'}`
+  return `${t('duplicate-name-description')} "${duplicatePrompt.value.existingName}" ${t('already-exists-continue')}`
 })
 
 const duplicateStudentDescription = computed(() => {
   if (!studentDuplicatePrompt.value) return ''
-  return `${t('duplicate-name-description') || 'A student named'} "${studentDuplicatePrompt.value.existingName}" ${t('already-exists-continue') || 'already exists. Continue anyway?'}`
+  return `${t('duplicate-name-description')} "${studentDuplicatePrompt.value.existingName}" ${t('already-exists-continue')}`
 })
 
 const bulkDuplicatePrompt = ref(null)
@@ -1231,10 +1253,25 @@ const addingToGroups = ref(false)
 const {
   namePassword,
   hasEncryptionKey,
+  needsEncryptionAttention,
+  isEncryptionKeyInvalid,
+  revalidateEncryptionKey,
   showEncryptionKeyModal: showNamePasswordModal,
   closeEncryptionKeyModal: closeNamePasswordModal,
 } = useEncryptionKey(store)
+// Auto-open only when key is empty (not when wrong — soft signal uses banner)
 showNamePasswordModal.value = !hasEncryptionKey.value
+// Session-only dismiss — resets on full page reload
+const encryptionBannerDismissed = ref(false)
+
+const showEncryptionBanner = computed(() =>
+  needsEncryptionAttention.value && !encryptionBannerDismissed.value
+)
+const encryptionBannerText = computed(() =>
+  isEncryptionKeyInvalid.value
+    ? t('encryption-key-invalid-banner')
+    : t('encryption-key-missing-banner')
+)
 
 // ── Users watcher ──
 let unwatchUsers
@@ -1279,6 +1316,8 @@ watch(
         .then(info => { decryptedNames.set(id, info?.name || '') })
         .catch(() => { decryptedNames.set(id, '') })
     }
+    // Soft-probe key health when we have student ids (wrong vs empty key)
+    revalidateEncryptionKey(ids)
   },
   { immediate: true }
 )
@@ -1296,6 +1335,9 @@ watch(namePassword, async (newKey) => {
         decryptedNames.set(id, '')
       }
     }
+    await revalidateEncryptionKey(currentIds)
+  } else {
+    await revalidateEncryptionKey([])
   }
 })
 
@@ -1540,7 +1582,7 @@ async function executeSaveGroup(name) {
     await Agent.synced()
     await store.dispatch('groups/loadGroups')
     editGroupId.value = null
-    showSuccessDialog(t('group-updated-successfully') || 'Group updated successfully')
+    showSuccessDialog(t('group-updated-successfully'))
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -1744,8 +1786,8 @@ async function executeResetPassword() {
     if (usersState[studentId]) usersState[studentId].secret = newSecret
     resetPasswordStudent.value = null
     showSuccessDialog(
-      t('password-reset-successfully') || 'Password reset successfully',
-      t('new-login-code-is-ready') || 'New login code is ready',
+      t('password-reset-successfully'),
+      t('new-login-code-is-ready'),
       () => { loginCodeStudent.value = { id: studentId } }
     )
   } catch (e) {
@@ -1869,7 +1911,7 @@ async function executeCreateStudentAccount() {
     newStudentNickname.value = ''
     newStudentGrade.value = ''
     showSuccessDialog(
-      t('student-account-created') || 'Student account created',
+      t('student-account-created'),
       null,
       () => { loginCodeStudent.value = { id } }
     )
@@ -1957,7 +1999,7 @@ const validGrades = new Set(['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '
 
 function formatBulkCreateResultMessage(created, skipped) {
   if (skipped > 0) {
-    const reason = t('bulk-duplicate-skipped-reason') || 'duplicate names'
+    const reason = t('bulk-duplicate-skipped-reason')
     return `${created} ${t('student')} ${t('created')}, ${skipped} ${t('skipped')} (${reason})`
   }
   return `${created} ${t('student')} ${t('created')}`
@@ -2041,7 +2083,6 @@ async function handleCSVImport() {
     if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
       toastError(
         t('excel-save-as-csv-first')
-          || 'Excel files are listed for convenience — please save as CSV and upload that file.'
       )
       return
     }
@@ -2176,28 +2217,68 @@ function copyToClipboard(text) {
   navigator.clipboard.writeText(text).catch(() => {})
 }
 
-async function handleDropStudent(groupId, studentId) {
-  if (store.getters['groups/belongs'](studentId, groupId)) {
-    toastInfo(t('student-already-in-group') || 'Student already in group')
+function studentDragLabel(item) {
+  return item?.displayName || t('student')
+}
+
+function formatStudentDragCount(count) {
+  return count === 1
+    ? `1 ${t('student')}`
+    : `${count} ${t('students')}`
+}
+
+/** Drop from student table → group card (supports multi-select drag). */
+async function handleDropStudent(groupId, studentIds) {
+  const ids = (Array.isArray(studentIds) ? studentIds : [studentIds]).filter(Boolean)
+  if (!ids.length) return
+
+  let added = 0
+  let skipped = 0
+  try {
+    for (const studentId of ids) {
+      if (store.getters['groups/belongs'](studentId, groupId)) {
+        skipped++
+        continue
+      }
+      await store.dispatch('groups/addMember', { user_id: studentId, group_id: groupId })
+      added++
+    }
+  } catch (e) {
+    console.error(e)
+    toastError(t('something-went-wrong'))
     return
   }
-  await store.dispatch('groups/addMember', { user_id: studentId, group_id: groupId })
+
   const groupName = store.state.groups.groups[groupId]?.name || t('unnamed')
-  showSuccessDialog(
-    t('student-added-to-group') || 'Student added to group',
-    groupName
-  )
+
+  if (added === 0) {
+    toastInfo(
+      ids.length === 1
+        ? t('student-already-in-group')
+        : t('students-already-in-group'),
+    )
+    return
+  }
+
+  if (added === 1) {
+    showSuccessDialog(t('student-added-to-group'), groupName)
+  } else {
+    showSuccessDialog(
+      t('students-added-to-group').replace('{count}', String(added)),
+      groupName,
+    )
+  }
 }
 
 function handlePrintGroupLoginCodes(groupId) {
   const memberIds = store.getters['groups/members'](groupId)
   if (!memberIds.length) {
-    toastError(t('no-students-in-group') || 'This group has no students.')
+    toastError(t('no-students-in-group'))
     return
   }
   const withCodes = memberIds.filter(id => users[id]?.secret && !users[id]?.archived)
   if (!withCodes.length) {
-    toastError(t('no-active-users-with-login-codes') || 'No active users with login codes.')
+    toastError(t('no-active-users-with-login-codes'))
     return
   }
   window.open(`/teacher/codes?students=${encodeURIComponent(withCodes.join(','))}`)
@@ -2208,7 +2289,7 @@ function printLoginCodes() {
     .filter(s => users[s.id]?.secret && !users[s.id]?.archived)
     .map(s => s.id)
   if (!ids.length) {
-    toastError(t('no-active-users-with-login-codes') || 'No active users with login codes.')
+    toastError(t('no-active-users-with-login-codes'))
     return
   }
   window.open(`/teacher/codes?students=${encodeURIComponent(ids.join(','))}`)
@@ -2671,6 +2752,31 @@ function printLoginCodes() {
   color: #dc2626;
   font-weight: 500;
   font-size: 11px;
+}
+
+/* Encryption key missing banner (UIUX-91) */
+.encryption-key-banner {
+  margin-bottom: 12px;
+}
+.encryption-key-banner-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.encryption-key-banner-cta {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.encryption-key-banner-cta:hover {
+  opacity: 0.85;
 }
 
 /* Assign groups modal */

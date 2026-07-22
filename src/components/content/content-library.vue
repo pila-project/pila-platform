@@ -21,7 +21,7 @@
           v-model:searchQuery="sequenceSearchQuery"
           class="mt-2 sequences-filter"
           compact
-          :placeholder="t('search-sequences') || 'Search sequences'"
+          :placeholder="t('search-sequences')"
         >
           <PUnifiedFilterSection
             id="sequence-status-mobile"
@@ -42,7 +42,7 @@
           v-else
           v-model="sequenceSearchQuery"
           class="mt-2"
-          :placeholder="t('search-sequences') || 'Search sequences'"
+          :placeholder="t('search-sequences')"
           icon="lucide:search"
         />
         <button class="mobile-seq-selector" @click="mobileSeqExpanded = !mobileSeqExpanded">
@@ -96,7 +96,7 @@
               v-model:searchQuery="sequenceSearchQuery"
               class="mt-3 sequences-filter"
               compact
-              :placeholder="t('search-sequences') || 'Search sequences'"
+              :placeholder="t('search-sequences')"
             >
               <PUnifiedFilterSection
                 id="sequence-status"
@@ -117,7 +117,7 @@
               v-else
               v-model="sequenceSearchQuery"
               class="mt-3"
-              :placeholder="t('search-sequences') || 'Search sequences'"
+              :placeholder="t('search-sequences')"
               icon="lucide:search"
             />
             <PButton
@@ -280,13 +280,14 @@
     <!-- Content info modal (Q6) -->
     <PModal
       v-if="infoModalId"
+      layer="nested"
       width="480px"
       no-pad-body
       @close="infoModalId = null"
     >
       <template #title>
         <div>
-          <h2 class="text-lg font-semibold text-zinc-950">{{ t('content-info') || 'Content info' }}</h2>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('content-info') }}</h2>
           <p class="text-xs text-slate-500 mt-0.5 truncate">
             <NameOrTranslatedNameFromItemId :item-id="infoModalId" />
           </p>
@@ -301,7 +302,7 @@
         />
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('close') || 'Close'" @click="infoModalId = null" />
+        <PButton variant="secondary" :text="t('close')" @click="infoModalId = null" />
       </template>
     </PModal>
 
@@ -432,7 +433,7 @@
   import setTagging from '@/utils/set-tagging.js'
   import { MY_CONTENT_TAG } from '@/utils/constants.js'
   import {
-    nameCache, metadataCache, invalidate,
+    nameCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
     getCachedTagHierarchy, prefetchBatch, invalidateNames,
     getContentMetadata, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
@@ -569,11 +570,11 @@
     }
     return (
       t('archive-sequence-confirm')
-      || 'Archive this sequence? It will be removed from your active sequences. You can restore it later.'
     )
   })
 
   const displayedSequenceIds = computed(() => {
+    void nameCacheVersion.value
     let ids = mySequenceIds.value
     if (isTeacherExplore.value) {
       ids = ids.filter(id => matchesStatusFilter(
@@ -588,8 +589,9 @@
     }
     const q = sequenceSearchQuery.value.trim().toLowerCase()
     if (!q) return ids
+    const lang = store.getters.language()
     return ids.filter(id => {
-      const name = (nameCache.get(id) || '').toLowerCase()
+      const name = (getCachedContentName(id, lang) || '').toLowerCase()
       return name.includes(q)
     })
   })
@@ -597,12 +599,12 @@
   const sequenceEmptyMessage = computed(() => {
     if (isFavoritesFilterActive(sequenceFavoritesFilters.value)) {
       if (sequenceSearchQuery.value.trim()) {
-        return t('no-favorites-match-search') || 'No favorites match your search'
+        return t('no-favorites-match-search')
       }
-      return t('no-favorites-yet') || 'No favorites yet'
+      return t('no-favorites-yet')
     }
     if (sequenceSearchQuery.value.trim()) {
-      return t('no-sequences-match-search') || 'No sequences match your search'
+      return t('no-sequences-match-search')
     }
     return t('no-sequences-yet')
   })
@@ -611,17 +613,17 @@
     const hasSearch = !!contentSearchQuery.value.trim()
     if (isSequencesOnlyFilterActive(contentTypeFilters.value)) {
       if (hasSearch) {
-        return t('no-sequences-match-search') || 'No sequences match your search'
+        return t('no-sequences-match-search')
       }
       return t('no-sequences-yet')
     }
     if (isFavoritesFilterActive(contentFavoritesFilters.value)) {
       if (hasSearch) {
-        return t('no-favorites-match-search') || 'No favorites match your search'
+        return t('no-favorites-match-search')
       }
-      return t('no-favorites-yet') || 'No favorites yet'
+      return t('no-favorites-yet')
     }
-    return t('no-results-found') || 'No results found'
+    return t('no-results-found')
   })
 
   const pickerSequenceIds = computed(() => activeSequenceIds.value)
@@ -680,7 +682,7 @@
       }
     } catch (e) {
       console.error('[Explore] addItemsToAssignment failed', assignmentId, e)
-      showError(t('something-went-wrong') || 'Something went wrong')
+      showError(t('something-went-wrong'))
     } finally {
       assignmentSavingId.value = null
     }
@@ -718,7 +720,7 @@
       favoritesState = await toggleExploreFavorite(id, favorites, favoritesState)
     } catch (e) {
       console.error('[Explore] toggleFavorite failed', id, e)
-      showError(t('something-went-wrong') || 'Something went wrong')
+      showError(t('something-went-wrong'))
     }
   }
 
@@ -797,7 +799,7 @@
     const id = payload?.id || sequenceToEdit.value
     sequenceToEdit.value = null
     if (id && payload?.name) {
-      nameCache.set(id, payload.name)
+      setCachedLegacyName(id, payload.name)
       invalidate(id)
     }
     if (id) {
@@ -814,7 +816,7 @@
   function onRestoreSequence(id) {
     void restoreSequence(id).catch((e) => {
       console.error('[Explore] restoreSequence unhandled', id, e)
-      showError(t('something-went-wrong') || 'Something went wrong')
+      showError(t('something-went-wrong'))
     })
   }
 
@@ -834,7 +836,7 @@
       )
     } catch (e) {
       console.error('[Explore] archiveSequence failed', id, e)
-      showError(t('something-went-wrong') || 'Something went wrong')
+      showError(t('something-went-wrong'))
     } finally {
       archiveConfirmLoading.value = false
     }
@@ -890,7 +892,7 @@
     createAssignmentId.value = null
     createAssignmentContentIds.value = []
     if (meta?.asDraft) {
-      showSuccessDialog(t('draft-saved-successfully') || 'Draft saved successfully')
+      showSuccessDialog(t('draft-saved-successfully'))
     } else {
       showSuccessDialog(t('assignment-created-successfully'))
     }
@@ -910,7 +912,7 @@
       )
     } catch (e) {
       console.error('[Explore] addItemsToSequence failed', sequenceId, e)
-      showError(t('something-went-wrong') || 'Something went wrong')
+      showError(t('something-went-wrong'))
     }
   }
 
@@ -1038,7 +1040,7 @@
         const result = states[i]
         const state = result.status === 'fulfilled' ? result.value : null
         if (!isValidSequenceAgentState(state)) return
-        if (state.name) nameCache.set(id, state.name)
+        if (state.name) setCachedLegacyName(id, state.name)
         if (archivedIdSet.has(id) || state.archived) archived.push(id)
         else active.push(id)
       })
@@ -1069,7 +1071,7 @@
       )
     } catch (e) {
       console.error('[Explore] restoreSequence failed', id, e)
-      showError(t('something-went-wrong') || 'Something went wrong')
+      showError(t('something-went-wrong'))
     } finally {
       archivingSequenceIds.delete(id)
     }

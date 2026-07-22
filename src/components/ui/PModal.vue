@@ -1,8 +1,10 @@
 <template>
-  <div
-    class="fixed inset-0 z-50 flex items-center justify-center"
-    @keydown.esc="close('escape')"
-  >
+  <Teleport to="body">
+    <div
+      class="fixed inset-0 flex items-center justify-center"
+      :style="overlayStyle"
+      @keydown.esc="close('escape')"
+    >
       <div
         class="fixed inset-0 bg-black/50 transition-opacity"
         @click="close('outside')"
@@ -11,8 +13,8 @@
         ref="modalRef"
         role="dialog"
         aria-modal="true"
-        class="relative z-50 flex flex-col bg-white rounded-lg shadow-lg overflow-hidden"
-        :style="modalStyle"
+        class="relative flex flex-col bg-white rounded-lg shadow-lg overflow-hidden"
+        :style="panelStyle"
         tabindex="-1"
       >
         <!-- Header -->
@@ -47,13 +49,15 @@
           </slot>
         </div>
       </div>
-  </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import PButton from './PButton.vue'
-import LucideIcon from './LucideIcon.vue'
+import { Z_LAYER_VARS } from '@/design-system/z-layers.js'
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/body-scroll-lock.js'
 
 defineOptions({ inheritAttrs: false })
 
@@ -74,12 +78,32 @@ const props = defineProps({
   },
   persistent: Boolean,
   noPadBody: Boolean,
+  /** Overlay tier — maps to --z-modal-* tokens in tokens.css */
+  layer: {
+    type: String,
+    default: 'modal',
+    validator: value => ['modal', 'nested', 'preview'].includes(value),
+  },
 })
 
 const emit = defineEmits(['close'])
 const modalRef = ref(null)
 
-const modalStyle = computed(() => ({
+const layerZIndex = computed(() => {
+  const tier = {
+    modal: Z_LAYER_VARS.modal,
+    nested: Z_LAYER_VARS.nested,
+    preview: Z_LAYER_VARS.preview,
+  }[props.layer] ?? Z_LAYER_VARS.modal
+  return tier
+})
+
+const overlayStyle = computed(() => ({
+  zIndex: layerZIndex.value,
+}))
+
+const panelStyle = computed(() => ({
+  zIndex: 1,
   width: props.width,
   maxWidth: '90vw',
   ...(props.height !== 'auto'
@@ -93,18 +117,25 @@ function close(reason) {
   emit('close', reason)
 }
 
+const captureEscape = props.layer === 'preview'
+
 function handleKeydown(e) {
-  if (e.key === 'Escape') close('escape')
+  if (e.key !== 'Escape') return
+  if (captureEscape) {
+    e.stopPropagation()
+    e.stopImmediatePropagation()
+  }
+  close('escape')
 }
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeydown)
-  document.body.style.overflow = 'hidden'
+  document.addEventListener('keydown', handleKeydown, captureEscape)
+  lockBodyScroll()
   modalRef.value?.focus()
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleKeydown)
-  document.body.style.overflow = ''
+  document.removeEventListener('keydown', handleKeydown, captureEscape)
+  unlockBodyScroll()
 })
 </script>

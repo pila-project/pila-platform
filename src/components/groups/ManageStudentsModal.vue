@@ -68,7 +68,10 @@
               v-for="student in filteredAvailable"
               :key="student.id"
               class="panel-row"
-              :class="{ 'panel-row--dragging': draggingId === student.id }"
+              :class="{
+                'panel-row--dragging': draggingId === student.id && !multiDragActive,
+                'panel-row--multi-drag': multiDragActive && dragIdSet.has(student.id),
+              }"
               draggable="true"
               @dragstart="onDragStart(student.id, 'available', $event)"
               @dragend="onDragEnd"
@@ -142,7 +145,10 @@
               v-for="student in filteredGroup"
               :key="student.id"
               class="panel-row"
-              :class="{ 'panel-row--dragging': draggingId === student.id }"
+              :class="{
+                'panel-row--dragging': draggingId === student.id && !multiDragActive,
+                'panel-row--multi-drag': multiDragActive && dragIdSet.has(student.id),
+              }"
               draggable="true"
               @dragstart="onDragStart(student.id, 'group', $event)"
               @dragend="onDragEnd"
@@ -179,9 +185,9 @@
   <PAlertDialog
     v-if="showDiscardConfirm"
     variant="warning"
-    :title="t('discard-changes') || 'Discard changes?'"
-    :description="t('unsaved-changes-will-be-lost') || 'Unsaved changes will be lost.'"
-    :confirmText="t('discard') || 'Discard'"
+    :title="t('discard-changes')"
+    :description="t('unsaved-changes-will-be-lost')"
+    :confirmText="t('discard')"
     :cancelText="t('cancel')"
     @confirm="discardAndClose"
     @cancel="showDiscardConfirm = false"
@@ -189,7 +195,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted, watch } from 'vue'
+import { ref, computed, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 import { PModal, PButton, PBadge, PUnifiedFilter, PUnifiedFilterSection, PCheckbox, PAlertDialog } from '@/components/ui/index.js'
@@ -250,6 +256,10 @@ watch(encryptionKey, (newKey) => {
 const draggingId = ref(null)
 const dragSource = ref(null)
 const dragTarget = ref(null)
+/** When multi-select drag is active, all ids being moved (for highlight + ghost). */
+const dragIdSet = reactive(new Set())
+const multiDragActive = computed(() => dragIdSet.size > 1)
+let dragGhostEl = null
 
 const groupName = computed(() => store.state.groups.groups[props.groupId]?.name || t('unnamed'))
 
@@ -319,18 +329,138 @@ function toggleAllGroup() {
 }
 
 // Drag handlers
+function selectionForSource(source) {
+  return source === 'available' ? selectedAvailable : selectedGroup
+}
+
+/** If the dragged row is part of a multi-selection, move the whole selection. */
+function resolveDragIds(studentId, source) {
+  const selected = selectionForSource(source)
+  if (selected.has(studentId) && selected.size > 1) {
+    return [...selected]
+  }
+  return [studentId]
+}
+
+function leadNameFor(id) {
+  const n = nameMap[id]
+  if (!n) return t('student')
+  // nameMap is stored lowercased for search — title-case for the ghost
+  return n.replace(/\b\w/g, c => c.toUpperCase())
+}
+
+function formatDragCount(count) {
+  return count === 1
+    ? `1 ${t('student')}`
+    : `${count} ${t('students')}`
+}
+
+function cleanupDragGhost() {
+  if (dragGhostEl?.parentNode) {
+    dragGhostEl.parentNode.removeChild(dragGhostEl)
+  }
+  dragGhostEl = null
+}
+
+function setMultiStudentDragImage(event, ids) {
+  cleanupDragGhost()
+  const lead = leadNameFor(ids[0])
+  const countText = formatDragCount(ids.length)
+
+  const el = document.createElement('div')
+  el.setAttribute('aria-hidden', 'true')
+  Object.assign(el.style, {
+    position: 'fixed',
+    top: '-9999px',
+    left: '-9999px',
+    zIndex: '100000',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+    minWidth: '160px',
+    maxWidth: '240px',
+    padding: '10px 12px',
+    borderRadius: '8px',
+    background: '#1e293b',
+    color: '#fff',
+    boxShadow: '0 8px 24px rgb(15 23 42 / 0.28), 0 0 0 1px rgb(255 255 255 / 0.08)',
+    fontFamily: 'inherit',
+    pointerEvents: 'none',
+  })
+
+  const stack = document.createElement('div')
+  Object.assign(stack.style, {
+    position: 'absolute',
+    inset: '4px -3px -3px 4px',
+    borderRadius: '8px',
+    background: '#334155',
+    zIndex: '-1',
+  })
+  const stack2 = stack.cloneNode()
+  Object.assign(stack2.style, {
+    inset: '7px -5px -5px 7px',
+    background: '#475569',
+    zIndex: '-2',
+  })
+  el.appendChild(stack2)
+  el.appendChild(stack)
+
+  const leadEl = document.createElement('div')
+  Object.assign(leadEl.style, {
+    fontSize: '13px',
+    fontWeight: '600',
+    lineHeight: '1.3',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+  leadEl.textContent = lead || countText
+
+  const countEl = document.createElement('div')
+  Object.assign(countEl.style, {
+    fontSize: '11px',
+    fontWeight: '500',
+    lineHeight: '1.3',
+    color: '#cbd5e1',
+  })
+  countEl.textContent = countText
+
+  el.appendChild(leadEl)
+  el.appendChild(countEl)
+  document.body.appendChild(el)
+  dragGhostEl = el
+  event.dataTransfer.setDragImage(el, 16, 16)
+  requestAnimationFrame(() => cleanupDragGhost())
+}
+
 function onDragStart(studentId, source, event) {
+  const ids = resolveDragIds(studentId, source)
   draggingId.value = studentId
   dragSource.value = source
+  dragIdSet.clear()
+  ids.forEach(id => dragIdSet.add(id))
+
   event.dataTransfer.effectAllowed = 'move'
+  // Keep single id for legacy; multi is resolved from dragIdSet / selection on drop
   event.dataTransfer.setData('text/plain', studentId)
+
+  if (ids.length > 1) {
+    setMultiStudentDragImage(event, ids)
+  }
 }
 
 function onDragEnd() {
   draggingId.value = null
   dragSource.value = null
   dragTarget.value = null
+  dragIdSet.clear()
+  cleanupDragGhost()
 }
+
+onBeforeUnmount(() => {
+  dragIdSet.clear()
+  cleanupDragGhost()
+})
 
 function onDragOver(target) {
   // Only highlight if dragging to the opposite panel
@@ -349,28 +479,26 @@ function onDragLeave(target, event) {
 function onDrop(target) {
   const studentId = draggingId.value
   const source = dragSource.value
+  const ids = dragIdSet.size
+    ? [...dragIdSet]
+    : (studentId ? resolveDragIds(studentId, source) : [])
+
   dragTarget.value = null
   draggingId.value = null
+  dragIdSet.clear()
+  cleanupDragGhost()
 
-  if (!studentId || source === target) return
+  if (!ids.length || !source || source === target) {
+    dragSource.value = null
+    return
+  }
 
   if (target === 'group') {
-    // If the dragged student is part of a multi-selection, move all selected
-    if (selectedAvailable.has(studentId) && selectedAvailable.size > 1) {
-      const ids = [...selectedAvailable]
-      for (const id of ids) addToGroup(id)
-      selectedAvailable.clear()
-    } else {
-      addToGroup(studentId)
-    }
+    for (const id of ids) addToGroup(id)
+    ids.forEach(id => selectedAvailable.delete(id))
   } else {
-    if (selectedGroup.has(studentId) && selectedGroup.size > 1) {
-      const ids = [...selectedGroup]
-      for (const id of ids) removeFromGroup(id)
-      selectedGroup.clear()
-    } else {
-      removeFromGroup(studentId)
-    }
+    for (const id of ids) removeFromGroup(id)
+    ids.forEach(id => selectedGroup.delete(id))
   }
   dragSource.value = null
 }
@@ -586,6 +714,14 @@ async function discardAndClose() {
 }
 .panel-row--dragging {
   opacity: 0.4;
+}
+
+/* Multi-select drag: all selected rows in the set look “in motion” */
+.panel-row--multi-drag {
+  opacity: 0.72;
+  outline: 1px dashed #93c5fd;
+  outline-offset: -1px;
+  background: #eff6ff;
 }
 
 .panel-student-name-cell {

@@ -10,7 +10,7 @@ export function buildContentTypeFilterOptions(t) {
   return [
     {
       value: CONTENT_TYPE_FILTER.SEQUENCES_ONLY,
-      label: t('sequences-only') || 'Sequences only',
+      label: t('sequences-only'),
     },
   ]
 }

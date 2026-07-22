@@ -1,13 +1,28 @@
 /**
- * Sequence `items` field — map format only.
+ * Sequence `items` field helpers.
  *
- * Canonical shape:
+ * Write / mutate (canonical only):
  *   { "0": { id: "uuid" }, "1": { id: "uuid" }, ... }
- * Empty sequence: `items: {}`
+ *   Empty sequence: `items: {}`
+ *
+ * Read / preview also tolerates legacy shapes still present in catalog content:
+ *   - string[]
+ *   - { id }[]
+ *   - object maps (including sparse / mixed entry forms)
  */
 
 /** Empty sequence items (Agent create). */
 export const EMPTY_SEQUENCE_ITEMS = Object.freeze({})
+
+/** Extract a content id from a sequence entry (string or { id }). */
+function entryContentId(entry) {
+  if (typeof entry === 'string' && entry) return entry
+  if (entry && typeof entry === 'object') {
+    const id = entry.id
+    if (typeof id === 'string' && id) return id
+  }
+  return null
+}
 
 /** True when `items` is a plain object map (not an array) with valid entry ids. */
 export function isValidMapSequenceItems(items) {
@@ -15,24 +30,40 @@ export function isValidMapSequenceItems(items) {
   if (Array.isArray(items)) return false
   if (typeof items !== 'object') return false
   for (const entry of Object.values(items)) {
-    const id = typeof entry === 'string' ? entry : entry?.id
-    if (!id || typeof id !== 'string') return false
+    if (!entryContentId(entry)) return false
   }
   return true
 }
 
-/** True when Agent sequence state is safe to render and mutate. */
+/** True when Agent sequence state is safe to mutate (map format only). */
 export function isValidSequenceAgentState(state) {
   if (!state || typeof state !== 'object') return false
   return isValidMapSequenceItems(state.items)
 }
 
-/** Ordered content ids from a map-shaped `items` field; [] when invalid. */
+/**
+ * Ordered content ids for display / preview / copy.
+ * Tolerates map + legacy array shapes; skips invalid entries.
+ * Does not change write format — mutations still require a valid map.
+ */
 export function normalizeSequenceItems(items) {
-  if (!isValidMapSequenceItems(items)) return []
-  return Object.values(items)
-    .map((entry) => (typeof entry === 'string' ? entry : entry.id))
-    .filter(Boolean)
+  if (items == null) return []
+
+  if (Array.isArray(items)) {
+    return items.map(entryContentId).filter(Boolean)
+  }
+
+  if (typeof items !== 'object') return []
+
+  const entries = Object.entries(items)
+  // Dense numeric keys ("0","1",…) → stable ascending order (matches sequence order).
+  // Non-numeric keys keep Object.entries insertion order.
+  const allNumeric = entries.length > 0 && entries.every(([k]) => /^\d+$/.test(k))
+  if (allNumeric) {
+    entries.sort((a, b) => Number(a[0]) - Number(b[0]))
+  }
+
+  return entries.map(([, entry]) => entryContentId(entry)).filter(Boolean)
 }
 
 /** Rebuild map with dense numeric keys; preserve extra fields on each entry. */

@@ -43,6 +43,7 @@
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 import LucideIcon from './LucideIcon.vue'
 import { PButton } from './index.js'
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/body-scroll-lock.js'
 
 const props = defineProps({
   variant: {
@@ -92,15 +93,15 @@ const variantIcon = computed(() => variantIcons[props.variant])
 const isLucideIcon = computed(() => variantIcon.value.startsWith('lucide:'))
 const lucideIconName = computed(() => variantIcon.value.slice(7))
 
-onMounted(() => document.body.style.overflow = 'hidden')
-onBeforeUnmount(() => document.body.style.overflow = '')
+onMounted(() => lockBodyScroll())
+onBeforeUnmount(() => unlockBodyScroll())
 </script>
 
 <style scoped>
 .alert-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10050;
+  z-index: var(--z-alert);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -87,4 +87,23 @@
   --datepicker-range-width: 560px;
   --alert-dialog-width: 512px;
   --student-card-width: 394px;
+
+  /* Overlay z-index scale — pick a tier, not a magic number */
+  --z-index-sticky: 10;
+  --z-index-dropdown: 40;
+  --z-index-modal: 50;
+  --z-index-modal-nested: 60;
+  --z-index-modal-preview: 70;
+  --z-index-toast: 10000;
+  --z-index-alert: 10050;
+}
+
+:root {
+  --z-sticky: 10;
+  --z-dropdown: 40;
+  --z-modal: 50;
+  --z-modal-nested: 60;
+  --z-modal-preview: 70;
+  --z-toast: 10000;
+  --z-alert: 10050;
 }

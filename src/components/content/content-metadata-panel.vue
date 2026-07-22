@@ -14,7 +14,7 @@
     <section class="metadata-section">
       <h3 class="metadata-section-heading">
         <LucideIcon name="tags" :size="14" class="metadata-section-icon" />
-        {{ t('tags') || 'Tags' }}
+        {{ t('tags') }}
       </h3>
       <div class="metadata-tags-wrap">
         <TagCloud
@@ -27,7 +27,7 @@
     <section v-if="contentMetadata" class="metadata-section">
       <h3 class="metadata-section-heading">
         <LucideIcon name="info" :size="14" class="metadata-section-icon" />
-        {{ t('details') || 'Details' }}
+        {{ t('details') }}
       </h3>
       <dl class="metadata-grid">
         <div class="metadata-cell">

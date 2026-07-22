@@ -1,5 +1,6 @@
 <template>
   <PModal
+    layer="preview"
     width="90vw"
     height="90vh"
     @close="$emit('close')"
