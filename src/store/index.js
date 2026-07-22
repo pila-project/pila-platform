@@ -1,5 +1,6 @@
 import { generateKeyPair, encrypt, decrypt, decryptSymmetric } from '../encryption.js'
 import { encodeBase64, decodeBase64, encodeUTF8 } from 'tweetnacl-util'
+import { getStoredAdminCredentialSecret } from '../teacher-login-credentials.js'
 
 import roles from './roles.js'
 import groups from './groups.js'
@@ -51,8 +52,20 @@ export default {
       if (userInfo?.name) return userInfo
 
       const key = localStorage.getItem(`zkek-${state.user}`)
+      const providerKeys = [
+        key,
+        state.user ? getStoredAdminCredentialSecret(state.user) : ''
+      ].filter((value, index, values) => value && values.indexOf(value) === index)
 
-      const createdUserInfo = await getTeacherCreatedUserInfo(user, key)
+      let createdUserInfo
+      for (const providerKey of providerKeys) {
+        try {
+          createdUserInfo = await getTeacherCreatedUserInfo(user, providerKey)
+          if (createdUserInfo) break
+        } catch (_error) {
+          // This key may belong to a different account-creation role.
+        }
+      }
 
       if (createdUserInfo) return createdUserInfo
 
