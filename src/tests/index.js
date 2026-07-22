@@ -8,6 +8,7 @@ import adminContentManagementTests from './admin-content-management.js'
 import assignmentGroupVisibilityTests from './assignment-group-visibility.js'
 import adminTeacherGrantTests from './admin-teacher-grants.js'
 import studentsJoiningTeachersTests from './students-joining-teachers.js'
+import assignmentXapiTests from './assignment-xapi.js'
 
 export default function runTests() {
   window.Agent = browserAgent()
@@ -55,6 +56,7 @@ function waitForStoreLoadThenRunTests (store) {
           adminContentManagementTests(store)
           adminTeacherGrantTests(store)
           assignmentGroupVisibilityTests()
+          assignmentXapiTests()
           studentsJoiningTeachersTests(store)
         })
       }

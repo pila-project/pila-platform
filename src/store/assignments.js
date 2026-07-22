@@ -1,8 +1,36 @@
-import { v4 as uuid } from 'uuid'
+import { assignmentXapiStatement } from '../assignment-xapi.js'
 
 const ASSIGNMENTS_TYPE = 'application/json;type=assignment'
+const TEACHER_TO_STUDENT = 'teacher-to-student'
 
 let firstLoad = true
+
+async function writeAssignmentXapi(itemId, assignedClassIds) {
+  try {
+    const [assignment, { auth: { user } }] = await Promise.all([
+      Agent.state(itemId),
+      Agent.environment()
+    ])
+    const statement = assignmentXapiStatement(
+      user,
+      assignment.content,
+      assignedClassIds
+    )
+
+    if (!statement) return
+    assignment.xapi = statement
+    await Agent.synced()
+  }
+  catch (error) {
+    console.warn(`Unable to write assignment xAPI for ${itemId}.`, error)
+  }
+}
+
+function classIdsAfterChange(getters, itemId, assignmentType, groupId, assigned) {
+  const currentClassIds = getters.assignedGroups(itemId, assignmentType, false)
+  if (!assigned) return currentClassIds.filter(id => id !== groupId)
+  return [...new Set([...currentClassIds, groupId])]
+}
 
 export default {
   scope: null,
@@ -82,18 +110,41 @@ export default {
     async assign({getters, dispatch}, { group_id, item_id, assignment_type }) {
       if (getters.isAssigned(group_id, item_id, assignment_type)) return
 
+      const assignedClassIds = classIdsAfterChange(
+        getters,
+        item_id,
+        assignment_type,
+        group_id,
+        true
+      )
+
       await Agent.create({
         active_type: ASSIGNMENTS_TYPE,
         active: { group_id, item_id, assignment_type }
       })
 
       await Agent.synced()
+      if (assignment_type === TEACHER_TO_STUDENT) {
+        await writeAssignmentXapi(item_id, assignedClassIds)
+      }
       await dispatch('load')
     },
-    async unassign({ dispatch }, assignment_id) {
+    async unassign({ getters, dispatch }, assignment_id) {
       const state = await Agent.state(assignment_id)
+      const { group_id, item_id, assignment_type } = state
+      const assignedClassIds = classIdsAfterChange(
+        getters,
+        item_id,
+        assignment_type,
+        group_id,
+        false
+      )
+
       state.archived = true
       await Agent.synced()
+      if (assignment_type === TEACHER_TO_STUDENT) {
+        await writeAssignmentXapi(item_id, assignedClassIds)
+      }
       await dispatch('load')
     }
   }
