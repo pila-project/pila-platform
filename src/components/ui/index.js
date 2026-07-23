@@ -1,6 +1,7 @@
 export { default as PButton } from './PButton.vue'
 export { default as PInput } from './PInput.vue'
 export { default as PSelect } from './PSelect.vue'
+export { default as PMultiSelect } from './PMultiSelect.vue'
 export { default as PModal } from './PModal.vue'
 export { default as PCard } from './PCard.vue'
 export { default as PTable } from './PTable.vue'

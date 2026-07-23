@@ -7,6 +7,7 @@ export default {
   '1-attempt': '1 attempt',
   'account-activity': 'Account Activity',
   'account-created': 'Account Created',
+  'account-status': 'Account Status',
   'actions': 'Actions',
   'add-at-least-one-content-item-to-continue': 'Add at least one content item to continue.',
   'add-content-item-sequence-cta-title': 'Add content item/sequence',
@@ -36,6 +37,7 @@ export default {
   'app-specific-dashboard': 'App Specific Dashboard',
   'applying-key': 'Applying Key',
   'archive': 'Archive',
+  'assignments-restored-successfully': 'Assignments restored successfully',
   'archive-assignment-archived-for-all-success':
     'Assignment archived for everyone. Students in assigned groups will no longer see it. You can restore it from archived assignments.',
   'archive-assignment-archived-for-me-success':
@@ -79,9 +81,19 @@ export default {
   'back': 'Back',
   'basic-information': 'Basic Information',
   'browse-and-select-content-from-library': 'Browse and select content from the library',
+  'bulk-archive-assignments-confirm-intro':
+    'Choose how to archive the {count} selected assignment(s). Nothing is permanently deleted — you can restore them later from archived assignments.',
+  'bulk-archive-assignments-confirm-title': 'Archive {count} selected assignment(s)?',
+  'bulk-archive-assignments-for-all-description':
+    'Hide these assignments for you and unassign all groups so students no longer see them.',
+  'bulk-archive-assignments-for-me-description':
+    'Hide these assignments from your list only. Students in assigned groups may still see them.',
   'bulk-archive-students-confirm-description':
     'Archived students are hidden from your active list. They are not deleted and remain in their groups. Students may still see assignments published to those groups. Restore them anytime from the archived students section.',
   'bulk-archive-students-confirm-title': 'Archive {count} selected student(s)?',
+  'bulk-restore-students-confirm-description':
+    'Selected students will be restored to your active list.',
+  'bulk-restore-students-confirm-title': 'Restore {count} selected student(s)?',
   'bulk-duplicate-already-exists': 'Already exists:',
   'bulk-duplicate-repeated-in-upload': 'Repeated in upload:',
   'bulk-duplicate-skipped-reason': 'duplicate names',
@@ -112,6 +124,7 @@ export default {
     'This removes the assignment from your active list only. Students in assigned groups may still see it until you archive for all or remove those groups. You can restore it from archived assignments.',
   'describe-changes-planned': 'Describe changes you plan to make',
   'describe-your-sequence': 'Describe Your Sequence',
+  'deselect-all': 'Deselect all',
   'details': 'Details',
   'discard': 'Discard',
   'discard-changes': 'Discard changes?',
@@ -216,6 +229,7 @@ export default {
   'reset-password-confirm-description': 'Reset Password Confirm Description',
   'reset-password-confirm-title': 'Reset Password Confirm Title',
   'restore': 'Restore',
+  'unarchive': 'Unarchive',
   'restore-group-confirm-description':
     'The group will return to your active groups list. Students stay assigned to this group.',
   'restore-group-confirm-title': 'Restore group "{name}"?',
@@ -233,6 +247,7 @@ export default {
   'search-sequences': 'Search sequences',
   'search-student': 'Search Student',
   'select-grade': 'Select Grade',
+  'select-one-or-more-subjects': 'Select one or more subjects',
   'select-subject': 'Select Subject',
   'select-target-sequence': 'Select target sequence',
   'selected': 'Selected',
@@ -260,6 +275,7 @@ export default {
   'students-added-to-group': '{count} students added to group',
   'students-already-in-group': 'Students already in group',
   'students-archived-successfully': 'Students Archived Successfully',
+  'students-restored-successfully': 'Students restored successfully',
   'students-can-start-working-right-away': 'Students can start working right away',
   'students-can-submit-after-due-date': 'Students can submit after due date',
   'students-profile': 'Students Profile',

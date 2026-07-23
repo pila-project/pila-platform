@@ -96,6 +96,7 @@ import { useStore } from 'vuex'
 import { PMenu, PMenuItem, PTooltip } from '@/components/ui/index.js'
 import PButton from '@/components/ui/PButton.vue'
 import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
+import { formatGroupSubjects } from '@/utils/group-subjects.js'
 
 const props = defineProps({
   groupId: { type: String, required: true },
@@ -109,12 +110,8 @@ function t(slug) { return store.getters.t(slug) }
 const groupData = computed(() => store.state.groups.groups[props.groupId] || {})
 const groupName = computed(() => groupData.value.name || t('unnamed'))
 const groupGrade = computed(() => groupData.value.grade || '')
-/** Supports string today; joins arrays when multi-subject (UIUX-110) lands */
-const groupSubject = computed(() => {
-  const subject = groupData.value.subject
-  if (Array.isArray(subject)) return subject.filter(Boolean).join(', ')
-  return subject || ''
-})
+/** string (legacy) or string[] — always display as joined label */
+const groupSubject = computed(() => formatGroupSubjects(groupData.value.subject))
 const memberCount = computed(() =>
   activeStudentCountInGroup(props.groupId, props.students, store),
 )

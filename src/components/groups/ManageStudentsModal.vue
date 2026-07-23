@@ -210,6 +210,7 @@ import {
   activeStudentsInGroup,
   availableStudentsForStatus,
 } from '@/utils/group-student-counts.js'
+import { studentNameSearchText } from '@/utils/student-display-name.js'
 
 const props = defineProps({
   groupId: { type: String, required: true },
@@ -234,21 +235,26 @@ const { namePassword: encryptionKey } = useEncryptionKey(store)
 // Decrypted name lookup for search
 const nameMap = reactive({})
 
-onMounted(async () => {
+async function loadStudentNameSearchMap() {
   for (const student of props.students) {
     try {
       const info = await store.getters.decryptUserInfo(student.id, false)
-      nameMap[student.id] = (info?.name || '').toLowerCase()
+      nameMap[student.id] = studentNameSearchText(info)
     } catch {
       nameMap[student.id] = ''
     }
   }
+}
+
+onMounted(() => {
+  void loadStudentNameSearchMap()
 })
 
 // Re-decrypt student names when the encryption key is updated
 watch(encryptionKey, (newKey) => {
   if (newKey) {
     Object.keys(nameMap).forEach(k => delete nameMap[k])
+    void loadStudentNameSearchMap()
   }
 })
 

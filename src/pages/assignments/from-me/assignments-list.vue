@@ -68,6 +68,41 @@
         </PUnifiedFilter>
       </div>
 
+      <!-- Multi-select bulk actions (archive / unarchive only — ticket UIUX-101) -->
+      <div v-if="selectedItems.length" class="selection-toolbar">
+        <span class="selection-count">
+          {{ selectedItems.length }} {{ t('selected') }}
+        </span>
+        <div class="selection-toolbar-spacer" />
+        <PButton
+          v-if="selectedArchivableIds.length"
+          variant="secondary"
+          size="sm"
+          icon="lucide:archive"
+          :text="`${t('archive')} (${selectedArchivableIds.length})`"
+          :loading="bulkUnarchiveLoading"
+          :disabled="archiveConfirmLoading || bulkUnarchiveLoading"
+          @click="startBulkArchive"
+        />
+        <PButton
+          v-if="selectedRestorableIds.length"
+          variant="secondary"
+          size="sm"
+          icon="lucide:archive-restore"
+          :text="`${t('unarchive')} (${selectedRestorableIds.length})`"
+          :loading="bulkUnarchiveLoading"
+          :disabled="archiveConfirmLoading || bulkUnarchiveLoading"
+          @click="bulkUnarchiveSelected"
+        />
+        <PButton
+          variant="ghost"
+          size="sm"
+          :text="t('deselect-all')"
+          :disabled="archiveConfirmLoading || bulkUnarchiveLoading"
+          @click="clearAssignmentSelection"
+        />
+      </div>
+
       <!-- Data table -->
       <div class="assign-table-wrapper">
         <PTable
@@ -87,13 +122,19 @@
         >
           <template #item.title="{ item }">
             <div class="assign-cell-title">
-              <PTooltip :text="assignmentData[item.id]?.name || ''" block only-if-overflow class="assign-cell-title-text-wrap">
+              <PTooltip
+                :text="assignmentData[item.id]?.name || ''"
+                only-if-overflow
+                class="assign-cell-title-text-wrap"
+              >
                 <span class="assign-cell-title-text">
                   <vueScopeComponent :id="item.id" :path="['name']" />
                 </span>
               </PTooltip>
-              <span v-if="assignmentData[item.id]?.assignmentType" class="assign-type-dot"> . </span>
-              <span v-if="assignmentData[item.id]?.assignmentType" :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)">
+              <span
+                v-if="assignmentData[item.id]?.assignmentType"
+                :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)"
+              >
                 {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
               </span>
             </div>
@@ -395,6 +436,7 @@
     buildStatusFilterOptions,
   } from '@/utils/status-filter.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
+import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -499,7 +541,7 @@
       for (const id of ids) {
         if (decryptedNames.has(id)) continue
         store.getters.decryptUserInfo(id, false)
-          .then(info => { decryptedNames.set(id, info?.name || '') })
+          .then(info => { decryptedNames.set(id, formatStudentPreferredName(info) || '') })
           .catch(() => { decryptedNames.set(id, '') })
       }
     },
@@ -561,9 +603,27 @@
   const archiveScope = ref('me')
   const archiveConfirmLoading = ref(false)
   const pendingActionItem = ref(null)
+  /** When non-empty, archive dialog archives these ids (bulk). Single-item uses pendingActionItem only. */
+  const pendingBulkArchiveIds = ref([])
+  const bulkUnarchiveLoading = ref(false)
   const duplicateNewTitle = ref('')
   const duplicateSourceName = ref('')
   const duplicateConfirmLoading = ref(false)
+
+  const selectedAssignmentIds = computed(() =>
+    selectedItems.value.map(item => item?.id).filter(Boolean),
+  )
+  const selectedArchivableIds = computed(() =>
+    selectedAssignmentIds.value.filter(id => !archivedIds.value[id]),
+  )
+  const selectedRestorableIds = computed(() =>
+    selectedAssignmentIds.value.filter(id => !!archivedIds.value[id]),
+  )
+  const isBulkArchive = computed(() => pendingBulkArchiveIds.value.length > 0)
+
+  function clearAssignmentSelection() {
+    selectedItems.value = []
+  }
 
   const canConfirmDuplicate = computed(() => {
     const title = duplicateNewTitle.value.trim()
@@ -581,13 +641,38 @@
     return getAssignedGroups(pendingActionItem.value).length
   })
 
-  const archiveDialogTitle = computed(() => t('archive-assignment-confirm-title'))
+  const archiveDialogTitle = computed(() => {
+    if (isBulkArchive.value) {
+      return t('bulk-archive-assignments-confirm-title')
+        .replace('{count}', String(pendingBulkArchiveIds.value.length))
+    }
+    return t('archive-assignment-confirm-title')
+  })
 
-  const archiveDialogIntro = computed(() =>
-    t('archive-assignment-confirm-intro').replace('{name}', pendingActionName.value),
-  )
+  const archiveDialogIntro = computed(() => {
+    if (isBulkArchive.value) {
+      return t('bulk-archive-assignments-confirm-intro')
+        .replace('{count}', String(pendingBulkArchiveIds.value.length))
+    }
+    return t('archive-assignment-confirm-intro').replace('{name}', pendingActionName.value)
+  })
 
   const archiveScopeOptions = computed(() => {
+    if (isBulkArchive.value) {
+      return [
+        {
+          value: 'me',
+          label: t('archive-assignment-for-me-label'),
+          description: t('bulk-archive-assignments-for-me-description'),
+        },
+        {
+          value: 'all',
+          label: t('archive-assignment-for-all-label'),
+          description: t('bulk-archive-assignments-for-all-description'),
+        },
+      ]
+    }
+
     const groupCount = pendingArchiveGroupCount.value
     const groupsPhrase = groupCount === 1
       ? t('archive-assignment-one-group')
@@ -772,11 +857,11 @@
 
   function getTypeBadgeClass(type) {
     const t = (type || '').toLowerCase()
-    if (t === 'assessment') return 'assign-type-tag assign-type-assessment'
-    if (t === 'homework') return 'assign-type-tag assign-type-homework'
-    if (t === 'practice') return 'assign-type-tag assign-type-practice'
-    if (t === 'learning') return 'assign-type-tag assign-type-learning'
-    return 'assign-type-tag assign-type-default'
+    if (t === 'assessment') return 'assign-type-pill assign-type-assessment'
+    if (t === 'homework') return 'assign-type-pill assign-type-homework'
+    if (t === 'practice') return 'assign-type-pill assign-type-practice'
+    if (t === 'learning') return 'assign-type-pill assign-type-learning'
+    return 'assign-type-pill assign-type-default'
   }
 
   // ── Due date ──
@@ -961,14 +1046,26 @@
   // ── Archive ──
   function startArchive(item) {
     pendingActionItem.value = item
+    pendingBulkArchiveIds.value = []
+    archiveScope.value = 'me'
+    showArchiveDialog.value = true
+  }
+
+  function startBulkArchive() {
+    const ids = [...selectedArchivableIds.value]
+    if (!ids.length) return
+    pendingActionItem.value = null
+    pendingBulkArchiveIds.value = ids
     archiveScope.value = 'me'
     showArchiveDialog.value = true
   }
 
   function closeArchiveDialog() {
+    if (archiveConfirmLoading.value) return
     showArchiveDialog.value = false
     archiveConfirmLoading.value = false
     pendingActionItem.value = null
+    pendingBulkArchiveIds.value = []
   }
 
   async function doArchiveAssignment(contentId, scope = 'me') {
@@ -984,26 +1081,69 @@
     try {
       await restoreAssignment(contentId)
       if (assignmentData[contentId]) assignmentData[contentId].archived = false
+      return true
     } catch (e) {
       console.error(e)
+      return false
     }
   }
 
   async function confirmArchive() {
-    const item = pendingActionItem.value
-    if (!item || archiveConfirmLoading.value) return
+    if (archiveConfirmLoading.value) return
+
+    const bulkIds = pendingBulkArchiveIds.value
+    const singleId = pendingActionItem.value
+    if (!bulkIds.length && !singleId) return
+
     archiveConfirmLoading.value = true
     try {
-      await doArchiveAssignment(item, archiveScope.value)
-      if (current.value === item) current.value = null
+      if (bulkIds.length) {
+        for (const id of bulkIds) {
+          await doArchiveAssignment(id, archiveScope.value)
+          if (current.value === id) current.value = null
+        }
+        selectedItems.value = selectedItems.value.filter(
+          item => !bulkIds.includes(item.id),
+        )
+      } else {
+        await doArchiveAssignment(singleId, archiveScope.value)
+        if (current.value === singleId) current.value = null
+        selectedItems.value = selectedItems.value.filter(item => item.id !== singleId)
+      }
+
       const successKey = archiveScope.value === 'all'
         ? 'archive-assignment-archived-for-all-success'
         : 'archive-assignment-archived-for-me-success'
       showSuccessDialog(t(successKey))
-      closeArchiveDialog()
+      showArchiveDialog.value = false
+      pendingActionItem.value = null
+      pendingBulkArchiveIds.value = []
     } catch (e) {
       console.error(e)
+      toastError(t('something-went-wrong'))
+    } finally {
       archiveConfirmLoading.value = false
+    }
+  }
+
+  async function bulkUnarchiveSelected() {
+    const ids = [...selectedRestorableIds.value]
+    if (!ids.length || bulkUnarchiveLoading.value) return
+
+    bulkUnarchiveLoading.value = true
+    try {
+      let restored = 0
+      for (const id of ids) {
+        if (await doRestoreAssignment(id)) restored++
+      }
+      if (!restored) {
+        toastError(t('something-went-wrong'))
+        return
+      }
+      selectedItems.value = selectedItems.value.filter(item => !ids.includes(item.id))
+      showSuccessDialog(t('assignments-restored-successfully'))
+    } finally {
+      bulkUnarchiveLoading.value = false
     }
   }
 
@@ -1168,6 +1308,29 @@
   gap: 16px;
 }
 
+/* Multi-select bulk bar */
+.selection-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.selection-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.selection-toolbar-spacer {
+  flex: 1;
+  min-width: 8px;
+}
 
 /* Table */
 .assign-table-wrapper {
@@ -1188,17 +1351,29 @@
 
 .assign-cell-title {
   display: flex;
-  align-items: baseline;
-  gap: 0;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
   min-width: 0;
+  max-width: 100%;
+  width: 100%;
   font-size: 12px;
   font-weight: 500;
   color: #334155;
   line-height: 1.4;
 }
 
+/*
+ * Title sizes to content (not column width) so the pill sits immediately after.
+ * flex-shrink allows long titles to ellipsis; pill stays full (flex-shrink: 0).
+ * Class lands on PTooltip's .tooltip-anchor root.
+ */
 .assign-cell-title-text-wrap {
+  display: block !important;
   min-width: 0;
+  flex: 0 1 auto;
+  width: auto !important;
+  max-width: 100%;
   overflow: hidden;
 }
 
@@ -1300,22 +1475,45 @@
   color: #334155;
 }
 
-/* Assignment type tags (inline next to title) */
-.assign-type-dot {
-  flex-shrink: 0;
-  color: #94a3b8;
-  font-weight: 400;
-}
-.assign-type-tag {
-  flex-shrink: 0;
-  font-size: 12px;
+/* Compact type pill next to title — never ellipsis; title truncates instead */
+.assign-type-pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  max-width: none;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 10px;
   font-weight: 500;
+  line-height: 14px;
+  white-space: nowrap;
+  border: 1px solid transparent;
 }
-.assign-type-assessment { color: #2563eb; }
-.assign-type-homework { color: #16a34a; }
-.assign-type-practice { color: #7c3aed; }
-.assign-type-learning { color: #0891b2; }
-.assign-type-default { color: #64748b; }
+.assign-type-assessment {
+  color: #2563eb;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+.assign-type-homework {
+  color: #16a34a;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.assign-type-practice {
+  color: #7c3aed;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+}
+.assign-type-learning {
+  color: #0891b2;
+  background: #ecfeff;
+  border-color: #a5f3fc;
+}
+.assign-type-default {
+  color: #64748b;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
 
 /* Danger menu item */
 .menu-item-danger {

@@ -11,13 +11,17 @@
                 <LucideIcon name="bar-chart" :size="16" class="vso-title-icon" />
                 {{ t('reporting-dashboard') }} — {{ assignmentName }}
               </h2>
-              <p class="vso-subtitle">{{ t('review-student-submissions-and-provide-feedback') }}</p>
+              <p class="vso-subtitle">
+                {{ SHOW_STUDENT_SUBMISSIONS_UI
+                  ? t('review-student-submissions-and-provide-feedback')
+                  : t('view-dashboards') }}
+              </p>
             </div>
             <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
           </div>
 
           <div class="vso-scroll-body">
-          <!-- Dashboard cards -->
+          <!-- Dashboard cards (real entry points — keep) -->
           <div class="vso-dashboards">
             <h4 class="vso-section-label">{{ t('view-dashboards') }}:</h4>
             <div class="vso-dashboard-cards">
@@ -68,69 +72,79 @@
             </div>
           </div>
 
-          <!-- Stats summary -->
+          <!-- Real counts: assigned students + performance-based "started" (live-dashboard data path) -->
           <div class="vso-stats">
             <div class="vso-stat-box">
               <span class="vso-stat-num vso-stat-total">{{ students.length }}</span>
               <span class="vso-stat-label">{{ t('total-student') }}</span>
             </div>
             <div class="vso-stat-box">
-              <span class="vso-stat-num vso-stat-submitted">{{ submittedStudentCount }}</span>
-              <span class="vso-stat-label">{{ t('submitted') }}</span>
-            </div>
-            <div class="vso-stat-box">
-              <span class="vso-stat-num vso-stat-progress">{{ inProgressStudentCount }}</span>
+              <span v-if="activityProgressLoading" class="vso-stat-num vso-stat-progress">…</span>
+              <span v-else class="vso-stat-num vso-stat-progress">{{ inProgressStudentCount }}</span>
               <span class="vso-stat-label">{{ t('in-progress') }}</span>
             </div>
-            <div class="vso-stat-box">
-              <span class="vso-stat-num vso-stat-graded">{{ gradedStudentCount }}</span>
-              <span class="vso-stat-label">{{ t('graded') }}</span>
-            </div>
           </div>
 
-          <!-- Student submissions section -->
-          <div class="vso-submissions">
-            <h4 class="vso-section-label">{{ t('student-submissions') }}:</h4>
-            <PUnifiedFilter
-              v-model:searchQuery="studentSearch"
-              :placeholder="t('search-student')"
-              class="vso-search"
-            />
-
-            <!-- Student table -->
-            <div class="vso-table-wrapper">
-              <PTable
-                :headers="vsTableHeaders"
-                :items="vsTableItems"
-                item-key="id"
-                selectable
-                :selected="selectedStudentItems"
-                @update:selected="selectedStudentItems = $event"
-                :no-data-text="t('no-students-found')"
-                :items-per-page="10"
-                :items-per-page-text="t('rows-per-page')"
-                :items-per-page-options="submissionTablePerPageOptions"
-              >
-                <template #item.studentName="{ item }">
-                  {{ item.studentName }}
-                </template>
-                <template #item.submitted="{ item }">
-                  {{ item.submitted }}
-                </template>
-                <template #item.status="{ item }">
-                  <span :class="getStudentStatusClass(item.id)">{{ item.status }}</span>
-                </template>
-                <template #item.feedback="{ item }">
-                  <span v-if="getStudentStatusText(item.id) === t('not-started')" class="vso-feedback-none">{{ t('no-submission') }}</span>
-                  <PButton v-else-if="hasStudentFeedback(item.id)" variant="secondary" size="xsm" icon="lucide:pencil" :text="t('edit-feedback')" @click="openDetailView(item.id)" />
-                  <PButton v-else variant="primary" size="xsm" icon="lucide:plus" :text="t('add-feedback')" @click="openDetailView(item.id)" />
-                </template>
-                <template #item.submission="{ item }">
-                  <PButton variant="ghost" size="xsm" :text="t('view')" @click="openDetailView(item.id)" />
-                </template>
-              </PTable>
+          <!--
+            TODO(xAPI): Re-enable full submissions UI when backend provides formal
+            per-student-per-assignment status + timestamps (Submitted / Graded, submit dates).
+            See SHOW_STUDENT_SUBMISSIONS_UI in script.
+          -->
+          <template v-if="SHOW_STUDENT_SUBMISSIONS_UI">
+            <div class="vso-stats" style="margin-top: 12px;">
+              <div class="vso-stat-box">
+                <span class="vso-stat-num vso-stat-submitted">{{ submittedStudentCount }}</span>
+                <span class="vso-stat-label">{{ t('submitted') }}</span>
+              </div>
+              <div class="vso-stat-box">
+                <span class="vso-stat-num vso-stat-graded">{{ gradedStudentCount }}</span>
+                <span class="vso-stat-label">{{ t('graded') }}</span>
+              </div>
             </div>
-          </div>
+
+            <!-- Student submissions section (+ individual submission / detail mode entry) -->
+            <div class="vso-submissions">
+              <h4 class="vso-section-label">{{ t('student-submissions') }}:</h4>
+              <PUnifiedFilter
+                v-model:searchQuery="studentSearch"
+                :placeholder="t('search-student')"
+                class="vso-search"
+              />
+
+              <div class="vso-table-wrapper">
+                <PTable
+                  :headers="vsTableHeaders"
+                  :items="vsTableItems"
+                  item-key="id"
+                  selectable
+                  :selected="selectedStudentItems"
+                  @update:selected="selectedStudentItems = $event"
+                  :no-data-text="t('no-students-found')"
+                  :items-per-page="10"
+                  :items-per-page-text="t('rows-per-page')"
+                  :items-per-page-options="submissionTablePerPageOptions"
+                >
+                  <template #item.studentName="{ item }">
+                    {{ item.studentName }}
+                  </template>
+                  <template #item.submitted="{ item }">
+                    {{ item.submitted }}
+                  </template>
+                  <template #item.status="{ item }">
+                    <span :class="getStudentStatusClass(item.id)">{{ item.status }}</span>
+                  </template>
+                  <template #item.feedback="{ item }">
+                    <span v-if="getStudentStatusText(item.id) === t('not-started')" class="vso-feedback-none">{{ t('no-submission') }}</span>
+                    <PButton v-else-if="hasStudentFeedback(item.id)" variant="secondary" size="xsm" icon="lucide:pencil" :text="t('edit-feedback')" @click="openDetailView(item.id)" />
+                    <PButton v-else variant="primary" size="xsm" icon="lucide:plus" :text="t('add-feedback')" @click="openDetailView(item.id)" />
+                  </template>
+                  <template #item.submission="{ item }">
+                    <PButton variant="ghost" size="xsm" :text="t('view')" @click="openDetailView(item.id)" />
+                  </template>
+                </PTable>
+              </div>
+            </div>
+          </template>
           </div>
 
           <!-- Footer -->
@@ -142,8 +156,12 @@
         </div>
       </template>
 
+      <!--
+        TODO(xAPI): Individual student submission / grading detail mode.
+        Re-enable with SHOW_STUDENT_SUBMISSIONS_UI when backend xAPI supports real submissions.
+      -->
       <!-- ═══════════════ DETAIL MODE (existing grading view) ═══════════════ -->
-      <template v-else>
+      <template v-else-if="SHOW_STUDENT_SUBMISSIONS_UI">
       <!-- Navigation bar -->
       <div class="vs-navbar">
         <PButton variant="ghost" icon="lucide:arrow-left" :text="t('back')" @click="viewMode = 'overview'" />
@@ -413,6 +431,7 @@
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
+  import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -422,6 +441,13 @@
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
   const submissionTablePerPageOptions = computed(() => tablePerPageOptions(t))
+
+  /**
+   * TODO(xAPI): Set to `true` when backend provides formal per-student-per-assignment
+   * Submitted/Graded status + timestamps. Student list + detail grader stay behind this flag.
+   * Total students + In progress (performance-based) always load.
+   */
+  const SHOW_STUDENT_SUBMISSIONS_UI = false
 
   const { namePassword: encryptionKey } = useEncryptionKey(store)
 
@@ -450,6 +476,9 @@
   const selectedStudentItems = ref([])
   const studentStatusCache = reactive({})
   const studentFeedbackCache = reactive({})
+  /** Performance-based "started" flags (Agent sequence performance under each student). */
+  const studentStartedCache = reactive({})
+  const activityProgressLoading = ref(false)
 
   // Grading state
   const itemFeedback = ref('')
@@ -470,7 +499,8 @@
 
   const currentStudentName = computed(() => {
     const info = studentInfoCache[currentStudentId.value]
-    return info?.name || `${t('student')} ${selectedStudentIndex.value + 1}`
+    const preferred = formatStudentPreferredName(info)
+    return preferred || `${t('student')} ${selectedStudentIndex.value + 1}`
   })
 
   const currentStudentInfo = computed(() => {
@@ -544,17 +574,64 @@
     students.value.filter(sid => studentStatusCache[sid] === 'submitted').length
   )
 
+  /** Students with sequence performance activity (started / in progress). */
   const inProgressStudentCount = computed(() =>
-    students.value.filter(sid => studentStatusCache[sid] === 'in-progress').length
+    students.value.filter(sid => studentStartedCache[sid] === true).length
   )
 
   const gradedStudentCount = computed(() =>
     students.value.filter(sid => studentStatusCache[sid] === 'graded').length
   )
 
+  /**
+   * Infer "started" from live-dashboard performance state.
+   * Agent.state(`${assignment}/sequence-${content}`, studentId)
+   */
+  function performanceIndicatesStarted(state) {
+    if (!state || typeof state !== 'object') return false
+    if (Number(state.totalTime) > 0) return true
+    if (state.activeItemIndex != null && state.activeItemIndex !== '') return true
+    const info = state.itemInfo
+    if (!info || typeof info !== 'object') return false
+    for (const entry of Object.values(info)) {
+      if (!entry || typeof entry !== 'object') continue
+      if (Number(entry.time) > 0) return true
+      if (entry.correct === true || entry.correct === false) return true
+    }
+    return Object.keys(info).length > 0
+  }
+
+  async function loadStudentActivityProgress() {
+    const list = students.value
+    const seqId = contentId.value
+    // Reset
+    Object.keys(studentStartedCache).forEach(k => delete studentStartedCache[k])
+    if (!list.length || !seqId) {
+      activityProgressLoading.value = false
+      return
+    }
+
+    activityProgressLoading.value = true
+    const path = `${props.assignmentId}/sequence-${seqId}`
+    try {
+      await Promise.all(list.map(async (sid) => {
+        try {
+          // Agent.state(id, user) — same scope as live monitoring dashboard rows
+          const state = await Agent.state(path, sid)
+          studentStartedCache[sid] = performanceIndicatesStarted(state)
+        } catch {
+          studentStartedCache[sid] = false
+        }
+      }))
+    } finally {
+      activityProgressLoading.value = false
+    }
+  }
+
   function getStudentDisplayName(sid, index) {
     const info = studentInfoCache[sid]
-    if (info?.name) return info.name
+    const preferred = formatStudentPreferredName(info)
+    if (preferred) return preferred
     return `${t('student')} ${index + 1}`
   }
 
@@ -825,14 +902,17 @@
       }
     }
 
-    // Load student statuses for overview
-    loadAllStudentStatuses()
+    // Always: total students (membership) + in-progress (performance snapshot)
+    void loadStudentActivityProgress()
 
-    // Load first student info and performance
-    if (students.value.length > 0) {
-      await loadStudentInfo(students.value[0])
-      await watchStudentPerformance()
-      await loadGradingData()
+    // TODO(xAPI): full submissions list / grading when SHOW_STUDENT_SUBMISSIONS_UI is true
+    if (SHOW_STUDENT_SUBMISSIONS_UI) {
+      loadAllStudentStatuses()
+      if (students.value.length > 0) {
+        await loadStudentInfo(students.value[0])
+        await watchStudentPerformance()
+        await loadGradingData()
+      }
     }
 
     loading.value = false

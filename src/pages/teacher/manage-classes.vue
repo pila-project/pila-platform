@@ -32,6 +32,7 @@
                 @click="printLoginCodes"
               />
               <PButton
+                v-if="selectedActiveStudents.length"
                 icon="lucide:users"
                 variant="secondary"
                 :text="t('add-students-to-group')"
@@ -39,11 +40,20 @@
                 @click="showAddToGroupsModal = true; selectedGroupsForAssign = []; groupSearchQuery = ''"
               />
               <PButton
+                v-if="selectedActiveStudents.length"
                 icon="lucide:archive"
                 variant="secondary"
-                :text="`${t('archive')} (${selectedStudents.length})`"
+                :text="`${t('archive')} (${selectedActiveStudents.length})`"
                 size="sm"
                 @click="archiveSelectedConfirm = true"
+              />
+              <PButton
+                v-if="selectedArchivedStudents.length"
+                icon="lucide:archive-restore"
+                variant="secondary"
+                :text="`${t('restore')} (${selectedArchivedStudents.length})`"
+                size="sm"
+                @click="restoreSelectedConfirm = true"
               />
             </template>
           </div>
@@ -201,7 +211,7 @@
               variant="primary"
               :text="t('add-group')"
               size="sm"
-              @click="showCreateGroupModal = true"
+              @click="openCreateGroupModal"
             />
           </div>
         </div>
@@ -272,7 +282,7 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('students-profile') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('complete-profile-information-for') }} {{ profileStudentInfo?.name || '' }}</p>
+          <p class="text-sm text-slate-500 mt-0.5">{{ t('complete-profile-information-for') }} {{ profileStudentPreferredName }}</p>
         </div>
       </template>
       <template #body>
@@ -296,8 +306,9 @@
               <span class="profile-value">{{ profileUserGrade }}</span>
             </div>
             <div class="profile-cell">
-              <span class="profile-label">{{ t('status') }}</span>
+              <span class="profile-label">{{ t('account-status') }}</span>
               <PBadge
+                class="profile-status-badge"
                 :variant="profileUserArchived ? 'warning' : 'info'"
                 :text="profileUserArchived ? t('archived') : t('active')"
               />
@@ -531,11 +542,11 @@
             item-value="value"
             :placeholder="t('select-grade')"
           />
-          <PSelect
-            v-model="newGroupSubject"
+          <PMultiSelect
+            v-model="newGroupSubjects"
             :label="t('subject')"
             :items="subjectOptions"
-            :placeholder="t('select-subject')"
+            :placeholder="t('select-one-or-more-subjects')"
           />
         </div>
       </template>
@@ -574,11 +585,11 @@
             item-value="value"
             :placeholder="t('select-grade')"
           />
-          <PSelect
-            v-model="editGroupSubject"
+          <PMultiSelect
+            v-model="editGroupSubjects"
             :label="t('subject')"
             :items="subjectOptions"
-            :placeholder="t('select-subject')"
+            :placeholder="t('select-one-or-more-subjects')"
           />
         </div>
       </template>
@@ -671,6 +682,18 @@
       :cancel-text="t('cancel')"
       @confirm="executeArchiveSelected"
       @cancel="archiveSelectedConfirm = false"
+    />
+
+    <!-- Bulk Restore Selected Confirmation -->
+    <PAlertDialog
+      v-if="restoreSelectedConfirm"
+      variant="notification"
+      :title="bulkRestoreConfirmTitle"
+      :description="bulkRestoreConfirmDescription"
+      :confirm-text="t('restore')"
+      :cancel-text="t('cancel')"
+      @confirm="executeRestoreSelected"
+      @cancel="restoreSelectedConfirm = false"
     />
 
     <!-- Restore Student Confirmation -->
@@ -927,7 +950,11 @@
               />
               <span class="assign-group-name">{{ store.state.groups.groups[gid]?.name || t('unnamed') }}</span>
               <span v-if="store.state.groups.groups[gid]?.grade" class="assign-group-detail">{{ store.state.groups.groups[gid].grade }}</span>
-              <span v-if="store.state.groups.groups[gid]?.subject" class="assign-group-detail">{{ store.state.groups.groups[gid].subject }}</span>
+              <span
+                v-if="formatGroupSubjects(store.state.groups.groups[gid]?.subject)"
+                class="assign-group-detail assign-group-detail--subject"
+                :title="formatGroupSubjects(store.state.groups.groups[gid]?.subject)"
+              >{{ formatGroupSubjects(store.state.groups.groups[gid]?.subject) }}</span>
               <PBadge variant="default" :text="`${store.getters['groups/members'](gid).length}`" />
             </label>
           </div>
@@ -1019,7 +1046,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
-import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlert, PAlertDialog, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
+import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlert, PAlertDialog, PInput, PSelect, PMultiSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 
@@ -1032,8 +1059,14 @@ import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
 import codeCharToIcon from '@/utils/code-char-to-icon.js'
 import { formatLoginCodePlain } from '@/utils/login-code-display.js'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
+import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
+import {
+  normalizeGroupSubjects,
+  formatGroupSubjects,
+  serializeGroupSubjects,
+} from '@/utils/group-subjects.js'
 import { useBulkSelection } from '@/composables/useBulkSelection.js'
 import { useDuplicateGuard, partitionBulkStudentRows, findDuplicateName } from '@/composables/useDuplicateGuard.js'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
@@ -1068,10 +1101,11 @@ const showCreateGroupModal = ref(false)
 const editGroupId = ref(null)
 const editGroupName = ref('')
 const editGroupGrade = ref('')
-const editGroupSubject = ref('')
+/** Multi-select subjects (UIUX-110); always an array in the form */
+const editGroupSubjects = ref([])
 const newGroupName = ref('')
 const newGroupGrade = ref('')
-const newGroupSubject = ref('')
+const newGroupSubjects = ref([])
 const searchQuery = ref('')
 const groupSearchFilter = ref('')
 const groupListPage = ref(1)
@@ -1085,6 +1119,14 @@ const activeGroupFilters = ref([])
 const groupStatusFilters = ref(defaultActiveStatusFilters())
 const archiveConfirmStudent = ref(null)
 const archiveSelectedConfirm = ref(false)
+const restoreSelectedConfirm = ref(false)
+
+const selectedActiveStudents = computed(() =>
+  selectedStudents.value.filter(s => !s.archived),
+)
+const selectedArchivedStudents = computed(() =>
+  selectedStudents.value.filter(s => s.archived),
+)
 const archiveConfirmGroup = ref(null)
 const restoreConfirmStudent = ref(null)
 const restoreConfirmGroup = ref(null)
@@ -1131,7 +1173,10 @@ const {
   confirmDuplicateProceed: confirmStudentDuplicateProceed,
   cancelDuplicateProceed: cancelStudentDuplicateProceed,
 } = useDuplicateGuard({
-  getExistingNames: () => students.value.map(s => s.displayName),
+  // Duplicate checks use legal names, not preferred "Nickname (Full Name)" labels
+  getExistingNames: () => students.value
+    .map(s => decryptedLegalNames.get(s.id))
+    .filter(name => name && name !== '…'),
 })
 
 const duplicateGroupDescription = computed(() => {
@@ -1149,8 +1194,13 @@ const bulkDuplicateConfirmLoading = ref(false)
 
 function getStudentExistingNames() {
   return students.value
-    .map(s => s.displayName)
+    .map(s => decryptedLegalNames.get(s.id))
     .filter(name => name && name !== '…')
+}
+
+function cacheStudentDisplayName(id, info) {
+  decryptedNames.set(id, formatStudentPreferredName(info) || '')
+  decryptedLegalNames.set(id, String(info?.name ?? '').trim())
 }
 
 async function ensureDecryptedStudentNames() {
@@ -1160,9 +1210,10 @@ async function ensureDecryptedStudentNames() {
       if (cached && cached !== '…') return
       try {
         const info = await store.getters.decryptUserInfo(id, false)
-        decryptedNames.set(id, info?.name || '')
+        cacheStudentDisplayName(id, info)
       } catch {
         decryptedNames.set(id, '')
+        decryptedLegalNames.set(id, '')
       }
     }),
   )
@@ -1282,8 +1333,9 @@ onMounted(() => {
 })
 onBeforeUnmount(() => { if (unwatchUsers) unwatchUsers() })
 
-// ── Decrypted student names (for sorting + search) ──
+// ── Decrypted student names (preferred labels for sort/search/drag; legal for duplicates) ──
 const decryptedNames = reactive(new Map())
+const decryptedLegalNames = reactive(new Map())
 
 // ── Students ──
 const myPILAUsers = computed(() => Object.keys(users))
@@ -1313,8 +1365,11 @@ watch(
     for (const id of ids) {
       if (decryptedNames.has(id)) continue
       store.getters.decryptUserInfo(id, false)
-        .then(info => { decryptedNames.set(id, info?.name || '') })
-        .catch(() => { decryptedNames.set(id, '') })
+        .then(info => { cacheStudentDisplayName(id, info) })
+        .catch(() => {
+          decryptedNames.set(id, '')
+          decryptedLegalNames.set(id, '')
+        })
     }
     // Soft-probe key health when we have student ids (wrong vs empty key)
     revalidateEncryptionKey(ids)
@@ -1326,13 +1381,15 @@ watch(
 watch(namePassword, async (newKey) => {
   if (newKey) {
     decryptedNames.clear()
+    decryptedLegalNames.clear()
     const currentIds = students.value.map(s => s.id)
     for (const id of currentIds) {
       try {
         const info = await store.getters.decryptUserInfo(id, false)
-        decryptedNames.set(id, info?.name || '')
+        cacheStudentDisplayName(id, info)
       } catch {
         decryptedNames.set(id, '')
+        decryptedLegalNames.set(id, '')
       }
     }
     await revalidateEncryptionKey(currentIds)
@@ -1345,11 +1402,13 @@ function applyStudentListFilters(items) {
   let result = items
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
-    result = result.filter(s =>
-      s.displayName.toLowerCase().includes(q)
-      || s.id.toLowerCase().includes(q)
-      || s.groupNames.toLowerCase().includes(q),
-    )
+    result = result.filter(s => {
+      const legal = (decryptedLegalNames.get(s.id) || '').toLowerCase()
+      return s.displayName.toLowerCase().includes(q)
+        || legal.includes(q)
+        || s.id.toLowerCase().includes(q)
+        || s.groupNames.toLowerCase().includes(q)
+    })
   }
   if (activeGradeFilters.value.length) {
     result = result.filter(s => s.grade && activeGradeFilters.value.includes(s.grade))
@@ -1426,7 +1485,7 @@ const groupFilterOptions = computed(() =>
   })
 )
 
-// ── Subject options ──
+// ── Subject options (multi-select) ──
 const subjectOptions = [
   { value: 'Mathematics', title: 'Mathematics' },
   { value: 'English', title: 'English' },
@@ -1440,6 +1499,10 @@ const subjectOptions = [
 
 // ── Profile helpers ──
 const profileStudentInfo = ref(null)
+
+const profileStudentPreferredName = computed(() =>
+  formatStudentPreferredName(profileStudentInfo.value) || '',
+)
 
 const profileUserArchived = computed(() => {
   if (!viewProfileUser.value) return false
@@ -1457,7 +1520,8 @@ const profileUserGroups = computed(() => {
     .filter(gid => store.getters['groups/belongs'](viewProfileUser.value, gid))
     .map(gid => {
       const groupData = store.state.groups.groups[gid] || {}
-      const detail = [groupData.grade, groupData.subject].filter(Boolean).join(' | ')
+      const subjectLabel = formatGroupSubjects(groupData.subject)
+      const detail = [groupData.grade, subjectLabel].filter(Boolean).join(' | ')
       return {
         id: gid,
         name: groupData.name || t('unnamed'),
@@ -1536,18 +1600,26 @@ async function handleCreateGroup() {
   runWithGuard(name, () => executeCreateGroup(name))
 }
 
+function openCreateGroupModal() {
+  newGroupName.value = ''
+  newGroupGrade.value = ''
+  newGroupSubjects.value = []
+  showCreateGroupModal.value = true
+}
+
 async function executeCreateGroup(name) {
   creatingGroup.value = true
   try {
     const id = await store.dispatch('groups/add', { type: 'class', name })
     const groupState = await Agent.state(id)
     if (newGroupGrade.value) groupState.grade = newGroupGrade.value
-    if (newGroupSubject.value) groupState.subject = newGroupSubject.value
+    const subjects = serializeGroupSubjects(newGroupSubjects.value)
+    if (subjects) groupState.subject = subjects
     await Agent.synced()
     await store.dispatch('groups/loadGroups')
     newGroupName.value = ''
     newGroupGrade.value = ''
-    newGroupSubject.value = ''
+    newGroupSubjects.value = []
     showCreateGroupModal.value = false
     groupCreatedPromptId.value = id
   } catch (e) {
@@ -1563,7 +1635,8 @@ function openEditGroup(groupId) {
   editGroupId.value = groupId
   editGroupName.value = groupData.name || ''
   editGroupGrade.value = groupData.grade || ''
-  editGroupSubject.value = groupData.subject || ''
+  // Legacy string subjects → [string]; already-array stays multi
+  editGroupSubjects.value = normalizeGroupSubjects(groupData.subject)
 }
 
 async function handleSaveGroup() {
@@ -1578,7 +1651,7 @@ async function executeSaveGroup(name) {
     const groupState = await Agent.state(editGroupId.value)
     groupState.name = name
     groupState.grade = editGroupGrade.value || undefined
-    groupState.subject = editGroupSubject.value || undefined
+    groupState.subject = serializeGroupSubjects(editGroupSubjects.value)
     await Agent.synced()
     await store.dispatch('groups/loadGroups')
     editGroupId.value = null
@@ -1659,11 +1732,18 @@ const archiveGroupConfirmDescription = computed(() => {
 })
 
 const bulkArchiveConfirmTitle = computed(() => {
-  const n = selectedStudents.value.length
+  const n = selectedActiveStudents.value.length
   return t('bulk-archive-students-confirm-title').replace('{count}', String(n))
 })
 
 const bulkArchiveConfirmDescription = computed(() => t('bulk-archive-students-confirm-description'))
+
+const bulkRestoreConfirmTitle = computed(() => {
+  const n = selectedArchivedStudents.value.length
+  return t('bulk-restore-students-confirm-title').replace('{count}', String(n))
+})
+
+const bulkRestoreConfirmDescription = computed(() => t('bulk-restore-students-confirm-description'))
 
 const restoreGroupConfirmTitle = computed(() => {
   if (!restoreConfirmGroup.value) return ''
@@ -1694,9 +1774,8 @@ async function resolveLoginCodeStudentName(student) {
 
   try {
     const info = await store.getters.decryptUserInfo(student.id, false)
-    const name = info?.name || ''
-    if (name) decryptedNames.set(student.id, name)
-    return name
+    cacheStudentDisplayName(student.id, info)
+    return formatStudentPreferredName(info) || ''
   } catch {
     return ''
   }
@@ -1799,14 +1878,35 @@ async function executeResetPassword() {
 }
 
 async function executeArchiveSelected() {
+  const toArchive = selectedActiveStudents.value
+  if (!toArchive.length) {
+    archiveSelectedConfirm.value = false
+    return
+  }
   const usersState = await Agent.state('users')
-  for (const s of selectedStudents.value) {
+  for (const s of toArchive) {
     if (usersState[s.id]) usersState[s.id].archived = true
   }
   await Agent.synced()
   archiveSelectedConfirm.value = false
   selectedStudents.value = []
   showSuccessDialog(t('students-archived-successfully'))
+}
+
+async function executeRestoreSelected() {
+  const toRestore = selectedArchivedStudents.value
+  if (!toRestore.length) {
+    restoreSelectedConfirm.value = false
+    return
+  }
+  const usersState = await Agent.state('users')
+  for (const s of toRestore) {
+    if (usersState[s.id]) usersState[s.id].archived = false
+  }
+  await Agent.synced()
+  restoreSelectedConfirm.value = false
+  selectedStudents.value = []
+  showSuccessDialog(t('students-restored-successfully'))
 }
 
 function confirmRestoreStudent(item) {
@@ -2190,9 +2290,11 @@ async function handleAddToGroups() {
   addingToGroups.value = true
   try {
     const results = []
+    // Bulk add applies to active selected students only (archived use Restore, not group assign).
+    const studentsToAdd = selectedStudents.value.filter(s => !s.archived)
     for (const gid of selectedGroupsForAssign.value) {
       const groupName = store.state.groups.groups[gid]?.name || ''
-      for (const student of selectedStudents.value) {
+      for (const student of studentsToAdd) {
         if (store.getters['groups/belongs'](student.id, gid)) {
           results.push({ id: student.id, grade: student.grade, status: 'skipped', groupName })
         } else {
@@ -2604,7 +2706,14 @@ function printLoginCodes() {
 .profile-cell {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 4px;
+}
+
+/* Pill hugs label text — avoid stretch from flex column parent */
+.profile-status-badge {
+  align-self: flex-start;
+  width: fit-content;
 }
 .profile-row {
   display: flex;
@@ -2818,6 +2927,12 @@ function printLoginCodes() {
 .assign-group-detail {
   font-size: 12px;
   color: #64748b;
+}
+.assign-group-detail--subject {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Login Code Modal */
