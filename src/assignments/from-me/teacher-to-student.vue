@@ -66,7 +66,10 @@
 </template>
 
 <script>
-  import { assignmentXapiStatement } from '../../assignment-xapi.js'
+  import {
+    assignmentXapiStatement,
+    countAssignedStudents
+  } from '../../assignment-xapi.js'
   import GroupAssigner from '../../components/groups/assigner.vue'
   import ContentLibrary from '../../components/content-library.vue'
   import IconButton from '../../components/icon-button.vue'
@@ -123,7 +126,11 @@
         const statement = assignmentXapiStatement(
           this.user,
           content,
-          this.assignedClassIds
+          this.assignedClassIds,
+          countAssignedStudents(
+            this.assignedClassIds,
+            classId => this.$store.getters['groups/members'](classId)
+          )
         )
         if (!statement) return
 

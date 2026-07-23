@@ -1,11 +1,18 @@
-import { assignmentXapiStatement } from '../assignment-xapi.js'
+import {
+  assignmentXapiStatement,
+  countAssignedStudents
+} from '../assignment-xapi.js'
 
 const ASSIGNMENTS_TYPE = 'application/json;type=assignment'
 const TEACHER_TO_STUDENT = 'teacher-to-student'
 
 let firstLoad = true
 
-async function writeAssignmentXapi(itemId, assignedClassIds) {
+async function writeAssignmentXapi(
+  itemId,
+  assignedClassIds,
+  numberOfStudentsAssigned
+) {
   try {
     const [assignment, { auth: { user } }] = await Promise.all([
       Agent.state(itemId),
@@ -14,7 +21,8 @@ async function writeAssignmentXapi(itemId, assignedClassIds) {
     const statement = assignmentXapiStatement(
       user,
       assignment.content,
-      assignedClassIds
+      assignedClassIds,
+      numberOfStudentsAssigned
     )
 
     if (!statement) return
@@ -107,7 +115,10 @@ export default {
       const assignments = await Agent.query('assignments')
       assignments.forEach(assignment => commit('addAssignment', assignment))
     },
-    async assign({getters, dispatch}, { group_id, item_id, assignment_type }) {
+    async assign(
+      { getters, rootGetters, dispatch },
+      { group_id, item_id, assignment_type }
+    ) {
       if (getters.isAssigned(group_id, item_id, assignment_type)) return
 
       const assignedClassIds = classIdsAfterChange(
@@ -117,6 +128,10 @@ export default {
         group_id,
         true
       )
+      const numberOfStudentsAssigned = countAssignedStudents(
+        assignedClassIds,
+        classId => rootGetters['groups/members'](classId)
+      )
 
       await Agent.create({
         active_type: ASSIGNMENTS_TYPE,
@@ -125,11 +140,15 @@ export default {
 
       await Agent.synced()
       if (assignment_type === TEACHER_TO_STUDENT) {
-        await writeAssignmentXapi(item_id, assignedClassIds)
+        await writeAssignmentXapi(
+          item_id,
+          assignedClassIds,
+          numberOfStudentsAssigned
+        )
       }
       await dispatch('load')
     },
-    async unassign({ getters, dispatch }, assignment_id) {
+    async unassign({ getters, rootGetters, dispatch }, assignment_id) {
       const state = await Agent.state(assignment_id)
       const { group_id, item_id, assignment_type } = state
       const assignedClassIds = classIdsAfterChange(
@@ -139,11 +158,19 @@ export default {
         group_id,
         false
       )
+      const numberOfStudentsAssigned = countAssignedStudents(
+        assignedClassIds,
+        classId => rootGetters['groups/members'](classId)
+      )
 
       state.archived = true
       await Agent.synced()
       if (assignment_type === TEACHER_TO_STUDENT) {
-        await writeAssignmentXapi(item_id, assignedClassIds)
+        await writeAssignmentXapi(
+          item_id,
+          assignedClassIds,
+          numberOfStudentsAssigned
+        )
       }
       await dispatch('load')
     }
