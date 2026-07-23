@@ -1,26 +1,16 @@
 <script setup>
-  import { ref, reactive } from 'vue'
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '../encryption.js'
-  import QRCode from './qrcode.vue'
-  import codeCharToIcon from '../code-char-to-icon.js'
+  import LoginCodeCard from './login-code-card.vue'
 
   const store = useStore()
 
   const props = defineProps({ id: String })
-  const emit = defineEmits(['close'])
-
-  const open = ref(true)
-
   const userData = await Agent.state(props.id)
 
   const teacherOwnedUserAccount = !!userData.providerEncryptedKey
 
-  const {
-    providerEncryptedKey,
-    providerEncryptedInfo,
-    publicKey
-  } = userData
+  const { providerEncryptedInfo } = userData
 
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
   const providerKeyPair = await generateKeyPair(providerSecret)
@@ -51,17 +41,7 @@
     v-if="teacherOwnedUserAccount && userSecret"
     class="wrapper"
   >
-    <div>
-      <div>{{info.name}}</div>
-      <QRCode size="2in" :data="userSecret" />
-      <div>
-        <v-icon
-          v-for="char in userSecret"
-          style="margin: 4px;"
-          :icon="codeCharToIcon[char]"
-        />
-      </div>
-    </div>
+    <LoginCodeCard :name="info.name" :loginCode="userSecret" />
   </div>
   <div v-else></div>
 </template>
