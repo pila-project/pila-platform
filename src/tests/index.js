@@ -8,6 +8,7 @@ import adminContentManagementTests from './admin-content-management.js'
 import assignmentGroupVisibilityTests from './assignment-group-visibility.js'
 import adminTeacherGrantTests from './admin-teacher-grants.js'
 import studentsJoiningTeachersTests from './students-joining-teachers.js'
+import assignmentXapiTests from './assignment-xapi.js'
 import teacherLoginCredentialTests from './teacher-login-credentials.js'
 
 export default function runTests() {
@@ -57,6 +58,7 @@ function waitForStoreLoadThenRunTests (store) {
           adminTeacherGrantTests(store)
           teacherLoginCredentialTests()
           assignmentGroupVisibilityTests()
+          assignmentXapiTests()
           studentsJoiningTeachersTests(store)
         })
       }

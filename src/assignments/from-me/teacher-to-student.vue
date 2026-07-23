@@ -3,31 +3,26 @@
     ...
   </div>
   <div v-else-if="selectingContent">
-    <div>
-      <v-btn
-        prepend-icon="fa-solid fa-bolt"
-        style="
-          z-index: 1;
-          position: fixed;
-          bottom: 32px;
-          right: 32px;
-        "
-        color="rgb(255, 196, 66)"
-        size="x-large"
-        :text="t('select')"
-        @click="selectingContent = false"
-        background="#FFC442"
-      />
-      <ContentLibrary
-        selectable
-        :selected="assignment.content"
-        @select="assignment.content = $event"
-      />
-      <div style="height: 96px" />
-    </div>
-    <div>
-      
-    </div>
+    <v-btn
+      prepend-icon="fa-solid fa-bolt"
+      style="
+        z-index: 1;
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+      "
+      color="rgb(255, 196, 66)"
+      size="x-large"
+      :text="t('select')"
+      @click="selectingContent = false"
+      background="#FFC442"
+    />
+    <ContentLibrary
+      selectable
+      :selected="assignment.content"
+      @select="selectContent"
+    />
+    <div style="height: 96px" />
   </div>
   <div style="margin: 16px;" v-else>
     <div>
@@ -35,13 +30,11 @@
       <input
         v-model="assignment.name"
         class="rounded-grey"
-        style="width: 50%;"
       />
       <h4>{{ t('give-your-assignment-a-description') }}</h4>
       <textarea
         v-model="assignment.description"
         class="rounded-grey"
-        style="width: 50%; height: 44px;"
       />
     </div>
     <div style="display: flex; justify-content: center;">
@@ -70,21 +63,12 @@
       </div>
     </div>
   </div>
-  <PreviewModal
-    v-if="previewing"
-    :id="previewing"
-    @close="previewing = null"
-  />
 </template>
 
 <script>
-  import { v4 as uuid, validate as isUUID } from 'uuid'
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
+  import { assignmentXapiStatement } from '../../assignment-xapi.js'
   import GroupAssigner from '../../components/groups/assigner.vue'
   import ContentLibrary from '../../components/content-library.vue'
-  import ContentLibraryCard from '../../components/content-library-card.vue'
-  import URL_CONTENT_DATA from '../../url-content-data.js'
-  import PreviewModal from '../../components/PreviewModal.vue'
   import IconButton from '../../components/icon-button.vue'
   import NameOrTranslatedNameFromItemId from '../../components/name-or-translated-name-from-item-id.vue'
 
@@ -95,10 +79,7 @@
     components: {
       IconButton,
       GroupAssigner,
-      vueScopeComponent,
-      ContentLibraryCard,
       ContentLibrary,
-      PreviewModal,
       NameOrTranslatedNameFromItemId
     },
     emits: ['setCloseButton'],
@@ -106,26 +87,26 @@
       return {
         loading: true,
         assignment: null,
-        previewing: null,
+        user: null,
         selectingContent: false
       }
     },
     async created() {
-      this.assignment = await Agent.state(this.id)
+      const [assignment, { auth: { user } }] = await Promise.all([
+        Agent.state(this.id),
+        Agent.environment()
+      ])
+      this.assignment = assignment
+      this.user = user
       this.loading = false
     },
     computed: {
-      hasValidContent() {
-        return this.assignment && isUUID(this.assignment.content)
-      },
-      expertContent() {
-        return this.$store.getters['pila_tags/withTag']('expert')
-      },
-      userContent() {
-        return this.$store.getters['pila_tags/withTag']('tracked')
-      },
-      URL_CONTENT_DATA() {
-        return URL_CONTENT_DATA
+      assignedClassIds() {
+        return this.$store.getters['assignments/assignedGroups'](
+          this.id,
+          'teacher-to-student',
+          false
+        )
       }
     },
     watch: {
@@ -134,27 +115,40 @@
       }
     },
     methods: {
-      t(slug) { return this.$store.getters.t(slug) }
+      t(slug) { return this.$store.getters.t(slug) },
+      async selectContent(content) {
+        if (content === this.assignment.content) return
+        this.assignment.content = content
+
+        const statement = assignmentXapiStatement(
+          this.user,
+          content,
+          this.assignedClassIds
+        )
+        if (!statement) return
+
+        this.assignment.xapi = statement
+        try {
+          await Agent.synced()
+        }
+        catch (error) {
+          console.warn(`Unable to write assignment xAPI for ${this.id}.`, error)
+        }
+      }
     }
   }
 
 </script>
 
 <style scoped>
-  .content-entry
-  {
-    padding: 4px 8px;
-    border: 1px solid transparent;
-    border-radius: 16px;
-  }
-  .selected
-  {
-    border: 1px solid blue;
-  }
-  textarea,
-  input {
-    width: 70%;
-    margin: 2px 0 6px 0;
-  }
+textarea,
+input {
+  width: 50%;
+  margin: 2px 0 6px 0;
+}
+
+textarea {
+  height: 44px;
+}
 
 </style>
