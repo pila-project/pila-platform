@@ -390,6 +390,17 @@
                         const { game } = await Agent.state(item.id)
                         this.candliGames.push(game)
                       }
+                      else if (domain === 'embed.knowlearning.systems') {
+                        const { id } = await Agent.state(item.id)
+                        if (id?.startsWith?.('https://pila.cand.li/')) {
+                          try {
+                            const url = new URL(id)
+                            const game = url.searchParams.get('game')
+                            if (game) this.candliGames.push(game)
+                          }
+                          catch { /* Ignore malformed URLs */ }
+                        }
+                      }
                     })
                   })
                 }
