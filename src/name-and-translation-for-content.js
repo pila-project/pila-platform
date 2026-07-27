@@ -66,19 +66,26 @@ export async function translateNameFromTaskId (
     lang,
     domain = DEFAULT_TRANSLATION_DOMAIN
 ) {
+
+    // attempt translation site translation first
+    const translations = await Agent.query('translate-item', [ taskId, [ lang ] ], 'translations.pilaproject.org')
+
+    const nameTranslations = translations.filter(({ path })  => path.length === 2 && path[1] === 'name')
+    if (nameTranslations.length) return nameTranslations[0].value
+
+
     const { name } = await Agent.state(taskId)
     const exactLocalizedName = localizedNameFromValue(name, lang, { requireExact: true })
+
+    if (taskId === '30da0640-a909-11f0-a277-f786921967e7') {
+        console.log('GOT TRANSLATIONS?????', exactLocalizedName)
+    }
 
     if (exactLocalizedName) {
         return isUUID(exactLocalizedName)
             ? await translateId(exactLocalizedName, lang, domain)
             : exactLocalizedName
     }
-
-    // attempt translation site translation first
-    const translations = await Agent.query('translate-item', [ taskId, [ lang ] ], 'translations.pilaproject.org')
-    const nameTranslations = translations.filter(({ path })  => path.length === 2 && path[1] === 'name')
-    if (nameTranslations.length) return nameTranslations[0].value
 
     const localizedName = localizedNameFromValue(name, lang)
     if (!localizedName) {
