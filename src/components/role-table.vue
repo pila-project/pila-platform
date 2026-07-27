@@ -8,7 +8,7 @@
       {{ t('download') }}
     </v-btn>
     <v-btn
-      v-if="props.approvalColumns"
+      v-if="props.approvalColumns && isSimplifiedStudyDomain"
       class="ml-4"
       :color="adminSecret ? undefined : 'warning'"
       variant="tonal"
@@ -17,7 +17,7 @@
       @click="openAdminEncryptionKeyDialog(false)"
     />
     <v-btn
-      v-if="props.approvalColumns"
+      v-if="props.approvalColumns && isSimplifiedStudyDomain"
       class="ml-2"
       color="primary"
       prepend-icon="fa-solid fa-user-plus"
@@ -373,6 +373,7 @@
   import LoginCodeCard from './login-code-card.vue'
   import { useStore } from 'vuex'
   import { json2csv } from 'json-2-csv'
+  import { SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
   import { createUser, randomUserSecret } from '../user-utils.js'
   import { downloadLoginCode, printLoginCode } from '../login-code-document.js'
   import {
@@ -385,6 +386,7 @@
   } from '../teacher-login-credentials.js'
 
   const store = useStore()
+  const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
   function t(slug) { return store.getters.t(slug) }
 

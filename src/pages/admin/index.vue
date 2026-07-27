@@ -39,12 +39,14 @@
           @click="tab = 'teachers'"
         />
         <v-list-item
+          v-if="isSimplifiedStudyDomain"
           prepend-icon="fa-solid fa-book-open"
           title="Content"
           :active="tab === 'content'"
           @click="tab = 'content'"
         />
         <v-list-item
+          v-if="isSimplifiedStudyDomain"
           prepend-icon="fa-solid fa-list-check"
           title="Assign"
           :active="tab === 'assign'"
