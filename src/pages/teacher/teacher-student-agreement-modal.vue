@@ -18,9 +18,9 @@
         <p class="agreement-text">
           {{ t('per-the-pila-personal-data-protection-notice-or') }}
         </p>
-        <label class="agreement-checkbox-label" @click.prevent="toggleAgreement">
-          <div :class="['agreement-checkbox', { 'agreement-checkbox--checked': state.studentDataProtectionAgreement }]">
-            <LucideIcon v-if="state.studentDataProtectionAgreement" name="check" :size="14" />
+        <label class="agreement-checkbox-label" @click.prevent="confirmed = !confirmed">
+          <div :class="['agreement-checkbox', { 'agreement-checkbox--checked': confirmed }]">
+            <LucideIcon v-if="confirmed" name="check" :size="14" />
           </div>
           <span class="agreement-checkbox-text">{{ t('i-confirm-consent-collected') }}</span>
         </label>
@@ -28,11 +28,11 @@
     </template>
 
     <template v-slot:footer>
-      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="emit('close')" />
+      <PButton variant="secondary" color="danger" :text="t('cancel')" @click="handleClose" />
       <PButton
         variant="primary"
         :text="t('done')"
-        :disabled="!state.studentDataProtectionAgreement"
+        :disabled="!confirmed"
         @click="handleDone"
       />
     </template>
@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-  import { reactive } from 'vue'
+  import { ref } from 'vue'
   import { useStore } from 'vuex'
   import { PModal, PButton } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -50,23 +50,33 @@
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
 
-  const state = reactive(await Agent.state())
+  /**
+   * Always require a fresh confirm each open (product: every student create).
+   * Still persist studentDataProtectionAgreement on accept for compliance audit.
+   */
+  const confirmed = ref(false)
 
-  function toggleAgreement() {
-    if (!state.studentDataProtectionAgreement) {
-      state.studentDataProtectionAgreement = true
+  async function persistAgreementFlag() {
+    try {
+      const state = await Agent.state()
+      if (!state.studentDataProtectionAgreement) {
+        state.studentDataProtectionAgreement = true
+        await Agent.synced()
+      }
+    } catch (e) {
+      console.warn('[TeacherStudentAgreement] persist failed', e)
     }
   }
 
-  function handleDone() {
-    if (state.studentDataProtectionAgreement) {
-      emit('agreed')
-      emit('close')
-    }
+  async function handleDone() {
+    if (!confirmed.value) return
+    await persistAgreementFlag()
+    emit('agreed')
+    emit('close')
   }
 
   function handleClose() {
-    if (state.studentDataProtectionAgreement) emit('agreed')
+    // Cancel / X — do not treat as agreed
     emit('close')
   }
 </script>

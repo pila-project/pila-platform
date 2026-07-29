@@ -1045,8 +1045,8 @@
 
     <TeacherStudentAgreementModal
       v-if="showAcceptStudentAgreementModal"
-      @agreed="onAgreementAccepted()"
-      @close="showAcceptStudentAgreementModal = false"
+      @agreed="onAgreementAccepted"
+      @close="onAgreementModalClose"
     />
   </div>
 </template>
@@ -2018,13 +2018,9 @@ async function handleAddStudentIndividual() {
     showNamePasswordModal.value = true
     return
   }
-  const { studentDataProtectionAgreement } = await Agent.state()
-  if (!studentDataProtectionAgreement) {
-    pendingAfterAgreement.value = 'individual'
-    showAcceptStudentAgreementModal.value = true
-    return
-  }
-  openCreateStudentForm()
+  // Always show consent step before create (not once-per-teacher)
+  pendingAfterAgreement.value = 'individual'
+  showAcceptStudentAgreementModal.value = true
 }
 
 function openCreateStudentForm() {
@@ -2043,11 +2039,7 @@ async function handleAddStudent() {
 }
 
 async function createStudentAccount() {
-  const { studentDataProtectionAgreement } = await Agent.state()
-  if (!studentDataProtectionAgreement) {
-    showAcceptStudentAgreementModal.value = true
-    return
-  }
+  // Consent already collected when opening the form (every create flow).
   const name = newStudentName.value.trim()
   if (!name) return
   const grade = newStudentGrade.value || ''
@@ -2085,24 +2077,39 @@ async function executeCreateStudentAccount() {
   }
 }
 
+/**
+ * Consent accepted for this create action — resume pending flow.
+ * Skip re-showing agreement (consentJustAccepted) so bulk/csv can proceed.
+ */
+const consentJustAccepted = ref(false)
+
 function onAgreementAccepted() {
   showAcceptStudentAgreementModal.value = false
   const pending = pendingAfterAgreement.value
   pendingAfterAgreement.value = null
+  consentJustAccepted.value = true
   if (pending === 'individual') {
     openCreateStudentForm()
+    consentJustAccepted.value = false
     return
   }
   if (pending === 'bulk') {
-    handleBulkCreate()
+    void handleBulkCreate().finally(() => { consentJustAccepted.value = false })
     return
   }
   if (pending === 'csv') {
-    handleCSVImport()
+    void handleCSVImport().finally(() => { consentJustAccepted.value = false })
     return
   }
-  if (showCreateStudentForm.value) {
-    createStudentAccount()
+  consentJustAccepted.value = false
+}
+
+/** User cancelled consent — do not create. */
+function onAgreementModalClose() {
+  showAcceptStudentAgreementModal.value = false
+  // If agreed already cleared pending, leave alone; else cancel
+  if (!consentJustAccepted.value) {
+    pendingAfterAgreement.value = null
   }
 }
 
@@ -2233,8 +2240,8 @@ async function handleCSVImport() {
     showNamePasswordModal.value = true
     return
   }
-  const { studentDataProtectionAgreement } = await Agent.state()
-  if (!studentDataProtectionAgreement) {
+  // Always require consent for this import (unless we just accepted for this action)
+  if (!consentJustAccepted.value) {
     showCSVUploadModal.value = false
     pendingAfterAgreement.value = 'csv'
     showAcceptStudentAgreementModal.value = true
@@ -2302,8 +2309,8 @@ async function handleBulkCreate() {
     showNamePasswordModal.value = true
     return
   }
-  const { studentDataProtectionAgreement } = await Agent.state()
-  if (!studentDataProtectionAgreement) {
+  // Always require consent for this bulk create (unless we just accepted for this action)
+  if (!consentJustAccepted.value) {
     showBulkEntryModal.value = false
     pendingAfterAgreement.value = 'bulk'
     showAcceptStudentAgreementModal.value = true
