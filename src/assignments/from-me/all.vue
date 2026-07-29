@@ -398,11 +398,13 @@
                             const url = new URL(id)
                             const game = url.searchParams.get('game')
                             if (game) this.candliGames.push(game)
-                          }
-                          catch {
-                            const game = id.replace('https://pila.cand.li/pila.html?', '')
-                            if (game) this.candliGames.push(game)
-                          }
+                            else {
+                              // old incredible machines format
+                              this.candliGames.push(
+                                id.replace('https://pila.cand.li/pila.html?', '')
+                              )
+                            }
+                          } catch {}
                         }
                       }
                     })
