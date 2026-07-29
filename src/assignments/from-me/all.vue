@@ -392,13 +392,16 @@
                       }
                       else if (domain === 'embed.knowlearning.systems') {
                         const { id } = await Agent.state(item.id)
-                        if (id?.startsWith?.('https://pila.cand.li/')) {
+                        if (id?.startsWith?.('https://pila.cand.li/pila.html?')) {
                           try {
                             const url = new URL(id)
                             const game = url.searchParams.get('game')
                             if (game) this.candliGames.push(game)
                           }
-                          catch { /* Ignore malformed URLs */ }
+                          catch {
+                            const game = id.replace('https://pila.cand.li/pila.html?', '')
+                            if (game) this.candliGames.push(game)
+                          }
                         }
                       }
                     })
