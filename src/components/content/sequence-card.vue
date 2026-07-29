@@ -53,7 +53,18 @@
             </PMenu>
           </div>
         </div>
-        <p class="sc-desc">{{ seqState?.description || '' }}</p>
+        <!-- Tooltip only on description text when ellipsed — not on the whole card -->
+        <PTooltip
+          v-if="seqState?.description"
+          :text="seqState.description"
+          position="top"
+          block
+          only-if-overflow
+          class="sc-desc-wrap"
+        >
+          <p class="sc-desc">{{ seqState.description }}</p>
+        </PTooltip>
+        <p v-else class="sc-desc sc-desc--empty" />
         <span class="sc-modified">{{ t('last-modified') }} - {{ lastModifiedDate }}</span>
       </div>
     </div>
@@ -88,7 +99,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
-import { PMenu, PMenuItem } from '@/components/ui/index.js'
+import { PMenu, PMenuItem, PTooltip } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import PButton from '@/components/ui/PButton.vue'
 import SequenceItemsList from './sequence-items-list.vue'
@@ -360,6 +371,11 @@ onMounted(async () => {
   min-width: 0;
 }
 
+.sc-desc-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .sc-desc {
   font-size: 12px;
   font-weight: 400;
@@ -370,6 +386,11 @@ onMounted(async () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
+}
+
+.sc-desc--empty {
+  min-height: 0;
 }
 
 .sc-modified {

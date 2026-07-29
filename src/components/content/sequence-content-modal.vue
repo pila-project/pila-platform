@@ -174,7 +174,9 @@ import {
   persistSequenceItems,
   isExternalExploreDrop,
   isValidSequenceAgentState,
+  partitionSequenceMemberIds,
 } from '@/utils/sequence-items.js'
+import { useFeedback } from '@/composables/useFeedback.js'
 
 const REORDER_MIME = 'text/x-scm-reorder'
 
@@ -188,6 +190,7 @@ const emit = defineEmits(['close', 'changed'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+const { error: showError } = useFeedback()
 
 const partition = computed(() => store.getters.tagPartition)
 
@@ -278,8 +281,14 @@ function prefetchItemMeta(ids) {
   void Promise.allSettled(ids.map(id => loadItemDescription(id)))
 }
 
-function insertDraftItem(itemId, index = -1) {
+async function insertDraftItem(itemId, index = -1) {
   if (!itemId || props.archived || draftIds.value.includes(itemId)) return
+  // UIUX-113: reject nested sequences (existing generic error — no new copy)
+  const { allowed } = await partitionSequenceMemberIds([itemId])
+  if (!allowed.length) {
+    showError(t('something-went-wrong'))
+    return
+  }
   const ids = [...draftIds.value]
   const at = index >= 0 && index <= ids.length ? index : ids.length
   ids.splice(at, 0, itemId)

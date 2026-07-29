@@ -310,7 +310,8 @@
     <CreateSequenceModal
       v-if="showCreateSequence || sequenceToEdit"
       :id="sequenceToEdit"
-      @close="showCreateSequence = false; sequenceToEdit = null"
+      :initial-item-ids="createSequenceInitialItemIds"
+      @close="closeCreateSequenceModal"
       @created="onSequenceCreated"
       @updated="onSequenceUpdated"
     />
@@ -403,6 +404,7 @@
       :assignment-result="assignmentAddResult"
       @close="closeAddPicker"
       @create-assignment="navigateToCreateAssignment"
+      @create-sequence="navigateToCreateSequence"
       @confirm-sequence="id => addItemsToSequence(id, pendingAddItems)"
       @confirm-assignment="id => addItemsToAssignment(id, pendingAddItems)"
       @go-to-assignment="goToAssignmentFromPicker"
@@ -439,7 +441,11 @@
   } from '@/utils/content-cache.js'
   import { useContentLibrary, notifyTagIndexUpdated, registerMyContentItem } from '@/utils/useContentLibrary.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
-  import { appendItemsToSequence, isValidSequenceAgentState } from '@/utils/sequence-items.js'
+  import {
+    appendItemsToSequence,
+    isValidSequenceAgentState,
+    partitionSequenceMemberIds,
+  } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import {
     loadExploreArchivedSequenceIds,
@@ -531,6 +537,8 @@
   )
   const sequenceVersion = ref(0)
   const showCreateSequence = ref(false)
+  /** When creating a sequence from Explore add-picker, seed these content ids. */
+  const createSequenceInitialItemIds = ref([])
   const sequenceToEdit = ref(null)
   const sequenceToPreview = ref(null)
   const sequenceToView = ref(null)
@@ -785,13 +793,24 @@
     sequenceToEdit.value = id
   }
 
+  function closeCreateSequenceModal() {
+    showCreateSequence.value = false
+    sequenceToEdit.value = null
+    createSequenceInitialItemIds.value = []
+  }
+
   async function onSequenceCreated(id) {
+    const seededFromPicker = createSequenceInitialItemIds.value.length > 0
     await ensureSequenceMetadataCached(id)
     registerMyContentItem(id)
     promoteActiveSequence(id)
     newestSequenceId.value = id
     await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
-    showCreateSequence.value = false
+    closeCreateSequenceModal()
+    if (seededFromPicker) {
+      deselectAll()
+      sequenceVersion.value++
+    }
     showSuccessDialog(t('sequence-created-successfully'))
   }
 
@@ -884,6 +903,24 @@
     createAssignmentId.value = uuid()
   }
 
+  async function navigateToCreateSequence() {
+    const { allowed, rejectedSequences } = await partitionSequenceMemberIds(
+      pendingAddItems.value,
+      { knownSequenceIds: mySequenceIdSet.value },
+    )
+    // UIUX-113: block pure-sequence selection; reuse existing generic error (no new copy)
+    if (!allowed.length) {
+      showError(t('something-went-wrong'))
+      return
+    }
+    if (rejectedSequences.length) {
+      // Mixed selection: still create with leaf items only
+    }
+    closeAddPicker()
+    createSequenceInitialItemIds.value = allowed
+    showCreateSequence.value = true
+  }
+
   async function onExploreAssignmentSaved(meta) {
     const id = createAssignmentId.value
     if (id) {
@@ -901,14 +938,27 @@
   async function addItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {
     if (!sequenceId || !itemIds?.length || archivedSequenceIdSet.value.has(sequenceId)) return
     try {
-      const { added, items } = await appendItemsToSequence(sequenceId, itemIds, { insertIndex })
-      if (!added) return
+      const { added, rejectedSequences } = await appendItemsToSequence(sequenceId, itemIds, {
+        insertIndex,
+        knownSequenceIds: mySequenceIdSet.value,
+      })
+      if (!added) {
+        // Nested sequence(s) only, or already present
+        showError(
+          rejectedSequences?.length
+            ? t('something-went-wrong')
+            : t('all-selected-already-in-sequence'),
+        )
+        return
+      }
       showAddPicker.value = false
       pendingAddItems.value = []
       deselectAll()
       sequenceVersion.value++
       showSuccessDialog(
-        added === 1 ? '1 item added to sequence' : `${added} items added to sequence`,
+        added === 1
+          ? t('one-item-added-to-sequence')
+          : t('n-items-added-to-sequence').replace('{count}', String(added)),
       )
     } catch (e) {
       console.error('[Explore] addItemsToSequence failed', sequenceId, e)

@@ -71,6 +71,39 @@
         </div>
       </div>
 
+      <!-- Step 2a-seq: Sequence — new vs existing (parity with assignment) -->
+      <div v-else-if="step === 'sequence-choice'" class="eap-body">
+        <p class="eap-section-label">
+          {{ t('where-add-content') }}
+        </p>
+        <div class="eap-choice-row">
+          <button
+            type="button"
+            class="eap-choice-card"
+            :class="{ 'eap-choice-card--selected': sequenceMode === 'new' }"
+            @click="sequenceMode = 'new'"
+          >
+            <div class="eap-choice-icon eap-choice-icon--sequence">
+              <LucideIcon name="file-chart-line" :size="21" />
+            </div>
+            <span class="eap-choice-label eap-choice-label--multiline">{{ t('create-new-sequence') }}</span>
+          </button>
+          <button
+            type="button"
+            class="eap-choice-card"
+            :class="{ 'eap-choice-card--selected': sequenceMode === 'existing' }"
+            @click="sequenceMode = 'existing'"
+          >
+            <div class="eap-choice-icon eap-choice-icon--assignment">
+              <LucideIcon name="file-pen" :size="21" />
+            </div>
+            <span class="eap-choice-label eap-choice-label--multiline">
+              {{ t('add-to-existing-sequence') }}
+            </span>
+          </button>
+        </div>
+      </div>
+
       <!-- Step 2b: Pick existing assignment -->
       <div v-else-if="step === 'assignment-list'" class="eap-body">
         <PInput
@@ -223,6 +256,21 @@
         </div>
       </template>
 
+      <template v-else-if="step === 'sequence-choice'">
+        <div class="eap-footer-split">
+          <PButton variant="outline" :text="t('back')" @click="goBack" />
+          <div class="eap-footer-actions">
+            <PButton variant="secondary" :text="t('cancel')" @click="$emit('close')" />
+            <PButton
+              variant="primary"
+              :text="t('next')"
+              :disabled="!sequenceMode"
+              @click="onSequenceChoiceNext"
+            />
+          </div>
+        </div>
+      </template>
+
       <template v-else-if="step === 'assignment-list'">
         <div class="eap-footer-split">
           <PButton variant="outline" :text="t('back')" @click="goBack" />
@@ -292,6 +340,7 @@ const props = defineProps({
 const emit = defineEmits([
   'close',
   'create-assignment',
+  'create-sequence',
   'confirm-sequence',
   'confirm-assignment',
   'go-to-assignment',
@@ -306,6 +355,7 @@ const TEACHER_ASSIGNMENT_TYPE = 'teacher-to-student'
 const step = ref('choose')
 const destination = ref(null)
 const assignmentMode = ref(null)
+const sequenceMode = ref(null)
 const selectedAssignmentId = ref(null)
 const selectedSequenceId = ref(null)
 const assignmentSearch = ref('')
@@ -332,28 +382,34 @@ const headerTitle = computed(() => {
   if (step.value === 'assignment-choice') {
     return t('add-content-to-assignment')
   }
+  if (step.value === 'sequence-choice') {
+    return t('add-content-to-sequence')
+  }
   if (step.value === 'assignment-list') {
     return t('add-to-existing-assignment-title')
   }
-  if (step.value === 'sequence-list') return t('add-to-sequence')
+  if (step.value === 'sequence-list') {
+    return t('add-to-existing-sequence-title')
+  }
   return ''
 })
 
 const headerSubtitle = computed(() => {
   const quoted = contentLabel.value ? `“${contentLabel.value}”` : t('selected-content')
   if (step.value === 'choose') {
-    return (
-      t('add-picker-subtitle')
-    )
+    return t('add-picker-subtitle')
   }
   if (step.value === 'assignment-choice') {
     return t('add-to-assignment-choice-subtitle').replace('{name}', quoted)
+  }
+  if (step.value === 'sequence-choice') {
+    return t('add-to-sequence-choice-subtitle').replace('{name}', quoted)
   }
   if (step.value === 'assignment-list') {
     return t('add-to-existing-assignment-subtitle').replace('{name}', quoted)
   }
   if (step.value === 'sequence-list') {
-    return t('add-to-sequence-subtitle')
+    return t('add-to-existing-sequence-subtitle').replace('{name}', quoted)
   }
   return ''
 })
@@ -511,9 +567,7 @@ function onChooseNext() {
   if (destination.value === 'assignment') {
     step.value = 'assignment-choice'
   } else if (destination.value === 'sequence') {
-    step.value = 'sequence-list'
-    loadSequences()
-    loadPreviewItem()
+    step.value = 'sequence-choice'
   }
 }
 
@@ -525,6 +579,18 @@ function onAssignmentChoiceNext() {
   if (assignmentMode.value === 'existing') {
     step.value = 'assignment-list'
     loadAssignments()
+  }
+}
+
+function onSequenceChoiceNext() {
+  if (sequenceMode.value === 'new') {
+    emit('create-sequence')
+    return
+  }
+  if (sequenceMode.value === 'existing') {
+    step.value = 'sequence-list'
+    loadSequences()
+    loadPreviewItem()
   }
 }
 
@@ -548,8 +614,11 @@ function goBack() {
     step.value = 'assignment-choice'
     selectedAssignmentId.value = null
     assignmentSearch.value = ''
-  } else if (step.value === 'sequence-list') {
+  } else if (step.value === 'sequence-choice') {
     step.value = 'choose'
+    sequenceMode.value = null
+  } else if (step.value === 'sequence-list') {
+    step.value = 'sequence-choice'
     selectedSequenceId.value = null
     sequenceSearch.value = ''
   }

@@ -55,10 +55,17 @@ import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import {
   EMPTY_SEQUENCE_ITEMS,
   isValidMapSequenceItems,
+  createMapSequenceItems,
+  partitionSequenceMemberIds,
 } from '@/utils/sequence-items.js'
 
 const props = defineProps({
   id: String, // if set, we're editing
+  /** Content ids to seed into a new sequence (Explore add-picker “create new”). */
+  initialItemIds: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const emit = defineEmits(['close', 'created', 'updated'])
@@ -89,17 +96,26 @@ async function submit() {
       description: description.value.trim(),
     })
   } else {
+    // UIUX-113: never seed nested sequences into a new sequence
+    const rawSeed = (props.initialItemIds || []).filter(Boolean)
+    const { allowed: seedIds } = await partitionSequenceMemberIds(rawSeed)
+    const initialItems = seedIds.length
+      ? createMapSequenceItems(seedIds)
+      : { ...EMPTY_SEQUENCE_ITEMS }
+
     const id = await Agent.create({
       active_type: 'application/json;type=sequence',
       active: {
         name: name.value.trim(),
         description: description.value.trim(),
-        items: { ...EMPTY_SEQUENCE_ITEMS },
+        items: initialItems,
       },
     })
     const state = await Agent.state(id)
     if (!isValidMapSequenceItems(state.items)) {
-      state.items = { ...EMPTY_SEQUENCE_ITEMS }
+      state.items = seedIds.length
+        ? createMapSequenceItems(seedIds)
+        : { ...EMPTY_SEQUENCE_ITEMS }
       await Agent.synced()
     }
     await setTagging({ tag: MY_CONTENT_TAG, target: id, value: true })

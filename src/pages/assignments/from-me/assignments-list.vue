@@ -121,37 +121,41 @@
           :itemsPerPageOptions="assignmentTablePerPageOptions"
         >
           <template #item.title="{ item }">
-            <div class="assign-cell-title">
-              <PTooltip
-                :text="assignmentData[item.id]?.name || ''"
-                only-if-overflow
-                class="assign-cell-title-text-wrap"
-              >
-                <span class="assign-cell-title-text">
-                  <vueScopeComponent :id="item.id" :path="['name']" />
+            <!-- Fixed max width so long descriptions cannot blow out the table -->
+            <div class="assign-cell-title-block">
+              <div class="assign-cell-title">
+                <PTooltip
+                  :text="assignmentData[item.id]?.name || ''"
+                  only-if-overflow
+                  class="assign-cell-title-text-wrap"
+                >
+                  <span class="assign-cell-title-text">
+                    <vueScopeComponent :id="item.id" :path="['name']" />
+                  </span>
+                </PTooltip>
+                <span
+                  v-if="assignmentData[item.id]?.assignmentType"
+                  :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)"
+                >
+                  {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
                 </span>
-              </PTooltip>
-              <span
-                v-if="assignmentData[item.id]?.assignmentType"
-                :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)"
-              >
-                {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
-              </span>
-            </div>
-            <PTooltip
-              :text="assignmentData[item.id]?.description || ''"
-              position="top"
-              block
-              only-if-overflow
-            >
-              <div class="assign-cell-desc assign-cell-desc--clamp">
-                <vueScopeComponent :id="item.id" :path="['description']">
-                  <template v-slot="data">
-                    {{ data.value || t('no-description') }}
-                  </template>
-                </vueScopeComponent>
               </div>
-            </PTooltip>
+              <!-- Hover only on the description text (not the whole row/card) -->
+              <PTooltip
+                :text="assignmentData[item.id]?.description || ''"
+                position="top"
+                block
+                only-if-overflow
+              >
+                <div class="assign-cell-desc assign-cell-desc--ellipsis">
+                  <vueScopeComponent :id="item.id" :path="['description']">
+                    <template v-slot="data">
+                      {{ data.value || t('no-description') }}
+                    </template>
+                  </vueScopeComponent>
+                </div>
+              </PTooltip>
+            </div>
           </template>
           <template #item.dueDate="{ item }">
             <span class="assign-cell-text">
@@ -169,6 +173,7 @@
           <template #item.assignedTo="{ item }">
             <template v-if="getAssignedGroups(item.id).length > 0">
               <div class="assign-cell-title">
+                <LucideIcon name="users" :size="12" class="assign-cell-type-icon" />
                 <vueScopeComponent
                   v-for="groupId in getAssignedGroups(item.id).slice(0, 1)"
                   :key="groupId"
@@ -267,9 +272,13 @@
     @open-dashboard="handleOpenDashboardFromSubmissions"
   />
 
-  <!-- Dashboard Modals -->
+  <!--
+    Dashboard modals stack above View Submissions (reporting uses --z-modal-nested).
+    layer="preview" → higher z-index + Escape capture so only the dashboard closes.
+  -->
   <PModal
     v-if="showResultsModal"
+    layer="preview"
     @close="closeDashboard(resultsDashboardType)"
     :closeButtonText="t('close')"
     showCloseButton
@@ -290,6 +299,7 @@
   </PModal>
   <PModal
     v-if="showCandliResultsModal"
+    layer="preview"
     @close="closeDashboard('competency')"
     showCloseButton
     :closeButtonText="t('close')"
@@ -310,6 +320,7 @@
   </PModal>
   <PModal
     v-if="showGenAIDashboardModal"
+    layer="preview"
     @close="closeDashboard('generative-ai-module')"
     showCloseButton
     :closeButtonText="t('close')"
@@ -1221,8 +1232,12 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
     }
   }
 
+  /**
+   * Open a dashboard from reporting without tearing down View Submissions.
+   * Dashboard PModal uses layer="preview" so it stacks above the reporting overlay;
+   * closing the dashboard returns to reporting (not the assignments list).
+   */
   async function handleOpenDashboardFromSubmissions(type) {
-    showSubmissionsView.value = false
     if (type === 'competency') {
       await openCandliDashboard(current.value)
     } else if (type === 'genai') {
@@ -1340,6 +1355,16 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   margin-top: 16px;
 }
 
+/*
+ * Title column is 2nd after the select checkbox — cap width so long
+ * descriptions cannot stretch the table.
+ */
+.assign-table-wrapper :deep(thead th:nth-child(2)),
+.assign-table-wrapper :deep(tbody td:nth-child(2)) {
+  max-width: 320px;
+  width: 320px;
+}
+
 .assign-table-wrapper :deep(.table-row-archived) {
   opacity: 0.85;
   background: #fffbeb;
@@ -1347,6 +1372,12 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 
 :deep(.assign-row-current) {
   background: #eff6ff !important;
+}
+
+.assign-cell-title-block {
+  max-width: 320px;
+  min-width: 0;
+  width: 100%;
 }
 
 .assign-cell-title {
@@ -1361,6 +1392,11 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   font-weight: 500;
   color: #334155;
   line-height: 1.4;
+}
+
+.assign-cell-type-icon {
+  flex-shrink: 0;
+  color: #64748b;
 }
 
 /*
@@ -1396,12 +1432,13 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   line-height: 1.4;
 }
 
-.assign-cell-desc--clamp {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+/* Single-line ellipsis; full text via PTooltip only-if-overflow on this node only */
+.assign-cell-desc--ellipsis {
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
-  word-break: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .assign-cell-text {

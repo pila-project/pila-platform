@@ -49,6 +49,12 @@
               inputClass="ufts-option-checkbox"
             />
             <span class="ufts-option-content">
+              <LucideIcon
+                v-if="optionIcon(opt)"
+                :name="optionIcon(opt)"
+                :size="12"
+                class="ufts-option-icon"
+              />
               <span class="ufts-option-label" v-html="highlightMatch(opt.label, internalQuery)"></span>
               <PBadge
                 v-if="showOptionTags && opt.tag"
@@ -99,6 +105,14 @@ function tagVariant(tag) {
   if (tag === 'group') return 'info'
   if (tag === 'student') return 'secondary'
   return 'outline'
+}
+
+/** Student vs group type icons (teacher Assigned-to filter). */
+function optionIcon(opt) {
+  if (opt?.icon) return opt.icon
+  if (opt?.tag === 'student') return 'user'
+  if (opt?.tag === 'group') return 'users'
+  return null
 }
 
 // Get options for the active tab
@@ -321,6 +335,11 @@ watch(isExpanded, async (val) => {
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+.ufts-option-icon {
+  flex-shrink: 0;
+  color: #64748b;
 }
 
 .ufts-option-label {

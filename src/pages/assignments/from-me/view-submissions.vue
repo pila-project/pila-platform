@@ -919,7 +919,11 @@
   }
 
   function handleKeydown(e) {
-    if (e.key === 'Escape') emit('close')
+    if (e.key !== 'Escape') return
+    // Dashboard modals stack above this view (layer=preview) and stop Escape in capture.
+    // If Escape still reaches us, close reporting only when we are the top layer.
+    if (e.defaultPrevented) return
+    emit('close')
   }
 
   onMounted(() => document.addEventListener('keydown', handleKeydown))

@@ -26,7 +26,7 @@
         <PMenuItem
           v-if="!archived"
           :title="t('assign-students-to-group')"
-          prepend-icon="lucide:users"
+          prepend-icon="lucide:user-plus"
           @click="$emit('manage')"
         />
         <PMenuItem
@@ -72,7 +72,7 @@
           v-if="!archived"
           variant="link"
           size="xsm"
-          icon="lucide:users"
+          icon="lucide:user"
           :text="t('view-students')"
           class="group-card-add-btn"
           @click="$emit('manage')"

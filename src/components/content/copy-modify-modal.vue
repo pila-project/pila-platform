@@ -298,7 +298,11 @@ import { validate as isUUID } from 'uuid'
 import getName from '@/utils/name-and-translation-for-content.js'
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
-import { normalizeSequenceItems, createMapSequenceItems } from '@/utils/sequence-items.js'
+import {
+  normalizeSequenceItems,
+  createMapSequenceItems,
+  partitionSequenceMemberIds,
+} from '@/utils/sequence-items.js'
 import { getContentMetadata, invalidate } from '@/utils/content-cache.js'
 import { PModal, PInput, PButton, PTable, PBadge, PMenu, PMenuItem } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -491,14 +495,29 @@ function openContentBrowser() {
 
 async function addContentToSequence(id) {
   if (!id || sequenceItemIds.value.includes(id)) return false
+  // UIUX-113: sequences cannot be members of sequences
+  const { allowed } = await partitionSequenceMemberIds([id])
+  if (!allowed.length) {
+    showError(t('something-went-wrong'))
+    return false
+  }
   sequenceItemIds.value.push(id)
   await loadRowMeta(id)
   return true
 }
 
 async function onPickerAddItems(ids) {
-  for (const id of ids) {
+  const { allowed, rejectedSequences } = await partitionSequenceMemberIds(ids || [])
+  if (rejectedSequences.length && !allowed.length) {
+    showError(t('something-went-wrong'))
+    return
+  }
+  for (const id of allowed) {
     await addContentToSequence(id)
+  }
+  if (rejectedSequences.length && allowed.length) {
+    // Mixed batch: leaf items added; nested sequences rejected without new copy
+    showError(t('something-went-wrong'))
   }
 }
 

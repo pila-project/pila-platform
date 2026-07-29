@@ -7,7 +7,7 @@
       <div class="student-section content-card">
         <div class="section-header">
           <div class="section-header-left">
-            <LucideIcon name="users" :size="20" class="section-icon" />
+            <LucideIcon name="user" :size="20" class="section-icon" />
             <div>
               <h2 class="card-section-title">{{ t('student') }} ({{ students.length }})</h2>
               <p class="card-section-subtitle">{{ t('manage-student-accounts') }}</p>
@@ -33,7 +33,7 @@
               />
               <PButton
                 v-if="selectedActiveStudents.length"
-                icon="lucide:users"
+                icon="lucide:user-plus"
                 variant="secondary"
                 :text="t('add-students-to-group')"
                 size="sm"
@@ -151,42 +151,44 @@
             </template>
             <template #item.more="{ item }">
               <div class="action-cell">
-                <PButton
-                  v-if="item.archived"
-                  variant="secondary"
-                  size="sm"
-                  :text="t('restore')"
-                  @click="confirmRestoreStudent(item)"
-                />
-                <PMenu v-else align-right>
+                <!-- Archived students still get profile access (UIUX-102) -->
+                <PMenu align-right>
                   <template #activator="{ props }">
                     <PButton variant="icon" size="xsm" icon="lucide:ellipsis-vertical" iconOnly @click="props.onClick" />
                   </template>
-                  <PMenuItem
-                    :title="t('edit')"
-                    prepend-icon="lucide:pencil"
-                    @click="userModalUser = item.id"
-                  />
                   <PMenuItem
                     :title="t('student-info')"
                     prepend-icon="lucide:user"
                     @click="openStudentProfile(item.id)"
                   />
+                  <template v-if="!item.archived">
+                    <PMenuItem
+                      :title="t('edit')"
+                      prepend-icon="lucide:pencil"
+                      @click="userModalUser = item.id"
+                    />
+                    <PMenuItem
+                      :title="t('archive')"
+                      prepend-icon="lucide:archive"
+                      @click="confirmArchiveStudent(item)"
+                    />
+                    <PDivider />
+                    <PMenuItem
+                      :title="t('download-login-code')"
+                      prepend-icon="lucide:qr-code"
+                      @click="openLoginCodeModal(item)"
+                    />
+                    <PMenuItem
+                      :title="t('reset-password')"
+                      prepend-icon="lucide:key-round"
+                      @click="resetPasswordStudent = item"
+                    />
+                  </template>
                   <PMenuItem
-                    :title="t('archive')"
-                    prepend-icon="lucide:archive"
-                    @click="confirmArchiveStudent(item)"
-                  />
-                  <PDivider />
-                  <PMenuItem
-                    :title="t('download-login-code')"
-                    prepend-icon="lucide:qr-code"
-                    @click="openLoginCodeModal(item)"
-                  />
-                  <PMenuItem
-                    :title="t('reset-password')"
-                    prepend-icon="lucide:key-round"
-                    @click="resetPasswordStudent = item"
+                    v-else
+                    :title="t('restore')"
+                    prepend-icon="lucide:archive-restore"
+                    @click="confirmRestoreStudent(item)"
                   />
                 </PMenu>
               </div>
@@ -199,7 +201,7 @@
       <div class="group-section content-card">
         <div class="group-section-header">
           <div class="section-header-left">
-            <LucideIcon name="users-round" :size="20" class="section-icon" />
+            <LucideIcon name="users" :size="20" class="section-icon" />
             <div>
               <h2 class="card-section-title">{{ t('group') }} ({{ allGroupsCount }})</h2>
               <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
@@ -359,24 +361,29 @@
       <template #footer>
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="viewProfileUser = null" />
         <PButton
-          v-if="viewProfileUser && !viewProfileUser.archived"
+          v-if="viewProfileUser && !profileUserArchived"
           variant="secondary"
           :text="t('download-login-code')"
-          @click="openLoginCodeModal(viewProfileUser); viewProfileUser = null"
+          @click="openLoginCodeModal(profileStudentItem); viewProfileUser = null"
         />
         <PButton
-          v-if="viewProfileUser && !viewProfileUser.archived"
+          v-if="viewProfileUser && !profileUserArchived"
           variant="secondary"
           :text="t('archive')"
-          @click="confirmArchiveStudent(viewProfileUser); viewProfileUser = null"
+          @click="confirmArchiveStudent(profileStudentItem); viewProfileUser = null"
         />
         <PButton
-          v-if="viewProfileUser?.archived"
+          v-if="viewProfileUser && profileUserArchived"
           variant="secondary"
           :text="t('restore')"
-          @click="restoreConfirmStudent = viewProfileUser; viewProfileUser = null"
+          @click="confirmRestoreStudent(profileStudentItem); viewProfileUser = null"
         />
-        <PButton variant="primary" :text="t('edit-student')" @click="userModalUser = viewProfileUser; viewProfileUser = null" />
+        <PButton
+          v-if="viewProfileUser && !profileUserArchived"
+          variant="primary"
+          :text="t('edit-student')"
+          @click="userModalUser = viewProfileUser; viewProfileUser = null"
+        />
       </template>
     </PModal>
 
@@ -948,6 +955,7 @@
                 size="sm"
                 @update:modelValue="() => toggleGroupForAssign(gid)"
               />
+              <LucideIcon name="users" :size="14" class="assign-group-type-icon" />
               <span class="assign-group-name">{{ store.state.groups.groups[gid]?.name || t('unnamed') }}</span>
               <span v-if="store.state.groups.groups[gid]?.grade" class="assign-group-detail">{{ store.state.groups.groups[gid].grade }}</span>
               <span
@@ -1173,10 +1181,8 @@ const {
   confirmDuplicateProceed: confirmStudentDuplicateProceed,
   cancelDuplicateProceed: cancelStudentDuplicateProceed,
 } = useDuplicateGuard({
-  // Duplicate checks use legal names, not preferred "Nickname (Full Name)" labels
-  getExistingNames: () => students.value
-    .map(s => decryptedLegalNames.get(s.id))
-    .filter(name => name && name !== '…'),
+  // Legal names + grade (UIUX-49): hard = same name+grade; soft = same name, other grade
+  getExistingStudents: () => getStudentExistingRoster(),
 })
 
 const duplicateGroupDescription = computed(() => {
@@ -1185,17 +1191,33 @@ const duplicateGroupDescription = computed(() => {
 })
 
 const duplicateStudentDescription = computed(() => {
-  if (!studentDuplicatePrompt.value) return ''
-  return `${t('duplicate-name-description')} "${studentDuplicatePrompt.value.existingName}" ${t('already-exists-continue')}`
+  const p = studentDuplicatePrompt.value
+  if (!p) return ''
+  if (p.type === 'soft') {
+    // FE default only — no new backend string required
+    return t('duplicate-student-different-grade')
+      .replace('{name}', p.existingName || p.name || '')
+      .replace('{grade}', p.existingGrade || '—')
+  }
+  return `${t('duplicate-name-description')} "${p.existingName}" ${t('already-exists-continue')}`
 })
 
 const bulkDuplicatePrompt = ref(null)
 const bulkDuplicateConfirmLoading = ref(false)
 
-function getStudentExistingNames() {
+/** Roster rows for grade-aware student duplicate checks. */
+function getStudentExistingRoster() {
   return students.value
-    .map(s => decryptedLegalNames.get(s.id))
-    .filter(name => name && name !== '…')
+    .map(s => ({
+      name: decryptedLegalNames.get(s.id),
+      grade: s.grade || users[s.id]?.grade || '',
+    }))
+    .filter(s => s.name && s.name !== '…')
+}
+
+/** @deprecated name-only list — prefer getStudentExistingRoster */
+function getStudentExistingNames() {
+  return getStudentExistingRoster().map(s => s.name)
 }
 
 function cacheStudentDisplayName(id, info) {
@@ -1240,27 +1262,51 @@ const bulkDuplicateDescription = computed(() => {
   if (!prompt) return ''
 
   const duplicateCount = prompt.skippedExisting.length + prompt.skippedBatch.length
-  const parts = [
-    t('bulk-duplicate-students-intro').replace('{count}', String(duplicateCount)),
-  ]
+  const softCount = prompt.softConflicts?.length || 0
+  const parts = []
+
+  if (duplicateCount > 0) {
+    parts.push(
+      t('bulk-duplicate-students-intro').replace('{count}', String(duplicateCount)),
+    )
+  }
 
   if (prompt.skippedExisting.length) {
     const names = prompt.skippedExisting
-      .map(item => `"${item.existingName}" (${item.name})`)
+      .map((item) => {
+        const g = item.grade || item.existingGrade
+        return g ? `"${item.existingName}" (${item.name}, ${g})` : `"${item.existingName}" (${item.name})`
+      })
       .join(', ')
     parts.push(`${t('bulk-duplicate-already-exists')} ${names}`)
   }
 
   if (prompt.skippedBatch.length) {
-    const names = prompt.skippedBatch.map(item => `"${item.name}"`).join(', ')
+    const names = prompt.skippedBatch.map((item) => {
+      const g = item.grade
+      return g ? `"${item.name}" (${g})` : `"${item.name}"`
+    }).join(', ')
     parts.push(`${t('bulk-duplicate-repeated-in-upload')} ${names}`)
   }
 
-  parts.push(
-    t('bulk-duplicate-students-summary')
-      .replace('{create}', String(prompt.toCreate.length))
-      .replace('{skip}', String(duplicateCount)),
-  )
+  // Soft: same name, different grade — will still be created (not blocked)
+  if (softCount > 0) {
+    const names = prompt.softConflicts
+      .map((item) => {
+        const eg = item.softConflict?.existingGrade || '—'
+        return `"${item.name}" (${item.grade || '—'}; ${t('duplicate-soft-existing-grade').replace('{grade}', eg)})`
+      })
+      .join(', ')
+    parts.push(`${t('bulk-duplicate-soft-grade-note').replace('{count}', String(softCount))} ${names}`)
+  }
+
+  if (duplicateCount > 0 || softCount > 0) {
+    parts.push(
+      t('bulk-duplicate-students-summary')
+        .replace('{create}', String(prompt.toCreate.length))
+        .replace('{skip}', String(duplicateCount)),
+    )
+  }
 
   return parts.join(' ')
 })
@@ -1281,7 +1327,9 @@ function cancelBulkDuplicateProceed() {
 }
 
 function promptBulkDuplicates(partition, proceed) {
-  if (!partition.skippedCount) {
+  const softCount = partition.softConflicts?.length || 0
+  // Show modal for hard skips and/or soft same-name-different-grade notes
+  if (!partition.skippedCount && !softCount) {
     proceed(partition.toCreate, 0)
     return
   }
@@ -1507,6 +1555,18 @@ const profileStudentPreferredName = computed(() =>
 const profileUserArchived = computed(() => {
   if (!viewProfileUser.value) return false
   return !!users[viewProfileUser.value]?.archived
+})
+
+/** Item shape for archive/restore/login actions (viewProfileUser is an id string). */
+const profileStudentItem = computed(() => {
+  if (!viewProfileUser.value) return null
+  const fromList = students.value.find(s => s.id === viewProfileUser.value)
+  if (fromList) return fromList
+  return {
+    id: viewProfileUser.value,
+    archived: profileUserArchived.value,
+    grade: users[viewProfileUser.value]?.grade || '',
+  }
 })
 
 const profileUserGrade = computed(() => {
@@ -1990,7 +2050,9 @@ async function createStudentAccount() {
   }
   const name = newStudentName.value.trim()
   if (!name) return
-  runStudentWithGuard(name, () => executeCreateStudentAccount())
+  const grade = newStudentGrade.value || ''
+  // name + grade: hard dup confirm, soft (same name other grade) confirm, else create
+  runStudentWithGuard(name, () => executeCreateStudentAccount(), grade)
 }
 
 async function executeCreateStudentAccount() {
@@ -2194,7 +2256,7 @@ async function handleCSVImport() {
     }
     const { candidateRows, invalidSkipped } = parseCSVStudentRows(lines)
     await ensureDecryptedStudentNames()
-    const partition = partitionBulkStudentRows(candidateRows, getStudentExistingNames())
+    const partition = partitionBulkStudentRows(candidateRows, getStudentExistingRoster())
     promptBulkDuplicates(partition, (toCreate, duplicateSkipped) =>
       executeCSVImport(toCreate, duplicateSkipped, invalidSkipped),
     )
@@ -2250,7 +2312,7 @@ async function handleBulkCreate() {
   const rows = bulkEntryRows.value.filter(r => r.name.trim() && r.grade)
   if (!rows.length) return
   await ensureDecryptedStudentNames()
-  const partition = partitionBulkStudentRows(rows, getStudentExistingNames())
+  const partition = partitionBulkStudentRows(rows, getStudentExistingRoster())
   promptBulkDuplicates(partition, executeBulkCreate)
 }
 
@@ -2917,6 +2979,10 @@ function printLoginCodes() {
 }
 .assign-group-row:hover {
   background: var(--color-slate-50, #f8fafc);
+}
+.assign-group-type-icon {
+  flex-shrink: 0;
+  color: #64748b;
 }
 .assign-group-name {
   font-size: 14px;

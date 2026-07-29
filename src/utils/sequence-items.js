@@ -9,10 +9,67 @@
  *   - string[]
  *   - { id }[]
  *   - object maps (including sparse / mixed entry forms)
+ *
+ * UIUX-113: sequence members must be leaf content only — never nested sequences.
  */
+
+import { getContentMetadata } from './content-cache.js'
 
 /** Empty sequence items (Agent create). */
 export const EMPTY_SEQUENCE_ITEMS = Object.freeze({})
+
+/** Agent active_type for sequence documents. */
+export const SEQUENCE_ACTIVE_TYPE = 'application/json;type=sequence'
+
+export function isSequenceActiveType(activeType) {
+  return activeType === SEQUENCE_ACTIVE_TYPE
+}
+
+function toIdSet(knownSequenceIds) {
+  if (!knownSequenceIds) return null
+  if (knownSequenceIds instanceof Set) return knownSequenceIds
+  if (Array.isArray(knownSequenceIds)) return new Set(knownSequenceIds)
+  return null
+}
+
+/**
+ * Split candidate member ids into leaf content vs sequences (UIUX-113).
+ * Uses optional knownSequenceIds for fast rejects, then metadata active_type.
+ * Unknown/failed metadata is treated as allowed (do not block real items).
+ *
+ * @param {string[]} itemIds
+ * @param {{ knownSequenceIds?: Set<string>|string[] }} [opts]
+ * @returns {Promise<{ allowed: string[], rejectedSequences: string[] }>}
+ */
+export async function partitionSequenceMemberIds(itemIds, opts = {}) {
+  const known = toIdSet(opts.knownSequenceIds)
+  const allowed = []
+  const rejectedSequences = []
+  const seen = new Set()
+
+  for (const id of itemIds || []) {
+    if (!id || seen.has(id)) continue
+    seen.add(id)
+
+    if (known?.has(id)) {
+      rejectedSequences.push(id)
+      continue
+    }
+
+    try {
+      const meta = await getContentMetadata(id)
+      if (isSequenceActiveType(meta?.active_type)) {
+        rejectedSequences.push(id)
+        continue
+      }
+    } catch {
+      // allow when type cannot be determined
+    }
+    allowed.push(id)
+  }
+
+  return { allowed, rejectedSequences }
+}
 
 /** Extract a content id from a sequence entry (string or { id }). */
 function entryContentId(entry) {
@@ -125,27 +182,48 @@ async function syncSequenceMutation(sequenceId) {
   }
 }
 
-/** Persist a full item-id list; returns normalized ids for UI. */
-export async function persistSequenceItems(sequenceId, itemIds) {
+/**
+ * Persist a full item-id list; returns normalized ids for UI.
+ * UIUX-113: nested sequence ids are stripped before write.
+ */
+export async function persistSequenceItems(sequenceId, itemIds, { knownSequenceIds } = {}) {
+  const { allowed } = await partitionSequenceMemberIds(itemIds, { knownSequenceIds })
   const { state, rawItems } = await loadSequenceItemsState(sequenceId)
-  state.items = serializeMapSequenceItems(itemIds, rawItems)
+  state.items = serializeMapSequenceItems(allowed, rawItems)
   await syncSequenceMutation(sequenceId)
   return readSequenceItemIds(sequenceId)
 }
 
 /**
- * Append content ids.
- * @returns {{ added: number, items: string[] }}
+ * Append leaf content ids only (UIUX-113: never nest sequences).
+ * @param {string} sequenceId
+ * @param {string[]} itemIds
+ * @param {{ insertIndex?: number, knownSequenceIds?: Set<string>|string[] }} [opts]
+ * @returns {Promise<{ added: number, items: string[], rejectedSequences: string[] }>}
  */
-export async function appendItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {
-  if (!sequenceId || !itemIds?.length) return { added: 0, items: [] }
+export async function appendItemsToSequence(sequenceId, itemIds, {
+  insertIndex = -1,
+  knownSequenceIds,
+} = {}) {
+  if (!sequenceId || !itemIds?.length) {
+    return { added: 0, items: [], rejectedSequences: [] }
+  }
+
+  const { allowed, rejectedSequences } = await partitionSequenceMemberIds(itemIds, {
+    knownSequenceIds,
+  })
 
   const { state, rawItems, ids } = await loadSequenceItemsState(sequenceId)
+
+  if (!allowed.length) {
+    return { added: 0, items: ids, rejectedSequences }
+  }
+
   const priorLen = ids.length
   let added = 0
   let insertAt = insertIndex >= 0 ? insertIndex : ids.length
 
-  for (const id of itemIds) {
+  for (const id of allowed) {
     if (!id || ids.includes(id)) continue
 
     if (insertIndex >= 0 && insertIndex <= ids.length) {
@@ -157,7 +235,7 @@ export async function appendItemsToSequence(sequenceId, itemIds, { insertIndex =
     added++
   }
 
-  if (!added) return { added: 0, items: ids }
+  if (!added) return { added: 0, items: ids, rejectedSequences }
 
   // Replace the whole map — Agent does not reliably persist in-place key assignment.
   state.items = serializeMapSequenceItems(ids, rawItems)
@@ -169,7 +247,7 @@ export async function appendItemsToSequence(sequenceId, itemIds, { insertIndex =
     err.sequenceId = sequenceId
     throw err
   }
-  return { added, items }
+  return { added, items, rejectedSequences }
 }
 
 /** Remove one item by index (sequence card trash). */
