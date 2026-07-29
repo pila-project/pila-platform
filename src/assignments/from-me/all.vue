@@ -392,6 +392,7 @@
                       }
                       else if (domain === 'embed.knowlearning.systems') {
                         const { id } = await Agent.state(item.id)
+                        console.log('embed id', id)
                         if (id?.startsWith?.('https://pila.cand.li/pila.html?')) {
                           try {
                             const url = new URL(id)
