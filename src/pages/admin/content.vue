@@ -78,6 +78,7 @@
           removable
           :removing="removingContentId === id"
           :remove-disabled="!!removingContentId"
+          showTaggingIcon
           @preview="previewing = id"
           @remove="removeContent(id)"
         />
