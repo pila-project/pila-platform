@@ -36,6 +36,7 @@
               $emit('select', selfSelected)
             }"
             @preview="previewing = id"
+            @tag="tagging = id"
             @remove="() => {
               setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
               myContent.splice(myContent.indexOf(id), 1)
@@ -50,6 +51,12 @@
         height="90vh"
         @close="previewing = null"
       />
+      <TaggingModal
+        v-if="tagging"
+        :id="tagging"
+        @close="tagging = null"
+      />
+
     </v-container>
     <div
       v-if="selfSelected"
@@ -84,6 +91,7 @@
   import PreviewModal from './PreviewModal.vue'
   import TagTranslation from './tag-translation.vue'
   import setTagging from '../set-tagging.js'
+  import TaggingModal from './tagging-modal.vue'
   import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
 
   const showFilters = true //!SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
@@ -98,6 +106,8 @@
   const selfSelected = ref(null)
   const competencies = ref([])
   const previewing = ref(null)
+  const tagging = ref(null)
+
   const selectedCompetencies = ref([])
 
   const myContent = reactive(
