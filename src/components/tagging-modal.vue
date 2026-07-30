@@ -37,6 +37,32 @@
 
       <!-- SCROLLABLE CONTENT -->
       <div class="modal-content">
+        <div
+          v-if="isLoading"
+          class="modal-state"
+          role="status"
+        >
+          <span class="favorite-spinner" aria-hidden="true" />
+          {{ t('loading-tags') }}
+        </div>
+
+        <div
+          v-else-if="loadError"
+          class="modal-state modal-state--error"
+          role="alert"
+        >
+          <span>{{ t('unable-to-load-tags') }}</span>
+
+          <button
+            class="button button--retry"
+            type="button"
+            @click="loadCompetencies"
+          >
+            {{ t('try-again') }}
+          </button>
+        </div>
+
+        <template v-else>
         <!-- SELECTED COMPETENCIES -->
         <section class="selected-tags-section">
           <div class="section-label">
@@ -70,9 +96,9 @@
                 <span class="tag-dot" />
 
                 <span>
-                  {{ t(selection.categoryId) }}
+                  <TagTranslation :id="selection.categoryId" />
                   =
-                  {{ t(selection.id) }}
+                  <TagTranslation :id="selection.id" />
                 </span>
 
                 <span
@@ -104,10 +130,21 @@
               {{ t('no-competencies-selected-yet') }}
             </span>
           </div>
+
+          <p
+            v-if="updateError"
+            class="update-error"
+            role="alert"
+          >
+            {{ t('unable-to-update-tag') }}
+          </p>
         </section>
 
         <!-- COMPETENCY ACCORDIONS -->
-        <section class="categories">
+        <section
+          v-if="competencyCategories.length"
+          class="categories"
+        >
           <article
             v-for="category in competencyCategories"
             :key="category.id"
@@ -133,7 +170,7 @@
                   }"
                 />
 
-                {{ t(category.id) }}
+                <TagTranslation :id="category.id" />
 
                 <span
                   v-if="category.required"
@@ -213,7 +250,7 @@
                   </span>
 
                   <span>
-                    {{ t(competency.id) }}
+                    <TagTranslation :id="competency.id" />
                   </span>
                 </label>
               </div>
@@ -231,6 +268,13 @@
             </div>
           </article>
         </section>
+
+        <p
+          v-else
+          class="modal-state"
+        >
+          {{ t('no-tags-available') }}
+        </p>
 
         <!-- FAVORITE -->
         <button
@@ -268,6 +312,7 @@
             {{ addToFavorites ? '♥' : '♡' }}
           </span>
         </button>
+        </template>
       </div>
 
       <!-- FOOTER -->
@@ -288,11 +333,17 @@
           <button
             class="button button--primary"
             type="button"
-            :disabled="hasPendingChanges"
+            :disabled="
+              hasPendingChanges ||
+              isLoading ||
+              !!loadError
+            "
             @click="publish"
           >
             {{
-              hasPendingChanges
+              isLoading
+                ? t('loading-tags')
+                : hasPendingChanges
                 ? t('saving-changes')
                 : t('publish-content')
             }}
@@ -304,6 +355,35 @@
 </template>
 
 <script>
+import TagTranslation from './tag-translation.vue'
+import setTagging from '../set-tagging.js'
+
+const TAGS_DOMAIN = 'tags.knowlearning.systems'
+const TAG_HIERARCHY_PARTITION = 'PILA Tag Hierarchy'
+const ROOT_COMPETENCIES_TAG =
+  'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+
+function uniqueTargets(taggings) {
+  if (!Array.isArray(taggings)) {
+    throw new TypeError('Expected an array of taggings')
+  }
+
+  if (
+    taggings.some(
+      (tagging) => typeof tagging?.target !== 'string',
+    )
+  ) {
+    throw new TypeError('Expected every tagging to have a target')
+  }
+
+  return [
+    ...new Set(
+      taggings
+        .map((tagging) => tagging.target),
+    ),
+  ]
+}
+
 /*
  * Temporary English translation map.
  *
@@ -357,188 +437,23 @@ const placeholderTranslations = {
   'publish-content':
     'Publish content',
 
-  /*
-   * Competency categories
-   */
-  'mathematical-practices':
-    'Mathematical Practices',
+  'loading-tags':
+    'Loading tags...',
 
-  'number-and-operations':
-    'Number and Operations',
+  'unable-to-load-tags':
+    'Unable to load the available tags.',
 
-  'communication-and-collaboration':
-    'Communication and Collaboration',
+  'try-again':
+    'Try again',
 
-  'self-directed-learning':
-    'Self-Directed Learning',
+  'no-tags-available':
+    'No tags are currently available.',
 
-  /*
-   * Mathematical Practices
-   */
-  'reason-abstractly-and-quantitatively':
-    'Reason abstractly and quantitatively',
-
-  'construct-viable-arguments':
-    'Construct viable arguments',
-
-  'model-real-situations-with-mathematics':
-    'Model real situations with mathematics',
-
-  'use-mathematical-tools-strategically':
-    'Use mathematical tools strategically',
-
-  'attend-to-precision':
-    'Attend to precision',
-
-  'look-for-and-use-structure':
-    'Look for and use structure',
-
-  'persevere-in-problem-solving':
-    'Persevere in problem solving',
-
-  'recognize-repeated-reasoning':
-    'Recognize repeated reasoning',
-
-  /*
-   * Number and Operations
-   */
-  'counting-and-cardinality':
-    'Counting and cardinality',
-
-  'place-value-understanding':
-    'Place value understanding',
-
-  'addition-and-subtraction':
-    'Addition and subtraction',
-
-  'multiplication-and-division':
-    'Multiplication and division',
-
-  'fraction-concepts':
-    'Fraction concepts',
-
-  'decimal-concepts':
-    'Decimal concepts',
-
-  'operations-with-integers':
-    'Operations with integers',
-
-  'ratios-and-proportional-reasoning':
-    'Ratios and proportional reasoning',
-
-  /*
-   * Communication and Collaboration
-   */
-  'explain-mathematical-thinking':
-    'Explain mathematical thinking',
-
-  'use-mathematical-vocabulary':
-    'Use mathematical vocabulary',
-
-  'interpret-visual-representations':
-    'Interpret visual representations',
-
-  'compare-solution-strategies':
-    'Compare solution strategies',
-
-  'ask-clarifying-questions':
-    'Ask clarifying questions',
-
-  'give-constructive-peer-feedback':
-    'Give constructive peer feedback',
-
-  'solve-problems-collaboratively':
-    'Solve problems collaboratively',
-
-  'justify-conclusions-clearly':
-    'Justify conclusions clearly',
-
-  /*
-   * Self-Directed Learning
-   */
-  'set-learning-goals':
-    'Set learning goals',
-
-  'monitor-personal-progress':
-    'Monitor personal progress',
-
-  'revise-work-after-feedback':
-    'Revise work after feedback',
-
-  'choose-an-appropriate-strategy':
-    'Choose an appropriate strategy',
-
-  'manage-productive-frustration':
-    'Manage productive frustration',
-
-  'reflect-on-errors':
-    'Reflect on errors',
-
-  'work-independently':
-    'Work independently',
-
-  'seek-help-when-appropriate':
-    'Seek help when appropriate',
+  'unable-to-update-tag':
+    'Unable to update that tag. Please try again.',
 }
 
-/*
- * This plain object represents the data that will eventually be fetched.
- *
- * Both the category keys and the competency values are translation slugs.
- * That means the fetched data can be displayed using t(slug) directly.
- */
-const competencySourceData = {
-  'mathematical-practices': [
-    'reason-abstractly-and-quantitatively',
-    'construct-viable-arguments',
-    'model-real-situations-with-mathematics',
-    'use-mathematical-tools-strategically',
-    'attend-to-precision',
-    'look-for-and-use-structure',
-    'persevere-in-problem-solving',
-    'recognize-repeated-reasoning',
-  ],
-
-  'number-and-operations': [
-    'counting-and-cardinality',
-    'place-value-understanding',
-    'addition-and-subtraction',
-    'multiplication-and-division',
-    'fraction-concepts',
-    'decimal-concepts',
-    'operations-with-integers',
-    'ratios-and-proportional-reasoning',
-  ],
-
-  'communication-and-collaboration': [
-    'explain-mathematical-thinking',
-    'use-mathematical-vocabulary',
-    'interpret-visual-representations',
-    'compare-solution-strategies',
-    'ask-clarifying-questions',
-    'give-constructive-peer-feedback',
-    'solve-problems-collaboratively',
-    'justify-conclusions-clearly',
-  ],
-
-  'self-directed-learning': [
-    'set-learning-goals',
-    'monitor-personal-progress',
-    'revise-work-after-feedback',
-    'choose-an-appropriate-strategy',
-    'manage-productive-frustration',
-    'reflect-on-errors',
-    'work-independently',
-    'seek-help-when-appropriate',
-  ],
-}
-
-/*
- * This remains the only category-specific hard-coded addition.
- */
-const requiredCategoryIds = [
-  'mathematical-practices',
-]
+const requiredCategoryIds = []
 
 /*
  * Category colors are assigned by their order in the fetched object.
@@ -557,11 +472,20 @@ const categoryColors = [
 export default {
   name: 'PublishToExploreModal',
 
+  components: {
+    TagTranslation,
+  },
+
+  emits: [
+    'close',
+    'publish',
+  ],
+
   props: {
-  	id: {
-  		type: String,
-  		required: true
-  	},
+    id: {
+      type: String,
+      required: true,
+    },
     contentTitle: {
       type: String,
       default: 'Untitled Sequence',
@@ -570,36 +494,14 @@ export default {
 
   data() {
     return {
-      /*
-       * This will eventually be populated by an async fetch.
-       */
-      competencyData: {
-        ...competencySourceData,
-      },
+      competencyData: {},
 
       /*
        * An empty array means every category starts closed.
        */
       openCategoryIds: [],
 
-      /*
-       * The selected IDs now match the translation slugs directly.
-       */
-      selectedIds: {
-        'mathematical-practices': [
-          'model-real-situations-with-mathematics',
-        ],
-
-        'number-and-operations': [
-          'multiplication-and-division',
-        ],
-
-        'communication-and-collaboration': [
-          'explain-mathematical-thinking',
-        ],
-
-        'self-directed-learning': [],
-      },
+      selectedIds: {},
 
       /*
        * Each pending competency gets its own working state.
@@ -609,10 +511,25 @@ export default {
       addToFavorites: false,
       isFavoriteWorking: false,
       showValidation: false,
+      isLoading: true,
+      loadError: false,
+      updateError: false,
+      loadRequestId: 0,
     }
   },
 
+  watch: {
+    id: {
+      immediate: true,
+      handler: 'loadCompetencies',
+    },
+  },
+
   computed: {
+    taggingPartition() {
+      return this.$store.getters.tagPartition
+    },
+
     categoryDisplayConfig() {
       return Object.keys(this.competencyData).reduce(
         (config, categoryId, categoryIndex) => {
@@ -710,21 +627,127 @@ export default {
   },
 
   methods: {
-    /*
-     * Temporary placeholder translation function.
-     *
-     * Later, replace this method with your imported t() function.
-     */
     t(slug) {
       return placeholderTranslations[slug] || slug
+    },
+
+    async loadCompetencies() {
+      const requestId = ++this.loadRequestId
+
+      this.isLoading = true
+      this.loadError = false
+      this.updateError = false
+
+      try {
+        if (!this.taggingPartition) {
+          throw new Error(
+            'No tag partition is configured for this host',
+          )
+        }
+
+        const [categoryTaggings, contentTaggings] =
+          await Promise.all([
+            Agent.query(
+              'targets-for-tag',
+              [
+                TAG_HIERARCHY_PARTITION,
+                ROOT_COMPETENCIES_TAG,
+              ],
+              TAGS_DOMAIN,
+            ),
+            Agent.query(
+              'taggings-for-target',
+              [
+                this.taggingPartition,
+                this.id,
+              ],
+              TAGS_DOMAIN,
+            ),
+          ])
+
+        const categoryIds = uniqueTargets(categoryTaggings)
+        const categoryEntries = await Promise.all(
+          categoryIds.map(async (categoryId) => {
+            const competencyTaggings = await Agent.query(
+              'targets-for-tag',
+              [
+                TAG_HIERARCHY_PARTITION,
+                categoryId,
+              ],
+              TAGS_DOMAIN,
+            )
+
+            return [
+              categoryId,
+              uniqueTargets(competencyTaggings),
+            ]
+          }),
+        )
+
+        if (!Array.isArray(contentTaggings)) {
+          throw new TypeError(
+            'Expected an array of content taggings',
+          )
+        }
+
+        if (
+          contentTaggings.some(
+            (tagging) => typeof tagging?.tag !== 'string',
+          )
+        ) {
+          throw new TypeError(
+            'Expected every content tagging to have a tag',
+          )
+        }
+
+        const selectedTagIds = new Set(
+          contentTaggings
+            .map((tagging) => tagging.tag),
+        )
+
+        if (requestId !== this.loadRequestId) {
+          return
+        }
+
+        this.competencyData =
+          Object.fromEntries(categoryEntries)
+
+        this.selectedIds = Object.fromEntries(
+          categoryEntries.map(
+            ([categoryId, competencyIds]) => [
+              categoryId,
+              competencyIds.filter((competencyId) => {
+                return selectedTagIds.has(competencyId)
+              }),
+            ],
+          ),
+        )
+      } catch (error) {
+        if (requestId !== this.loadRequestId) {
+          return
+        }
+
+        this.competencyData = {}
+        this.selectedIds = {}
+        this.loadError = true
+
+        console.error(
+          'Unable to load tag hierarchy:',
+          error,
+        )
+      } finally {
+        if (requestId === this.loadRequestId) {
+          this.isLoading = false
+        }
+      }
     },
 
     close() {
       this.$emit('close')
     },
 
-    getCompetencyWorkingId(categoryId, competencyId) {
-      return `${categoryId}::${competencyId}`
+    getCompetencyWorkingId(_categoryId, competencyId) {
+      return competencyId
     },
 
     isCompetencyWorking(categoryId, competencyId) {
@@ -785,49 +808,64 @@ export default {
         return
       }
 
-      this.$set(
-        this.workingCompetencyIds,
-        workingId,
-        true,
-      )
+      const isSelected =
+        this.isCompetencySelected(
+          categoryId,
+          competencyId,
+        )
+
+      this.workingCompetencyIds[workingId] = true
+      this.updateError = false
 
       try {
-        /*
-         * Placeholder for the future non-optimistic system request.
-         */
-        await this.wait(1000)
-
-        const categorySelections =
-          this.selectedIds[categoryId]
-
-        if (!categorySelections) {
-          this.$set(
-            this.selectedIds,
-            categoryId,
-            [competencyId],
+        if (!this.taggingPartition) {
+          throw new Error(
+            'No tag partition is configured for this host',
           )
-
-          return
         }
 
-        const selectedIndex =
-          categorySelections.indexOf(competencyId)
+        await setTagging(
+          {
+            tag: competencyId,
+            target: this.id,
+            value: isSelected ? null : true,
+          },
+          this.taggingPartition,
+        )
 
-        if (selectedIndex >= 0) {
-          categorySelections.splice(selectedIndex, 1)
-        } else {
-          categorySelections.push(competencyId)
-        }
+        Object
+          .entries(this.competencyData)
+          .filter(([, competencyIds]) => {
+            return competencyIds.includes(competencyId)
+          })
+          .forEach(([currentCategoryId]) => {
+            const categorySelections =
+              this.selectedIds[currentCategoryId] || []
+
+            const selectedIndex =
+              categorySelections.indexOf(competencyId)
+
+            if (isSelected && selectedIndex >= 0) {
+              categorySelections.splice(selectedIndex, 1)
+            } else if (
+              !isSelected &&
+              selectedIndex < 0
+            ) {
+              categorySelections.push(competencyId)
+            }
+
+            this.selectedIds[currentCategoryId] =
+              categorySelections
+          })
       } catch (error) {
+        this.updateError = true
+
         console.error(
           'Unable to update competency selection:',
           error,
         )
       } finally {
-        this.$delete(
-          this.workingCompetencyIds,
-          workingId,
-        )
+        delete this.workingCompetencyIds[workingId]
       }
     },
 
@@ -877,7 +915,11 @@ export default {
     },
 
     publish() {
-      if (this.hasPendingChanges) {
+      if (
+        this.hasPendingChanges ||
+        this.isLoading ||
+        this.loadError
+      ) {
         return
       }
 
@@ -1015,6 +1057,30 @@ input {
   overflow-y: auto;
 }
 
+.modal-state {
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  color: #6f7889;
+  font-size: 12px;
+  text-align: center;
+}
+
+.modal-state--error {
+  flex-direction: column;
+  color: #d9414e;
+}
+
+.button--retry {
+  min-height: 32px;
+  color: #3979ef;
+  background: #ffffff;
+  border: 1px solid #9bbaf3;
+}
+
 .selected-tags-section {
   margin-bottom: 16px;
 }
@@ -1097,6 +1163,12 @@ input {
 .empty-selection {
   color: #8a94a6;
   font-size: 12px;
+}
+
+.update-error {
+  margin: 8px 0 0;
+  color: #d9414e;
+  font-size: 11px;
 }
 
 .categories {
