@@ -281,7 +281,7 @@
           class="favorite-row"
           type="button"
           :disabled="isFavoriteWorking"
-          :aria-pressed="addToFavorites ? 'true' : 'false'"
+          :aria-pressed="isFavorite ? 'true' : 'false'"
           @click="toggleFavorite"
         >
           <span>
@@ -305,11 +305,11 @@
             v-else
             class="heart"
             :class="{
-              'heart--active': addToFavorites,
+              'heart--active': isFavorite,
             }"
             aria-hidden="true"
           >
-            {{ addToFavorites ? '♥' : '♡' }}
+            {{ isFavorite ? '♥' : '♡' }}
           </span>
         </button>
         </template>
@@ -352,8 +352,8 @@ import setTagging from '../set-tagging.js'
 
 const TAGS_DOMAIN = 'tags.knowlearning.systems'
 const TAG_HIERARCHY_PARTITION = 'PILA Tag Hierarchy'
-const ROOT_COMPETENCIES_TAG =
-  'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+const ROOT_COMPETENCIES_TAG = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+const FAVORITE_TAG = '59d4b400-8d2e-11f1-8178-475d87d411d7'
 
 function uniqueTargets(taggings) {
   if (!Array.isArray(taggings)) {
@@ -461,6 +461,15 @@ const categoryColors = [
   '#cc5d9b',
 ]
 
+async function hasTag(partition, tag, target) {
+  const tagging = await Agent.query(
+    'tagging-for-target',
+    [partition, tag, target],
+    TAGS_DOMAIN
+  )
+  return !!tagging?.[0]
+}
+
 export default {
   name: 'PublishToExploreModal',
 
@@ -500,14 +509,20 @@ export default {
        */
       workingCompetencyIds: {},
 
-      addToFavorites: false,
-      isFavoriteWorking: false,
+      isFavorite: false,
+      isFavoriteWorking: true,
       showValidation: false,
       isLoading: true,
       loadError: false,
       updateError: false,
       loadRequestId: 0,
     }
+  },
+
+  async created() {
+    const { auth: { user } } = await Agent.environment()
+    this.isFavorite = await hasTag(user, FAVORITE_TAG, this.id)
+    this.isFavoriteWorking = false
   },
 
   watch: {
@@ -869,12 +884,17 @@ export default {
       this.isFavoriteWorking = true
 
       try {
-        /*
-         * The favorite uses the same placeholder request pattern.
-         */
-        await this.wait(1000)
+        const { auth: { user } } = await Agent.environment()
+        await setTagging(
+          {
+            tag: FAVORITE_TAG,
+            target: this.id,
+            value: !this.isFavorite ? true : null,
+          },
+          user // user is partition
+        )
 
-        this.addToFavorites = !this.addToFavorites
+        this.isFavorite = !this.isFavorite
       } catch (error) {
         console.error(
           'Unable to update favorite status:',
@@ -882,27 +902,6 @@ export default {
         )
       } finally {
         this.isFavoriteWorking = false
-      }
-    },
-
-    buildPayload() {
-      return {
-        contentTitle: this.contentTitle,
-
-        /*
-         * Category and competency values are their stable slugs.
-         * Translated display text is not included in the saved payload.
-         */
-        competencies: this.selectedCompetencies.map(
-          (selection) => {
-            return {
-              categoryId: selection.categoryId,
-              competencyId: selection.id,
-            }
-          },
-        ),
-
-        addToFavorites: this.addToFavorites,
       }
     },
 
