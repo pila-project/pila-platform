@@ -323,14 +323,6 @@
 
         <div class="footer-actions">
           <button
-            class="button button--cancel"
-            type="button"
-            @click="close"
-          >
-            {{ t('cancel') }}
-          </button>
-
-          <button
             class="button button--primary"
             type="button"
             :disabled="
@@ -941,10 +933,7 @@ export default {
         return
       }
 
-      this.$emit(
-        'publish',
-        this.buildPayload(),
-      )
+      this.$emit('close')
     },
   },
 }
