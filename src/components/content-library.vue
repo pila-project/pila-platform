@@ -52,7 +52,7 @@
         @close="previewing = null"
       />
       <TaggingModal
-        v-if="tagging"
+        v-if="tagging && showFilters"
         :id="tagging"
         @close="tagging = null"
       />
@@ -94,7 +94,7 @@
   import TaggingModal from './tagging-modal.vue'
   import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
 
-  const showFilters = true //!SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+  const showFilters = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
