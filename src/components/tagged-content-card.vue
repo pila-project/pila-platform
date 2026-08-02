@@ -27,6 +27,19 @@
         :disabled="props.removeDisabled"
         @click.stop="$emit('remove')"
       />
+      <v-spacer />
+      <v-btn
+        v-if="props.showTaggingIcon"
+        :aria-label="t('tag')"
+        @click.stop="$emit('tag')"
+        color="grey"
+      >
+        <v-icon
+          icon="fa-solid fa-tag"
+          size="28"
+        />
+    </v-btn>
+
     </template>
   </v-card>
 </template>
@@ -49,7 +62,11 @@
     selected: Boolean,
     removable: Boolean,
     removing: Boolean,
-    removeDisabled: Boolean
+    removeDisabled: Boolean,
+    showTaggingIcon: {
+      type: Boolean,
+      default: false
+    },
   })
 
   const image = await displayContentImage(props.id)

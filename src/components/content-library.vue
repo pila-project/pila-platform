@@ -29,12 +29,14 @@
             :id="id"
             :selected="selfSelected === id"
             :removable="myContent.includes(id)"
+            :showTaggingIcon="!!taggingIconVisibility[id]"
             @click="() => {
               if (selfSelected === id) selfSelected = null
               else selfSelected = id
               $emit('select', selfSelected)
             }"
             @preview="previewing = id"
+            @tag="tagging = id"
             @remove="() => {
               setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
               myContent.splice(myContent.indexOf(id), 1)
@@ -49,6 +51,12 @@
         height="90vh"
         @close="previewing = null"
       />
+      <TaggingModal
+        v-if="tagging"
+        :id="tagging"
+        @close="tagging = null"
+      />
+
     </v-container>
     <div
       v-if="selfSelected"
@@ -83,6 +91,7 @@
   import PreviewModal from './PreviewModal.vue'
   import TagTranslation from './tag-translation.vue'
   import setTagging from '../set-tagging.js'
+  import TaggingModal from './tagging-modal.vue'
   import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
 
   const showFilters = true //!SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
@@ -97,6 +106,8 @@
   const selfSelected = ref(null)
   const competencies = ref([])
   const previewing = ref(null)
+  const tagging = ref(null)
+
   const selectedCompetencies = ref([])
 
   const myContent = reactive(
@@ -122,6 +133,26 @@
   Agent
     .query('taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems')
     .then(r => competencies.value = r.map(t => t.target))
+
+  const taggingIconVisibility = reactive({})
+
+  async function loadTaggingIconVisibility(id) {
+    const role = store.getters['roles/role'](user)
+    const { owner } = await Agent.metadata(id)
+    taggingIconVisibility[id] = role === 'admin' || user === owner
+  }
+
+  watch(
+    currentContentList,
+    ids => {
+      ids.forEach(id => {
+        if (!(id in taggingIconVisibility)) {
+          loadTaggingIconVisibility(id)
+        }
+      })
+    },
+    { immediate: true }
+  )
 
   async function fetchTaggings() {
     loading.value = true
