@@ -35,7 +35,6 @@
 
       <div class="modal-divider" />
 
-      <!-- SCROLLABLE CONTENT -->
       <div class="modal-content">
         <div
           v-if="isLoading"
@@ -63,7 +62,7 @@
         </div>
 
         <template v-else>
-        <!-- SELECTED COMPETENCIES -->
+
         <section class="selected-tags-section">
           <div class="section-label">
             <span class="tag-outline-icon">◇</span>
@@ -94,7 +93,6 @@
                 "
               >
                 <span class="tag-dot" />
-
                 <span>
                   <TagTranslation :id="selection.categoryId" />
                   =
@@ -276,7 +274,6 @@
           {{ t('no-tags-available') }}
         </p>
 
-        <!-- FAVORITE -->
         <button
           class="favorite-row"
           type="button"
@@ -376,74 +373,61 @@ function uniqueTargets(taggings) {
   ]
 }
 
-/*
- * Temporary English translation map.
- *
- * Later, remove this map and import your real translation function:
- *
- * import { t } from 'wherever-your-translations-live'
- */
-const placeholderTranslations = {
-  /*
-   * General interface text
-   */
-  'publish-to-explore':
-    'Publish to Explore',
 
-  'assign-relevant-competencies-to-make-this-content-discoverable':
-    'Assign relevant competencies to make this content discoverable by other teachers.',
+// const placeholderTranslations = {
+//   'publish-to-explore':
+//     'Publish to Explore',
 
-  close:
-    'Close',
+//   'assign-relevant-competencies-to-make-this-content-discoverable':
+//     'Assign relevant competencies to make this content discoverable by other teachers.',
 
-  'selected-competencies':
-    'Selected Competencies',
+//   close:
+//     'Close',
 
-  'no-competencies-selected-yet':
-    'No competencies selected yet.',
+//   'selected-competencies':
+//     'Selected Competencies',
 
-  required:
-    'Required',
+//   'no-competencies-selected-yet':
+//     'No competencies selected yet.',
 
-  working:
-    'Working',
+//   required:
+//     'Required',
 
-  'select-at-least-one-competency-from-this-category':
-    'Select at least one competency from this category.',
+//   working:
+//     'Working',
 
-  'add-to-favorites':
-    'Add to Favorites',
+//   'select-at-least-one-competency-from-this-category':
+//     'Select at least one competency from this category.',
 
-  'mark-this-content-as-a-favorite-for-quick-access':
-    'Mark this content as a favorite for quick access.',
+//   'add-to-favorites':
+//     'Add to Favorites',
 
-  publishing:
-    'Publishing',
+//   'mark-this-content-as-a-favorite-for-quick-access':
+//     'Mark this content as a favorite for quick access.',
 
-  cancel:
-    'Cancel',
+//   publishing: 'Publishing',
+//   cancel: 'Cancel',
+//   'saving-changes':
+//     'Saving changes…',
 
-  'saving-changes':
-    'Saving changes…',
+//   'publish-content':
+//     'Publish content',
 
-  'publish-content':
-    'Publish content',
+//   'loading-tags':
+//     'Loading tags...',
 
-  'loading-tags':
-    'Loading tags...',
+//   'unable-to-load-tags':
+//     'Unable to load the available tags.',
 
-  'unable-to-load-tags':
-    'Unable to load the available tags.',
+//   'try-again':
+//     'Try again',
 
-  'try-again':
-    'Try again',
+//   'no-tags-available':
+//     'No tags are currently available.',
 
-  'no-tags-available':
-    'No tags are currently available.',
-
-  'unable-to-update-tag':
-    'Unable to update that tag. Please try again.',
-}
+//   'unable-to-update-tag':
+//     'Unable to update that tag. Please try again.',
+// }
 
 const requiredCategoryIds = []
 
@@ -472,15 +456,8 @@ async function hasTag(partition, tag, target) {
 
 export default {
   name: 'PublishToExploreModal',
-
-  components: {
-    TagTranslation,
-  },
-
-  emits: [
-    'close',
-    'publish',
-  ],
+  components: { TagTranslation },
+  emits: [ 'close' ],
 
   props: {
     id: {
@@ -533,9 +510,7 @@ export default {
   },
 
   computed: {
-    taggingPartition() {
-      return this.$store.getters.tagPartition
-    },
+    taggingPartition() { return this.$store.getters.tagPartition },
 
     categoryDisplayConfig() {
       return Object.keys(this.competencyData).reduce(
@@ -634,9 +609,7 @@ export default {
   },
 
   methods: {
-    t(slug) {
-      return placeholderTranslations[slug] || slug
-    },
+    t(slug) { return store.getters.t(slug) },
 
     async loadCompetencies() {
       const requestId = ++this.loadRequestId
@@ -690,6 +663,35 @@ export default {
             ]
           }),
         )
+// BEGING LOGS OF ALL FLATTENED TAG IDS FOR EASIER TRANSLATION SCRIPTING
+// const allTagIds = [
+//   ...new Set(
+//     categoryEntries.flatMap(
+//       ([categoryId, competencyIds]) => [
+//         categoryId,
+//         ...competencyIds,
+//       ],
+//     ),
+//   ),
+// ]
+
+// const tagMap = Object.fromEntries(
+//   await Promise.all(
+//     allTagIds.map(async (id) => [
+//       id,
+//       // was previously just await Agent.state(id)
+//       // this removes the translations key from the return
+//       (({ translations, ...state }) => state)(
+//         await Agent.state(id),
+//       ),
+//     ]),
+//   ),
+// )
+
+// console.log( JSON.stringify(tagMap, null, 2) )
+// END OF TAG ID LOGS
+
+
 
         if (!Array.isArray(contentTaggings)) {
           throw new TypeError(
