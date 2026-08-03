@@ -219,7 +219,7 @@ export default {
     "sequence": "b992529f-2dcb-480e-804c-5496ff39a81e",
     "updated": "ba1310cf-f17e-40f4-93b2-b0a610c0d5ac",
     "add-content-by-id-or-url": "bb11f58d-f083-44a5-b332-60dcfd5445b4",
-    "mark-this-content-as-favorite-for-quick-access": "bc412cf6-8be8-4f0d-ac53-37a5104c47fc",
+    "mark-this-content-as-a-favorite-for-quick-access": "bc412cf6-8be8-4f0d-ac53-37a5104c47fc",
     "steps-to-reproduce": "bf7af54f-2b69-4e5b-8b48-03d1bc5dd380",
     "created": "c3efe218-78af-45c3-8b95-d615d70e895a",
     "all-students": "c4a9216e-7f8c-4c7c-bab4-1dafc214f098",
