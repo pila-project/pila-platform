@@ -628,6 +628,9 @@ export default {
     },
     "required": {
         "en": "Required",
+        "fr": "Obligatoire",
+        "km": "ចាំបាច់",
+        "pl": "Wymagane",
         "th": "จำเป็น"
     },
     "teacher-name": {
@@ -1991,7 +1994,10 @@ export default {
         "th": "หากท่าน"
     },
     "add-to-favorites": {
-        "en": "Add to Favorites",
+        "en": "Add to favorites",
+        "fr": "Ajouter aux favoris",
+        "km": "បន្ថែមទៅសំណព្វ",
+        "pl": "Dodaj do ulubionych",
         "th": "เพิ่มในรายการโปรด"
     },
     "close": {
@@ -3845,5 +3851,1265 @@ export default {
         "pt": "Etiquetar",
         "sk": "Pridať značku",
         "th": "ติดแท็ก"
+    },
+    "account-activity": {
+        "en": "Account Activity",
+        "fr": "Activité du compte",
+        "km": "សកម្មភាពគណនី",
+        "pl": "Aktywność konta",
+        "th": "กิจกรรมบัญชี"
+    },
+    "account-created": {
+        "en": "Account Created",
+        "fr": "Compte créé",
+        "km": "បានបង្កើតគណនី",
+        "pl": "Konto utworzone",
+        "th": "สร้างบัญชีแล้ว"
+    },
+    "add-at-least-one-content-item-to-continue": {
+        "en": "Add at least one content item to continue.",
+        "fr": "Ajoutez au moins un élément de contenu pour continuer.",
+        "km": "បន្ថែមធាតុមាតិកាយ៉ាងហោចណាស់មួយដើម្បីបន្ត។",
+        "pl": "Dodaj co najmniej jeden element treści, aby kontynuować.",
+        "th": "เพิ่มเนื้อหาอย่างน้อยหนึ่งรายการเพื่อดำเนินการต่อ"
+    },
+    "add-feedback": {
+        "en": "Add Feedback",
+        "fr": "Ajouter un commentaire",
+        "km": "បន្ថែមមតិកែលម្អ",
+        "pl": "Dodaj opinię",
+        "th": "เพิ่มข้อเสนอแนะ"
+    },
+    "add-row": {
+        "en": "Add Row",
+        "fr": "Ajouter une ligne",
+        "km": "បន្ថែមជួរដេក",
+        "pl": "Dodaj wiersz",
+        "th": "เพิ่มแถว"
+    },
+    "add-students-to-group": {
+        "en": "Add students to group",
+        "fr": "Ajouter des élèves au groupe",
+        "km": "បន្ថែមសិស្សទៅក្រុម",
+        "pl": "Dodaj uczniów do grupy",
+        "th": "เพิ่มนักเรียนเข้ากลุ่ม"
+    },
+    "add-to": {
+        "en": "Add To",
+        "fr": "Ajouter à",
+        "km": "បន្ថែមទៅ",
+        "pl": "Dodaj do",
+        "th": "เพิ่มไปยัง"
+    },
+    "add-to-assignment-choice-subtitle": {
+        "en": "Choose how you want to add {name} to an assignment.",
+        "fr": "Choisissez comment ajouter {name} à un devoir.",
+        "km": "ជ្រើសរើសរបៀបបន្ថែម {name} ទៅកិច្ចការ។",
+        "pl": "Wybierz, jak dodać {name} do zadania.",
+        "th": "เลือกวิธีที่ต้องการเพิ่ม {name} ไปยังงานที่มอบหมาย"
+    },
+    "add-to-existing-assignment": {
+        "en": "Add to an existing assignment",
+        "fr": "Ajouter à un devoir existant",
+        "km": "បន្ថែមទៅកិច្ចការដែលមានស្រាប់",
+        "pl": "Dodaj do istniejącego zadania",
+        "th": "เพิ่มไปยังงานที่มอบหมายที่มีอยู่"
+    },
+    "add-to-existing-assignment-subtitle": {
+        "en": "Choose an assignment you want to add {name} to.",
+        "fr": "Choisissez un devoir auquel ajouter {name}.",
+        "km": "ជ្រើសរើសកិច្ចការដែលអ្នកចង់បន្ថែម {name}។",
+        "pl": "Wybierz zadanie, do którego chcesz dodać {name}.",
+        "th": "เลือกงานที่มอบหมายที่ต้องการเพิ่ม {name}"
+    },
+    "add-to-existing-assignment-title": {
+        "en": "Add to an existing assignment",
+        "fr": "Ajouter à un devoir existant",
+        "km": "បន្ថែមទៅកិច្ចការដែលមានស្រាប់",
+        "pl": "Dodaj do istniejącego zadania",
+        "th": "เพิ่มไปยังงานที่มอบหมายที่มีอยู่"
+    },
+    "add-to-groups": {
+        "en": "Add To Groups",
+        "fr": "Ajouter aux groupes",
+        "km": "បន្ថែមទៅក្រុម",
+        "pl": "Dodaj do grup",
+        "th": "เพิ่มไปยังกลุ่ม"
+    },
+    "add-to-selected-assignment": {
+        "en": "Add to the selected assignment",
+        "fr": "Ajouter au devoir sélectionné",
+        "km": "បន្ថែមទៅកិច្ចការដែលបានជ្រើស",
+        "pl": "Dodaj do wybranego zadania",
+        "th": "เพิ่มไปยังงานที่มอบหมายที่เลือก"
+    },
+    "add-to-sequence-subtitle": {
+        "en": "Add this item to an existing sequence",
+        "fr": "Ajouter cet élément à une séquence existante",
+        "km": "បន្ថែមធាតុនេះទៅលំដាប់ដែលមានស្រាប់",
+        "pl": "Dodaj ten element do istniejącej sekwencji",
+        "th": "เพิ่มรายการนี้ไปยังลำดับที่มีอยู่"
+    },
+    "all-selected-already-in-assignment": {
+        "en": "All selected items are already in this assignment",
+        "fr": "Tous les éléments sélectionnés sont déjà dans ce devoir",
+        "km": "ធាតុដែលបានជ្រើសទាំងអស់មាននៅក្នុងកិច្ចការនេះរួចហើយ",
+        "pl": "Wszystkie wybrane elementy są już w tym zadaniu",
+        "th": "รายการที่เลือกทั้งหมดอยู่ในงานที่มอบหมายนี้แล้ว"
+    },
+    "all-selected-already-in-sequence": {
+        "en": "All selected items are already in this sequence",
+        "fr": "Tous les éléments sélectionnés sont déjà dans cette séquence",
+        "km": "ធាតុដែលបានជ្រើសទាំងអស់មាននៅក្នុងលំដាប់នេះរួចហើយ",
+        "pl": "Wszystkie wybrane elementy są już w tej sekwencji",
+        "th": "รายการที่เลือกทั้งหมดอยู่ในลำดับนี้แล้ว"
+    },
+    "already-exists-continue": {
+        "en": "already exists. Continue anyway?",
+        "fr": "existe déjà. Continuer quand même ?",
+        "km": "មានរួចហើយ។ បន្តទេ?",
+        "pl": "już istnieje. Kontynuować mimo to?",
+        "th": "มีอยู่แล้ว ดำเนินการต่อหรือไม่?"
+    },
+    "already-in-assignment": {
+        "en": "already in assignment",
+        "fr": "déjà dans le devoir",
+        "km": "មាននៅក្នុងកិច្ចការរួចហើយ",
+        "pl": "już w zadaniu",
+        "th": "อยู่ในงานที่มอบหมายแล้ว"
+    },
+    "already-in-sequence": {
+        "en": "This item is already in the sequence",
+        "fr": "Cet élément est déjà dans la séquence",
+        "km": "ធាតុនេះមាននៅក្នុងលំដាប់រួចហើយ",
+        "pl": "Ten element jest już w sekwencji",
+        "th": "รายการนี้อยู่ในลำดับแล้ว"
+    },
+    "app-specific-dashboard": {
+        "en": "App Specific Dashboard",
+        "fr": "Tableau de bord spécifique à l’application",
+        "km": "ផ្ទាំងគ្រប់គ្រងជាក់លាក់តាមកម្មវិធី",
+        "pl": "Panel specyficzny dla aplikacji",
+        "th": "แดชบอร์ดเฉพาะแอป"
+    },
+    "applying-key": {
+        "en": "Applying Key",
+        "fr": "Application de la clé…",
+        "km": "កំពុងអនុវត្តសោ…",
+        "pl": "Stosowanie klucza…",
+        "th": "กำลังใช้คีย์…"
+    },
+    "archive-assignment-confirm-intro": {
+        "en": "Choose how to archive \"{name}\". Nothing is permanently deleted — you can restore it later from archived assignments.",
+        "fr": "Choisissez comment archiver « {name} ». Rien n’est supprimé définitivement — vous pourrez le restaurer plus tard depuis les devoirs archivés.",
+        "km": "ជ្រើសរើសរបៀបទុកជាឯកសារ \"{name}\"។ គ្មានអ្វីត្រូវបានលុបជាអចិន្ត្រៃយ៍ទេ — អ្នកអាចស្តារឡើងវិញពីកិច្ចការដែលបានទុកជាឯកសារនៅពេលក្រោយ។",
+        "pl": "Wybierz sposób archiwizacji „{name}”. Nic nie zostanie trwale usunięte — możesz później przywrócić to z zarchiwizowanych zadań.",
+        "th": "เลือกวิธีเก็บถาวร \"{name}\" ไม่มีการลบถาวร — คุณสามารถกู้คืนได้ในภายหลังจากงานที่มอบหมายที่เก็บถาวร"
+    },
+    "archive-assignment-confirm-title": {
+        "en": "Archive this assignment?",
+        "fr": "Archiver ce devoir ?",
+        "km": "ទុកកិច្ចការនេះជាឯកសារ?",
+        "pl": "Zarchiwizować to zadanie?",
+        "th": "เก็บถาวรงานที่มอบหมายนี้หรือไม่?"
+    },
+    "archive-assignment-for-all-description": {
+        "en": "Hides this assignment from your list and removes it from all assigned groups ({groups}). Students will no longer see this assignment.",
+        "fr": "Masque ce devoir de votre liste et le retire de tous les groupes assignés ({groups}). Les élèves ne le verront plus.",
+        "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នក និងដកចេញពីក្រុមដែលបានកំណត់ទាំងអស់ ({groups})។ សិស្សនឹងមិនឃើញវាទៀតទេ។",
+        "pl": "Ukrywa to zadanie z Twojej listy i usuwa je ze wszystkich przypisanych grup ({groups}). Uczniowie nie będą go już widzieć.",
+        "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณและนำออกจากกลุ่มที่มอบหมายทั้งหมด ({groups}) นักเรียนจะไม่เห็นอีกต่อไป"
+    },
+    "archive-assignment-for-all-description-draft": {
+        "en": "Hides this assignment from your list. No groups are assigned, so this has the same effect as archiving for me.",
+        "fr": "Masque ce devoir de votre liste. Aucun groupe n’est assigné, donc l’effet est le même que « archiver pour moi ».",
+        "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នក។ មិនមានក្រុមណាត្រូវបានកំណត់ទេ ដូច្នេះមានប្រសិទ្ធភាពដូចការទុកជាឯកសារសម្រាប់ខ្ញុំ។",
+        "pl": "Ukrywa to zadanie z Twojej listy. Nie przypisano żadnych grup, więc efekt jest taki sam jak „archiwizuj dla mnie”.",
+        "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณ ไม่มีกลุ่มที่มอบหมาย จึงมีผลเช่นเดียวกับการเก็บถาวรสำหรับฉัน"
+    },
+    "archive-assignment-for-all-label": {
+        "en": "Archive for all",
+        "fr": "Archiver pour tous",
+        "km": "ទុកជាឯកសារសម្រាប់ទាំងអស់",
+        "pl": "Archiwizuj dla wszystkich",
+        "th": "เก็บถาวรสำหรับทุกคน"
+    },
+    "archive-assignment-for-me-description": {
+        "en": "Hides this assignment from your list only. Students in assigned groups ({groups}) will still see and can work on it until you remove those groups from the assignment.",
+        "fr": "Masque ce devoir de votre liste uniquement. Les élèves des groupes assignés ({groups}) pourront encore le voir et y travailler jusqu’à ce que vous retiriez ces groupes du devoir.",
+        "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នកតែប៉ុណ្ណោះ។ សិស្សក្នុងក្រុមដែលបានកំណត់ ({groups}) នៅតែអាចមើល និងធ្វើការលើវា រហូតដល់អ្នកដកក្រុមទាំងនោះចេញពីកិច្ចការ។",
+        "pl": "Ukrywa to zadanie tylko z Twojej listy. Uczniowie w przypisanych grupach ({groups}) nadal będą je widzieć i mogli nad nim pracować, dopóki nie usuniesz tych grup z zadania.",
+        "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณเท่านั้น นักเรียนในกลุ่มที่มอบหมาย ({groups}) ยังเห็นและทำได้จนกว่าคุณจะนำกลุ่มเหล่านั้นออกจากงาน"
+    },
+    "archive-assignment-for-me-description-draft": {
+        "en": "Hides this assignment from your active list. It is not published to any groups, so students are not affected.",
+        "fr": "Masque ce devoir de votre liste active. Il n’est publié pour aucun groupe, donc les élèves ne sont pas concernés.",
+        "km": "លាក់កិច្ចការនេះពីបញ្ជីសកម្ម។ វាមិនត្រូវបានផ្សព្វផ្សាយទៅក្រុមណាទេ ដូច្នេះសិស្សមិនរងផលប៉ះពាល់។",
+        "pl": "Ukrywa to zadanie z aktywnej listy. Nie jest opublikowane dla żadnych grup, więc uczniowie nie są dotknięci.",
+        "th": "ซ่อนงานที่มอบหมายนี้จากรายการที่ใช้งาน ไม่ได้เผยแพร่ไปยังกลุ่มใด นักเรียนจึงไม่ได้รับผลกระทบ"
+    },
+    "archive-assignment-for-me-label": {
+        "en": "Archive for me",
+        "fr": "Archiver pour moi",
+        "km": "ទុកជាឯកសារសម្រាប់ខ្ញុំ",
+        "pl": "Archiwizuj dla mnie",
+        "th": "เก็บถาวรสำหรับฉัน"
+    },
+    "archive-assignment-n-groups": {
+        "en": "{count} groups",
+        "fr": "{count} groupes",
+        "km": "{count} ក្រុម",
+        "pl": "{count} grup(y)",
+        "th": "{count} กลุ่ม"
+    },
+    "archive-assignment-one-group": {
+        "en": "1 group",
+        "fr": "1 groupe",
+        "km": "1 ក្រុម",
+        "pl": "1 grupa",
+        "th": "1 กลุ่ม"
+    },
+    "archive-group-confirm-description": {
+        "en": "This group has {count} student(s). Archiving hides the group from your active list. Students remain in the group and can still see assignments published to it until you unassign the group. You can restore the group later from archived groups.",
+        "fr": "Ce groupe compte {count} élève(s). L’archivage le masque de votre liste active. Les élèves restent dans le groupe et peuvent encore voir les devoirs publiés pour ce groupe jusqu’à ce que vous le retiriez. Vous pourrez restaurer le groupe plus tard depuis les groupes archivés.",
+        "km": "ក្រុមនេះមានសិស្ស {count} នាក់។ ការទុកជាឯកសារលាក់វាពីបញ្ជីសកម្ម។ សិស្សនៅតែស្ថិតក្នុងក្រុម និងអាចមើលកិច្ចការដែលបានផ្សព្វផ្សាយទៅវា រហូតដល់អ្នកដកក្រុម។ អ្នកអាចស្តារក្រុមពីក្រុមដែលបានទុកជាឯកសារនៅពេលក្រោយ។",
+        "pl": "Ta grupa ma {count} ucznia/uczniów. Archiwizacja ukrywa ją z aktywnej listy. Uczniowie pozostają w grupie i mogą nadal widzieć zadania opublikowane dla niej, dopóki jej nie usuniesz. Możesz później przywrócić grupę z zarchiwizowanych grup.",
+        "th": "กลุ่มนี้มีนักเรียน {count} คน การเก็บถาวรจะซ่อนจากรายการที่ใช้งาน นักเรียนยังอยู่ในกลุ่มและอาจยังเห็นงานที่เผยแพร่ไปยังกลุ่มจนกว่าคุณจะนำกลุ่มออก คุณสามารถกู้คืนกลุ่มได้ในภายหลังจากกลุ่มที่เก็บถาวร"
+    },
+    "archive-group-confirm-title": {
+        "en": "Archive group \"{name}\"?",
+        "fr": "Archiver le groupe « {name} » ?",
+        "km": "ទុកក្រុម \"{name}\" ជាឯកសារ?",
+        "pl": "Zarchiwizować grupę „{name}”?",
+        "th": "เก็บถาวรกลุ่ม \"{name}\" หรือไม่?"
+    },
+    "archive-sequence": {
+        "en": "Archive Sequence",
+        "fr": "Archiver la séquence",
+        "km": "ទុកលំដាប់ជាឯកសារ",
+        "pl": "Archiwizuj sekwencję",
+        "th": "เก็บถาวรลำดับ"
+    },
+    "archive-sequence-confirm": {
+        "en": "Archive this sequence? It will be removed from your active sequences. You can restore it later.",
+        "fr": "Archiver cette séquence ? Elle sera retirée de vos séquences actives. Vous pourrez la restaurer plus tard.",
+        "km": "ទុកលំដាប់នេះជាឯកសារ? វានឹងត្រូវបានដកចេញពីលំដាប់សកម្ម។ អ្នកអាចស្តារវានៅពេលក្រោយ។",
+        "pl": "Zarchiwizować tę sekwencję? Zostanie usunięta z aktywnych sekwencji. Możesz ją później przywrócić.",
+        "th": "เก็บถาวรลำดับนี้หรือไม่? จะถูกลบออกจากลำดับที่ใช้งาน คุณสามารถกู้คืนได้ในภายหลัง"
+    },
+    "assessment": {
+        "en": "Assessment",
+        "fr": "Évaluation",
+        "km": "ការវាយតម្លៃ",
+        "pl": "Ocenianie",
+        "th": "การประเมิน"
+    },
+    "assign-to-groups-optional-hint": {
+        "en": "You can assign classes now or add them later from the assignments page.",
+        "fr": "Vous pouvez assigner des classes maintenant ou les ajouter plus tard depuis la page des devoirs.",
+        "km": "អ្នកអាចកំណត់ថ្នាក់ឥឡូវនេះ ឬបន្ថែមពួកវាពីទំព័រកិច្ចការនៅពេលក្រោយ។",
+        "pl": "Możesz przypisać klasy teraz lub dodać je później ze strony zadań.",
+        "th": "คุณสามารถมอบหมายชั้นเรียนตอนนี้ หรือเพิ่มทีหลังจากหน้างานที่มอบหมาย"
+    },
+    "assignment-status": {
+        "en": "Assignment Status",
+        "fr": "Statut du devoir",
+        "km": "ស្ថានភាពកិច្ចការ",
+        "pl": "Status zadania",
+        "th": "สถานะงานที่มอบหมาย"
+    },
+    "assignment-title-required-for-draft": {
+        "en": "Enter an assignment title to save a draft.",
+        "fr": "Saisissez un titre de devoir pour enregistrer un brouillon.",
+        "km": "បញ្ចូលចំណងជើងកិច្ចការដើម្បីរក្សាទុកសេចក្តីព្រាង។",
+        "pl": "Wprowadź tytuł zadania, aby zapisać wersję roboczą.",
+        "th": "ใส่ชื่องานที่มอบหมายเพื่อบันทึกฉบับร่าง"
+    },
+    "assignment-updated-successfully": {
+        "en": "Assignment updated successfully",
+        "fr": "Devoir mis à jour avec succès",
+        "km": "បានធ្វើបច្ចុប្បន្នភាពកិច្ចការដោយជោគជ័យ",
+        "pl": "Zadanie zaktualizowane pomyślnie",
+        "th": "อัปเดตงานที่มอบหมายสำเร็จ"
+    },
+    "basic-information": {
+        "en": "Basic Information",
+        "fr": "Informations de base",
+        "km": "ព័ត៌មានមូលដ្ឋាន",
+        "pl": "Informacje podstawowe",
+        "th": "ข้อมูลพื้นฐาน"
+    },
+    "browse-and-select-content-from-library": {
+        "en": "Browse and select content from the library",
+        "fr": "Parcourir et sélectionner du contenu dans la bibliothèque",
+        "km": "រកមើល និងជ្រើសមាតិកាពីបណ្ណាល័យ",
+        "pl": "Przeglądaj i wybieraj treści z biblioteki",
+        "th": "เรียกดูและเลือกเนื้อหาจากคลัง"
+    },
+    "bulk-archive-students-confirm-description": {
+        "en": "Archived students are hidden from your active list. They are not deleted and remain in their groups. Students may still see assignments published to those groups. Restore them anytime from the archived students section.",
+        "fr": "Les élèves archivés sont masqués de votre liste active. Ils ne sont pas supprimés et restent dans leurs groupes. Ils peuvent encore voir les devoirs publiés pour ces groupes. Restaurez-les à tout moment depuis la section des élèves archivés.",
+        "km": "សិស្សដែលបានទុកជាឯកសារត្រូវបានលាក់ពីបញ្ជីសកម្ម។ ពួកគេមិនត្រូវបានលុប និងនៅតែស្ថិតក្នុងក្រុម។ ពួកគេអាចនៅតែមើលកិច្ចការដែលបានផ្សព្វផ្សាយទៅក្រុមទាំងនោះ។ ស្តារពួកគេពីផ្នែកសិស្សដែលបានទុកជាឯកសារនៅពេលណាក៏បាន។",
+        "pl": "Zarchiwizowani uczniowie są ukryci na aktywnej liście. Nie są usuwani i pozostają w grupach. Mogą nadal widzieć zadania opublikowane dla tych grup. Przywróć ich w dowolnym momencie z sekcji zarchiwizowanych uczniów.",
+        "th": "นักเรียนที่เก็บถาวรจะถูกซ่อนจากรายการที่ใช้งาน ไม่ถูกลบและยังอยู่ในกลุ่ม อาจยังเห็นงานที่เผยแพร่ไปยังกลุ่มเหล่านั้น กู้คืนได้ทุกเมื่อจากส่วนนักเรียนที่เก็บถาวร"
+    },
+    "bulk-archive-students-confirm-title": {
+        "en": "Archive {count} selected student(s)?",
+        "fr": "Archiver {count} élève(s) sélectionné(s) ?",
+        "km": "ទុកសិស្សដែលបានជ្រើស {count} នាក់ជាឯកសារ?",
+        "pl": "Zarchiwizować {count} wybranych uczniów?",
+        "th": "เก็บถาวรนักเรียนที่เลือก {count} คนหรือไม่?"
+    },
+    "bulk-duplicate-already-exists": {
+        "en": "Already exists:",
+        "fr": "Existe déjà :",
+        "km": "មានរួចហើយ៖",
+        "pl": "Już istnieje:",
+        "th": "มีอยู่แล้ว:"
+    },
+    "bulk-duplicate-repeated-in-upload": {
+        "en": "Repeated in upload:",
+        "fr": "Répété dans le fichier :",
+        "km": "ស្ទួនក្នុងឯកសារផ្ទុកឡើង៖",
+        "pl": "Powtórzone w przesłanym pliku:",
+        "th": "ซ้ำในไฟล์อัปโหลด:"
+    },
+    "bulk-duplicate-skipped-reason": {
+        "en": "duplicate names",
+        "fr": "noms en double",
+        "km": "ឈ្មោះស្ទួន",
+        "pl": "zduplikowane nazwy",
+        "th": "ชื่อซ้ำ"
+    },
+    "bulk-duplicate-students-intro": {
+        "en": "{count} duplicate name(s) found.",
+        "fr": "{count} nom(s) en double trouvé(s).",
+        "km": "រកឃើញឈ្មោះស្ទួន {count}។",
+        "pl": "Znaleziono {count} zduplikowanych nazw.",
+        "th": "พบชื่อซ้ำ {count} รายการ"
+    },
+    "bulk-duplicate-students-summary": {
+        "en": "Create {create} new student(s) and skip {skip} duplicate(s)?",
+        "fr": "Créer {create} nouvel/nouveaux élève(s) et ignorer {skip} doublon(s) ?",
+        "km": "បង្កើតសិស្សថ្មី {create} នាក់ និងរំលងស្ទួន {skip}?",
+        "pl": "Utworzyć {create} nowych uczniów i pominąć {skip} duplikat(ów)?",
+        "th": "สร้างนักเรียนใหม่ {create} คนและข้ามรายการซ้ำ {skip} รายการหรือไม่?"
+    },
+    "complete-profile-information-for": {
+        "en": "Complete Profile Information For",
+        "fr": "Compléter les informations du profil pour",
+        "km": "បំពេញព័ត៌មានប្រវត្តិរូបសម្រាប់",
+        "pl": "Uzupełnij informacje profilu dla",
+        "th": "กรอกข้อมูลโปรไฟล์ให้ครบสำหรับ"
+    },
+    "complete-required-steps-before-saving": {
+        "en": "Complete all required steps before saving.",
+        "fr": "Terminez toutes les étapes obligatoires avant d’enregistrer.",
+        "km": "បំពេញជំហានចាំបាច់ទាំងអស់មុនពេលរក្សាទុក។",
+        "pl": "Ukończ wszystkie wymagane kroki przed zapisaniem.",
+        "th": "ทำขั้นตอนที่จำเป็นทั้งหมดให้ครบก่อนบันทึก"
+    },
+    "content-added-to-assignment": {
+        "en": "Content added to assignment",
+        "fr": "Contenu ajouté au devoir",
+        "km": "បានបន្ថែមមាតិកាទៅកិច្ចការ",
+        "pl": "Treść dodana do zadania",
+        "th": "เพิ่มเนื้อหาไปยังงานที่มอบหมายแล้ว"
+    },
+    "content-already-in-assignment": {
+        "en": "Content is already in this assignment",
+        "fr": "Le contenu est déjà dans ce devoir",
+        "km": "មាតិកាមាននៅក្នុងកិច្ចការនេះរួចហើយ",
+        "pl": "Treść jest już w tym zadaniu",
+        "th": "เนื้อหานี้อยู่ในงานที่มอบหมายนี้แล้ว"
+    },
+    "content-info": {
+        "en": "Content info",
+        "fr": "Infos sur le contenu",
+        "km": "ព័ត៌មានមាតិកា",
+        "pl": "Informacje o treści",
+        "th": "ข้อมูลเนื้อหา"
+    },
+    "content-type": {
+        "en": "Content type",
+        "fr": "Type de contenu",
+        "km": "ប្រភេទមាតិកា",
+        "pl": "Typ treści",
+        "th": "ประเภทเนื้อหา"
+    },
+    "continue-anyway": {
+        "en": "Continue anyway",
+        "fr": "Continuer quand même",
+        "km": "បន្តទៅមុខ",
+        "pl": "Kontynuuj mimo to",
+        "th": "ดำเนินการต่อ"
+    },
+    "continue-browsing": {
+        "en": "Continue browsing",
+        "fr": "Continuer la navigation",
+        "km": "បន្តរកមើល",
+        "pl": "Kontynuuj przeglądanie",
+        "th": "เรียกดูต่อ"
+    },
+    "continue-without-adding": {
+        "en": "Continue without adding",
+        "fr": "Continuer sans ajouter",
+        "km": "បន្តដោយមិនបន្ថែម",
+        "pl": "Kontynuuj bez dodawania",
+        "th": "ดำเนินการต่อโดยไม่เพิ่ม"
+    },
+    "create-a-copy-of": {
+        "en": "Create A Copy Of",
+        "fr": "Créer une copie de",
+        "km": "បង្កើតច្បាប់ចម្លងនៃ",
+        "pl": "Utwórz kopię",
+        "th": "สร้างสำเนาของ"
+    },
+    "create-all-accounts": {
+        "en": "Create All Accounts",
+        "fr": "Créer tous les comptes",
+        "km": "បង្កើតគណនីទាំងអស់",
+        "pl": "Utwórz wszystkie konta",
+        "th": "สร้างบัญชีทั้งหมด"
+    },
+    "csv-required-columns": {
+        "en": "Csv Required Columns",
+        "fr": "Colonnes CSV obligatoires",
+        "km": "ជួរឈរ CSV ដែលត្រូវការ",
+        "pl": "Wymagane kolumny CSV",
+        "th": "คอลัมน์ CSV ที่จำเป็น"
+    },
+    "current-item-sequence-count": {
+        "en": "Current item/sequence ({count})",
+        "fr": "Élément/séquence actuel(le) ({count})",
+        "km": "ធាតុ/លំដាប់បច្ចុប្បន្ន ({count})",
+        "pl": "Bieżący element/sekwencja ({count})",
+        "th": "รายการ/ลำดับปัจจุบัน ({count})"
+    },
+    "date-format-placeholder": {
+        "en": "mm/dd/yyyy",
+        "fr": "jj/mm/aaaa",
+        "km": "ថ្ងៃ/ខែ/ឆ្នាំ",
+        "pl": "dd/mm/rrrr",
+        "th": "วว/ดด/ปปปป"
+    },
+    "describe-your-sequence": {
+        "en": "Describe Your Sequence",
+        "fr": "Décrivez votre séquence",
+        "km": "ពិពណ៌នាលំដាប់របស់អ្នក",
+        "pl": "Opisz swoją sekwencję",
+        "th": "อธิบายลำดับของคุณ"
+    },
+    "discard": {
+        "en": "Discard",
+        "fr": "Abandonner",
+        "km": "បោះបង់",
+        "pl": "Odrzuć",
+        "th": "ละทิ้ง"
+    },
+    "discard-changes": {
+        "en": "Discard changes?",
+        "fr": "Abandonner les modifications ?",
+        "km": "បោះបង់ការផ្លាស់ប្តូរ?",
+        "pl": "Odrzucić zmiany?",
+        "th": "ละทิ้งการเปลี่ยนแปลงหรือไม่?"
+    },
+    "discover-customise-and-add-content-to-your-assignments": {
+        "en": "Discover Customise And Add Content To Your Assignments",
+        "fr": "Découvrez, personnalisez et ajoutez du contenu à vos devoirs",
+        "km": "ស្វែងរក ប្ដូរតាមបំណង និងបន្ថែមមាតិកាទៅកិច្ចការរបស់អ្នក",
+        "pl": "Odkrywaj, dostosowuj i dodawaj treści do zadań",
+        "th": "ค้นหา ปรับแต่ง และเพิ่มเนื้อหาไปยังงานที่มอบหมายของคุณ"
+    },
+    "download-login": {
+        "en": "Download login",
+        "fr": "Télécharger la connexion",
+        "km": "ទាញយកការចូល",
+        "pl": "Pobierz dane logowania",
+        "th": "ดาวน์โหลดข้อมูลเข้าสู่ระบบ"
+    },
+    "download-login-code": {
+        "en": "Download login",
+        "fr": "Télécharger le code de connexion",
+        "km": "ទាញយកលេខកូដចូល",
+        "pl": "Pobierz kod logowania",
+        "th": "ดาวน์โหลดรหัสเข้าสู่ระบบ"
+    },
+    "download-template": {
+        "en": "Download Template",
+        "fr": "Télécharger le modèle",
+        "km": "ទាញយកគំរូ",
+        "pl": "Pobierz szablon",
+        "th": "ดาวน์โหลดเทมเพลต"
+    },
+    "draft-saved-successfully": {
+        "en": "Draft saved successfully",
+        "fr": "Brouillon enregistré avec succès",
+        "km": "បានរក្សាទុកសេចក្តីព្រាងដោយជោគជ័យ",
+        "pl": "Wersja robocza zapisana pomyślnie",
+        "th": "บันทึกฉบับร่างสำเร็จ"
+    },
+    "drag-content-here": {
+        "en": "Drag content here to add items",
+        "fr": "Glissez du contenu ici pour ajouter des éléments",
+        "km": "អូសមាតិកាមកទីនេះដើម្បីបន្ថែមធាតុ",
+        "pl": "Przeciągnij treść tutaj, aby dodać elementy",
+        "th": "ลากเนื้อมาที่นี่เพื่อเพิ่มรายการ"
+    },
+    "drop-csv-file-here": {
+        "en": "Drop Csv File Here",
+        "fr": "Déposez le fichier CSV ici",
+        "km": "ទម្លាក់ឯកសារ CSV នៅទីនេះ",
+        "pl": "Upuść plik CSV tutaj",
+        "th": "วางไฟล์ CSV ที่นี่"
+    },
+    "drop-here": {
+        "en": "Drop Here",
+        "fr": "Déposer ici",
+        "km": "ទម្លាក់នៅទីនេះ",
+        "pl": "Upuść tutaj",
+        "th": "วางที่นี่"
+    },
+    "duplicate-name-description": {
+        "en": "A student named",
+        "fr": "Un élève nommé",
+        "km": "សិស្សឈ្មោះ",
+        "pl": "Uczeń o imieniu",
+        "th": "นักเรียนชื่อ"
+    },
+    "duplicate-name-title": {
+        "en": "Name already exists",
+        "fr": "Ce nom existe déjà",
+        "km": "ឈ្មោះមានរួចហើយ",
+        "pl": "Nazwa już istnieje",
+        "th": "มีชื่อนี้อยู่แล้ว"
+    },
+    "edit-feedback": {
+        "en": "Edit Feedback",
+        "fr": "Modifier le commentaire",
+        "km": "កែមតិកែលម្អ",
+        "pl": "Edytuj opinię",
+        "th": "แก้ไขข้อเสนอแนะ"
+    },
+    "edit-student": {
+        "en": "Edit Student",
+        "fr": "Modifier l’élève",
+        "km": "កែសិស្ស",
+        "pl": "Edytuj ucznia",
+        "th": "แก้ไขนักเรียน"
+    },
+    "edit-students-details": {
+        "en": "Edit Students Details",
+        "fr": "Modifier les détails de l’élève",
+        "km": "កែព័ត៌មានលម្អិតសិស្ស",
+        "pl": "Edytuj dane ucznia",
+        "th": "แก้ไขรายละเอียดนักเรียน"
+    },
+    "encryption-key-invalid-badge": {
+        "en": "Encryption key-word may be incorrect",
+        "fr": "Le mot-clé de chiffrement est peut-être incorrect",
+        "km": "ពាក្យគន្លឹះអ៊ីនគ្រីបប្រហែលមិនត្រឹមត្រូវ",
+        "pl": "Słowo kluczowe szyfrowania może być nieprawidłowe",
+        "th": "คำสำคัญการเข้ารหัสอาจไม่ถูกต้อง"
+    },
+    "encryption-key-invalid-banner": {
+        "en": "Student information could not be decrypted. Check that your encryption key-word is correct.",
+        "fr": "Les informations des élèves n’ont pas pu être déchiffrées. Vérifiez que votre mot-clé de chiffrement est correct.",
+        "km": "មិនអាចឌិគ្រីបព័ត៌មានសិស្សបានទេ។ ពិនិត្យថាពាក្យគន្លឹះអ៊ីនគ្រីបរបស់អ្នកត្រឹមត្រូវ។",
+        "pl": "Nie udało się odszyfrować informacji o uczniach. Sprawdź, czy słowo kluczowe szyfrowania jest poprawne.",
+        "th": "ถอดรหัสข้อมูลนักเรียนไม่ได้ ตรวจสอบว่าคำสำคัญการเข้ารหัสถูกต้อง"
+    },
+    "encryption-key-invalid-hint": {
+        "en": "This key-word could not decrypt student information. Try the key-word you used when creating or linking students.",
+        "fr": "Ce mot-clé n’a pas pu déchiffrer les informations des élèves. Essayez le mot-clé utilisé lors de la création ou de la liaison des élèves.",
+        "km": "ពាក្យគន្លឹះនេះមិនអាចឌិគ្រីបព័ត៌មានសិស្សបានទេ។ សាកល្បងពាក្យដែលអ្នកបានប្រើពេលបង្កើត ឬភ្ជាប់សិស្ស។",
+        "pl": "To słowo kluczowe nie odszyfrowało informacji o uczniach. Spróbuj słowa użytego przy tworzeniu lub łączeniu uczniów.",
+        "th": "คำสำคัญนี้ถอดรหัสข้อมูลนักเรียนไม่ได้ ลองใช้คำที่คุณใช้ตอนสร้างหรือเชื่อมโยงนักเรียน"
+    },
+    "encryption-key-missing-badge": {
+        "en": "Encryption key-word not set",
+        "fr": "Mot-clé de chiffrement non défini",
+        "km": "មិនទាន់កំណត់ពាក្យគន្លឹះអ៊ីនគ្រីប",
+        "pl": "Nie ustawiono słowa kluczowego szyfrowania",
+        "th": "ยังไม่ได้ตั้งคำสำคัญการเข้ารหัส"
+    },
+    "encryption-key-missing-banner": {
+        "en": "Student information is shown as anonymous IDs until you enter your encryption key-word.",
+        "fr": "Les informations des élèves s’affichent comme des identifiants anonymes tant que vous n’avez pas saisi votre mot-clé de chiffrement.",
+        "km": "ព័ត៌មានសិស្សបង្ហាញជា ID អនាមិក រហូតដល់អ្នកបញ្ចូលពាក្យគន្លឹះអ៊ីនគ្រីប។",
+        "pl": "Informacje o uczniach są pokazywane jako anonimowe ID, dopóki nie wprowadzisz słowa kluczowego szyfrowania.",
+        "th": "ข้อมูลนักเรียนจะแสดงเป็นรหัสนิรนามจนกว่าคุณจะใส่คำสำคัญการเข้ารหัส"
+    },
+    "encryption-key-required-hint": {
+        "en": "An encryption key-word is required to view student information.",
+        "fr": "Un mot-clé de chiffrement est requis pour voir les informations des élèves.",
+        "km": "ត្រូវការពាក្យគន្លឹះអ៊ីនគ្រីបដើម្បីមើលព័ត៌មានសិស្ស។",
+        "pl": "Do wyświetlenia informacji o uczniach wymagane jest słowo kluczowe szyfrowania.",
+        "th": "ต้องมีคำสำคัญการเข้ารหัสเพื่อดูข้อมูลนักเรียน"
+    },
+    "enter-sequence-title": {
+        "en": "Enter Sequence Title",
+        "fr": "Saisir le titre de la séquence",
+        "km": "បញ្ចូលចំណងជើងលំដាប់",
+        "pl": "Wprowadź tytuł sekwencji",
+        "th": "ใส่ชื่อลำดับ"
+    },
+    "excel-save-as-csv-first": {
+        "en": "Excel files are listed for convenience — please save as CSV and upload that file.",
+        "fr": "Les fichiers Excel sont listés pour commodité — veuillez enregistrer en CSV et téléverser ce fichier.",
+        "km": "ឯកសារ Excel ត្រូវបានរាយសម្រាប់ភាពងាយស្រួល — សូមរក្សាទុកជា CSV ហើយផ្ទុកឡើងឯកសារនោះ។",
+        "pl": "Pliki Excel są widoczne dla wygody — zapisz jako CSV i prześlij ten plik.",
+        "th": "ไฟล์ Excel แสดงไว้เพื่อความสะดวก — โปรดบันทึกเป็น CSV แล้วอัปโหลดไฟล์นั้น"
+    },
+    "favorites": {
+        "en": "Favorites",
+        "fr": "Favoris",
+        "km": "សំណព្វ",
+        "pl": "Ulubione",
+        "th": "รายการโปรด"
+    },
+    "favorites-only": {
+        "en": "Favorites only",
+        "fr": "Favoris uniquement",
+        "km": "សំណព្វតែប៉ុណ្ណោះ",
+        "pl": "Tylko ulubione",
+        "th": "เฉพาะรายการโปรด"
+    },
+    "feedback": {
+        "en": "Feedback",
+        "fr": "Commentaires",
+        "km": "មតិកែលម្អ",
+        "pl": "Opinia",
+        "th": "ข้อเสนอแนะ"
+    },
+    "fill-required-fields-to-continue": {
+        "en": "Fill in all required fields to continue.",
+        "fr": "Remplissez tous les champs obligatoires pour continuer.",
+        "km": "បំពេញវាលចាំបាច់ទាំងអស់ដើម្បីបន្ត។",
+        "pl": "Wypełnij wszystkie wymagane pola, aby kontynuować.",
+        "th": "กรอกช่องที่จำเป็นทั้งหมดเพื่อดำเนินการต่อ"
+    },
+    "go-to-assignment": {
+        "en": "Go to assignment",
+        "fr": "Aller au devoir",
+        "km": "ទៅកាន់កិច្ចការ",
+        "pl": "Przejdź do zadania",
+        "th": "ไปที่งานที่มอบหมาย"
+    },
+    "graded": {
+        "en": "Graded",
+        "fr": "Noté",
+        "km": "បានដាក់ពិន្ទុ",
+        "pl": "Ocenione",
+        "th": "ให้คะแนนแล้ว"
+    },
+    "group-created-successfully": {
+        "en": "Group created successfully",
+        "fr": "Groupe créé avec succès",
+        "km": "បានបង្កើតក្រុមដោយជោគជ័យ",
+        "pl": "Grupa utworzona pomyślnie",
+        "th": "สร้างกลุ่มสำเร็จ"
+    },
+    "group-updated-successfully": {
+        "en": "Group updated successfully",
+        "fr": "Groupe mis à jour avec succès",
+        "km": "បានធ្វើបច្ចុប្បន្នភាពក្រុមដោយជោគជ័យ",
+        "pl": "Grupa zaktualizowana pomyślnie",
+        "th": "อัปเดตกลุ่มสำเร็จ"
+    },
+    "homework": {
+        "en": "Homework",
+        "fr": "Devoirs",
+        "km": "កិច្ចការផ្ទះ",
+        "pl": "Praca domowa",
+        "th": "การบ้าน"
+    },
+    "i-confirm-consent-collected": {
+        "en": "I Confirm Consent Collected",
+        "fr": "Je confirme que le consentement a été recueilli",
+        "km": "ខ្ញុំបញ្ជាក់ថាបានប្រមូលការយល់ព្រម",
+        "pl": "Potwierdzam, że uzyskano zgodę",
+        "th": "ฉันยืนยันว่าได้รับความยินยอมแล้ว"
+    },
+    "individual-submission": {
+        "en": "Individual Submission",
+        "fr": "Soumission individuelle",
+        "km": "ការដាក់ស្នើបុគ្គល",
+        "pl": "Indywidualne zgłoszenie",
+        "th": "การส่งรายบุคคล"
+    },
+    "items-added": {
+        "en": "added",
+        "fr": "ajouté(s)",
+        "km": "បានបន្ថែម",
+        "pl": "dodano",
+        "th": "เพิ่มแล้ว"
+    },
+    "items-added-to-assignment": {
+        "en": "item(s) added to",
+        "fr": "élément(s) ajouté(s) à",
+        "km": "ធាតុបានបន្ថែមទៅ",
+        "pl": "element(y) dodane do",
+        "th": "รายการที่เพิ่มไปยัง"
+    },
+    "learning": {
+        "en": "Learning",
+        "fr": "Apprentissage",
+        "km": "ការរៀន",
+        "pl": "Nauka",
+        "th": "การเรียนรู้"
+    },
+    "learning-goals-and-description": {
+        "en": "Learning Goals And Description",
+        "fr": "Objectifs d’apprentissage et description",
+        "km": "គោលដៅសិក្សា និងការពិពណ៌នា",
+        "pl": "Cele uczenia się i opis",
+        "th": "เป้าหมายการเรียนรู้และคำอธิบาย"
+    },
+    "login-code": {
+        "en": "Login Code",
+        "fr": "Code de connexion",
+        "km": "លេខកូដចូល",
+        "pl": "Kod logowania",
+        "th": "รหัสเข้าสู่ระบบ"
+    },
+    "manual-entry": {
+        "en": "Manual Entry",
+        "fr": "Saisie manuelle",
+        "km": "បញ្ចូលដោយដៃ",
+        "pl": "Wpis ręczny",
+        "th": "ป้อนด้วยตนเอง"
+    },
+    "modify-the-group-details": {
+        "en": "Modify the group details",
+        "fr": "Modifier les détails du groupe",
+        "km": "កែព័ត៌មានលម្អិតក្រុម",
+        "pl": "Zmień szczegóły grupy",
+        "th": "แก้ไขรายละเอียดกลุ่ม"
+    },
+    "new-assignment-created-with-content": {
+        "en": "A new assignment \"{name}\" has been created and \"content\" has been successfully added to it.",
+        "fr": "Un nouveau devoir « {name} » a été créé et le « contenu » y a été ajouté avec succès.",
+        "km": "កិច្ចការថ្មី \"{name}\" ត្រូវបានបង្កើត ហើយ \"មាតិកា\" ត្រូវបានបន្ថែមដោយជោគជ័យ។",
+        "pl": "Utworzono nowe zadanie „{name}” i pomyślnie dodano do niego „treść”.",
+        "th": "สร้างงานที่มอบหมายใหม่ \"{name}\" และเพิ่ม \"เนื้อหา\" สำเร็จแล้ว"
+    },
+    "new-assignment-successfully-created": {
+        "en": "New assignment has been successfully created",
+        "fr": "Le nouveau devoir a été créé avec succès",
+        "km": "កិច្ចការថ្មីត្រូវបានបង្កើតដោយជោគជ័យ",
+        "pl": "Nowe zadanie zostało pomyślnie utworzone",
+        "th": "สร้างงานที่มอบหมายใหม่สำเร็จแล้ว"
+    },
+    "new-assignment-title": {
+        "en": "New Assignment Title",
+        "fr": "Titre du nouveau devoir",
+        "km": "ចំណងជើងកិច្ចការថ្មី",
+        "pl": "Tytuł nowego zadania",
+        "th": "ชื่องานที่มอบหมายใหม่"
+    },
+    "new-login-code-is-ready": {
+        "en": "New login code is ready",
+        "fr": "Le nouveau code de connexion est prêt",
+        "km": "លេខកូដចូលថ្មីរួចរាល់",
+        "pl": "Nowy kod logowania jest gotowy",
+        "th": "รหัสเข้าสู่ระบบใหม่พร้อมแล้ว"
+    },
+    "nickname": {
+        "en": "Nickname",
+        "fr": "Surnom",
+        "km": "ឈ្មោះហៅក្រៅ",
+        "pl": "Pseudonim",
+        "th": "ชื่อเล่น"
+    },
+    "no-active-users-with-login-codes": {
+        "en": "No active users with login codes.",
+        "fr": "Aucun utilisateur actif avec un code de connexion.",
+        "km": "គ្មានអ្នកប្រើសកម្មដែលមានលេខកូដចូល។",
+        "pl": "Brak aktywnych użytkowników z kodami logowania.",
+        "th": "ไม่มีผู้ใช้ที่ใช้งานพร้อมรหัสเข้าสู่ระบบ"
+    },
+    "no-favorites-match-search": {
+        "en": "No favorites match your search",
+        "fr": "Aucun favori ne correspond à votre recherche",
+        "km": "គ្មានសំណព្វត្រូវនឹងការស្វែងរក",
+        "pl": "Brak ulubionych pasujących do wyszukiwania",
+        "th": "ไม่มีรายการโปรดที่ตรงกับการค้นหา"
+    },
+    "no-favorites-yet": {
+        "en": "No favorites yet",
+        "fr": "Pas encore de favoris",
+        "km": "មិនទាន់មានសំណព្វ",
+        "pl": "Brak jeszcze ulubionych",
+        "th": "ยังไม่มีรายการโปรด"
+    },
+    "no-results": {
+        "en": "No results",
+        "fr": "Aucun résultat",
+        "km": "គ្មានលទ្ធផល",
+        "pl": "Brak wyników",
+        "th": "ไม่พบผลลัพธ์"
+    },
+    "no-results-found": {
+        "en": "No results found",
+        "fr": "Aucun résultat trouvé",
+        "km": "រកមិនឃើញលទ្ធផល",
+        "pl": "Nie znaleziono wyników",
+        "th": "ไม่พบผลลัพธ์"
+    },
+    "no-sequences-match-search": {
+        "en": "No sequences match your search",
+        "fr": "Aucune séquence ne correspond à votre recherche",
+        "km": "គ្មានលំដាប់ត្រូវនឹងការស្វែងរក",
+        "pl": "Brak sekwencji pasujących do wyszukiwania",
+        "th": "ไม่มีลำดับที่ตรงกับการค้นหา"
+    },
+    "no-students-found": {
+        "en": "No Students Found",
+        "fr": "Aucun élève trouvé",
+        "km": "រកមិនឃើញសិស្ស",
+        "pl": "Nie znaleziono uczniów",
+        "th": "ไม่พบนักเรียน"
+    },
+    "no-students-selected": {
+        "en": "No students selected.",
+        "fr": "Aucun élève sélectionné.",
+        "km": "មិនបានជ្រើសសិស្ស។",
+        "pl": "Nie wybrano uczniów.",
+        "th": "ยังไม่ได้เลือกนักเรียน"
+    },
+    "no-submission": {
+        "en": "No Submission",
+        "fr": "Aucune soumission",
+        "km": "គ្មានការដាក់ស្នើ",
+        "pl": "Brak zgłoszenia",
+        "th": "ไม่มีการส่ง"
+    },
+    "optional": {
+        "en": "Optional",
+        "fr": "Facultatif",
+        "km": "ស្រេចចិត្ត",
+        "pl": "Opcjonalne",
+        "th": "ไม่บังคับ"
+    },
+    "password-reset-successfully": {
+        "en": "Password reset successfully",
+        "fr": "Mot de passe réinitialisé avec succès",
+        "km": "បានកំណត់ពាក្យសម្ងាត់ឡើងវិញដោយជោគជ័យ",
+        "pl": "Hasło zresetowane pomyślnie",
+        "th": "รีเซ็ตรหัสผ่านสำเร็จ"
+    },
+    "practice": {
+        "en": "Practice",
+        "fr": "Pratique",
+        "km": "អនុវត្ត",
+        "pl": "Ćwiczenie",
+        "th": "ฝึกฝน"
+    },
+    "print": {
+        "en": "Print",
+        "fr": "Imprimer",
+        "km": "បោះពុម្ព",
+        "pl": "Drukuj",
+        "th": "พิมพ์"
+    },
+    "publication-date": {
+        "en": "Publication date",
+        "fr": "Date de publication",
+        "km": "កាលបរិច្ឆេទផ្សព្វផ្សាយ",
+        "pl": "Data publikacji",
+        "th": "วันที่เผยแพร่"
+    },
+    "publication-time": {
+        "en": "Publication time",
+        "fr": "Heure de publication",
+        "km": "ម៉ោងផ្សព្វផ្សាយ",
+        "pl": "Godzina publikacji",
+        "th": "เวลาเผยแพร่"
+    },
+    "publishes-on": {
+        "en": "Publishes on",
+        "fr": "Publié le",
+        "km": "ផ្សព្វផ្សាយនៅ",
+        "pl": "Publikacja",
+        "th": "เผยแพร่เมื่อ"
+    },
+    "remove-from-favorites": {
+        "en": "Remove from favorites",
+        "fr": "Retirer des favoris",
+        "km": "ដកចេញពីសំណព្វ",
+        "pl": "Usuń z ulubionych",
+        "th": "ลบออกจากรายการโปรด"
+    },
+    "reporting-dashboard": {
+        "en": "Reporting Dashboard",
+        "fr": "Tableau de bord des rapports",
+        "km": "ផ្ទាំងគ្រប់គ្រងរបាយការណ៍",
+        "pl": "Panel raportowania",
+        "th": "แดชบอร์ดรายงาน"
+    },
+    "reset-password": {
+        "en": "Reset Password",
+        "fr": "Réinitialiser le mot de passe",
+        "km": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+        "pl": "Resetuj hasło",
+        "th": "รีเซ็ตรหัสผ่าน"
+    },
+    "reset-password-confirm-description": {
+        "en": "Reset Password Confirm Description",
+        "fr": "Un nouveau code de connexion sera généré pour cet élève.",
+        "km": "លេខកូដចូលថ្មីនឹងត្រូវបានបង្កើតសម្រាប់សិស្សនេះ។",
+        "pl": "Zostanie wygenerowany nowy kod logowania dla tego ucznia.",
+        "th": "จะสร้างรหัสเข้าสู่ระบบใหม่สำหรับนักเรียนคนนี้"
+    },
+    "reset-password-confirm-title": {
+        "en": "Reset Password Confirm Title",
+        "fr": "Réinitialiser le mot de passe ?",
+        "km": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ?",
+        "pl": "Zresetować hasło?",
+        "th": "รีเซ็ตรหัสผ่านหรือไม่?"
+    },
+    "restore": {
+        "en": "Restore",
+        "fr": "Restaurer",
+        "km": "ស្តារ",
+        "pl": "Przywróć",
+        "th": "กู้คืน"
+    },
+    "restore-group-confirm-description": {
+        "en": "The group will return to your active groups list. Students stay assigned to this group.",
+        "fr": "Le groupe reviendra dans votre liste de groupes actifs. Les élèves restent assignés à ce groupe.",
+        "km": "ក្រុមនឹងត្រឡប់ទៅបញ្ជីក្រុមសកម្ម។ សិស្សនៅតែត្រូវបានកំណត់ទៅក្រុមនេះ។",
+        "pl": "Grupa wróci na listę aktywnych grup. Uczniowie pozostaną przypisani do tej grupy.",
+        "th": "กลุ่มจะกลับไปยังรายการกลุ่มที่ใช้งาน นักเรียนยังอยู่ในกลุ่มนี้"
+    },
+    "restore-group-confirm-title": {
+        "en": "Restore group \"{name}\"?",
+        "fr": "Restaurer le groupe « {name} » ?",
+        "km": "ស្តារក្រុម \"{name}\"?",
+        "pl": "Przywrócić grupę „{name}”?",
+        "th": "กู้คืนกลุ่ม \"{name}\" หรือไม่?"
+    },
+    "restore-student-confirm-description": {
+        "en": "The student will return to your active student list. Their groups and login code are unchanged.",
+        "fr": "L’élève reviendra dans votre liste d’élèves actifs. Ses groupes et son code de connexion restent inchangés.",
+        "km": "សិស្សនឹងត្រឡប់ទៅបញ្ជីសិស្សសកម្ម។ ក្រុម និងលេខកូដចូលរបស់ពួកគេមិនផ្លាស់ប្តូរ។",
+        "pl": "Uczeń wróci na aktywną listę uczniów. Jego grupy i kod logowania pozostaną bez zmian.",
+        "th": "นักเรียนจะกลับไปยังรายการนักเรียนที่ใช้งาน กลุ่มและรหัสเข้าสู่ระบบไม่เปลี่ยน"
+    },
+    "restore-student-confirm-title": {
+        "en": "Restore this student?",
+        "fr": "Restaurer cet élève ?",
+        "km": "ស្តារសិស្សនេះ?",
+        "pl": "Przywrócić tego ucznia?",
+        "th": "กู้คืนนักเรียนคนนี้หรือไม่?"
+    },
+    "review-student-submissions-and-provide-feedback": {
+        "en": "Review Student Submissions And Provide Feedback",
+        "fr": "Examiner les soumissions des élèves et fournir des commentaires",
+        "km": "ពិនិត្យការដាក់ស្នើរបស់សិស្ស និងផ្តល់មតិកែលម្អ",
+        "pl": "Przeglądaj prace uczniów i przekazuj opinię",
+        "th": "ตรวจงานที่นักเรียนส่งและให้ข้อเสนอแนะ"
+    },
+    "rows-selected-for-removal-summary": {
+        "en": "Rows Selected For Removal Summary",
+        "fr": "Résumé des lignes sélectionnées pour suppression",
+        "km": "សង្ខេបជួរដេកដែលបានជ្រើសសម្រាប់ដកចេញ",
+        "pl": "Podsumowanie wierszy wybranych do usunięcia",
+        "th": "สรุปแถวที่เลือกเพื่อนำออก"
+    },
+    "save-changes": {
+        "en": "Save changes",
+        "fr": "Enregistrer les modifications",
+        "km": "រក្សាទុកការផ្លាស់ប្តូរ",
+        "pl": "Zapisz zmiany",
+        "th": "บันทึกการเปลี่ยนแปลง"
+    },
+    "search-group": {
+        "en": "Search Group",
+        "fr": "Rechercher un groupe",
+        "km": "ស្វែងរកក្រុម",
+        "pl": "Szukaj grupy",
+        "th": "ค้นหากลุ่ม"
+    },
+    "search-sequences": {
+        "en": "Search sequences",
+        "fr": "Rechercher des séquences",
+        "km": "ស្វែងរកលំដាប់",
+        "pl": "Szukaj sekwencji",
+        "th": "ค้นหาลำดับ"
+    },
+    "search-student": {
+        "en": "Search Student",
+        "fr": "Rechercher un élève",
+        "km": "ស្វែងរកសិស្ស",
+        "pl": "Szukaj ucznia",
+        "th": "ค้นหานักเรียน"
+    },
+    "select-grade": {
+        "en": "Select Grade",
+        "fr": "Sélectionner le niveau",
+        "km": "ជ្រើសថ្នាក់",
+        "pl": "Wybierz klasę",
+        "th": "เลือกระดับชั้น"
+    },
+    "select-subject": {
+        "en": "Select Subject",
+        "fr": "Sélectionner la matière",
+        "km": "ជ្រើសមុខវិជ្ជា",
+        "pl": "Wybierz przedmiot",
+        "th": "เลือกวิชา"
+    },
+    "select-target-sequence": {
+        "en": "Select target sequence",
+        "fr": "Sélectionner la séquence cible",
+        "km": "ជ្រើសលំដាប់គោលដៅ",
+        "pl": "Wybierz docelową sekwencję",
+        "th": "เลือกลำดับปลายทาง"
+    },
+    "selected": {
+        "en": "Selected",
+        "fr": "Sélectionné",
+        "km": "បានជ្រើស",
+        "pl": "Wybrane",
+        "th": "ที่เลือก"
+    },
+    "selected-content": {
+        "en": "the selected content",
+        "fr": "le contenu sélectionné",
+        "km": "មាតិកាដែលបានជ្រើស",
+        "pl": "wybrana treść",
+        "th": "เนื้อหาที่เลือก"
+    },
+    "selected-students-will-be-added": {
+        "en": "Selected Students Will Be Added",
+        "fr": "Les élèves sélectionnés seront ajoutés",
+        "km": "សិស្សដែលបានជ្រើសនឹងត្រូវបានបន្ថែម",
+        "pl": "Wybrani uczniowie zostaną dodani",
+        "th": "นักเรียนที่เลือกจะถูกเพิ่ม"
+    },
+    "sequences-only": {
+        "en": "Sequences only",
+        "fr": "Séquences uniquement",
+        "km": "លំដាប់តែប៉ុណ្ណោះ",
+        "pl": "Tylko sekwencje",
+        "th": "เฉพาะลำดับ"
+    },
+    "set-publication-date": {
+        "en": "Set when this assignment will be published to students",
+        "fr": "Définir quand ce devoir sera publié aux élèves",
+        "km": "កំណត់ពេលដែលកិច្ចការនេះនឹងត្រូវបានផ្សព្វផ្សាយទៅសិស្ស",
+        "pl": "Ustaw, kiedy to zadanie zostanie opublikowane uczniom",
+        "th": "กำหนดเวลาที่จะเผยแพร่งานนี้ให้นักเรียน"
+    },
+    "set-publication-date-to-save": {
+        "en": "Set a publication date to save.",
+        "fr": "Définissez une date de publication pour enregistrer.",
+        "km": "កំណត់កាលបរិច្ឆេទផ្សព្វផ្សាយដើម្បីរក្សាទុក។",
+        "pl": "Ustaw datę publikacji, aby zapisać.",
+        "th": "กำหนดวันที่เผยแพร่เพื่อบันทึก"
+    },
+    "something-went-wrong": {
+        "en": "Something went wrong",
+        "fr": "Une erreur s’est produite",
+        "km": "មានអ្វីមួយខុសប្រក្រតី",
+        "pl": "Coś poszło nie tak",
+        "th": "เกิดข้อผิดพลาด"
+    },
+    "step-n": {
+        "en": "Step {n}",
+        "fr": "Étape {n}",
+        "km": "ជំហាន {n}",
+        "pl": "Krok {n}",
+        "th": "ขั้นตอน {n}"
+    },
+    "student-account-created": {
+        "en": "Student account created",
+        "fr": "Compte élève créé",
+        "km": "បានបង្កើតគណនីសិស្ស",
+        "pl": "Konto ucznia utworzone",
+        "th": "สร้างบัญชีนักเรียนแล้ว"
+    },
+    "student-added-to-group": {
+        "en": "Student added to group",
+        "fr": "Élève ajouté au groupe",
+        "km": "បានបន្ថែមសិស្សទៅក្រុម",
+        "pl": "Uczeń dodany do grupy",
+        "th": "เพิ่มนักเรียนเข้ากลุ่มแล้ว"
+    },
+    "student-already-in-group": {
+        "en": "Student already in group",
+        "fr": "L’élève est déjà dans le groupe",
+        "km": "សិស្សមាននៅក្នុងក្រុមរួចហើយ",
+        "pl": "Uczeń jest już w grupie",
+        "th": "นักเรียนอยู่ในกลุ่มแล้ว"
+    },
+    "student-submissions": {
+        "en": "Student Submissions",
+        "fr": "Soumissions des élèves",
+        "km": "ការដាក់ស្នើរបស់សិស្ស",
+        "pl": "Prace uczniów",
+        "th": "งานที่นักเรียนส่ง"
+    },
+    "student-updated-successfully": {
+        "en": "Student updated successfully",
+        "fr": "Élève mis à jour avec succès",
+        "km": "បានធ្វើបច្ចុប្បន្នភាពសិស្សដោយជោគជ័យ",
+        "pl": "Uczeń zaktualizowany pomyślnie",
+        "th": "อัปเดตนักเรียนสำเร็จ"
+    },
+    "students-archived-successfully": {
+        "en": "Students Archived Successfully",
+        "fr": "Élèves archivés avec succès",
+        "km": "បានទុកសិស្សជាឯកសារដោយជោគជ័យ",
+        "pl": "Uczniowie zarchiwizowani pomyślnie",
+        "th": "เก็บถาวรนักเรียนสำเร็จ"
+    },
+    "students-profile": {
+        "en": "Students Profile",
+        "fr": "Profil de l’élève",
+        "km": "ប្រវត្តិរូបសិស្ស",
+        "pl": "Profil ucznia",
+        "th": "โปรไฟล์นักเรียน"
+    },
+    "students-successfully-added-to-the-groups": {
+        "en": "Students successfully added to the groups",
+        "fr": "Élèves ajoutés aux groupes avec succès",
+        "km": "បានបន្ថែមសិស្សទៅក្រុមដោយជោគជ័យ",
+        "pl": "Uczniowie pomyślnie dodani do grup",
+        "th": "เพิ่มนักเรียนเข้ากลุ่มสำเร็จ"
+    },
+    "subject": {
+        "en": "Subject",
+        "fr": "Matière",
+        "km": "មុខវិជ្ជា",
+        "pl": "Przedmiot",
+        "th": "วิชา"
+    },
+    "symbol-passphrase": {
+        "en": "Symbol Passphrase",
+        "fr": "Phrase secrète symbolique",
+        "km": "ឃ្លាសម្ងាត់និមិត្តសញ្ញា",
+        "pl": "Hasło symboliczne",
+        "th": "วลีสัญลักษณ์"
+    },
+    "tags": {
+        "en": "Tags",
+        "fr": "Étiquettes",
+        "km": "ស្លាក",
+        "pl": "Tagi",
+        "th": "แท็ก"
+    },
+    "this-assignment": {
+        "en": "This Assignment",
+        "fr": "Ce devoir",
+        "km": "កិច្ចការនេះ",
+        "pl": "To zadanie",
+        "th": "งานที่มอบหมายนี้"
+    },
+    "time-format-placeholder": {
+        "en": "Time Format Placeholder",
+        "fr": "hh:mm",
+        "km": "ម៉ោង:នាទី",
+        "pl": "gg:mm",
+        "th": "ชม:นาที"
+    },
+    "total-student": {
+        "en": "Total Student",
+        "fr": "Total élèves",
+        "km": "សិស្សសរុប",
+        "pl": "Łącznie uczniów",
+        "th": "นักเรียนทั้งหมด"
+    },
+    "unknown": {
+        "en": "Unknown",
+        "fr": "Inconnu",
+        "km": "មិនស្គាល់",
+        "pl": "Nieznane",
+        "th": "ไม่ทราบ"
+    },
+    "unsaved-changes-will-be-lost": {
+        "en": "Unsaved changes will be lost.",
+        "fr": "Les modifications non enregistrées seront perdues.",
+        "km": "ការផ្លាស់ប្តូរដែលមិនបានរក្សាទុកនឹងបាត់។",
+        "pl": "Niezapisane zmiany zostaną utracone.",
+        "th": "การเปลี่ยนแปลงที่ยังไม่บันทึกจะหายไป"
+    },
+    "update": {
+        "en": "Update",
+        "fr": "Mettre à jour",
+        "km": "ធ្វើបច្ចុប្បន្នភាព",
+        "pl": "Aktualizuj",
+        "th": "อัปเดต"
+    },
+    "update-the-students-information": {
+        "en": "Update The Students Information",
+        "fr": "Mettre à jour les informations de l’élève",
+        "km": "ធ្វើបច្ចុប្បន្នភាពព័ត៌មានសិស្ស",
+        "pl": "Zaktualizuj informacje o uczniu",
+        "th": "อัปเดตข้อมูลนักเรียน"
+    },
+    "view": {
+        "en": "View",
+        "fr": "Voir",
+        "km": "មើល",
+        "pl": "Zobacz",
+        "th": "ดู"
+    },
+    "view-and-download-login-code": {
+        "en": "View and download login code",
+        "fr": "Voir et télécharger le code de connexion",
+        "km": "មើល និងទាញយកលេខកូដចូល",
+        "pl": "Zobacz i pobierz kod logowania",
+        "th": "ดูและดาวน์โหลดรหัสเข้าสู่ระบบ"
+    },
+    "view-dashboard": {
+        "en": "View Dashboard",
+        "fr": "Voir le tableau de bord",
+        "km": "មើលផ្ទាំងគ្រប់គ្រង",
+        "pl": "Zobacz panel",
+        "th": "ดูแดชบอร์ด"
+    },
+    "view-dashboards": {
+        "en": "View Dashboards",
+        "fr": "Voir les tableaux de bord",
+        "km": "មើលផ្ទាំងគ្រប់គ្រង",
+        "pl": "Zobacz panele",
+        "th": "ดูแดชบอร์ด"
+    },
+    "view-students": {
+        "en": "View students",
+        "fr": "Voir les élèves",
+        "km": "មើលសិស្ស",
+        "pl": "Zobacz uczniów",
+        "th": "ดูนักเรียน"
+    },
+    "where-add-content": {
+        "en": "Where would you like to add this content?",
+        "fr": "Où souhaitez-vous ajouter ce contenu ?",
+        "km": "តើអ្នកចង់បន្ថែមមាតិកានេះនៅឯណា?",
+        "pl": "Gdzie chcesz dodać tę treść?",
+        "th": "ต้องการเพิ่มเนื้อหานี้ที่ไหน?"
+    },
+    "without-login-codes": {
+        "en": "without login codes (not shown below).",
+        "fr": "sans codes de connexion (non affichés ci-dessous).",
+        "km": "ដោយគ្មានលេខកូដចូល (មិនបង្ហាញខាងក្រោម)។",
+        "pl": "bez kodów logowania (nie pokazano poniżej).",
+        "th": "โดยไม่มีรหัสเข้าสู่ระบบ (ไม่ได้แสดงด้านล่าง)"
+    },
+    "you-can-now-add-students-to-this-group": {
+        "en": "You can now add students to this group",
+        "fr": "Vous pouvez maintenant ajouter des élèves à ce groupe",
+        "km": "ឥឡូវអ្នកអាចបន្ថែមសិស្សទៅក្រុមនេះ",
+        "pl": "Możesz teraz dodać uczniów do tej grupy",
+        "th": "คุณสามารถเพิ่มนักเรียนเข้ากลุ่มนี้ได้แล้ว"
+    },
+    "assignment-successfully-created": {
+        "en": "Assignment Successfully Created",
+        "fr": "Devoir créé avec succès",
+        "km": "បានបង្កើតកិច្ចការដោយជោគជ័យ",
+        "pl": "Zadanie utworzone pomyślnie",
+        "th": "สร้างงานที่มอบหมายสำเร็จ"
     }
 }
