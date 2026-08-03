@@ -107,17 +107,11 @@ export default {
         .then(({ variables }) => {
           variables.LANGUAGES?.unshift(val)
         })
-    },
-    addTranslation(state, { target, value, language }) {
-      if (!state.translations) state.translations = {}
-      if (!state.translations[language]) state.translations[language] = {}
-      state.translations[language][target] = value
     }
   },
   actions: {
     loaded({ commit }, loaded) { commit('loaded', loaded) },
     async language({ commit, dispatch }, value) {
-      await dispatch('fetchTranslations')
       commit('language', value)
     },
     async load({ commit, state }) {
@@ -156,7 +150,6 @@ export default {
 
       await Promise.all([
         store.dispatch('load'),
-        store.dispatch('fetchTranslations'),
         store.dispatch('pila_tags/load'),
         store.dispatch('roles/load'),
         store.dispatch('groups/load'),

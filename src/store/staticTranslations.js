@@ -1,4 +1,4 @@
-{
+export default {
     "assign-and-monitor": {
         "de": "Zuweisen und überwachen",
         "en": "Assign and Monitor",
