@@ -19,7 +19,7 @@
           </h2>
 
           <p>
-            {{ t('assign-relevant-competencies-to-make-this-content-discoverable') }}
+            {{ t('assign-relevant-competencies-to-make-this-conten') }}
           </p>
         </div>
 
@@ -372,62 +372,6 @@ function uniqueTargets(taggings) {
     ),
   ]
 }
-
-
-// const placeholderTranslations = {
-//   'publish-to-explore':
-//     'Publish to Explore',
-
-//   'assign-relevant-competencies-to-make-this-content-discoverable':
-//     'Assign relevant competencies to make this content discoverable by other teachers.',
-
-//   close:
-//     'Close',
-
-//   'selected-competencies':
-//     'Selected Competencies',
-
-//   'no-competencies-selected-yet':
-//     'No competencies selected yet.',
-
-//   required:
-//     'Required',
-
-//   working:
-//     'Working',
-
-//   'select-at-least-one-competency-from-this-category':
-//     'Select at least one competency from this category.',
-
-//   'add-to-favorites':
-//     'Add to Favorites',
-
-//   'mark-this-content-as-a-favorite-for-quick-access':
-//     'Mark this content as a favorite for quick access.',
-
-//   publishing: 'Publishing',
-//   cancel: 'Cancel',
-//   'saving-changes':
-//     'Saving changes…',
-
-//   'publish-content':
-//     'Publish content',
-
-//   'loading-tags':
-//     'Loading tags...',
-
-//   'unable-to-load-tags':
-//     'Unable to load the available tags.',
-
-//   'try-again':
-//     'Try again',
-
-//   'no-tags-available':
-//     'No tags are currently available.',
-
-//   'unable-to-update-tag':
-//     'Unable to update that tag. Please try again.',
-// }
 
 const requiredCategoryIds = []
 
