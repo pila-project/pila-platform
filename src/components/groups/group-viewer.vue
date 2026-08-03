@@ -157,6 +157,14 @@
       <template v-slot:body>
         <LinkStudentModal />
       </template>
+      <template v-slot:footer>
+        <PButton
+          variant="secondary"
+          color="danger"
+          :text="t('close')"
+          @click="showLinkStudentModal = false"
+        />
+      </template>
     </PModal>
     <PModal
       v-if="showNamePasswordModal"

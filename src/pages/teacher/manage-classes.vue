@@ -441,18 +441,18 @@
             </button>
           </div>
 
-          <!-- Card 3: Link via SSO (teacher share link — /join/:teacher) -->
+          <!-- Card 3: Share join link so existing students can link to this teacher (/join/:teacher) -->
           <div
             class="add-student-card add-student-card--short"
             :class="{ 'add-student-card--selected': selectedPickerOption === 'sso' }"
           >
             <button class="add-student-card-header" @click="selectedPickerOption = 'sso'">
               <div class="add-option-icon add-option-icon-sso">
-                <LucideIcon name="user-plus" :size="16" />
+                <LucideIcon name="link" :size="16" />
               </div>
               <div class="add-option-text">
-                <span class="add-option-title">{{ t('link-via-sso') }}</span>
-                <span class="add-option-desc">{{ t('connect-existing-google-microsoft') }}</span>
+                <span class="add-option-title">{{ t('link-students-to-you') }}</span>
+                <span class="add-option-desc">{{ t('share-this-link-with-your-students') }}</span>
               </div>
             </button>
           </div>
@@ -1035,6 +1035,14 @@
     >
       <template #body>
         <LinkStudentModal />
+      </template>
+      <template #footer>
+        <PButton
+          variant="secondary"
+          color="danger"
+          :text="t('close')"
+          @click="showLinkStudentModal = false"
+        />
       </template>
     </PModal>
 
