@@ -349,7 +349,6 @@ import setTagging from '../set-tagging.js'
 
 const TAGS_DOMAIN = 'tags.knowlearning.systems'
 const TAG_HIERARCHY_PARTITION = 'PILA Tag Hierarchy'
-const ROOT_COMPETENCIES_TAG = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
 const FAVORITE_TAG = '59d4b400-8d2e-11f1-8178-475d87d411d7'
 
 function uniqueTargets(taggings) {
@@ -406,6 +405,10 @@ export default {
   props: {
     id: {
       type: String,
+      required: true,
+    },
+    roots: {
+      type: Array,
       required: true,
     },
     contentTitle: {
@@ -569,15 +572,14 @@ export default {
           )
         }
 
-        const [categoryTaggings, contentTaggings] =
+        const [categoryTaggingGroups, contentTaggings] =
           await Promise.all([
-            Agent.query(
-              'targets-for-tag',
-              [
-                TAG_HIERARCHY_PARTITION,
-                ROOT_COMPETENCIES_TAG,
-              ],
-              TAGS_DOMAIN,
+            Promise.all(
+              this.roots.map((root) => Agent.query(
+                'targets-for-tag',
+                [TAG_HIERARCHY_PARTITION, root],
+                TAGS_DOMAIN,
+              )),
             ),
             Agent.query(
               'taggings-for-target',
@@ -589,7 +591,9 @@ export default {
             ),
           ])
 
-        const categoryIds = uniqueTargets(categoryTaggings)
+        const categoryIds = uniqueTargets(
+          categoryTaggingGroups.flat(),
+        )
         const categoryEntries = await Promise.all(
           categoryIds.map(async (categoryId) => {
             const competencyTaggings = await Agent.query(

@@ -54,6 +54,7 @@
       <TaggingModal
         v-if="tagging && showTaggingFeatures"
         :id="tagging"
+        :roots="[ROOT_COMPETENCIES_TAG]"
         @close="tagging = null"
       />
 
@@ -99,6 +100,7 @@
   const partition = store.getters.tagPartition
   const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
   const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
+  const ROOT_COMPETENCIES_TAG = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
   const { auth: { user } } = await Agent.environment()
 
   const loading = ref(true)
