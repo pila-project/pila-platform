@@ -10,6 +10,7 @@ import adminTeacherGrantTests from './admin-teacher-grants.js'
 import studentsJoiningTeachersTests from './students-joining-teachers.js'
 import assignmentXapiTests from './assignment-xapi.js'
 import teacherLoginCredentialTests from './teacher-login-credentials.js'
+import candliGamesTests from './candli-games.js'
 
 export default function runTests() {
   window.Agent = browserAgent()
@@ -60,6 +61,7 @@ function waitForStoreLoadThenRunTests (store) {
           assignmentGroupVisibilityTests()
           assignmentXapiTests()
           studentsJoiningTeachersTests(store)
+          candliGamesTests()
         })
       }
       unwatch()

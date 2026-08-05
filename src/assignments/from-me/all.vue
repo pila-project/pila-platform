@@ -267,6 +267,7 @@
   import CandliDashboard from './candli-dashboard.vue'
   import GenAIDashboard from './gen-ai-dashboard.vue'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '../../constants.js'
+  import { candliGamesForSequenceItems } from '../../candli-games.js'
 
   let idToCreated = {}
 
@@ -365,70 +366,33 @@
         this.$router.push(`/teacher/support?assignment=${this.current}`)
       },
       async reassessContents() {
+        const assignment = this.current
         this.candliGames = []
         this.assignmentContainsGenAI = null
         this.assignmentContainsBetty = null
-        if (this.current) {
-          await Agent
-            .state(this.current)
-            .then(async ({ content }) => {
-              console.log('CONTENT', content)
-              this.candliGames = CANDLI_SEQUENCES[content] || []
+        if (!assignment) return
 
-              Agent.state(content).then(({ items }) => {
-                console.log('got ITEMS', items)
-                if (Array.isArray(items)) {
-                  items.forEach(item => {
-                    if (!item?.id) return
+        const { content } = await Agent.state(assignment)
+        const sequence = await Agent.state(content)
+        const candliGames = CANDLI_SEQUENCES[content]
+          ? [...CANDLI_SEQUENCES[content]]
+          : await candliGamesForSequenceItems(sequence.items)
 
-                    Agent.metadata(item.id).then(async ({domain}) => {
-                      console.log('GOT DOMAIN METADATA', domain)
-                      if (domain === 'customize-candli.pilaproject.org') {
-                        //  TODO: id is the customized game id for that domain,
-                        //        but if dashboard expects generic game id, we'll
-                        //        have to fetch it
-                        const { game } = await Agent.state(item.id)
-                        this.candliGames.push(game)
-                      }
-                      else if (domain === 'embed.knowlearning.systems') {
-                        const { id } = await Agent.state(item.id)
-                        console.log('embed id', id)
-                        if (id?.startsWith?.('https://pila.cand.li/pila.html?')) {
-                          try {
-                            const url = new URL(id)
-                            const game = url.searchParams.get('game')
-                            if (game) this.candliGames.push(game)
-                            else {
-                              // old incredible machines format
-                              this.candliGames.push(
-                                id.replace('https://pila.cand.li/pila.html?', '')
-                              )
-                            }
-                          } catch {}
-                        }
-                      }
-                    })
-                  })
-                }
-              })
+        if (this.current !== assignment) return
+        this.candliGames = candliGames
+        this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
+        this.assignmentContainsBetty = !!sequence.id?.includes('betty')
 
-              this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
+        const { domain } = await Agent.metadata(content)
+        if (this.current !== assignment) return
 
-              if ((await Agent.state(content)).id?.includes('betty')) {
-                this.assignmentContainsBetty = true
-              }
-
-
-
-              if ((await Agent.metadata(content)).domain === 'datawise.accingo.co') {
-                this.dashboardUrl = 'https://datawise.accingo.co/dashboard'
-              }
-              else if ((await Agent.state(content)).reference?.dashboard) {
-                this.dashboardUrl = 'https://' + (await Agent.state(content)).reference.dashboard
-              }
-              else this.dashboardUrl = null
-            })
+        if (domain === 'datawise.accingo.co') {
+          this.dashboardUrl = 'https://datawise.accingo.co/dashboard'
         }
+        else if (sequence.reference?.dashboard) {
+          this.dashboardUrl = 'https://' + sequence.reference.dashboard
+        }
+        else this.dashboardUrl = null
       },
       t(slug) { return this.$store.getters.t(slug) },
       async add() {
