@@ -3,8 +3,8 @@
     v-if="isRenderable"
     class="sc"
     :class="{ 'sc-archived': archived, 'sc-dragover': isDragOver && !archived }"
-    @dragover.prevent="!archived && (isDragOver = true)"
-    @dragleave="!archived && (isDragOver = false)"
+    @dragover="onCardDragOver"
+    @dragleave="onCardDragLeave"
     @drop.prevent.stop="onDrop"
   >
     <!-- Header — double-click opens view sequence content (UIUX-90) -->
@@ -105,7 +105,8 @@ import PButton from '@/components/ui/PButton.vue'
 import SequenceItemsList from './sequence-items-list.vue'
 import {
   normalizeSequenceItems,
-  isExternalExploreDrop,
+  isLeafContentExploreDrop,
+  isSequenceDrag,
   isValidSequenceAgentState,
 } from '@/utils/sequence-items.js'
 
@@ -124,10 +125,33 @@ const emit = defineEmits(['edit', 'archive', 'restore', 'preview', 'view-content
 
 const isDragOver = ref(false)
 
+/** UIUX-113: only leaf content may be dropped onto a sequence. */
+function acceptsLeafDrop(dataTransfer) {
+  return isLeafContentExploreDrop(dataTransfer, null)
+}
+
+function onCardDragOver(e) {
+  if (props.archived) return
+  if (isSequenceDrag(e.dataTransfer)) {
+    e.dataTransfer.dropEffect = 'none'
+    isDragOver.value = false
+    return
+  }
+  if (!acceptsLeafDrop(e.dataTransfer)) return
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'copy'
+  isDragOver.value = true
+}
+
+function onCardDragLeave() {
+  if (!props.archived) isDragOver.value = false
+}
+
 function onDrop(e) {
   if (props.archived) return
   isDragOver.value = false
-  if (!isExternalExploreDrop(e.dataTransfer, null)) return
+  // Refuse nested sequences even if MIME was missing (write path also fail-closed).
+  if (isSequenceDrag(e.dataTransfer) || !acceptsLeafDrop(e.dataTransfer)) return
   const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
   emitExternalDrop(itemId)
 }
@@ -139,14 +163,11 @@ function emitExternalDrop(itemId, index = -1) {
 }
 
 function onFooterDragOver(e) {
-  if (isExternalExploreDrop(e.dataTransfer, null)) {
-    e.dataTransfer.dropEffect = 'copy'
-    isDragOver.value = true
-  }
+  onCardDragOver(e)
 }
 
 function onFooterDragLeave() {
-  isDragOver.value = false
+  onCardDragLeave()
 }
 
 function onFooterDrop(e) {

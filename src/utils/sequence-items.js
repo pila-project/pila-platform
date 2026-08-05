@@ -21,6 +21,12 @@ export const EMPTY_SEQUENCE_ITEMS = Object.freeze({})
 /** Agent active_type for sequence documents. */
 export const SEQUENCE_ACTIVE_TYPE = 'application/json;type=sequence'
 
+/**
+ * Drag MIME set on sequence content cards so drop targets can refuse nesting
+ * before write-time (UIUX-113). Write path still fail-closed without this.
+ */
+export const SEQUENCE_DRAG_MIME = 'application/x-pila-sequence'
+
 export function isSequenceActiveType(activeType) {
   return activeType === SEQUENCE_ACTIVE_TYPE
 }
@@ -33,9 +39,20 @@ function toIdSet(knownSequenceIds) {
 }
 
 /**
+ * True when the current drag payload is marked as a sequence (UIUX-113).
+ * Safe during dragover (types only) and drop (types + data).
+ */
+export function isSequenceDrag(dataTransfer) {
+  if (!dataTransfer) return false
+  const types = [...(dataTransfer.types || [])]
+  // Browsers expose custom MIME types in `types` during dragover.
+  return types.some((t) => String(t).toLowerCase() === SEQUENCE_DRAG_MIME)
+}
+
+/**
  * Split candidate member ids into leaf content vs sequences (UIUX-113).
  * Uses optional knownSequenceIds for fast rejects, then metadata active_type.
- * Unknown/failed metadata is treated as allowed (do not block real items).
+ * Fail-closed: missing/unknown metadata is rejected (never nest sequences).
  *
  * @param {string[]} itemIds
  * @param {{ knownSequenceIds?: Set<string>|string[] }} [opts]
@@ -56,14 +73,18 @@ export async function partitionSequenceMemberIds(itemIds, opts = {}) {
       continue
     }
 
+    let meta = null
     try {
-      const meta = await getContentMetadata(id)
-      if (isSequenceActiveType(meta?.active_type)) {
-        rejectedSequences.push(id)
-        continue
-      }
+      meta = await getContentMetadata(id)
     } catch {
-      // allow when type cannot be determined
+      meta = null
+    }
+
+    // Fail closed: only allow when we can prove this is non-sequence content.
+    const activeType = meta?.active_type
+    if (activeType == null || activeType === '' || isSequenceActiveType(activeType)) {
+      rejectedSequences.push(id)
+      continue
     }
     allowed.push(id)
   }
@@ -295,6 +316,18 @@ export function isExternalExploreDrop(dataTransfer, internalDragIndex) {
   if (internalDragIndex !== null && internalDragIndex !== undefined) return false
   const types = [...(dataTransfer.types || [])]
   if (types.includes('text/x-reorder')) return false
+  // During dragover, getData is often empty — accept when text types are present.
+  if (types.some((t) => t === 'text/plain' || t === 'text')) return true
   const id = dataTransfer.getData('text/plain') || dataTransfer.getData('text')
   return !!id
+}
+
+/**
+ * External leaf-content drop only (UIUX-113: sequences are never valid members).
+ * Use for sequence card/list dragover + drop gates.
+ */
+export function isLeafContentExploreDrop(dataTransfer, internalDragIndex) {
+  if (!isExternalExploreDrop(dataTransfer, internalDragIndex)) return false
+  if (isSequenceDrag(dataTransfer)) return false
+  return true
 }

@@ -235,10 +235,18 @@
   import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
   import { useStore } from 'vuex'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
-  import { getContentImage, imageCache } from '@/utils/content-cache.js'
+  import {
+    getContentImage,
+    getContentType,
+    imageCache,
+    metadataCache,
+  } from '@/utils/content-cache.js'
+  import {
+    SEQUENCE_DRAG_MIME,
+    isSequenceActiveType,
+  } from '@/utils/sequence-items.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
-import { PCheckbox } from '@/components/ui/index.js'
-  import { PButton } from '@/components/ui/index.js'
+  import { PCheckbox, PButton } from '@/components/ui/index.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -319,9 +327,19 @@ import { PCheckbox } from '@/components/ui/index.js'
 
   const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .pcard-copy-overlay, .pcard-grade-more, .pcard-tags-popup'
 
+  function isSequenceContent() {
+    if (getContentType(props.id) === 'sequence') return true
+    const meta = metadataCache.get(props.id)
+    return isSequenceActiveType(meta?.active_type)
+  }
+
   function setDragPayload(event) {
     event.dataTransfer.setData('text/plain', props.id)
     event.dataTransfer.setData('text', props.id)
+    // UIUX-113: mark sequence drags so sequence drop targets can refuse nesting
+    if (isSequenceContent()) {
+      event.dataTransfer.setData(SEQUENCE_DRAG_MIME, props.id)
+    }
     event.dataTransfer.effectAllowed = 'move'
   }
 

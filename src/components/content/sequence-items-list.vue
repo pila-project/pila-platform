@@ -84,7 +84,8 @@ import {
   normalizeSequenceItems,
   removeItemFromSequence,
   reorderSequenceItems,
-  isExternalExploreDrop,
+  isLeafContentExploreDrop,
+  isSequenceDrag,
 } from '@/utils/sequence-items.js'
 
 const props = defineProps({
@@ -195,7 +196,13 @@ function onItemDragEnd() {
 }
 
 function onItemDragOver(index, e) {
-  if (e?.dataTransfer && isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
+  // UIUX-113: refuse nested sequences from explore
+  if (e?.dataTransfer && isSequenceDrag(e.dataTransfer)) {
+    e.dataTransfer.dropEffect = 'none'
+    dropTarget.value = null
+    return
+  }
+  if (e?.dataTransfer && isLeafContentExploreDrop(e.dataTransfer, dragIndex.value)) {
     e.dataTransfer.dropEffect = 'copy'
     dropTarget.value = null
     return
@@ -213,7 +220,8 @@ function onItemDragLeave() {
 
 async function onItemDrop(toIndex, e) {
   dropTarget.value = null
-  if (e && isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
+  if (e && isSequenceDrag(e.dataTransfer)) return
+  if (e && isLeafContentExploreDrop(e.dataTransfer, dragIndex.value)) {
     const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
     emitExternalDrop(itemId, toIndex)
     return

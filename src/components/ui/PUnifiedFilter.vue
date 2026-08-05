@@ -17,7 +17,15 @@
         <div
           ref="barContentRef"
           class="unified-filter-bar-content"
+          :class="{
+            'unified-filter-bar-content--overflow': canScrollChips,
+            'unified-filter-bar-content--panning': isPanningChips,
+          }"
           @scroll="updateScrollFade"
+          @pointerdown="onBarPointerDown"
+          @pointermove="onBarPointerMove"
+          @pointerup="onBarPointerUp"
+          @pointercancel="onBarPointerUp"
         >
           <!-- Inline chips for active filters -->
           <span
@@ -100,6 +108,8 @@ const dropdownRef = ref(null)
 const barContentRef = ref(null)
 const searchInputRef = ref(null)
 const showEndFade = ref(false)
+const canScrollChips = ref(false)
+const isPanningChips = ref(false)
 const isDropdownOpen = ref(false)
 const anchorRect = ref(null)
 const expandedSection = ref(null)
@@ -208,9 +218,11 @@ function updateScrollFade() {
   const el = barContentRef.value
   if (!el) {
     showEndFade.value = false
+    canScrollChips.value = false
     return
   }
   const overflow = el.scrollWidth > el.clientWidth + 1
+  canScrollChips.value = overflow
   const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1
   showEndFade.value = overflow && !atEnd
 }
@@ -225,6 +237,73 @@ function scrollChipsIntoView() {
 function onScrollOrResize() {
   if (isDropdownOpen.value) updateAnchorRect()
   updateScrollFade()
+}
+
+/** UIUX-86: map wheel (incl. vertical mouse wheel) to horizontal chip scroll. */
+function onBarWheel(e) {
+  const el = barContentRef.value
+  if (!el) return
+  if (el.scrollWidth <= el.clientWidth + 1) return
+
+  const absX = Math.abs(e.deltaX)
+  const absY = Math.abs(e.deltaY)
+  // Prefer native horizontal; otherwise convert vertical wheel to horizontal.
+  const dx = absX > absY ? e.deltaX : e.deltaY
+  if (!dx) return
+
+  const maxScroll = el.scrollWidth - el.clientWidth
+  const next = Math.min(maxScroll, Math.max(0, el.scrollLeft + dx))
+  if (next === el.scrollLeft) return
+
+  e.preventDefault()
+  el.scrollLeft = next
+  updateScrollFade()
+}
+
+const PAN_SKIP_SELECTOR = 'button, input, a, textarea, select, label'
+
+let panPointerId = null
+let panStartX = 0
+let panStartScroll = 0
+
+/** UIUX-86: click-drag to pan the chip strip (not on controls/input). */
+function onBarPointerDown(e) {
+  if (e.button != null && e.button !== 0) return
+  const el = barContentRef.value
+  if (!el || el.scrollWidth <= el.clientWidth + 1) return
+  if (e.target instanceof Element && e.target.closest(PAN_SKIP_SELECTOR)) return
+
+  panPointerId = e.pointerId
+  panStartX = e.clientX
+  panStartScroll = el.scrollLeft
+  isPanningChips.value = true
+  try {
+    el.setPointerCapture(e.pointerId)
+  } catch {
+    /* ignore */
+  }
+}
+
+function onBarPointerMove(e) {
+  if (panPointerId == null || e.pointerId !== panPointerId) return
+  const el = barContentRef.value
+  if (!el) return
+  el.scrollLeft = panStartScroll - (e.clientX - panStartX)
+  updateScrollFade()
+}
+
+function onBarPointerUp(e) {
+  if (panPointerId == null || (e.pointerId != null && e.pointerId !== panPointerId)) return
+  const el = barContentRef.value
+  if (el && panPointerId != null) {
+    try {
+      el.releasePointerCapture(panPointerId)
+    } catch {
+      /* ignore */
+    }
+  }
+  panPointerId = null
+  isPanningChips.value = false
 }
 
 let barResizeObserver = null
@@ -253,6 +332,8 @@ onMounted(() => {
   nextTick(() => {
     updateScrollFade()
     if (barContentRef.value) {
+      // non-passive so preventDefault can map vertical wheel → horizontal scroll
+      barContentRef.value.addEventListener('wheel', onBarWheel, { passive: false })
       barResizeObserver = new ResizeObserver(() => updateScrollFade())
       barResizeObserver.observe(barContentRef.value)
     }
@@ -261,6 +342,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   barResizeObserver?.disconnect()
+  barContentRef.value?.removeEventListener('wheel', onBarWheel)
   document.removeEventListener('click', handleClickOutside)
   window.removeEventListener('scroll', onScrollOrResize, true)
   window.removeEventListener('resize', onScrollOrResize)
@@ -336,14 +418,47 @@ provide('unifiedFilter', {
   min-width: 0;
   width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
+  /* UIUX-86: thin scrollbar only when chips overflow (class toggled in JS) */
   scrollbar-width: none;
   -ms-overflow-style: none;
+  touch-action: pan-x;
+}
+
+.unified-filter-bar-content--overflow {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  cursor: grab;
+}
+
+.unified-filter-bar-content--panning {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .unified-filter-bar-content::-webkit-scrollbar {
   display: none;
+  height: 0;
+}
+
+.unified-filter-bar-content--overflow::-webkit-scrollbar {
+  display: block;
+  height: 6px;
+}
+
+.unified-filter-bar-content--overflow::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.unified-filter-bar-content--overflow::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.unified-filter-bar-content--overflow::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .unified-chip {

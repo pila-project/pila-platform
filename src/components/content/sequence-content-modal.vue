@@ -172,7 +172,8 @@ import { prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
 import {
   normalizeSequenceItems,
   persistSequenceItems,
-  isExternalExploreDrop,
+  isLeafContentExploreDrop,
+  isSequenceDrag,
   isValidSequenceAgentState,
   partitionSequenceMemberIds,
 } from '@/utils/sequence-items.js'
@@ -339,7 +340,12 @@ function onCardDragEnd() {
 }
 
 function onCardDragOver(index, e) {
-  if (e?.dataTransfer && isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
+  if (e?.dataTransfer && isSequenceDrag(e.dataTransfer)) {
+    e.dataTransfer.dropEffect = 'none'
+    dropTarget.value = null
+    return
+  }
+  if (e?.dataTransfer && isLeafContentExploreDrop(e.dataTransfer, dragIndex.value)) {
     e.dataTransfer.dropEffect = 'copy'
     dropTarget.value = index
     return
@@ -357,7 +363,11 @@ function onCardDragLeave() {
 
 function onCardDrop(toIndex, e) {
   dropTarget.value = null
-  if (e && isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
+  if (e && isSequenceDrag(e.dataTransfer)) {
+    dragIndex.value = null
+    return
+  }
+  if (e && isLeafContentExploreDrop(e.dataTransfer, dragIndex.value)) {
     const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
     insertDraftItem(itemId, toIndex)
     dragIndex.value = null
@@ -372,7 +382,12 @@ function onCardDrop(toIndex, e) {
 
 function onEmptyDragOver(e) {
   if (props.archived) return
-  if (isExternalExploreDrop(e.dataTransfer, null)) {
+  if (isSequenceDrag(e.dataTransfer)) {
+    e.dataTransfer.dropEffect = 'none'
+    emptyDragOver.value = false
+    return
+  }
+  if (isLeafContentExploreDrop(e.dataTransfer, null)) {
     e.dataTransfer.dropEffect = 'copy'
     emptyDragOver.value = true
   }
@@ -385,21 +400,29 @@ function onEmptyDragLeave() {
 function onEmptyDrop(e) {
   emptyDragOver.value = false
   if (props.archived) return
+  if (isSequenceDrag(e.dataTransfer)) return
   const itemId = e.dataTransfer?.getData('text/plain') || e.dataTransfer?.getData('text')
-  insertDraftItem(itemId)
+  if (itemId && isLeafContentExploreDrop(e.dataTransfer, null)) {
+    insertDraftItem(itemId)
+  }
 }
 
 function onGridDragOver(e) {
   if (props.archived) return
-  if (isExternalExploreDrop(e.dataTransfer, dragIndex.value)) {
+  if (isSequenceDrag(e.dataTransfer)) {
+    e.dataTransfer.dropEffect = 'none'
+    return
+  }
+  if (isLeafContentExploreDrop(e.dataTransfer, dragIndex.value)) {
     e.dataTransfer.dropEffect = 'copy'
   }
 }
 
 function onGridDrop(e) {
   if (props.archived || dragIndex.value !== null) return
+  if (isSequenceDrag(e.dataTransfer)) return
   const itemId = e.dataTransfer?.getData('text/plain') || e.dataTransfer?.getData('text')
-  if (itemId && isExternalExploreDrop(e.dataTransfer, null)) {
+  if (itemId && isLeafContentExploreDrop(e.dataTransfer, null)) {
     insertDraftItem(itemId)
   }
 }

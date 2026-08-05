@@ -445,6 +445,8 @@
     appendItemsToSequence,
     isValidSequenceAgentState,
     partitionSequenceMemberIds,
+    SEQUENCE_DRAG_MIME,
+    isSequenceActiveType,
   } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import {
@@ -508,6 +510,25 @@
     if (!types?.length) return
     const hasItem = [...types].some(t => t === 'text/plain' || t === 'text')
     if (hasItem) dragAutoScroll.start()
+
+    // UIUX-113: ensure sequence drags are marked even if card cache missed type
+    try {
+      const id = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
+      if (!id) return
+      const alreadyMarked = [...types].some(
+        (t) => String(t).toLowerCase() === SEQUENCE_DRAG_MIME,
+      )
+      if (alreadyMarked) return
+      const meta = metadataCache.get(id)
+      if (
+        mySequenceIdSet.value.has(id)
+        || isSequenceActiveType(meta?.active_type)
+      ) {
+        e.dataTransfer.setData(SEQUENCE_DRAG_MIME, id)
+      }
+    } catch {
+      /* setData may throw if not in dragstart; ignore */
+    }
   }
 
   function onExploreDragEnd() {
