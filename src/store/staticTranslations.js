@@ -593,11 +593,11 @@ export default {
         "es": "Envíe su nombre completo, escuela/institución y esta identificación anónima a edu.pila@oecd.org para obtener acceso a PILA.",
         "fr": "Afin de confirmer la création de votre compte PILA et votre participation à l’étude « Power of Feedback », merci d’envoyer un e-mail à l’adresse suivante : pila_france@povertyactionlab.org, en indiquant : 1) votre nom complet ; 2) votre identifiant utilisateur (indiqué ci-dessous) ; 3) la phrase suivante (que vous pouvez copier-coller) afin de confirmer votre consentement : « Le temps de l’étude, je consens à ce que l’équipe de recherche conserve et utilise mon adresse e-mail afin de me contacter dans le cadre de la coordination du projet. »\nNous vous invitons également à conserver votre identifiant utilisateur dans un endroit sûr, afin de pouvoir le communiquer en cas de besoin (par exemple en cas de problème ou de demande relative à vos données).",
         "km": "សូមផ្ញើឈ្មោះពេញរបស់អ្នក សាលា/ស្ថាប័ន និង ID អនាមិកនេះទៅ edu.pila@oecd.org ដើម្បីទទួលបានការចូលប្រើ PILA។",
-        "lv": "Lūdzu, nosūtiet savu pilnu vārdu, uzvārdu, skolu/iestādi un šo anonīmo ID uz dace.rutina@lu.lv, lai iegūtu piekļuvi PILA.",
+        "lv": "Lūdzu, nosūtiet savu pilnu vārdu, uzvārdu, skolu/iestādi un šo anonīmo ID uz laine.bluma@lu.lv, lai iegūtu piekļuvi PILA.",
         "nl": "Stuur uw volledige naam, school/instelling en dit anonieme ID naar edu.pila@oecd.org om toegang te krijgen tot PILA.",
         "pl": "Prosimy o przesłanie pełnego imienia i nazwiska, szkoły/instytucji oraz anonimowego identyfikatora na adres edu.pila@oecd.org w celu uzyskania dostępu do PILA.",
         "pt": "Por favor, envie seu nome completo, escola/instituição e esta identificação anônima para edu.pila@oecd.org para obter acesso ao PILA.",
-        "sk": "Pošlite prosím svoje celé meno, školu/inštitúciu a toto anonymné ID na edu.pila@oecd.org, aby ste získali prístup k PILA.",
+        "sk": "Pošlite prosím svoje celé meno, školu/inštitúciu a toto anonymné ID na aitutor@minedu.sk, aby ste získali prístup k PILA.",
         "th": "กรุณาส่งชื่อเต็มของคุณ, ชื่อโรงเรียน/สถาบัน และไอดีนิรนามนี้ไปที่ edu.pila@oecd.org เพื่อขอรับสิทธิ์ในการเข้า PILA"
     },
     "link-students-to-you": {
