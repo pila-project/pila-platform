@@ -47,31 +47,10 @@
               </div>
             </div>
 
-            <!-- Assignment Settings -->
-            <div class="details-section">
-              <h3 class="section-heading">
-                <LucideIcon name="settings" :size="14" class="section-icon" />
-                {{ t('assignment-settings') }}
-              </h3>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="info-label">{{ t('feedback-timings') }}</span>
-                  <span class="info-value">{{ t(feedbackTimingKey) }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ t('maximum-attempts') }}</span>
-                  <span class="info-value">{{ data.maxAttempts || t('1-attempt') }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ t('late-submissions') }}</span>
-                  <span class="info-value">{{ t(data.allowLate !== false ? 'allowed' : 'not-allowed') }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">{{ t('shuffle-questions') }}</span>
-                  <span class="info-value">{{ t(data.shuffleQuestions ? 'yes' : 'no') }}</span>
-                </div>
-              </div>
-            </div>
+            <!--
+              UIUX-79: Assignment settings category hidden for now (matches hidden wizard step).
+              Re-enable with SHOW_ASSIGNMENT_SETTINGS in teacher-to-student when product wants it back.
+            -->
 
             <!-- Assignment Groups & Students -->
             <div class="details-section">

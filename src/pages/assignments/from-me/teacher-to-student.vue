@@ -22,7 +22,7 @@
           </div>
           <span class="step-label" :class="stepLabelClass(step.num)">{{ t('step') }} {{ step.num }}</span>
         </div>
-        <div v-if="step.num < 4" class="step-trail" :class="stepTrailClass(step.num)" />
+        <div v-if="step.num < totalSteps" class="step-trail" :class="stepTrailClass(step.num)" />
       </div>
     </div>
 
@@ -124,8 +124,11 @@
     </div>
 
 
-    <!-- ═══════════════ Step 3: Assignment Details ═══════════════ -->
-    <div v-else-if="currentStep === 3" class="step-body">
+    <!--
+      UIUX-79: Assignment Settings step hidden for now (SHOW_ASSIGNMENT_SETTINGS_STEP).
+      When re-enabled, this is the settings body (was step 3 of 4).
+    -->
+    <div v-else-if="showAssignmentSettingsStep && currentStep === SETTINGS_STEP" class="step-body">
       <div class="toggle-row">
         <div class="toggle-content">
           <span class="toggle-label">{{ t('allow-late-submissions') }}</span>
@@ -182,8 +185,8 @@
       />
     </div>
 
-    <!-- ═══════════════ Step 4: Assign & Publish ═══════════════ -->
-    <div v-else class="step-body">
+    <!-- Assign & Publish (last step — step 3 when settings hidden, step 4 when shown) -->
+    <div v-else-if="currentStep === assignStep" class="step-body">
       <div class="assign-section">
         <label class="field-label">{{ t('assign-to') }} ({{ t('optional') }})</label>
         <p class="field-hint">{{ t('assign-to-groups-optional-hint') }}</p>
@@ -292,7 +295,7 @@
         />
       </PTooltip>
       <PTooltip
-        v-if="currentStep < 4"
+        v-if="currentStep < totalSteps"
         :text="!canProceed ? stepBlockedReason : ''"
         position="top"
       >
@@ -423,6 +426,16 @@
     tryPromoteScheduledAssignment,
   } from '@/utils/assignment-status.js'
 
+  /**
+   * UIUX-79: hide Assignment Settings step (and view-details settings) for now.
+   * Flip to true to restore the 4-step wizard + settings UI. Data fields still save with defaults.
+   */
+  const SHOW_ASSIGNMENT_SETTINGS_STEP = false
+
+  /** Defaults applied on create/save when settings step is hidden (or fields left empty). */
+  const DEFAULT_MAX_ATTEMPTS = '1 attempt'
+  const DEFAULT_FEEDBACK_TIMING = 'At the end'
+
   const props = defineProps({
     id: String,
     editing: Boolean,
@@ -462,20 +475,47 @@
     emit('preview-active', active)
   }, { immediate: true })
 
-  // ── Step definitions ──
-  const steps = [
-    { num: 1, icon: 'file-text' },
-    { num: 2, icon: 'upload' },
-    { num: 3, icon: 'file-text' },
-    { num: 4, icon: 'graduation-cap' },
-  ]
+  watch(selectingContent, (open) => {
+    emit('update:width', open ? 'min(960px, 96vw)' : '720px')
+  }, { immediate: true })
 
-  const stepSubtitles = computed(() => [
-    t('step-1-of-4-title-instructions'),
-    t('step-2-of-4-add-content'),
-    t('step-3-of-4-assignment-details'),
-    t('step-4-of-4-assign-publish'),
-  ])
+  // ── Step definitions (3 steps when settings hidden; 4 when shown) ──
+  const showAssignmentSettingsStep = SHOW_ASSIGNMENT_SETTINGS_STEP
+  const totalSteps = showAssignmentSettingsStep ? 4 : 3
+  const SETTINGS_STEP = 3
+  const assignStep = showAssignmentSettingsStep ? 4 : 3
+
+  const steps = computed(() => {
+    if (showAssignmentSettingsStep) {
+      return [
+        { num: 1, icon: 'file-text' },
+        { num: 2, icon: 'upload' },
+        { num: 3, icon: 'settings' },
+        { num: 4, icon: 'graduation-cap' },
+      ]
+    }
+    return [
+      { num: 1, icon: 'file-text' },
+      { num: 2, icon: 'upload' },
+      { num: 3, icon: 'graduation-cap' },
+    ]
+  })
+
+  const stepSubtitles = computed(() => {
+    if (showAssignmentSettingsStep) {
+      return [
+        t('step-1-of-4-title-instructions'),
+        t('step-2-of-4-add-content'),
+        t('step-3-of-4-assignment-details'),
+        t('step-4-of-4-assign-publish'),
+      ]
+    }
+    return [
+      t('step-1-of-3-title-instructions'),
+      t('step-2-of-3-add-content'),
+      t('step-3-of-3-assign-publish'),
+    ]
+  })
 
   // ── Step 1: Title & Instructions (visual-only fields) ──
   const assignmentType = ref('')
@@ -483,17 +523,17 @@
   const DEFAULT_DUE_TIME = '00:00'
   const assignmentTypeOptions = computed(() => [t('assessment'), t('practice'), t('homework'), t('learning')])
 
-  // ── Step 3: Assignment Details (all visual-only) ──
+  // ── Assignment settings (UIUX-79: step hidden; defaults still applied on save) ──
   const allowLate = ref(true)
-  const maxAttempts = ref('')
-  const feedbackTiming = ref('')
+  const maxAttempts = ref(DEFAULT_MAX_ATTEMPTS)
+  const feedbackTiming = ref(DEFAULT_FEEDBACK_TIMING)
   const shuffleQuestions = ref(true)
   const showAnswers = ref(true)
   const teacherNotes = ref('')
   const maxAttemptsOptions = computed(() => [t('1-attempt'), t('2-attempts'), t('3-attempts'), t('unlimited')])
   const feedbackTimingOptions = computed(() => [t('at-the-end'), t('after-each-question'), t('never')])
 
-  // ── Step 4: Assign & Publish ──
+  // ── Assign & Publish (last wizard step) ──
   const DEFAULT_PUBLICATION_TIME = '08:00'
 
   const groupSearch = ref('')
@@ -512,9 +552,9 @@
 
   const groups = computed(() => store.getters['groups/groups']('class', true))
 
-  // ── Step 4: pending group assignments (applied on Save only) ──
+  // ── Pending group assignments (applied on Save only) ──
   const pendingGroupIds = ref(new Set())
-  /** Stable list order while on step 4 — selected groups pin to top only when entering the step. */
+  /** Stable list order on assign step — selected groups pin to top only when entering the step. */
   const groupDisplayOrder = ref([])
 
   function buildGroupDisplayOrder(ids, selected) {
@@ -532,7 +572,7 @@
   }
 
   watch(currentStep, (step, prev) => {
-    if (step === 4 && prev !== 4) syncGroupDisplayOrder()
+    if (step === assignStep && prev !== assignStep) syncGroupDisplayOrder()
   })
 
   const filteredGroups = computed(() => {
@@ -747,7 +787,7 @@
 
   const step2Valid = computed(() => contentList.value.length > 0)
 
-  const step4SaveValid = computed(() => {
+  const assignStepSaveValid = computed(() => {
     if (distributionOption.value === 'schedule') {
       return !!scheduledDate.value
     }
@@ -761,7 +801,7 @@
   })
 
   const canSave = computed(() =>
-    step1Valid.value && step2Valid.value && step4SaveValid.value
+    step1Valid.value && step2Valid.value && assignStepSaveValid.value
   )
 
   const stepBlockedReason = computed(() => {
@@ -882,11 +922,12 @@
     state.assignmentType = assignmentType.value || 'Assignment'
     state.dueDate = dueDate.value || null
     state.dueTime = dueDate.value ? DEFAULT_DUE_TIME : null
-    state.allowLate = allowLate.value
-    state.maxAttempts = maxAttempts.value || '1 attempt'
-    state.feedbackTiming = feedbackTiming.value || 'At the end'
-    state.shuffleQuestions = shuffleQuestions.value
-    state.showAnswers = showAnswers.value
+    // Settings defaults always written (UIUX-79: step may be hidden; missing values are not fine for readers)
+    state.allowLate = allowLate.value !== false
+    state.maxAttempts = maxAttempts.value || DEFAULT_MAX_ATTEMPTS
+    state.feedbackTiming = feedbackTiming.value || DEFAULT_FEEDBACK_TIMING
+    state.shuffleQuestions = !!shuffleQuestions.value
+    state.showAnswers = showAnswers.value !== false
     state.teacherNotes = teacherNotes.value || ''
 
     const locked = isPublicationLocked(
