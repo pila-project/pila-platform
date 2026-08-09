@@ -41,6 +41,15 @@
             <LucideIcon name="folders" :size="12" />
           </span>
           <button
+            v-if="!assignmentPicker && showTaggingIcon"
+            type="button"
+            class="pcard-heart-btn"
+            :aria-label="t('tag') || 'Tag'"
+            @click.stop="$emit('tag')"
+          >
+            <LucideIcon name="tag" :size="14" />
+          </button>
+          <button
             v-if="!assignmentPicker"
             class="pcard-heart-btn"
             :class="{ 'pcard-heart-active': favorited }"
@@ -286,12 +295,17 @@
     assignmentPicker: Boolean,
     /** Assignment wizard step 2 list: order badge, preview, delete. */
     assignmentContentView: Boolean,
+    /** Trunk tagging modal affordance (off on simplified study domains). */
+    showTaggingIcon: {
+      type: Boolean,
+      default: false,
+    },
   })
 
   const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
   const useFixedLayout = computed(() => !props.sequenceView)
 
-  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite'])
+  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite', 'tag'])
 
   const copyModifyLabel = computed(() =>
     t('copy-and-modify') || t('copy-and-modify-content') || 'Copy & modify',

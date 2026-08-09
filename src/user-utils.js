@@ -3,6 +3,20 @@ import { encodeBase64, decodeBase64, decodeUTF8 } from 'tweetnacl-util'
 import { encrypt, generateKeyPair, encryptSymmetric } from './encryption.js'
 
 const BASE64_PUBLIC_KEY_NAMESPACE = '1b4555f2-a89c-4633-834a-a064c195ab22'
+const CODE_CHARACTER_SET = 'abcdefghijklmnopqrstuvwxy'
+
+export function randomUserSecret(length = 8) {
+  const arr = new Uint8Array(length)
+  crypto.getRandomValues(arr)
+  return [...arr].map(i => CODE_CHARACTER_SET[i % CODE_CHARACTER_SET.length]).join('')
+}
+
+export async function saveProviderSecret(user, providerSecret) {
+  localStorage.setItem(`zkek-${user}`, providerSecret)
+  const publicKeys = await Agent.state('user-info-public-keys')
+  const { publicKey } = await generateKeyPair(providerSecret)
+  publicKeys.public = encodeBase64(publicKey)
+}
 
 export async function createUser(userSecret, providerSecret, info) {
   const { serverPublicKey } = await Agent.environment()

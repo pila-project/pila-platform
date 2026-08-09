@@ -314,7 +314,7 @@
     </template>
     <template v-slot:body>
       <div style="position: absolute; width: 100%; height: 100%;">
-        <CandliDashboard :assignment="current" />
+        <CandliDashboard :assignment="current" :games="candliGames" />
       </div>
     </template>
   </PModal>
@@ -441,6 +441,8 @@
   import CandliDashboard from './candli-dashboard.vue'
   import GenAIDashboard from './gen-ai-dashboard.vue'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
+  import { candliGamesForSequenceItems } from '@/candli-games.js'
+  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import {
     STATUS_FILTER,
     defaultActiveStatusFilters,
@@ -470,6 +472,8 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   const assignmentContainsCandli = ref(null)
   const assignmentContainsGenAI = ref(null)
   const assignmentContainsBetty = ref(null)
+  /** Resolved Candli game ids for competency dashboard (trunk: map or embed scan). */
+  const candliGames = ref([])
   const dashboardUrl = ref(null)
   const searchQuery = ref('')
   const selectedItems = ref([])
@@ -1185,6 +1189,11 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   }
 
   async function openCandliDashboard(item) {
+    // Trunk: only open competency dashboard when games resolved
+    if (!candliGames.value.length) {
+      await reassessContents()
+    }
+    if (!candliGames.value.length) return
     await openDashboardWithXapi(item, 'competency')
   }
 
@@ -1239,6 +1248,8 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
    */
   async function handleOpenDashboardFromSubmissions(type) {
     if (type === 'competency') {
+      if (!candliGames.value.length) await reassessContents()
+      if (!candliGames.value.length) return
       await openCandliDashboard(current.value)
     } else if (type === 'genai') {
       await openGenAIDashboard(current.value)
@@ -1249,27 +1260,67 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
     }
   }
 
+  /**
+   * Trunk parity: games from static CANDLI_SEQUENCES map, else scan sequence
+   * items for custom/embed Candli games (candliGamesForSequenceItems).
+   */
+  async function resolveCandliGamesForContent(contentId) {
+    if (!contentId) return []
+    if (CANDLI_SEQUENCES[contentId]) return [...CANDLI_SEQUENCES[contentId]]
+    try {
+      const sequence = await Agent.state(contentId)
+      const rawItems = sequence?.items
+      const items = Array.isArray(rawItems)
+        ? rawItems
+        : normalizeSequenceItems(rawItems).map((id) => ({ id }))
+      return await candliGamesForSequenceItems(items)
+    } catch {
+      return []
+    }
+  }
+
   async function reassessContents() {
+    const assignmentId = current.value
     assignmentContainsCandli.value = null
     assignmentContainsGenAI.value = null
     assignmentContainsBetty.value = null
+    candliGames.value = []
     dashboardUrl.value = null
-    if (current.value) {
-      const stateData = await Agent.state(current.value)
-      const rawContent = stateData.content
-      const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
-      for (const content of contentIds) {
-        if (CANDLI_SEQUENCES[content]) assignmentContainsCandli.value = true
-        if (GEN_AI_SEQUENCES[content]) assignmentContainsGenAI.value = true
-        if ((await Agent.state(content)).id?.includes('betty')) {
+    if (!assignmentId) return
+
+    const stateData = await Agent.state(assignmentId)
+    if (current.value !== assignmentId) return
+    const rawContent = stateData.content
+    const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
+    const allGames = []
+
+    for (const content of contentIds) {
+      const games = await resolveCandliGamesForContent(content)
+      if (current.value !== assignmentId) return
+      if (games.length) {
+        assignmentContainsCandli.value = true
+        allGames.push(...games)
+      }
+      if (GEN_AI_SEQUENCES[content]) assignmentContainsGenAI.value = true
+      try {
+        const contentState = await Agent.state(content)
+        if (current.value !== assignmentId) return
+        if (contentState?.id?.includes('betty')) {
           assignmentContainsBetty.value = true
         }
-        if ((await Agent.metadata(content)).domain === 'datawise.accingo.co') {
+        const meta = await Agent.metadata(content)
+        if (current.value !== assignmentId) return
+        if (meta?.domain === 'datawise.accingo.co') {
           dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
-        } else if ((await Agent.state(content)).reference?.dashboard) {
-          dashboardUrl.value = 'https://' + (await Agent.state(content)).reference.dashboard
+        } else if (contentState?.reference?.dashboard) {
+          dashboardUrl.value = 'https://' + contentState.reference.dashboard
         }
+      } catch {
+        /* ignore per-content probe failures */
       }
+    }
+    if (current.value === assignmentId) {
+      candliGames.value = [...new Set(allGames.filter(Boolean))]
     }
   }
 

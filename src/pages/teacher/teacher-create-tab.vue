@@ -79,6 +79,18 @@
       <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
+    <button
+      v-if="IS_THAILAND_DOMAIN"
+      class="custom-button"
+      @click="openLink('https://thaipilacreate.eef.or.th/')"
+    >
+      <div class="left">
+        <img src="/icon_pilathailand.png" alt="pila-thailand-image" class="btn-image">
+      </div>
+      <div class="center">{{ "THAI PILA" }}</div>
+      <LucideIcon name="square-pen" :size="16" class="right" />
+    </button>
+
 
   </div>
 
@@ -131,6 +143,8 @@ import { PButton } from '@/components/ui/index.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+
+const IS_THAILAND_DOMAIN = window.location.host === 'thailand.pilaproject.org'
 
 const userIdOrURL = ref('')
 

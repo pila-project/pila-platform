@@ -63,6 +63,8 @@
           v-if="['admins', 'teachers', 'trainers', 'role-requests'].includes(tab)"
           :role="tab"
         />
+        <AdminContent v-else-if="tab === 'content'" />
+        <AdminAssign v-else-if="tab === 'assign'" />
         <AdminReports v-else-if="tab === 'reports'" />
         <StudiesNotAvailable v-else-if="tab === 'studies' && hideStudies" />
         <AdminStudyManager v-else-if="tab === 'studies' && !hideStudies" />
@@ -79,6 +81,8 @@
   import { useStore } from 'vuex'
   import Navbar from '@/pages/Navbar.vue'
   import RoleManager from './roles.vue'
+  import AdminContent from './content.vue'
+  import AdminAssign from './assign.vue'
   import AdminReports from './admin-reports.vue'
   import AdminStudyManager from './studies.vue'
   import StudiesNotAvailable from '@/components/common/studies-not-available.vue'
@@ -108,8 +112,10 @@
   const navItems = computed(() => [
     { icon: 'presentation', title: t('trainers'), key: 'trainers', show: !isSimplifiedStudyDomain },
     { icon: 'presentation', title: t('teachers'), key: 'teachers', show: true },
+    { icon: 'book-open', title: t('content') || 'Content', key: 'content', show: isSimplifiedStudyDomain },
+    { icon: 'list-checks', title: t('assign') || 'Assign', key: 'assign', show: isSimplifiedStudyDomain },
     { icon: 'clipboard-list', title: t('role-requests'), key: 'role-requests', show: true },
-    { icon: 'search', title: t('reports'), key: 'reports', show: true },
+    { icon: 'search', title: t('reports'), key: 'reports', show: !isSimplifiedStudyDomain },
     { icon: 'flask-conical', title: t('studies'), key: 'studies', show: !isSimplifiedStudyDomain },
   ])
 

@@ -9,22 +9,22 @@
 <script setup>
   import { useStore } from 'vuex'
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
-  import { CANDLI_SEQUENCES } from '@/utils/constants.js'
 
   const props = defineProps({
-    assignment: String
+    assignment: String,
+    games: { type: Array, default: () => [] },
   })
 
   const store = useStore()
 
   const { domain } = await Agent.environment()
 
-  const candliSequence = (await Agent.state(props.assignment)).content
-  const candliGames = CANDLI_SEQUENCES[candliSequence] || []
+  // games must be resolved by parent (CANDLI_SEQUENCES map and/or candliGamesForSequenceItems)
+  const games = Array.isArray(props.games) ? props.games : []
   const assignmentUsers = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
 
   const params = new URLSearchParams([
-    ...candliGames.map(id => ['game', id]),
+    ...games.map(id => ['game', id]),
     ...assignmentUsers.map(id => ['user', id])
   ])
 

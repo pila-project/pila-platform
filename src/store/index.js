@@ -16,6 +16,7 @@ import {
   HOST_TO_FIRST_LOAD_LANGUAGE
 } from '@/utils/constants.js'
 import { recordAuthLastLogin } from '@/utils/record-last-login.js'
+import { getStoredAdminCredentialSecret } from '../teacher-login-credentials.js'
 
 export default {
   modules: {
@@ -53,12 +54,20 @@ export default {
 
       const key = localStorage.getItem(`zkek-${state.user}`)
 
-      // Wrong / missing key must not throw — fall through to anonymous like trunk blob path
+      // Trunk: try teacher zkek + admin credential secret; soft-fail each key
+      const providerKeys = [
+        key,
+        state.user ? getStoredAdminCredentialSecret(state.user) : ''
+      ].filter((value, index, values) => value && values.indexOf(value) === index)
+
       let createdUserInfo = null
-      try {
-        createdUserInfo = await getTeacherCreatedUserInfo(user, key)
-      } catch (error) {
-        console.warn('[decryptUserInfo] teacher-created decrypt failed', error)
+      for (const providerKey of providerKeys) {
+        try {
+          createdUserInfo = await getTeacherCreatedUserInfo(user, providerKey)
+          if (createdUserInfo) break
+        } catch (error) {
+          console.warn('[decryptUserInfo] teacher-created decrypt failed', error)
+        }
       }
 
       if (createdUserInfo) return createdUserInfo

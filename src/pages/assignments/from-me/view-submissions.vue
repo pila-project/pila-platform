@@ -431,6 +431,7 @@
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
+  import { candliGamesForSequenceItems } from '@/candli-games.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 
   const props = defineProps({
@@ -883,14 +884,26 @@
       })
     }
 
-    // Load sequence items + dashboard availability
+    // Load sequence items + dashboard availability (trunk: Candli only when games resolve)
     const rawContent = assignState.content
     const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
     assignmentContainsCandli.value = false
     assignmentContainsGenAI.value = false
     for (const id of contentIds) {
-      if (CANDLI_SEQUENCES[id]) assignmentContainsCandli.value = true
       if (GEN_AI_SEQUENCES[id]) assignmentContainsGenAI.value = true
+      try {
+        let games = CANDLI_SEQUENCES[id] ? [...CANDLI_SEQUENCES[id]] : null
+        if (!games) {
+          const sequence = await Agent.state(id)
+          const items = Array.isArray(sequence?.items)
+            ? sequence.items
+            : normalizeSequenceItems(sequence?.items).map((itemId) => ({ id: itemId }))
+          games = await candliGamesForSequenceItems(items)
+        }
+        if (games?.length) assignmentContainsCandli.value = true
+      } catch {
+        /* ignore */
+      }
     }
 
     if (contentId.value) {

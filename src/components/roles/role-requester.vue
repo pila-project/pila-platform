@@ -20,12 +20,6 @@
       </div>
 
       <PButton v-if="requestedRole.role === role"
-        @click="requestRole(null)"
-        :text="t('undo-request')"
-        variant="primary"
-      />
-
-      <PButton v-if="requestedRole.role === role"
         @click="reload"
         :text="t('click-here-to-reload-once-you-receive-approval-c')"
         variant="primary"

@@ -240,11 +240,13 @@
               :source="source"
               :grades="grades"
               :favorited="favorites.has(id)"
+              :show-tagging-icon="showTaggingIcons && !!taggingIconVisibility[id]"
               show-copy-modify
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
               @toggle-favorite="toggleFavorite(id)"
               @preview="handleExplorePreview(id)"
+              @tag="taggingContentId = id"
               @remove="() => {
                 setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
                 myContent.splice(myContent.indexOf(id), 1)
@@ -262,6 +264,12 @@
           width="90vw"
           height="90vh"
           @close="previewing = null"
+        />
+        <TaggingModal
+          v-if="taggingContentId && showTaggingIcons"
+          :id="taggingContentId"
+          :roots="[ROOT_COMPETENCIES_TAG]"
+          @close="taggingContentId = null"
         />
       </div>
     </div>
@@ -413,7 +421,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, shallowReactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+  import { ref, reactive, shallowRef, shallowReactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
   import { createDragAutoScroll } from '@/utils/drag-auto-scroll.js'
   import { useStore } from 'vuex'
   import { useRoute, useRouter } from 'vue-router'
@@ -433,7 +441,8 @@
   import ViewAssignmentDetailsModal from '@/pages/assignments/from-me/view-assignment-details-modal.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import setTagging from '@/utils/set-tagging.js'
-  import { MY_CONTENT_TAG } from '@/utils/constants.js'
+  import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
+  import TaggingModal from '@/components/tagging-modal.vue'
   import {
     nameCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
     getCachedTagHierarchy, prefetchBatch, invalidateNames,
@@ -538,6 +547,81 @@
   // ── Core state ──
   const infoModalId = ref(null)
   const previewing = ref(null)
+  // Trunk tagging: icons/modal off on simplified study domains.
+  // Only resolve visibility for the *visible page* of cards — never the full catalog.
+  // A reactive{} map updated per-id over thousands of rows freezes the main thread.
+  const ROOT_COMPETENCIES_TAG = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+  const showTaggingIcons = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+  const taggingContentId = ref(null)
+  /** @type {import('vue').ShallowRef<Record<string, boolean>>} */
+  const taggingIconVisibility = shallowRef({})
+  let taggingLoadToken = 0
+
+  function unwrapBrowserList(maybeRef) {
+    if (!maybeRef) return null
+    // defineExpose leaves ComputedRef unwrapped only in templates
+    if (typeof maybeRef === 'object' && 'value' in maybeRef) return maybeRef.value
+    return maybeRef
+  }
+
+  async function refreshTaggingIconsForVisibleIds(ids) {
+    if (!showTaggingIcons || !ids?.length) return
+    const token = ++taggingLoadToken
+    const role = store.getters['roles/role']?.(store.state.user)
+    const userId = store.state.user
+    const prev = taggingIconVisibility.value
+    const next = { ...prev }
+    const pending = ids.filter((id) => id && !(id in next))
+    if (!pending.length) return
+
+    // Admin can tag anything — no per-item metadata fan-out
+    if (role === 'admin') {
+      for (const id of pending) next[id] = true
+      if (token === taggingLoadToken) taggingIconVisibility.value = next
+      return
+    }
+
+    // Teachers: my-content is owned; only fetch metadata for the rest (page-sized)
+    const mine = new Set(myContent)
+    const needMeta = []
+    for (const id of pending) {
+      if (mine.has(id)) next[id] = true
+      else needMeta.push(id)
+    }
+
+    const CONCURRENCY = 6
+    for (let i = 0; i < needMeta.length; i += CONCURRENCY) {
+      if (token !== taggingLoadToken) return
+      const chunk = needMeta.slice(i, i + CONCURRENCY)
+      await Promise.all(
+        chunk.map(async (id) => {
+          try {
+            const meta = metadataCache.get(id) || await getContentMetadata(id).catch(() => null)
+            next[id] = meta?.owner === userId
+          } catch {
+            next[id] = false
+          }
+        }),
+      )
+    }
+    if (token === taggingLoadToken) taggingIconVisibility.value = next
+  }
+
+  watch(
+    () => {
+      const browser = browserRef.value
+      const pageIds = unwrapBrowserList(browser?.paginatedDisplayList)
+      if (Array.isArray(pageIds)) return pageIds
+      const all = unwrapBrowserList(browser?.displayList)
+      if (Array.isArray(all)) return all
+      return filteredContentList.value
+    },
+    (list) => {
+      if (!showTaggingIcons || !list?.length) return
+      void refreshTaggingIconsForVisibleIds(list)
+    },
+    { immediate: true },
+  )
   const {
     successDialog,
     success: showSuccessDialog,

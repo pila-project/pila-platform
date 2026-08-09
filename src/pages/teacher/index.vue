@@ -235,6 +235,7 @@
   const navItems = computed(() => [
     { icon: 'user', title: t('admin'), to: 'classes', show: true },
     { icon: 'file-text', title: t('assignments').toLowerCase(), to: 'assignments-from-me', show: true },
+    { icon: 'list-checks', title: t('your-tasks'), to: 'tasks', show: isSimplifiedStudyDomain },
     { icon: 'search', title: t('explore'), to: 'content', show: true },
     { icon: 'folder-plus', title: t('create'), to: 'create', show: !isSimplifiedStudyDomain },
     { icon: 'file-text', title: t('resources'), to: 'resources', show: true },

@@ -191,7 +191,7 @@
     </template>
     <template #body>
       <div class="studies-dashboard-body">
-        <CandliDashboard :assignment="current" />
+        <CandliDashboard :assignment="current" :games="candliGames" />
       </div>
     </template>
   </PModal>
@@ -228,6 +228,8 @@
   import CandliDashboard from '@/pages/assignments/from-me/candli-dashboard.vue'
   import GenAIDashboard from '@/pages/assignments/from-me/gen-ai-dashboard.vue'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
+  import { candliGamesForSequenceItems } from '@/candli-games.js'
+  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -250,6 +252,8 @@
   const assignmentContainsCandli = ref(null)
   const assignmentContainsGenAI = ref(null)
   const assignmentContainsBetty = ref(null)
+  /** Resolved Candli game ids; competency UI only when non-empty (trunk parity). */
+  const candliGames = ref([])
   const dashboardUrl = ref(null)
   const openDashboardSession = ref(null)
 
@@ -335,26 +339,62 @@
     router.push(`/teacher/support?assignment=${current.value}`)
   }
 
+  async function resolveCandliGamesForContent(contentId) {
+    if (!contentId) return []
+    if (CANDLI_SEQUENCES[contentId]) return [...CANDLI_SEQUENCES[contentId]]
+    try {
+      const sequence = await Agent.state(contentId)
+      const rawItems = sequence?.items
+      const items = Array.isArray(rawItems)
+        ? rawItems
+        : normalizeSequenceItems(rawItems).map((id) => ({ id }))
+      return await candliGamesForSequenceItems(items)
+    } catch {
+      return []
+    }
+  }
+
   async function reassessContents() {
+    const assignmentId = current.value
     assignmentContainsCandli.value = null
     assignmentContainsGenAI.value = null
     assignmentContainsBetty.value = null
-    if (!current.value) return
+    candliGames.value = []
+    dashboardUrl.value = null
+    if (!assignmentId) return
 
-    const { content } = await Agent.state(current.value)
-    assignmentContainsCandli.value = !!CANDLI_SEQUENCES[content]
-    assignmentContainsGenAI.value = !!GEN_AI_SEQUENCES[content]
+    const { content } = await Agent.state(assignmentId)
+    if (current.value !== assignmentId) return
+    const contentIds = Array.isArray(content) ? content : (content ? [content] : [])
+    const allGames = []
 
-    if ((await Agent.state(content)).id?.includes('betty')) {
-      assignmentContainsBetty.value = true
+    for (const contentId of contentIds) {
+      const games = await resolveCandliGamesForContent(contentId)
+      if (current.value !== assignmentId) return
+      if (games.length) {
+        assignmentContainsCandli.value = true
+        allGames.push(...games)
+      }
+      if (GEN_AI_SEQUENCES[contentId]) assignmentContainsGenAI.value = true
+      try {
+        const contentState = await Agent.state(contentId)
+        if (current.value !== assignmentId) return
+        if (contentState?.id?.includes('betty')) {
+          assignmentContainsBetty.value = true
+        }
+        const meta = await Agent.metadata(contentId)
+        if (current.value !== assignmentId) return
+        if (meta?.domain === 'datawise.accingo.co') {
+          dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
+        } else if (contentState?.reference?.dashboard) {
+          dashboardUrl.value = 'https://' + contentState.reference.dashboard
+        }
+      } catch {
+        /* ignore per-content probe failures */
+      }
     }
-
-    if ((await Agent.metadata(content)).domain === 'datawise.accingo.co') {
-      dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
-    } else if ((await Agent.state(content)).reference?.dashboard) {
-      dashboardUrl.value = 'https://' + (await Agent.state(content)).reference.dashboard
-    } else {
-      dashboardUrl.value = null
+    if (current.value === assignmentId) {
+      candliGames.value = [...new Set(allGames.filter(Boolean))]
     }
   }
 
@@ -389,9 +429,15 @@
     const assignment = current.value
     if (!assignment) return
 
-    if (dashboard === 'competency') showCandliResultsModal.value = true
-    else if (dashboard === 'generative-ai-module') showGenAIDashboardModal.value = true
-    else showResultsModal.value = true
+    if (dashboard === 'competency') {
+      if (!candliGames.value.length) await reassessContents()
+      if (!candliGames.value.length) return
+      showCandliResultsModal.value = true
+    } else if (dashboard === 'generative-ai-module') {
+      showGenAIDashboardModal.value = true
+    } else {
+      showResultsModal.value = true
+    }
 
     openDashboardSession.value = { assignment, dashboard }
     await writeDashboardXapi('opened-dashboard', assignment, dashboard)

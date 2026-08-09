@@ -1,15 +1,18 @@
-import slugMap from '@/store/translation-slug-map.js'
+// Offline static pack (trunk-style); no slug-map dependency
+import staticTranslations from '@/store/staticTranslations.js'
 
 const mockUser = '00000000-dev0-4000-a000-000000000000'
 
 const states = {}
 const metadatas = {}
 
-const devTranslations = Object.entries(slugMap).map(([slug, target]) => ({
-  target,
-  value: slug.replace(/-/g, ' '),
-  language: 'en'
-}))
+const devTranslations = Object.entries(staticTranslations).flatMap(([slug, langs]) =>
+  Object.entries(langs || {}).map(([language, value]) => ({
+    target: slug,
+    value,
+    language,
+  })),
+)
 
 function getState(key) {
   if (!states[key]) states[key] = {}

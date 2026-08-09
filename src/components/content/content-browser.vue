@@ -175,6 +175,7 @@ onMounted(() => ensureLoaded({ useDiskCache: props.useDiskCache }))
 defineExpose({
   filteredContentList,
   displayList,
+  paginatedDisplayList,
   myContent,
   myContentIds,
   loading,

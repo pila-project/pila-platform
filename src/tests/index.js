@@ -7,6 +7,10 @@ import basicContentManagementTests from './basic-content-management.js'
 import adminContentManagementTests from './admin-content-management.js'
 import studentsJoiningTeachersTests from './students-joining-teachers.js'
 import assignmentGroupVisibilityTests from './assignment-group-visibility.js'
+import adminTeacherGrantTests from './admin-teacher-grants.js'
+import assignmentXapiTests from './assignment-xapi.js'
+import teacherLoginCredentialTests from './teacher-login-credentials.js'
+import candliGamesTests from './candli-games.js'
 
 export default function runTests() {
   window.Agent = browserAgent()
@@ -54,6 +58,10 @@ function waitForStoreLoadThenRunTests (store) {
           adminContentManagementTests(store)
           studentsJoiningTeachersTests(store)
           assignmentGroupVisibilityTests()
+          adminTeacherGrantTests(store)
+          teacherLoginCredentialTests()
+          assignmentXapiTests()
+          candliGamesTests()
         })
       }
       unwatch()
