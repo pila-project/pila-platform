@@ -417,6 +417,11 @@
   import { useToast } from '@/utils/useToast.js'
   import { PButton, PInput, PSelect, PTooltip } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
+  import {
+    ASSIGNMENT_STATUS,
+    isPublicationLocked,
+    tryPromoteScheduledAssignment,
+  } from '@/utils/assignment-status.js'
 
   const props = defineProps({
     id: String,
@@ -496,6 +501,8 @@
   const distributionOption = ref('publish')
   const scheduledDate = ref('')
   const scheduledTime = ref('')
+  /** Stored lifecycle status on the assignment item (after optional promote). */
+  const storedStatus = ref(null)
 
   watch(distributionOption, (value) => {
     if (value === 'schedule' && !scheduledTime.value) {
@@ -538,11 +545,39 @@
     })
   })
 
-  const distributionOptions = computed(() => [
-    { value: 'publish', label: t('publish-immediately'), description: t('students-can-start-right-away') },
-    { value: 'schedule', label: t('schedule-for-later'), description: t('set-publication-date') },
-    { value: 'draft', label: t('save-as-draft'), description: t('keep-working-before-publishing') },
-  ])
+  const publicationLocked = computed(() =>
+    isPublicationLocked(
+      {
+        status: storedStatus.value,
+        scheduledDate: scheduledDate.value,
+        scheduledTime: scheduledTime.value,
+      },
+      {
+        hasAssignedGroups:
+          pendingGroupIds.value.size > 0
+          || store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false).length > 0,
+      },
+    ),
+  )
+
+  const distributionOptions = computed(() => {
+    const opts = [
+      { value: 'publish', label: t('publish-immediately'), description: t('students-can-start-right-away') },
+      { value: 'schedule', label: t('schedule-for-later'), description: t('set-publication-date') },
+      { value: 'draft', label: t('save-as-draft'), description: t('keep-working-before-publishing') },
+    ]
+    // Once effectively published, draft is not offered
+    if (publicationLocked.value) {
+      return opts.filter(o => o.value !== 'draft')
+    }
+    return opts
+  })
+
+  watch(publicationLocked, (locked) => {
+    if (locked && distributionOption.value === 'draft') {
+      distributionOption.value = 'publish'
+    }
+  })
 
   function assignmentsForItem() {
     return store.getters['assignments/assignments'](props.id, 'teacher-to-student')
@@ -853,18 +888,38 @@
     state.shuffleQuestions = shuffleQuestions.value
     state.showAnswers = showAnswers.value
     state.teacherNotes = teacherNotes.value || ''
-    if (asDraft) {
-      state.status = 'Draft'
+
+    const locked = isPublicationLocked(
+      {
+        status: storedStatus.value || state.status,
+        scheduledDate: scheduledDate.value || state.scheduledDate,
+        scheduledTime: scheduledTime.value || state.scheduledTime,
+      },
+      {
+        hasAssignedGroups:
+          pendingGroupIds.value.size > 0
+          || store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false).length > 0,
+      },
+    )
+
+    // One-way publish: never write Draft once effectively published
+    if (locked) {
+      state.status = ASSIGNMENT_STATUS.PUBLISHED
+      if (!state.publishedAt) state.publishedAt = new Date().toISOString()
+      distributionOption.value = 'publish'
+    } else if (asDraft) {
+      state.status = ASSIGNMENT_STATUS.DRAFT
       distributionOption.value = 'draft'
     } else {
-      state.status = distributionOption.value === 'publish' ? 'Published'
-        : distributionOption.value === 'schedule' ? 'Scheduled'
-        : 'Draft'
+      state.status = distributionOption.value === 'publish' ? ASSIGNMENT_STATUS.PUBLISHED
+        : distributionOption.value === 'schedule' ? ASSIGNMENT_STATUS.SCHEDULED
+        : ASSIGNMENT_STATUS.DRAFT
     }
-    if (distributionOption.value === 'schedule' && !asDraft) {
+    if (distributionOption.value === 'schedule' && !asDraft && !locked) {
       state.scheduledDate = scheduledDate.value || null
       state.scheduledTime = scheduledTime.value || DEFAULT_PUBLICATION_TIME
     }
+    storedStatus.value = state.status
   }
 
   async function saveDraft() {
@@ -898,7 +953,8 @@
     loading.value = true
 
     if (props.editing) {
-      // Editing existing assignment — load from backend
+      // Teacher promote: due Scheduled → Published before hydrate
+      await tryPromoteScheduledAssignment(props.id)
       const state = await Agent.state(props.id)
       assignment.value = {
         ...state,
@@ -914,13 +970,14 @@
       if (state.shuffleQuestions !== undefined) shuffleQuestions.value = state.shuffleQuestions
       if (state.showAnswers !== undefined) showAnswers.value = state.showAnswers
       if (state.teacherNotes) teacherNotes.value = state.teacherNotes
-      if (state.status === 'Published') distributionOption.value = 'publish'
-      else if (state.status === 'Scheduled') distributionOption.value = 'schedule'
-      else if (state.status === 'Draft') distributionOption.value = 'draft'
+      storedStatus.value = state.status || null
+      if (state.status === ASSIGNMENT_STATUS.PUBLISHED) distributionOption.value = 'publish'
+      else if (state.status === ASSIGNMENT_STATUS.SCHEDULED) distributionOption.value = 'schedule'
+      else if (state.status === ASSIGNMENT_STATUS.DRAFT) distributionOption.value = 'draft'
       if (state.scheduledDate) scheduledDate.value = state.scheduledDate
       if (state.scheduledTime) {
         scheduledTime.value = state.scheduledTime
-      } else if (state.status === 'Scheduled') {
+      } else if (state.status === ASSIGNMENT_STATUS.SCHEDULED) {
         scheduledTime.value = DEFAULT_PUBLICATION_TIME
       }
       seedPendingGroupsFromStore()

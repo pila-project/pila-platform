@@ -448,8 +448,14 @@
     defaultActiveStatusFilters,
     buildStatusFilterOptions,
   } from '@/utils/status-filter.js'
+  import {
+    ASSIGNMENT_STATUS,
+    effectiveAssignmentStatus,
+    nextScheduledPublishAt,
+    tryPromoteScheduledAssignment,
+  } from '@/utils/assignment-status.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
-import { formatStudentPreferredName } from '@/utils/student-display-name.js'
+  import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -531,10 +537,17 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
       Object.entries(state).forEach(([key, value]) => { users[key] = value })
     })
     window.addEventListener('pagehide', handlePageHide)
+    document.addEventListener('visibilitychange', onAssignmentPageVisible)
+    scheduleNextPromoteTimer()
   })
   onBeforeUnmount(() => {
     if (unwatchUsers) unwatchUsers()
     window.removeEventListener('pagehide', handlePageHide)
+    document.removeEventListener('visibilitychange', onAssignmentPageVisible)
+    if (promoteTimerId != null) {
+      clearTimeout(promoteTimerId)
+      promoteTimerId = null
+    }
     closeOpenDashboardSession().catch(() => {})
   })
 
@@ -724,20 +737,74 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
     if (assignmentData[id]) return
     try {
       const state = await Agent.state(id)
-      assignmentData[id] = {
-        name: state.name || '',
-        description: state.description || '',
-        content: state.content || null,
-        assignmentType: state.assignmentType || 'Assignment',
-        dueDate: state.dueDate || null,
-        dueTime: state.dueTime || null,
-        scheduledDate: state.scheduledDate || null,
-        scheduledTime: state.scheduledTime || null,
-        status: state.status || null,
-        archived: !!state.archived,
-      }
+      assignmentData[id] = snapshotAssignmentData(state)
+      // Teacher-only: persist Scheduled → Published when due (idempotent)
+      await promoteAssignmentIfDue(id)
     } catch {
       assignmentData[id] = { name: '', description: '' }
+    }
+  }
+
+  function snapshotAssignmentData(state) {
+    return {
+      name: state.name || '',
+      description: state.description || '',
+      content: state.content || null,
+      assignmentType: state.assignmentType || 'Assignment',
+      dueDate: state.dueDate || null,
+      dueTime: state.dueTime || null,
+      scheduledDate: state.scheduledDate || null,
+      scheduledTime: state.scheduledTime || null,
+      status: state.status || null,
+      publishedAt: state.publishedAt || null,
+      archived: !!state.archived,
+    }
+  }
+
+  async function promoteAssignmentIfDue(id) {
+    const result = await tryPromoteScheduledAssignment(id)
+    if (!result.promoted) return false
+    if (assignmentData[id]) {
+      assignmentData[id].status = ASSIGNMENT_STATUS.PUBLISHED
+      if (!assignmentData[id].publishedAt) {
+        assignmentData[id].publishedAt = new Date().toISOString()
+      }
+    }
+    return true
+  }
+
+  async function promoteAllLoadedScheduled() {
+    const ids = Object.keys(assignmentData)
+    let any = false
+    for (const id of ids) {
+      if (assignmentData[id]?.status !== ASSIGNMENT_STATUS.SCHEDULED) continue
+      if (await promoteAssignmentIfDue(id)) any = true
+    }
+    if (any) scheduleNextPromoteTimer()
+    return any
+  }
+
+  let promoteTimerId = null
+
+  function scheduleNextPromoteTimer() {
+    if (promoteTimerId != null) {
+      clearTimeout(promoteTimerId)
+      promoteTimerId = null
+    }
+    const snapshots = Object.values(assignmentData)
+    const nextAt = nextScheduledPublishAt(snapshots)
+    if (nextAt == null) return
+    const delay = Math.min(Math.max(nextAt - Date.now() + 100, 100), 2147483647)
+    promoteTimerId = setTimeout(async () => {
+      promoteTimerId = null
+      await promoteAllLoadedScheduled()
+      scheduleNextPromoteTimer()
+    }, delay)
+  }
+
+  function onAssignmentPageVisible() {
+    if (document.visibilityState === 'visible') {
+      promoteAllLoadedScheduled().then(() => scheduleNextPromoteTimer())
     }
   }
 
@@ -752,20 +819,19 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
     Object.fromEntries(archived_assignable_items.value.map(id => [id, true]))
   )
 
+  // Active always; Archived chip adds archived (status-filter semantics).
   const allAssignments = computed(() => {
-    const ids = []
-    if (archiveStatusFilters.value.includes(STATUS_FILTER.ACTIVE)) {
-      ids.push(...assignable_items.value)
-    }
+    const ids = [...assignable_items.value]
     if (archiveStatusFilters.value.includes(STATUS_FILTER.ARCHIVED)) {
       ids.push(...archived_assignable_items.value)
     }
     return ids
   })
 
-  // Load data for all assignments
-  watch(allAssignments, (items) => {
-    items.forEach(id => loadAssignmentData(id))
+  // Load data for all assignments; promote due Scheduled → Published
+  watch(allAssignments, async (items) => {
+    await Promise.all(items.map(id => loadAssignmentData(id)))
+    scheduleNextPromoteTimer()
   }, { immediate: true })
 
   const assignmentsForActiveTable = computed(() => {
@@ -839,11 +905,9 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
     return items.sort((a, b) => b.updated - a.updated)
   })
 
-  const hasNonDefaultArchiveStatusFilter = computed(() => {
-    const defaults = defaultActiveStatusFilters()
-    return archiveStatusFilters.value.length !== defaults.length
-      || !defaults.every(status => archiveStatusFilters.value.includes(status))
-  })
+  const hasNonDefaultArchiveStatusFilter = computed(() =>
+    archiveStatusFilters.value.includes(STATUS_FILTER.ARCHIVED),
+  )
 
   const hasActiveFilters = computed(() => {
     return searchQuery.value
@@ -854,19 +918,18 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
       || assignedToFilter.value.length
   })
 
-  // ── Status derivation ──
+  // ── Status derivation (effective: due Scheduled reads as Published) ──
   function getStatus(id) {
     const data = assignmentData[id]
-    if (data?.status) return data.status
-    const groups = getAssignedGroups(id)
-    if (groups.length > 0) return 'Published'
-    return 'Draft'
+    return effectiveAssignmentStatus(data, {
+      hasAssignedGroups: getAssignedGroups(id).length > 0,
+    })
   }
 
   function getStatusBadgeClass(id) {
     const s = getStatus(id)
-    if (s === 'Published') return 'assign-badge assign-badge-published'
-    if (s === 'Draft') return 'assign-badge assign-badge-draft'
+    if (s === ASSIGNMENT_STATUS.PUBLISHED) return 'assign-badge assign-badge-published'
+    if (s === ASSIGNMENT_STATUS.DRAFT) return 'assign-badge assign-badge-draft'
     return 'assign-badge assign-badge-scheduled'
   }
 
@@ -886,20 +949,10 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
     return t('not-set')
   }
 
-  function getPublicationDateTime(data) {
-    if (!data?.scheduledDate) return null
-    const time = data.scheduledTime || '00:00'
-    const dt = new Date(`${data.scheduledDate}T${time}`)
-    if (!Number.isNaN(dt.getTime())) return dt
-    const fallback = new Date(data.scheduledDate)
-    return Number.isNaN(fallback.getTime()) ? null : fallback
-  }
-
   function canViewSubmissions(id) {
-    if (getStatus(id) !== 'Published') return false
+    // Effective Published already requires schedule due when status was Scheduled
+    if (getStatus(id) !== ASSIGNMENT_STATUS.PUBLISHED) return false
     if (!getAssignedGroups(id).length) return false
-    const publishAt = getPublicationDateTime(assignmentData[id])
-    if (publishAt && publishAt.getTime() > Date.now()) return false
     return true
   }
 
@@ -936,7 +989,7 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   }
 
   function getScheduledSubline(id) {
-    if (getStatus(id) !== 'Scheduled') return ''
+    if (getStatus(id) !== ASSIGNMENT_STATUS.SCHEDULED) return ''
     const data = assignmentData[id]
     if (!data?.scheduledDate) return ''
     const parts = [formatDate(data.scheduledDate)]

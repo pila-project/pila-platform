@@ -329,6 +329,7 @@ import {
   setCachedLegacyName,
   getContentMetadata,
 } from '@/utils/content-cache.js'
+import { effectiveAssignmentStatus } from '@/utils/assignment-status.js'
 
 const props = defineProps({
   itemIds: { type: Array, default: () => [] },
@@ -463,9 +464,8 @@ function assignmentBadges(id) {
 
 function assignmentPickerStatus(id) {
   const data = assignmentData[id]
-  if (data?.status) return data.status
   const groups = store.getters['assignments/assignedGroups'](id, TEACHER_ASSIGNMENT_TYPE, false)
-  return groups.length > 0 ? 'Published' : 'Draft'
+  return effectiveAssignmentStatus(data, { hasAssignedGroups: groups.length > 0 })
 }
 
 function sequenceBadges(id) {
@@ -485,6 +485,8 @@ async function loadAssignmentEntry(id) {
       name: state.name || '',
       description: state.description || '',
       status: state.status || null,
+      scheduledDate: state.scheduledDate || null,
+      scheduledTime: state.scheduledTime || null,
       dueDate: state.dueDate || null,
       archived: !!state.archived,
     }

@@ -1,23 +1,38 @@
+/**
+ * Teacher redesign archive filter semantics:
+ * - Active is always shown (implicit default — no "Active" chip).
+ * - Filter bar offers only "Archived".
+ * - When Archived is selected → Active + Archived.
+ * - When Archived is off → Active only.
+ */
 export const STATUS_FILTER = {
   ACTIVE: 'active',
   ARCHIVED: 'archived',
 }
 
+/** Empty selection = active-only (implicit). */
 export function defaultActiveStatusFilters() {
-  return [STATUS_FILTER.ACTIVE]
+  return []
 }
 
+/** Single chip: Archived (on = include archived alongside active). */
 export function buildStatusFilterOptions(t) {
   return [
-    { value: STATUS_FILTER.ACTIVE, label: t('active') },
     { value: STATUS_FILTER.ARCHIVED, label: t('archived') },
   ]
 }
 
+/**
+ * @param {string[]} selectedStatuses - e.g. [] or ['archived']
+ * @param {boolean} isArchived
+ */
 export function matchesStatusFilter(selectedStatuses, isArchived) {
-  if (!selectedStatuses?.length) return false
-  const status = isArchived ? STATUS_FILTER.ARCHIVED : STATUS_FILTER.ACTIVE
-  return selectedStatuses.includes(status)
+  if (!isArchived) return true
+  return !!selectedStatuses?.includes(STATUS_FILTER.ARCHIVED)
+}
+
+export function includesArchivedStatus(selectedStatuses) {
+  return !!selectedStatuses?.includes(STATUS_FILTER.ARCHIVED)
 }
 
 export function filterGroupIdsByStatus({
@@ -28,12 +43,9 @@ export function filterGroupIdsByStatus({
   searchQuery,
   getSearchText,
 }) {
-  let ids = []
-  if (selectedStatuses?.includes(STATUS_FILTER.ACTIVE)) {
-    ids.push(...activeIds)
-  }
-  if (selectedStatuses?.includes(STATUS_FILTER.ARCHIVED)) {
-    ids.push(...archivedIds)
+  let ids = [...(activeIds || [])]
+  if (includesArchivedStatus(selectedStatuses)) {
+    ids.push(...(archivedIds || []))
   }
 
   const q = searchQuery?.trim().toLowerCase()

@@ -162,6 +162,10 @@
   import PreviewModal from '@/components/common/preview-modal.vue'
   import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
   import { openContentPreview } from '@/utils/open-content-preview.js'
+  import {
+    effectiveAssignmentStatus,
+    tryPromoteScheduledAssignment,
+  } from '@/utils/assignment-status.js'
 
   const props = defineProps({
     id: { type: String, required: true },
@@ -185,10 +189,11 @@
     store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false)
   )
 
-  const status = computed(() => {
-    if (data.value.status) return data.value.status
-    return assignedGroups.value.length > 0 ? 'Published' : 'Draft'
-  })
+  const status = computed(() =>
+    effectiveAssignmentStatus(data.value, {
+      hasAssignedGroups: assignedGroups.value.length > 0,
+    }),
+  )
 
   const contentItems = computed(() => {
     if (!data.value.content) return []
@@ -230,6 +235,7 @@
   async function init() {
     loading.value = true
     try {
+      await tryPromoteScheduledAssignment(props.id)
       const state = await Agent.state(props.id)
       data.value = {
         name: state.name || '',
@@ -239,6 +245,9 @@
         dueDate: state.dueDate || null,
         dueTime: state.dueTime || null,
         status: state.status || null,
+        scheduledDate: state.scheduledDate || null,
+        scheduledTime: state.scheduledTime || null,
+        publishedAt: state.publishedAt || null,
         allowLate: state.allowLate,
         maxAttempts: state.maxAttempts || '1',
         feedbackTiming: state.feedbackTiming || 'At the end',

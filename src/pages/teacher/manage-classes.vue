@@ -9,7 +9,7 @@
           <div class="section-header-left">
             <LucideIcon name="user" :size="20" class="section-icon" />
             <div>
-              <h2 class="card-section-title">{{ t('student') }} ({{ students.length }})</h2>
+              <h2 class="card-section-title">{{ t('student') }} ({{ studentHeaderCount }})</h2>
               <p class="card-section-subtitle">{{ t('manage-student-accounts') }}</p>
             </div>
           </div>
@@ -203,7 +203,7 @@
           <div class="section-header-left">
             <LucideIcon name="users" :size="20" class="section-icon" />
             <div>
-              <h2 class="card-section-title">{{ t('group') }} ({{ allGroupsCount }})</h2>
+              <h2 class="card-section-title">{{ t('group') }} ({{ groupHeaderCount }})</h2>
               <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
             </div>
           </div>
@@ -1092,6 +1092,7 @@ import {
   buildStatusFilterOptions,
   matchesStatusFilter,
   filterGroupIdsByStatus,
+  includesArchivedStatus,
 } from '@/utils/status-filter.js'
 import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
 
@@ -1488,6 +1489,11 @@ const filteredStudents = computed(() => {
   })
 })
 
+/** Header count: active by default; +archived when status chip is on (ignores search/grade/group filters). */
+const studentHeaderCount = computed(() =>
+  students.value.filter(s => matchesStatusFilter(activeStatusFilters.value, s.archived)).length,
+)
+
 const {
   selected: selectedStudents,
   setSelected: setSelectedStudents,
@@ -1627,7 +1633,14 @@ const archivedGroups = computed(() => store.getters['groups/archivedGroups']('cl
 
 const archivedGroupIdSet = computed(() => new Set(archivedGroups.value))
 
-const allGroupsCount = computed(() => activeGroups.value.length + archivedGroups.value.length)
+/** Header count: active groups by default; +archived when status chip is on (ignores search). */
+const groupHeaderCount = computed(() => {
+  const n = activeGroups.value.length
+  if (includesArchivedStatus(groupStatusFilters.value)) {
+    return n + archivedGroups.value.length
+  }
+  return n
+})
 
 const filteredGroups = computed(() =>
   filterGroupIdsByStatus({

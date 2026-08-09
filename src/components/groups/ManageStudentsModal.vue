@@ -31,7 +31,7 @@
             <h3 class="panel-title">{{ t('available-students') }} ({{ visibleAvailableStudents.length }})</h3>
             <PButton
               v-if="selectedAvailable.size"
-              variant="secondary"
+              variant="primary"
               size="sm"
               icon="lucide:user-plus"
               :text="`${t('add-selected')} (${selectedAvailable.size})`"
