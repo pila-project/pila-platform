@@ -457,7 +457,7 @@ export default {
   },
 
   computed: {
-    taggingPartition() { return this.$store.getters.tagPartition },
+    taggingPartition() { return TAG_HIERARCHY_PARTITION },
 
     categoryDisplayConfig() {
       return Object.keys(this.competencyData).reduce(
