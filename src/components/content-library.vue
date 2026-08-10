@@ -8,7 +8,7 @@
     <v-container>
       <TagFilters
         v-model="selectedTagFilters"
-        :partition="partition"
+        :partition="TAG_HIERARCHY_PARTITION"
         :roots="tagFilters"
         select-leaves-only
         :LabelComponent="TagTranslation"
@@ -75,7 +75,7 @@
         :key="selfSelected"
         @back="selfSelected = null"
         :id="selfSelected"
-        :partition="partition"
+        :partition="TAG_HIERARCHY_PARTITION"
       />
     </div>
   </div>
@@ -94,12 +94,11 @@
   import TaggingModal from './tagging-modal.vue'
   import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
 
-
-  const partition = store.getters.tagPartition
   const DEFAULT_CONTENT_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
   const SIMPLIFIED_TAG_ROOT = 'f760dad0-f133-11ee-804e-27f76a81958c'
   const THAILAND_TAG_ROOT = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
   const TAG_HIERARCHY_PARTITION = 'PILA Tag Hierarchy'
+  const DEFAULT_CONTENT_PARTITION = store.getters.tagPartition
 
   const isSimplifiedDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const tagRoot = isSimplifiedDomain ? SIMPLIFIED_TAG_ROOT : THAILAND_TAG_ROOT
@@ -136,7 +135,7 @@
   fetchTaggings()
 
   Agent
-    .query('taggings-targeting-tags', [partition, tagRoot], 'tags.knowlearning.systems')
+    .query('taggings-targeting-tags', [TAG_HIERARCHY_PARTITION, tagRoot], 'tags.knowlearning.systems')
     .then(r => {
       console.log('Fetched tags:', r)
       tagFilters.value = r.map(t => t.target)
@@ -167,14 +166,14 @@
     if (selectedTagFilters.value.length) {
       await (
         Agent
-          .query('taggings-intersection', [partition, selectedTagFilters.value], 'tags.knowlearning.systems')
+          .query('taggings-intersection', [TAG_HIERARCHY_PARTITION, selectedTagFilters.value], 'tags.knowlearning.systems')
           .then(result => taggedContent.value = result)
       )
     }
     else {
       await (
         Agent
-          .query('taggings-for-tag', [partition, DEFAULT_CONTENT_TAG], 'tags.knowlearning.systems')
+          .query('taggings-for-tag', [DEFAULT_CONTENT_PARTITION, DEFAULT_CONTENT_TAG], 'tags.knowlearning.systems')
           .then(result => taggedContent.value = result)
       )
     }
