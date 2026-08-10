@@ -7,9 +7,9 @@
   >
     <v-container>
       <TagFilters
-        v-model="selectedCompetencies"
+        v-model="selectedTagFilters"
         :partition="partition"
-        :roots="competencies"
+        :roots="tagFilters"
         select-leaves-only
         :LabelComponent="TagTranslation"
       />
@@ -28,7 +28,7 @@
             :id="id"
             :selected="selfSelected === id"
             :removable="myContent.includes(id)"
-            :showTaggingIcon="showTaggingIcons && !!taggingIconVisibility[id]"
+            :showTaggingIcon="!isSimplifiedDomain && !!taggingIconVisibility[id]"
             @click="() => {
               if (selfSelected === id) selfSelected = null
               else selfSelected = id
@@ -51,9 +51,9 @@
         @close="previewing = null"
       />
       <TaggingModal
-        v-if="tagging && showTaggingIcons"
+        v-if="tagging && !isSimplifiedDomain"
         :id="tagging"
-        :roots="[ROOT_COMPETENCIES_TAG]"
+        :roots="[tagRoot]"
         @close="tagging = null"
       />
 
@@ -94,22 +94,26 @@
   import TaggingModal from './tagging-modal.vue'
   import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
 
-  const showTaggingIcons = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
   const partition = store.getters.tagPartition
-  const tag = '1a53db50-e248-11ee-ab5f-07f4a7408770'
-  const competencyTag = 'f760dad0-f133-11ee-804e-27f76a81958c'
-  const ROOT_COMPETENCIES_TAG = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+  const DEFAULT_CONTENT_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
+  const SIMPLIFIED_TAG_ROOT = 'f760dad0-f133-11ee-804e-27f76a81958c'
+  const THAILAND_TAG_ROOT = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+  const TAG_HIERARCHY_PARTITION = 'PILA Tag Hierarchy'
+
+  const isSimplifiedDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+  const tagRoot = isSimplifiedDomain ? SIMPLIFIED_TAG_ROOT : THAILAND_TAG_ROOT
+
   const { auth: { user } } = await Agent.environment()
 
   const loading = ref(true)
   const taggedContent = ref([])
   const selfSelected = ref(null)
-  const competencies = ref([])
+  const tagFilters = ref([])
   const previewing = ref(null)
   const tagging = ref(null)
 
-  const selectedCompetencies = ref([])
+  const selectedTagFilters = ref([])
 
   const myContent = reactive(
     await (
@@ -121,19 +125,22 @@
 
   const currentContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
-    if (selectedCompetencies.value.length === 0) {
+    if (selectedTagFilters.value.length === 0) {
       l = [...l, ...myContent]
     }
     return l
   })
 
-  watch(selectedCompetencies, fetchTaggings)
+  watch(selectedTagFilters, fetchTaggings)
 
   fetchTaggings()
 
   Agent
-    .query('taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems')
-    .then(r => competencies.value = r.map(t => t.target))
+    .query('taggings-targeting-tags', [partition, tagRoot], 'tags.knowlearning.systems')
+    .then(r => {
+      console.log('Fetched tags:', r)
+      tagFilters.value = r.map(t => t.target)
+    })
 
   const taggingIconVisibility = reactive({})
 
@@ -157,17 +164,17 @@
 
   async function fetchTaggings() {
     loading.value = true
-    if (selectedCompetencies.value.length) {
+    if (selectedTagFilters.value.length) {
       await (
         Agent
-          .query('taggings-intersection', [partition, selectedCompetencies.value], 'tags.knowlearning.systems')
+          .query('taggings-intersection', [partition, selectedTagFilters.value], 'tags.knowlearning.systems')
           .then(result => taggedContent.value = result)
       )
     }
     else {
       await (
         Agent
-          .query('taggings-for-tag', [partition, tag], 'tags.knowlearning.systems')
+          .query('taggings-for-tag', [partition, DEFAULT_CONTENT_TAG], 'tags.knowlearning.systems')
           .then(result => taggedContent.value = result)
       )
     }
