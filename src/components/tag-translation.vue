@@ -11,11 +11,12 @@ const props = defineProps(['id'])
 let displayString
 const translations = await Agent.query('translate-item', [ props.id, [ language ] ], 'translations.pilaproject.org')
 
-//  Use any name translation that's not a fallback
+// Use any name translation that's not a fallback
 const nameTranslation = translations.find(t => !t.is_fallback && t.path.length === 2 && t.path[1] === 'name')
 
 if (nameTranslation) displayString = nameTranslation.value
 else {
+  console.warn(`No translation for ${props.id} in language "${language}"`)
   const { name } = await Agent.state(props.id)
   displayString = name || props.id
 }
