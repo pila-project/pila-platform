@@ -53,7 +53,7 @@
       <TaggingModal
         v-if="tagging && !isSimplifiedDomain"
         :id="tagging"
-        :roots="[tagRoot]"
+        :roots="tagRoots"
         @close="tagging = null"
       />
 
@@ -96,12 +96,15 @@
 
   const DEFAULT_CONTENT_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
   const SIMPLIFIED_TAG_ROOT = 'f760dad0-f133-11ee-804e-27f76a81958c'
-  const THAILAND_TAG_ROOT = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+  const THAILAND_COMPETENCIES_TAG_ROOT = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+  const THAILAND_OTHER_TAGS_ROOT = '3241cb20-94ff-11f1-836c-fb0d26641e20'
   const TAG_HIERARCHY_PARTITION = 'PILA Tag Hierarchy'
   const DEFAULT_CONTENT_PARTITION = store.getters.tagPartition
 
   const isSimplifiedDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
-  const tagRoot = isSimplifiedDomain ? SIMPLIFIED_TAG_ROOT : THAILAND_TAG_ROOT
+  const tagRoots = isSimplifiedDomain
+    ? [ SIMPLIFIED_TAG_ROOT ]
+    : [ THAILAND_COMPETENCIES_TAG_ROOT, THAILAND_OTHER_TAGS_ROOT ]
   const tagRootPartition = isSimplifiedDomain ? store.getters.tagPartition : TAG_HIERARCHY_PARTITION
 
   const { auth: { user } } = await Agent.environment()
@@ -135,13 +138,18 @@
 
   fetchTaggings()
 
-  Agent
-    .query('taggings-targeting-tags', [tagRootPartition, tagRoot], 'tags.knowlearning.systems')
-    .then(r => {
-      console.log('Fetched tags:', r)
-      tagFilters.value = r.map(t => t.target)
-    })
-
+  Promise.all(
+    tagRoots.map(tagRoot =>
+      Agent.query(
+        'taggings-targeting-tags',
+        [tagRootPartition, tagRoot],
+        'tags.knowlearning.systems'
+      )
+    )
+  ).then(results => {
+    tagFilters.value = results.flatMap(r => r.map(t => t.target))
+  })
+  
   const taggingIconVisibility = reactive({})
 
   async function loadTaggingIconVisibility(id) {
