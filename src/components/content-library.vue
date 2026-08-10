@@ -102,6 +102,7 @@
 
   const isSimplifiedDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const tagRoot = isSimplifiedDomain ? SIMPLIFIED_TAG_ROOT : THAILAND_TAG_ROOT
+  const tagRootPartition = isSimplifiedDomain ? store.getters.tagPartition : TAG_HIERARCHY_PARTITION
 
   const { auth: { user } } = await Agent.environment()
 
@@ -135,7 +136,7 @@
   fetchTaggings()
 
   Agent
-    .query('taggings-targeting-tags', [TAG_HIERARCHY_PARTITION, tagRoot], 'tags.knowlearning.systems')
+    .query('taggings-targeting-tags', [tagRootPartition, tagRoot], 'tags.knowlearning.systems')
     .then(r => {
       console.log('Fetched tags:', r)
       tagFilters.value = r.map(t => t.target)
