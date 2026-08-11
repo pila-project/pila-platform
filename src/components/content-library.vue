@@ -8,7 +8,7 @@
     <v-container>
       <TagFilters
         v-model="selectedTagFilters"
-        :partition="TAG_HIERARCHY_PARTITION"
+        :partition="tagRootPartition"
         :roots="tagFilters"
         select-leaves-only
         :LabelComponent="TagTranslation"
@@ -175,7 +175,7 @@
     if (selectedTagFilters.value.length) {
       await (
         Agent
-          .query('taggings-intersection', [TAG_HIERARCHY_PARTITION, selectedTagFilters.value], 'tags.knowlearning.systems')
+          .query('taggings-intersection', [tagRootPartition, selectedTagFilters.value], 'tags.knowlearning.systems')
           .then(result => taggedContent.value = result)
       )
     }
