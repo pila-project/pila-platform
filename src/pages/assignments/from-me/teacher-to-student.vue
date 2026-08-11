@@ -606,15 +606,16 @@
       { value: 'schedule', label: t('schedule-for-later'), description: t('set-publication-date') },
       { value: 'draft', label: t('save-as-draft'), description: t('keep-working-before-publishing') },
     ]
-    // Once effectively published, draft is not offered
+    // One-way publish: once effectively published, only "publish immediately" remains.
+    // Draft and schedule-for-later are meaningless (and would not stick on save).
     if (publicationLocked.value) {
-      return opts.filter(o => o.value !== 'draft')
+      return opts.filter(o => o.value === 'publish')
     }
     return opts
   })
 
   watch(publicationLocked, (locked) => {
-    if (locked && distributionOption.value === 'draft') {
+    if (locked && distributionOption.value !== 'publish') {
       distributionOption.value = 'publish'
     }
   })
