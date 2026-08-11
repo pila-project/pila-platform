@@ -178,6 +178,64 @@ export const HOST_TO_FIRST_LOAD_LANGUAGE = {
   'slovensko-rct-2026.pilaproject.org': 'sk',
 }
 
+/**
+ * Teacher SSO providers by host (same HOST_TO_* pattern as partition / titles).
+ * Default (international): Google, Microsoft, Classlink.
+ * Thai hosts add LINE. Research/study hosts use default SSO + account code (see teacherCodeLoginEnabled).
+ */
+export const DEFAULT_TEACHER_SSO_PROVIDERS = ['google', 'microsoft', 'classlink']
+
+export const HOST_TO_TEACHER_SSO_PROVIDERS = {
+  'thailand.pilaproject.org': ['google', 'microsoft', 'classlink', 'line'],
+  'dev.gforcesolution.com': ['google', 'microsoft', 'classlink', 'line'],
+  'pila.gforcesolution.com': ['google', 'microsoft', 'classlink', 'line'],
+  'thaipilacreate.gforcesolution.com': ['google', 'microsoft', 'classlink', 'line'],
+}
+
+/**
+ * Provider id → Agent.login() argument + brand mark.
+ * Icons: Figma-exported marks under /login/icons when available; else platform external-logos.
+ */
+export const SSO_PROVIDER_META = {
+  google: {
+    agentProvider: 'google',
+    icon: '/login/icons/google_original.png',
+    labelKey: 'google',
+  },
+  microsoft: {
+    agentProvider: 'microsoft',
+    icon: '/login/icons/microsoft_original.png',
+    labelKey: 'microsoft',
+  },
+  classlink: {
+    agentProvider: 'classlink',
+    icon: '/login/icons/class_link.png',
+    labelKey: 'classlink',
+  },
+  line: {
+    agentProvider: 'line',
+    icon: '/login/icons/line_original.png',
+    labelKey: 'line',
+  },
+  pila: {
+    agentProvider: 'login.pilaproject.org',
+    icon: '/favicon.png',
+    labelKey: 'pila',
+  },
+}
+
+export function teacherSsoProvidersForHost(host = typeof window !== 'undefined' ? window.location.host : '') {
+  return HOST_TO_TEACHER_SSO_PROVIDERS[host] || DEFAULT_TEACHER_SSO_PROVIDERS
+}
+
+/**
+ * Research/study domains: teachers may also use PILA account login
+ * (same QR / 8-element code path as students). Reuses SIMPLIFIED_STUDY_DOMAINS.
+ */
+export function teacherCodeLoginEnabled(host = typeof window !== 'undefined' ? window.location.host : '') {
+  return SIMPLIFIED_STUDY_DOMAINS.includes(host)
+}
+
 export const HOST_TO_FORCED_ASSIGNMENT_LANGUAGE = {
   'polska-rct-2025.pilaproject.org': 'pl',
   'france-rct-2025.pilaproject.org': 'fr',

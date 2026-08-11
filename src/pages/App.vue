@@ -44,7 +44,32 @@
         ) return false
         else return !this.$store.state.codeEntered
       }
-    }
+    },
+    watch: {
+      // After auth: honor teacher/student tab (or /teacher path) from login UI
+      isAnonymous(anonymous, wasAnonymous) {
+        if (wasAnonymous && !anonymous) this.routeAfterLoginIntent()
+      },
+      loaded(v) {
+        if (v && !this.isAnonymous) this.routeAfterLoginIntent()
+      },
+    },
+    methods: {
+      routeAfterLoginIntent() {
+        try {
+          const intent = sessionStorage.getItem('pila-login-intent')
+          if (!intent) return
+          sessionStorage.removeItem('pila-login-intent')
+          const user = this.$store.state.user
+          if (intent === 'teacher'
+            && this.$store.getters['roles/hasPermission'](user, 'teacher')
+            && !this.$route.path.startsWith('/teacher')
+          ) {
+            this.$router.push('/teacher')
+          }
+        } catch { /* ignore */ }
+      },
+    },
   }
 </script>
 
