@@ -40,7 +40,7 @@ export default {
     },
     "group-name": {
         "de": "Gruppenname",
-        "en": "Group Name",
+        "en": "Group name",
         "es": "Nombre del grupo",
         "fr": "Nom du groupe",
         "km": "ឈ្មោះក្រុម",
@@ -52,7 +52,16 @@ export default {
         "th": "ชื่อกลุ่ม"
     },
     "try-again": {
+        "de": "Erneut versuchen",
         "en": "Try Again",
+        "es": "Intentar de nuevo",
+        "fr": "Réessayer",
+        "km": "ព្យាយាមម្ដងទៀត",
+        "lv": "Mēģināt vēlreiz",
+        "nl": "Opnieuw proberen",
+        "pl": "Spróbuj ponownie",
+        "pt": "Tentar novamente",
+        "sk": "Skúsiť znova",
         "th": "ลองอีกครั้ง"
     },
     "refresh-status": {
@@ -96,7 +105,7 @@ export default {
     },
     "add-students-to-your-student-list": {
         "de": "Fügen Sie Schülerinnen und Schüler zu Ihrer Schülerinnen-/Schülerliste hinzu",
-        "en": "Add Students to Your Student List",
+        "en": "Add students to student list",
         "es": "Agregue estudiantes a su lista de estudiantes",
         "fr": "Ajouter des élèves à votre liste",
         "km": "បន្ថែមសិស្សទៅបញ្ជីសិស្សរបស់អ្នក",
@@ -213,7 +222,7 @@ export default {
     },
     "new-group": {
         "de": "Neue Gruppe",
-        "en": "New Group",
+        "en": "New group",
         "es": "Nuevo grupo",
         "fr": "Nouveau groupe",
         "km": "ក្រុមថ្មី",
@@ -239,7 +248,7 @@ export default {
     },
     "live-monitoring-dashboard": {
         "de": "Live-Überwachungs-Dashboard",
-        "en": "Live-Monitoring Dashboard",
+        "en": "Live-monitoring dashboard",
         "es": "Panel de control en vivo",
         "fr": "Tableau de bord",
         "km": "ផ្ទាំងត្រួតពិនិត្យផ្ទាល់",
@@ -303,11 +312,29 @@ export default {
         "th": "กิจกรรมของท่านที่ได้รับมอบหมายมามีข้อผิดพลาด กรุณาสอบถามครูว่าได้มอบหมายงานหรือกิจกรรมให้คุณแล้วหรือไม่"
     },
     "no-tags-available": {
+        "de": "Keine Schlagworte verfügbar",
         "en": "No Tags Available",
+        "es": "No hay etiquetas disponibles",
+        "fr": "Aucune étiquette disponible",
+        "km": "គ្មានស្លាកទេ",
+        "lv": "Nav pieejamu tagu",
+        "nl": "Geen labels beschikbaar",
+        "pl": "Brak dostępnych tagów",
+        "pt": "Nenhuma etiqueta disponível",
+        "sk": "Nie sú dostupné žiadne tagy",
         "th": "ขณะนี้ไม่มีแท็กที่พร้อมใช้งาน"
     },
     "no-competencies-selected-yet": {
+        "de": "Noch keine Kompetenzen ausgewählt",
         "en": "No Competencies Selected Yet",
+        "es": "Aún no se han seleccionado competencias",
+        "fr": "Aucune compétence sélectionnée pour le moment",
+        "km": "មិនទាន់បានជ្រើសរើសជំនាញនៅឡើយទេ",
+        "lv": "Vēl nav atlasīta neviena kompetence",
+        "nl": "Nog geen competenties geselecteerd",
+        "pl": "Nie wybrano jeszcze żadnych kompetencji",
+        "pt": "Nenhuma competência selecionada ainda",
+        "sk": "Zatiaľ nie sú vybrané žiadne kompetencie",
         "th": "ยังไม่ได้เลือกสมรรถนะ"
     },
     "in-class": {
@@ -454,7 +481,16 @@ export default {
         "th": "ลำดับเนื้อหาของ PILA"
     },
     "working": {
+        "de": "Wird bearbeitet",
         "en": "Working",
+        "es": "Procesando",
+        "fr": "Traitement en cours",
+        "km": "កំពុងដំណើរការ",
+        "lv": "Notiek darbs",
+        "nl": "Bezig",
+        "pl": "Przetwarzanie",
+        "pt": "Processando",
+        "sk": "Prebieha spracovanie",
         "th": "กำลังดำเนินการ"
     },
     "other-classes": {
@@ -472,7 +508,7 @@ export default {
     },
     "by-creating-my-teacher-account-i-agree-to-the-pr": {
         "de": "Mit der Erstellung meines Lehrerkontos erkläre ich mich mit der Verarbeitung meiner personenbezogenen Daten einverstanden, wie sie in der Datenschutzerklärung beschrieben ist.",
-        "en": "By creating my teacher account, I agree to the processing of my personal data as described in the Data Protection Notice.",
+        "en": "By creating this PILA teacher account, I agree to the processing of my personal data as described in the Data Protection Notice.",
         "es": "Al crear mi cuenta de profesor, acepto el tratamiento de mis datos personales tal como se describe en el Aviso de Protección de Datos.",
         "fr": "En créant mon compte enseignant, j'accepte le traitement de mes données personnelles tel qu'il est décrit dans l'Avis de protection des données.",
         "km": "តាមរយៈការបង្កើតគណនីគ្រូរបស់ខ្ញុំ ខ្ញុំយល់ព្រមឱ្យដំណើរការទិន្នន័យផ្ទាល់ខ្លួនរបស់ខ្ញុំ ដូចដែលបានពិពណ៌នានៅក្នុងសេចក្តីជូនដំណឹងស្តីពីការការពារទិន្នន័យ។",
@@ -506,7 +542,7 @@ export default {
         "nl": "Vertrekken",
         "pl": "Wyjdź",
         "pt": "Deixar",
-        "sk": "Odísť\n",
+        "sk": "Odísť",
         "th": "ออก"
     },
     "new-class": {
@@ -550,7 +586,7 @@ export default {
     },
     "available-languages": {
         "de": "Verfügbare Sprachen",
-        "en": "Available Languages",
+        "en": "Available languages",
         "es": "Idiomas disponibles",
         "fr": "Langues disponibles",
         "km": "ភាសាដែលមាន",
@@ -602,7 +638,7 @@ export default {
     },
     "link-students-to-you": {
         "de": "Verbinden Sie Schülerinnen und Schüler mit sich",
-        "en": "Link Students to You",
+        "en": "Link students to you",
         "es": "Vincula a los estudiantes contigo",
         "fr": "Lier des élèves à vous",
         "km": "ភ្ជាប់សិស្សទៅអ្នក",
@@ -615,7 +651,7 @@ export default {
     },
     "my-assignments": {
         "de": "MEINE AUFGABEN",
-        "en": "MY ASSIGNMENTS",
+        "en": "My Assignments",
         "es": "MIS TAREAS",
         "fr": "MES ACTIVITES",
         "km": "ការងាររបស់ខ្ញុំ",
@@ -627,10 +663,16 @@ export default {
         "th": "ระบบมอบหมายงานและติดตามผล"
     },
     "required": {
+        "de": "Erforderlich",
         "en": "Required",
+        "es": "Obligatorio",
         "fr": "Obligatoire",
         "km": "ចាំបាច់",
+        "lv": "Nepieciešams",
+        "nl": "Vereist",
         "pl": "Wymagane",
+        "pt": "Obrigatório",
+        "sk": "Povinné",
         "th": "จำเป็น"
     },
     "teacher-name": {
@@ -726,7 +768,7 @@ export default {
     },
     "by-creating-my-teacher-account-i-agree-to-the-te": {
         "de": "Durch die Erstellung meines Lehrkräftekontos stimme ich den Nutzungsbedingungen und der Verarbeitung meiner personenbezogenen Daten, wie in der Datenschutzerklärung beschrieben, zu.",
-        "en": "By creating my teacher account, I agree to the Terms of Service and the processing of my personal data as described in the Data Protection Notice.",
+        "en": "By creating this PILA teacher account, I agree to the Terms of Service and the processing of my personal data as described in the Data Protection Notice.",
         "es": "Al crear mi cuenta de profesor, acepto los Términos de servicio y el procesamiento de mis datos personales como se describe en el Aviso de protección de datos.",
         "fr": "En créant mon compte enseignant, j’accepte les Conditions d’utilisation et le traitement de mes données personnelles tel que décrit dans l’Avis de protection des données.",
         "km": "ដោយបង្កើតគណនីគ្រូរបស់ខ្ញុំ ខ្ញុំយល់ព្រមលក្ខខណ្ឌនៃសេវា និងការដំណើរការទិន្នន័យផ្ទាល់ខ្លួនរបស់ខ្ញុំដូចបានពិពណ៌នានៅក្នុងសេចក្តីជូនដំណឹងការពារទិន្នន័យ។",
@@ -882,7 +924,7 @@ export default {
     },
     "add-student": {
         "de": "Schülerin/Schüler hinzufügen",
-        "en": "Add Student",
+        "en": "Add student",
         "es": "Agregar estudiante",
         "fr": "Ajouter un élève",
         "km": "បន្ថែមសិស្ស",
@@ -908,7 +950,7 @@ export default {
     },
     "cancel": {
         "de": "abbrechen",
-        "en": "cancel",
+        "en": "Cancel",
         "es": "Cancelar",
         "fr": "annuler",
         "km": "បោះបង់",
@@ -960,7 +1002,7 @@ export default {
     },
     "share-this-link-with-your-students": {
         "de": "Teilen Sie diesen Link mit Ihren Schülerinnen und Schülern:",
-        "en": "Share this link with your students:",
+        "en": "Share this link with your students",
         "es": "Comparte este enlace con tus alumnas:",
         "fr": "Partagez ce lien avec vos élèves :",
         "km": "ចែករំលែកតំណនេះជាមួយសិស្សរបស់អ្នក:",
@@ -1012,7 +1054,7 @@ export default {
     },
     "copy-link": {
         "de": "Link kopieren",
-        "en": "Copy Link",
+        "en": "Copy link",
         "es": "Copiar enlace",
         "fr": "Copier le lien",
         "km": "ចម្លងតំណ",
@@ -1090,7 +1132,7 @@ export default {
     },
     "activity-dashboard": {
         "de": "Aktivitäts-Dashboard",
-        "en": "Activity Dashboard",
+        "en": "Activity dashboard",
         "es": "Panel de actividad",
         "fr": "ableau de Bord des Activités",
         "km": "ផ្ទាំងគ្រប់គ្រងសកម្មភាព",
@@ -1115,7 +1157,16 @@ export default {
         "th": "รายงานข้อบกพร่อง"
     },
     "publish-to-explore": {
+        "de": "In „Entdecken“ veröffentlichen",
         "en": "Publish to Explore",
+        "es": "Publicar en Explorar",
+        "fr": "Publier dans Explorer",
+        "km": "ផ្សព្វផ្សាយទៅ Explore",
+        "lv": "Publicēt sadaļā Izpētīt",
+        "nl": "Publiceren naar Ontdekken",
+        "pl": "Opublikuj w sekcji Odkrywaj",
+        "pt": "Publicar em Explorar",
+        "sk": "Publikovať do sekcie Preskúmať",
         "th": "เผยแพร่ไปยังหน้าสำรวจ"
     },
     "request-another-feature": {
@@ -1327,7 +1378,16 @@ export default {
         "th": "คำตอบ/วิธีการแก้ปัญหาทั้งหมดของท่านที่ได้ทำการบันทึกไว้"
     },
     "publishing": {
+        "de": "Wird veröffentlicht",
         "en": "Publishing",
+        "es": "Publicando",
+        "fr": "Publication en cours",
+        "km": "កំពុងផ្សព្វផ្សាយ",
+        "lv": "Notiek publicēšana",
+        "nl": "Publiceren",
+        "pl": "Publikowanie",
+        "pt": "Publicando",
+        "sk": "Prebieha publikovanie",
         "th": "กำลังเผยแพร่"
     },
     "no-role-requests-yet": {
@@ -1683,7 +1743,7 @@ export default {
     },
     "print-login-codes": {
         "de": "Anmeldecodes ausdrucken",
-        "en": "Print Login Codes",
+        "en": "Print login codes",
         "es": "Imprimir códigos de inicio de sesión",
         "fr": "Imprimer les codes de connexion",
         "km": "បោះពុម្ពកូដចូលប្រើ",
@@ -1709,7 +1769,7 @@ export default {
     },
     "assignments": {
         "de": "AUFGABEN",
-        "en": "ASSIGNMENTS",
+        "en": "Assignments",
         "es": "ASIGNACIONES",
         "fr": "ACTIVITES",
         "km": "ការងារ",
@@ -1839,7 +1899,7 @@ export default {
     },
     "create-account": {
         "de": "Benutzerin/Benutzerkonto erstellen",
-        "en": "Create Account",
+        "en": "Create account",
         "es": "Crear una cuenta",
         "fr": "Créer un compte",
         "km": "បង្កើតគណនី",
@@ -1994,10 +2054,16 @@ export default {
         "th": "หากท่าน"
     },
     "add-to-favorites": {
+        "de": "Zu Favoriten hinzufügen",
         "en": "Add to favorites",
+        "es": "Añadir a favoritos",
         "fr": "Ajouter aux favoris",
         "km": "បន្ថែមទៅសំណព្វ",
+        "lv": "Pievienot izlasei",
+        "nl": "Toevoegen aan favorieten",
         "pl": "Dodaj do ulubionych",
+        "pt": "Adicionar aos favoritos",
+        "sk": "Pridať do obľúbených",
         "th": "เพิ่มในรายการโปรด"
     },
     "close": {
@@ -2170,7 +2236,16 @@ export default {
         "th": "คณิตศาสตร์"
     },
     "publish-content": {
+        "de": "Inhalt veröffentlichen",
         "en": "Publish Content",
+        "es": "Publicar contenido",
+        "fr": "Publier le contenu",
+        "km": "ផ្សព្វផ្សាយមាតិកា",
+        "lv": "Publicēt saturu",
+        "nl": "Inhoud publiceren",
+        "pl": "Opublikuj treść",
+        "pt": "Publicar conteúdo",
+        "sk": "Publikovať obsah",
         "th": "เผยแพร่เนื้อหา"
     },
     "karel-the-turtle": {
@@ -2227,7 +2302,7 @@ export default {
     },
     "competency-dashboard": {
         "de": "Kompetenz-Dashboard",
-        "en": "Competency Dashboard",
+        "en": "Competency dashboard",
         "es": "Panel de competencias",
         "fr": "Tableau de bord des compétences",
         "km": "ផ្ទាំងគ្រប់គ្រងជំនាញ",
@@ -2265,7 +2340,16 @@ export default {
         "th": "ไปยังกิจกรรมที่ได้รับมอบหมาย"
     },
     "selected-competencies": {
+        "de": "Ausgewählte Kompetenzen",
         "en": "Selected Competencies",
+        "es": "Competencias seleccionadas",
+        "fr": "Compétences sélectionnées",
+        "km": "ជំនាញដែលបានជ្រើសរើស",
+        "lv": "Atlasītās kompetences",
+        "nl": "Geselecteerde competenties",
+        "pl": "Wybrane kompetencje",
+        "pt": "Competências selecionadas",
+        "sk": "Vybrané kompetencie",
         "th": "สมรรถนะที่เลือก"
     },
     "select-your-trainer": {
@@ -2322,7 +2406,7 @@ export default {
     },
     "no-results-found-for-your-filter": {
         "de": "Für Ihren Filter wurden keine Ergebnisse gefunden.",
-        "en": "No results found for your filter.",
+        "en": "No results found for this filter.",
         "es": "No se encontraron resultados para su filtro.",
         "fr": "Aucun résultat trouvé pour votre filtre.",
         "km": "មិនមានលទ្ធផលសម្រាប់តម្រងរបស់អ្នក។",
@@ -2425,7 +2509,16 @@ export default {
         "th": "เพิ่มบทเรียนด้วยไอดีหรือ URL"
     },
     "mark-this-content-as-a-favorite-for-quick-access": {
+        "de": "Markieren Sie diesen Inhalt als Favorit für schnellen Zugriff",
         "en": "Mark this content as a favorite for quick access",
+        "es": "Marca este contenido como favorito para acceder rápidamente",
+        "fr": "Marquez ce contenu comme favori pour un accès rapide",
+        "km": "សម្គាល់មាតិកានេះជាសំណព្វសម្រាប់ការចូលប្រើរហ័ស",
+        "lv": "Atzīmējiet šo saturu kā izlasi ātrai piekļuvei",
+        "nl": "Markeer deze inhoud als favoriet voor snelle toegang",
+        "pl": "Oznacz tę treść jako ulubioną, aby uzyskać szybki dostęp",
+        "pt": "Marque este conteúdo como favorito para acesso rápido",
+        "sk": "Označte tento obsah ako obľúbený pre rýchly prístup",
         "th": "เพิ่มเนื้อหานี้ไปยังรายการโปรดเพื่อการเข้าถึงอย่างรวดเร็ว"
     },
     "steps-to-reproduce": {
@@ -2624,7 +2717,16 @@ export default {
         "th": "ขอบคุณ! ข้อเสนอแนะของคุณถูกส่งแล้ว ทีมงานของเราจะตรวจสอบและติดต่อกลับหากจำเป็น"
     },
     "loading-tags": {
+        "de": "Schlagworte werden geladen",
         "en": "Loading Tags",
+        "es": "Cargando etiquetas",
+        "fr": "Chargement des étiquettes",
+        "km": "កំពុងផ្ទុកស្លាក",
+        "lv": "Notiek tagu ielāde",
+        "nl": "Labels laden",
+        "pl": "Ładowanie tagów",
+        "pt": "Carregando etiquetas",
+        "sk": "Načítavajú sa tagy",
         "th": "กำลังโหลดแท็ก"
     },
     "you-have-requested-the-role-of": {
@@ -2667,7 +2769,16 @@ export default {
         "th": "รายชื่อนักเรียน"
     },
     "unable-to-load-tags": {
+        "de": "Schlagworte können nicht geladen werden",
         "en": "Unable to Load Tags",
+        "es": "No se pueden cargar las etiquetas",
+        "fr": "Impossible de charger les étiquettes",
+        "km": "មិនអាចផ្ទុកស្លាកបានទេ",
+        "lv": "Nevar ielādēt tagus",
+        "nl": "Kan labels niet laden",
+        "pl": "Nie można załadować tagów",
+        "pt": "Não foi possível carregar as etiquetas",
+        "sk": "Nie je možné načítať tagy",
         "th": "ไม่สามารถโหลดแท็กที่พร้อมใช้งานได้"
     },
     "bug-description": {
@@ -2697,12 +2808,21 @@ export default {
         "th": "ท่านแน่ใจหรือไม่?"
     },
     "assign-relevant-competencies-to-make-this-conten": {
+        "de": "Weisen Sie relevante Kompetenzen zu, um diesen Inhalt auffindbar zu machen",
         "en": "Assign Relevant Competencies to Make this Content Discoverable",
+        "es": "Asigna competencias relevantes para que este contenido sea localizable",
+        "fr": "Attribuez des compétences pertinentes pour rendre ce contenu découvrable",
+        "km": "ចាត់តាំងជំនាញពាក់ព័ន្ធ ដើម្បីធ្វើឱ្យមាតិកានេះអាចស្វែងរកបាន",
+        "lv": "Piešķiriet atbilstošās kompetences, lai šis saturs būtu atrodams",
+        "nl": "Wijs relevante competenties toe om deze inhoud vindbaar te maken",
+        "pl": "Przypisz odpowiednie kompetencje, aby ta treść była łatwa do znalezienia",
+        "pt": "Atribua competências relevantes para tornar este conteúdo localizável",
+        "sk": "Priraďte relevantné kompetencie, aby bol tento obsah vyhľadateľný",
         "th": "กำหนดสมรรถนะที่เกี่ยวข้องเพื่อให้ค้นพบเนื้อหานี้ได้"
     },
     "student-info": {
         "de": "Schülerinnen-/Schülerinfo",
-        "en": "Student Info",
+        "en": "Student info",
         "es": "Información del estudiante",
         "fr": "Informations sur l’élève",
         "km": "ព័ត៌មានសិស្ស",
@@ -3494,7 +3614,16 @@ export default {
         "th": "งานวิจัย"
     },
     "saving-changes": {
+        "de": "Änderungen werden gespeichert",
         "en": "Saving Changes",
+        "es": "Guardando cambios",
+        "fr": "Enregistrement des modifications",
+        "km": "កំពុងរក្សាទុកការផ្លាស់ប្ដូរ",
+        "lv": "Notiek izmaiņu saglabāšana",
+        "nl": "Wijzigingen opslaan",
+        "pl": "Zapisywanie zmian",
+        "pt": "Salvando alterações",
+        "sk": "Ukladajú sa zmeny",
         "th": "กำลังบันทึกการเปลี่ยนแปลง..."
     },
     "import-content": {
@@ -3525,7 +3654,7 @@ export default {
     },
     "enter-an-encryption-key-word-you-will-remember-t": {
         "de": "Geben Sie ein Verschlüsselungsschlüsselwort ein, das Sie sich merken können. Dieses Schlüsselwort wird verwendet, damit Sie die Namen Ihrer Schülerinnen und Schüler sehen können und gleichzeitig die Anonymität ihrer Daten für alle anderen Benutzerinnen und Benutzer gewahrt bleibt.",
-        "en": "Enter an encryption key-word you will remember. This key-word will be used to allow you to see your students' names while preserving the anonymity of their data for all other users.",
+        "en": "Enter an encryption key-word to memorise. This key-word will be used to allow you to see your students' names while preserving the anonymity of their data for all other users.",
         "es": "Ingrese una palabra clave de cifrado que recordará. Esta palabra clave se utilizará para permitirle ver los nombres de sus estudiantes preservando al mismo tiempo el anonimato de sus datos para todos los demás usuarios.",
         "fr": "Entrez un mot de passe dont vous vous souviendrez. Ce mot de passe sera utilisé pour vous permettre de voir les noms de vos élèves tout en préservant l’anonymat de leurs données pour tous les autres utilisateurs.",
         "km": "បញ្ចូលពាក្យសម្ងាត់ដែលអ្នកនឹងចាំ។ ពាក្យនេះនឹងត្រូវប្រើសម្រាប់ឲ្យអ្នកមើលឈ្មោះសិស្សរបស់អ្នក ខណៈដែលរក្សាអនាមិកភាពទិន្នន័យសម្រាប់អ្នកប្រើផ្សេងទៀត។",
@@ -3603,7 +3732,7 @@ export default {
     },
     "enter-encryption-key-word": {
         "de": "Verschlüsselungsschlüsselwort eingeben",
-        "en": "Enter Encryption Key-Word",
+        "en": "Enter encryption key-word",
         "es": "Introduzca la palabra clave de cifrado",
         "fr": "Saisir le mot de passe",
         "km": "បញ្ចូលពាក្យសម្ងាត់",
@@ -3797,7 +3926,16 @@ export default {
         "th": "ได้ยกเลิกแล้ว"
     },
     "unable-to-update-tag": {
+        "de": "Schlagwort kann nicht aktualisiert werden",
         "en": "Unable to Update Tag",
+        "es": "No se puede actualizar la etiqueta",
+        "fr": "Impossible de mettre à jour l'étiquette",
+        "km": "មិនអាចធ្វើបច្ចុប្បន្នភាពស្លាកបានទេ",
+        "lv": "Nevar atjaunināt tagu",
+        "nl": "Kan label niet bijwerken",
+        "pl": "Nie można zaktualizować tagu",
+        "pt": "Não foi possível atualizar a etiqueta",
+        "sk": "Nie je možné aktualizovať tag",
         "th": "ไม่สามารถอัปเดตแท็กนี้ได้ โปรดลองอีกครั้ง"
     },
     "total": {
@@ -3815,7 +3953,7 @@ export default {
     },
     "created-by": {
         "de": "Erstellt von",
-        "en": "Created By",
+        "en": "Created by",
         "es": "Creado por",
         "fr": "Créé par",
         "km": "បង្កើតដោយ",
@@ -3854,7 +3992,7 @@ export default {
     },
     "account-activity": {
         "de": "Kontoaktivität",
-        "en": "Account Activity",
+        "en": "Account activity",
         "es": "Actividad de la cuenta",
         "fr": "Activité du compte",
         "km": "សកម្មភាពគណនី",
@@ -3867,7 +4005,7 @@ export default {
     },
     "account-created": {
         "de": "Konto erstellt",
-        "en": "Account Created",
+        "en": "Account created",
         "es": "Cuenta creada",
         "fr": "Compte créé",
         "km": "បានបង្កើតគណនី",
@@ -3945,7 +4083,7 @@ export default {
     },
     "add-to-assignment-choice-subtitle": {
         "de": "Wählen Sie aus, wie Sie {name} zu einer Aufgabe hinzufügen möchten.",
-        "en": "Choose how you want to add {name} to an assignment.",
+        "en": "Choose how to add {name} to an assignment.",
         "es": "Elija cómo desea agregar {name} a una tarea.",
         "fr": "Choisissez comment ajouter {name} à un devoir.",
         "km": "ជ្រើសរើសរបៀបបន្ថែម {name} ទៅកិច្ចការ។",
@@ -3958,7 +4096,7 @@ export default {
     },
     "add-to-existing-assignment": {
         "de": "Zu einer vorhandenen Aufgabe hinzufügen",
-        "en": "Add to an existing assignment",
+        "en": "Add to existing assignment",
         "es": "Agregar a una tarea existente",
         "fr": "Ajouter à un devoir existant",
         "km": "បន្ថែមទៅកិច្ចការដែលមានស្រាប់",
@@ -3971,7 +4109,7 @@ export default {
     },
     "add-to-existing-assignment-subtitle": {
         "de": "Wählen Sie eine Aufgabe aus, zu der Sie {name} hinzufügen möchten.",
-        "en": "Choose an assignment you want to add {name} to.",
+        "en": "Add {name} to a one of the assignments listed below.",
         "es": "Elija una tarea a la que desee agregar {name}.",
         "fr": "Choisissez un devoir auquel ajouter {name}.",
         "km": "ជ្រើសរើសកិច្ចការដែលអ្នកចង់បន្ថែម {name}។",
@@ -4010,7 +4148,7 @@ export default {
     },
     "add-to-selected-assignment": {
         "de": "Zur ausgewählten Aufgabe hinzufügen",
-        "en": "Add to the selected assignment",
+        "en": "Add to selection",
         "es": "Agregar a la tarea seleccionada",
         "fr": "Ajouter au devoir sélectionné",
         "km": "បន្ថែមទៅកិច្ចការដែលបានជ្រើស",
@@ -4101,7 +4239,7 @@ export default {
     },
     "app-specific-dashboard": {
         "de": "App-spezifisches Dashboard",
-        "en": "App Specific Dashboard",
+        "en": "App-specific dashboard",
         "es": "Panel de control específico de la aplicación",
         "fr": "Tableau de bord spécifique à l’application",
         "km": "ផ្ទាំងគ្រប់គ្រងជាក់លាក់តាមកម្មវិធី",
@@ -4114,7 +4252,7 @@ export default {
     },
     "applying-key": {
         "de": "Anwenden des Schlüssels",
-        "en": "Applying Key",
+        "en": "Applying key",
         "es": "Aplicar clave",
         "fr": "Application de la clé…",
         "km": "កំពុងអនុវត្តសោ…",
@@ -4127,7 +4265,7 @@ export default {
     },
     "archive-assignment-confirm-intro": {
         "de": "Wählen Sie aus, wie „{name}“ archiviert werden soll. Nichts wird dauerhaft gelöscht – Sie können es später aus archivierten Aufgaben wiederherstellen.",
-        "en": "Choose how to archive \"{name}\". Nothing is permanently deleted — you can restore it later from archived assignments.",
+        "en": "Choose how to archive \"{name}\". Nothing is permanently deleted — it can be restored later by clicking ‘Show archived’ and reselecting the assignment.",
         "es": "Elija cómo archivar \"{name}\". Nada se elimina permanentemente; puedes restaurarlo más tarde desde las tareas archivadas.",
         "fr": "Choisissez comment archiver « {name} ». Rien n’est supprimé définitivement — vous pourrez le restaurer plus tard depuis les devoirs archivés.",
         "km": "ជ្រើសរើសរបៀបទុកជាឯកសារ \"{name}\"។ គ្មានអ្វីត្រូវបានលុបជាអចិន្ត្រៃយ៍ទេ — អ្នកអាចស្តារឡើងវិញពីកិច្ចការដែលបានទុកជាឯកសារនៅពេលក្រោយ។",
@@ -4153,7 +4291,7 @@ export default {
     },
     "archive-assignment-for-all-description": {
         "de": "Blendet diese Aufgabe aus Ihrer Liste aus und entfernt sie aus allen zugewiesenen Gruppen ({groups}). Die Schüler sehen diese Aufgabe nicht mehr.",
-        "en": "Hides this assignment from your list and removes it from all assigned groups ({groups}). Students will no longer see this assignment.",
+        "en": "Removes this assignment from 'My Assignments' and from all assigned groups ({groups}). Students will no longer see it in their accounts.",
         "es": "Oculta esta tarea de tu lista y la elimina de todos los grupos asignados ({groups}). Los estudiantes ya no verán esta tarea.",
         "fr": "Masque ce devoir de votre liste et le retire de tous les groupes assignés ({groups}). Les élèves ne le verront plus.",
         "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នក និងដកចេញពីក្រុមដែលបានកំណត់ទាំងអស់ ({groups})។ សិស្សនឹងមិនឃើញវាទៀតទេ។",
@@ -4166,7 +4304,7 @@ export default {
     },
     "archive-assignment-for-all-description-draft": {
         "de": "Blendet diese Aufgabe aus Ihrer Liste aus. Es sind keine Gruppen zugewiesen, daher hat dies denselben Effekt wie „Für mich archivieren“.",
-        "en": "Hides this assignment from your list. No groups are assigned, so this has the same effect as archiving for me.",
+        "en": "Removes this assignment from 'My Assignments' for this teacher account. No groups are assigned, so this has the same effect as selecting 'Archive for me'.",
         "es": "Oculta esta tarea de tu lista. No hay grupos asignados, por lo que tiene el mismo efecto que «Archivar para mí».",
         "fr": "Masque ce devoir de votre liste. Aucun groupe n’est assigné, donc l’effet est le même que « archiver pour moi ».",
         "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នក។ មិនមានក្រុមណាត្រូវបានកំណត់ទេ ដូច្នេះមានប្រសិទ្ធភាពដូចការទុកជាឯកសារសម្រាប់ខ្ញុំ។",
@@ -4192,7 +4330,7 @@ export default {
     },
     "archive-assignment-for-me-description": {
         "de": "Blendet diese Aufgabe nur aus Ihrer Liste aus. Schüler in den zugewiesenen Gruppen ({groups}) können sie weiterhin sehen und bearbeiten, bis Sie diese Gruppen aus der Aufgabe entfernen.",
-        "en": "Hides this assignment from your list only. Students in assigned groups ({groups}) will still see and can work on it until you remove those groups from the assignment.",
+        "en": "This assignment will be removed from 'My Assignments' for this teacher account only. Students in assigned groups ({groups}) can still see and work on it until you remove those groups from the assignment.",
         "es": "Oculta esta tarea solo de tu lista. Los estudiantes de los grupos asignados ({groups}) podrán seguir viéndola y trabajando en ella hasta que elimines esos grupos de la tarea.",
         "fr": "Masque ce devoir de votre liste uniquement. Les élèves des groupes assignés ({groups}) pourront encore le voir et y travailler jusqu’à ce que vous retiriez ces groupes du devoir.",
         "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នកតែប៉ុណ្ណោះ។ សិស្សក្នុងក្រុមដែលបានកំណត់ ({groups}) នៅតែអាចមើល និងធ្វើការលើវា រហូតដល់អ្នកដកក្រុមទាំងនោះចេញពីកិច្ចការ។",
@@ -4205,7 +4343,7 @@ export default {
     },
     "archive-assignment-for-me-description-draft": {
         "de": "Blendet diese Aufgabe aus Ihrer aktiven Liste aus. Sie ist für keine Gruppe veröffentlicht, daher sind Schüler nicht betroffen.",
-        "en": "Hides this assignment from your active list. It is not published to any groups, so students are not affected.",
+        "en": "Removes this assignment from 'My Assignments' for this teacher account. It is not yet published to any groups, so students cannot view it.",
         "es": "Oculta esta tarea de tu lista activa. No se publica en ningún grupo, por lo que los estudiantes no se ven afectados.",
         "fr": "Masque ce devoir de votre liste active. Il n’est publié pour aucun groupe, donc les élèves ne sont pas concernés.",
         "km": "លាក់កិច្ចការនេះពីបញ្ជីសកម្ម។ វាមិនត្រូវបានផ្សព្វផ្សាយទៅក្រុមណាទេ ដូច្នេះសិស្សមិនរងផលប៉ះពាល់។",
@@ -4257,7 +4395,7 @@ export default {
     },
     "archive-group-confirm-description": {
         "de": "Diese Gruppe hat {count} Schüler. Durch die Archivierung wird die Gruppe aus Ihrer aktiven Liste ausgeblendet. Die Schüler bleiben in der Gruppe und können die dort veröffentlichten Aufgaben weiterhin sehen, bis Sie die Zuweisung zur Gruppe aufheben. Sie können die Gruppe später aus archivierten Gruppen wiederherstellen.",
-        "en": "This group has {count} student(s). Archiving hides the group from your active list. Students remain in the group and can still see assignments published to it until you unassign the group. You can restore the group later from archived groups.",
+        "en": "Archiving this group will remove it from the 'Active' groups list. It can be restored by clicking ‘Show archived’ and reselecting the group.",
         "es": "Este grupo tiene {count} estudiantes. Archivar oculta el grupo de su lista activa. Los estudiantes permanecen en el grupo y aún pueden ver las tareas publicadas en él hasta que cancele la asignación del grupo. Puede restaurar el grupo más tarde desde grupos archivados.",
         "fr": "Ce groupe compte {count} élève(s). L’archivage le masque de votre liste active. Les élèves restent dans le groupe et peuvent encore voir les devoirs publiés pour ce groupe jusqu’à ce que vous le retiriez. Vous pourrez restaurer le groupe plus tard depuis les groupes archivés.",
         "km": "ក្រុមនេះមានសិស្ស {count} នាក់។ ការទុកជាឯកសារលាក់វាពីបញ្ជីសកម្ម។ សិស្សនៅតែស្ថិតក្នុងក្រុម និងអាចមើលកិច្ចការដែលបានផ្សព្វផ្សាយទៅវា រហូតដល់អ្នកដកក្រុម។ អ្នកអាចស្តារក្រុមពីក្រុមដែលបានទុកជាឯកសារនៅពេលក្រោយ។",
@@ -4283,7 +4421,7 @@ export default {
     },
     "archive-sequence": {
         "de": "Sequenz archivieren",
-        "en": "Archive Sequence",
+        "en": "Archive this sequence?",
         "es": "Archivar secuencia",
         "fr": "Archiver la séquence",
         "km": "ទុកលំដាប់ជាឯកសារ",
@@ -4296,7 +4434,7 @@ export default {
     },
     "archive-sequence-confirm": {
         "de": "Diese Sequenz archivieren? Sie wird aus Ihren aktiven Sequenzen entfernt. Sie können sie später wiederherstellen.",
-        "en": "Archive this sequence? It will be removed from your active sequences. You can restore it later.",
+        "en": "Archive this sequence? It will be removed from 'My Sequences' and can be restored later.",
         "es": "¿Archivar esta secuencia? Se eliminará de tus secuencias activas. Puedes restaurarla más tarde.",
         "fr": "Archiver cette séquence ? Elle sera retirée de vos séquences actives. Vous pourrez la restaurer plus tard.",
         "km": "ទុកលំដាប់នេះជាឯកសារ? វានឹងត្រូវបានដកចេញពីលំដាប់សកម្ម។ អ្នកអាចស្តារវានៅពេលក្រោយ។",
@@ -4322,7 +4460,7 @@ export default {
     },
     "assign-to-groups-optional-hint": {
         "de": "Sie können Kurse jetzt zuweisen oder sie später über die Aufgabenseite hinzufügen.",
-        "en": "You can assign classes now or add them later from the assignments page.",
+        "en": "Assign classes now or add them later from the assignments page.",
         "es": "Puede asignar clases ahora o agregarlas más tarde desde la página de tareas.",
         "fr": "Vous pouvez assigner des classes maintenant ou les ajouter plus tard depuis la page des devoirs.",
         "km": "អ្នកអាចកំណត់ថ្នាក់ឥឡូវនេះ ឬបន្ថែមពួកវាពីទំព័រកិច្ចការនៅពេលក្រោយ។",
@@ -4374,7 +4512,7 @@ export default {
     },
     "basic-information": {
         "de": "Grundlegende Informationen",
-        "en": "Basic Information",
+        "en": "Basic information",
         "es": "Información básica",
         "fr": "Informations de base",
         "km": "ព័ត៌មានមូលដ្ឋាន",
@@ -4400,7 +4538,7 @@ export default {
     },
     "bulk-archive-students-confirm-description": {
         "de": "Archivierte Schüler werden aus Ihrer aktiven Liste ausgeblendet. Sie werden nicht gelöscht und verbleiben in ihren Gruppen. Schüler können weiterhin Aufgaben sehen, die für diese Gruppen veröffentlicht wurden. Sie können sie jederzeit über den Bereich „Archivierte Schüler“ wiederherstellen.",
-        "en": "Archived students are hidden from your active list. They are not deleted and remain in their groups. Students may still see assignments published to those groups. Restore them anytime from the archived students section.",
+        "en": "Archived students will be removed from the 'Active' student list. They will still see their assignments unless they are removed from relevant groups. Student accounts may be restored by clicking 'Show archived' and reselecting their profiles.",
         "es": "Los estudiantes archivados están ocultos de su lista activa. No se eliminan y permanecen en sus grupos. Es posible que los estudiantes aún vean las tareas publicadas en esos grupos. Restáurelos en cualquier momento desde la sección de estudiantes archivados.",
         "fr": "Les élèves archivés sont masqués de votre liste active. Ils ne sont pas supprimés et restent dans leurs groupes. Ils peuvent encore voir les devoirs publiés pour ces groupes. Restaurez-les à tout moment depuis la section des élèves archivés.",
         "km": "សិស្សដែលបានទុកជាឯកសារត្រូវបានលាក់ពីបញ្ជីសកម្ម។ ពួកគេមិនត្រូវបានលុប និងនៅតែស្ថិតក្នុងក្រុម។ ពួកគេអាចនៅតែមើលកិច្ចការដែលបានផ្សព្វផ្សាយទៅក្រុមទាំងនោះ។ ស្តារពួកគេពីផ្នែកសិស្សដែលបានទុកជាឯកសារនៅពេលណាក៏បាន។",
@@ -4608,7 +4746,7 @@ export default {
     },
     "create-a-copy-of": {
         "de": "Erstellen Sie eine Kopie von",
-        "en": "Create A Copy Of",
+        "en": "Create a copy of",
         "es": "Crear una copia de",
         "fr": "Créer une copie de",
         "km": "បង្កើតច្បាប់ចម្លងនៃ",
@@ -4621,7 +4759,7 @@ export default {
     },
     "create-all-accounts": {
         "de": "Alle Konten erstellen",
-        "en": "Create All Accounts",
+        "en": "Create accounts",
         "es": "Crear todas las cuentas",
         "fr": "Créer tous les comptes",
         "km": "បង្កើតគណនីទាំងអស់",
@@ -4712,7 +4850,7 @@ export default {
     },
     "discover-customise-and-add-content-to-your-assignments": {
         "de": "Inhalte für Ihre Aufgaben entdecken, anpassen und hinzufügen",
-        "en": "Discover Customise And Add Content To Your Assignments",
+        "en": "Customise and add content to assignments",
         "es": "Descubre, personaliza y añade contenido a tus tareas",
         "fr": "Découvrez, personnalisez et ajoutez du contenu à vos devoirs",
         "km": "ស្វែងរក ប្ដូរតាមបំណង និងបន្ថែមមាតិកាទៅកិច្ចការរបស់អ្នក",
@@ -4751,7 +4889,7 @@ export default {
     },
     "download-template": {
         "de": "Vorlage herunterladen",
-        "en": "Download Template",
+        "en": "Download template",
         "es": "Descargar plantilla",
         "fr": "Télécharger le modèle",
         "km": "ទាញយកគំរូ",
@@ -4790,7 +4928,7 @@ export default {
     },
     "drop-csv-file-here": {
         "de": "Legen Sie die CSV-Datei hier ab",
-        "en": "Drop Csv File Here",
+        "en": "Drop CSV file here",
         "es": "Suelte el archivo CSV aquí",
         "fr": "Déposez le fichier CSV ici",
         "km": "ទម្លាក់ឯកសារ CSV នៅទីនេះ",
@@ -4868,7 +5006,7 @@ export default {
     },
     "edit-students-details": {
         "de": "Schülerdetails bearbeiten",
-        "en": "Edit Students Details",
+        "en": "Edit students details",
         "es": "Editar detalles de estudiantes",
         "fr": "Modifier les détails de l’élève",
         "km": "កែព័ត៌មានលម្អិតសិស្ស",
@@ -4894,7 +5032,7 @@ export default {
     },
     "encryption-key-invalid-banner": {
         "de": "Schülerinformationen konnten nicht entschlüsselt werden. Überprüfen Sie, ob Ihr Verschlüsselungsschlüsselwort korrekt ist.",
-        "en": "Student information could not be decrypted. Check that your encryption key-word is correct.",
+        "en": "Student information could not be decrypted. Check that the encryption key-word is correct.",
         "es": "La información del estudiante no se pudo descifrar. Compruebe que su palabra clave de cifrado sea correcta.",
         "fr": "Les informations des élèves n’ont pas pu être déchiffrées. Vérifiez que votre mot-clé de chiffrement est correct.",
         "km": "មិនអាចឌិគ្រីបព័ត៌មានសិស្សបានទេ។ ពិនិត្យថាពាក្យគន្លឹះអ៊ីនគ្រីបរបស់អ្នកត្រឹមត្រូវ។",
@@ -4907,7 +5045,7 @@ export default {
     },
     "encryption-key-invalid-hint": {
         "de": "Dieses Schlüsselwort konnte die Schülerinformationen nicht entschlüsseln. Probieren Sie das Schlüsselwort aus, das Sie beim Erstellen oder Verknüpfen von Schülern verwendet haben.",
-        "en": "This key-word could not decrypt student information. Try the key-word you used when creating or linking students.",
+        "en": "This key-word could not decrypt student information. Use the same key-word from when student accounts were created.",
         "es": "Esta palabra clave no pudo descifrar la información del estudiante. Pruebe la palabra clave que utilizó al crear o vincular estudiantes.",
         "fr": "Ce mot-clé n’a pas pu déchiffrer les informations des élèves. Essayez le mot-clé utilisé lors de la création ou de la liaison des élèves.",
         "km": "ពាក្យគន្លឹះនេះមិនអាចឌិគ្រីបព័ត៌មានសិស្សបានទេ។ សាកល្បងពាក្យដែលអ្នកបានប្រើពេលបង្កើត ឬភ្ជាប់សិស្ស។",
@@ -4959,7 +5097,7 @@ export default {
     },
     "enter-sequence-title": {
         "de": "Geben Sie den Titel der Sequenz ein",
-        "en": "Enter Sequence Title",
+        "en": "Enter sequence title",
         "es": "Ingrese el título de la secuencia",
         "fr": "Saisir le titre de la séquence",
         "km": "បញ្ចូលចំណងជើងលំដាប់",
@@ -4998,7 +5136,7 @@ export default {
     },
     "favorites-only": {
         "de": "Nur Favoriten",
-        "en": "Favorites only",
+        "en": "Favourites only",
         "es": "Sólo favoritos",
         "fr": "Favoris uniquement",
         "km": "សំណព្វតែប៉ុណ្ណោះ",
@@ -5063,7 +5201,7 @@ export default {
     },
     "group-created-successfully": {
         "de": "Gruppe erfolgreich erstellt",
-        "en": "Group created successfully",
+        "en": "Group successfully created",
         "es": "Grupo creado exitosamente",
         "fr": "Groupe créé avec succès",
         "km": "បានបង្កើតក្រុមដោយជោគជ័យ",
@@ -5102,7 +5240,7 @@ export default {
     },
     "i-confirm-consent-collected": {
         "de": "Ich bestätige die eingeholte Einwilligung",
-        "en": "I Confirm Consent Collected",
+        "en": "I confirm consent collected",
         "es": "Confirmo el consentimiento obtenido",
         "fr": "Je confirme que le consentement a été recueilli",
         "km": "ខ្ញុំបញ្ជាក់ថាបានប្រមូលការយល់ព្រម",
@@ -5180,7 +5318,7 @@ export default {
     },
     "login-code": {
         "de": "Login-Code",
-        "en": "Login Code",
+        "en": "Login code",
         "es": "Código de inicio de sesión",
         "fr": "Code de connexion",
         "km": "លេខកូដចូល",
@@ -5193,7 +5331,7 @@ export default {
     },
     "manual-entry": {
         "de": "Manuelle Eingabe",
-        "en": "Manual Entry",
+        "en": "Manual entry",
         "es": "Entrada manual",
         "fr": "Saisie manuelle",
         "km": "បញ្ចូលដោយដៃ",
@@ -5206,7 +5344,7 @@ export default {
     },
     "modify-the-group-details": {
         "de": "Ändern Sie die Gruppendetails",
-        "en": "Modify the group details",
+        "en": "Modify group details",
         "es": "Modificar los detalles del grupo",
         "fr": "Modifier les détails du groupe",
         "km": "កែព័ត៌មានលម្អិតក្រុម",
@@ -5245,7 +5383,7 @@ export default {
     },
     "new-assignment-title": {
         "de": "Neuer Aufgabentitel",
-        "en": "New Assignment Title",
+        "en": "New assignment title",
         "es": "Nuevo título de tarea",
         "fr": "Titre du nouveau devoir",
         "km": "ចំណងជើងកិច្ចការថ្មី",
@@ -5297,7 +5435,7 @@ export default {
     },
     "no-favorites-match-search": {
         "de": "Keine Favoriten entsprechen Ihrer Suche",
-        "en": "No favorites match your search",
+        "en": "No favourites match this search",
         "es": "Ningún favorito coincide con tu búsqueda",
         "fr": "Aucun favori ne correspond à votre recherche",
         "km": "គ្មានសំណព្វត្រូវនឹងការស្វែងរក",
@@ -5310,7 +5448,7 @@ export default {
     },
     "no-favorites-yet": {
         "de": "Noch keine Favoriten",
-        "en": "No favorites yet",
+        "en": "No favourites yet",
         "es": "Aún no hay favoritos",
         "fr": "Pas encore de favoris",
         "km": "មិនទាន់មានសំណព្វ",
@@ -5505,7 +5643,7 @@ export default {
     },
     "reporting-dashboard": {
         "de": "Berichts-Dashboard",
-        "en": "Reporting Dashboard",
+        "en": "Reporting dashboard",
         "es": "Panel de informes",
         "fr": "Tableau de bord des rapports",
         "km": "ផ្ទាំងគ្រប់គ្រងរបាយការណ៍",
@@ -5518,7 +5656,7 @@ export default {
     },
     "reset-password": {
         "de": "Passwort zurücksetzen",
-        "en": "Reset Password",
+        "en": "Reset password",
         "es": "Restablecer contraseña",
         "fr": "Réinitialiser le mot de passe",
         "km": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
@@ -5544,7 +5682,7 @@ export default {
     },
     "reset-password-confirm-title": {
         "de": "Passwort zurücksetzen?",
-        "en": "Reset Password Confirm Title",
+        "en": "Reset password",
         "es": "¿Restablecer la contraseña?",
         "fr": "Réinitialiser le mot de passe ?",
         "km": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ?",
@@ -5661,7 +5799,7 @@ export default {
     },
     "search-group": {
         "de": "Gruppe suchen",
-        "en": "Search Group",
+        "en": "Search group",
         "es": "Buscar grupo",
         "fr": "Rechercher un groupe",
         "km": "ស្វែងរកក្រុម",
@@ -5908,7 +6046,7 @@ export default {
     },
     "students-archived-successfully": {
         "de": "Schüler erfolgreich archiviert",
-        "en": "Students Archived Successfully",
+        "en": "Students successfully archived",
         "es": "Estudiantes archivados exitosamente",
         "fr": "Élèves archivés avec succès",
         "km": "បានទុកសិស្សជាឯកសារដោយជោគជ័យ",
@@ -5921,7 +6059,7 @@ export default {
     },
     "students-profile": {
         "de": "Schülerprofil",
-        "en": "Students Profile",
+        "en": "Student profile",
         "es": "Perfil de los estudiantes",
         "fr": "Profil de l’élève",
         "km": "ប្រវត្តិរូបសិស្ស",
@@ -6103,7 +6241,7 @@ export default {
     },
     "view-dashboard": {
         "de": "Dashboard anzeigen",
-        "en": "View Dashboard",
+        "en": "View dashboard",
         "es": "Ver panel",
         "fr": "Voir le tableau de bord",
         "km": "មើលផ្ទាំងគ្រប់គ្រង",
@@ -6116,7 +6254,7 @@ export default {
     },
     "view-dashboards": {
         "de": "Dashboards anzeigen",
-        "en": "View Dashboards",
+        "en": "View dashboards",
         "es": "Ver paneles",
         "fr": "Voir les tableaux de bord",
         "km": "មើលផ្ទាំងគ្រប់គ្រង",
@@ -6142,7 +6280,7 @@ export default {
     },
     "where-add-content": {
         "de": "Wo möchten Sie diesen Inhalt hinzufügen?",
-        "en": "Where would you like to add this content?",
+        "en": "Select one of two options below:",
         "es": "¿Dónde te gustaría agregar este contenido?",
         "fr": "Où souhaitez-vous ajouter ce contenu ?",
         "km": "តើអ្នកចង់បន្ថែមមាតិកានេះនៅឯណា?",
@@ -6181,7 +6319,7 @@ export default {
     },
     "assignment-successfully-created": {
         "de": "Aufgabe erfolgreich erstellt",
-        "en": "Assignment Successfully Created",
+        "en": "Assignment successfully created",
         "es": "Tarea creada exitosamente",
         "fr": "Devoir créé avec succès",
         "km": "បានបង្កើតកិច្ចការដោយជោគជ័យ",
