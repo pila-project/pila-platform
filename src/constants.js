@@ -111,10 +111,18 @@ export const DOMAIN_CODE_LISTS = {
   'slovensko-rct-2026.pilaproject.org': ['26-PILA-RCT']
 }
 
+
 export const DOMAIN_DATA_PROTECTION_LINKS = {
-  'thailand.pilaproject.org': 'https://pilaproject.org/about-pila/thailand-data-protection-notice-for-teachers',
-  'france-rct-2025.pilaproject.org': '/fr-teacher-data-protection-2025.pdf',
-  default: 'https://pilaproject.org/about-pila/data-protection-notice-for-teachers'
+  'deutschland-rct-2026.pilaproject.org': '/data-protection-notice-de-2026.pdf',
+  'france-rct-2025.pilaproject.org': '/data-protection-notice-fr-2026.pdf',
+  'latvija-rct-2026.pilaproject.org': '/data-protection-notice-lv-2026.pdf',
+  'slovensko-rct-2026.pilaproject.org': '/data-protection-notice-sk-2026.pdf',
+
+  'thailand.pilaproject.org':
+    'https://pilaproject.org/about-pila/thailand-data-protection-notice-for-teachers',
+
+  default:
+    'https://pilaproject.org/about-pila/data-protection-notice-for-teachers'
 }
 
 export const HOST_TO_TITLE = {
@@ -135,7 +143,6 @@ export const HOST_TO_PARTITION = {
   'polska-rct-2025.pilaproject.org': 'PILA Poland RCT 2025',
   'france-rct-2025.pilaproject.org': 'PILA France RCT 2025',
   'testing.pilaproject.org': 'PILA Testing',
-  'ui-dev.pilaproject.org': 'PILA UI Development',
   'ui-dev.pilaproject.org': 'PILA UI Development',
   'deutschland-rct-2026.pilaproject.org': 'PILA Germany RCT 2026',
   'nederland-rct-2026.pilaproject.org': 'PILA Netherlands RCT 2026',
