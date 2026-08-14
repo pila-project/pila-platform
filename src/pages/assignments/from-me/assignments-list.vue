@@ -279,6 +279,7 @@
   <PModal
     v-if="showResultsModal"
     layer="preview"
+    no-pad-body
     @close="closeDashboard(resultsDashboardType)"
     :closeButtonText="t('close')"
     showCloseButton
@@ -292,14 +293,17 @@
       </span>
     </template>
     <template v-slot:body>
-      <suspense>
-        <Dashboard :assignment="current" :url="dashboardUrl" />
-      </suspense>
+      <div class="assign-dashboard-fill">
+        <suspense>
+          <Dashboard :assignment="current" :url="dashboardUrl" />
+        </suspense>
+      </div>
     </template>
   </PModal>
   <PModal
     v-if="showCandliResultsModal"
     layer="preview"
+    no-pad-body
     @close="closeDashboard('competency')"
     showCloseButton
     :closeButtonText="t('close')"
@@ -313,7 +317,7 @@
       </span>
     </template>
     <template v-slot:body>
-      <div style="position: absolute; width: 100%; height: 100%;">
+      <div class="assign-dashboard-fill">
         <CandliDashboard :assignment="current" :games="candliGames" />
       </div>
     </template>
@@ -321,6 +325,7 @@
   <PModal
     v-if="showGenAIDashboardModal"
     layer="preview"
+    no-pad-body
     @close="closeDashboard('generative-ai-module')"
     showCloseButton
     :closeButtonText="t('close')"
@@ -331,7 +336,7 @@
       <span>{{ t('generative-ai-module-dashboard') }}</span>
     </template>
     <template v-slot:body>
-      <div style="position: absolute; width: 100%; height: 100%;">
+      <div class="assign-dashboard-fill">
         <GenAIDashboard :assignment="current" />
       </div>
     </template>
@@ -528,20 +533,14 @@
   const ASSIGNED_TO_GROUP_PREFIX = 'group:'
   const ASSIGNED_TO_STUDENT_PREFIX = 'student:'
 
-  const users = reactive({})
   const decryptedNames = reactive(new Map())
 
-  let unwatchUsers
   onMounted(() => {
-    unwatchUsers = Agent.watch('users', ({ state }) => {
-      Object.entries(state).forEach(([key, value]) => { users[key] = value })
-    })
     window.addEventListener('pagehide', handlePageHide)
     document.addEventListener('visibilitychange', onAssignmentPageVisible)
     scheduleNextPromoteTimer()
   })
   onBeforeUnmount(() => {
-    if (unwatchUsers) unwatchUsers()
     window.removeEventListener('pagehide', handlePageHide)
     document.removeEventListener('visibilitychange', onAssignmentPageVisible)
     if (promoteTimerId != null) {
@@ -553,18 +552,25 @@
 
   onBeforeRouteLeave(() => closeOpenDashboardSession().catch(() => {}))
 
+  /** Active (non-archived) class groups the teacher owns — same source as Classes. */
   const activeGroupIds = computed(() => store.getters['groups/groups']('class', true))
 
-  const teacherStudentIds = computed(() => {
-    const myPILAUsers = Object.keys(users)
-    return [
-      ...myPILAUsers,
-      ...store.getters['groups/myStudents']().filter(id => !myPILAUsers.includes(id)),
-    ]
+  /**
+   * UIUX-127: Assigned-to → Students only lists active group members.
+   * Do not use Agent.watch('users') (every account ever) for filter options.
+   */
+  const activeStudentIdsForFilter = computed(() => {
+    const ids = new Set()
+    for (const gid of activeGroupIds.value) {
+      for (const uid of store.getters['groups/members'](gid)) {
+        ids.add(uid)
+      }
+    }
+    return [...ids]
   })
 
   watch(
-    teacherStudentIds,
+    activeStudentIdsForFilter,
     (ids) => {
       for (const id of ids) {
         if (decryptedNames.has(id)) continue
@@ -591,7 +597,7 @@
       .filter(Boolean)
       .sort((a, b) => a.label.localeCompare(b.label))
 
-    const studentEntries = teacherStudentIds.value
+    const studentEntries = activeStudentIdsForFilter.value
       .map(id => {
         const name = decryptedNames.get(id)?.trim()
         if (!name) return null
@@ -1691,6 +1697,15 @@
 
 .footer-cancel-btn {
   color: #dc2626 !important;
+}
+
+/* Dashboard iframe / embeds fill body only (header + footer stay clickable) */
+.assign-dashboard-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* ── Mobile Responsive ── */

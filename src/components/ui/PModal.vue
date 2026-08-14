@@ -17,9 +17,9 @@
         :style="panelStyle"
         tabindex="-1"
       >
-        <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-          <div class="flex-1">
+        <!-- Header (z-index so full-bleed body content cannot cover X) -->
+        <div class="relative z-10 flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
+          <div class="flex-1 min-w-0">
             <slot name="title">
               <h2 class="text-lg font-semibold text-zinc-950">{{ title }}</h2>
             </slot>
@@ -27,17 +27,22 @@
           <PButton variant="icon" size="sm" icon="lucide:x" iconOnly class="ml-4" aria-label="Close" @click="close('top-x')" />
         </div>
 
-        <!-- Body -->
-        <div :class="['flex-1 overflow-auto', noPadBody ? 'relative' : 'px-6 py-4']" :style="noPadBody ? 'min-height: 0' : ''">
+        <!--
+          Body is always a containing block (relative + min-h-0) so absolute/iframe
+          dashboards fill only the body slot — not the footer Close control (UIUX-126).
+        -->
+        <div
+          :class="['relative flex-1 min-h-0 overflow-auto', noPadBody ? '' : 'px-6 py-4']"
+        >
           <slot name="body">
             <slot />
           </slot>
         </div>
 
-        <!-- Footer -->
+        <!-- Footer Close uses the same close() path as header X -->
         <div
           v-if="$slots.footer || showCloseButton"
-          class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50"
+          class="relative z-10 flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50 shrink-0"
         >
           <slot name="footer">
             <PButton

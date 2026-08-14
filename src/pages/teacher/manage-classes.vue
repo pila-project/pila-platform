@@ -751,11 +751,11 @@
       @cancel="dismissSuccessDialog"
     />
 
-    <!-- Add to Groups Result Dialog -->
+    <!-- Add to Groups Result Dialog (UIUX-128: title depends on skips) -->
     <PAlertDialog
       v-if="addToGroupsResults"
-      variant="success"
-      :title="t('students-successfully-added-to-the-groups')"
+      :variant="addToGroupsHasSkipped ? 'warning' : 'success'"
+      :title="addToGroupsResultTitle"
       :confirm-text="t('continue')"
       cancel-text=""
       width="512px"
@@ -1129,6 +1129,16 @@ const groupListPage = ref(1)
 const groupsPerPage = 4
 const pendingAfterAgreement = ref(null)
 const addToGroupsResults = ref(null)
+/** UIUX-128: any skip → non-success title (Sophie copy). */
+const addToGroupsHasSkipped = computed(() =>
+  !!addToGroupsResults.value?.some(r => r.status === 'skipped'),
+)
+const addToGroupsResultTitle = computed(() => {
+  if (addToGroupsHasSkipped.value) {
+    return t('one-or-more-students-were-not-added-to-selected-groups')
+  }
+  return t('students-successfully-added-to-the-groups')
+})
 const manageGroupId = ref(null)
 const activeGradeFilters = ref([])
 const activeStatusFilters = ref(defaultActiveStatusFilters())

@@ -86,11 +86,31 @@
           </div>
 
           <!--
-            TODO(xAPI): Re-enable full submissions UI when backend provides formal
-            per-student-per-assignment status + timestamps (Submitted / Graded, submit dates).
-            See SHOW_STUDENT_SUBMISSIONS_UI in script.
+            UIUX-114: names-only student list (no checkboxes / extra columns).
+            Full submissions table stays behind SHOW_STUDENT_SUBMISSIONS_UI until xAPI is ready.
           -->
-          <template v-if="SHOW_STUDENT_SUBMISSIONS_UI">
+          <div v-if="!SHOW_STUDENT_SUBMISSIONS_UI" class="vso-submissions">
+            <h4 class="vso-section-label">{{ t('students') }}:</h4>
+            <PUnifiedFilter
+              v-model:searchQuery="studentSearch"
+              :placeholder="t('search-student')"
+              class="vso-search"
+            />
+            <ul class="vso-student-name-list" role="list">
+              <li
+                v-for="(sid, i) in filteredStudents"
+                :key="sid"
+                class="vso-student-name-row"
+              >
+                {{ getStudentDisplayName(sid, i) }}
+              </li>
+              <li v-if="!filteredStudents.length" class="vso-student-name-empty">
+                {{ t('no-students-found') }}
+              </li>
+            </ul>
+          </div>
+
+          <template v-else>
             <div class="vso-stats" style="margin-top: 12px;">
               <div class="vso-stat-box">
                 <span class="vso-stat-num vso-stat-submitted">{{ submittedStudentCount }}</span>
@@ -147,11 +167,9 @@
           </template>
           </div>
 
-          <!-- Footer -->
+          <!-- Footer: single dismiss control (UIUX-114 — Cancel removed as redundant with Back) -->
           <div class="vso-footer">
             <PButton variant="secondary" :text="t('back')" @click="$emit('close')" />
-            <div style="flex: 1;" />
-            <PButton variant="secondary" color="danger" :text="t('cancel')" @click="$emit('close')" />
           </div>
         </div>
       </template>
@@ -918,11 +936,13 @@
     // Always: total students (membership) + in-progress (performance snapshot)
     void loadStudentActivityProgress()
 
+    // Names for overview list (UIUX-114) — independent of full submissions flag
+    await Promise.all(students.value.map(sid => loadStudentInfo(sid)))
+
     // TODO(xAPI): full submissions list / grading when SHOW_STUDENT_SUBMISSIONS_UI is true
     if (SHOW_STUDENT_SUBMISSIONS_UI) {
       loadAllStudentStatuses()
       if (students.value.length > 0) {
-        await loadStudentInfo(students.value[0])
         await watchStudentPerformance()
         await loadGradingData()
       }
@@ -1882,34 +1902,35 @@
   gap: 12px;
 }
 
-.vso-footer-back {
-  padding: 8px 20px;
-  border-radius: 8px;
+/* UIUX-114: names-only assigned students (no table checkboxes) */
+.vso-student-name-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   border: 1px solid #e2e8f0;
-  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: min(320px, 40vh);
+  overflow-y: auto;
+}
+
+.vso-student-name-row {
+  padding: 10px 14px;
   font-size: 13px;
   font-weight: 500;
   color: #334155;
-  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.vso-footer-back:hover {
-  background: #f1f5f9;
+.vso-student-name-row:last-child {
+  border-bottom: none;
 }
 
-.vso-footer-cancel {
-  padding: 8px 20px;
-  border-radius: 8px;
-  border: none;
-  background: none;
+.vso-student-name-empty {
+  padding: 16px 14px;
   font-size: 13px;
-  font-weight: 500;
-  color: #dc2626;
-  cursor: pointer;
-}
-
-.vso-footer-cancel:hover {
-  background: #fef2f2;
+  color: #94a3b8;
+  text-align: center;
 }
 
 /* Overview mobile */
