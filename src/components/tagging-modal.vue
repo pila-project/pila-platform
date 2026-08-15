@@ -3,7 +3,6 @@
     class="publish-overlay"
     @click.self="close"
   >
-
     <section
       class="publish-modal"
       role="dialog"
@@ -62,253 +61,289 @@
         </div>
 
         <template v-else>
+          <section class="selected-tags-section">
+            <div class="section-label">
+              <span class="tag-outline-icon">◇</span>
+              {{ t('selected-competencies') }}:
+            </div>
 
-        <section class="selected-tags-section">
-          <div class="section-label">
-            <span class="tag-outline-icon">◇</span>
-            {{ t('selected-competencies') }}:
-          </div>
-
-          <div class="selected-tags-box">
-            <template v-if="selectedCompetencies.length">
-              <button
-                v-for="selection in selectedCompetencies"
-                :key="`${selection.categoryId}-${selection.id}`"
-                class="selected-tag"
-                type="button"
-                :disabled="
-                  isCompetencyWorking(
-                    selection.categoryId,
-                    selection.id,
-                  )
-                "
-                :style="{
-                  '--category-color': selection.categoryColor,
-                }"
-                @click="
-                  toggleCompetency(
-                    selection.categoryId,
-                    selection.id,
-                  )
-                "
-              >
-                <span class="tag-dot" />
-                <span>
-                  <TagTranslation :id="selection.categoryId" />
-                  =
-                  <TagTranslation :id="selection.id" />
-                </span>
-
-                <span
-                  v-if="
+            <div class="selected-tags-box">
+              <template v-if="selectedCompetencies.length">
+                <button
+                  v-for="selection in selectedCompetencies"
+                  :key="`${selection.categoryId}-${selection.id}`"
+                  class="selected-tag"
+                  type="button"
+                  :disabled="
                     isCompetencyWorking(
                       selection.categoryId,
                       selection.id,
                     )
                   "
-                  class="small-spinner"
-                  role="status"
-                  :aria-label="t('working')"
-                />
-
-                <span
-                  v-else
-                  class="tag-remove"
-                  aria-hidden="true"
-                >
-                  ×
-                </span>
-              </button>
-            </template>
-
-            <span
-              v-else
-              class="empty-selection"
-            >
-              {{ t('no-competencies-selected-yet') }}
-            </span>
-          </div>
-
-          <p
-            v-if="updateError"
-            class="update-error"
-            role="alert"
-          >
-            {{ t('unable-to-update-tag') }}
-          </p>
-        </section>
-
-        <!-- COMPETENCY ACCORDIONS -->
-        <section
-          v-if="competencyCategories.length"
-          class="categories"
-        >
-          <article
-            v-for="category in competencyCategories"
-            :key="category.id"
-            class="category-card"
-            :class="{
-              'category-card--invalid':
-                showValidation &&
-                category.required &&
-                !hasCategorySelection(category.id),
-            }"
-          >
-            <button
-              class="category-header"
-              type="button"
-              :aria-expanded="category.open ? 'true' : 'false'"
-              @click="toggleCategory(category.id)"
-            >
-              <span class="category-title">
-                <span
-                  class="category-dot"
                   :style="{
-                    backgroundColor: category.color,
+                    '--category-color': selection.categoryColor,
                   }"
-                />
-
-                <TagTranslation :id="category.id" />
-
-                <span
-                  v-if="category.required"
-                  class="required-label"
+                  @click="
+                    toggleCompetency(
+                      selection.categoryId,
+                      selection.id,
+                    )
+                  "
                 >
-                  *{{ t('required') }}
-                </span>
-              </span>
+                  <span class="tag-dot" />
 
-              <span
-                class="chevron"
-                :class="{
-                  'chevron--open': category.open,
-                }"
-                aria-hidden="true"
-              >
-                ⌄
-              </span>
-            </button>
-
-            <div
-              v-show="category.open"
-              class="category-body"
-            >
-              <div class="competency-grid">
-                <label
-                  v-for="competency in category.competencies"
-                  :key="competency.id"
-                  class="competency-option"
-                  :class="{
-                    'competency-option--working':
-                      isCompetencyWorking(
-                        category.id,
-                        competency.id,
-                      ),
-                  }"
-                >
-                  <input
-                    type="checkbox"
-                    :checked="
-                      isCompetencySelected(
-                        category.id,
-                        competency.id,
-                      )
-                    "
-                    :disabled="
-                      isCompetencyWorking(
-                        category.id,
-                        competency.id,
-                      )
-                    "
-                    @change="
-                      toggleCompetency(
-                        category.id,
-                        competency.id,
-                      )
-                    "
-                  />
+                  <span>
+                    <TagTranslation :id="selection.categoryId" />
+                    =
+                    <TagTranslation :id="selection.id" />
+                  </span>
 
                   <span
                     v-if="
                       isCompetencyWorking(
-                        category.id,
-                        competency.id,
+                        selection.categoryId,
+                        selection.id,
                       )
                     "
-                    class="checkbox-spinner"
+                    class="small-spinner"
                     role="status"
                     :aria-label="t('working')"
                   />
 
                   <span
                     v-else
-                    class="custom-checkbox"
+                    class="tag-remove"
+                    aria-hidden="true"
                   >
-                    <span class="checkmark">✓</span>
+                    ×
                   </span>
+                </button>
+              </template>
 
-                  <span>
-                    <TagTranslation :id="competency.id" />
-                  </span>
-                </label>
-              </div>
-
-              <p
-                v-if="
-                  showValidation &&
-                  category.required &&
-                  !hasCategorySelection(category.id)
-                "
-                class="validation-message"
+              <span
+                v-else
+                class="empty-selection"
               >
-                {{ t('select-at-least-one-competency-from-this-category') }}
-              </p>
+                {{ t('no-competencies-selected-yet') }}
+              </span>
             </div>
-          </article>
-        </section>
 
-        <p
-          v-else
-          class="modal-state"
-        >
-          {{ t('no-tags-available') }}
-        </p>
+            <p
+              v-if="updateError"
+              class="update-error"
+              role="alert"
+            >
+              {{ t('unable-to-update-tag') }}
+            </p>
+          </section>
 
-        <button
-          class="favorite-row"
-          type="button"
-          :disabled="isFavoriteWorking"
-          :aria-pressed="isFavorite ? 'true' : 'false'"
-          @click="toggleFavorite"
-        >
-          <span>
-            <strong>
-              {{ t('add-to-favorites') }}
-            </strong>
-
-            <small>
-              {{ t('mark-this-content-as-a-favorite-for-quick-access') }}
-            </small>
-          </span>
-
-          <span
-            v-if="isFavoriteWorking"
-            class="favorite-spinner"
-            role="status"
-            :aria-label="t('working')"
-          />
-
-          <span
-            v-else
-            class="heart"
-            :class="{
-              'heart--active': isFavorite,
-            }"
-            aria-hidden="true"
+          <!-- ROOT GROUPS: one separate accordion per roots[] UUID -->
+          <section
+            v-if="rootGroups.length"
+            class="root-groups"
           >
-            {{ isFavorite ? '♥' : '♡' }}
-          </span>
-        </button>
+            <article
+              v-for="root in rootGroups"
+              :key="root.id"
+              class="root-card"
+            >
+              <!-- TOP LEVEL: expandable, but NO color marker and NOT taggable -->
+              <button
+                class="root-header"
+                type="button"
+                :aria-expanded="root.open ? 'true' : 'false'"
+                @click="toggleRoot(root.id)"
+              >
+                <span class="root-title">
+                  <TagTranslation :id="root.id" />
+                </span>
+
+                <span
+                  class="chevron"
+                  :class="{
+                    'chevron--open': root.open,
+                  }"
+                  aria-hidden="true"
+                >
+                  ⌄
+                </span>
+              </button>
+
+              <div
+                v-show="root.open"
+                class="root-body"
+              >
+                <!-- MIDDLE LEVEL: separate expandable categories -->
+                <article
+                  v-for="category in root.categories"
+                  :key="category.id"
+                  class="category-card"
+                  :class="{
+                    'category-card--invalid':
+                      showValidation &&
+                      category.required &&
+                      !hasCategorySelection(category.id),
+                  }"
+                >
+                  <!-- NOT taggable: no checkbox here -->
+                  <button
+                    class="category-header"
+                    type="button"
+                    :aria-expanded="category.open ? 'true' : 'false'"
+                    @click="toggleCategory(category.id)"
+                  >
+                    <span class="category-title">
+                      <span
+                        class="category-dot"
+                        :style="{
+                          backgroundColor: category.color,
+                        }"
+                      />
+
+                      <TagTranslation :id="category.id" />
+
+                      <span
+                        v-if="category.required"
+                        class="required-label"
+                      >
+                        *{{ t('required') }}
+                      </span>
+                    </span>
+
+                    <span
+                      class="chevron"
+                      :class="{
+                        'chevron--open': category.open,
+                      }"
+                      aria-hidden="true"
+                    >
+                      ⌄
+                    </span>
+                  </button>
+
+                  <div
+                    v-show="category.open"
+                    class="category-body"
+                  >
+                    <!-- LEAVES: the only taggable level -->
+                    <div class="competency-grid">
+                      <label
+                        v-for="competency in category.competencies"
+                        :key="competency.id"
+                        class="competency-option"
+                        :class="{
+                          'competency-option--working':
+                            isCompetencyWorking(
+                              category.id,
+                              competency.id,
+                            ),
+                        }"
+                      >
+                        <input
+                          type="checkbox"
+                          :checked="
+                            isCompetencySelected(
+                              category.id,
+                              competency.id,
+                            )
+                          "
+                          :disabled="
+                            isCompetencyWorking(
+                              category.id,
+                              competency.id,
+                            )
+                          "
+                          @change="
+                            toggleCompetency(
+                              category.id,
+                              competency.id,
+                            )
+                          "
+                        />
+
+                        <span
+                          v-if="
+                            isCompetencyWorking(
+                              category.id,
+                              competency.id,
+                            )
+                          "
+                          class="checkbox-spinner"
+                          role="status"
+                          :aria-label="t('working')"
+                        />
+
+                        <span
+                          v-else
+                          class="custom-checkbox"
+                        >
+                          <span class="checkmark">✓</span>
+                        </span>
+
+                        <span>
+                          <TagTranslation :id="competency.id" />
+                        </span>
+                      </label>
+                    </div>
+
+                    <p
+                      v-if="
+                        showValidation &&
+                        category.required &&
+                        !hasCategorySelection(category.id)
+                      "
+                      class="validation-message"
+                    >
+                      {{ t('select-at-least-one-competency-from-this-category') }}
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </article>
+          </section>
+
+          <p
+            v-else
+            class="modal-state"
+          >
+            {{ t('no-tags-available') }}
+          </p>
+
+          <button
+            class="favorite-row"
+            type="button"
+            :disabled="isFavoriteWorking"
+            :aria-pressed="isFavorite ? 'true' : 'false'"
+            @click="toggleFavorite"
+          >
+            <span>
+              <strong>
+                {{ t('add-to-favorites') }}
+              </strong>
+
+              <small>
+                {{ t('mark-this-content-as-a-favorite-for-quick-access') }}
+              </small>
+            </span>
+
+            <span
+              v-if="isFavoriteWorking"
+              class="favorite-spinner"
+              role="status"
+              :aria-label="t('working')"
+            />
+
+            <span
+              v-else
+              class="heart"
+              :class="{
+                'heart--active': isFavorite,
+              }"
+              aria-hidden="true"
+            >
+              {{ isFavorite ? '♥' : '♡' }}
+            </span>
+          </button>
         </template>
       </div>
 
@@ -366,8 +401,7 @@ function uniqueTargets(taggings) {
 
   return [
     ...new Set(
-      taggings
-        .map((tagging) => tagging.target),
+      taggings.map((tagging) => tagging.target),
     ),
   ]
 }
@@ -375,7 +409,7 @@ function uniqueTargets(taggings) {
 const requiredCategoryIds = []
 
 /*
- * Category colors are assigned by their order in the fetched object.
+ * Colors belong ONLY to middle-level categories.
  */
 const categoryColors = [
   '#e84d5b',
@@ -394,12 +428,15 @@ async function hasTag(partition, tag, target) {
     [partition, tag, target],
     TAGS_DOMAIN
   )
+
   return !!tagging?.[0]
 }
 
 export default {
   name: 'PublishToExploreModal',
+
   components: { TagTranslation },
+
   emits: [ 'close' ],
 
   props: {
@@ -407,10 +444,12 @@ export default {
       type: String,
       required: true,
     },
+
     roots: {
       type: Array,
       required: true,
     },
+
     contentTitle: {
       type: String,
       default: 'Untitled Sequence',
@@ -419,18 +458,36 @@ export default {
 
   data() {
     return {
-      competencyData: {},
+      /*
+       * IMPORTANT:
+       * This preserves each root as a separate group.
+       *
+       * [
+       *   {
+       *     id: rootId,
+       *     categories: [
+       *       {
+       *         id: middleCategoryId,
+       *         competencies: [leafId, leafId]
+       *       }
+       *     ]
+       *   }
+       * ]
+       */
+      competencyData: [],
 
       /*
-       * An empty array means every category starts closed.
+       * Root accordions and middle-category accordions
+       * are tracked independently.
        */
+      openRootIds: [],
       openCategoryIds: [],
 
-      selectedIds: {},
-
       /*
-       * Each pending competency gets its own working state.
+       * Only leaf IDs can appear here.
        */
+      selectedIds: [],
+
       workingCompetencyIds: {},
 
       isFavorite: false,
@@ -445,7 +502,13 @@ export default {
 
   async created() {
     const { auth: { user } } = await Agent.environment()
-    this.isFavorite = await hasTag(user, FAVORITE_TAG, this.id)
+
+    this.isFavorite = await hasTag(
+      user,
+      FAVORITE_TAG,
+      this.id,
+    )
+
     this.isFavoriteWorking = false
   },
 
@@ -454,97 +517,105 @@ export default {
       immediate: true,
       handler: 'loadCompetencies',
     },
+
+    roots: {
+      deep: true,
+      handler: 'loadCompetencies',
+    },
   },
 
   computed: {
-    taggingPartition() { return this.$store.getters.tagPartition },
-
-    categoryDisplayConfig() {
-      return Object.keys(this.competencyData).reduce(
-        (config, categoryId, categoryIndex) => {
-          config[categoryId] = {
-            color:
-              categoryColors[
-                categoryIndex % categoryColors.length
-              ],
-
-            open:
-              this.openCategoryIds.includes(categoryId),
-
-            required:
-              requiredCategoryIds.includes(categoryId),
-          }
-
-          return config
-        },
-        {},
-      )
+    taggingPartition() {
+      return TAG_HIERARCHY_PARTITION
     },
 
-    competencyCategories() {
-      return Object.keys(this.competencyData).map(
-        (categoryId) => {
-          const display =
-            this.categoryDisplayConfig[categoryId]
+    rootGroups() {
+      let categoryIndex = 0
 
-          const competencyIds =
-            this.competencyData[categoryId] || []
+      return this.competencyData.map((root) => ({
+        id: root.id,
 
-          return {
-            id: categoryId,
-            color: display.color,
-            open: display.open,
-            required: display.required,
+        open:
+          this.openRootIds.includes(root.id),
 
-            competencies: competencyIds.map(
-              (competencyId) => {
-                return {
-                  id: competencyId,
-                }
-              },
-            ),
-          }
-        },
+        categories:
+          root.categories.map((category) => {
+            const display = {
+              color:
+                categoryColors[
+                  categoryIndex % categoryColors.length
+                ],
+
+              open:
+                this.openCategoryIds.includes(category.id),
+
+              required:
+                requiredCategoryIds.includes(category.id),
+            }
+
+            categoryIndex += 1
+
+            return {
+              id: category.id,
+              color: display.color,
+              open: display.open,
+              required: display.required,
+
+              competencies:
+                category.competencies.map(
+                  (competencyId) => ({
+                    id: competencyId,
+                  }),
+                ),
+            }
+          }),
+      }))
+    },
+
+    allCategories() {
+      return this.rootGroups.flatMap(
+        (root) => root.categories,
       )
     },
 
     selectedCompetencies() {
-      return this.competencyCategories.reduce(
+      return this.allCategories.reduce(
         (selections, category) => {
-          const selectedCategoryIds =
-            this.selectedIds[category.id] || []
-
           const categorySelections =
             category.competencies
-              .filter((competency) => {
-                return selectedCategoryIds.includes(
+              .filter((competency) =>
+                this.selectedIds.includes(
                   competency.id,
-                )
-              })
-              .map((competency) => {
-                return {
-                  ...competency,
-                  categoryId: category.id,
-                  categoryColor: category.color,
-                }
-              })
+                ),
+              )
+              .map((competency) => ({
+                ...competency,
+                categoryId: category.id,
+                categoryColor: category.color,
+              }))
 
-          return selections.concat(categorySelections)
+          return selections.concat(
+            categorySelections,
+          )
         },
         [],
       )
     },
 
     isValid() {
-      return this.competencyCategories
+      return this.allCategories
         .filter((category) => category.required)
         .every((category) => {
-          return this.hasCategorySelection(category.id)
+          return this.hasCategorySelection(
+            category.id,
+          )
         })
     },
 
     hasPendingCompetencies() {
-      return Object.keys(this.workingCompetencyIds).length > 0
+      return Object.keys(
+        this.workingCompetencyIds,
+      ).length > 0
     },
 
     hasPendingChanges() {
@@ -556,7 +627,9 @@ export default {
   },
 
   methods: {
-    t(slug) { return store.getters.t(slug) },
+    t(slug) {
+      return store.getters.t(slug)
+    },
 
     async loadCompetencies() {
       const requestId = ++this.loadRequestId
@@ -572,15 +645,67 @@ export default {
           )
         }
 
-        const [categoryTaggingGroups, contentTaggings] =
+        /*
+         * NO FLATTENING HERE.
+         *
+         * Each root is fetched independently and returned
+         * as its own object with its own categories.
+         */
+        const [rootEntries, contentTaggings] =
           await Promise.all([
             Promise.all(
-              this.roots.map((root) => Agent.query(
-                'targets-for-tag',
-                [TAG_HIERARCHY_PARTITION, root],
-                TAGS_DOMAIN,
-              )),
+              this.roots.map(async (rootId) => {
+                /*
+                 * root -> middle categories
+                 */
+                const categoryTaggings =
+                  await Agent.query(
+                    'targets-for-tag',
+                    [
+                      TAG_HIERARCHY_PARTITION,
+                      rootId,
+                    ],
+                    TAGS_DOMAIN,
+                  )
+
+                const categoryIds =
+                  uniqueTargets(categoryTaggings)
+
+                /*
+                 * each middle category -> leaf tags
+                 */
+                const categories =
+                  await Promise.all(
+                    categoryIds.map(
+                      async (categoryId) => {
+                        const competencyTaggings =
+                          await Agent.query(
+                            'targets-for-tag',
+                            [
+                              TAG_HIERARCHY_PARTITION,
+                              categoryId,
+                            ],
+                            TAGS_DOMAIN,
+                          )
+
+                        return {
+                          id: categoryId,
+                          competencies:
+                            uniqueTargets(
+                              competencyTaggings,
+                            ),
+                        }
+                      },
+                    ),
+                  )
+
+                return {
+                  id: rootId,
+                  categories,
+                }
+              }),
             ),
+
             Agent.query(
               'taggings-for-target',
               [
@@ -591,56 +716,6 @@ export default {
             ),
           ])
 
-        const categoryIds = uniqueTargets(
-          categoryTaggingGroups.flat(),
-        )
-        const categoryEntries = await Promise.all(
-          categoryIds.map(async (categoryId) => {
-            const competencyTaggings = await Agent.query(
-              'targets-for-tag',
-              [
-                TAG_HIERARCHY_PARTITION,
-                categoryId,
-              ],
-              TAGS_DOMAIN,
-            )
-
-            return [
-              categoryId,
-              uniqueTargets(competencyTaggings),
-            ]
-          }),
-        )
-// BEGING LOGS OF ALL FLATTENED TAG IDS FOR EASIER TRANSLATION SCRIPTING
-// const allTagIds = [
-//   ...new Set(
-//     categoryEntries.flatMap(
-//       ([categoryId, competencyIds]) => [
-//         categoryId,
-//         ...competencyIds,
-//       ],
-//     ),
-//   ),
-// ]
-
-// const tagMap = Object.fromEntries(
-//   await Promise.all(
-//     allTagIds.map(async (id) => [
-//       id,
-//       // was previously just await Agent.state(id)
-//       // this removes the translations key from the return
-//       (({ translations, ...state }) => state)(
-//         await Agent.state(id),
-//       ),
-//     ]),
-//   ),
-// )
-
-// console.log( JSON.stringify(tagMap, null, 2) )
-// END OF TAG ID LOGS
-
-
-
         if (!Array.isArray(contentTaggings)) {
           throw new TypeError(
             'Expected an array of content taggings',
@@ -649,7 +724,8 @@ export default {
 
         if (
           contentTaggings.some(
-            (tagging) => typeof tagging?.tag !== 'string',
+            (tagging) =>
+              typeof tagging?.tag !== 'string',
           )
         ) {
           throw new TypeError(
@@ -658,34 +734,52 @@ export default {
         }
 
         const selectedTagIds = new Set(
-          contentTaggings
-            .map((tagging) => tagging.tag),
+          contentTaggings.map(
+            (tagging) => tagging.tag,
+          ),
         )
 
         if (requestId !== this.loadRequestId) {
           return
         }
 
-        this.competencyData =
-          Object.fromEntries(categoryEntries)
+        /*
+         * Preserve root boundaries exactly.
+         */
+        this.competencyData = rootEntries
 
-        this.selectedIds = Object.fromEntries(
-          categoryEntries.map(
-            ([categoryId, competencyIds]) => [
-              categoryId,
-              competencyIds.filter((competencyId) => {
-                return selectedTagIds.has(competencyId)
-              }),
-            ],
+        /*
+         * Only leaf IDs are selectable.
+         * Root IDs and middle-category IDs are excluded.
+         */
+        const leafIds = new Set(
+          rootEntries.flatMap(
+            (root) =>
+              root.categories.flatMap(
+                (category) =>
+                  category.competencies,
+              ),
           ),
         )
+
+        this.selectedIds = [
+          ...selectedTagIds,
+        ].filter((id) => leafIds.has(id))
+
+        /*
+         * Match original behavior: everything starts closed.
+         */
+        this.openRootIds = []
+        this.openCategoryIds = []
       } catch (error) {
         if (requestId !== this.loadRequestId) {
           return
         }
 
-        this.competencyData = {}
-        this.selectedIds = {}
+        this.competencyData = []
+        this.selectedIds = []
+        this.openRootIds = []
+        this.openCategoryIds = []
         this.loadError = true
 
         console.error(
@@ -703,18 +797,45 @@ export default {
       this.$emit('close')
     },
 
-    getCompetencyWorkingId(_categoryId, competencyId) {
+    getCompetencyWorkingId(
+      _categoryId,
+      competencyId,
+    ) {
       return competencyId
     },
 
-    isCompetencyWorking(categoryId, competencyId) {
+    isCompetencyWorking(
+      categoryId,
+      competencyId,
+    ) {
       const workingId =
         this.getCompetencyWorkingId(
           categoryId,
           competencyId,
         )
 
-      return this.workingCompetencyIds[workingId] === true
+      return (
+        this.workingCompetencyIds[
+          workingId
+        ] === true
+      )
+    },
+
+    toggleRoot(rootId) {
+      const rootIndex =
+        this.openRootIds.indexOf(rootId)
+
+      if (rootIndex >= 0) {
+        this.openRootIds.splice(rootIndex, 1)
+      } else {
+        this.openRootIds.push(rootId)
+      }
+    },
+
+    openRoot(rootId) {
+      if (!this.openRootIds.includes(rootId)) {
+        this.openRootIds.push(rootId)
+      }
     },
 
     toggleCategory(categoryId) {
@@ -722,39 +843,65 @@ export default {
         this.openCategoryIds.indexOf(categoryId)
 
       if (categoryIndex >= 0) {
-        this.openCategoryIds.splice(categoryIndex, 1)
+        this.openCategoryIds.splice(
+          categoryIndex,
+          1,
+        )
       } else {
         this.openCategoryIds.push(categoryId)
       }
     },
 
     openCategory(categoryId) {
-      if (!this.openCategoryIds.includes(categoryId)) {
+      if (
+        !this.openCategoryIds.includes(categoryId)
+      ) {
         this.openCategoryIds.push(categoryId)
       }
     },
 
-    isCompetencySelected(categoryId, competencyId) {
-      const categorySelections =
-        this.selectedIds[categoryId] || []
-
-      return categorySelections.includes(competencyId)
+    isCompetencySelected(
+      _categoryId,
+      competencyId,
+    ) {
+      return this.selectedIds.includes(
+        competencyId,
+      )
     },
 
     hasCategorySelection(categoryId) {
-      const categorySelections =
-        this.selectedIds[categoryId] || []
+      const category =
+        this.allCategories.find(
+          (candidate) =>
+            candidate.id === categoryId,
+        )
 
-      return categorySelections.length > 0
+      if (!category) {
+        return false
+      }
+
+      return category.competencies.some(
+        (competency) =>
+          this.selectedIds.includes(
+            competency.id,
+          ),
+      )
     },
 
-    wait(milliseconds) {
-      return new Promise((resolve) => {
-        window.setTimeout(resolve, milliseconds)
-      })
+    findRootForCategory(categoryId) {
+      return this.rootGroups.find(
+        (root) =>
+          root.categories.some(
+            (category) =>
+              category.id === categoryId,
+          ),
+      )
     },
 
-    async toggleCompetency(categoryId, competencyId) {
+    async toggleCompetency(
+      categoryId,
+      competencyId,
+    ) {
       const workingId =
         this.getCompetencyWorkingId(
           categoryId,
@@ -781,6 +928,10 @@ export default {
           )
         }
 
+        /*
+         * Only this leaf competencyId is ever passed
+         * to setTagging().
+         */
         await setTagging(
           {
             tag: competencyId,
@@ -790,30 +941,20 @@ export default {
           this.taggingPartition,
         )
 
-        Object
-          .entries(this.competencyData)
-          .filter(([, competencyIds]) => {
-            return competencyIds.includes(competencyId)
-          })
-          .forEach(([currentCategoryId]) => {
-            const categorySelections =
-              this.selectedIds[currentCategoryId] || []
-
-            const selectedIndex =
-              categorySelections.indexOf(competencyId)
-
-            if (isSelected && selectedIndex >= 0) {
-              categorySelections.splice(selectedIndex, 1)
-            } else if (
-              !isSelected &&
-              selectedIndex < 0
-            ) {
-              categorySelections.push(competencyId)
-            }
-
-            this.selectedIds[currentCategoryId] =
-              categorySelections
-          })
+        if (isSelected) {
+          this.selectedIds =
+            this.selectedIds.filter(
+              (id) => id !== competencyId,
+            )
+        } else if (
+          !this.selectedIds.includes(
+            competencyId,
+          )
+        ) {
+          this.selectedIds.push(
+            competencyId,
+          )
+        }
       } catch (error) {
         this.updateError = true
 
@@ -822,7 +963,9 @@ export default {
           error,
         )
       } finally {
-        delete this.workingCompetencyIds[workingId]
+        delete this.workingCompetencyIds[
+          workingId
+        ]
       }
     },
 
@@ -834,14 +977,19 @@ export default {
       this.isFavoriteWorking = true
 
       try {
-        const { auth: { user } } = await Agent.environment()
+        const { auth: { user } } =
+          await Agent.environment()
+
         await setTagging(
           {
             tag: FAVORITE_TAG,
             target: this.id,
-            value: !this.isFavorite ? true : null,
+            value:
+              !this.isFavorite
+                ? true
+                : null,
           },
-          user // user is partition
+          user,
         )
 
         this.isFavorite = !this.isFavorite
@@ -868,15 +1016,27 @@ export default {
 
       if (!this.isValid) {
         const firstInvalidCategory =
-          this.competencyCategories.find((category) => {
-            return (
+          this.allCategories.find(
+            (category) =>
               category.required &&
-              !this.hasCategorySelection(category.id)
-            )
-          })
+              !this.hasCategorySelection(
+                category.id,
+              ),
+          )
 
         if (firstInvalidCategory) {
-          this.openCategory(firstInvalidCategory.id)
+          const root =
+            this.findRootForCategory(
+              firstInvalidCategory.id,
+            )
+
+          if (root) {
+            this.openRoot(root.id)
+          }
+
+          this.openCategory(
+            firstInvalidCategory.id,
+          )
         }
 
         return
@@ -1109,11 +1269,49 @@ input {
   font-size: 11px;
 }
 
-.categories {
+/* TOP LEVEL ROOT GROUPS */
+.root-groups {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
+.root-card {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #cfd7e3;
+  border-radius: 10px;
+}
+
+.root-header {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  color: #202737;
+  text-align: left;
+  background: #eef2f7;
+  border: 0;
+  cursor: pointer;
+}
+
+/*
+ * No colored circle at the root level.
+ */
+.root-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.root-body {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid #dde3ec;
+}
+
+/* MIDDLE LEVEL CATEGORY ACCORDIONS */
 .category-card {
   overflow: hidden;
   background: #ffffff;
@@ -1152,6 +1350,9 @@ input {
   font-weight: 600;
 }
 
+/*
+ * Color marker appears ONLY on the middle category.
+ */
 .category-dot {
   width: 6px;
   height: 6px;
@@ -1166,6 +1367,7 @@ input {
 }
 
 .chevron {
+  display: inline-block;
   color: #68758a;
   font-size: 16px;
   transform: rotate(0deg);
@@ -1181,6 +1383,7 @@ input {
   border-top: 1px solid #eef1f5;
 }
 
+/* LEAF TAGS */
 .competency-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1363,12 +1566,6 @@ input {
 .button:disabled {
   cursor: wait;
   opacity: 0.6;
-}
-
-.button--cancel {
-  color: #e34d55;
-  background: #ffffff;
-  border: 1px solid #f0b9bd;
 }
 
 .button--primary {

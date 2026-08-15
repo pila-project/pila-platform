@@ -1,8 +1,3 @@
-/**
- * Static offline UI translations (trunk-style).
- * Professional trunk copy preserved where present; redesign keys authored for all langs.
- * Keys: 695. Langs: de, en, es, fr, km, lv, nl, pl, pt, sk, th.
- */
 export default {
   "1-attempt": {
     "de": "1 Versuch",
@@ -15,7 +10,7 @@ export default {
     "pl": "1 próba",
     "pt": "1 tentativa",
     "sk": "1 pokus",
-    "th": "1 ครั้ง",
+    "th": "1 ครั้ง"
   },
   "2-attempts": {
     "de": "2 Versuche",
@@ -28,7 +23,7 @@ export default {
     "pl": "2 próby",
     "pt": "2 tentativas",
     "sk": "2 pokusy",
-    "th": "2 ครั้ง",
+    "th": "2 ครั้ง"
   },
   "3-attempts": {
     "de": "3 Versuche",
@@ -41,7 +36,7 @@ export default {
     "pl": "3 próby",
     "pt": "3 tentativas",
     "sk": "3 pokusy",
-    "th": "3 ครั้ง",
+    "th": "3 ครั้ง"
   },
   "access-code": {
     "de": "Zugangscode:",
@@ -54,11 +49,11 @@ export default {
     "pl": "Kod dostępu:",
     "pt": "Código de Acesso:",
     "sk": "Prístupový kód:",
-    "th": "รหัสการเข้าถึง:",
+    "th": "รหัสการเข้าถึง:"
   },
   "account-activity": {
     "de": "Kontoaktivität",
-    "en": "Account Activity",
+    "en": "Account activity",
     "es": "Actividad de la cuenta",
     "fr": "Activité du compte",
     "km": "សកម្មភាពគណនី",
@@ -67,11 +62,11 @@ export default {
     "pl": "Aktywność konta",
     "pt": "Atividade da conta",
     "sk": "Aktivita účtu",
-    "th": "กิจกรรมบัญชี",
+    "th": "กิจกรรมบัญชี"
   },
   "account-created": {
     "de": "Konto erstellt",
-    "en": "Account Created",
+    "en": "Account created",
     "es": "Cuenta creada",
     "fr": "Compte créé",
     "km": "បានបង្កើតគណនី",
@@ -80,7 +75,7 @@ export default {
     "pl": "Konto utworzone",
     "pt": "Conta criada",
     "sk": "Účet vytvorený",
-    "th": "สร้างบัญชีแล้ว",
+    "th": "สร้างบัญชีแล้ว"
   },
   "account-status": {
     "de": "Kontostatus",
@@ -93,7 +88,7 @@ export default {
     "pl": "Status konta",
     "pt": "Estado da conta",
     "sk": "Stav účtu",
-    "th": "สถานะบัญชี",
+    "th": "สถานะบัญชี"
   },
   "actions": {
     "de": "Aktionen",
@@ -106,7 +101,7 @@ export default {
     "pl": "Działania",
     "pt": "Ações",
     "sk": "Akcie",
-    "th": "การดำเนินการ",
+    "th": "การดำเนินการ"
   },
   "active": {
     "de": "Aktiv",
@@ -119,11 +114,11 @@ export default {
     "pl": "Aktywny",
     "pt": "Ativo",
     "sk": "Aktívne",
-    "th": "ใช้งานอยู่",
+    "th": "ใช้งานอยู่"
   },
   "activity-dashboard": {
     "de": "Aktivitäts-Dashboard",
-    "en": "Activity Dashboard",
+    "en": "Activity dashboard",
     "es": "Panel de actividad",
     "fr": "ableau de Bord des Activités",
     "km": "ផ្ទាំងគ្រប់គ្រងសកម្មភាព",
@@ -132,7 +127,7 @@ export default {
     "pl": "Panel Aktywności",
     "pt": "Painel de atividades",
     "sk": "Panel aktivity",
-    "th": "แดชบอร์ดกิจกรรม",
+    "th": "แดชบอร์ดกิจกรรม"
   },
   "add": {
     "de": "hinzufügen",
@@ -145,7 +140,7 @@ export default {
     "pl": "dodaj",
     "pt": "adicionar",
     "sk": "pridať",
-    "th": "เพิ่ม",
+    "th": "เพิ่ม"
   },
   "add-all": {
     "de": "Alle hinzufügen",
@@ -158,7 +153,7 @@ export default {
     "pl": "Dodaj wszystko",
     "pt": "Adicionar tudo",
     "sk": "Pridať všetko",
-    "th": "เพิ่มทั้งหมด",
+    "th": "เพิ่มทั้งหมด"
   },
   "add-at-least-one-content-item-to-continue": {
     "de": "Fügen Sie mindestens ein Inhaltselement hinzu, um fortzufahren.",
@@ -171,7 +166,7 @@ export default {
     "pl": "Dodaj co najmniej jeden element treści, aby kontynuować.",
     "pt": "Adicione pelo menos um item de conteúdo para continuar.",
     "sk": "Ak chcete pokračovať, pridajte aspoň jednu položku obsahu.",
-    "th": "เพิ่มเนื้อหาอย่างน้อยหนึ่งรายการเพื่อดำเนินการต่อ",
+    "th": "เพิ่มเนื้อหาอย่างน้อยหนึ่งรายการเพื่อดำเนินการต่อ"
   },
   "add-content": {
     "de": "Inhalt hinzufügen",
@@ -184,7 +179,7 @@ export default {
     "pl": "Dodaj zawartość",
     "pt": "Adicionar conteúdo",
     "sk": "Pridať obsah",
-    "th": "เพิ่มบทเรียน",
+    "th": "เพิ่มบทเรียน"
   },
   "add-content-by-id-or-url": {
     "de": "Inhalte nach ID oder URL hinzufügen",
@@ -197,7 +192,7 @@ export default {
     "pl": "Dodaj zawartość za pomocą Id lub URL",
     "pt": "Adicione conteúdo por ID ou URL",
     "sk": "Pridajte obsah podľa ID alebo adresy URL",
-    "th": "เพิ่มบทเรียนด้วยไอดีหรือ URL",
+    "th": "เพิ่มบทเรียนด้วยไอดีหรือ URL"
   },
   "add-content-item-or-sequence": {
     "de": "Inhaltselement oder Sequenz hinzufügen",
@@ -210,7 +205,7 @@ export default {
     "pl": "Dodaj element treści lub sekwencję",
     "pt": "Adicionar item de conteúdo ou sequência",
     "sk": "Pridať položku obsahu alebo sekvenciu",
-    "th": "เพิ่มรายการเนื้อหาหรือลำดับ",
+    "th": "เพิ่มรายการเนื้อหาหรือลำดับ"
   },
   "add-content-item-sequence-cta-title": {
     "de": "Inhaltselement/Sequenz hinzufügen",
@@ -223,7 +218,7 @@ export default {
     "pl": "Dodaj element/sekwencję",
     "pt": "Adicionar item/sequência",
     "sk": "Pridať položku/sekvenciu",
-    "th": "เพิ่มรายการเนื้อหา/ลำดับ",
+    "th": "เพิ่มรายการเนื้อหา/ลำดับ"
   },
   "add-content-to-assignment": {
     "de": "Zur Aufgabe hinzufügen",
@@ -236,7 +231,7 @@ export default {
     "pl": "Dodaj do zadania",
     "pt": "Adicionar à tarefa",
     "sk": "Pridať k úlohe",
-    "th": "เพิ่มไปยังงานที่มอบหมาย",
+    "th": "เพิ่มไปยังงานที่มอบหมาย"
   },
   "add-content-to-sequence": {
     "de": "Zur Sequenz hinzufügen",
@@ -249,7 +244,7 @@ export default {
     "pl": "Dodaj do sekwencji",
     "pt": "Adicionar à sequência",
     "sk": "Pridať do sekvencie",
-    "th": "เพิ่มไปยังลำดับ",
+    "th": "เพิ่มไปยังลำดับ"
   },
   "add-feedback": {
     "de": "Feedback hinzufügen",
@@ -262,7 +257,7 @@ export default {
     "pl": "Dodaj opinię",
     "pt": "Adicionar comentários",
     "sk": "Pridať spätnú väzbu",
-    "th": "เพิ่มข้อเสนอแนะ",
+    "th": "เพิ่มข้อเสนอแนะ"
   },
   "add-group": {
     "de": "Gruppe hinzufügen",
@@ -275,7 +270,7 @@ export default {
     "pl": "Dodaj grupę",
     "pt": "Adicionar grupo",
     "sk": "Pridať skupinu",
-    "th": "เพิ่มกลุ่ม",
+    "th": "เพิ่มกลุ่ม"
   },
   "add-item-or-sequence": {
     "de": "Element oder Sequenz hinzufügen",
@@ -288,7 +283,7 @@ export default {
     "pl": "Dodaj element lub sekwencję",
     "pt": "Adicionar item ou sequência",
     "sk": "Pridať položku alebo sekvenciu",
-    "th": "เพิ่มรายการหรือลำดับ",
+    "th": "เพิ่มรายการหรือลำดับ"
   },
   "add-new": {
     "de": "Neu hinzufügen",
@@ -301,7 +296,7 @@ export default {
     "pl": "Dodaj nowy",
     "pt": "Adicionar novo",
     "sk": "Pridať nový",
-    "th": "เพิ่มใหม่",
+    "th": "เพิ่มใหม่"
   },
   "add-picker-subtitle": {
     "de": "Wählen Sie, wohin der ausgewählte Inhalt hinzugefügt werden soll",
@@ -314,7 +309,7 @@ export default {
     "pl": "Wybierz, gdzie dodać zaznaczoną treść",
     "pt": "Escolha onde adicionar o conteúdo selecionado",
     "sk": "Vyberte, kam pridať vybraný obsah",
-    "th": "เลือกตำแหน่งที่จะเพิ่มเนื้อหาที่เลือก",
+    "th": "เลือกตำแหน่งที่จะเพิ่มเนื้อหาที่เลือก"
   },
   "add-private-notes-placeholder": {
     "de": "Private Notizen als Referenz hinzufügen…",
@@ -327,7 +322,7 @@ export default {
     "pl": "Dodaj prywatne notatki do swojej wiadomości…",
     "pt": "Adicione notas privadas para referência…",
     "sk": "Pridajte súkromné poznámky na referenciu…",
-    "th": "เพิ่มบันทึกส่วนตัวสำหรับอ้างอิง…",
+    "th": "เพิ่มบันทึกส่วนตัวสำหรับอ้างอิง…"
   },
   "add-private-notes-references-placeholder": {
     "de": "Platzhalter für private Notizen/Referenzen",
@@ -340,7 +335,7 @@ export default {
     "pl": "Symbol zastępczy notatek prywatnych/odniesień",
     "pt": "Espaço para notas privadas/referências",
     "sk": "Zástupný text pre súkromné poznámky/referencie",
-    "th": "ช่องบันทึกส่วนตัว/อ้างอิง",
+    "th": "ช่องบันทึกส่วนตัว/อ้างอิง"
   },
   "add-row": {
     "de": "Zeile hinzufügen",
@@ -353,7 +348,7 @@ export default {
     "pl": "Dodaj wiersz",
     "pt": "Adicionar linha",
     "sk": "Pridať riadok",
-    "th": "เพิ่มแถว",
+    "th": "เพิ่มแถว"
   },
   "add-selected": {
     "de": "Auswahl hinzufügen",
@@ -366,11 +361,11 @@ export default {
     "pl": "Dodaj zaznaczone",
     "pt": "Adicionar selecionados",
     "sk": "Pridať vybraté",
-    "th": "เพิ่มที่เลือก",
+    "th": "เพิ่มที่เลือก"
   },
   "add-student": {
     "de": "Schülerin/Schüler hinzufügen",
-    "en": "Add Student",
+    "en": "Add student",
     "es": "Agregar estudiante",
     "fr": "Ajouter un élève",
     "km": "បន្ថែមសិស្ស",
@@ -379,7 +374,7 @@ export default {
     "pl": "Dodaj ucznia",
     "pt": "Adicionar aluno",
     "sk": "Pridať žiaka",
-    "th": "เพิ่มนักเรียน",
+    "th": "เพิ่มนักเรียน"
   },
   "add-students": {
     "de": "Studenten hinzufügen",
@@ -392,7 +387,7 @@ export default {
     "pl": "Dodaj uczniów",
     "pt": "Adicionar alunos",
     "sk": "Pridať žiakov",
-    "th": "เพิ่มนักเรียน",
+    "th": "เพิ่มนักเรียน"
   },
   "add-students-to-group": {
     "de": "Schüler zur Gruppe hinzufügen",
@@ -405,11 +400,11 @@ export default {
     "pl": "Dodaj uczniów do grupy",
     "pt": "Adicionar alunos ao grupo",
     "sk": "Pridajte žiakov do skupiny",
-    "th": "เพิ่มนักเรียนเข้ากลุ่ม",
+    "th": "เพิ่มนักเรียนเข้ากลุ่ม"
   },
   "add-students-to-your-student-list": {
     "de": "Fügen Sie Schülerinnen und Schüler zu Ihrer Schülerinnen-/Schülerliste hinzu",
-    "en": "Add Students to Your Student List",
+    "en": "Add students to student list",
     "es": "Agregue estudiantes a su lista de estudiantes",
     "fr": "Ajouter des élèves à votre liste",
     "km": "បន្ថែមសិស្សទៅបញ្ជីសិស្សរបស់អ្នក",
@@ -418,7 +413,7 @@ export default {
     "pl": "Dodaj uczniów do listy uczniów",
     "pt": "Adicione alunos à sua lista de alunos",
     "sk": "Pridajte žiakov do svojho zoznamu žiakov",
-    "th": "เพิ่มนักเรียนเข้าสู่ระบบ",
+    "th": "เพิ่มนักเรียนเข้าสู่ระบบ"
   },
   "add-to": {
     "de": "Hinzufügen zu",
@@ -431,7 +426,7 @@ export default {
     "pl": "Dodaj do",
     "pt": "Adicionar a",
     "sk": "Pridať do",
-    "th": "เพิ่มไปยัง",
+    "th": "เพิ่มไปยัง"
   },
   "add-to-assignment": {
     "de": "Zur Aufgabe hinzufügen",
@@ -444,11 +439,11 @@ export default {
     "pl": "Dodaj do zadania",
     "pt": "Adicionar à tarefa",
     "sk": "Pridať k úlohe",
-    "th": "เพิ่มไปยังงานที่มอบหมาย",
+    "th": "เพิ่มไปยังงานที่มอบหมาย"
   },
   "add-to-assignment-choice-subtitle": {
     "de": "Wählen Sie aus, wie Sie {name} zu einer Aufgabe hinzufügen möchten.",
-    "en": "Choose how you want to add {name} to an assignment.",
+    "en": "Choose how to add {name} to an assignment.",
     "es": "Elija cómo desea agregar {name} a una tarea.",
     "fr": "Choisissez comment ajouter {name} à un devoir.",
     "km": "ជ្រើសរើសរបៀបបន្ថែម {name} ទៅកិច្ចការ។",
@@ -457,11 +452,11 @@ export default {
     "pl": "Wybierz, jak dodać {name} do zadania.",
     "pt": "Escolha como deseja adicionar {name} a uma tarefa.",
     "sk": "Vyberte, ako chcete pridať {name} k úlohe.",
-    "th": "เลือกวิธีที่ต้องการเพิ่ม {name} ไปยังงานที่มอบหมาย",
+    "th": "เลือกวิธีที่ต้องการเพิ่ม {name} ไปยังงานที่มอบหมาย"
   },
   "add-to-existing-assignment": {
     "de": "Zu einer vorhandenen Aufgabe hinzufügen",
-    "en": "Add to an existing assignment",
+    "en": "Add to existing assignment",
     "es": "Agregar a una tarea existente",
     "fr": "Ajouter à un devoir existant",
     "km": "បន្ថែមទៅកិច្ចការដែលមានស្រាប់",
@@ -470,11 +465,11 @@ export default {
     "pl": "Dodaj do istniejącego zadania",
     "pt": "Adicionar a uma tarefa existente",
     "sk": "Pridať k existujúcej úlohe",
-    "th": "เพิ่มไปยังงานที่มอบหมายที่มีอยู่",
+    "th": "เพิ่มไปยังงานที่มอบหมายที่มีอยู่"
   },
   "add-to-existing-assignment-subtitle": {
     "de": "Wählen Sie eine Aufgabe aus, zu der Sie {name} hinzufügen möchten.",
-    "en": "Choose an assignment you want to add {name} to.",
+    "en": "Add {name} to a one of the assignments listed below.",
     "es": "Elija una tarea a la que desee agregar {name}.",
     "fr": "Choisissez un devoir auquel ajouter {name}.",
     "km": "ជ្រើសរើសកិច្ចការដែលអ្នកចង់បន្ថែម {name}។",
@@ -483,7 +478,7 @@ export default {
     "pl": "Wybierz zadanie, do którego chcesz dodać {name}.",
     "pt": "Escolha uma tarefa à qual deseja adicionar {name}.",
     "sk": "Vyberte úlohu, ku ktorej chcete pridať {name}.",
-    "th": "เลือกงานที่มอบหมายที่ต้องการเพิ่ม {name}",
+    "th": "เลือกงานที่มอบหมายที่ต้องการเพิ่ม {name}"
   },
   "add-to-existing-assignment-title": {
     "de": "Zu einer vorhandenen Aufgabe hinzufügen",
@@ -496,7 +491,7 @@ export default {
     "pl": "Dodaj do istniejącego zadania",
     "pt": "Adicionar a uma tarefa existente",
     "sk": "Pridať k existujúcej úlohe",
-    "th": "เพิ่มไปยังงานที่มอบหมายที่มีอยู่",
+    "th": "เพิ่มไปยังงานที่มอบหมายที่มีอยู่"
   },
   "add-to-existing-sequence": {
     "de": "Zu einer vorhandenen Sequenz hinzufügen",
@@ -509,7 +504,7 @@ export default {
     "pl": "Dodaj do istniejącej sekwencji",
     "pt": "Adicionar a uma sequência existente",
     "sk": "Pridať do existujúcej sekvencie",
-    "th": "เพิ่มไปยังลำดับที่มีอยู่",
+    "th": "เพิ่มไปยังลำดับที่มีอยู่"
   },
   "add-to-existing-sequence-subtitle": {
     "de": "Wählen Sie eine Sequenz, zu der Sie {name} hinzufügen möchten.",
@@ -522,7 +517,7 @@ export default {
     "pl": "Wybierz sekwencję, do której chcesz dodać {name}.",
     "pt": "Escolha uma sequência à qual adicionar {name}.",
     "sk": "Vyberte sekvenciu, do ktorej chcete pridať {name}.",
-    "th": "เลือกลำดับที่ต้องการเพิ่ม {name}",
+    "th": "เลือกลำดับที่ต้องการเพิ่ม {name}"
   },
   "add-to-existing-sequence-title": {
     "de": "Zu einer vorhandenen Sequenz hinzufügen",
@@ -535,7 +530,7 @@ export default {
     "pl": "Dodaj do istniejącej sekwencji",
     "pt": "Adicionar a uma sequência existente",
     "sk": "Pridať do existujúcej sekvencie",
-    "th": "เพิ่มไปยังลำดับที่มีอยู่",
+    "th": "เพิ่มไปยังลำดับที่มีอยู่"
   },
   "add-to-favorites": {
     "de": "Add to favorites",
@@ -548,7 +543,7 @@ export default {
     "pl": "Dodaj do ulubionych",
     "pt": "Add to favorites",
     "sk": "Add to favorites",
-    "th": "เพิ่มในรายการโปรด",
+    "th": "เพิ่มในรายการโปรด"
   },
   "add-to-groups": {
     "de": "Zu Gruppen hinzufügen",
@@ -561,11 +556,11 @@ export default {
     "pl": "Dodaj do grup",
     "pt": "Adicionar aos grupos",
     "sk": "Pridať do skupín",
-    "th": "เพิ่มไปยังกลุ่ม",
+    "th": "เพิ่มไปยังกลุ่ม"
   },
   "add-to-selected-assignment": {
     "de": "Zur ausgewählten Aufgabe hinzufügen",
-    "en": "Add to the selected assignment",
+    "en": "Add to selection",
     "es": "Agregar a la tarea seleccionada",
     "fr": "Ajouter au devoir sélectionné",
     "km": "បន្ថែមទៅកិច្ចការដែលបានជ្រើស",
@@ -574,7 +569,7 @@ export default {
     "pl": "Dodaj do wybranego zadania",
     "pt": "Adicionar à tarefa selecionada",
     "sk": "Pridať k vybranej úlohe",
-    "th": "เพิ่มไปยังงานที่มอบหมายที่เลือก",
+    "th": "เพิ่มไปยังงานที่มอบหมายที่เลือก"
   },
   "add-to-sequence": {
     "de": "Zur Sequenz hinzufügen",
@@ -587,7 +582,7 @@ export default {
     "pl": "Dodaj do sekwencji",
     "pt": "Adicionar à sequência",
     "sk": "Pridať do sekvencie",
-    "th": "เพิ่มไปยังลำดับ",
+    "th": "เพิ่มไปยังลำดับ"
   },
   "add-to-sequence-choice-subtitle": {
     "de": "Wählen Sie, wie Sie {name} zu einer Sequenz hinzufügen möchten.",
@@ -600,7 +595,7 @@ export default {
     "pl": "Wybierz, jak dodać {name} do sekwencji.",
     "pt": "Escolha como adicionar {name} a uma sequência.",
     "sk": "Vyberte, ako chcete pridať {name} do sekvencie.",
-    "th": "เลือกวิธีเพิ่ม {name} ไปยังลำดับ",
+    "th": "เลือกวิธีเพิ่ม {name} ไปยังลำดับ"
   },
   "add-to-sequence-subtitle": {
     "de": "Fügen Sie dieses Element zu einer vorhandenen Sequenz hinzu",
@@ -613,7 +608,7 @@ export default {
     "pl": "Dodaj ten element do istniejącej sekwencji",
     "pt": "Adicione este item a uma sequência existente",
     "sk": "Pridajte túto položku do existujúcej sekvencie",
-    "th": "เพิ่มรายการนี้ไปยังลำดับที่มีอยู่",
+    "th": "เพิ่มรายการนี้ไปยังลำดับที่มีอยู่"
   },
   "added": {
     "de": "Hinzugefügt",
@@ -626,7 +621,7 @@ export default {
     "pl": "Dodano",
     "pt": "Adicionado",
     "sk": "Pridané",
-    "th": "เพิ่มแล้ว",
+    "th": "เพิ่มแล้ว"
   },
   "admin": {
     "de": "Administratorin/Administrator",
@@ -639,7 +634,7 @@ export default {
     "pl": "Administrator",
     "pt": "Administrador",
     "sk": "Administrátor",
-    "th": "จัดการข้อมูล",
+    "th": "จัดการข้อมูล"
   },
   "admin-role-required": {
     "de": "Administratorenrolle erforderlich",
@@ -652,7 +647,7 @@ export default {
     "pl": "Wymagana rola administratora",
     "pt": "Função de administrador necessária",
     "sk": "Vyžaduje sa rola administrátora",
-    "th": "จำเป็นมีตำแหน่งเป็นแอดมิน",
+    "th": "จำเป็นมีตำแหน่งเป็นแอดมิน"
   },
   "admins": {
     "de": "Administratoren",
@@ -665,7 +660,7 @@ export default {
     "pl": "Administratorzy",
     "pt": "Administradores",
     "sk": "Správcovia",
-    "th": "ผู้ดูแลระบบ",
+    "th": "ผู้ดูแลระบบ"
   },
   "after-each-question": {
     "de": "Nach jeder Frage",
@@ -678,7 +673,7 @@ export default {
     "pl": "Po każdym pytaniu",
     "pt": "Após cada pergunta",
     "sk": "Po každej otázke",
-    "th": "หลังแต่ละคำถาม",
+    "th": "หลังแต่ละคำถาม"
   },
   "agree": {
     "de": "Zustimmen",
@@ -691,7 +686,7 @@ export default {
     "pl": "Zgadzam się",
     "pt": "Concordar",
     "sk": "Súhlasím",
-    "th": "ยอมรับ",
+    "th": "ยอมรับ"
   },
   "all": {
     "de": "Alle",
@@ -704,7 +699,7 @@ export default {
     "pl": "Wszystko",
     "pt": "Todos",
     "sk": "Všetko",
-    "th": "ทั้งหมด",
+    "th": "ทั้งหมด"
   },
   "all-content": {
     "de": "Alle Inhalte",
@@ -717,7 +712,7 @@ export default {
     "pl": "Cała treść",
     "pt": "Todo o conteúdo",
     "sk": "Všetok obsah",
-    "th": "เนื้อหาทั้งหมด",
+    "th": "เนื้อหาทั้งหมด"
   },
   "all-saved-versions-of-your-answers-solutions-inc": {
     "de": "alle gespeicherten Versionen Deiner Antworten/Lösungen, einschließlich Deiner Gespräche mit KI-Chatbots (falls zutreffend)",
@@ -730,7 +725,7 @@ export default {
     "pl": "wszystkie zapisane wersje Twoich odpowiedzi/rozwiązań",
     "pt": "todas as versões salvas de suas respostas/soluções, incluindo suas conversas com chatbots de IA (se aplicável)",
     "sk": "všetky uložené verzie tvojich odpovedí/riešení vrátane tvojich konverzácií s chatbotmi AI (ak sú k dispozícii)",
-    "th": "คำตอบ/วิธีการแก้ปัญหาทั้งหมดของท่านที่ได้ทำการบันทึกไว้",
+    "th": "คำตอบ/วิธีการแก้ปัญหาทั้งหมดของท่านที่ได้ทำการบันทึกไว้"
   },
   "all-selected-already-in-assignment": {
     "de": "Alle ausgewählten Elemente befinden sich bereits in dieser Aufgabe",
@@ -743,7 +738,7 @@ export default {
     "pl": "Wszystkie wybrane elementy są już w tym zadaniu",
     "pt": "Todos os itens selecionados já estão nesta tarefa",
     "sk": "Všetky vybraté položky sú už v tejto úlohe",
-    "th": "รายการที่เลือกทั้งหมดอยู่ในงานที่มอบหมายนี้แล้ว",
+    "th": "รายการที่เลือกทั้งหมดอยู่ในงานที่มอบหมายนี้แล้ว"
   },
   "all-selected-already-in-sequence": {
     "de": "Alle ausgewählten Elemente befinden sich bereits in dieser Sequenz",
@@ -756,7 +751,7 @@ export default {
     "pl": "Wszystkie wybrane elementy są już w tej sekwencji",
     "pt": "Todos os itens selecionados já estão nesta sequência",
     "sk": "Všetky vybrané položky sú už v tejto sekvencii",
-    "th": "รายการที่เลือกทั้งหมดอยู่ในลำดับนี้แล้ว",
+    "th": "รายการที่เลือกทั้งหมดอยู่ในลำดับนี้แล้ว"
   },
   "all-students": {
     "de": "Alle Schülerinnen/Schüler",
@@ -769,7 +764,7 @@ export default {
     "pl": "Wszyscy uczniowie",
     "pt": "Todos os alunos",
     "sk": "Všetci žiaci",
-    "th": "นักเรียนทั้งหมด",
+    "th": "นักเรียนทั้งหมด"
   },
   "all-teachers": {
     "de": "Alle Lehrkräfte",
@@ -782,7 +777,7 @@ export default {
     "pl": "Wszyscy nauczyciele",
     "pt": "Todos os professores",
     "sk": "Všetci učitelia",
-    "th": "ครูทั้งหมด",
+    "th": "ครูทั้งหมด"
   },
   "allow-late-submissions": {
     "de": "Verspätete Abgaben erlauben",
@@ -795,7 +790,7 @@ export default {
     "pl": "Zezwalaj na spóźnione oddania",
     "pt": "Permitir entregas atrasadas",
     "sk": "Povoliť oneskorené odovzdania",
-    "th": "อนุญาตให้ส่งช้า",
+    "th": "อนุญาตให้ส่งช้า"
   },
   "already-exists-continue": {
     "de": "existiert bereits. Trotzdem weitermachen?",
@@ -808,7 +803,7 @@ export default {
     "pl": "już istnieje. Kontynuować mimo to?",
     "pt": "já existe. Continuar mesmo assim?",
     "sk": "už existuje. Chcete napriek tomu pokračovať?",
-    "th": "มีอยู่แล้ว ดำเนินการต่อหรือไม่?",
+    "th": "มีอยู่แล้ว ดำเนินการต่อหรือไม่?"
   },
   "already-in-assignment": {
     "de": "bereits in der Aufgabe",
@@ -821,7 +816,7 @@ export default {
     "pl": "już w zadaniu",
     "pt": "já está na tarefa",
     "sk": "už je v úlohe",
-    "th": "อยู่ในงานที่มอบหมายแล้ว",
+    "th": "อยู่ในงานที่มอบหมายแล้ว"
   },
   "already-in-sequence": {
     "de": "Dieses Element befindet sich bereits in der Sequenz",
@@ -834,7 +829,7 @@ export default {
     "pl": "Ten element jest już w sekwencji",
     "pt": "Este item já está na sequência",
     "sk": "Táto položka už je v sekvencii",
-    "th": "รายการนี้อยู่ในลำดับแล้ว",
+    "th": "รายการนี้อยู่ในลำดับแล้ว"
   },
   "already-opted-out": {
     "de": "Bereits abgemeldet",
@@ -847,7 +842,7 @@ export default {
     "pl": "Już zrezygnowano",
     "pt": "Já desistiu",
     "sk": "Už odhlásený/á",
-    "th": "ได้ยกเลิกแล้ว",
+    "th": "ได้ยกเลิกแล้ว"
   },
   "anonymous": {
     "de": "Anonym",
@@ -860,7 +855,7 @@ export default {
     "pl": "Anonimowy",
     "pt": "Anônima",
     "sk": "Anonymný",
-    "th": "ไม่ระบุตัวตน",
+    "th": "ไม่ระบุตัวตน"
   },
   "answered": {
     "de": "Beantwortet",
@@ -873,11 +868,11 @@ export default {
     "pl": "Odpowiedziano",
     "pt": "Respondido",
     "sk": "Odpovedané",
-    "th": "ตอบแล้ว",
+    "th": "ตอบแล้ว"
   },
   "app-specific-dashboard": {
     "de": "App-spezifisches Dashboard",
-    "en": "App Specific Dashboard",
+    "en": "App-specific dashboard",
     "es": "Panel de control específico de la aplicación",
     "fr": "Tableau de bord spécifique à l’application",
     "km": "ផ្ទាំងគ្រប់គ្រងជាក់លាក់តាមកម្មវិធី",
@@ -886,11 +881,11 @@ export default {
     "pl": "Panel specyficzny dla aplikacji",
     "pt": "Painel específico do aplicativo",
     "sk": "Informačný panel špecifický pre aplikáciu",
-    "th": "แดชบอร์ดเฉพาะแอป",
+    "th": "แดชบอร์ดเฉพาะแอป"
   },
   "applying-key": {
     "de": "Anwenden des Schlüssels",
-    "en": "Applying Key",
+    "en": "Applying key",
     "es": "Aplicar clave",
     "fr": "Application de la clé…",
     "km": "កំពុងអនុវត្តសោ…",
@@ -899,7 +894,7 @@ export default {
     "pl": "Stosowanie klucza…",
     "pt": "Aplicando Chave",
     "sk": "Aplikuje sa kľúč",
-    "th": "กำลังใช้คีย์…",
+    "th": "กำลังใช้คีย์…"
   },
   "archive": {
     "de": "Archiv",
@@ -912,11 +907,11 @@ export default {
     "pl": "Archiwizuj",
     "pt": "Arquivo",
     "sk": "Archív",
-    "th": "จัดเก็บ",
+    "th": "จัดเก็บ"
   },
   "archive-assignment-confirm-intro": {
     "de": "Wählen Sie aus, wie „{name}“ archiviert werden soll. Nichts wird dauerhaft gelöscht – Sie können es später aus archivierten Aufgaben wiederherstellen.",
-    "en": "Choose how to archive \"{name}\". Nothing is permanently deleted — you can restore it later from archived assignments.",
+    "en": "Choose how to archive \"{name}\". Nothing is permanently deleted — it can be restored later by clicking ‘Show archived’ and reselecting the assignment.",
     "es": "Elija cómo archivar \"{name}\". Nada se elimina permanentemente; puedes restaurarlo más tarde desde las tareas archivadas.",
     "fr": "Choisissez comment archiver « {name} ». Rien n’est supprimé définitivement — vous pourrez le restaurer plus tard depuis les devoirs archivés.",
     "km": "ជ្រើសរើសរបៀបទុកជាឯកសារ \"{name}\"។ គ្មានអ្វីត្រូវបានលុបជាអចិន្ត្រៃយ៍ទេ — អ្នកអាចស្តារឡើងវិញពីកិច្ចការដែលបានទុកជាឯកសារនៅពេលក្រោយ។",
@@ -925,7 +920,7 @@ export default {
     "pl": "Wybierz sposób archiwizacji „{name}”. Nic nie zostanie trwale usunięte — możesz później przywrócić to z zarchiwizowanych zadań.",
     "pt": "Escolha como arquivar \"{name}\". Nada é excluído permanentemente – você pode restaurá-lo mais tarde a partir de tarefas arquivadas.",
     "sk": "Vyberte spôsob archivácie „{name}“. Nič sa natrvalo neodstráni – môžete to neskôr obnoviť z archivovaných úloh.",
-    "th": "เลือกวิธีเก็บถาวร \"{name}\" ไม่มีการลบถาวร — คุณสามารถกู้คืนได้ในภายหลังจากงานที่มอบหมายที่เก็บถาวร",
+    "th": "เลือกวิธีเก็บถาวร \"{name}\" ไม่มีการลบถาวร — คุณสามารถกู้คืนได้ในภายหลังจากงานที่มอบหมายที่เก็บถาวร"
   },
   "archive-assignment-confirm-title": {
     "de": "Diese Aufgabe archivieren?",
@@ -938,11 +933,11 @@ export default {
     "pl": "Zarchiwizować to zadanie?",
     "pt": "Arquivar esta tarefa?",
     "sk": "Archivovať túto úlohu?",
-    "th": "เก็บถาวรงานที่มอบหมายนี้หรือไม่?",
+    "th": "เก็บถาวรงานที่มอบหมายนี้หรือไม่?"
   },
   "archive-assignment-for-all-description": {
     "de": "Blendet diese Aufgabe aus Ihrer Liste aus und entfernt sie aus allen zugewiesenen Gruppen ({groups}). Die Schüler sehen diese Aufgabe nicht mehr.",
-    "en": "Hides this assignment from your list and removes it from all assigned groups ({groups}). Students will no longer see this assignment.",
+    "en": "Removes this assignment from 'My Assignments' and from all assigned groups ({groups}). Students will no longer see it in their accounts.",
     "es": "Oculta esta tarea de tu lista y la elimina de todos los grupos asignados ({groups}). Los estudiantes ya no verán esta tarea.",
     "fr": "Masque ce devoir de votre liste et le retire de tous les groupes assignés ({groups}). Les élèves ne le verront plus.",
     "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នក និងដកចេញពីក្រុមដែលបានកំណត់ទាំងអស់ ({groups})។ សិស្សនឹងមិនឃើញវាទៀតទេ។",
@@ -951,11 +946,11 @@ export default {
     "pl": "Ukrywa to zadanie z Twojej listy i usuwa je ze wszystkich przypisanych grup ({groups}). Uczniowie nie będą go już widzieć.",
     "pt": "Oculta esta tarefa da sua lista e a remove de todos os grupos atribuídos ({groups}). Os alunos não verão mais esta tarefa.",
     "sk": "Skryje túto úlohu vo vašom zozname a odstráni ju zo všetkých priradených skupín ({groups}). Toto zadanie už žiaci neuvidia.",
-    "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณและนำออกจากกลุ่มที่มอบหมายทั้งหมด ({groups}) นักเรียนจะไม่เห็นอีกต่อไป",
+    "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณและนำออกจากกลุ่มที่มอบหมายทั้งหมด ({groups}) นักเรียนจะไม่เห็นอีกต่อไป"
   },
   "archive-assignment-for-all-description-draft": {
     "de": "Blendet diese Aufgabe aus Ihrer Liste aus. Es sind keine Gruppen zugewiesen, daher hat dies denselben Effekt wie „Für mich archivieren“.",
-    "en": "Hides this assignment from your list. No groups are assigned, so this has the same effect as archiving for me.",
+    "en": "Removes this assignment from 'My Assignments' for this teacher account. No groups are assigned, so this has the same effect as selecting 'Archive for me'.",
     "es": "Oculta esta tarea de tu lista. No hay grupos asignados, por lo que tiene el mismo efecto que «Archivar para mí».",
     "fr": "Masque ce devoir de votre liste. Aucun groupe n’est assigné, donc l’effet est le même que « archiver pour moi ».",
     "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នក។ មិនមានក្រុមណាត្រូវបានកំណត់ទេ ដូច្នេះមានប្រសិទ្ធភាពដូចការទុកជាឯកសារសម្រាប់ខ្ញុំ។",
@@ -964,7 +959,7 @@ export default {
     "pl": "Ukrywa to zadanie z Twojej listy. Nie przypisano żadnych grup, więc efekt jest taki sam jak „archiwizuj dla mnie”.",
     "pt": "Oculta esta tarefa da sua lista. Nenhum grupo está atribuído, portanto, tem o mesmo efeito que “Arquivar para mim”.",
     "sk": "Skryje túto úlohu vo vašom zozname. Nie sú priradené žiadne skupiny, takže výsledok je rovnaký ako pri možnosti „Archivovať pre mňa“.",
-    "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณ ไม่มีกลุ่มที่มอบหมาย จึงมีผลเช่นเดียวกับการเก็บถาวรสำหรับฉัน",
+    "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณ ไม่มีกลุ่มที่มอบหมาย จึงมีผลเช่นเดียวกับการเก็บถาวรสำหรับฉัน"
   },
   "archive-assignment-for-all-label": {
     "de": "Für alle archivieren",
@@ -977,11 +972,11 @@ export default {
     "pl": "Archiwizuj dla wszystkich",
     "pt": "Arquivar para todos",
     "sk": "Archivovať pre všetkých",
-    "th": "เก็บถาวรสำหรับทุกคน",
+    "th": "เก็บถาวรสำหรับทุกคน"
   },
   "archive-assignment-for-me-description": {
     "de": "Blendet diese Aufgabe nur aus Ihrer Liste aus. Schüler in den zugewiesenen Gruppen ({groups}) können sie weiterhin sehen und bearbeiten, bis Sie diese Gruppen aus der Aufgabe entfernen.",
-    "en": "Hides this assignment from your list only. Students in assigned groups ({groups}) will still see and can work on it until you remove those groups from the assignment.",
+    "en": "This assignment will be removed from 'My Assignments' for this teacher account only. Students in assigned groups ({groups}) can still see and work on it until you remove those groups from the assignment.",
     "es": "Oculta esta tarea solo de tu lista. Los estudiantes de los grupos asignados ({groups}) podrán seguir viéndola y trabajando en ella hasta que elimines esos grupos de la tarea.",
     "fr": "Masque ce devoir de votre liste uniquement. Les élèves des groupes assignés ({groups}) pourront encore le voir et y travailler jusqu’à ce que vous retiriez ces groupes du devoir.",
     "km": "លាក់កិច្ចការនេះពីបញ្ជីរបស់អ្នកតែប៉ុណ្ណោះ។ សិស្សក្នុងក្រុមដែលបានកំណត់ ({groups}) នៅតែអាចមើល និងធ្វើការលើវា រហូតដល់អ្នកដកក្រុមទាំងនោះចេញពីកិច្ចការ។",
@@ -990,11 +985,11 @@ export default {
     "pl": "Ukrywa to zadanie tylko z Twojej listy. Uczniowie w przypisanych grupach ({groups}) nadal będą je widzieć i mogli nad nim pracować, dopóki nie usuniesz tych grup z zadania.",
     "pt": "Oculta esta tarefa apenas da sua lista. Os alunos nos grupos atribuídos ({groups}) ainda poderão vê-la e realizá-la até que você remova esses grupos da tarefa.",
     "sk": "Skryje túto úlohu iba vo vašom zozname. Žiaci v priradených skupinách ({groups}) ju budú môcť naďalej vidieť a riešiť, kým tieto skupiny z úlohy neodstránite.",
-    "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณเท่านั้น นักเรียนในกลุ่มที่มอบหมาย ({groups}) ยังเห็นและทำได้จนกว่าคุณจะนำกลุ่มเหล่านั้นออกจากงาน",
+    "th": "ซ่อนงานที่มอบหมายนี้จากรายการของคุณเท่านั้น นักเรียนในกลุ่มที่มอบหมาย ({groups}) ยังเห็นและทำได้จนกว่าคุณจะนำกลุ่มเหล่านั้นออกจากงาน"
   },
   "archive-assignment-for-me-description-draft": {
     "de": "Blendet diese Aufgabe aus Ihrer aktiven Liste aus. Sie ist für keine Gruppe veröffentlicht, daher sind Schüler nicht betroffen.",
-    "en": "Hides this assignment from your active list. It is not published to any groups, so students are not affected.",
+    "en": "Removes this assignment from 'My Assignments' for this teacher account. It is not yet published to any groups, so students cannot view it.",
     "es": "Oculta esta tarea de tu lista activa. No se publica en ningún grupo, por lo que los estudiantes no se ven afectados.",
     "fr": "Masque ce devoir de votre liste active. Il n’est publié pour aucun groupe, donc les élèves ne sont pas concernés.",
     "km": "លាក់កិច្ចការនេះពីបញ្ជីសកម្ម។ វាមិនត្រូវបានផ្សព្វផ្សាយទៅក្រុមណាទេ ដូច្នេះសិស្សមិនរងផលប៉ះពាល់។",
@@ -1003,7 +998,7 @@ export default {
     "pl": "Ukrywa to zadanie z aktywnej listy. Nie jest opublikowane dla żadnych grup, więc uczniowie nie są dotknięci.",
     "pt": "Oculta esta tarefa da sua lista ativa. Não é publicado em nenhum grupo, portanto os alunos não são afetados.",
     "sk": "Skryje túto úlohu vo vašom aktívnom zozname. Nie je zverejnená pre žiadnu skupinu, takže žiakov sa to netýka.",
-    "th": "ซ่อนงานที่มอบหมายนี้จากรายการที่ใช้งาน ไม่ได้เผยแพร่ไปยังกลุ่มใด นักเรียนจึงไม่ได้รับผลกระทบ",
+    "th": "ซ่อนงานที่มอบหมายนี้จากรายการที่ใช้งาน ไม่ได้เผยแพร่ไปยังกลุ่มใด นักเรียนจึงไม่ได้รับผลกระทบ"
   },
   "archive-assignment-for-me-label": {
     "de": "Für mich archivieren",
@@ -1016,7 +1011,7 @@ export default {
     "pl": "Archiwizuj dla mnie",
     "pt": "Arquivar para mim",
     "sk": "Archivovať pre mňa",
-    "th": "เก็บถาวรสำหรับฉัน",
+    "th": "เก็บถาวรสำหรับฉัน"
   },
   "archive-assignment-n-groups": {
     "de": "{count} Gruppen",
@@ -1029,7 +1024,7 @@ export default {
     "pl": "{count} grup(y)",
     "pt": "{count} grupos",
     "sk": "{count} skupín",
-    "th": "{count} กลุ่ม",
+    "th": "{count} กลุ่ม"
   },
   "archive-assignment-one-group": {
     "de": "1 Gruppe",
@@ -1042,11 +1037,11 @@ export default {
     "pl": "1 grupa",
     "pt": "1 grupo",
     "sk": "1 skupina",
-    "th": "1 กลุ่ม",
+    "th": "1 กลุ่ม"
   },
   "archive-group-confirm-description": {
     "de": "Diese Gruppe hat {count} Schüler. Durch die Archivierung wird die Gruppe aus Ihrer aktiven Liste ausgeblendet. Die Schüler bleiben in der Gruppe und können die dort veröffentlichten Aufgaben weiterhin sehen, bis Sie die Zuweisung zur Gruppe aufheben. Sie können die Gruppe später aus archivierten Gruppen wiederherstellen.",
-    "en": "This group has {count} student(s). Archiving hides the group from your active list. Students remain in the group and can still see assignments published to it until you unassign the group. You can restore the group later from archived groups.",
+    "en": "Archiving this group will remove it from the 'Active' groups list. It can be restored by clicking ‘Show archived’ and reselecting the group.",
     "es": "Este grupo tiene {count} estudiantes. Archivar oculta el grupo de su lista activa. Los estudiantes permanecen en el grupo y aún pueden ver las tareas publicadas en él hasta que cancele la asignación del grupo. Puede restaurar el grupo más tarde desde grupos archivados.",
     "fr": "Ce groupe compte {count} élève(s). L’archivage le masque de votre liste active. Les élèves restent dans le groupe et peuvent encore voir les devoirs publiés pour ce groupe jusqu’à ce que vous le retiriez. Vous pourrez restaurer le groupe plus tard depuis les groupes archivés.",
     "km": "ក្រុមនេះមានសិស្ស {count} នាក់។ ការទុកជាឯកសារលាក់វាពីបញ្ជីសកម្ម។ សិស្សនៅតែស្ថិតក្នុងក្រុម និងអាចមើលកិច្ចការដែលបានផ្សព្វផ្សាយទៅវា រហូតដល់អ្នកដកក្រុម។ អ្នកអាចស្តារក្រុមពីក្រុមដែលបានទុកជាឯកសារនៅពេលក្រោយ។",
@@ -1055,7 +1050,7 @@ export default {
     "pl": "Ta grupa ma {count} ucznia/uczniów. Archiwizacja ukrywa ją z aktywnej listy. Uczniowie pozostają w grupie i mogą nadal widzieć zadania opublikowane dla niej, dopóki jej nie usuniesz. Możesz później przywrócić grupę z zarchiwizowanych grup.",
     "pt": "Este grupo tem {count} aluno(s). O arquivamento oculta o grupo da sua lista ativa. Os alunos permanecem no grupo e ainda podem ver as tarefas publicadas nele até você cancelar a atribuição do grupo. Você pode restaurar o grupo posteriormente a partir de grupos arquivados.",
     "sk": "Táto skupina má {count} žiakov. Archivácia skryje skupinu z vášho aktívneho zoznamu. Žiaci zostávajú v skupine a stále môžu vidieť úlohy, ktoré sú v nej zverejnené, kým nezrušíte priradenie skupiny. Skupinu môžete neskôr obnoviť z archivovaných skupín.",
-    "th": "กลุ่มนี้มีนักเรียน {count} คน การเก็บถาวรจะซ่อนจากรายการที่ใช้งาน นักเรียนยังอยู่ในกลุ่มและอาจยังเห็นงานที่เผยแพร่ไปยังกลุ่มจนกว่าคุณจะนำกลุ่มออก คุณสามารถกู้คืนกลุ่มได้ในภายหลังจากกลุ่มที่เก็บถาวร",
+    "th": "กลุ่มนี้มีนักเรียน {count} คน การเก็บถาวรจะซ่อนจากรายการที่ใช้งาน นักเรียนยังอยู่ในกลุ่มและอาจยังเห็นงานที่เผยแพร่ไปยังกลุ่มจนกว่าคุณจะนำกลุ่มออก คุณสามารถกู้คืนกลุ่มได้ในภายหลังจากกลุ่มที่เก็บถาวร"
   },
   "archive-group-confirm-title": {
     "de": "Gruppe „{name}“ archivieren?",
@@ -1068,11 +1063,11 @@ export default {
     "pl": "Zarchiwizować grupę „{name}”?",
     "pt": "Arquivar o grupo \"{name}\"?",
     "sk": "Archivovať skupinu „{name}“?",
-    "th": "เก็บถาวรกลุ่ม \"{name}\" หรือไม่?",
+    "th": "เก็บถาวรกลุ่ม \"{name}\" หรือไม่?"
   },
   "archive-sequence": {
     "de": "Sequenz archivieren",
-    "en": "Archive Sequence",
+    "en": "Archive this sequence?",
     "es": "Archivar secuencia",
     "fr": "Archiver la séquence",
     "km": "ទុកលំដាប់ជាឯកសារ",
@@ -1081,11 +1076,11 @@ export default {
     "pl": "Archiwizuj sekwencję",
     "pt": "Arquivar sequência",
     "sk": "Archivovať sekvenciu",
-    "th": "เก็บถาวรลำดับ",
+    "th": "เก็บถาวรลำดับ"
   },
   "archive-sequence-confirm": {
     "de": "Diese Sequenz archivieren? Sie wird aus Ihren aktiven Sequenzen entfernt. Sie können sie später wiederherstellen.",
-    "en": "Archive this sequence? It will be removed from your active sequences. You can restore it later.",
+    "en": "Archive this sequence? It will be removed from 'My Sequences' and can be restored later.",
     "es": "¿Archivar esta secuencia? Se eliminará de tus secuencias activas. Puedes restaurarla más tarde.",
     "fr": "Archiver cette séquence ? Elle sera retirée de vos séquences actives. Vous pourrez la restaurer plus tard.",
     "km": "ទុកលំដាប់នេះជាឯកសារ? វានឹងត្រូវបានដកចេញពីលំដាប់សកម្ម។ អ្នកអាចស្តារវានៅពេលក្រោយ។",
@@ -1094,7 +1089,7 @@ export default {
     "pl": "Zarchiwizować tę sekwencję? Zostanie usunięta z aktywnych sekwencji. Możesz ją później przywrócić.",
     "pt": "Arquivar esta sequência? Ela será removida das suas sequências ativas. Você poderá restaurá-la mais tarde.",
     "sk": "Archivovať túto sekvenciu? Odstráni sa z vašich aktívnych sekvencií. Neskôr ju môžete obnoviť.",
-    "th": "เก็บถาวรลำดับนี้หรือไม่? จะถูกลบออกจากลำดับที่ใช้งาน คุณสามารถกู้คืนได้ในภายหลัง",
+    "th": "เก็บถาวรลำดับนี้หรือไม่? จะถูกลบออกจากลำดับที่ใช้งาน คุณสามารถกู้คืนได้ในภายหลัง"
   },
   "archive-student-confirm-description": {
     "de": "Dieser Schüler wird in Ihrer aktiven Liste ausgeblendet. Er wird nicht gelöscht und kann sich weiterhin anmelden. Er bleibt in seinen Gruppen und sieht ggf. weiterhin Aufgaben, bis Sie ihn aus Gruppen entfernen oder die Aufgabe für alle archivieren. Sie können ihn jederzeit aus den archivierten Schülern wiederherstellen.",
@@ -1107,7 +1102,7 @@ export default {
     "pl": "Ten uczeń zostanie ukryty na aktywnej liście. Nie jest usuwany i nadal może się logować. Pozostaje w grupach i może nadal widzieć zadania, dopóki nie usuniesz go z grup lub nie zarchiwizujesz zadania dla wszystkich. Przywróć w dowolnym momencie z zarchiwizowanych uczniów.",
     "pt": "Este aluno será ocultado da sua lista ativa. Não é eliminado e ainda pode iniciar sessão. Permanece nos grupos e pode continuar a ver tarefas até o remover dos grupos ou arquivar a tarefa para todos. Restaure a qualquer momento a partir dos alunos arquivados.",
     "sk": "Tento študent bude skrytý z vášho aktívneho zoznamu. Nie je odstránený a stále sa môže prihlásiť. Zostáva v skupinách a môže stále vidieť úlohy, kým ho neodstránite zo skupín alebo nearchivujete úlohu pre všetkých. Kedykoľvek ho obnovte z archivovaných študentov.",
-    "th": "นักเรียนคนนี้จะถูกซ่อนจากรายการที่ใช้งานอยู่ ไม่ถูกลบและยังเข้าสู่ระบบได้ ยังอยู่ในกลุ่มและอาจยังเห็นงานจนกว่าคุณจะนำออกจากกลุ่มหรือเก็บถาวรงานสำหรับทุกคน กู้คืนได้ตลอดเวลาจากนักเรียนที่เก็บถาวร",
+    "th": "นักเรียนคนนี้จะถูกซ่อนจากรายการที่ใช้งานอยู่ ไม่ถูกลบและยังเข้าสู่ระบบได้ ยังอยู่ในกลุ่มและอาจยังเห็นงานจนกว่าคุณจะนำออกจากกลุ่มหรือเก็บถาวรงานสำหรับทุกคน กู้คืนได้ตลอดเวลาจากนักเรียนที่เก็บถาวร"
   },
   "archive-student-confirm-title": {
     "de": "Diesen Schüler archivieren?",
@@ -1120,7 +1115,7 @@ export default {
     "pl": "Zarchiwizować tego ucznia?",
     "pt": "Arquivar este aluno?",
     "sk": "Archivovať tohto študenta?",
-    "th": "เก็บถาวรนักเรียนคนนี้?",
+    "th": "เก็บถาวรนักเรียนคนนี้?"
   },
   "archived": {
     "de": "Archiviert",
@@ -1133,7 +1128,7 @@ export default {
     "pl": "Archiwum",
     "pt": "Arquivada",
     "sk": "Archivované",
-    "th": "ชั้นเรียนที่ถูกจัดเก็บไว้",
+    "th": "ชั้นเรียนที่ถูกจัดเก็บไว้"
   },
   "are-you-sure": {
     "de": "Sind Sie sicher?",
@@ -1146,7 +1141,7 @@ export default {
     "pl": "Czy na pewno?",
     "pt": "Tem certeza?",
     "sk": "Si si istý?",
-    "th": "ท่านแน่ใจหรือไม่?",
+    "th": "ท่านแน่ใจหรือไม่?"
   },
   "assessment": {
     "de": "Bewertung",
@@ -1159,7 +1154,7 @@ export default {
     "pl": "Ocenianie",
     "pt": "Avaliação",
     "sk": "Hodnotenie",
-    "th": "การประเมิน",
+    "th": "การประเมิน"
   },
   "assign": {
     "de": "Zuweisen",
@@ -1172,7 +1167,7 @@ export default {
     "pl": "Przypisz",
     "pt": "Atribuir",
     "sk": "Priradiť",
-    "th": "มอบหมาย",
+    "th": "มอบหมาย"
   },
   "assign-and-monitor": {
     "de": "Zuweisen und überwachen",
@@ -1185,7 +1180,7 @@ export default {
     "pl": "Przypisz i monitoruj",
     "pt": "Atribuir e monitorar",
     "sk": "Priradiť a sledovať",
-    "th": "มอบหมายและติดตาม",
+    "th": "มอบหมายและติดตาม"
   },
   "assign-relevant-competencies-to-make-this-conten": {
     "de": "Assign Relevant Competencies to Make this Content Discoverable",
@@ -1198,7 +1193,7 @@ export default {
     "pl": "Assign Relevant Competencies to Make this Content Discoverable",
     "pt": "Assign Relevant Competencies to Make this Content Discoverable",
     "sk": "Assign Relevant Competencies to Make this Content Discoverable",
-    "th": "กำหนดสมรรถนะที่เกี่ยวข้องเพื่อให้ค้นพบเนื้อหานี้ได้",
+    "th": "กำหนดสมรรถนะที่เกี่ยวข้องเพื่อให้ค้นพบเนื้อหานี้ได้"
   },
   "assign-students-to-group": {
     "de": "Schüler einer Gruppe zuweisen",
@@ -1211,7 +1206,7 @@ export default {
     "pl": "Przypisz uczniów do grupy",
     "pt": "Atribuir alunos a um grupo",
     "sk": "Priradiť študentov do skupiny",
-    "th": "มอบหมายนักเรียนเข้ากลุ่ม",
+    "th": "มอบหมายนักเรียนเข้ากลุ่ม"
   },
   "assign-to": {
     "de": "Zuweisen an",
@@ -1224,11 +1219,11 @@ export default {
     "pl": "Przypisz do",
     "pt": "Atribuir a",
     "sk": "Priradiť",
-    "th": "มอบหมายให้",
+    "th": "มอบหมายให้"
   },
   "assign-to-groups-optional-hint": {
     "de": "Sie können Kurse jetzt zuweisen oder sie später über die Aufgabenseite hinzufügen.",
-    "en": "You can assign classes now or add them later from the assignments page.",
+    "en": "Assign classes now or add them later from the assignments page.",
     "es": "Puede asignar clases ahora o agregarlas más tarde desde la página de tareas.",
     "fr": "Vous pouvez assigner des classes maintenant ou les ajouter plus tard depuis la page des devoirs.",
     "km": "អ្នកអាចកំណត់ថ្នាក់ឥឡូវនេះ ឬបន្ថែមពួកវាពីទំព័រកិច្ចការនៅពេលក្រោយ។",
@@ -1237,7 +1232,7 @@ export default {
     "pl": "Możesz przypisać klasy teraz lub dodać je później ze strony zadań.",
     "pt": "Você pode atribuir aulas agora ou adicioná-las mais tarde na página de tarefas.",
     "sk": "Triedy môžete priradiť teraz alebo ich môžete pridať neskôr na stránke úloh.",
-    "th": "คุณสามารถมอบหมายชั้นเรียนตอนนี้ หรือเพิ่มทีหลังจากหน้างานที่มอบหมาย",
+    "th": "คุณสามารถมอบหมายชั้นเรียนตอนนี้ หรือเพิ่มทีหลังจากหน้างานที่มอบหมาย"
   },
   "assigned-by": {
     "de": "Zugewiesen von",
@@ -1250,7 +1245,7 @@ export default {
     "pl": "Przypisane przez",
     "pt": "Atribuído por",
     "sk": "Pridelil",
-    "th": "มอบหมายโดย",
+    "th": "มอบหมายโดย"
   },
   "assigned-to": {
     "de": "Zugewiesen an",
@@ -1263,7 +1258,7 @@ export default {
     "pl": "Przypisany do",
     "pt": "Atribuído a",
     "sk": "Pridelené k",
-    "th": "มอบหมายให้",
+    "th": "มอบหมายให้"
   },
   "assigner": {
     "de": "Absenderin/Absender",
@@ -1276,7 +1271,7 @@ export default {
     "pl": "Przypisujący",
     "pt": "Atribuidora",
     "sk": "Zadávateľ",
-    "th": "ผู้มอบหมาย",
+    "th": "ผู้มอบหมาย"
   },
   "assigner-id": {
     "de": "Zuweisungs-ID",
@@ -1289,7 +1284,7 @@ export default {
     "pl": "Identyfikator przypisującego",
     "pt": "ID do atribuidor",
     "sk": "ID priraďovateľa",
-    "th": "รหัสผู้มอบหมาย",
+    "th": "รหัสผู้มอบหมาย"
   },
   "assignment": {
     "de": "Aufgabe",
@@ -1302,7 +1297,7 @@ export default {
     "pl": "Zadanie",
     "pt": "Atribuição",
     "sk": "Úloha",
-    "th": "กิจกรรม",
+    "th": "กิจกรรม"
   },
   "assignment-created-successfully": {
     "de": "Aufgabe erfolgreich erstellt",
@@ -1315,7 +1310,7 @@ export default {
     "pl": "Zadanie utworzono pomyślnie",
     "pt": "Tarefa criada com sucesso",
     "sk": "Úloha bola úspešne vytvorená",
-    "th": "สร้างงานที่มอบหมายสำเร็จ",
+    "th": "สร้างงานที่มอบหมายสำเร็จ"
   },
   "assignment-date": {
     "de": "Zuweisungsdatum",
@@ -1328,7 +1323,7 @@ export default {
     "pl": "Data zadania",
     "pt": "Data da Atribuição",
     "sk": "Dátum pridelenia úlohy",
-    "th": "วันที่มอบหมาย",
+    "th": "วันที่มอบหมาย"
   },
   "assignment-details": {
     "de": "AUFGABENDETAILS",
@@ -1341,7 +1336,7 @@ export default {
     "pl": "SZCZEGÓŁY ZADANIA",
     "pt": "DETALHES DA ATRIBUIÇÃO",
     "sk": "PODROBNOSTI ÚLOHY",
-    "th": "รายละเอียดกิจกรรมที่ได้รับมอบหมาย",
+    "th": "รายละเอียดกิจกรรมที่ได้รับมอบหมาย"
   },
   "assignment-groups-students": {
     "de": "Aufgabengruppen und Schüler",
@@ -1354,7 +1349,7 @@ export default {
     "pl": "Grupy i uczniowie zadania",
     "pt": "Grupos e alunos da tarefa",
     "sk": "Skupiny a študenti úlohy",
-    "th": "กลุ่มและนักเรียนของงาน",
+    "th": "กลุ่มและนักเรียนของงาน"
   },
   "assignment-information": {
     "de": "Aufgabeninformationen",
@@ -1367,7 +1362,7 @@ export default {
     "pl": "Informacje o zadaniu",
     "pt": "Informações da tarefa",
     "sk": "Informácie o úlohe",
-    "th": "ข้อมูลงานที่มอบหมาย",
+    "th": "ข้อมูลงานที่มอบหมาย"
   },
   "assignment-overview": {
     "de": "Aufgabenübersicht",
@@ -1380,7 +1375,7 @@ export default {
     "pl": "Przegląd zadania",
     "pt": "Visão geral da tarefa",
     "sk": "Prehľad úlohy",
-    "th": "ภาพรวมงานที่มอบหมาย",
+    "th": "ภาพรวมงานที่มอบหมาย"
   },
   "assignment-report": {
     "de": "Auftragsbericht",
@@ -1393,7 +1388,7 @@ export default {
     "pl": "Raport przydziału",
     "pt": "Relatório de tarefa",
     "sk": "Prehľad úloh",
-    "th": "รายงานการมอบหมายงาน",
+    "th": "รายงานการมอบหมายงาน"
   },
   "assignment-settings": {
     "de": "Aufgabeneinstellungen",
@@ -1406,7 +1401,7 @@ export default {
     "pl": "Ustawienia zadania",
     "pt": "Definições da tarefa",
     "sk": "Nastavenia úlohy",
-    "th": "การตั้งค่างานที่มอบหมาย",
+    "th": "การตั้งค่างานที่มอบหมาย"
   },
   "assignment-status": {
     "de": "Aufgabenstatus",
@@ -1419,11 +1414,11 @@ export default {
     "pl": "Status zadania",
     "pt": "Status da tarefa",
     "sk": "Stav úlohy",
-    "th": "สถานะงานที่มอบหมาย",
+    "th": "สถานะงานที่มอบหมาย"
   },
   "assignment-successfully-created": {
     "de": "Aufgabe erfolgreich erstellt",
-    "en": "Assignment Successfully Created",
+    "en": "Assignment successfully created",
     "es": "Tarea creada exitosamente",
     "fr": "Devoir créé avec succès",
     "km": "បានបង្កើតកិច្ចការដោយជោគជ័យ",
@@ -1432,7 +1427,7 @@ export default {
     "pl": "Zadanie utworzone pomyślnie",
     "pt": "Tarefa criada com sucesso",
     "sk": "Úloha bola úspešne vytvorená",
-    "th": "สร้างงานที่มอบหมายสำเร็จ",
+    "th": "สร้างงานที่มอบหมายสำเร็จ"
   },
   "assignment-title": {
     "de": "Aufgabentitel",
@@ -1445,7 +1440,7 @@ export default {
     "pl": "Tytuł zadania",
     "pt": "Título da tarefa",
     "sk": "Názov úlohy",
-    "th": "ชื่องานที่มอบหมาย",
+    "th": "ชื่องานที่มอบหมาย"
   },
   "assignment-title-placeholder": {
     "de": "z. B. Mathematik-Quiz – Brüche",
@@ -1458,7 +1453,7 @@ export default {
     "pl": "np. quiz matematyczny – ułamki",
     "pt": "p.ex. questionário de matemática – frações",
     "sk": "napr. matematický kvíz – zlomky",
-    "th": "เช่น แบบทดสอบคณิตศาสตร์ – เศษส่วน",
+    "th": "เช่น แบบทดสอบคณิตศาสตร์ – เศษส่วน"
   },
   "assignment-title-required-for-draft": {
     "de": "Geben Sie einen Aufgabentitel ein, um einen Entwurf zu speichern.",
@@ -1471,7 +1466,7 @@ export default {
     "pl": "Wprowadź tytuł zadania, aby zapisać wersję roboczą.",
     "pt": "Insira um título de tarefa para salvar um rascunho.",
     "sk": "Ak chcete uložiť koncept, zadajte názov úlohy.",
-    "th": "ใส่ชื่องานที่มอบหมายเพื่อบันทึกฉบับร่าง",
+    "th": "ใส่ชื่องานที่มอบหมายเพื่อบันทึกฉบับร่าง"
   },
   "assignment-type": {
     "de": "Aufgabentyp",
@@ -1484,7 +1479,7 @@ export default {
     "pl": "Typ zadania",
     "pt": "Tipo de tarefa",
     "sk": "Typ úlohy",
-    "th": "ประเภทงานที่มอบหมาย",
+    "th": "ประเภทงานที่มอบหมาย"
   },
   "assignment-updated-successfully": {
     "de": "Aufgabe erfolgreich aktualisiert",
@@ -1497,11 +1492,11 @@ export default {
     "pl": "Zadanie zaktualizowane pomyślnie",
     "pt": "A tarefa foi atualizada com sucesso",
     "sk": "Úloha bola úspešne aktualizovaná",
-    "th": "อัปเดตงานที่มอบหมายสำเร็จ",
+    "th": "อัปเดตงานที่มอบหมายสำเร็จ"
   },
   "assignments": {
     "de": "AUFGABEN",
-    "en": "ASSIGNMENTS",
+    "en": "Assignments",
     "es": "ASIGNACIONES",
     "fr": "ACTIVITES",
     "km": "ការងារ",
@@ -1510,7 +1505,7 @@ export default {
     "pl": "ZADANIA",
     "pt": "ATRIBUIÇÕES",
     "sk": "ÚLOHY",
-    "th": "กิจกรรม",
+    "th": "กิจกรรม"
   },
   "assignments-restored-successfully": {
     "de": "Aufgaben erfolgreich wiederhergestellt",
@@ -1523,7 +1518,7 @@ export default {
     "pl": "Zadania przywrócono pomyślnie",
     "pt": "Tarefas restauradas com sucesso",
     "sk": "Úlohy boli úspešne obnovené",
-    "th": "กู้คืนงานที่มอบหมายสำเร็จ",
+    "th": "กู้คืนงานที่มอบหมายสำเร็จ"
   },
   "at-the-end": {
     "de": "Am Ende",
@@ -1536,7 +1531,7 @@ export default {
     "pl": "Na końcu",
     "pt": "No final",
     "sk": "Na konci",
-    "th": "เมื่อจบ",
+    "th": "เมื่อจบ"
   },
   "attempts": {
     "de": "Versuche",
@@ -1549,7 +1544,7 @@ export default {
     "pl": "Próby",
     "pt": "Tentativas",
     "sk": "Pokusy",
-    "th": "ครั้งที่ลอง",
+    "th": "ครั้งที่ลอง"
   },
   "auto-save": {
     "de": "Automatisch speichern",
@@ -1562,11 +1557,11 @@ export default {
     "pl": "Autozapis",
     "pt": "Guardar automaticamente",
     "sk": "Automatické uloženie",
-    "th": "บันทึกอัตโนมัติ",
+    "th": "บันทึกอัตโนมัติ"
   },
   "available-languages": {
     "de": "Verfügbare Sprachen",
-    "en": "Available Languages",
+    "en": "Available languages",
     "es": "Idiomas disponibles",
     "fr": "Langues disponibles",
     "km": "ភាសាដែលមាន",
@@ -1575,7 +1570,7 @@ export default {
     "pl": "Dostępne języki",
     "pt": "Idiomas disponíveis",
     "sk": "Dostupné jazyky",
-    "th": "ภาษาที่ใช้งานได้",
+    "th": "ภาษาที่ใช้งานได้"
   },
   "available-students": {
     "de": "Verfügbare Schüler",
@@ -1588,7 +1583,7 @@ export default {
     "pl": "Dostępni uczniowie",
     "pt": "Alunos disponíveis",
     "sk": "Dostupní študenti",
-    "th": "นักเรียนที่ใช้ได้",
+    "th": "นักเรียนที่ใช้ได้"
   },
   "back": {
     "de": "Zurück",
@@ -1601,11 +1596,11 @@ export default {
     "pl": "Powrót",
     "pt": "Voltar",
     "sk": "Späť",
-    "th": "กลับ",
+    "th": "กลับ"
   },
   "basic-information": {
     "de": "Grundlegende Informationen",
-    "en": "Basic Information",
+    "en": "Basic information",
     "es": "Información básica",
     "fr": "Informations de base",
     "km": "ព័ត៌មានមូលដ្ឋាន",
@@ -1614,7 +1609,7 @@ export default {
     "pl": "Informacje podstawowe",
     "pt": "Informações Básicas",
     "sk": "Základné informácie",
-    "th": "ข้อมูลพื้นฐาน",
+    "th": "ข้อมูลพื้นฐาน"
   },
   "beginner": {
     "de": "Anfängerin/Anfänger",
@@ -1627,7 +1622,7 @@ export default {
     "pl": "Początkujący",
     "pt": "Novata",
     "sk": "Začiatočník",
-    "th": "ระดับเริ่มต้น",
+    "th": "ระดับเริ่มต้น"
   },
   "bettys-brain": {
     "de": "BETTY'S GEHIRN",
@@ -1640,7 +1635,7 @@ export default {
     "pl": "MÓZG BETTY",
     "pt": "CÉREBRO DE BETTY",
     "sk": "BETTYIN MOZOG",
-    "th": "BETTY'S BRAIN",
+    "th": "BETTY'S BRAIN"
   },
   "browse-and-select-content-from-library": {
     "de": "Durchsuchen Sie Inhalte aus der Bibliothek und wählen Sie sie aus",
@@ -1653,7 +1648,7 @@ export default {
     "pl": "Przeglądaj i wybieraj treści z biblioteki",
     "pt": "Navegue e selecione conteúdo da biblioteca",
     "sk": "Prehliadajte a vyberte obsah z knižnice",
-    "th": "เรียกดูและเลือกเนื้อหาจากคลัง",
+    "th": "เรียกดูและเลือกเนื้อหาจากคลัง"
   },
   "bug-description": {
     "de": "Fehlerbeschreibung",
@@ -1666,7 +1661,7 @@ export default {
     "pl": "Opis błędu",
     "pt": "Descrição do bug",
     "sk": "Popis chyby",
-    "th": "คำอธิบายข้อบกพร่อง",
+    "th": "คำอธิบายข้อบกพร่อง"
   },
   "bug-report": {
     "de": "Fehlerbericht",
@@ -1679,7 +1674,7 @@ export default {
     "pl": "Raport błędu",
     "pt": "Relatório de erros",
     "sk": "Nahlásenie chyby",
-    "th": "รายงานข้อบกพร่อง",
+    "th": "รายงานข้อบกพร่อง"
   },
   "bulk-archive-assignments-confirm-intro": {
     "de": "Wählen Sie, wie die {count} ausgewählte(n) Aufgabe(n) archiviert werden sollen. Nichts wird dauerhaft gelöscht — Sie können sie später aus den archivierten Aufgaben wiederherstellen.",
@@ -1692,7 +1687,7 @@ export default {
     "pl": "Wybierz sposób archiwizacji {count} zaznaczonego(-ych) zadania(-ń). Nic nie jest trwale usuwane — możesz je później przywrócić z zarchiwizowanych zadań.",
     "pt": "Escolha como arquivar a(s) {count} tarefa(s) selecionada(s). Nada é eliminado permanentemente — pode restaurar mais tarde a partir das tarefas arquivadas.",
     "sk": "Vyberte, ako archivovať {count} vybratú(-é) úlohu(-y). Nič sa natrvalo nemaže — neskôr ich môžete obnoviť z archivovaných úloh.",
-    "th": "เลือกวิธีเก็บถาวรงานที่เลือก {count} รายการ ไม่มีการลบถาวร — กู้คืนได้ภายหลังจากงานที่เก็บถาวร",
+    "th": "เลือกวิธีเก็บถาวรงานที่เลือก {count} รายการ ไม่มีการลบถาวร — กู้คืนได้ภายหลังจากงานที่เก็บถาวร"
   },
   "bulk-archive-assignments-confirm-title": {
     "de": "{count} ausgewählte Aufgabe(n) archivieren?",
@@ -1705,7 +1700,7 @@ export default {
     "pl": "Zarchiwizować {count} zaznaczone zadanie(-nia)?",
     "pt": "Arquivar {count} tarefa(s) selecionada(s)?",
     "sk": "Archivovať {count} vybratú(-é) úlohu(-y)?",
-    "th": "เก็บถาวรงานที่เลือก {count} รายการ?",
+    "th": "เก็บถาวรงานที่เลือก {count} รายการ?"
   },
   "bulk-archive-assignments-for-all-description": {
     "de": "Diese Aufgaben für Sie ausblenden und alle Gruppen abmelden, damit Schüler sie nicht mehr sehen.",
@@ -1718,7 +1713,7 @@ export default {
     "pl": "Ukryj te zadania u siebie i cofnij przypisanie wszystkich grup, aby uczniowie ich nie widzieli.",
     "pt": "Oculte estas tarefas para si e desatribua todos os grupos para que os alunos deixem de as ver.",
     "sk": "Skryť tieto úlohy pre vás a odobrať všetky skupiny, aby ich študenti už nevideli.",
-    "th": "ซ่อนงานเหล่านี้สำหรับคุณและยกเลิกมอบหมายทุกกลุ่มเพื่อไม่ให้นักเรียนเห็นอีก",
+    "th": "ซ่อนงานเหล่านี้สำหรับคุณและยกเลิกมอบหมายทุกกลุ่มเพื่อไม่ให้นักเรียนเห็นอีก"
   },
   "bulk-archive-assignments-for-me-description": {
     "de": "Diese Aufgaben nur in Ihrer Liste ausblenden. Schüler in zugewiesenen Gruppen sehen sie ggf. weiterhin.",
@@ -1731,11 +1726,11 @@ export default {
     "pl": "Ukryj te zadania tylko na swojej liście. Uczniowie w przypisanych grupach mogą je nadal widzieć.",
     "pt": "Oculte estas tarefas apenas da sua lista. Os alunos nos grupos atribuídos ainda as podem ver.",
     "sk": "Skryť tieto úlohy len z vášho zoznamu. Študenti v priradených skupinách ich môžu stále vidieť.",
-    "th": "ซ่อนงานเหล่านี้จากรายการของคุณเท่านั้น นักเรียนในกลุ่มที่มอบหมายอาจยังเห็นอยู่",
+    "th": "ซ่อนงานเหล่านี้จากรายการของคุณเท่านั้น นักเรียนในกลุ่มที่มอบหมายอาจยังเห็นอยู่"
   },
   "bulk-archive-students-confirm-description": {
     "de": "Archivierte Schüler werden aus Ihrer aktiven Liste ausgeblendet. Sie werden nicht gelöscht und verbleiben in ihren Gruppen. Schüler können weiterhin Aufgaben sehen, die für diese Gruppen veröffentlicht wurden. Sie können sie jederzeit über den Bereich „Archivierte Schüler“ wiederherstellen.",
-    "en": "Archived students are hidden from your active list. They are not deleted and remain in their groups. Students may still see assignments published to those groups. Restore them anytime from the archived students section.",
+    "en": "Archived students will be removed from the 'Active' student list. They will still see their assignments unless they are removed from relevant groups. Student accounts may be restored by clicking 'Show archived' and reselecting their profiles.",
     "es": "Los estudiantes archivados están ocultos de su lista activa. No se eliminan y permanecen en sus grupos. Es posible que los estudiantes aún vean las tareas publicadas en esos grupos. Restáurelos en cualquier momento desde la sección de estudiantes archivados.",
     "fr": "Les élèves archivés sont masqués de votre liste active. Ils ne sont pas supprimés et restent dans leurs groupes. Ils peuvent encore voir les devoirs publiés pour ces groupes. Restaurez-les à tout moment depuis la section des élèves archivés.",
     "km": "សិស្សដែលបានទុកជាឯកសារត្រូវបានលាក់ពីបញ្ជីសកម្ម។ ពួកគេមិនត្រូវបានលុប និងនៅតែស្ថិតក្នុងក្រុម។ ពួកគេអាចនៅតែមើលកិច្ចការដែលបានផ្សព្វផ្សាយទៅក្រុមទាំងនោះ។ ស្តារពួកគេពីផ្នែកសិស្សដែលបានទុកជាឯកសារនៅពេលណាក៏បាន។",
@@ -1744,7 +1739,7 @@ export default {
     "pl": "Zarchiwizowani uczniowie są ukryci na aktywnej liście. Nie są usuwani i pozostają w grupach. Mogą nadal widzieć zadania opublikowane dla tych grup. Przywróć ich w dowolnym momencie z sekcji zarchiwizowanych uczniów.",
     "pt": "Os alunos arquivados ficam ocultos na sua lista ativa. Eles não são excluídos e permanecem em seus grupos. Os alunos ainda poderão ver as tarefas publicadas nesses grupos. Restaure-os a qualquer momento na seção de alunos arquivados.",
     "sk": "Archivovaní žiaci sú skrytí z vášho aktívneho zoznamu. Neodstránia sa a zostávajú vo svojich skupinách. Žiaci môžu stále vidieť úlohy zverejnené v týchto skupinách. Obnovte ich kedykoľvek v sekcii archivovaných žiakov.",
-    "th": "นักเรียนที่เก็บถาวรจะถูกซ่อนจากรายการที่ใช้งาน ไม่ถูกลบและยังอยู่ในกลุ่ม อาจยังเห็นงานที่เผยแพร่ไปยังกลุ่มเหล่านั้น กู้คืนได้ทุกเมื่อจากส่วนนักเรียนที่เก็บถาวร",
+    "th": "นักเรียนที่เก็บถาวรจะถูกซ่อนจากรายการที่ใช้งาน ไม่ถูกลบและยังอยู่ในกลุ่ม อาจยังเห็นงานที่เผยแพร่ไปยังกลุ่มเหล่านั้น กู้คืนได้ทุกเมื่อจากส่วนนักเรียนที่เก็บถาวร"
   },
   "bulk-archive-students-confirm-title": {
     "de": "{count} ausgewählte Schüler archivieren?",
@@ -1757,7 +1752,7 @@ export default {
     "pl": "Zarchiwizować {count} wybranych uczniów?",
     "pt": "Arquivar {count} aluno(s) selecionado(s)?",
     "sk": "Archivovať {count} vybratých žiakov?",
-    "th": "เก็บถาวรนักเรียนที่เลือก {count} คนหรือไม่?",
+    "th": "เก็บถาวรนักเรียนที่เลือก {count} คนหรือไม่?"
   },
   "bulk-duplicate-already-exists": {
     "de": "Existiert bereits:",
@@ -1770,7 +1765,7 @@ export default {
     "pl": "Już istnieje:",
     "pt": "Já existe:",
     "sk": "Už existuje:",
-    "th": "มีอยู่แล้ว:",
+    "th": "มีอยู่แล้ว:"
   },
   "bulk-duplicate-repeated-in-upload": {
     "de": "Beim Hochladen wiederholt:",
@@ -1783,7 +1778,7 @@ export default {
     "pl": "Powtórzone w przesłanym pliku:",
     "pt": "Repetido no upload:",
     "sk": "Opakované pri nahrávaní:",
-    "th": "ซ้ำในไฟล์อัปโหลด:",
+    "th": "ซ้ำในไฟล์อัปโหลด:"
   },
   "bulk-duplicate-skipped-reason": {
     "de": "doppelte Namen",
@@ -1796,7 +1791,7 @@ export default {
     "pl": "zduplikowane nazwy",
     "pt": "nomes duplicados",
     "sk": "duplicitné mená",
-    "th": "ชื่อซ้ำ",
+    "th": "ชื่อซ้ำ"
   },
   "bulk-duplicate-soft-grade-note": {
     "de": "{count} Zeile(n) teilen einen Namen mit einem vorhandenen Schüler einer anderen Klassenstufe und werden trotzdem erstellt:",
@@ -1809,7 +1804,7 @@ export default {
     "pl": "{count} wiersz(-e) ma(-ją) tę samą nazwę co istniejący uczeń na innym poziomie i i tak zostanie(-ą) utworzony(-e):",
     "pt": "{count} linha(s) partilham um nome com um aluno existente noutro ano e serão mesmo assim criadas:",
     "sk": "{count} riadok(-ky) zdieľa(-jú) meno s existujúcim študentom na inom stupni a napriek tomu bude(-ú) vytvorený(-é):",
-    "th": "{count} แถวใช้ชื่อเดียวกับนักเรียนที่มีอยู่คนละระดับชั้นและจะยังถูกสร้าง:",
+    "th": "{count} แถวใช้ชื่อเดียวกับนักเรียนที่มีอยู่คนละระดับชั้นและจะยังถูกสร้าง:"
   },
   "bulk-duplicate-students-intro": {
     "de": "{count} doppelte Namen gefunden.",
@@ -1822,7 +1817,7 @@ export default {
     "pl": "Znaleziono {count} zduplikowanych nazw.",
     "pt": "{count} nomes duplicados encontrados.",
     "sk": "Našli sa duplicitné mená ({count}).",
-    "th": "พบชื่อซ้ำ {count} รายการ",
+    "th": "พบชื่อซ้ำ {count} รายการ"
   },
   "bulk-duplicate-students-summary": {
     "de": "{create} neue Schüler erstellen und {skip} Duplikate überspringen?",
@@ -1835,7 +1830,7 @@ export default {
     "pl": "Utworzyć {create} nowych uczniów i pominąć {skip} duplikat(ów)?",
     "pt": "Criar {create} novos alunos e pular {skip} duplicatas?",
     "sk": "Vytvoriť {create} nových žiakov a preskočiť {skip} duplikáty?",
-    "th": "สร้างนักเรียนใหม่ {create} คนและข้ามรายการซ้ำ {skip} รายการหรือไม่?",
+    "th": "สร้างนักเรียนใหม่ {create} คนและข้ามรายการซ้ำ {skip} รายการหรือไม่?"
   },
   "bulk-restore-students-confirm-description": {
     "de": "Ausgewählte Schüler werden in Ihrer aktiven Liste wiederhergestellt.",
@@ -1848,7 +1843,7 @@ export default {
     "pl": "Zaznaczeni uczniowie zostaną przywróceni na aktywną listę.",
     "pt": "Os alunos selecionados serão restaurados na sua lista ativa.",
     "sk": "Vybratí študenti budú obnovení do vášho aktívneho zoznamu.",
-    "th": "นักเรียนที่เลือกจะถูกกู้คืนไปยังรายการที่ใช้งานอยู่",
+    "th": "นักเรียนที่เลือกจะถูกกู้คืนไปยังรายการที่ใช้งานอยู่"
   },
   "bulk-restore-students-confirm-title": {
     "de": "{count} ausgewählte(n) Schüler wiederherstellen?",
@@ -1861,11 +1856,11 @@ export default {
     "pl": "Przywrócić {count} zaznaczonego(-ych) ucznia(-ów)?",
     "pt": "Restaurar {count} aluno(s) selecionado(s)?",
     "sk": "Obnoviť {count} vybratého(-ých) študenta(-ov)?",
-    "th": "กู้คืนนักเรียนที่เลือก {count} คน?",
+    "th": "กู้คืนนักเรียนที่เลือก {count} คน?"
   },
   "by-creating-my-teacher-account-i-agree-to-the-pr": {
     "de": "Mit der Erstellung meines Lehrerkontos erkläre ich mich mit der Verarbeitung meiner personenbezogenen Daten einverstanden, wie sie in der Datenschutzerklärung beschrieben ist.",
-    "en": "By creating my teacher account, I agree to the processing of my personal data as described in the Data Protection Notice.",
+    "en": "By creating this PILA teacher account, I agree to the processing of my personal data as described in the Data Protection Notice.",
     "es": "Al crear mi cuenta de profesor, acepto el tratamiento de mis datos personales tal como se describe en el Aviso de Protección de Datos.",
     "fr": "En créant mon compte enseignant, j'accepte le traitement de mes données personnelles tel qu'il est décrit dans l'Avis de protection des données.",
     "km": "តាមរយៈការបង្កើតគណនីគ្រូរបស់ខ្ញុំ ខ្ញុំយល់ព្រមឱ្យដំណើរការទិន្នន័យផ្ទាល់ខ្លួនរបស់ខ្ញុំ ដូចដែលបានពិពណ៌នានៅក្នុងសេចក្តីជូនដំណឹងស្តីពីការការពារទិន្នន័យ។",
@@ -1874,11 +1869,11 @@ export default {
     "pl": "Tworząc moje konto nauczyciela, wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z opisem zawartym w Informacji o ochronie danych.",
     "pt": "Ao criar a minha conta de professor, concordo com o tratamento dos meus dados pessoais conforme descrito no Aviso de Proteção de Dados.",
     "sk": "Vytvorením svojho učiteľského účtu súhlasím so spracúvaním svojich osobných údajov tak, ako je opísané v Oznámení o ochrane osobných údajov.",
-    "th": "การสร้างบัญชีครูของฉันถือว่าฉันยินยอมให้มีการประมวลผลข้อมูลส่วนบุคคลของฉันตามที่อธิบายไว้ในประกาศการคุ้มครองข้อมูลส่วนบุคคล",
+    "th": "การสร้างบัญชีครูของฉันถือว่าฉันยินยอมให้มีการประมวลผลข้อมูลส่วนบุคคลของฉันตามที่อธิบายไว้ในประกาศการคุ้มครองข้อมูลส่วนบุคคล"
   },
   "by-creating-my-teacher-account-i-agree-to-the-te": {
     "de": "Durch die Erstellung meines Lehrkräftekontos stimme ich den Nutzungsbedingungen und der Verarbeitung meiner personenbezogenen Daten, wie in der Datenschutzerklärung beschrieben, zu.",
-    "en": "By creating my teacher account, I agree to the Terms of Service and the processing of my personal data as described in the Data Protection Notice.",
+    "en": "By creating this PILA teacher account, I agree to the Terms of Service and the processing of my personal data as described in the Data Protection Notice.",
     "es": "Al crear mi cuenta de profesor, acepto los Términos de servicio y el procesamiento de mis datos personales como se describe en el Aviso de protección de datos.",
     "fr": "En créant mon compte enseignant, j’accepte les Conditions d’utilisation et le traitement de mes données personnelles tel que décrit dans l’Avis de protection des données.",
     "km": "ដោយបង្កើតគណនីគ្រូរបស់ខ្ញុំ ខ្ញុំយល់ព្រមលក្ខខណ្ឌនៃសេវា និងការដំណើរការទិន្នន័យផ្ទាល់ខ្លួនរបស់ខ្ញុំដូចបានពិពណ៌នានៅក្នុងសេចក្តីជូនដំណឹងការពារទិន្នន័យ។",
@@ -1887,11 +1882,11 @@ export default {
     "pl": "Tworząc konto nauczyciela, zgadzam się z Regulaminem oraz przetwarzaniem moich danych osobowych opisanym w Informacji o ochronie danych.",
     "pt": "Ao criar minha conta de professor, concordo com os Termos de Serviço e com o processamento dos meus dados pessoais conforme descrito no Aviso de Proteção de Dados.",
     "sk": "Vytvorením svojho učiteľského účtu súhlasím so Zmluvnými podmienkami a so spracovaním mojich osobných údajov, ako je popísané v Oznámení o ochrane osobných údajov.",
-    "th": "ในการสร้างบัญชีสำหรับครู ข้าพเจ้ายอมรับเงื่อนไขและข้อตกลงในการให้บริการและการประมวลผลข้อมูลส่วนบุคคล ซึ่งระบุไว้ในประกาศ เรื่อง การรักษาความปลอดภัยของข้อมูล (Data Protection Notice)",
+    "th": "ในการสร้างบัญชีสำหรับครู ข้าพเจ้ายอมรับเงื่อนไขและข้อตกลงในการให้บริการและการประมวลผลข้อมูลส่วนบุคคล ซึ่งระบุไว้ในประกาศ เรื่อง การรักษาความปลอดภัยของข้อมูล (Data Protection Notice)"
   },
   "cancel": {
     "de": "abbrechen",
-    "en": "cancel",
+    "en": "Cancel",
     "es": "Cancelar",
     "fr": "annuler",
     "km": "បោះបង់",
@@ -1900,7 +1895,7 @@ export default {
     "pl": "anuluj",
     "pt": "cancelar",
     "sk": "zrušiť",
-    "th": "ยกเลิก",
+    "th": "ยกเลิก"
   },
   "causal-reasoning": {
     "de": "Kausales Denken",
@@ -1913,7 +1908,7 @@ export default {
     "pl": "Wnioskowanie przyczynowe",
     "pt": "Raciocínio Causal",
     "sk": "Kauzálne uvažovanie",
-    "th": "การให้เหตุผลโดยระบุเหตุปัจจัย",
+    "th": "การให้เหตุผลโดยระบุเหตุปัจจัย"
   },
   "challenge": {
     "de": "Herausforderung",
@@ -1926,7 +1921,7 @@ export default {
     "pl": "Wyzwanie",
     "pt": "Desafio",
     "sk": "Výzva",
-    "th": "ความท้าทาย",
+    "th": "ความท้าทาย"
   },
   "chirpys-adventure": {
     "de": "CHIRPYS ABENTEUER",
@@ -1939,7 +1934,7 @@ export default {
     "pl": "PRZYGODA CHIRPY'EGO",
     "pt": "A AVENTURA DE CHIRPY",
     "sk": "CHIRPYHO DOBRODRUŽSTVO",
-    "th": "การผจญภัยของเชอร์ปี้",
+    "th": "การผจญภัยของเชอร์ปี้"
   },
   "choose-how-to-add-students": {
     "de": "Wählen Sie, wie Schüler hinzugefügt werden",
@@ -1952,7 +1947,7 @@ export default {
     "pl": "Wybierz sposób dodawania uczniów",
     "pt": "Escolha como adicionar alunos",
     "sk": "Vyberte, ako pridať študentov",
-    "th": "เลือกวิธีเพิ่มนักเรียน",
+    "th": "เลือกวิธีเพิ่มนักเรียน"
   },
   "class-assigned": {
     "de": "Klasse zugewiesen",
@@ -1965,7 +1960,7 @@ export default {
     "pl": "Przypisana klasa",
     "pt": "Classe atribuída",
     "sk": "Priradená trieda",
-    "th": "ชั้นเรียนที่ได้รับมอบหมาย",
+    "th": "ชั้นเรียนที่ได้รับมอบหมาย"
   },
   "class-details": {
     "de": "KLASSENDETAILS",
@@ -1978,7 +1973,7 @@ export default {
     "pl": "SZCZEGÓŁY KLASY",
     "pt": "DETALHES DA AULA",
     "sk": "PODROBNOSTI TRIEDY",
-    "th": "รายละเอียดชั้นเรียน",
+    "th": "รายละเอียดชั้นเรียน"
   },
   "class-name": {
     "de": "Klassenname",
@@ -1991,7 +1986,7 @@ export default {
     "pl": "Nazwa klasy",
     "pt": "Nome da classe",
     "sk": "Názov triedy",
-    "th": "ชื่อชั้นเรียน",
+    "th": "ชื่อชั้นเรียน"
   },
   "classes-assigned": {
     "de": "Zugewiesene Klassen",
@@ -2004,7 +1999,7 @@ export default {
     "pl": "Przypisane klasy",
     "pt": "Aulas atribuídas",
     "sk": "Priradené triedy",
-    "th": "ชั้นเรียนที่ได้รับมอบหมาย",
+    "th": "ชั้นเรียนที่ได้รับมอบหมาย"
   },
   "clear-filters": {
     "de": "Filter zurücksetzen",
@@ -2017,7 +2012,7 @@ export default {
     "pl": "Wyczyść filtry",
     "pt": "Limpar filtros",
     "sk": "Vymazať filtre",
-    "th": "ล้างตัวกรอง",
+    "th": "ล้างตัวกรอง"
   },
   "click-here-to-reload-once-you-receive-approval-c": {
     "de": "Klicken Sie hier, um erneut zu laden, sobald Sie die Genehmigungsbestätigung erhalten haben",
@@ -2030,7 +2025,7 @@ export default {
     "pl": "Kliknij tutaj, aby odświeżyć po otrzymaniu potwierdzenia",
     "pt": "Clique aqui para recarregar assim que receber a confirmação de aprovação",
     "sk": "Po obdržaní potvrdenia o schválení kliknite sem, aby ste stránku znovu načítali",
-    "th": "คลิ๊กที่นี่เพื่อโหลดอีกครั้ง หลังจากที่คุณได้รับการยืนยันคำอนุมัติ",
+    "th": "คลิ๊กที่นี่เพื่อโหลดอีกครั้ง หลังจากที่คุณได้รับการยืนยันคำอนุมัติ"
   },
   "close": {
     "de": "Schließen",
@@ -2043,11 +2038,11 @@ export default {
     "pl": "Zamknij",
     "pt": "Fechar",
     "sk": "Zavrieť",
-    "th": "ปิด",
+    "th": "ปิด"
   },
   "competency-dashboard": {
     "de": "Kompetenz-Dashboard",
-    "en": "Competency Dashboard",
+    "en": "Competency dashboard",
     "es": "Panel de competencias",
     "fr": "Tableau de bord des compétences",
     "km": "ផ្ទាំងគ្រប់គ្រងជំនាញ",
@@ -2056,7 +2051,7 @@ export default {
     "pl": "Panel kompetencji",
     "pt": "Painel de Competências",
     "sk": "Prehľad kompetencií",
-    "th": "แดชบอร์ดสมรรถนะ",
+    "th": "แดชบอร์ดสมรรถนะ"
   },
   "complete-information-about": {
     "de": "Vollständige Informationen zu",
@@ -2069,7 +2064,7 @@ export default {
     "pl": "Pełne informacje o",
     "pt": "Informações completas sobre",
     "sk": "Úplné informácie o",
-    "th": "ข้อมูลครบถ้วนเกี่ยวกับ",
+    "th": "ข้อมูลครบถ้วนเกี่ยวกับ"
   },
   "complete-profile-information-for": {
     "de": "Profilinformationen vervollständigen für",
@@ -2082,7 +2077,7 @@ export default {
     "pl": "Uzupełnij informacje profilu dla",
     "pt": "Preencher as informações do perfil de",
     "sk": "Vyplniť profilové informácie pre",
-    "th": "กรอกข้อมูลโปรไฟล์ให้ครบสำหรับ",
+    "th": "กรอกข้อมูลโปรไฟล์ให้ครบสำหรับ"
   },
   "complete-required-steps-before-saving": {
     "de": "Führen Sie vor dem Speichern alle erforderlichen Schritte aus.",
@@ -2095,7 +2090,7 @@ export default {
     "pl": "Ukończ wszystkie wymagane kroki przed zapisaniem.",
     "pt": "Conclua todas as etapas necessárias antes de salvar.",
     "sk": "Pred uložením vykonajte všetky požadované kroky.",
-    "th": "ทำขั้นตอนที่จำเป็นทั้งหมดให้ครบก่อนบันทึก",
+    "th": "ทำขั้นตอนที่จำเป็นทั้งหมดให้ครบก่อนบันทึก"
   },
   "completion": {
     "de": "Abschluss",
@@ -2108,7 +2103,7 @@ export default {
     "pl": "Ukończenie",
     "pt": "Conclusão",
     "sk": "Dokončenie",
-    "th": "ความสำเร็จ",
+    "th": "ความสำเร็จ"
   },
   "computational-problem-solving": {
     "de": "Computergestützte Problemlösung",
@@ -2121,7 +2116,7 @@ export default {
     "pl": "Rozwiązywanie problemów obliczeniowych",
     "pt": "Resolução de problemas computacionais",
     "sk": "Výpočtové riešenie problémov",
-    "th": "การแก้ปัญหาโดยอาศัยการคิดเชิงคำนวน",
+    "th": "การแก้ปัญหาโดยอาศัยการคิดเชิงคำนวน"
   },
   "confirm-delete-item": {
     "de": "Element löschen bestätigen",
@@ -2134,7 +2129,7 @@ export default {
     "pl": "Potwierdź usunięcie elementu",
     "pt": "Confirmar eliminação do item",
     "sk": "Potvrdiť odstránenie položky",
-    "th": "ยืนยันการลบรายการ",
+    "th": "ยืนยันการลบรายการ"
   },
   "confirm-opt-out": {
     "de": "Abmeldung bestätigen",
@@ -2147,7 +2142,7 @@ export default {
     "pl": "Potwierdź rezygnację",
     "pt": "Confirmar desativação",
     "sk": "Potvrďte odhlásenie",
-    "th": "ยืนยันการยกเลิก",
+    "th": "ยืนยันการยกเลิก"
   },
   "contact-us": {
     "de": "Kontaktieren Sie uns",
@@ -2160,7 +2155,7 @@ export default {
     "pl": "Kontakt",
     "pt": "Contate-nos",
     "sk": "Kontaktujte nás",
-    "th": "ติดต่อสอบถาม",
+    "th": "ติดต่อสอบถาม"
   },
   "content": {
     "de": "INHALT",
@@ -2173,7 +2168,7 @@ export default {
     "pl": "TREŚĆ",
     "pt": "CONTENTE",
     "sk": "OBSAH",
-    "th": "บทเรียน",
+    "th": "บทเรียน"
   },
   "content-added-to-assignment": {
     "de": "Inhalt zur Aufgabe hinzugefügt",
@@ -2186,7 +2181,7 @@ export default {
     "pl": "Treść dodana do zadania",
     "pt": "Conteúdo adicionado à tarefa",
     "sk": "Obsah pridaný do úlohy",
-    "th": "เพิ่มเนื้อหาไปยังงานที่มอบหมายแล้ว",
+    "th": "เพิ่มเนื้อหาไปยังงานที่มอบหมายแล้ว"
   },
   "content-already-in-assignment": {
     "de": "Der Inhalt ist bereits in dieser Aufgabe enthalten",
@@ -2199,7 +2194,7 @@ export default {
     "pl": "Treść jest już w tym zadaniu",
     "pt": "O conteúdo já está nesta tarefa",
     "sk": "Obsah je už v tejto úlohe",
-    "th": "เนื้อหานี้อยู่ในงานที่มอบหมายนี้แล้ว",
+    "th": "เนื้อหานี้อยู่ในงานที่มอบหมายนี้แล้ว"
   },
   "content-copied-successfully": {
     "de": "Inhalt erfolgreich kopiert",
@@ -2212,7 +2207,7 @@ export default {
     "pl": "Treść skopiowano pomyślnie",
     "pt": "Conteúdo copiado com sucesso",
     "sk": "Obsah bol úspešne skopírovaný",
-    "th": "คัดลอกเนื้อหาสำเร็จ",
+    "th": "คัดลอกเนื้อหาสำเร็จ"
   },
   "content-info": {
     "de": "Inhaltsinfo",
@@ -2225,7 +2220,7 @@ export default {
     "pl": "Informacje o treści",
     "pt": "Informações de conteúdo",
     "sk": "Informácie o obsahu",
-    "th": "ข้อมูลเนื้อหา",
+    "th": "ข้อมูลเนื้อหา"
   },
   "content-items": {
     "de": "Inhaltselemente",
@@ -2238,7 +2233,7 @@ export default {
     "pl": "Elementy treści",
     "pt": "Itens de conteúdo",
     "sk": "Položky obsahu",
-    "th": "รายการเนื้อหา",
+    "th": "รายการเนื้อหา"
   },
   "content-type": {
     "de": "Inhaltstyp",
@@ -2251,7 +2246,7 @@ export default {
     "pl": "Typ treści",
     "pt": "Tipo de conteúdo",
     "sk": "Typ obsahu",
-    "th": "ประเภทเนื้อหา",
+    "th": "ประเภทเนื้อหา"
   },
   "continue": {
     "de": "Weiter",
@@ -2264,7 +2259,7 @@ export default {
     "pl": "Kontynuuj",
     "pt": "Continuar",
     "sk": "Pokračovať",
-    "th": "ดำเนินการต่อ",
+    "th": "ดำเนินการต่อ"
   },
   "continue-anyway": {
     "de": "Machen Sie trotzdem weiter",
@@ -2277,7 +2272,7 @@ export default {
     "pl": "Kontynuuj mimo to",
     "pt": "Continuar mesmo assim",
     "sk": "Napriek tomu pokračujte",
-    "th": "ดำเนินการต่อ",
+    "th": "ดำเนินการต่อ"
   },
   "continue-browsing": {
     "de": "Stöbern Sie weiter",
@@ -2290,7 +2285,7 @@ export default {
     "pl": "Kontynuuj przeglądanie",
     "pt": "Continuar navegando",
     "sk": "Pokračujte v prehliadaní",
-    "th": "เรียกดูต่อ",
+    "th": "เรียกดูต่อ"
   },
   "continue-without-adding": {
     "de": "Fahren Sie fort, ohne etwas hinzuzufügen",
@@ -2303,7 +2298,7 @@ export default {
     "pl": "Kontynuuj bez dodawania",
     "pt": "Continuar sem adicionar",
     "sk": "Pokračujte bez pridávania",
-    "th": "ดำเนินการต่อโดยไม่เพิ่ม",
+    "th": "ดำเนินการต่อโดยไม่เพิ่ม"
   },
   "copy-and-modify": {
     "de": "Kopieren und bearbeiten",
@@ -2316,7 +2311,7 @@ export default {
     "pl": "Kopiuj i modyfikuj",
     "pt": "Copiar e modificar",
     "sk": "Kopírovať a upraviť",
-    "th": "คัดลอกและแก้ไข",
+    "th": "คัดลอกและแก้ไข"
   },
   "copy-and-modify-content": {
     "de": "Inhalt kopieren und bearbeiten",
@@ -2329,11 +2324,11 @@ export default {
     "pl": "Kopiuj i modyfikuj treść",
     "pt": "Copiar e modificar conteúdo",
     "sk": "Kopírovať a upraviť obsah",
-    "th": "คัดลอกและแก้ไขเนื้อหา",
+    "th": "คัดลอกและแก้ไขเนื้อหา"
   },
   "copy-link": {
     "de": "Link kopieren",
-    "en": "Copy Link",
+    "en": "Copy link",
     "es": "Copiar enlace",
     "fr": "Copier le lien",
     "km": "ចម្លងតំណ",
@@ -2342,7 +2337,7 @@ export default {
     "pl": "Kopiuj link",
     "pt": "Copiar link",
     "sk": "Kopírovať odkaz",
-    "th": "คัดลอกลิงก์",
+    "th": "คัดลอกลิงก์"
   },
   "copy-of": {
     "de": "Kopie von",
@@ -2355,7 +2350,7 @@ export default {
     "pl": "Kopia",
     "pt": "Cópia de",
     "sk": "Kópia",
-    "th": "สำเนาของ",
+    "th": "สำเนาของ"
   },
   "core-facilitator": {
     "de": "Kernmoderatorin/-moderator",
@@ -2368,7 +2363,7 @@ export default {
     "pl": "Główny prowadzący",
     "pt": "Facilitador Central",
     "sk": "Hlavný facilitátor",
-    "th": "ผู้อำนวยความสะดวกหลัก",
+    "th": "ผู้อำนวยความสะดวกหลัก"
   },
   "correct": {
     "de": "Richtig",
@@ -2381,7 +2376,7 @@ export default {
     "pl": "Poprawne",
     "pt": "Correto",
     "sk": "Správne",
-    "th": "ถูกต้อง",
+    "th": "ถูกต้อง"
   },
   "create": {
     "de": "Erstellen",
@@ -2394,11 +2389,11 @@ export default {
     "pl": "Utwórz",
     "pt": "Criar",
     "sk": "Vytvoriť",
-    "th": "สร้างบทเรียนด้วยตนเอง",
+    "th": "สร้างบทเรียนด้วยตนเอง"
   },
   "create-a-copy-of": {
     "de": "Erstellen Sie eine Kopie von",
-    "en": "Create A Copy Of",
+    "en": "Create a copy of",
     "es": "Crear una copia de",
     "fr": "Créer une copie de",
     "km": "បង្កើតច្បាប់ចម្លងនៃ",
@@ -2407,11 +2402,11 @@ export default {
     "pl": "Utwórz kopię",
     "pt": "Crie uma cópia de",
     "sk": "Vytvorte kópiu",
-    "th": "สร้างสำเนาของ",
+    "th": "สร้างสำเนาของ"
   },
   "create-account": {
     "de": "Benutzerin/Benutzerkonto erstellen",
-    "en": "Create Account",
+    "en": "Create account",
     "es": "Crear una cuenta",
     "fr": "Créer un compte",
     "km": "បង្កើតគណនី",
@@ -2420,11 +2415,11 @@ export default {
     "pl": "Utwórz konto",
     "pt": "Criar Conta",
     "sk": "Vytvoriť účet",
-    "th": "สร้างบัญชี",
+    "th": "สร้างบัญชี"
   },
   "create-all-accounts": {
     "de": "Alle Konten erstellen",
-    "en": "Create All Accounts",
+    "en": "Create accounts",
     "es": "Crear todas las cuentas",
     "fr": "Créer tous les comptes",
     "km": "បង្កើតគណនីទាំងអស់",
@@ -2433,7 +2428,7 @@ export default {
     "pl": "Utwórz wszystkie konta",
     "pt": "Criar todas as contas",
     "sk": "Vytvoriť všetky účty",
-    "th": "สร้างบัญชีทั้งหมด",
+    "th": "สร้างบัญชีทั้งหมด"
   },
   "create-an-account-or-log-in-with-the-service-tha": {
     "de": "Erstelle ein Konto oder melde Dich mit dem Dienst an, den Du an Deiner Schule nutzt. Wenn der Dienst, den Du normalerweise nutzt, nicht zu den Optionen gehört, bitte Deine Lehrkraft, sich an koordination.power.feedback@uni-rostock.de zu wenden.",
@@ -2446,7 +2441,7 @@ export default {
     "pl": "Utwórz konto lub zaloguj się za pomocą usługi, której używasz w swojej szkole. Jeśli usługa, której zwykle używasz, nie jest dostępna, poproś nauczyciela o kontakt z edu.pila@oecd.org.",
     "pt": "Crie uma conta ou faça login com o serviço que você utiliza na sua escola. Se o serviço que você normalmente usa não estiver entre as opções, por favor, peça ao seu professor que entre em contato com edu.pila@oecd.org.",
     "sk": "Vytvor si účet alebo sa prihlás pomocou služby, ktorú používaš vo svojej škole. Ak služba, ktorú bežne používaš, nie je medzi možnosťami, požiadaj svojho učiteľa/ku, aby kontaktoval/a aitutor@minedu.sk.",
-    "th": "สร้างบัญชีหรือเข้าสู่ระบบด้วยบริการที่คุณใช้ในโรงเรียนของคุณ หากบริการที่คุณใช้ปกติไม่อยู่ในตัวเลือก กรุณาขอให้ครูของคุณติดต่อ edu.pila@oecd.org",
+    "th": "สร้างบัญชีหรือเข้าสู่ระบบด้วยบริการที่คุณใช้ในโรงเรียนของคุณ หากบริการที่คุณใช้ปกติไม่อยู่ในตัวเลือก กรุณาขอให้ครูของคุณติดต่อ edu.pila@oecd.org"
   },
   "create-and-manage-assignments": {
     "de": "Aufgaben erstellen und verwalten",
@@ -2459,7 +2454,7 @@ export default {
     "pl": "Twórz i zarządzaj zadaniami",
     "pt": "Criar e gerir tarefas",
     "sk": "Vytvárať a spravovať úlohy",
-    "th": "สร้างและจัดการงานที่มอบหมาย",
+    "th": "สร้างและจัดการงานที่มอบหมาย"
   },
   "create-assignment": {
     "de": "Aufgabe erstellen",
@@ -2472,7 +2467,7 @@ export default {
     "pl": "Utwórz zadanie",
     "pt": "Criar tarefa",
     "sk": "Vytvoriť úlohu",
-    "th": "สร้างงานที่มอบหมาย",
+    "th": "สร้างงานที่มอบหมาย"
   },
   "create-bulk-accounts": {
     "de": "Massenkonten erstellen",
@@ -2485,7 +2480,7 @@ export default {
     "pl": "Utwórz konta zbiorczo",
     "pt": "Criar contas em lote",
     "sk": "Vytvoriť účty hromadne",
-    "th": "สร้างบัญชีจำนวนมาก",
+    "th": "สร้างบัญชีจำนวนมาก"
   },
   "create-copy": {
     "de": "Kopie erstellen",
@@ -2498,7 +2493,7 @@ export default {
     "pl": "Utwórz kopię",
     "pt": "Criar cópia",
     "sk": "Vytvoriť kópiu",
-    "th": "สร้างสำเนา",
+    "th": "สร้างสำเนา"
   },
   "create-edit-class": {
     "de": "Klasse erstellen/bearbeiten",
@@ -2511,7 +2506,7 @@ export default {
     "pl": "Utwórz / Edytuj klasę",
     "pt": "Criar/Editar aula",
     "sk": "Vytvoriť / upraviť triedu",
-    "th": "สร้าง / แก้ไขชั้นเรียน",
+    "th": "สร้าง / แก้ไขชั้นเรียน"
   },
   "create-edit-group": {
     "de": "Gruppe erstellen/bearbeiten",
@@ -2524,7 +2519,7 @@ export default {
     "pl": "Utwórz / edytuj grupę",
     "pt": "Criar/editar grupo",
     "sk": "Vytvoriť / Upraviť skupinu",
-    "th": "สร้าง / แก้ไขกลุ่ม",
+    "th": "สร้าง / แก้ไขกลุ่ม"
   },
   "create-individual-account": {
     "de": "Einzelkonto erstellen",
@@ -2537,7 +2532,7 @@ export default {
     "pl": "Utwórz konto indywidualne",
     "pt": "Criar conta individual",
     "sk": "Vytvoriť individuálny účet",
-    "th": "สร้างบัญชีรายบุคคล",
+    "th": "สร้างบัญชีรายบุคคล"
   },
   "create-modify-assignment": {
     "de": "Aufgabe erstellen/ändern",
@@ -2550,7 +2545,7 @@ export default {
     "pl": "Utwórz/zmodyfikuj zadanie",
     "pt": "Criar/Modificar Atribuição",
     "sk": "Vytvoriť/upraviť úlohu",
-    "th": "มอบหมายหรือปรับเปลี่ยนกิจกรรม",
+    "th": "มอบหมายหรือปรับเปลี่ยนกิจกรรม"
   },
   "create-new-assignment": {
     "de": "Neue Aufgabe erstellen",
@@ -2563,7 +2558,7 @@ export default {
     "pl": "Utwórz nowe zadanie",
     "pt": "Criar nova tarefa",
     "sk": "Vytvoriť novú úlohu",
-    "th": "สร้างงานที่มอบหมายใหม่",
+    "th": "สร้างงานที่มอบหมายใหม่"
   },
   "create-new-sequence": {
     "de": "Neue Sequenz erstellen",
@@ -2576,7 +2571,7 @@ export default {
     "pl": "Utwórz nową sekwencję",
     "pt": "Criar uma nova sequência",
     "sk": "Vytvoriť novú sekvenciu",
-    "th": "สร้างลำดับใหม่",
+    "th": "สร้างลำดับใหม่"
   },
   "create-sequence": {
     "de": "Sequenz erstellen",
@@ -2589,7 +2584,7 @@ export default {
     "pl": "Utwórz sekwencję",
     "pt": "Criar sequência",
     "sk": "Vytvoriť sekvenciu",
-    "th": "สร้างลำดับ",
+    "th": "สร้างลำดับ"
   },
   "create-sequence-description": {
     "de": "Sequenzbeschreibung erstellen",
@@ -2602,7 +2597,7 @@ export default {
     "pl": "Opis sekwencji",
     "pt": "Descrição da sequência",
     "sk": "Popis sekvencie",
-    "th": "คำอธิบายลำดับ",
+    "th": "คำอธิบายลำดับ"
   },
   "create-your-own-content": {
     "de": "ERSTELLEN SIE IHRE EIGENEN INHALTE",
@@ -2615,7 +2610,7 @@ export default {
     "pl": "UTWÓRZ WŁASNĄ TREŚĆ",
     "pt": "CRIE SEU PRÓPRIO CONTEÚDO",
     "sk": "VYTVORTE SI VLASTNÝ OBSAH",
-    "th": "สร้างบทเรียนด้วยตนเอง",
+    "th": "สร้างบทเรียนด้วยตนเอง"
   },
   "created": {
     "de": "Erstellt",
@@ -2628,11 +2623,11 @@ export default {
     "pl": "Utworzono",
     "pt": "Criada",
     "sk": "Vytvorené",
-    "th": "สร้างเมื่อ",
+    "th": "สร้างเมื่อ"
   },
   "created-by": {
     "de": "Erstellt von",
-    "en": "Created By",
+    "en": "Created by",
     "es": "Creado por",
     "fr": "Créé par",
     "km": "បង្កើតដោយ",
@@ -2641,7 +2636,7 @@ export default {
     "pl": "Utworzono przez",
     "pt": "Criado por",
     "sk": "Vytvoril",
-    "th": "พัฒนาโดย",
+    "th": "พัฒนาโดย"
   },
   "creative-thinking": {
     "de": "Kreatives Denken",
@@ -2654,7 +2649,7 @@ export default {
     "pl": "Kreatywne myślenie",
     "pt": "Pensamento Criativo",
     "sk": "Kreatívne myslenie",
-    "th": "ความคิดสร้างสรรค์",
+    "th": "ความคิดสร้างสรรค์"
   },
   "csv-required-columns": {
     "de": "Erforderliche CSV-Spalten",
@@ -2667,7 +2662,7 @@ export default {
     "pl": "Wymagane kolumny CSV",
     "pt": "Colunas obrigatórias do CSV",
     "sk": "Povinné stĺpce CSV",
-    "th": "คอลัมน์ CSV ที่จำเป็น",
+    "th": "คอลัมน์ CSV ที่จำเป็น"
   },
   "current-item-sequence": {
     "de": "Aktuelles Element/Sequenz",
@@ -2680,7 +2675,7 @@ export default {
     "pl": "Bieżący element/sekwencja",
     "pt": "Item/sequência atual",
     "sk": "Aktuálna položka/sekvencia",
-    "th": "รายการ/ลำดับปัจจุบัน",
+    "th": "รายการ/ลำดับปัจจุบัน"
   },
   "current-item-sequence-count": {
     "de": "Aktuelles Element/aktuelle Sequenz ({count})",
@@ -2693,7 +2688,7 @@ export default {
     "pl": "Bieżący element/sekwencja ({count})",
     "pt": "Item/sequência atual ({count})",
     "sk": "Aktuálna položka/sekvencia ({count})",
-    "th": "รายการ/ลำดับปัจจุบัน ({count})",
+    "th": "รายการ/ลำดับปัจจุบัน ({count})"
   },
   "customised-items": {
     "de": "Angepasste Items",
@@ -2706,7 +2701,7 @@ export default {
     "pl": "Elementy spersonalizowane",
     "pt": "Itens personalizados",
     "sk": "Prispôsobené položky",
-    "th": "รายการที่ปรับแต่งเอง",
+    "th": "รายการที่ปรับแต่งเอง"
   },
   "dashboard": {
     "de": "DASHBOARD",
@@ -2719,7 +2714,7 @@ export default {
     "pl": "PANEL STEROWANIA",
     "pt": "PAINEL",
     "sk": "PREHĽAD",
-    "th": "แดชบอร์ด",
+    "th": "แดชบอร์ด"
   },
   "data-protection": {
     "de": "Datenschutz",
@@ -2732,7 +2727,7 @@ export default {
     "pl": "Ochrona danych",
     "pt": "Proteção de Dados",
     "sk": "Ochrana osobných údajov",
-    "th": "การปกป้องข้อมูล",
+    "th": "การปกป้องข้อมูล"
   },
   "data-protection-notice-for-teachers": {
     "de": "Datenschutzhinweis für Lehrkräfte",
@@ -2745,7 +2740,7 @@ export default {
     "pl": "Informacja o ochronie danych dla nauczycieli",
     "pt": "Aviso de proteção de dados para professores",
     "sk": "Oznámenie o ochrane osobných údajov pre učiteľov",
-    "th": "ประกาศ เรื่อง การรักษาความปลอดภัยของข้อมูล (Data Protection Notice) สำหรับครู",
+    "th": "ประกาศ เรื่อง การรักษาความปลอดภัยของข้อมูล (Data Protection Notice) สำหรับครู"
   },
   "datawise-activities": {
     "de": "DATENBASIERTE AKTIVITÄTEN",
@@ -2758,7 +2753,7 @@ export default {
     "pl": "DZIAŁANIA DATAWISE",
     "pt": "ATIVIDADES DE DADOS",
     "sk": "DÁTOVO ORIENTOVANÉ AKTIVITY",
-    "th": "กิจกรรม Datawise",
+    "th": "กิจกรรม Datawise"
   },
   "date-format-placeholder": {
     "de": "MM/TT/JJJJ",
@@ -2771,7 +2766,7 @@ export default {
     "pl": "dd/mm/rrrr",
     "pt": "mm/dd/aaaa",
     "sk": "mm/dd/rrrr",
-    "th": "วว/ดด/ปปปป",
+    "th": "วว/ดด/ปปปป"
   },
   "delete": {
     "de": "Löschen",
@@ -2784,7 +2779,7 @@ export default {
     "pl": "Usuń",
     "pt": "Excluir",
     "sk": "Odstrániť",
-    "th": "ลบ",
+    "th": "ลบ"
   },
   "delete-item-from-sequence-warning": {
     "de": "Warnung: Element aus Sequenz löschen",
@@ -2797,7 +2792,7 @@ export default {
     "pl": "Ostrzeżenie o usunięciu elementu z sekwencji",
     "pt": "Aviso de eliminação de item da sequência",
     "sk": "Upozornenie na odstránenie položky zo sekvencie",
-    "th": "คำเตือนการลบรายการออกจากลำดับ",
+    "th": "คำเตือนการลบรายการออกจากลำดับ"
   },
   "describe-changes-planned": {
     "de": "Beschreiben Sie die geplanten Änderungen",
@@ -2810,7 +2805,7 @@ export default {
     "pl": "Opisz planowane zmiany",
     "pt": "Descreva as alterações que pretende fazer",
     "sk": "Popíšte zmeny, ktoré plánujete",
-    "th": "อธิบายการเปลี่ยนแปลงที่วางแผนไว้",
+    "th": "อธิบายการเปลี่ยนแปลงที่วางแผนไว้"
   },
   "describe-this-content": {
     "de": "Diesen Inhalt beschreiben",
@@ -2823,7 +2818,7 @@ export default {
     "pl": "Opisz tę treść",
     "pt": "Descrever este conteúdo",
     "sk": "Popísať tento obsah",
-    "th": "อธิบายเนื้อหานี้",
+    "th": "อธิบายเนื้อหานี้"
   },
   "describe-your-sequence": {
     "de": "Beschreiben Sie Ihre Sequenz",
@@ -2836,7 +2831,7 @@ export default {
     "pl": "Opisz swoją sekwencję",
     "pt": "Descreva sua sequência",
     "sk": "Popíšte svoju postupnosť",
-    "th": "อธิบายลำดับของคุณ",
+    "th": "อธิบายลำดับของคุณ"
   },
   "description": {
     "de": "Beschreibung",
@@ -2849,7 +2844,7 @@ export default {
     "pl": "Opis",
     "pt": "Descrição",
     "sk": "Popis",
-    "th": "คำอธิบาย",
+    "th": "คำอธิบาย"
   },
   "description-is-required": {
     "de": "Beschreibung ist erforderlich",
@@ -2862,7 +2857,7 @@ export default {
     "pl": "Wymagany jest opis",
     "pt": "A descrição é obrigatória",
     "sk": "Popis je povinný",
-    "th": "จำเป็นต้องมีคำอธิบาย",
+    "th": "จำเป็นต้องมีคำอธิบาย"
   },
   "deselect-all": {
     "de": "Alle abwählen",
@@ -2875,7 +2870,7 @@ export default {
     "pl": "Odznacz wszystko",
     "pt": "Desmarcar tudo",
     "sk": "Zrušiť výber všetkého",
-    "th": "ยกเลิกการเลือกทั้งหมด",
+    "th": "ยกเลิกการเลือกทั้งหมด"
   },
   "details": {
     "de": "Einzelheiten",
@@ -2888,7 +2883,7 @@ export default {
     "pl": "Szczegóły",
     "pt": "Detalhes",
     "sk": "Podrobnosti",
-    "th": "รายละเอียด",
+    "th": "รายละเอียด"
   },
   "discard": {
     "de": "Verwerfen",
@@ -2901,7 +2896,7 @@ export default {
     "pl": "Odrzuć",
     "pt": "Descartar",
     "sk": "Zahodiť",
-    "th": "ละทิ้ง",
+    "th": "ละทิ้ง"
   },
   "discard-changes": {
     "de": "Änderungen verwerfen?",
@@ -2914,7 +2909,7 @@ export default {
     "pl": "Odrzucić zmiany?",
     "pt": "Descartar alterações?",
     "sk": "Zahodiť zmeny?",
-    "th": "ละทิ้งการเปลี่ยนแปลงหรือไม่?",
+    "th": "ละทิ้งการเปลี่ยนแปลงหรือไม่?"
   },
   "discover-customise-and-add-content": {
     "de": "Inhalte entdecken, anpassen und hinzufügen",
@@ -2927,11 +2922,11 @@ export default {
     "pl": "Odkrywaj, dostosowuj i dodawaj treści",
     "pt": "Descobrir, personalizar e adicionar conteúdo",
     "sk": "Objavovať, prispôsobovať a pridávať obsah",
-    "th": "ค้นหา ปรับแต่ง และเพิ่มเนื้อหา",
+    "th": "ค้นหา ปรับแต่ง และเพิ่มเนื้อหา"
   },
   "discover-customise-and-add-content-to-your-assignments": {
     "de": "Inhalte für Ihre Aufgaben entdecken, anpassen und hinzufügen",
-    "en": "Discover Customise And Add Content To Your Assignments",
+    "en": "Customise and add content to assignments",
     "es": "Descubre, personaliza y añade contenido a tus tareas",
     "fr": "Découvrez, personnalisez et ajoutez du contenu à vos devoirs",
     "km": "ស្វែងរក ប្ដូរតាមបំណង និងបន្ថែមមាតិកាទៅកិច្ចការរបស់អ្នក",
@@ -2940,7 +2935,7 @@ export default {
     "pl": "Odkrywaj, dostosowuj i dodawaj treści do zadań",
     "pt": "Descubra, personalize e adicione conteúdo às suas tarefas",
     "sk": "Objavujte, prispôsobujte a pridávajte obsah do svojich úloh",
-    "th": "ค้นหา ปรับแต่ง และเพิ่มเนื้อหาไปยังงานที่มอบหมายของคุณ",
+    "th": "ค้นหา ปรับแต่ง และเพิ่มเนื้อหาไปยังงานที่มอบหมายของคุณ"
   },
   "display-correct-answers-after-submission": {
     "de": "Richtige Antworten nach Abgabe anzeigen",
@@ -2953,7 +2948,7 @@ export default {
     "pl": "Pokaż poprawne odpowiedzi po oddaniu",
     "pt": "Mostrar respostas corretas após submissão",
     "sk": "Zobraziť správne odpovede po odovzdaní",
-    "th": "แสดงคำตอบที่ถูกต้องหลังส่ง",
+    "th": "แสดงคำตอบที่ถูกต้องหลังส่ง"
   },
   "distribution-options": {
     "de": "Verteilungsoptionen",
@@ -2966,7 +2961,7 @@ export default {
     "pl": "Opcje dystrybucji",
     "pt": "Opções de distribuição",
     "sk": "Možnosti distribúcie",
-    "th": "ตัวเลือกการเผยแพร่",
+    "th": "ตัวเลือกการเผยแพร่"
   },
   "done": {
     "de": "Erledigt",
@@ -2979,7 +2974,7 @@ export default {
     "pl": "Gotowe",
     "pt": "Concluído",
     "sk": "Hotovo",
-    "th": "เสร็จสิ้น",
+    "th": "เสร็จสิ้น"
   },
   "dont-have-an-access-code-contact-edu-pila-oecd-o": {
     "de": "Sie haben keinen Zugangscode? Kontaktieren Sie edu.pila@oecd.org, um Interesse an der Verwendung von PILA in Ihrem Unterricht oder für Ihre Forschung zu bekunden.",
@@ -2992,7 +2987,7 @@ export default {
     "pl": "Nie masz kodu dostępu? Skontaktuj się z edu.pila@oecd.org, aby wyrazić zainteresowanie używaniem PILA w swojej klasie lub w badaniach.",
     "pt": "Não possui um código de acesso? Entre em contato com edu.pila@oecd.org para manifestar interesse em usar o PILA na sua sala de aula ou em sua pesquisa.",
     "sk": "Nemáte prístupový kód? Kontaktujte aitutor@minedu.sk v prípade záujmu o používanie PILA vo Vašej triede alebo pre Váš výskum.",
-    "th": "ไม่มีรหัสการเข้าถึงหรือติดต่อ edu.pila@oecd.org เพื่อแสดงความสนใจในการใช้ PILA ในห้องเรียนหรือในงานวิจัยของคุณ",
+    "th": "ไม่มีรหัสการเข้าถึงหรือติดต่อ edu.pila@oecd.org เพื่อแสดงความสนใจในการใช้ PILA ในห้องเรียนหรือในงานวิจัยของคุณ"
   },
   "download": {
     "de": "Herunterladen",
@@ -3005,7 +3000,7 @@ export default {
     "pl": "Pobierz",
     "pt": "Download",
     "sk": "Stiahnuť",
-    "th": "ดาวน์โหลด",
+    "th": "ดาวน์โหลด"
   },
   "download-login": {
     "de": "Anmeldecode herunterladen",
@@ -3018,7 +3013,7 @@ export default {
     "pl": "Pobierz dane logowania",
     "pt": "Baixar código de login",
     "sk": "Stiahnuť prihlasovací kód",
-    "th": "ดาวน์โหลดข้อมูลเข้าสู่ระบบ",
+    "th": "ดาวน์โหลดข้อมูลเข้าสู่ระบบ"
   },
   "download-login-code": {
     "de": "Anmeldecode herunterladen",
@@ -3031,11 +3026,11 @@ export default {
     "pl": "Pobierz kod logowania",
     "pt": "Baixar código de login",
     "sk": "Stiahnuť prihlasovací kód",
-    "th": "ดาวน์โหลดรหัสเข้าสู่ระบบ",
+    "th": "ดาวน์โหลดรหัสเข้าสู่ระบบ"
   },
   "download-template": {
     "de": "Vorlage herunterladen",
-    "en": "Download Template",
+    "en": "Download template",
     "es": "Descargar plantilla",
     "fr": "Télécharger le modèle",
     "km": "ទាញយកគំរូ",
@@ -3044,7 +3039,7 @@ export default {
     "pl": "Pobierz szablon",
     "pt": "Baixar modelo",
     "sk": "Stiahnite si šablónu",
-    "th": "ดาวน์โหลดเทมเพลต",
+    "th": "ดาวน์โหลดเทมเพลต"
   },
   "draft": {
     "de": "Entwurf",
@@ -3057,7 +3052,7 @@ export default {
     "pl": "Wersja robocza",
     "pt": "Rascunho",
     "sk": "Návrh",
-    "th": "ร่าง",
+    "th": "ร่าง"
   },
   "draft-saved-successfully": {
     "de": "Entwurf erfolgreich gespeichert",
@@ -3070,7 +3065,7 @@ export default {
     "pl": "Wersja robocza zapisana pomyślnie",
     "pt": "Rascunho salvo com sucesso",
     "sk": "Koncept bol úspešne uložený",
-    "th": "บันทึกฉบับร่างสำเร็จ",
+    "th": "บันทึกฉบับร่างสำเร็จ"
   },
   "drag-and-drop-image": {
     "de": "Bild per Drag-and-Drop",
@@ -3083,7 +3078,7 @@ export default {
     "pl": "Przeciągnij i upuść obraz",
     "pt": "Arrastar e largar imagem",
     "sk": "Presuňte a pustením vložte obrázok",
-    "th": "ลากและวางรูปภาพ",
+    "th": "ลากและวางรูปภาพ"
   },
   "drag-content-here": {
     "de": "Ziehen Sie Inhalte hierher, um Elemente hinzuzufügen",
@@ -3096,11 +3091,11 @@ export default {
     "pl": "Przeciągnij treść tutaj, aby dodać elementy",
     "pt": "Arraste o conteúdo aqui para adicionar itens",
     "sk": "Presuňte obsah sem a pridajte položky",
-    "th": "ลากเนื้อมาที่นี่เพื่อเพิ่มรายการ",
+    "th": "ลากเนื้อมาที่นี่เพื่อเพิ่มรายการ"
   },
   "drop-csv-file-here": {
     "de": "Legen Sie die CSV-Datei hier ab",
-    "en": "Drop Csv File Here",
+    "en": "Drop CSV file here",
     "es": "Suelte el archivo CSV aquí",
     "fr": "Déposez le fichier CSV ici",
     "km": "ទម្លាក់ឯកសារ CSV នៅទីនេះ",
@@ -3109,7 +3104,7 @@ export default {
     "pl": "Upuść plik CSV tutaj",
     "pt": "Solte o arquivo CSV aqui",
     "sk": "Sem presuňte súbor CSV",
-    "th": "วางไฟล์ CSV ที่นี่",
+    "th": "วางไฟล์ CSV ที่นี่"
   },
   "drop-here": {
     "de": "Hier ablegen",
@@ -3122,7 +3117,7 @@ export default {
     "pl": "Upuść tutaj",
     "pt": "Solte aqui",
     "sk": "Presuňte sem",
-    "th": "วางที่นี่",
+    "th": "วางที่นี่"
   },
   "due-date": {
     "de": "Fälligkeitsdatum",
@@ -3135,7 +3130,7 @@ export default {
     "pl": "Termin oddania",
     "pt": "Data de entrega",
     "sk": "Termín odovzdania",
-    "th": "วันครบกำหนด",
+    "th": "วันครบกำหนด"
   },
   "due-date-optional": {
     "de": "Fälligkeitsdatum (optional)",
@@ -3148,7 +3143,7 @@ export default {
     "pl": "Termin oddania (opcjonalnie)",
     "pt": "Data de entrega (opcional)",
     "sk": "Termín odovzdania (voliteľné)",
-    "th": "วันครบกำหนด (ไม่บังคับ)",
+    "th": "วันครบกำหนด (ไม่บังคับ)"
   },
   "due-date-range": {
     "de": "Fälligkeitszeitraum",
@@ -3161,7 +3156,7 @@ export default {
     "pl": "Zakres terminów oddania",
     "pt": "Intervalo de datas de entrega",
     "sk": "Rozsah termínov odovzdania",
-    "th": "ช่วงวันครบกำหนด",
+    "th": "ช่วงวันครบกำหนด"
   },
   "duplicate": {
     "de": "Duplizieren",
@@ -3174,7 +3169,7 @@ export default {
     "pl": "Duplikat",
     "pt": "Duplicar",
     "sk": "Duplikovať",
-    "th": "ทำซ้ำ",
+    "th": "ทำซ้ำ"
   },
   "duplicate-assignment": {
     "de": "Aufgabe duplizieren",
@@ -3187,7 +3182,7 @@ export default {
     "pl": "Duplikuj zadanie",
     "pt": "Duplicar tarefa",
     "sk": "Duplikovať úlohu",
-    "th": "ทำสำเนางานที่มอบหมาย",
+    "th": "ทำสำเนางานที่มอบหมาย"
   },
   "duplicate-assignment-description": {
     "de": "Beschreibung der duplizierten Aufgabe",
@@ -3200,7 +3195,7 @@ export default {
     "pl": "Opis zduplikowanego zadania",
     "pt": "Descrição da tarefa duplicada",
     "sk": "Popis duplikovanej úlohy",
-    "th": "คำอธิบายงานที่ทำสำเนา",
+    "th": "คำอธิบายงานที่ทำสำเนา"
   },
   "duplicate-name-description": {
     "de": "Ein Schüler namens",
@@ -3213,7 +3208,7 @@ export default {
     "pl": "Uczeń o imieniu",
     "pt": "Um aluno chamado",
     "sk": "Žiak s menom",
-    "th": "นักเรียนชื่อ",
+    "th": "นักเรียนชื่อ"
   },
   "duplicate-name-title": {
     "de": "Name existiert bereits",
@@ -3226,7 +3221,7 @@ export default {
     "pl": "Nazwa już istnieje",
     "pt": "O nome já existe",
     "sk": "Názov už existuje",
-    "th": "มีชื่อนี้อยู่แล้ว",
+    "th": "มีชื่อนี้อยู่แล้ว"
   },
   "duplicate-soft-existing-grade": {
     "de": "bestehende Stufe {grade}",
@@ -3239,7 +3234,7 @@ export default {
     "pl": "istniejący poziom {grade}",
     "pt": "ano existente {grade}",
     "sk": "existujúci stupeň {grade}",
-    "th": "ระดับชั้นที่มีอยู่ {grade}",
+    "th": "ระดับชั้นที่มีอยู่ {grade}"
   },
   "duplicate-student-different-grade": {
     "de": "Ein Schülerkonto mit dem Namen „{name}“ existiert bereits auf einer anderen Klassenstufe ({grade}). Möchten Sie dieses neue Konto erstellen?",
@@ -3252,7 +3247,7 @@ export default {
     "pl": "Konto ucznia o nazwie \"{name}\" już istnieje na innym poziomie ({grade}). Czy chcesz utworzyć to nowe konto?",
     "pt": "Já existe uma conta de aluno chamada \"{name}\" noutro ano ({grade}). Pretende criar esta nova conta?",
     "sk": "Účet študenta s menom \"{name}\" už existuje na inom stupni ({grade}). Chcete vytvoriť tento nový účet?",
-    "th": "มีบัญชีนักเรียนชื่อ \"{name}\" ในระดับชั้นอื่นแล้ว ({grade}) ต้องการสร้างบัญชีใหม่นี้หรือไม่?",
+    "th": "มีบัญชีนักเรียนชื่อ \"{name}\" ในระดับชั้นอื่นแล้ว ({grade}) ต้องการสร้างบัญชีใหม่นี้หรือไม่?"
   },
   "edit": {
     "de": "Bearbeiten",
@@ -3265,7 +3260,7 @@ export default {
     "pl": "Edytuj",
     "pt": "Editar",
     "sk": "Upraviť",
-    "th": "แก้ไข",
+    "th": "แก้ไข"
   },
   "edit-assignment": {
     "de": "Aufgabe bearbeiten",
@@ -3278,7 +3273,7 @@ export default {
     "pl": "Edytuj zadanie",
     "pt": "Editar tarefa",
     "sk": "Upraviť úlohu",
-    "th": "แก้ไขงานที่มอบหมาย",
+    "th": "แก้ไขงานที่มอบหมาย"
   },
   "edit-feedback": {
     "de": "Feedback bearbeiten",
@@ -3291,7 +3286,7 @@ export default {
     "pl": "Edytuj opinię",
     "pt": "Editar comentários",
     "sk": "Upraviť spätnú väzbu",
-    "th": "แก้ไขข้อเสนอแนะ",
+    "th": "แก้ไขข้อเสนอแนะ"
   },
   "edit-sequence": {
     "de": "Sequenz bearbeiten",
@@ -3304,7 +3299,7 @@ export default {
     "pl": "Edytuj sekwencję",
     "pt": "Editar sequência",
     "sk": "Upraviť sekvenciu",
-    "th": "แก้ไขลำดับ",
+    "th": "แก้ไขลำดับ"
   },
   "edit-sequence-details": {
     "de": "Sequenzdetails bearbeiten",
@@ -3317,7 +3312,7 @@ export default {
     "pl": "Edytuj szczegóły sekwencji",
     "pt": "Editar detalhes da sequência",
     "sk": "Upraviť podrobnosti sekvencie",
-    "th": "แก้ไขรายละเอียดลำดับ",
+    "th": "แก้ไขรายละเอียดลำดับ"
   },
   "edit-student": {
     "de": "Schüler bearbeiten",
@@ -3330,11 +3325,11 @@ export default {
     "pl": "Edytuj ucznia",
     "pt": "Editar aluno",
     "sk": "Upraviť žiaka",
-    "th": "แก้ไขนักเรียน",
+    "th": "แก้ไขนักเรียน"
   },
   "edit-students-details": {
     "de": "Schülerdetails bearbeiten",
-    "en": "Edit Students Details",
+    "en": "Edit students details",
     "es": "Editar detalles de estudiantes",
     "fr": "Modifier les détails de l’élève",
     "km": "កែព័ត៌មានលម្អិតសិស្ស",
@@ -3343,7 +3338,7 @@ export default {
     "pl": "Edytuj dane ucznia",
     "pt": "Editar detalhes dos alunos",
     "sk": "Upraviť podrobnosti o žiakoch",
-    "th": "แก้ไขรายละเอียดนักเรียน",
+    "th": "แก้ไขรายละเอียดนักเรียน"
   },
   "email": {
     "de": "E-Mail",
@@ -3356,7 +3351,7 @@ export default {
     "pl": "E-mail",
     "pt": "E-mail",
     "sk": "Email",
-    "th": "อีเมล",
+    "th": "อีเมล"
   },
   "encryption-key-invalid-badge": {
     "de": "Das Verschlüsselungsschlüsselwort ist möglicherweise falsch",
@@ -3369,11 +3364,11 @@ export default {
     "pl": "Słowo kluczowe szyfrowania może być nieprawidłowe",
     "pt": "A palavra-chave de criptografia pode estar incorreta",
     "sk": "Kľúčové slovo šifrovania môže byť nesprávne",
-    "th": "คำสำคัญการเข้ารหัสอาจไม่ถูกต้อง",
+    "th": "คำสำคัญการเข้ารหัสอาจไม่ถูกต้อง"
   },
   "encryption-key-invalid-banner": {
     "de": "Schülerinformationen konnten nicht entschlüsselt werden. Überprüfen Sie, ob Ihr Verschlüsselungsschlüsselwort korrekt ist.",
-    "en": "Student information could not be decrypted. Check that your encryption key-word is correct.",
+    "en": "Student information could not be decrypted. Check that the encryption key-word is correct.",
     "es": "La información del estudiante no se pudo descifrar. Compruebe que su palabra clave de cifrado sea correcta.",
     "fr": "Les informations des élèves n’ont pas pu être déchiffrées. Vérifiez que votre mot-clé de chiffrement est correct.",
     "km": "មិនអាចឌិគ្រីបព័ត៌មានសិស្សបានទេ។ ពិនិត្យថាពាក្យគន្លឹះអ៊ីនគ្រីបរបស់អ្នកត្រឹមត្រូវ។",
@@ -3382,11 +3377,11 @@ export default {
     "pl": "Nie udało się odszyfrować informacji o uczniach. Sprawdź, czy słowo kluczowe szyfrowania jest poprawne.",
     "pt": "As informações do aluno não puderam ser descriptografadas. Verifique se a sua palavra-chave de criptografia está correta.",
     "sk": "Informácie o žiakovi sa nepodarilo dešifrovať. Skontrolujte, či je vaše šifrovacie kľúčové slovo správne.",
-    "th": "ถอดรหัสข้อมูลนักเรียนไม่ได้ ตรวจสอบว่าคำสำคัญการเข้ารหัสถูกต้อง",
+    "th": "ถอดรหัสข้อมูลนักเรียนไม่ได้ ตรวจสอบว่าคำสำคัญการเข้ารหัสถูกต้อง"
   },
   "encryption-key-invalid-hint": {
     "de": "Dieses Schlüsselwort konnte die Schülerinformationen nicht entschlüsseln. Probieren Sie das Schlüsselwort aus, das Sie beim Erstellen oder Verknüpfen von Schülern verwendet haben.",
-    "en": "This key-word could not decrypt student information. Try the key-word you used when creating or linking students.",
+    "en": "This key-word could not decrypt student information. Use the same key-word from when student accounts were created.",
     "es": "Esta palabra clave no pudo descifrar la información del estudiante. Pruebe la palabra clave que utilizó al crear o vincular estudiantes.",
     "fr": "Ce mot-clé n’a pas pu déchiffrer les informations des élèves. Essayez le mot-clé utilisé lors de la création ou de la liaison des élèves.",
     "km": "ពាក្យគន្លឹះនេះមិនអាចឌិគ្រីបព័ត៌មានសិស្សបានទេ។ សាកល្បងពាក្យដែលអ្នកបានប្រើពេលបង្កើត ឬភ្ជាប់សិស្ស។",
@@ -3395,7 +3390,7 @@ export default {
     "pl": "To słowo kluczowe nie odszyfrowało informacji o uczniach. Spróbuj słowa użytego przy tworzeniu lub łączeniu uczniów.",
     "pt": "Esta palavra-chave não conseguiu descriptografar as informações do aluno. Experimente a palavra-chave que você usou ao criar ou vincular alunos.",
     "sk": "Toto kľúčové slovo nedokázalo dešifrovať informácie o žiakovi. Vyskúšajte kľúčové slovo, ktoré ste použili pri vytváraní alebo spájaní žiakov.",
-    "th": "คำสำคัญนี้ถอดรหัสข้อมูลนักเรียนไม่ได้ ลองใช้คำที่คุณใช้ตอนสร้างหรือเชื่อมโยงนักเรียน",
+    "th": "คำสำคัญนี้ถอดรหัสข้อมูลนักเรียนไม่ได้ ลองใช้คำที่คุณใช้ตอนสร้างหรือเชื่อมโยงนักเรียน"
   },
   "encryption-key-missing-badge": {
     "de": "Verschlüsselungsschlüsselwort nicht festgelegt",
@@ -3408,7 +3403,7 @@ export default {
     "pl": "Nie ustawiono słowa kluczowego szyfrowania",
     "pt": "Palavra-chave de criptografia não definida",
     "sk": "Kľúčové slovo šifrovania nie je nastavené",
-    "th": "ยังไม่ได้ตั้งคำสำคัญการเข้ารหัส",
+    "th": "ยังไม่ได้ตั้งคำสำคัญการเข้ารหัส"
   },
   "encryption-key-missing-banner": {
     "de": "Die Schülerinformationen werden als anonyme IDs angezeigt, bis Sie Ihr Verschlüsselungsschlüsselwort eingeben.",
@@ -3421,7 +3416,7 @@ export default {
     "pl": "Informacje o uczniach są pokazywane jako anonimowe ID, dopóki nie wprowadzisz słowa kluczowego szyfrowania.",
     "pt": "As informações dos alunos são mostradas como IDs anônimos até que você insira sua palavra-chave de criptografia.",
     "sk": "Informácie o žiakovi sa zobrazujú ako anonymné ID, kým nezadáte svoje šifrovacie kľúčové slovo.",
-    "th": "ข้อมูลนักเรียนจะแสดงเป็นรหัสนิรนามจนกว่าคุณจะใส่คำสำคัญการเข้ารหัส",
+    "th": "ข้อมูลนักเรียนจะแสดงเป็นรหัสนิรนามจนกว่าคุณจะใส่คำสำคัญการเข้ารหัส"
   },
   "encryption-key-required-hint": {
     "de": "Zum Anzeigen der Schülerinformationen ist ein Verschlüsselungsschlüsselwort erforderlich.",
@@ -3434,7 +3429,7 @@ export default {
     "pl": "Do wyświetlenia informacji o uczniach wymagane jest słowo kluczowe szyfrowania.",
     "pt": "Uma palavra-chave de criptografia é necessária para visualizar as informações do aluno.",
     "sk": "Na zobrazenie informácií o žiakovi je potrebné šifrovacie kľúčové slovo.",
-    "th": "ต้องมีคำสำคัญการเข้ารหัสเพื่อดูข้อมูลนักเรียน",
+    "th": "ต้องมีคำสำคัญการเข้ารหัสเพื่อดูข้อมูลนักเรียน"
   },
   "enter": {
     "de": "Eingeben",
@@ -3447,11 +3442,11 @@ export default {
     "pl": "Wprowadź",
     "pt": "Entrar",
     "sk": "Zadajte",
-    "th": "เข้าสู่ระบบ",
+    "th": "เข้าสู่ระบบ"
   },
   "enter-an-encryption-key-word-you-will-remember-t": {
     "de": "Geben Sie ein Verschlüsselungsschlüsselwort ein, das Sie sich merken können. Dieses Schlüsselwort wird verwendet, damit Sie die Namen Ihrer Schülerinnen und Schüler sehen können und gleichzeitig die Anonymität ihrer Daten für alle anderen Benutzerinnen und Benutzer gewahrt bleibt.",
-    "en": "Enter an encryption key-word you will remember. This key-word will be used to allow you to see your students' names while preserving the anonymity of their data for all other users.",
+    "en": "Enter an encryption key-word to memorise. This key-word will be used to allow you to see your students' names while preserving the anonymity of their data for all other users.",
     "es": "Ingrese una palabra clave de cifrado que recordará. Esta palabra clave se utilizará para permitirle ver los nombres de sus estudiantes preservando al mismo tiempo el anonimato de sus datos para todos los demás usuarios.",
     "fr": "Entrez un mot de passe dont vous vous souviendrez. Ce mot de passe sera utilisé pour vous permettre de voir les noms de vos élèves tout en préservant l’anonymat de leurs données pour tous les autres utilisateurs.",
     "km": "បញ្ចូលពាក្យសម្ងាត់ដែលអ្នកនឹងចាំ។ ពាក្យនេះនឹងត្រូវប្រើសម្រាប់ឲ្យអ្នកមើលឈ្មោះសិស្សរបស់អ្នក ខណៈដែលរក្សាអនាមិកភាពទិន្នន័យសម្រាប់អ្នកប្រើផ្សេងទៀត។",
@@ -3460,11 +3455,11 @@ export default {
     "pl": "Wprowadź słowo-klucz szyfrowania, które zapamiętasz. To słowo-klucz pozwoli Ci zobaczyć imiona uczniów przy zachowaniu anonimowości danych dla wszystkich innych użytkowników.",
     "pt": "Digite uma palavra-chave de criptografia que você lembrará. Esta palavra-chave será usada para permitir que você veja os nomes dos seus alunos, preservando o anonimato de seus dados para todos os outros usuários.",
     "sk": "Zadajte šifrovacie heslo, ktoré si zapamätáte. Toto heslo vám umožní vidieť mená vašich žiakov a zároveň zachovať anonymitu ich údajov pre všetkých ostatných používateľov.",
-    "th": "กรุณาใส่รหัสที่ท่านสามารถจดจำได้ โดยรหัสนี้จะถูกใช้เพื่ออนุญาตให้ท่านเข้าถึงรายชื่อนักเรียน และรักษาความเป็นส่วนตัวของข้อมูลและป้องกันการเข้าถึงข้อมูลจากผู้ใช้งานอื่น",
+    "th": "กรุณาใส่รหัสที่ท่านสามารถจดจำได้ โดยรหัสนี้จะถูกใช้เพื่ออนุญาตให้ท่านเข้าถึงรายชื่อนักเรียน และรักษาความเป็นส่วนตัวของข้อมูลและป้องกันการเข้าถึงข้อมูลจากผู้ใช้งานอื่น"
   },
   "enter-encryption-key-word": {
     "de": "Verschlüsselungsschlüsselwort eingeben",
-    "en": "Enter Encryption Key-Word",
+    "en": "Enter encryption key-word",
     "es": "Introduzca la palabra clave de cifrado",
     "fr": "Saisir le mot de passe",
     "km": "បញ្ចូលពាក្យសម្ងាត់",
@@ -3473,7 +3468,7 @@ export default {
     "pl": "Wprowadź słowo-klucz szyfrowania",
     "pt": "Insira a palavra-chave de criptografia",
     "sk": "Zadajte šifrovacie heslo",
-    "th": "กรุณาใส่รหัสในการเข้าถึงข้อมูล",
+    "th": "กรุณาใส่รหัสในการเข้าถึงข้อมูล"
   },
   "enter-score-placeholder": {
     "de": "Punktzahl eingeben",
@@ -3486,11 +3481,11 @@ export default {
     "pl": "Wprowadź wynik",
     "pt": "Introduzir pontuação",
     "sk": "Zadať skóre",
-    "th": "กรอกคะแนน",
+    "th": "กรอกคะแนน"
   },
   "enter-sequence-title": {
     "de": "Geben Sie den Titel der Sequenz ein",
-    "en": "Enter Sequence Title",
+    "en": "Enter sequence title",
     "es": "Ingrese el título de la secuencia",
     "fr": "Saisir le titre de la séquence",
     "km": "បញ្ចូលចំណងជើងលំដាប់",
@@ -3499,7 +3494,7 @@ export default {
     "pl": "Wprowadź tytuł sekwencji",
     "pt": "Insira o título da sequência",
     "sk": "Zadajte názov sekvencie",
-    "th": "ใส่ชื่อลำดับ",
+    "th": "ใส่ชื่อลำดับ"
   },
   "error-loading-assignment": {
     "de": "Fehler beim Laden der Aufgabe",
@@ -3512,7 +3507,7 @@ export default {
     "pl": "Błąd wczytywania zadania",
     "pt": "Erro ao carregar a tarefa",
     "sk": "Chyba pri načítaní úlohy",
-    "th": "เกิดข้อผิดพลาดในการโหลดงาน",
+    "th": "เกิดข้อผิดพลาดในการโหลดงาน"
   },
   "excel-save-as-csv-first": {
     "de": "Der Einfachheit halber werden Excel-Dateien aufgelistet – bitte speichern Sie sie als CSV und laden Sie diese Datei hoch.",
@@ -3525,7 +3520,7 @@ export default {
     "pl": "Pliki Excel są widoczne dla wygody — zapisz jako CSV i prześlij ten plik.",
     "pt": "Os arquivos Excel estão listados por conveniência – salve como CSV e carregue esse arquivo.",
     "sk": "Súbory Excel sú uvedené pre pohodlie – uložte ich ako CSV a nahrajte daný súbor.",
-    "th": "ไฟล์ Excel แสดงไว้เพื่อความสะดวก — โปรดบันทึกเป็น CSV แล้วอัปโหลดไฟล์นั้น",
+    "th": "ไฟล์ Excel แสดงไว้เพื่อความสะดวก — โปรดบันทึกเป็น CSV แล้วอัปโหลดไฟล์นั้น"
   },
   "expert": {
     "de": "Experte",
@@ -3538,7 +3533,7 @@ export default {
     "pl": "Ekspert",
     "pt": "Especialista",
     "sk": "Expert",
-    "th": "ผู้เชี่ยวชาญ",
+    "th": "ผู้เชี่ยวชาญ"
   },
   "explore": {
     "de": "Erkunden",
@@ -3551,7 +3546,7 @@ export default {
     "pl": "Eksploruj",
     "pt": "Explorar",
     "sk": "Preskúmajte",
-    "th": "ตรวจสอบกิจกรรมที่มีอยู่",
+    "th": "ตรวจสอบกิจกรรมที่มีอยู่"
   },
   "explore-content-library": {
     "de": "Inhaltsbibliothek erkunden",
@@ -3564,7 +3559,7 @@ export default {
     "pl": "Przeglądaj bibliotekę treści",
     "pt": "Explorar biblioteca de conteúdo",
     "sk": "Preskúmať knižnicu obsahu",
-    "th": "สำรวจคลังเนื้อหา",
+    "th": "สำรวจคลังเนื้อหา"
   },
   "favorites": {
     "de": "Favoriten",
@@ -3577,11 +3572,11 @@ export default {
     "pl": "Ulubione",
     "pt": "Favoritos",
     "sk": "Obľúbené",
-    "th": "รายการโปรด",
+    "th": "รายการโปรด"
   },
   "favorites-only": {
     "de": "Nur Favoriten",
-    "en": "Favorites only",
+    "en": "Favourites only",
     "es": "Sólo favoritos",
     "fr": "Favoris uniquement",
     "km": "សំណព្វតែប៉ុណ្ណោះ",
@@ -3590,7 +3585,7 @@ export default {
     "pl": "Tylko ulubione",
     "pt": "Somente favoritos",
     "sk": "Iba obľúbené",
-    "th": "เฉพาะรายการโปรด",
+    "th": "เฉพาะรายการโปรด"
   },
   "feature-title": {
     "de": "Feature-Titel",
@@ -3603,7 +3598,7 @@ export default {
     "pl": "Tytuł funkcji",
     "pt": "Título do recurso",
     "sk": "Názov funkcie",
-    "th": "ชื่อคุณสมบัติ",
+    "th": "ชื่อคุณสมบัติ"
   },
   "feedback": {
     "de": "Rückmeldung",
@@ -3616,7 +3611,7 @@ export default {
     "pl": "Opinia",
     "pt": "Comentários",
     "sk": "Spätná väzba",
-    "th": "ข้อเสนอแนะ",
+    "th": "ข้อเสนอแนะ"
   },
   "feedback-for-this-question": {
     "de": "Feedback zu dieser Frage",
@@ -3629,7 +3624,7 @@ export default {
     "pl": "Opinia do tego pytania",
     "pt": "Feedback para esta pergunta",
     "sk": "Spätná väzba k tejto otázke",
-    "th": "คำติชมสำหรับคำถามนี้",
+    "th": "คำติชมสำหรับคำถามนี้"
   },
   "feedback-shown-to-student": {
     "de": "Dem Schüler angezeigtes Feedback",
@@ -3642,7 +3637,7 @@ export default {
     "pl": "Opinia widoczna dla ucznia",
     "pt": "Feedback mostrado ao aluno",
     "sk": "Spätná väzba zobrazená študentovi",
-    "th": "คำติชมที่แสดงแก่นักเรียน",
+    "th": "คำติชมที่แสดงแก่นักเรียน"
   },
   "feedback-timing": {
     "de": "Zeitpunkt des Feedbacks",
@@ -3655,7 +3650,7 @@ export default {
     "pl": "Moment opinii",
     "pt": "Momento do feedback",
     "sk": "Čas spätnej väzby",
-    "th": "จังหวะการให้คำติชม",
+    "th": "จังหวะการให้คำติชม"
   },
   "feedback-timings": {
     "de": "Feedback-Zeitpunkte",
@@ -3668,7 +3663,7 @@ export default {
     "pl": "Momenty opinii",
     "pt": "Momentos de feedback",
     "sk": "Časy spätnej väzby",
-    "th": "จังหวะการให้คำติชม",
+    "th": "จังหวะการให้คำติชม"
   },
   "feedback-visible-to-student": {
     "de": "Für Schüler sichtbares Feedback",
@@ -3681,7 +3676,7 @@ export default {
     "pl": "Opinia widoczna dla ucznia",
     "pt": "Feedback visível para o aluno",
     "sk": "Spätná väzba viditeľná pre študenta",
-    "th": "คำติชมที่นักเรียนเห็นได้",
+    "th": "คำติชมที่นักเรียนเห็นได้"
   },
   "files": {
     "de": "DATEIEN",
@@ -3694,7 +3689,7 @@ export default {
     "pl": "Pliki",
     "pt": "ARQUIVOS",
     "sk": "SÚBORY",
-    "th": "ไฟล์",
+    "th": "ไฟล์"
   },
   "files-alt": {
     "de": "Dateien",
@@ -3707,7 +3702,7 @@ export default {
     "pl": "Pliki",
     "pt": "Arquivos",
     "sk": "Súbory",
-    "th": "ไฟล์",
+    "th": "ไฟล์"
   },
   "fill-required-fields-to-continue": {
     "de": "Füllen Sie alle erforderlichen Felder aus, um fortzufahren.",
@@ -3720,7 +3715,7 @@ export default {
     "pl": "Wypełnij wszystkie wymagane pola, aby kontynuować.",
     "pt": "Preencha todos os campos obrigatórios para continuar.",
     "sk": "Ak chcete pokračovať, vyplňte všetky povinné polia.",
-    "th": "กรอกช่องที่จำเป็นทั้งหมดเพื่อดำเนินการต่อ",
+    "th": "กรอกช่องที่จำเป็นทั้งหมดเพื่อดำเนินการต่อ"
   },
   "filter": {
     "de": "Filtern",
@@ -3733,7 +3728,7 @@ export default {
     "pl": "Filtruj",
     "pt": "Filtro",
     "sk": "Filtrovať",
-    "th": "ตัวกรอง",
+    "th": "ตัวกรอง"
   },
   "filters": {
     "de": "Filter",
@@ -3746,7 +3741,7 @@ export default {
     "pl": "Filtry",
     "pt": "Filtros",
     "sk": "Filtre",
-    "th": "ตัวกรอง",
+    "th": "ตัวกรอง"
   },
   "find-in-my-content": {
     "de": "In meinen Inhalten suchen",
@@ -3759,7 +3754,7 @@ export default {
     "pl": "Znajdź w moich treściach",
     "pt": "Procurar no meu conteúdo",
     "sk": "Nájsť v mojom obsahu",
-    "th": "ค้นหาในเนื้อหาของฉัน",
+    "th": "ค้นหาในเนื้อหาของฉัน"
   },
   "game-design": {
     "de": "Spieldesign",
@@ -3772,7 +3767,7 @@ export default {
     "pl": "Projektowanie gier",
     "pt": "Design de jogos",
     "sk": "Herný dizajn",
-    "th": "การออกแบบเกม",
+    "th": "การออกแบบเกม"
   },
   "generative-ai-module-dashboard": {
     "de": "Generatives KI-Modul-Dashboard",
@@ -3785,7 +3780,7 @@ export default {
     "pl": "Panel modułu Generative AI",
     "pt": "Painel do módulo IA generativo",
     "sk": "Panel generatívneho modulu AI",
-    "th": "แดชบอร์ดโมดูลเอไอเชิงสร้างสรรค์",
+    "th": "แดชบอร์ดโมดูลเอไอเชิงสร้างสรรค์"
   },
   "give-your-assignment-a-description": {
     "de": "Geben Sie Ihrer Aufgabe eine Beschreibung",
@@ -3798,7 +3793,7 @@ export default {
     "pl": "Nadaj swojemu zadaniu opis",
     "pt": "Dê uma descrição à sua tarefa",
     "sk": "Popíšte svoju úlohu",
-    "th": "คำบรรยายเกี่ยวกับกิจกรรม",
+    "th": "คำบรรยายเกี่ยวกับกิจกรรม"
   },
   "give-your-assignment-a-name": {
     "de": "Geben Sie Ihrer Aufgabe einen Namen",
@@ -3811,7 +3806,7 @@ export default {
     "pl": "Nadaj swojemu zadaniu nazwę",
     "pt": "Dê um nome à sua tarefa",
     "sk": "Pomenujte svoju úlohu",
-    "th": "โปรดระบุชื่อกิจรรมที่จะมอบหมาย",
+    "th": "โปรดระบุชื่อกิจรรมที่จะมอบหมาย"
   },
   "give-your-class-a-name": {
     "de": "Geben Sie Ihrer Klasse einen Namen",
@@ -3824,7 +3819,7 @@ export default {
     "pl": "Nadaj swojej klasie nazwę",
     "pt": "Dê um nome à sua classe",
     "sk": "Pomenujte svoju triedu",
-    "th": "กรุณาระบุชื่อชั้นเรียน",
+    "th": "กรุณาระบุชื่อชั้นเรียน"
   },
   "give-your-group-a-name": {
     "de": "Geben Sie Ihrer Gruppe einen Namen",
@@ -3837,7 +3832,7 @@ export default {
     "pl": "Nadaj swojej grupie nazwę",
     "pt": "Dê um nome ao seu grupo",
     "sk": "Pomenujte svoju skupinu",
-    "th": "ตั้งชื่อกลุ่ม",
+    "th": "ตั้งชื่อกลุ่ม"
   },
   "go-to-assignment": {
     "de": "Zur Aufgabe",
@@ -3850,7 +3845,7 @@ export default {
     "pl": "Przejdź do zadania",
     "pt": "Ir para a tarefa",
     "sk": "Prejsť na úlohu",
-    "th": "ไปที่งานที่มอบหมาย",
+    "th": "ไปที่งานที่มอบหมาย"
   },
   "go-to-assignments": {
     "de": "Zu den Aufgaben gehen",
@@ -3863,7 +3858,7 @@ export default {
     "pl": "Przejdź do zadań",
     "pt": "Vá para Tarefas",
     "sk": "Prejdi na Úlohy",
-    "th": "ไปยังกิจกรรมที่ได้รับมอบหมาย",
+    "th": "ไปยังกิจกรรมที่ได้รับมอบหมาย"
   },
   "grade": {
     "de": "Klassenstufe",
@@ -3876,7 +3871,7 @@ export default {
     "pl": "Poziom",
     "pt": "Ano",
     "sk": "Ročník",
-    "th": "ระดับชั้น",
+    "th": "ระดับชั้น"
   },
   "graded": {
     "de": "Benotet",
@@ -3889,7 +3884,7 @@ export default {
     "pl": "Ocenione",
     "pt": "Classificado",
     "sk": "Známkované",
-    "th": "ให้คะแนนแล้ว",
+    "th": "ให้คะแนนแล้ว"
   },
   "grant": {
     "de": "Gewähren",
@@ -3902,7 +3897,7 @@ export default {
     "pl": "Przyznaj",
     "pt": "Conceder",
     "sk": "Udeliť",
-    "th": "อนุญาต",
+    "th": "อนุญาต"
   },
   "group": {
     "de": "Gruppe",
@@ -3915,11 +3910,11 @@ export default {
     "pl": "Grupa",
     "pt": "Grupo",
     "sk": "Skupina",
-    "th": "กลุ่ม",
+    "th": "กลุ่ม"
   },
   "group-created-successfully": {
     "de": "Gruppe erfolgreich erstellt",
-    "en": "Group created successfully",
+    "en": "Group successfully created",
     "es": "Grupo creado exitosamente",
     "fr": "Groupe créé avec succès",
     "km": "បានបង្កើតក្រុមដោយជោគជ័យ",
@@ -3928,7 +3923,7 @@ export default {
     "pl": "Grupa utworzona pomyślnie",
     "pt": "Grupo criado com sucesso",
     "sk": "Skupina bola úspešne vytvorená",
-    "th": "สร้างกลุ่มสำเร็จ",
+    "th": "สร้างกลุ่มสำเร็จ"
   },
   "group-details": {
     "de": "GRUPPENDETAILS",
@@ -3941,11 +3936,11 @@ export default {
     "pl": "SZCZEGÓŁY GRUPY",
     "pt": "DETALHES DO GRUPO",
     "sk": "PODROBNOSTI SKUPINY",
-    "th": "รายละเอียดของกลุ่ม",
+    "th": "รายละเอียดของกลุ่ม"
   },
   "group-name": {
     "de": "Gruppenname",
-    "en": "Group Name",
+    "en": "Group name",
     "es": "Nombre del grupo",
     "fr": "Nom du groupe",
     "km": "ឈ្មោះក្រុម",
@@ -3954,7 +3949,7 @@ export default {
     "pl": "Nazwa grupy",
     "pt": "Nome do grupo",
     "sk": "Názov skupiny",
-    "th": "ชื่อกลุ่ม",
+    "th": "ชื่อกลุ่ม"
   },
   "group-updated-successfully": {
     "de": "Gruppe erfolgreich aktualisiert",
@@ -3967,7 +3962,7 @@ export default {
     "pl": "Grupa zaktualizowana pomyślnie",
     "pt": "Grupo atualizado com sucesso",
     "sk": "Skupina bola úspešne aktualizovaná",
-    "th": "อัปเดตกลุ่มสำเร็จ",
+    "th": "อัปเดตกลุ่มสำเร็จ"
   },
   "groups": {
     "de": "Gruppen",
@@ -3980,7 +3975,7 @@ export default {
     "pl": "Grupy",
     "pt": "Grupos",
     "sk": "Skupiny",
-    "th": "กลุ่ม",
+    "th": "กลุ่ม"
   },
   "homework": {
     "de": "Hausaufgaben",
@@ -3993,11 +3988,11 @@ export default {
     "pl": "Praca domowa",
     "pt": "Lição de casa",
     "sk": "Domáce úlohy",
-    "th": "การบ้าน",
+    "th": "การบ้าน"
   },
   "i-confirm-consent-collected": {
     "de": "Ich bestätige die eingeholte Einwilligung",
-    "en": "I Confirm Consent Collected",
+    "en": "I confirm consent collected",
     "es": "Confirmo el consentimiento obtenido",
     "fr": "Je confirme que le consentement a été recueilli",
     "km": "ខ្ញុំបញ្ជាក់ថាបានប្រមូលការយល់ព្រម",
@@ -4006,7 +4001,7 @@ export default {
     "pl": "Potwierdzam, że uzyskano zgodę",
     "pt": "Confirmo o consentimento coletado",
     "sk": "Potvrdzujem zhromaždený súhlas",
-    "th": "ฉันยืนยันว่าได้รับความยินยอมแล้ว",
+    "th": "ฉันยืนยันว่าได้รับความยินยอมแล้ว"
   },
   "if-you": {
     "de": "Wenn Du",
@@ -4019,7 +4014,7 @@ export default {
     "pl": "Jeśli ty",
     "pt": "Se você",
     "sk": "Ak si",
-    "th": "หากท่าน",
+    "th": "หากท่าน"
   },
   "if-you-opt-out-you-will-no-longer-be-included-in": {
     "de": "Wenn Sie sich abmelden, werden Sie nicht mehr an experimentellen Funktionen oder A/B-Tests teilnehmen, die mit diesem Konto verknüpft sind. \n\nSie haben weiterhin normalen Zugriff, neue experimentelle Änderungen werden Ihnen jedoch möglicherweise nicht angezeigt.",
@@ -4032,7 +4027,7 @@ export default {
     "pl": "Jeśli zrezygnujesz, nie będziesz już uwzględniany w funkcjach eksperymentalnych ani testach A/B powiązanych z tym kontem. Nadal będziesz mieć normalny dostęp, ale nowe eksperymentalne zmiany mogą nie być ci pokazywane.",
     "pt": "Se você cancelar, não será mais incluído em recursos experimentais ou testes A/B vinculados a esta conta. \n\nVocê continuará tendo acesso normal, mas novas alterações experimentais talvez não sejam mostradas para você.",
     "sk": "Ak sa odhlásite, už nebudete súčasťou experimentálnych funkcií ani A/B testov spojených s týmto účtom. \n\nNaďalej budete mať normálny prístup, ale nové experimentálne zmeny sa vám nemusia zobraziť.",
-    "th": "หากคุณยกเลิก คุณจะไม่ถูกรวมอยู่ในคุณลักษณะทดลองหรือการทดสอบ A/B ที่เชื่อมโยงกับบัญชีนี้อีกต่อไป คุณยังคงสามารถเข้าถึงตามปกติได้ แต่การเปลี่ยนแปลงการทดลองใหม่อาจไม่แสดงให้คุณเห็น",
+    "th": "หากคุณยกเลิก คุณจะไม่ถูกรวมอยู่ในคุณลักษณะทดลองหรือการทดสอบ A/B ที่เชื่อมโยงกับบัญชีนี้อีกต่อไป คุณยังคงสามารถเข้าถึงตามปกติได้ แต่การเปลี่ยนแปลงการทดลองใหม่อาจไม่แสดงให้คุณเห็น"
   },
   "import-content": {
     "de": "INHALTE IMPORTIEREN",
@@ -4045,7 +4040,7 @@ export default {
     "pl": "IMPORTUJ ZAWARTOŚĆ",
     "pt": "IMPORTAR CONTEÚDO",
     "sk": "IMPORTOVAŤ OBSAH",
-    "th": "นำเข้าบทเรียน",
+    "th": "นำเข้าบทเรียน"
   },
   "in-assignment": {
     "de": "In Aufgabe",
@@ -4058,7 +4053,7 @@ export default {
     "pl": "W zadaniu",
     "pt": "Na tarefa",
     "sk": "V úlohe",
-    "th": "ในงานที่มอบหมาย",
+    "th": "ในงานที่มอบหมาย"
   },
   "in-class": {
     "de": "Im Unterricht",
@@ -4071,7 +4066,7 @@ export default {
     "pl": "W klasie",
     "pt": "Na aula",
     "sk": "V triede",
-    "th": "นักเรียนในชั้น",
+    "th": "นักเรียนในชั้น"
   },
   "in-group": {
     "de": "In der Gruppe",
@@ -4084,7 +4079,7 @@ export default {
     "pl": "W grupie",
     "pt": "Em grupo",
     "sk": "V skupine",
-    "th": "ในกลุ่ม",
+    "th": "ในกลุ่ม"
   },
   "in-progress": {
     "de": "In Bearbeitung",
@@ -4097,7 +4092,7 @@ export default {
     "pl": "W toku",
     "pt": "Em progresso",
     "sk": "Prebieha",
-    "th": "กำลังดำเนินการ",
+    "th": "กำลังดำเนินการ"
   },
   "incorrect": {
     "de": "Falsch",
@@ -4110,7 +4105,7 @@ export default {
     "pl": "Niepoprawne",
     "pt": "Incorreto",
     "sk": "Nesprávne",
-    "th": "ไม่ถูกต้อง",
+    "th": "ไม่ถูกต้อง"
   },
   "individual-submission": {
     "de": "Individuelle Einreichung",
@@ -4123,7 +4118,7 @@ export default {
     "pl": "Indywidualne zgłoszenie",
     "pt": "Envio Individual",
     "sk": "Individuálne podanie",
-    "th": "การส่งรายบุคคล",
+    "th": "การส่งรายบุคคล"
   },
   "information-about-your-screen-and-device": {
     "de": "Informationen über Deinen Bildschirm und Dein Gerät",
@@ -4136,7 +4131,7 @@ export default {
     "pl": "informacje o ekranie i urządzeniu",
     "pt": "informações sobre sua tela e dispositivo",
     "sk": "informácie o tvojej obrazovke a zariadení",
-    "th": "ข้อมูลเกี่ยวกับหน้าจอและอุปกรณ์ของท่าน",
+    "th": "ข้อมูลเกี่ยวกับหน้าจอและอุปกรณ์ของท่าน"
   },
   "instructions": {
     "de": "Anweisungen",
@@ -4149,7 +4144,7 @@ export default {
     "pl": "Instrukcje",
     "pt": "Instruções",
     "sk": "Inštrukcie",
-    "th": "คำแนะนำ",
+    "th": "คำแนะนำ"
   },
   "instructions-placeholder": {
     "de": "Geben Sie detaillierte Anweisungen für Schüler",
@@ -4162,7 +4157,7 @@ export default {
     "pl": "Podaj szczegółowe instrukcje dla uczniów",
     "pt": "Forneça instruções detalhadas aos alunos",
     "sk": "Poskytnite podrobné pokyny pre študentov",
-    "th": "ระบุคำแนะนำโดยละเอียดสำหรับนักเรียน",
+    "th": "ระบุคำแนะนำโดยละเอียดสำหรับนักเรียน"
   },
   "intermediate": {
     "de": "Fortgeschritten",
@@ -4175,7 +4170,7 @@ export default {
     "pl": "Średniozaawansowany",
     "pt": "Intermediária",
     "sk": "Stredne pokročilý",
-    "th": "ระดับปานกลาง",
+    "th": "ระดับปานกลาง"
   },
   "invalid-access-code": {
     "de": "Ungültiger Zugangscode",
@@ -4188,7 +4183,7 @@ export default {
     "pl": "Nieprawidłowy kod dostępu",
     "pt": "Código de acesso inválido",
     "sk": "Neplatný prístupový kód",
-    "th": "รหัสการเข้าถึงไม่ถูกต้อง",
+    "th": "รหัสการเข้าถึงไม่ถูกต้อง"
   },
   "invalid-id-or-url": {
     "de": "Ungültige ID oder URL",
@@ -4201,7 +4196,7 @@ export default {
     "pl": "Nieprawidłowe Id lub URL",
     "pt": "ID ou URL inválido",
     "sk": "Neplatné ID alebo URL",
-    "th": "ไอดีหรือ URL ที่ไม่ถูกต้อง",
+    "th": "ไอดีหรือ URL ที่ไม่ถูกต้อง"
   },
   "it-looks-like-you-do-not-have-any-assignments-pl": {
     "de": "Es sieht so aus, als hättest Du keine Aufgaben! Bitte sprich mit Deiner Lehrkraft.",
@@ -4214,7 +4209,7 @@ export default {
     "pl": "Wygląda na to, że nie masz żadnych zadań! Porozmawiaj ze swoim nauczycielem.",
     "pt": "Parece que você não tem nenhuma tarefa! Por favor, fale com seu professor.",
     "sk": "Zdá sa, že nemáš žiadne úlohy! Porozprávaj sa so svojím učiteľom.",
-    "th": "ไม่มีกิจกรรมที่ได้รับมอบหมายในขณะนี้ กรุณาสอบถามกับครูผู้สอน",
+    "th": "ไม่มีกิจกรรมที่ได้รับมอบหมายในขณะนี้ กรุณาสอบถามกับครูผู้สอน"
   },
   "item": {
     "de": "Artikel",
@@ -4227,7 +4222,7 @@ export default {
     "pl": "Przedmiot",
     "pt": "Artigo",
     "sk": "Položka",
-    "th": "รายการ",
+    "th": "รายการ"
   },
   "items": {
     "de": "Artikel",
@@ -4240,7 +4235,7 @@ export default {
     "pl": "Przedmioty",
     "pt": "Itens",
     "sk": "Položky",
-    "th": "รายการ",
+    "th": "รายการ"
   },
   "items-added": {
     "de": "hinzugefügt",
@@ -4253,7 +4248,7 @@ export default {
     "pl": "dodano",
     "pt": "adicionado",
     "sk": "pridané",
-    "th": "เพิ่มแล้ว",
+    "th": "เพิ่มแล้ว"
   },
   "items-added-to-assignment": {
     "de": "Element(e) hinzugefügt zu",
@@ -4266,7 +4261,7 @@ export default {
     "pl": "element(y) dodane do",
     "pt": "itens adicionados a",
     "sk": "položky pridané do",
-    "th": "รายการที่เพิ่มไปยัง",
+    "th": "รายการที่เพิ่มไปยัง"
   },
   "items-per-page": {
     "de": "Items pro Seite",
@@ -4279,7 +4274,7 @@ export default {
     "pl": "Elementów na stronę",
     "pt": "Itens por página",
     "sk": "Položky na stránku",
-    "th": "รายการต่อหน้า",
+    "th": "รายการต่อหน้า"
   },
   "items-selected": {
     "de": "Elemente",
@@ -4292,7 +4287,7 @@ export default {
     "pl": "elementy",
     "pt": "itens",
     "sk": "položky",
-    "th": "รายการ",
+    "th": "รายการ"
   },
   "join": {
     "de": "Beitreten",
@@ -4305,7 +4300,7 @@ export default {
     "pl": "Dołącz",
     "pt": "Juntar",
     "sk": "Pripoj sa",
-    "th": "เข้าร่วม",
+    "th": "เข้าร่วม"
   },
   "join-teacher": {
     "de": "Lehrkraft beitreten",
@@ -4318,7 +4313,7 @@ export default {
     "pl": "Dołącz do nauczyciela",
     "pt": "Junte-se ao professor",
     "sk": "Pridaj sa k učiteľovi/ke",
-    "th": "เข้าร่วมชั้นเรียน",
+    "th": "เข้าร่วมชั้นเรียน"
   },
   "joining-teacher": {
     "de": "... Lehrkraft beitreten...",
@@ -4331,7 +4326,7 @@ export default {
     "pl": "... dołączanie do nauczyciela ...",
     "pt": "... juntando-se ao professor...",
     "sk": "...pripájam sa k učiteľovi...",
-    "th": "... กำลังเข้าร่วมชั้นเรียน ...",
+    "th": "... กำลังเข้าร่วมชั้นเรียน ..."
   },
   "karel-the-turtle": {
     "de": "KAREL DIE SCHILDKRÖTE",
@@ -4344,7 +4339,7 @@ export default {
     "pl": "KAREL ŻÓŁW",
     "pt": "KAREL A TARTARUGA",
     "sk": "KORYTNAČKA KAROL",
-    "th": "เจ้าเต่าคาเรล",
+    "th": "เจ้าเต่าคาเรล"
   },
   "keep-working-before-publishing": {
     "de": "Vor dem Veröffentlichen weiterarbeiten",
@@ -4357,7 +4352,7 @@ export default {
     "pl": "Pracuj dalej przed publikacją",
     "pt": "Continuar a trabalhar antes de publicar",
     "sk": "Pokračovať v práci pred zverejnením",
-    "th": "ทำงานต่อก่อนเผยแพร่",
+    "th": "ทำงานต่อก่อนเผยแพร่"
   },
   "keep-working-on-it-before-publishing": {
     "de": "Arbeiten Sie weiter, bevor Sie veröffentlichen",
@@ -4370,7 +4365,7 @@ export default {
     "pl": "Pracuj dalej przed publikacją",
     "pt": "Continue a trabalhar nisto antes de publicar",
     "sk": "Pokračujte v práci pred zverejnením",
-    "th": "ทำงานต่อก่อนเผยแพร่",
+    "th": "ทำงานต่อก่อนเผยแพร่"
   },
   "know-learning-will-keep-this-data-safe-and-wont": {
     "de": "Know Learning verwahrt diese Daten sicher und gibt sie nicht an Dritte weiter, außer an zugelassene Forscherinnen und Forscher. Deine Lehrkraft sieht einige Informationen über Deinen Fortschritt in ihrem „Lehrkraft“-Konto. Sie wird Deine Gespräche mit KI-fähigen Chatbots NICHT sehen. Bitte gib in den Chatbot KEINE Informationen ein, die jemandem helfen könnten, Dich zu identifizieren, wie z. B. Deinen Namen oder Standort. Deine Lehrkraft ist die Einzige, die sehen kann, wer Du sind. Wenn Du mit irgendetwas hier Geschriebenem nicht einverstanden bist, sprich bitte mit Deiner Lehrkraft und erstelle KEIN Schülerinnen-/Schülerkonto auf PILA.",
@@ -4383,7 +4378,7 @@ export default {
     "pl": "Know Learning będzie przechowywać te dane w bezpieczny sposób i nie udostępnia ich nikomu na zewnątrz, z wyjątkiem zatwierdzonych badaczy. Twój nauczyciel zobaczy niektóre informacje o Twoich postępach w swoim koncie „nauczyciela”. NIE będzie widział Twoich rozmów z chatbotami obsługiwanymi przez AI. Proszę NIE wprowadzać do chatbota żadnych informacji, które mogłyby pomóc komuś zidentyfikować Twoją osobę, takich jak imię lub lokalizacja. Tylko Twój nauczyciel będzie mógł zobaczyć, kim jesteś. Jeśli nie zgadzasz się z czymkolwiek, co tu napisano, porozmawiaj ze swoim nauczycielem i NIE twórz konta ucznia na PILA.",
     "pt": "A Know Learning manterá esses dados seguros e não os compartilhará com ninguém de fora, exceto pesquisadores aprovados. Seu professor verá algumas informações sobre seu progresso na conta de “professor”. Eles NÃO verão suas conversas com chatbots habilitados para IA. NÃO insira no chatbot nenhuma informação que possa ajudar alguém a identificar quem você é, como seu nome ou localização. Seu professor é o único que poderá ver quem você é. Se você não concorda com nada escrito aqui, fale com seu professor e NÃO crie uma conta de estudante no PILA.",
     "sk": "Know Learning bude uchovávať tieto údaje v bezpečí a nebude ich zdieľať s nikým ďalším, s výnimkou schválených výskumníkov. Tvoj učiteľ/ka uvidí niektoré informácie o tvojom pokroku vo svojom „učiteľskom“ účte. Neuvidí tvoje konverzácie s četbotmi s podporou AI. Prosím, NEVKLADAJ do četbota žiadne informácie, ktoré by niekomu pomohli identifikovať, kto si - ako napríklad tvoje meno alebo polohu. Tvoj/a učiteľ/ka je jediný/á, kto bude môcť vidieť, kto si. Ak nesúhlasíš s čímkoľvek, čo je tu napísané, porozprávaj sa so svojím/ou učiteľom/kou a NEVYTVÁRAJ si žiacky účet na PILA.",
-    "th": "Know Learning จะเก็บข้อมูลนี้อย่างปลอดภัยและจะไม่แชร์กับใครภายนอก ยกเว้นนักวิจัยที่ได้รับอนุมัติ ครูของคุณจะเห็นข้อมูลบางอย่างเกี่ยวกับความก้าวหน้าของคุณในบัญชี “ครู” ของพวกเขา แต่พวกเขาจะไม่เห็นการสนทนาของคุณกับแชทบอทที่ใช้ AI โปรดอย่าใส่ข้อมูลใดๆ ลงในแชทบอทที่อาจช่วยให้ใครบางคนระบุตัวตนของคุณ เช่น ชื่อหรือที่อยู่ ครูของคุณเท่านั้นที่จะสามารถเห็นว่าคุณเป็นใคร หากคุณไม่เห็นด้วยกับสิ่งใดที่เขียนไว้ที่นี่ โปรดปรึกษาครูของคุณและอย่าสร้างบัญชีผู้เรียนบน PILA",
+    "th": "Know Learning จะเก็บข้อมูลนี้อย่างปลอดภัยและจะไม่แชร์กับใครภายนอก ยกเว้นนักวิจัยที่ได้รับอนุมัติ ครูของคุณจะเห็นข้อมูลบางอย่างเกี่ยวกับความก้าวหน้าของคุณในบัญชี “ครู” ของพวกเขา แต่พวกเขาจะไม่เห็นการสนทนาของคุณกับแชทบอทที่ใช้ AI โปรดอย่าใส่ข้อมูลใดๆ ลงในแชทบอทที่อาจช่วยให้ใครบางคนระบุตัวตนของคุณ เช่น ชื่อหรือที่อยู่ ครูของคุณเท่านั้นที่จะสามารถเห็นว่าคุณเป็นใคร หากคุณไม่เห็นด้วยกับสิ่งใดที่เขียนไว้ที่นี่ โปรดปรึกษาครูของคุณและอย่าสร้างบัญชีผู้เรียนบน PILA"
   },
   "last-login": {
     "de": "Letzte Anmeldung",
@@ -4396,7 +4391,7 @@ export default {
     "pl": "Ostatnie logowanie",
     "pt": "Último início de sessão",
     "sk": "Posledné prihlásenie",
-    "th": "เข้าสู่ระบบล่าสุด",
+    "th": "เข้าสู่ระบบล่าสุด"
   },
   "last-modified": {
     "de": "Zuletzt geändert",
@@ -4409,7 +4404,7 @@ export default {
     "pl": "Ostatnia modyfikacja",
     "pt": "Última modificação",
     "sk": "Naposledy upravené",
-    "th": "แก้ไขล่าสุด",
+    "th": "แก้ไขล่าสุด"
   },
   "late-submissions": {
     "de": "Verspätete Abgaben",
@@ -4422,7 +4417,7 @@ export default {
     "pl": "Spóźnione oddania",
     "pt": "Entregas atrasadas",
     "sk": "Oneskorené odovzdania",
-    "th": "การส่งช้า",
+    "th": "การส่งช้า"
   },
   "learning": {
     "de": "Lernen",
@@ -4435,7 +4430,7 @@ export default {
     "pl": "Nauka",
     "pt": "Aprendizagem",
     "sk": "Učenie",
-    "th": "การเรียนรู้",
+    "th": "การเรียนรู้"
   },
   "learning-goals-and-description": {
     "de": "Lernziele und Beschreibung",
@@ -4448,7 +4443,7 @@ export default {
     "pl": "Cele uczenia się i opis",
     "pt": "Metas e descrição de aprendizagem",
     "sk": "Učebné ciele a popis",
-    "th": "เป้าหมายการเรียนรู้และคำอธิบาย",
+    "th": "เป้าหมายการเรียนรู้และคำอธิบาย"
   },
   "leave": {
     "de": "Verlassen",
@@ -4461,7 +4456,7 @@ export default {
     "pl": "Wyjdź",
     "pt": "Deixar",
     "sk": "Odísť\n",
-    "th": "ออก",
+    "th": "ออก"
   },
   "leaving-teacher": {
     "de": "... Lehrkraft verlassen ...",
@@ -4474,7 +4469,7 @@ export default {
     "pl": "... opuszczanie nauczyciela ...",
     "pt": "...deixando professor...",
     "sk": "... odpájam sa od učiteľa...",
-    "th": "... กำลังออกจากชั้นเรียน ...",
+    "th": "... กำลังออกจากชั้นเรียน ..."
   },
   "link-copied": {
     "de": "Link kopiert",
@@ -4487,11 +4482,11 @@ export default {
     "pl": "Link skopiowany",
     "pt": "Link copiado",
     "sk": "Odkaz bol skopírovaný",
-    "th": "คัดลอกลิงก์เรียบร้อยแล้ว",
+    "th": "คัดลอกลิงก์เรียบร้อยแล้ว"
   },
   "link-students-to-you": {
     "de": "Verbinden Sie Schülerinnen und Schüler mit sich",
-    "en": "Link Students to You",
+    "en": "Link students to you",
     "es": "Vincula a los estudiantes contigo",
     "fr": "Lier des élèves à vous",
     "km": "ភ្ជាប់សិស្សទៅអ្នក",
@@ -4500,7 +4495,7 @@ export default {
     "pl": "Połącz uczniów ze sobą",
     "pt": "Vincule alunos a você",
     "sk": "Prepojte žiakov s vami",
-    "th": "เพิ่มนักเรียนเข้าสู่ระบบ",
+    "th": "เพิ่มนักเรียนเข้าสู่ระบบ"
   },
   "link-via-sso": {
     "de": "Über SSO verknüpfen",
@@ -4513,11 +4508,11 @@ export default {
     "pl": "Połącz przez SSO",
     "pt": "Ligar via SSO",
     "sk": "Prepojiť cez SSO",
-    "th": "เชื่อมโยงผ่าน SSO",
+    "th": "เชื่อมโยงผ่าน SSO"
   },
   "live-monitoring-dashboard": {
     "de": "Live-Überwachungs-Dashboard",
-    "en": "Live-Monitoring Dashboard",
+    "en": "Live-monitoring dashboard",
     "es": "Panel de control en vivo",
     "fr": "Tableau de bord",
     "km": "ផ្ទាំងត្រួតពិនិត្យផ្ទាល់",
@@ -4526,7 +4521,7 @@ export default {
     "pl": "Panel monitorowania na żywo",
     "pt": "Painel de monitoramento ao vivo",
     "sk": "Informačný panel s monitorovaním v reálnom čase",
-    "th": "แดชบอร์ดติดตามแบบถ่ายทอดสด",
+    "th": "แดชบอร์ดติดตามแบบถ่ายทอดสด"
   },
   "loading": {
     "de": "Laden",
@@ -4539,7 +4534,7 @@ export default {
     "pl": "Ładowanie",
     "pt": "carregando",
     "sk": "načítava sa",
-    "th": "กำลังโหลด",
+    "th": "กำลังโหลด"
   },
   "loading-question": {
     "de": "Frage wird geladen",
@@ -4552,7 +4547,7 @@ export default {
     "pl": "Wczytywanie pytania",
     "pt": "A carregar pergunta",
     "sk": "Načítava sa otázka",
-    "th": "กำลังโหลดคำถาม",
+    "th": "กำลังโหลดคำถาม"
   },
   "loading-tags": {
     "de": "Loading Tags",
@@ -4565,7 +4560,7 @@ export default {
     "pl": "Loading Tags",
     "pt": "Loading Tags",
     "sk": "Loading Tags",
-    "th": "กำลังโหลดแท็ก",
+    "th": "กำลังโหลดแท็ก"
   },
   "log-in-with": {
     "de": "Anmelden mit",
@@ -4578,7 +4573,7 @@ export default {
     "pl": "Zaloguj przez",
     "pt": "Entrar com",
     "sk": "Prihlásiť sa pomocou",
-    "th": "เข้าสู่ระบบด้วย",
+    "th": "เข้าสู่ระบบด้วย"
   },
   "log-out": {
     "de": "abmelden",
@@ -4591,7 +4586,7 @@ export default {
     "pl": "Wyloguj się",
     "pt": "sair",
     "sk": "odhlásiť sa",
-    "th": "ออกจากระบบ",
+    "th": "ออกจากระบบ"
   },
   "login": {
     "de": "Anmeldung",
@@ -4604,11 +4599,11 @@ export default {
     "pl": "Zaloguj się",
     "pt": "Conecte-se",
     "sk": "Prihlásenie",
-    "th": "เข้าสู่ระบบ",
+    "th": "เข้าสู่ระบบ"
   },
   "login-code": {
     "de": "Login-Code",
-    "en": "Login Code",
+    "en": "Login code",
     "es": "Código de inicio de sesión",
     "fr": "Code de connexion",
     "km": "លេខកូដចូល",
@@ -4617,7 +4612,7 @@ export default {
     "pl": "Kod logowania",
     "pt": "Código de login",
     "sk": "Prihlasovací kód",
-    "th": "รหัสเข้าสู่ระบบ",
+    "th": "รหัสเข้าสู่ระบบ"
   },
   "login-report": {
     "de": "Anmeldebericht",
@@ -4630,7 +4625,7 @@ export default {
     "pl": "Raport logowania",
     "pt": "Relatório de login",
     "sk": "Správa o prihlásení",
-    "th": "รายงานการเข้าสู่ระบบ",
+    "th": "รายงานการเข้าสู่ระบบ"
   },
   "magical-mixology": {
     "de": "MAGISCHE MIXOLOGIE",
@@ -4643,7 +4638,7 @@ export default {
     "pl": "MAGICZNA MIKSTURA",
     "pt": "MIXOLOGIA MAGICA",
     "sk": "MAGICKÁ MIXOLÓGIA",
-    "th": "การผสมวิเศษ",
+    "th": "การผสมวิเศษ"
   },
   "manage-data": {
     "de": "Daten verwalten",
@@ -4656,7 +4651,7 @@ export default {
     "pl": "Zarządzaj danymi",
     "pt": "Gerenciar dados",
     "sk": "Spravovať údaje",
-    "th": "จัดการข้อมูล",
+    "th": "จัดการข้อมูล"
   },
   "manage-student-accounts": {
     "de": "Schülerkonten verwalten",
@@ -4669,7 +4664,7 @@ export default {
     "pl": "Zarządzaj kontami uczniów",
     "pt": "Gerir contas de alunos",
     "sk": "Spravovať účty študentov",
-    "th": "จัดการบัญชีนักเรียน",
+    "th": "จัดการบัญชีนักเรียน"
   },
   "manage-students-in": {
     "de": "Schüler verwalten in",
@@ -4682,11 +4677,11 @@ export default {
     "pl": "Zarządzaj uczniami w",
     "pt": "Gerir alunos em",
     "sk": "Spravovať študentov v",
-    "th": "จัดการนักเรียนใน",
+    "th": "จัดการนักเรียนใน"
   },
   "manual-entry": {
     "de": "Manuelle Eingabe",
-    "en": "Manual Entry",
+    "en": "Manual entry",
     "es": "Entrada manual",
     "fr": "Saisie manuelle",
     "km": "បញ្ចូលដោយដៃ",
@@ -4695,7 +4690,7 @@ export default {
     "pl": "Wpis ręczny",
     "pt": "Entrada manual",
     "sk": "Manuálny vstup",
-    "th": "ป้อนด้วยตนเอง",
+    "th": "ป้อนด้วยตนเอง"
   },
   "manually-create-single-student": {
     "de": "Einzelnen Schüler manuell erstellen",
@@ -4708,7 +4703,7 @@ export default {
     "pl": "Utwórz jednego ucznia ręcznie",
     "pt": "Criar um aluno manualmente",
     "sk": "Manuálne vytvoriť jedného študenta",
-    "th": "สร้างนักเรียนรายบุคคลด้วยตนเอง",
+    "th": "สร้างนักเรียนรายบุคคลด้วยตนเอง"
   },
   "mark-as-graded": {
     "de": "Als bewertet markieren",
@@ -4721,7 +4716,7 @@ export default {
     "pl": "Oznacz jako ocenione",
     "pt": "Marcar como classificado",
     "sk": "Označiť ako ohodnotené",
-    "th": "ทำเครื่องหมายว่าให้คะแนนแล้ว",
+    "th": "ทำเครื่องหมายว่าให้คะแนนแล้ว"
   },
   "mark-this-content-as-a-favorite-for-quick-access": {
     "de": "Mark this content as a favorite for quick access",
@@ -4734,7 +4729,7 @@ export default {
     "pl": "Mark this content as a favorite for quick access",
     "pt": "Mark this content as a favorite for quick access",
     "sk": "Mark this content as a favorite for quick access",
-    "th": "เพิ่มเนื้อหานี้ไปยังรายการโปรดเพื่อการเข้าถึงอย่างรวดเร็ว",
+    "th": "เพิ่มเนื้อหานี้ไปยังรายการโปรดเพื่อการเข้าถึงอย่างรวดเร็ว"
   },
   "matching": {
     "de": "Passend",
@@ -4747,7 +4742,7 @@ export default {
     "pl": "Dopasowywanie",
     "pt": "Correspondência",
     "sk": "Zhoda",
-    "th": "โยงเส้นจับคู่",
+    "th": "โยงเส้นจับคู่"
   },
   "math-invaders": {
     "de": "MATHE-INVASOREN",
@@ -4760,7 +4755,7 @@ export default {
     "pl": "NAJEŹDŹCY MATEMATYCZNI",
     "pt": "INVASORES DA MATEMÁTICA",
     "sk": "MATEMATICKÍ VOTRELCI",
-    "th": "คณิตศาสตร์",
+    "th": "คณิตศาสตร์"
   },
   "maximum-attempts": {
     "de": "Maximale Versuche",
@@ -4773,7 +4768,7 @@ export default {
     "pl": "Maksymalna liczba prób",
     "pt": "Máximo de tentativas",
     "sk": "Maximálny počet pokusov",
-    "th": "จำนวนครั้งสูงสุด",
+    "th": "จำนวนครั้งสูงสุด"
   },
   "members": {
     "de": "Mitgliederinnen/Mitglieder",
@@ -4786,7 +4781,7 @@ export default {
     "pl": "Członkowie",
     "pt": "Membros",
     "sk": "Členovia",
-    "th": "นักเรียนในชั้นเรียน",
+    "th": "นักเรียนในชั้นเรียน"
   },
   "modify": {
     "de": "Ändern",
@@ -4799,11 +4794,11 @@ export default {
     "pl": "Modyfikuj",
     "pt": "Modificar",
     "sk": "Upraviť",
-    "th": "แก้ไข",
+    "th": "แก้ไข"
   },
   "modify-the-group-details": {
     "de": "Ändern Sie die Gruppendetails",
-    "en": "Modify the group details",
+    "en": "Modify group details",
     "es": "Modificar los detalles del grupo",
     "fr": "Modifier les détails du groupe",
     "km": "កែព័ត៌មានលម្អិតក្រុម",
@@ -4812,11 +4807,11 @@ export default {
     "pl": "Zmień szczegóły grupy",
     "pt": "Modifique os detalhes do grupo",
     "sk": "Upravte podrobnosti skupiny",
-    "th": "แก้ไขรายละเอียดกลุ่ม",
+    "th": "แก้ไขรายละเอียดกลุ่ม"
   },
   "my-assignments": {
     "de": "MEINE AUFGABEN",
-    "en": "MY ASSIGNMENTS",
+    "en": "My Assignments",
     "es": "MIS TAREAS",
     "fr": "MES ACTIVITES",
     "km": "ការងាររបស់ខ្ញុំ",
@@ -4825,7 +4820,7 @@ export default {
     "pl": "MOJE ZADANIA",
     "pt": "MINHAS ATRIBUIÇÕES",
     "sk": "MOJE ÚLOHY",
-    "th": "ระบบมอบหมายงานและติดตามผล",
+    "th": "ระบบมอบหมายงานและติดตามผล"
   },
   "my-classes": {
     "de": "MEINE KLASSEN",
@@ -4838,7 +4833,7 @@ export default {
     "pl": "MOJE KLASY",
     "pt": "MINHAS AULAS",
     "sk": "MOJE TRIEDY",
-    "th": "ชั้นเรียน",
+    "th": "ชั้นเรียน"
   },
   "my-content": {
     "de": "Mein Inhalt",
@@ -4851,7 +4846,7 @@ export default {
     "pl": "Moja treść",
     "pt": "Meu conteúdo",
     "sk": "Môj obsah",
-    "th": "เนื้อหาของฉัน",
+    "th": "เนื้อหาของฉัน"
   },
   "my-sequences": {
     "de": "Meine Sequenzen",
@@ -4864,7 +4859,7 @@ export default {
     "pl": "Moje sekwencje",
     "pt": "As minhas sequências",
     "sk": "Moje sekvencie",
-    "th": "ลำดับของฉัน",
+    "th": "ลำดับของฉัน"
   },
   "my-students": {
     "de": "MEINE SCHÜLERINNEN UND SCHÜLER",
@@ -4877,7 +4872,7 @@ export default {
     "pl": "MOI UCZNIOWIE",
     "pt": "MEUS ALUNOS",
     "sk": "MOJI ŽIACI",
-    "th": "รายชื่อนักเรียน",
+    "th": "รายชื่อนักเรียน"
   },
   "my-teacher-groups": {
     "de": "MEINE LEHRKRÄFTEGRUPPEN",
@@ -4890,7 +4885,7 @@ export default {
     "pl": "MOJE GRUPY NAUCZYCIELI",
     "pt": "MEUS GRUPOS DE PROFESSORES",
     "sk": "MOJE SKUPINY UČITEĽOV",
-    "th": "กลุ่มครู",
+    "th": "กลุ่มครู"
   },
   "my-teachers": {
     "de": "MEINE LEHRKRÄFTE",
@@ -4903,7 +4898,7 @@ export default {
     "pl": "MOI NAUCZYCIELE",
     "pt": "MEUS PROFESSORES",
     "sk": "MOJI UČITELIA",
-    "th": "ครูของฉัน",
+    "th": "ครูของฉัน"
   },
   "n-items-added-to-sequence": {
     "de": "{count} Elemente zur Sequenz hinzugefügt",
@@ -4916,7 +4911,7 @@ export default {
     "pl": "Dodano {count} elementów do sekwencji",
     "pt": "{count} itens adicionados à sequência",
     "sk": "Do sekvencie bolo pridaných {count} položiek",
-    "th": "เพิ่ม {count} รายการไปยังลำดับแล้ว",
+    "th": "เพิ่ม {count} รายการไปยังลำดับแล้ว"
   },
   "name": {
     "de": "Name",
@@ -4929,7 +4924,7 @@ export default {
     "pl": "Imię i nazwisko",
     "pt": "Nome",
     "sk": "Meno",
-    "th": "ชื่อ",
+    "th": "ชื่อ"
   },
   "never": {
     "de": "Nie",
@@ -4942,7 +4937,7 @@ export default {
     "pl": "Nigdy",
     "pt": "Nunca",
     "sk": "Nikdy",
-    "th": "ไม่เคย",
+    "th": "ไม่เคย"
   },
   "new": {
     "de": "Neu",
@@ -4955,7 +4950,7 @@ export default {
     "pl": "Nowy",
     "pt": "Novo",
     "sk": "Nové",
-    "th": "ใหม่",
+    "th": "ใหม่"
   },
   "new-assignment": {
     "de": "Neue Aufgabe",
@@ -4968,7 +4963,7 @@ export default {
     "pl": "Nowe zadanie",
     "pt": "Nova tarefa",
     "sk": "Nová úloha",
-    "th": "มอบหมายกิจกรรมใหม่",
+    "th": "มอบหมายกิจกรรมใหม่"
   },
   "new-assignment-created-with-content": {
     "de": "Eine neue Aufgabe „{name}“ wurde erstellt und „Inhalt“ wurde ihr erfolgreich hinzugefügt.",
@@ -4981,7 +4976,7 @@ export default {
     "pl": "Utworzono nowe zadanie „{name}” i pomyślnie dodano do niego „treść”.",
     "pt": "Uma nova atribuição \"{name}\" foi criada e \"conteúdo\" foi adicionado a ela com sucesso.",
     "sk": "Bola vytvorená nová úloha „{name}“ a úspešne sa do nej pridal „obsah“.",
-    "th": "สร้างงานที่มอบหมายใหม่ \"{name}\" และเพิ่ม \"เนื้อหา\" สำเร็จแล้ว",
+    "th": "สร้างงานที่มอบหมายใหม่ \"{name}\" และเพิ่ม \"เนื้อหา\" สำเร็จแล้ว"
   },
   "new-assignment-successfully-created": {
     "de": "Neue Aufgabe wurde erfolgreich erstellt",
@@ -4994,11 +4989,11 @@ export default {
     "pl": "Nowe zadanie zostało pomyślnie utworzone",
     "pt": "A nova tarefa foi criada com sucesso",
     "sk": "Nová úloha bola úspešne vytvorená",
-    "th": "สร้างงานที่มอบหมายใหม่สำเร็จแล้ว",
+    "th": "สร้างงานที่มอบหมายใหม่สำเร็จแล้ว"
   },
   "new-assignment-title": {
     "de": "Neuer Aufgabentitel",
-    "en": "New Assignment Title",
+    "en": "New assignment title",
     "es": "Nuevo título de tarea",
     "fr": "Titre du nouveau devoir",
     "km": "ចំណងជើងកិច្ចការថ្មី",
@@ -5007,7 +5002,7 @@ export default {
     "pl": "Tytuł nowego zadania",
     "pt": "Novo título da tarefa",
     "sk": "Nový názov úlohy",
-    "th": "ชื่องานที่มอบหมายใหม่",
+    "th": "ชื่องานที่มอบหมายใหม่"
   },
   "new-class": {
     "de": "Neue Klasse",
@@ -5020,11 +5015,11 @@ export default {
     "pl": "Nowa klasa",
     "pt": "Nova Classe",
     "sk": "Nová trieda",
-    "th": "สร้างชั้นเรียนใหม่",
+    "th": "สร้างชั้นเรียนใหม่"
   },
   "new-group": {
     "de": "Neue Gruppe",
-    "en": "New Group",
+    "en": "New group",
     "es": "Nuevo grupo",
     "fr": "Nouveau groupe",
     "km": "ក្រុមថ្មី",
@@ -5033,7 +5028,7 @@ export default {
     "pl": "Nowa grupa",
     "pt": "Novo grupo",
     "sk": "Nová skupina",
-    "th": "กลุ่มใหม่",
+    "th": "กลุ่มใหม่"
   },
   "new-login-code-is-ready": {
     "de": "Neuer Login-Code ist fertig",
@@ -5046,7 +5041,7 @@ export default {
     "pl": "Nowy kod logowania jest gotowy",
     "pt": "O novo código de login está pronto",
     "sk": "Nový prihlasovací kód je pripravený",
-    "th": "รหัสเข้าสู่ระบบใหม่พร้อมแล้ว",
+    "th": "รหัสเข้าสู่ระบบใหม่พร้อมแล้ว"
   },
   "new-sequence": {
     "de": "Neue Sequenz",
@@ -5059,7 +5054,7 @@ export default {
     "pl": "Nowa sekwencja",
     "pt": "Nova sequência",
     "sk": "Nová sekvencia",
-    "th": "ลำดับใหม่",
+    "th": "ลำดับใหม่"
   },
   "new-title": {
     "de": "Neuer Titel",
@@ -5072,7 +5067,7 @@ export default {
     "pl": "Nowy tytuł",
     "pt": "Novo título",
     "sk": "Nový názov",
-    "th": "ชื่อใหม่",
+    "th": "ชื่อใหม่"
   },
   "next": {
     "de": "Als nächstes",
@@ -5085,7 +5080,7 @@ export default {
     "pl": "Następny",
     "pt": "Próximo",
     "sk": "Nasledujúce",
-    "th": "ถัดไป",
+    "th": "ถัดไป"
   },
   "nickname": {
     "de": "Spitzname",
@@ -5098,7 +5093,7 @@ export default {
     "pl": "Pseudonim",
     "pt": "Apelido",
     "sk": "Prezývka",
-    "th": "ชื่อเล่น",
+    "th": "ชื่อเล่น"
   },
   "no": {
     "de": "Nein",
@@ -5111,7 +5106,7 @@ export default {
     "pl": "Nie",
     "pt": "Não",
     "sk": "Nie",
-    "th": "ไม่",
+    "th": "ไม่"
   },
   "no-active-users-with-login-codes": {
     "de": "Keine aktiven Benutzer mit Login-Codes.",
@@ -5124,7 +5119,7 @@ export default {
     "pl": "Brak aktywnych użytkowników z kodami logowania.",
     "pt": "Nenhum usuário ativo com códigos de login.",
     "sk": "Žiadni aktívni používatelia s prihlasovacími kódmi.",
-    "th": "ไม่มีผู้ใช้ที่ใช้งานพร้อมรหัสเข้าสู่ระบบ",
+    "th": "ไม่มีผู้ใช้ที่ใช้งานพร้อมรหัสเข้าสู่ระบบ"
   },
   "no-assignments-match-filters": {
     "de": "Keine Aufgaben entsprechen den Filtern",
@@ -5137,7 +5132,7 @@ export default {
     "pl": "Brak zadań pasujących do filtrów",
     "pt": "Nenhuma tarefa corresponde aos filtros",
     "sk": "Žiadne úlohy nevyhovujú filtrom",
-    "th": "ไม่มีงานที่ตรงกับตัวกรอง",
+    "th": "ไม่มีงานที่ตรงกับตัวกรอง"
   },
   "no-available-students": {
     "de": "Keine verfügbaren Schüler",
@@ -5150,7 +5145,7 @@ export default {
     "pl": "Brak dostępnych uczniów",
     "pt": "Sem alunos disponíveis",
     "sk": "Žiadni dostupní študenti",
-    "th": "ไม่มีนักเรียนที่ใช้ได้",
+    "th": "ไม่มีนักเรียนที่ใช้ได้"
   },
   "no-classes-assigned": {
     "de": "keine Klassen zugewiesen",
@@ -5163,7 +5158,7 @@ export default {
     "pl": "Brak przypisanych klas",
     "pt": "nenhuma aula atribuída",
     "sk": "nie sú priradené žiadne triedy",
-    "th": "ไม่มีชั้นเรียนที่ได้รับมอบหมาย",
+    "th": "ไม่มีชั้นเรียนที่ได้รับมอบหมาย"
   },
   "no-competencies-selected-yet": {
     "de": "No Competencies Selected Yet",
@@ -5176,7 +5171,7 @@ export default {
     "pl": "No Competencies Selected Yet",
     "pt": "No Competencies Selected Yet",
     "sk": "No Competencies Selected Yet",
-    "th": "ยังไม่ได้เลือกสมรรถนะ",
+    "th": "ยังไม่ได้เลือกสมรรถนะ"
   },
   "no-content-items-added": {
     "de": "Keine Inhaltselemente hinzugefügt",
@@ -5189,7 +5184,7 @@ export default {
     "pl": "Nie dodano elementów treści",
     "pt": "Nenhum item de conteúdo adicionado",
     "sk": "Neboli pridané žiadne položky obsahu",
-    "th": "ยังไม่ได้เพิ่มรายการเนื้อหา",
+    "th": "ยังไม่ได้เพิ่มรายการเนื้อหา"
   },
   "no-data-available": {
     "de": "Keine Daten verfügbar",
@@ -5202,7 +5197,7 @@ export default {
     "pl": "Brak dostępnych danych",
     "pt": "Nenhum dado disponível",
     "sk": "Nie sú k dispozícii žiadne údaje",
-    "th": "ไม่มีข้อมูล",
+    "th": "ไม่มีข้อมูล"
   },
   "no-description": {
     "de": "Keine Beschreibung",
@@ -5215,11 +5210,11 @@ export default {
     "pl": "Brak opisu",
     "pt": "Sem descrição",
     "sk": "Bez popisu",
-    "th": "ไม่มีคำอธิบาย",
+    "th": "ไม่มีคำอธิบาย"
   },
   "no-favorites-match-search": {
     "de": "Keine Favoriten entsprechen Ihrer Suche",
-    "en": "No favorites match your search",
+    "en": "No favourites match this search",
     "es": "Ningún favorito coincide con tu búsqueda",
     "fr": "Aucun favori ne correspond à votre recherche",
     "km": "គ្មានសំណព្វត្រូវនឹងការស្វែងរក",
@@ -5228,11 +5223,11 @@ export default {
     "pl": "Brak ulubionych pasujących do wyszukiwania",
     "pt": "Nenhum favorito corresponde à sua pesquisa",
     "sk": "Vášmu vyhľadávaniu nezodpovedajú žiadne obľúbené položky",
-    "th": "ไม่มีรายการโปรดที่ตรงกับการค้นหา",
+    "th": "ไม่มีรายการโปรดที่ตรงกับการค้นหา"
   },
   "no-favorites-yet": {
     "de": "Noch keine Favoriten",
-    "en": "No favorites yet",
+    "en": "No favourites yet",
     "es": "Aún no hay favoritos",
     "fr": "Pas encore de favoris",
     "km": "មិនទាន់មានសំណព្វ",
@@ -5241,7 +5236,7 @@ export default {
     "pl": "Brak jeszcze ulubionych",
     "pt": "Ainda não há favoritos",
     "sk": "Zatiaľ žiadne obľúbené",
-    "th": "ยังไม่มีรายการโปรด",
+    "th": "ยังไม่มีรายการโปรด"
   },
   "no-groups-assigned": {
     "de": "Keine Gruppen zugewiesen",
@@ -5254,7 +5249,7 @@ export default {
     "pl": "Brak przypisanych grup",
     "pt": "Nenhum grupo atribuído",
     "sk": "Žiadne priradené skupiny",
-    "th": "ไม่มีกลุ่มที่มอบหมาย",
+    "th": "ไม่มีกลุ่มที่มอบหมาย"
   },
   "no-groups-found": {
     "de": "Keine Gruppen gefunden",
@@ -5267,7 +5262,7 @@ export default {
     "pl": "Nie znaleziono grup",
     "pt": "Nenhum grupo encontrado",
     "sk": "Nenašli sa žiadne skupiny",
-    "th": "ไม่พบกลุ่ม",
+    "th": "ไม่พบกลุ่ม"
   },
   "no-instructions-provided": {
     "de": "Keine Anweisungen angegeben",
@@ -5280,7 +5275,7 @@ export default {
     "pl": "Brak instrukcji",
     "pt": "Sem instruções",
     "sk": "Neboli poskytnuté pokyny",
-    "th": "ไม่มีคำแนะนำ",
+    "th": "ไม่มีคำแนะนำ"
   },
   "no-items-added-yet": {
     "de": "noch keine Elemente hinzugefügt",
@@ -5293,7 +5288,7 @@ export default {
     "pl": "jeszcze nie dodano elementów",
     "pt": "ainda sem itens adicionados",
     "sk": "zatiaľ neboli pridané žiadne položky",
-    "th": "ยังไม่ได้เพิ่มรายการ",
+    "th": "ยังไม่ได้เพิ่มรายการ"
   },
   "no-items-yet": {
     "de": "Noch keine Elemente",
@@ -5306,7 +5301,7 @@ export default {
     "pl": "Brak elementów",
     "pt": "Ainda sem itens",
     "sk": "Zatiaľ žiadne položky",
-    "th": "ยังไม่มีรายการ",
+    "th": "ยังไม่มีรายการ"
   },
   "no-one-has-been-assigned-this-role": {
     "de": "Diese Rolle wurde niemandem zugewiesen",
@@ -5319,7 +5314,7 @@ export default {
     "pl": "Nikomu nie przydzielono tej roli",
     "pt": "Ninguém foi designado para esta função",
     "sk": "Táto rola nebola nikomu pridelená",
-    "th": "ไม่มีใครได้รับมอบหมายบทบาทนี้",
+    "th": "ไม่มีใครได้รับมอบหมายบทบาทนี้"
   },
   "no-options-available": {
     "de": "Keine Optionen verfügbar",
@@ -5332,7 +5327,7 @@ export default {
     "pl": "Brak dostępnych opcji",
     "pt": "Sem opções disponíveis",
     "sk": "Žiadne dostupné možnosti",
-    "th": "ไม่มีตัวเลือก",
+    "th": "ไม่มีตัวเลือก"
   },
   "no-options-found": {
     "de": "Keine Optionen gefunden",
@@ -5345,7 +5340,7 @@ export default {
     "pl": "Nie znaleziono opcji",
     "pt": "Nenhuma opção encontrada",
     "sk": "Nenašli sa žiadne možnosti",
-    "th": "ไม่พบตัวเลือก",
+    "th": "ไม่พบตัวเลือก"
   },
   "no-results": {
     "de": "Keine Ergebnisse",
@@ -5358,7 +5353,7 @@ export default {
     "pl": "Brak wyników",
     "pt": "Nenhum resultado",
     "sk": "Žiadne výsledky",
-    "th": "ไม่พบผลลัพธ์",
+    "th": "ไม่พบผลลัพธ์"
   },
   "no-results-found": {
     "de": "Keine Ergebnisse gefunden",
@@ -5371,11 +5366,11 @@ export default {
     "pl": "Nie znaleziono wyników",
     "pt": "Nenhum resultado encontrado",
     "sk": "Nenašli sa žiadne výsledky",
-    "th": "ไม่พบผลลัพธ์",
+    "th": "ไม่พบผลลัพธ์"
   },
   "no-results-found-for-your-filter": {
     "de": "Für Ihren Filter wurden keine Ergebnisse gefunden.",
-    "en": "No results found for your filter.",
+    "en": "No results found for this filter.",
     "es": "No se encontraron resultados para su filtro.",
     "fr": "Aucun résultat trouvé pour votre filtre.",
     "km": "មិនមានលទ្ធផលសម្រាប់តម្រងរបស់អ្នក។",
@@ -5384,7 +5379,7 @@ export default {
     "pl": "Nie znaleziono wyników dla twojego filtra",
     "pt": "Nenhum resultado encontrado para seu filtro.",
     "sk": "Pre váš filter sa nenašli žiadne výsledky.",
-    "th": "ไม่พบผลลัพธ์จากการค้นหา",
+    "th": "ไม่พบผลลัพธ์จากการค้นหา"
   },
   "no-role-requests-yet": {
     "de": "Noch keine Rollenanfragen",
@@ -5397,7 +5392,7 @@ export default {
     "pl": "Brak próśb o rolę",
     "pt": "Nenhuma solicitação de função ainda",
     "sk": "Zatiaľ žiadne žiadosti o rolu",
-    "th": "ยังไม่มีการยื่นขอตำแหน่ง",
+    "th": "ยังไม่มีการยื่นขอตำแหน่ง"
   },
   "no-sequences-match-search": {
     "de": "Keine Sequenzen entsprechen Ihrer Suche",
@@ -5410,7 +5405,7 @@ export default {
     "pl": "Brak sekwencji pasujących do wyszukiwania",
     "pt": "Nenhuma sequência corresponde à sua pesquisa",
     "sk": "Vášmu vyhľadávaniu nezodpovedajú žiadne sekvencie",
-    "th": "ไม่มีลำดับที่ตรงกับการค้นหา",
+    "th": "ไม่มีลำดับที่ตรงกับการค้นหา"
   },
   "no-sequences-yet": {
     "de": "Noch keine Sequenzen",
@@ -5423,7 +5418,7 @@ export default {
     "pl": "Brak sekwencji",
     "pt": "Ainda sem sequências",
     "sk": "Zatiaľ žiadne sekvencie",
-    "th": "ยังไม่มีลำดับ",
+    "th": "ยังไม่มีลำดับ"
   },
   "no-students-found": {
     "de": "Keine Schüler gefunden",
@@ -5436,7 +5431,7 @@ export default {
     "pl": "Nie znaleziono uczniów",
     "pt": "Nenhum aluno encontrado",
     "sk": "Nenašli sa žiadni žiaci",
-    "th": "ไม่พบนักเรียน",
+    "th": "ไม่พบนักเรียน"
   },
   "no-students-in-group": {
     "de": "Diese Gruppe hat keine Schüler.",
@@ -5449,7 +5444,7 @@ export default {
     "pl": "Ta grupa nie ma uczniów.",
     "pt": "Este grupo não tem alunos.",
     "sk": "Táto skupina nemá študentov.",
-    "th": "กลุ่มนี้ไม่มีนักเรียน",
+    "th": "กลุ่มนี้ไม่มีนักเรียน"
   },
   "no-students-selected": {
     "de": "Keine Schüler ausgewählt.",
@@ -5462,7 +5457,7 @@ export default {
     "pl": "Nie wybrano uczniów.",
     "pt": "Nenhum aluno selecionado.",
     "sk": "Nie sú vybratí žiadni žiaci.",
-    "th": "ยังไม่ได้เลือกนักเรียน",
+    "th": "ยังไม่ได้เลือกนักเรียน"
   },
   "no-submission": {
     "de": "Keine Einreichung",
@@ -5475,7 +5470,7 @@ export default {
     "pl": "Brak zgłoszenia",
     "pt": "Sem envio",
     "sk": "Žiadne predloženie",
-    "th": "ไม่มีการส่ง",
+    "th": "ไม่มีการส่ง"
   },
   "no-tags-available": {
     "de": "No Tags Available",
@@ -5488,7 +5483,7 @@ export default {
     "pl": "No Tags Available",
     "pt": "No Tags Available",
     "sk": "No Tags Available",
-    "th": "ขณะนี้ไม่มีแท็กที่พร้อมใช้งาน",
+    "th": "ขณะนี้ไม่มีแท็กที่พร้อมใช้งาน"
   },
   "non-members": {
     "de": "Nichtmitgliederinnen/-mitglieder",
@@ -5501,7 +5496,7 @@ export default {
     "pl": "Nie członkowie",
     "pt": "Não membros",
     "sk": "Nečlenovia",
-    "th": "นักเรียนที่ไม่ได้อยู่ในชั้นเรียน",
+    "th": "นักเรียนที่ไม่ได้อยู่ในชั้นเรียน"
   },
   "not-answered": {
     "de": "Nicht beantwortet",
@@ -5514,7 +5509,7 @@ export default {
     "pl": "Bez odpowiedzi",
     "pt": "Não respondido",
     "sk": "Neodpovedané",
-    "th": "ยังไม่ตอบ",
+    "th": "ยังไม่ตอบ"
   },
   "not-assigned": {
     "de": "Nicht zugewiesen",
@@ -5527,7 +5522,7 @@ export default {
     "pl": "Nieprzypisane",
     "pt": "Não atribuído",
     "sk": "Nepriradené",
-    "th": "ยังไม่มอบหมาย",
+    "th": "ยังไม่มอบหมาย"
   },
   "not-set": {
     "de": "Nicht festgelegt",
@@ -5540,7 +5535,7 @@ export default {
     "pl": "Nie ustawiono",
     "pt": "Não definido",
     "sk": "Nenastavené",
-    "th": "ยังไม่ได้ตั้งค่า",
+    "th": "ยังไม่ได้ตั้งค่า"
   },
   "not-started": {
     "de": "Nicht begonnen",
@@ -5553,7 +5548,7 @@ export default {
     "pl": "Nie rozpoczęto",
     "pt": "Não iniciado",
     "sk": "Nezačaté",
-    "th": "ยังไม่เริ่ม",
+    "th": "ยังไม่เริ่ม"
   },
   "num-groups-assigned": {
     "de": "Anzahl zugewiesener Gruppen",
@@ -5566,7 +5561,7 @@ export default {
     "pl": "Liczba przypisanych grup",
     "pt": "Num grupos atribuídos",
     "sk": "Počet priradených skupín",
-    "th": "กลุ่มหมายเลขที่กำหนด",
+    "th": "กลุ่มหมายเลขที่กำหนด"
   },
   "num-logins": {
     "de": "Anzahl Anmeldungen",
@@ -5579,7 +5574,7 @@ export default {
     "pl": "Liczba logowań",
     "pt": "Número de logins",
     "sk": "Počet prihlásení",
-    "th": "จำนวนการเข้าสู่ระบบ",
+    "th": "จำนวนการเข้าสู่ระบบ"
   },
   "of": {
     "de": "von",
@@ -5592,7 +5587,7 @@ export default {
     "pl": "z",
     "pt": "de",
     "sk": "z",
-    "th": "ของ",
+    "th": "ของ"
   },
   "one-item-added-to-sequence": {
     "de": "1 Element zur Sequenz hinzugefügt",
@@ -5605,7 +5600,7 @@ export default {
     "pl": "Dodano 1 element do sekwencji",
     "pt": "1 item adicionado à sequência",
     "sk": "Do sekvencie bola pridaná 1 položka",
-    "th": "เพิ่ม 1 รายการไปยังลำดับแล้ว",
+    "th": "เพิ่ม 1 รายการไปยังลำดับแล้ว"
   },
   "opt-out": {
     "de": "Abmelden",
@@ -5618,7 +5613,7 @@ export default {
     "pl": "Zrezygnować",
     "pt": "Excluir",
     "sk": "Odhlásiť sa",
-    "th": "ยกเลิกการเข้าร่วม",
+    "th": "ยกเลิกการเข้าร่วม"
   },
   "opt-out-of-treatment-group": {
     "de": "Aus der Behandlungsgruppe abmelden",
@@ -5631,7 +5626,7 @@ export default {
     "pl": "Zrezygnuj z grupy leczenia",
     "pt": "Desativar o grupo de tratamento",
     "sk": "Odhlásiť sa z experimentálnej skupiny",
-    "th": "ยกเลิกการเข้าร่วมกลุ่มการรักษา",
+    "th": "ยกเลิกการเข้าร่วมกลุ่มการรักษา"
   },
   "optional": {
     "de": "Optional",
@@ -5644,7 +5639,7 @@ export default {
     "pl": "Opcjonalne",
     "pt": "Opcional",
     "sk": "Voliteľné",
-    "th": "ไม่บังคับ",
+    "th": "ไม่บังคับ"
   },
   "organise-students-into-groups": {
     "de": "Schüler in Gruppen organisieren",
@@ -5657,7 +5652,7 @@ export default {
     "pl": "Organizuj uczniów w grupy",
     "pt": "Organizar alunos em grupos",
     "sk": "Organizovať študentov do skupín",
-    "th": "จัดนักเรียนเป็นกลุ่ม",
+    "th": "จัดนักเรียนเป็นกลุ่ม"
   },
   "organize-content-into-learning-sequences": {
     "de": "Inhalte in Lernsequenzen organisieren",
@@ -5670,7 +5665,7 @@ export default {
     "pl": "Organizuj treści w sekwencje nauczania",
     "pt": "Organizar conteúdo em sequências de aprendizagem",
     "sk": "Organizovať obsah do vzdelávacích sekvencií",
-    "th": "จัดเนื้อหาเป็นลำดับการเรียนรู้",
+    "th": "จัดเนื้อหาเป็นลำดับการเรียนรู้"
   },
   "other-classes": {
     "de": "Andere Klassen",
@@ -5683,7 +5678,7 @@ export default {
     "pl": "Inne klasy",
     "pt": "Outras aulas",
     "sk": "Iné triedy",
-    "th": "ชั้นเรียนอื่น ๆ",
+    "th": "ชั้นเรียนอื่น ๆ"
   },
   "other-groups": {
     "de": "Andere Gruppen",
@@ -5696,7 +5691,7 @@ export default {
     "pl": "Inne grupy",
     "pt": "Outros grupos",
     "sk": "Iné skupiny",
-    "th": "กลุ่มอื่น",
+    "th": "กลุ่มอื่น"
   },
   "overall-feedback": {
     "de": "Gesamtfeedback",
@@ -5709,7 +5704,7 @@ export default {
     "pl": "Ogólna opinia",
     "pt": "Feedback geral",
     "sk": "Celková spätná väzba",
-    "th": "คำติชมโดยรวม",
+    "th": "คำติชมโดยรวม"
   },
   "overall-grade": {
     "de": "Gesamtnote",
@@ -5722,7 +5717,7 @@ export default {
     "pl": "Ocena ogólna",
     "pt": "Classificação global",
     "sk": "Celková známka",
-    "th": "เกรดโดยรวม",
+    "th": "เกรดโดยรวม"
   },
   "overview": {
     "de": "Übersicht",
@@ -5735,7 +5730,7 @@ export default {
     "pl": "Przegląd",
     "pt": "Visão geral",
     "sk": "Prehľad",
-    "th": "ภาพรวม",
+    "th": "ภาพรวม"
   },
   "owner": {
     "de": "Eigentümerin/Eigentümer",
@@ -5748,7 +5743,7 @@ export default {
     "pl": "Właściciel",
     "pt": "Proprietária",
     "sk": "Vlastník",
-    "th": "เจ้าของ",
+    "th": "เจ้าของ"
   },
   "page": {
     "de": "Seite",
@@ -5761,7 +5756,7 @@ export default {
     "pl": "Strona",
     "pt": "Página",
     "sk": "Stránka",
-    "th": "หน้า",
+    "th": "หน้า"
   },
   "partial": {
     "de": "Teilweise",
@@ -5774,7 +5769,7 @@ export default {
     "pl": "Częściowo",
     "pt": "Parcial",
     "sk": "Čiastočné",
-    "th": "บางส่วน",
+    "th": "บางส่วน"
   },
   "password-reset-successfully": {
     "de": "Passwort erfolgreich zurückgesetzt",
@@ -5787,7 +5782,7 @@ export default {
     "pl": "Hasło zresetowane pomyślnie",
     "pt": "Senha redefinida com sucesso",
     "sk": "Heslo bolo úspešne obnovené",
-    "th": "รีเซ็ตรหัสผ่านสำเร็จ",
+    "th": "รีเซ็ตรหัสผ่านสำเร็จ"
   },
   "per-the-pila-personal-data-protection-notice-or": {
     "de": "Aktivieren Sie bitte dieses Kästchen gemäß der PILA-Richtlinie zum Schutz personenbezogener Daten oder den spezifischen Einwilligungsanforderungen, wenn Sie an einer Forschungsstudie über PILA teilnehmen, um zu bestätigen, dass Sie die Einwilligung der Eltern/Erziehungsberechtigten und der Schülerinnen und Schüler gemäß Ihren lokalen oder nationalen Gesetzen eingeholt haben.",
@@ -5800,7 +5795,7 @@ export default {
     "pl": "Zgodnie z informacją o ochronie danych osobowych PILA lub konkretnymi wymaganiami zgody, jeśli bierzesz udział w badaniu za pośrednictwem PILA, zaznacz to pole, aby potwierdzić, że uzyskałeś zgodę rodzica/opiekuna i ucznia zgodnie z lokalnymi lub krajowymi przepisami.",
     "pt": "De acordo com o Aviso de Proteção de Dados Pessoais do PILA ou com os requisitos de consentimento específicos, se você estiver participando de um estudo de pesquisa por meio do PILA, marque esta caixa para confirmar que você obteve o consentimento dos pais/responsáveis ​​e do aluno, conforme exigido pelas leis locais ou nacionais.",
     "sk": "Ak sa zúčastňujete výskumnej štúdie prostredníctvom PILA, riaďte sa oznámením o ochrane osobných údajov PILA a požiadavkami na súhlas.\nZačiarknutím políčka potvrdzujete, že ste získali súhlas rodiča alebo zákonného zástupcu a žiaka podľa miestnych alebo národných právnych predpisov.",
-    "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA หรือข้อกำหนดการให้ความยินยอมเฉพาะกรณีที่ท่านเข้าร่วมการศึกษาวิจัยผ่านทาง PILA กรุณาติ๊กเครื่องหมายในช่องนี้เพื่อยืนยันว่าท่านได้รับความยินยอมจากผู้ปกครอง/ผู้ดูแล และนักเรียน ตามที่กฎหมายท้องถิ่นหรือกฎหมายระดับชาติของท่านกำหนดเรียบร้อยแล้ว",
+    "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA หรือข้อกำหนดการให้ความยินยอมเฉพาะกรณีที่ท่านเข้าร่วมการศึกษาวิจัยผ่านทาง PILA กรุณาติ๊กเครื่องหมายในช่องนี้เพื่อยืนยันว่าท่านได้รับความยินยอมจากผู้ปกครอง/ผู้ดูแล และนักเรียน ตามที่กฎหมายท้องถิ่นหรือกฎหมายระดับชาติของท่านกำหนดเรียบร้อยแล้ว"
   },
   "pila-content": {
     "de": "PILA-Inhalte",
@@ -5813,7 +5808,7 @@ export default {
     "pl": "Treści PILA",
     "pt": "Conteúdo PILA",
     "sk": "Obsah PILA",
-    "th": "เนื้อหา PILA",
+    "th": "เนื้อหา PILA"
   },
   "pila-create": {
     "de": "PILA ERSTELLEN",
@@ -5826,7 +5821,7 @@ export default {
     "pl": "TWÓRZ WŁASNĄ TREŚĆ",
     "pt": "PILA CRIAR",
     "sk": "PILA VYTVORIŤ",
-    "th": "PILA คริเอท",
+    "th": "PILA คริเอท"
   },
   "pila-sequences": {
     "de": "PILA-SEQUENZEN",
@@ -5839,7 +5834,7 @@ export default {
     "pl": "SEKWENCJE PILA",
     "pt": "SEQUÊNCIAS DE PILA",
     "sk": "SEKVENCIE PILA",
-    "th": "ลำดับเนื้อหาของ PILA",
+    "th": "ลำดับเนื้อหาของ PILA"
   },
   "pila-studies": {
     "de": "PILA-STUDIEN",
@@ -5852,7 +5847,7 @@ export default {
     "pl": "BADANIA PILA",
     "pt": "ESTUDOS PILA",
     "sk": "PILA ŠTÚDIE",
-    "th": "การศึกษาของ PILA",
+    "th": "การศึกษาของ PILA"
   },
   "play": {
     "de": "spielen",
@@ -5865,7 +5860,7 @@ export default {
     "pl": "odtwórz",
     "pt": "jogar",
     "sk": "spustiť",
-    "th": "เล่น",
+    "th": "เล่น"
   },
   "please-send-your-full-name-school-institution-an": {
     "de": "Bitte senden Sie Ihren vollständigen Namen, Ihre Schule/Institution und diese anonyme ID an koordination.power.feedback@uni-rostock.de, um Zugang zu PILA zu erhalten.",
@@ -5878,7 +5873,7 @@ export default {
     "pl": "Prosimy o przesłanie pełnego imienia i nazwiska, szkoły/instytucji oraz anonimowego identyfikatora na adres edu.pila@oecd.org w celu uzyskania dostępu do PILA.",
     "pt": "Por favor, envie seu nome completo, escola/instituição e esta identificação anônima para edu.pila@oecd.org para obter acesso ao PILA.",
     "sk": "Pošlite prosím svoje celé meno, školu/inštitúciu a toto anonymné ID na aitutor@minedu.sk, aby ste získali prístup k PILA.",
-    "th": "กรุณาส่งชื่อเต็มของคุณ, ชื่อโรงเรียน/สถาบัน และไอดีนิรนามนี้ไปที่ edu.pila@oecd.org เพื่อขอรับสิทธิ์ในการเข้า PILA",
+    "th": "กรุณาส่งชื่อเต็มของคุณ, ชื่อโรงเรียน/สถาบัน และไอดีนิรนามนี้ไปที่ edu.pila@oecd.org เพื่อขอรับสิทธิ์ในการเข้า PILA"
   },
   "point": {
     "de": "Punkt",
@@ -5891,7 +5886,7 @@ export default {
     "pl": "Punkt",
     "pt": "Ponto",
     "sk": "Bod",
-    "th": "จุด",
+    "th": "จุด"
   },
   "points": {
     "de": "Punkte",
@@ -5904,7 +5899,7 @@ export default {
     "pl": "Punkty",
     "pt": "Pontos",
     "sk": "Body",
-    "th": "คะแนน",
+    "th": "คะแนน"
   },
   "practice": {
     "de": "Übung",
@@ -5917,7 +5912,7 @@ export default {
     "pl": "Ćwiczenie",
     "pt": "Prática",
     "sk": "Precvičovanie",
-    "th": "ฝึกฝน",
+    "th": "ฝึกฝน"
   },
   "preview": {
     "de": "Vorschau",
@@ -5930,7 +5925,7 @@ export default {
     "pl": "Podgląd",
     "pt": "Visualização",
     "sk": "Ukážka",
-    "th": "ตัวอย่าง",
+    "th": "ตัวอย่าง"
   },
   "preview-sequence": {
     "de": "Sequenz vorschauen",
@@ -5943,7 +5938,7 @@ export default {
     "pl": "Podgląd sekwencji",
     "pt": "Pré-visualizar sequência",
     "sk": "Náhľad sekvencie",
-    "th": "ดูตัวอย่างลำดับ",
+    "th": "ดูตัวอย่างลำดับ"
   },
   "previewing": {
     "de": "Vorschau",
@@ -5956,7 +5951,7 @@ export default {
     "pl": "Podgląd",
     "pt": "Pré-visualização",
     "sk": "Ukážka",
-    "th": "ตัวอย่างกิจกรรม",
+    "th": "ตัวอย่างกิจกรรม"
   },
   "previous": {
     "de": "Zurück",
@@ -5969,7 +5964,7 @@ export default {
     "pl": "Poprzedni",
     "pt": "Anterior",
     "sk": "Predchádzajúce",
-    "th": "ก่อนหน้า",
+    "th": "ก่อนหน้า"
   },
   "primary": {
     "de": "Primär",
@@ -5982,7 +5977,7 @@ export default {
     "pl": "Podstawowy",
     "pt": "Primária",
     "sk": "Primárne",
-    "th": "ระดับประถมศึกษา",
+    "th": "ระดับประถมศึกษา"
   },
   "print": {
     "de": "Drucken",
@@ -5995,11 +5990,11 @@ export default {
     "pl": "Drukuj",
     "pt": "Imprimir",
     "sk": "Tlačiť",
-    "th": "พิมพ์",
+    "th": "พิมพ์"
   },
   "print-login-codes": {
     "de": "Anmeldecodes ausdrucken",
-    "en": "Print Login Codes",
+    "en": "Print login codes",
     "es": "Imprimir códigos de inicio de sesión",
     "fr": "Imprimer les codes de connexion",
     "km": "បោះពុម្ពកូដចូលប្រើ",
@@ -6008,7 +6003,7 @@ export default {
     "pl": "Drukuj kody logowania",
     "pt": "Imprimir códigos de login",
     "sk": "Vytlačiť prihlasovacie kódy",
-    "th": "พิมพ์รหัสเข้าสู่ระบบ",
+    "th": "พิมพ์รหัสเข้าสู่ระบบ"
   },
   "private-notes": {
     "de": "Private Notizen",
@@ -6021,7 +6016,7 @@ export default {
     "pl": "Notatki prywatne",
     "pt": "Notas privadas",
     "sk": "Súkromné poznámky",
-    "th": "บันทึกส่วนตัว",
+    "th": "บันทึกส่วนตัว"
   },
   "project": {
     "de": "Projekt",
@@ -6034,7 +6029,7 @@ export default {
     "pl": "Projekt",
     "pt": "Projeto",
     "sk": "Projekt",
-    "th": "โครงการ",
+    "th": "โครงการ"
   },
   "property-filter": {
     "de": "Eigenschaftsfilter",
@@ -6047,7 +6042,7 @@ export default {
     "pl": "Filtr właściwości",
     "pt": "Filtro de propriedades",
     "sk": "Filter vlastností",
-    "th": "ตัวกรองคุณสมบัติ",
+    "th": "ตัวกรองคุณสมบัติ"
   },
   "provide-overall-feedback-placeholder": {
     "de": "Gesamtfeedback eingeben",
@@ -6060,7 +6055,7 @@ export default {
     "pl": "Podaj ogólną opinię",
     "pt": "Fornecer feedback geral",
     "sk": "Zadať celkovú spätnú väzbu",
-    "th": "กรอกคำติชมโดยรวม",
+    "th": "กรอกคำติชมโดยรวม"
   },
   "provide-specific-feedback-placeholder": {
     "de": "Spezifisches Feedback eingeben",
@@ -6073,7 +6068,7 @@ export default {
     "pl": "Podaj szczegółową opinię",
     "pt": "Fornecer feedback específico",
     "sk": "Zadať konkrétnu spätnú väzbu",
-    "th": "กรอกคำติชมเฉพาะ",
+    "th": "กรอกคำติชมเฉพาะ"
   },
   "publication-date": {
     "de": "Veröffentlichungsdatum",
@@ -6086,7 +6081,7 @@ export default {
     "pl": "Data publikacji",
     "pt": "Data de publicação",
     "sk": "Dátum zverejnenia",
-    "th": "วันที่เผยแพร่",
+    "th": "วันที่เผยแพร่"
   },
   "publication-status": {
     "de": "Veröffentlichungsstatus",
@@ -6099,7 +6094,7 @@ export default {
     "pl": "Status publikacji",
     "pt": "Estado de publicação",
     "sk": "Stav zverejnenia",
-    "th": "สถานะการเผยแพร่",
+    "th": "สถานะการเผยแพร่"
   },
   "publication-time": {
     "de": "Veröffentlichungszeitpunkt",
@@ -6112,7 +6107,7 @@ export default {
     "pl": "Godzina publikacji",
     "pt": "Hora da publicação",
     "sk": "Čas zverejnenia",
-    "th": "เวลาเผยแพร่",
+    "th": "เวลาเผยแพร่"
   },
   "publish-content": {
     "de": "Publish Content",
@@ -6125,7 +6120,7 @@ export default {
     "pl": "Publish Content",
     "pt": "Publish Content",
     "sk": "Publish Content",
-    "th": "เผยแพร่เนื้อหา",
+    "th": "เผยแพร่เนื้อหา"
   },
   "publish-immediately": {
     "de": "Sofort veröffentlichen",
@@ -6138,7 +6133,7 @@ export default {
     "pl": "Opublikuj natychmiast",
     "pt": "Publicar imediatamente",
     "sk": "Zverejniť okamžite",
-    "th": "เผยแพร่ทันที",
+    "th": "เผยแพร่ทันที"
   },
   "publish-to-explore": {
     "de": "Publish to Explore",
@@ -6151,7 +6146,7 @@ export default {
     "pl": "Publish to Explore",
     "pt": "Publish to Explore",
     "sk": "Publish to Explore",
-    "th": "เผยแพร่ไปยังหน้าสำรวจ",
+    "th": "เผยแพร่ไปยังหน้าสำรวจ"
   },
   "published": {
     "de": "Veröffentlicht",
@@ -6164,7 +6159,7 @@ export default {
     "pl": "Opublikowano",
     "pt": "Publicado",
     "sk": "Zverejnené",
-    "th": "เผยแพร่แล้ว",
+    "th": "เผยแพร่แล้ว"
   },
   "publishes-on": {
     "de": "Veröffentlicht am",
@@ -6177,7 +6172,7 @@ export default {
     "pl": "Publikacja",
     "pt": "Publica em",
     "sk": "Zverejní sa",
-    "th": "เผยแพร่เมื่อ",
+    "th": "เผยแพร่เมื่อ"
   },
   "publishing": {
     "de": "Publishing",
@@ -6190,7 +6185,7 @@ export default {
     "pl": "Publishing",
     "pt": "Publishing",
     "sk": "Publishing",
-    "th": "กำลังเผยแพร่",
+    "th": "กำลังเผยแพร่"
   },
   "questions": {
     "de": "Fragen",
@@ -6203,7 +6198,7 @@ export default {
     "pl": "Pytania",
     "pt": "Perguntas",
     "sk": "Otázky",
-    "th": "คำถาม",
+    "th": "คำถาม"
   },
   "randomize-question-order": {
     "de": "Fragenreihenfolge mischen",
@@ -6216,7 +6211,7 @@ export default {
     "pl": "Losowa kolejność pytań",
     "pt": "Aleatorizar ordem das perguntas",
     "sk": "Náhodné poradie otázok",
-    "th": "สุ่มลำดับคำถาม",
+    "th": "สุ่มลำดับคำถาม"
   },
   "randomize-question-order-for-each-student": {
     "de": "Fragenreihenfolge für jeden Schüler mischen",
@@ -6229,7 +6224,7 @@ export default {
     "pl": "Losowa kolejność pytań dla każdego ucznia",
     "pt": "Aleatorizar a ordem das perguntas para cada aluno",
     "sk": "Náhodné poradie otázok pre každého študenta",
-    "th": "สุ่มลำดับคำถามสำหรับนักเรียนแต่ละคน",
+    "th": "สุ่มลำดับคำถามสำหรับนักเรียนแต่ละคน"
   },
   "refresh-status": {
     "de": "Status aktualisieren",
@@ -6242,7 +6237,7 @@ export default {
     "pl": "Odśwież status",
     "pt": "Atualizar status",
     "sk": "Aktualizovať stav",
-    "th": "รีเฟรชสถานะ",
+    "th": "รีเฟรชสถานะ"
   },
   "remove": {
     "de": "Entfernen",
@@ -6255,7 +6250,7 @@ export default {
     "pl": "Usuń",
     "pt": "Remover",
     "sk": "Odstrániť",
-    "th": "ลบ",
+    "th": "ลบ"
   },
   "remove-all": {
     "de": "Alle entfernen",
@@ -6268,7 +6263,7 @@ export default {
     "pl": "Usuń wszystko",
     "pt": "Remover tudo",
     "sk": "Odstrániť všetko",
-    "th": "นำออกทั้งหมด",
+    "th": "นำออกทั้งหมด"
   },
   "remove-from-favorites": {
     "de": "Aus Favoriten entfernen",
@@ -6281,7 +6276,7 @@ export default {
     "pl": "Usuń z ulubionych",
     "pt": "Remover dos favoritos",
     "sk": "Odstrániť z obľúbených",
-    "th": "ลบออกจากรายการโปรด",
+    "th": "ลบออกจากรายการโปรด"
   },
   "remove-selected": {
     "de": "Auswahl entfernen",
@@ -6294,7 +6289,7 @@ export default {
     "pl": "Usuń zaznaczone",
     "pt": "Remover selecionados",
     "sk": "Odstrániť vybraté",
-    "th": "ลบที่เลือก",
+    "th": "ลบที่เลือก"
   },
   "report-another-bug": {
     "de": "Einen weiteren Fehler melden",
@@ -6307,7 +6302,7 @@ export default {
     "pl": "Zgłoś inny błąd",
     "pt": "Reportar outro bug",
     "sk": "Nahlásiť ďalšiu chybu",
-    "th": "รายงานข้อผิดพลาดอื่น",
+    "th": "รายงานข้อผิดพลาดอื่น"
   },
   "report-bug": {
     "de": "Fehler melden",
@@ -6320,11 +6315,11 @@ export default {
     "pl": "Zgłoś błąd",
     "pt": "Reportar bug",
     "sk": "Nahlásiť chybu",
-    "th": "รายงานข้อผิดพลาด",
+    "th": "รายงานข้อผิดพลาด"
   },
   "reporting-dashboard": {
     "de": "Berichts-Dashboard",
-    "en": "Reporting Dashboard",
+    "en": "Reporting dashboard",
     "es": "Panel de informes",
     "fr": "Tableau de bord des rapports",
     "km": "ផ្ទាំងគ្រប់គ្រងរបាយការណ៍",
@@ -6333,7 +6328,7 @@ export default {
     "pl": "Panel raportowania",
     "pt": "Painel de relatórios",
     "sk": "Informačný panel prehľadov",
-    "th": "แดชบอร์ดรายงาน",
+    "th": "แดชบอร์ดรายงาน"
   },
   "reports": {
     "de": "Berichte",
@@ -6346,7 +6341,7 @@ export default {
     "pl": "Raporty",
     "pt": "Relatórios",
     "sk": "Prehľady",
-    "th": "รายงาน",
+    "th": "รายงาน"
   },
   "request-another-feature": {
     "de": "Eine weitere Funktion anfordern",
@@ -6359,7 +6354,7 @@ export default {
     "pl": "Poproś o kolejną funkcję",
     "pt": "Solicite outro recurso",
     "sk": "Požiadať o ďalšiu funkciu",
-    "th": "ขอคุณสมบัติอีกอัน",
+    "th": "ขอคุณสมบัติอีกอัน"
   },
   "request-role": {
     "de": "Rolle anfordern",
@@ -6372,7 +6367,7 @@ export default {
     "pl": "Poproś o rolę",
     "pt": "Função de solicitação",
     "sk": "Požiadať o rolu",
-    "th": "ขอบทบาท",
+    "th": "ขอบทบาท"
   },
   "request-role-of": {
     "de": "Rolle anfordern für",
@@ -6385,7 +6380,7 @@ export default {
     "pl": "Poproś o rolę",
     "pt": "Solicitar função de",
     "sk": "Požiadať o rolu",
-    "th": "ขอบทบาทเป็น",
+    "th": "ขอบทบาทเป็น"
   },
   "requested": {
     "de": "Angefragt",
@@ -6398,7 +6393,7 @@ export default {
     "pl": "Zażądano",
     "pt": "Solicitada",
     "sk": "Požadované",
-    "th": "ยื่นขอเรียบร้อยแล้ว",
+    "th": "ยื่นขอเรียบร้อยแล้ว"
   },
   "required": {
     "de": "Required",
@@ -6411,7 +6406,7 @@ export default {
     "pl": "Wymagane",
     "pt": "Required",
     "sk": "Required",
-    "th": "จำเป็น",
+    "th": "จำเป็น"
   },
   "researcher": {
     "de": "Forscherin/Forscher",
@@ -6424,7 +6419,7 @@ export default {
     "pl": "badacz",
     "pt": "pesquisador",
     "sk": "výskumník",
-    "th": "นักวิจัย",
+    "th": "นักวิจัย"
   },
   "reset-all": {
     "de": "Alles zurücksetzen",
@@ -6437,11 +6432,11 @@ export default {
     "pl": "Resetuj wszystko",
     "pt": "Repor tudo",
     "sk": "Obnoviť všetko",
-    "th": "รีเซ็ตทั้งหมด",
+    "th": "รีเซ็ตทั้งหมด"
   },
   "reset-password": {
     "de": "Passwort zurücksetzen",
-    "en": "Reset Password",
+    "en": "Reset password",
     "es": "Restablecer contraseña",
     "fr": "Réinitialiser le mot de passe",
     "km": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
@@ -6450,7 +6445,7 @@ export default {
     "pl": "Resetuj hasło",
     "pt": "Redefinir senha",
     "sk": "Obnoviť heslo",
-    "th": "รีเซ็ตรหัสผ่าน",
+    "th": "รีเซ็ตรหัสผ่าน"
   },
   "reset-password-confirm-description": {
     "de": "Für diesen Schüler wird ein neuer Anmeldecode generiert.",
@@ -6463,11 +6458,11 @@ export default {
     "pl": "Zostanie wygenerowany nowy kod logowania dla tego ucznia.",
     "pt": "Um novo código de login será gerado para este aluno.",
     "sk": "Pre tohto žiaka sa vygeneruje nový prihlasovací kód.",
-    "th": "จะสร้างรหัสเข้าสู่ระบบใหม่สำหรับนักเรียนคนนี้",
+    "th": "จะสร้างรหัสเข้าสู่ระบบใหม่สำหรับนักเรียนคนนี้"
   },
   "reset-password-confirm-title": {
     "de": "Passwort zurücksetzen?",
-    "en": "Reset Password Confirm Title",
+    "en": "Reset password",
     "es": "¿Restablecer la contraseña?",
     "fr": "Réinitialiser le mot de passe ?",
     "km": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ?",
@@ -6476,7 +6471,7 @@ export default {
     "pl": "Zresetować hasło?",
     "pt": "Redefinir a senha?",
     "sk": "Obnoviť heslo?",
-    "th": "รีเซ็ตรหัสผ่านหรือไม่?",
+    "th": "รีเซ็ตรหัสผ่านหรือไม่?"
   },
   "resources": {
     "de": "Ressourcen",
@@ -6489,7 +6484,7 @@ export default {
     "pl": "Zasoby",
     "pt": "Recursos",
     "sk": "Zdroje",
-    "th": "ทรัพยากร",
+    "th": "ทรัพยากร"
   },
   "restore": {
     "de": "Wiederherstellen",
@@ -6502,7 +6497,7 @@ export default {
     "pl": "Przywróć",
     "pt": "Restaurar",
     "sk": "Obnoviť",
-    "th": "กู้คืน",
+    "th": "กู้คืน"
   },
   "restore-group-confirm-description": {
     "de": "Die Gruppe kehrt zu Ihrer aktiven Gruppenliste zurück. Die Schüler bleiben dieser Gruppe zugeordnet.",
@@ -6515,7 +6510,7 @@ export default {
     "pl": "Grupa wróci na listę aktywnych grup. Uczniowie pozostaną przypisani do tej grupy.",
     "pt": "O grupo retornará à sua lista de grupos ativos. Os alunos permanecem atribuídos a este grupo.",
     "sk": "Skupina sa vráti do zoznamu aktívnych skupín. Žiaci zostávajú zaradení do tejto skupiny.",
-    "th": "กลุ่มจะกลับไปยังรายการกลุ่มที่ใช้งาน นักเรียนยังอยู่ในกลุ่มนี้",
+    "th": "กลุ่มจะกลับไปยังรายการกลุ่มที่ใช้งาน นักเรียนยังอยู่ในกลุ่มนี้"
   },
   "restore-group-confirm-title": {
     "de": "Gruppe „{name}“ wiederherstellen?",
@@ -6528,7 +6523,7 @@ export default {
     "pl": "Przywrócić grupę „{name}”?",
     "pt": "Restaurar grupo \"{name}\"?",
     "sk": "Obnoviť skupinu „{name}“?",
-    "th": "กู้คืนกลุ่ม \"{name}\" หรือไม่?",
+    "th": "กู้คืนกลุ่ม \"{name}\" หรือไม่?"
   },
   "restore-student-confirm-description": {
     "de": "Der Schüler kehrt zu Ihrer aktiven Schülerliste zurück. Gruppen und Anmeldecode bleiben unverändert.",
@@ -6541,7 +6536,7 @@ export default {
     "pl": "Uczeń wróci na aktywną listę uczniów. Jego grupy i kod logowania pozostaną bez zmian.",
     "pt": "O aluno retornará à sua lista de alunos ativos. Seus grupos e código de login permanecem inalterados.",
     "sk": "Žiak sa vráti do vášho zoznamu aktívnych žiakov. Jeho skupiny a prihlasovací kód zostanú nezmenené.",
-    "th": "นักเรียนจะกลับไปยังรายการนักเรียนที่ใช้งาน กลุ่มและรหัสเข้าสู่ระบบไม่เปลี่ยน",
+    "th": "นักเรียนจะกลับไปยังรายการนักเรียนที่ใช้งาน กลุ่มและรหัสเข้าสู่ระบบไม่เปลี่ยน"
   },
   "restore-student-confirm-title": {
     "de": "Diesen Schüler wiederherstellen?",
@@ -6554,7 +6549,7 @@ export default {
     "pl": "Przywrócić tego ucznia?",
     "pt": "Restaurar este aluno?",
     "sk": "Obnoviť tohto žiaka?",
-    "th": "กู้คืนนักเรียนคนนี้หรือไม่?",
+    "th": "กู้คืนนักเรียนคนนี้หรือไม่?"
   },
   "result": {
     "de": "Ergebnis",
@@ -6567,7 +6562,7 @@ export default {
     "pl": "Wynik",
     "pt": "Resultado",
     "sk": "Výsledok",
-    "th": "ผลลัพธ์",
+    "th": "ผลลัพธ์"
   },
   "results": {
     "de": "Ergebnisse",
@@ -6580,7 +6575,7 @@ export default {
     "pl": "Wyniki",
     "pt": "Resultados",
     "sk": "Výsledky",
-    "th": "ผลลัพธ์",
+    "th": "ผลลัพธ์"
   },
   "review-student-submissions-and-provide-feedback": {
     "de": "Überprüfen Sie die Einsendungen der Schüler und geben Sie Feedback",
@@ -6593,7 +6588,7 @@ export default {
     "pl": "Przeglądaj prace uczniów i przekazuj opinię",
     "pt": "Revise os envios dos alunos e forneça feedback",
     "sk": "Skontrolujte príspevky žiakov a poskytnite spätnú väzbu",
-    "th": "ตรวจงานที่นักเรียนส่งและให้ข้อเสนอแนะ",
+    "th": "ตรวจงานที่นักเรียนส่งและให้ข้อเสนอแนะ"
   },
   "role": {
     "de": "Rolle",
@@ -6606,7 +6601,7 @@ export default {
     "pl": "Rola",
     "pt": "Papel",
     "sk": "Rola",
-    "th": "ตำแหน่ง",
+    "th": "ตำแหน่ง"
   },
   "role-requests": {
     "de": "Rollenanfragen",
@@ -6619,7 +6614,7 @@ export default {
     "pl": "Prośby o rolę",
     "pt": "Solicitações de função",
     "sk": "Žiadosti o rolu",
-    "th": "ยื่นคำขอตำแหน่ง",
+    "th": "ยื่นคำขอตำแหน่ง"
   },
   "rows-per-page": {
     "de": "Zeilen pro Seite",
@@ -6632,7 +6627,7 @@ export default {
     "pl": "Wiersze na stronę",
     "pt": "Linhas por página",
     "sk": "Riadky na stránku",
-    "th": "แถวต่อหน้า",
+    "th": "แถวต่อหน้า"
   },
   "rows-selected-for-removal-summary": {
     "de": "Zusammenfassung der zum Entfernen ausgewählten Zeilen",
@@ -6645,7 +6640,7 @@ export default {
     "pl": "Podsumowanie wierszy wybranych do usunięcia",
     "pt": "Resumo das linhas selecionadas para remoção",
     "sk": "Súhrn riadkov vybratých na odstránenie",
-    "th": "สรุปแถวที่เลือกเพื่อนำออก",
+    "th": "สรุปแถวที่เลือกเพื่อนำออก"
   },
   "save": {
     "de": "Speichern",
@@ -6658,7 +6653,7 @@ export default {
     "pl": "Zapisz",
     "pt": "Salvar",
     "sk": "Uložiť",
-    "th": "บันทึก",
+    "th": "บันทึก"
   },
   "save-as-draft": {
     "de": "Als Entwurf speichern",
@@ -6671,7 +6666,7 @@ export default {
     "pl": "Zapisz jako szkic",
     "pt": "Guardar como rascunho",
     "sk": "Uložiť ako koncept",
-    "th": "บันทึกเป็นฉบับร่าง",
+    "th": "บันทึกเป็นฉบับร่าง"
   },
   "save-changes": {
     "de": "Änderungen speichern",
@@ -6684,7 +6679,7 @@ export default {
     "pl": "Zapisz zmiany",
     "pt": "Salvar alterações",
     "sk": "Uložiť zmeny",
-    "th": "บันทึกการเปลี่ยนแปลง",
+    "th": "บันทึกการเปลี่ยนแปลง"
   },
   "save-draft": {
     "de": "Entwurf speichern",
@@ -6697,7 +6692,7 @@ export default {
     "pl": "Zapisz szkic",
     "pt": "Guardar rascunho",
     "sk": "Uložiť koncept",
-    "th": "บันทึกฉบับร่าง",
+    "th": "บันทึกฉบับร่าง"
   },
   "saving-changes": {
     "de": "Saving Changes",
@@ -6710,7 +6705,7 @@ export default {
     "pl": "Saving Changes",
     "pt": "Saving Changes",
     "sk": "Saving Changes",
-    "th": "กำลังบันทึกการเปลี่ยนแปลง...",
+    "th": "กำลังบันทึกการเปลี่ยนแปลง..."
   },
   "schedule-for-later": {
     "de": "Für später planen",
@@ -6723,7 +6718,7 @@ export default {
     "pl": "Zaplanuj na później",
     "pt": "Agendar para mais tarde",
     "sk": "Naplánovať na neskôr",
-    "th": "กำหนดเวลาไว้ภายหลัง",
+    "th": "กำหนดเวลาไว้ภายหลัง"
   },
   "scheduled": {
     "de": "Geplant",
@@ -6736,7 +6731,7 @@ export default {
     "pl": "Zaplanowano",
     "pt": "Agendado",
     "sk": "Naplánované",
-    "th": "กำหนดเวลาแล้ว",
+    "th": "กำหนดเวลาแล้ว"
   },
   "score": {
     "de": "Punktzahl",
@@ -6749,7 +6744,7 @@ export default {
     "pl": "Wynik",
     "pt": "Pontuação",
     "sk": "Skóre",
-    "th": "คะแนน",
+    "th": "คะแนน"
   },
   "score-percent": {
     "de": "Punktzahl in Prozent",
@@ -6762,7 +6757,7 @@ export default {
     "pl": "Wynik w procentach",
     "pt": "Pontuação em percentagem",
     "sk": "Skóre v percentách",
-    "th": "คะแนนเป็นเปอร์เซ็นต์",
+    "th": "คะแนนเป็นเปอร์เซ็นต์"
   },
   "search": {
     "de": "Suchen",
@@ -6775,7 +6770,7 @@ export default {
     "pl": "Szukaj",
     "pt": "Pesquisar",
     "sk": "Hľadať",
-    "th": "ค้นหา",
+    "th": "ค้นหา"
   },
   "search-assignments": {
     "de": "Aufgaben suchen…",
@@ -6788,7 +6783,7 @@ export default {
     "pl": "Szukaj zadań…",
     "pt": "Pesquisar tarefas…",
     "sk": "Hľadať úlohy…",
-    "th": "ค้นหางานที่มอบหมาย…",
+    "th": "ค้นหางานที่มอบหมาย…"
   },
   "search-available-students": {
     "de": "Verfügbare Schüler suchen",
@@ -6801,7 +6796,7 @@ export default {
     "pl": "Szukaj dostępnych uczniów",
     "pt": "Pesquisar alunos disponíveis",
     "sk": "Hľadať dostupných študentov",
-    "th": "ค้นหานักเรียนที่ใช้ได้",
+    "th": "ค้นหานักเรียนที่ใช้ได้"
   },
   "search-content-title": {
     "de": "Inhaltstitel suchen",
@@ -6814,11 +6809,11 @@ export default {
     "pl": "Szukaj tytułu treści",
     "pt": "Pesquisar título do conteúdo",
     "sk": "Hľadať názov obsahu",
-    "th": "ค้นหาชื่อเนื้อหา",
+    "th": "ค้นหาชื่อเนื้อหา"
   },
   "search-group": {
     "de": "Gruppe suchen",
-    "en": "Search Group",
+    "en": "Search group",
     "es": "Buscar grupo",
     "fr": "Rechercher un groupe",
     "km": "ស្វែងរកក្រុម",
@@ -6827,7 +6822,7 @@ export default {
     "pl": "Szukaj grupy",
     "pt": "Pesquisar grupo",
     "sk": "Hľadať skupinu",
-    "th": "ค้นหากลุ่ม",
+    "th": "ค้นหากลุ่ม"
   },
   "search-group-students": {
     "de": "Gruppenschüler suchen",
@@ -6840,7 +6835,7 @@ export default {
     "pl": "Szukaj uczniów w grupie",
     "pt": "Pesquisar alunos do grupo",
     "sk": "Hľadať študentov v skupine",
-    "th": "ค้นหานักเรียนในกลุ่ม",
+    "th": "ค้นหานักเรียนในกลุ่ม"
   },
   "search-groups": {
     "de": "Gruppe(n) suchen",
@@ -6853,7 +6848,7 @@ export default {
     "pl": "Szukaj grupy(-)",
     "pt": "Pesquisar grupo(s)",
     "sk": "Hľadať skupinu(-y)",
-    "th": "ค้นหากลุ่ม",
+    "th": "ค้นหากลุ่ม"
   },
   "search-sequences": {
     "de": "Sequenzen suchen",
@@ -6866,7 +6861,7 @@ export default {
     "pl": "Szukaj sekwencji",
     "pt": "Pesquisar sequências",
     "sk": "Hľadať sekvencie",
-    "th": "ค้นหาลำดับ",
+    "th": "ค้นหาลำดับ"
   },
   "search-student": {
     "de": "Schüler suchen",
@@ -6879,7 +6874,7 @@ export default {
     "pl": "Szukaj ucznia",
     "pt": "Pesquisar aluno",
     "sk": "Hľadať žiaka",
-    "th": "ค้นหานักเรียน",
+    "th": "ค้นหานักเรียน"
   },
   "secondary": {
     "de": "Sekundär",
@@ -6892,7 +6887,7 @@ export default {
     "pl": "Średniozaawansowany",
     "pt": "Secundária",
     "sk": "Sekundárne",
-    "th": "ระดับมัธยมศึกษา",
+    "th": "ระดับมัธยมศึกษา"
   },
   "select": {
     "de": "Auswählen",
@@ -6905,7 +6900,7 @@ export default {
     "pl": "Wybierz",
     "pt": "Selecione",
     "sk": "Vyberte",
-    "th": "เลือก",
+    "th": "เลือก"
   },
   "select-at-least-one-competency-from-this-category": {
     "de": "Wählen Sie mindestens eine Kompetenz aus dieser Kategorie",
@@ -6918,7 +6913,7 @@ export default {
     "pl": "Wybierz co najmniej jedną kompetencję z tej kategorii",
     "pt": "Selecione pelo menos uma competência desta categoria",
     "sk": "Vyberte aspoň jednu kompetenciu z tejto kategórie",
-    "th": "เลือกอย่างน้อยหนึ่งสมรรถนะจากหมวดนี้",
+    "th": "เลือกอย่างน้อยหนึ่งสมรรถนะจากหมวดนี้"
   },
   "select-classes-for-the-assignment": {
     "de": "Klassen für die Aufgabe auswählen",
@@ -6931,7 +6926,7 @@ export default {
     "pl": "Wybierz klasy dla zadania",
     "pt": "Selecione turmas para a tarefa",
     "sk": "Vyberte triedy pre úlohy",
-    "th": "เลือกชั้นเรียนเพื่อมอบหมายกิจกรรม",
+    "th": "เลือกชั้นเรียนเพื่อมอบหมายกิจกรรม"
   },
   "select-grade": {
     "de": "Klassenstufe auswählen",
@@ -6944,7 +6939,7 @@ export default {
     "pl": "Wybierz klasę",
     "pt": "Selecionar ano escolar",
     "sk": "Vybrať ročník",
-    "th": "เลือกระดับชั้น",
+    "th": "เลือกระดับชั้น"
   },
   "select-new": {
     "de": "Neu wählen",
@@ -6957,7 +6952,7 @@ export default {
     "pl": "Wybierz nowy",
     "pt": "Selecione Novo",
     "sk": "Vyberte položku Nový",
-    "th": "คลิกที่นี่! เพื่อเลือกกิจกรรม",
+    "th": "คลิกที่นี่! เพื่อเลือกกิจกรรม"
   },
   "select-one-or-more-subjects": {
     "de": "Wählen Sie ein oder mehrere Fächer",
@@ -6970,7 +6965,7 @@ export default {
     "pl": "Wybierz jeden lub więcej przedmiotów",
     "pt": "Selecione uma ou mais disciplinas",
     "sk": "Vyberte jeden alebo viac predmetov",
-    "th": "เลือกอย่างน้อยหนึ่งวิชา",
+    "th": "เลือกอย่างน้อยหนึ่งวิชา"
   },
   "select-students-in-the-class": {
     "de": "Wählen Sie die Schülerinnen und Schüler der Klasse aus",
@@ -6983,7 +6978,7 @@ export default {
     "pl": "Wybierz uczniów w klasie",
     "pt": "Selecione os alunos da turma",
     "sk": "Vyberte žiakov v triede",
-    "th": "เลือกนักเรียนในชั้นเรียน",
+    "th": "เลือกนักเรียนในชั้นเรียน"
   },
   "select-subject": {
     "de": "Fach auswählen",
@@ -6996,7 +6991,7 @@ export default {
     "pl": "Wybierz przedmiot",
     "pt": "Selecionar disciplina",
     "sk": "Vybrať predmet",
-    "th": "เลือกวิชา",
+    "th": "เลือกวิชา"
   },
   "select-target-sequence": {
     "de": "Zielsequenz auswählen",
@@ -7009,7 +7004,7 @@ export default {
     "pl": "Wybierz docelową sekwencję",
     "pt": "Selecione a sequência alvo",
     "sk": "Vyberte cieľovú sekvenciu",
-    "th": "เลือกลำดับปลายทาง",
+    "th": "เลือกลำดับปลายทาง"
   },
   "select-teachers-in-the-group": {
     "de": "Lehrkräfte in der Gruppe auswählen",
@@ -7022,7 +7017,7 @@ export default {
     "pl": "Wybierz nauczycieli w grupie",
     "pt": "Selecione professores no grupo",
     "sk": "Vyberte učiteľov v skupine",
-    "th": "เลือกครูในกลุ่ม",
+    "th": "เลือกครูในกลุ่ม"
   },
   "select-the-content-to-assign": {
     "de": "Inhalt auswählen, der zugewiesen werden soll",
@@ -7035,7 +7030,7 @@ export default {
     "pl": "Wybierz treść do przypisania",
     "pt": "Selecione o conteúdo a ser atribuído",
     "sk": "Vyberte obsah, ktorý chcete priradiť",
-    "th": "เลือกกิจกรรมที่จะมอบหมาย",
+    "th": "เลือกกิจกรรมที่จะมอบหมาย"
   },
   "select-your-trainer": {
     "de": "Wählen Sie Ihre Trainerin/Trainer aus",
@@ -7048,7 +7043,7 @@ export default {
     "pl": "Wybierz swojego trenera",
     "pt": "Selecione seu treinador",
     "sk": "Vyberte svojho školiteľa",
-    "th": "เลือกผู้ฝึกสอนของท่าน",
+    "th": "เลือกผู้ฝึกสอนของท่าน"
   },
   "selected": {
     "de": "Ausgewählt",
@@ -7061,7 +7056,7 @@ export default {
     "pl": "Wybrane",
     "pt": "Selecionado",
     "sk": "Vybrané",
-    "th": "ที่เลือก",
+    "th": "ที่เลือก"
   },
   "selected-competencies": {
     "de": "Selected Competencies",
@@ -7074,7 +7069,7 @@ export default {
     "pl": "Selected Competencies",
     "pt": "Selected Competencies",
     "sk": "Selected Competencies",
-    "th": "สมรรถนะที่เลือก",
+    "th": "สมรรถนะที่เลือก"
   },
   "selected-content": {
     "de": "den ausgewählten Inhalt",
@@ -7087,7 +7082,7 @@ export default {
     "pl": "wybrana treść",
     "pt": "o conteúdo selecionado",
     "sk": "vybraný obsah",
-    "th": "เนื้อหาที่เลือก",
+    "th": "เนื้อหาที่เลือก"
   },
   "selected-students-will-be-added": {
     "de": "Ausgewählte Schüler werden hinzugefügt",
@@ -7100,7 +7095,7 @@ export default {
     "pl": "Wybrani uczniowie zostaną dodani",
     "pt": "Os alunos selecionados serão adicionados",
     "sk": "Vybraní žiaci budú pridaní",
-    "th": "นักเรียนที่เลือกจะถูกเพิ่ม",
+    "th": "นักเรียนที่เลือกจะถูกเพิ่ม"
   },
   "selected-trainer-for-role-request": {
     "de": "Ausgewählte Trainerin/Trainer für Rollenanfrage",
@@ -7113,7 +7108,7 @@ export default {
     "pl": "Wybrany trener dla prośby o rolę",
     "pt": "Instrutor selecionado para solicitação de função",
     "sk": "Vybraný školiteľ pre túto žiadosť o rolu",
-    "th": "ผู้ฝึกสอนที่เลือกสำหรับคำขอบทบาท",
+    "th": "ผู้ฝึกสอนที่เลือกสำหรับคำขอบทบาท"
   },
   "self-regulated-learning": {
     "de": "Selbstreguliertes Lernen",
@@ -7126,7 +7121,7 @@ export default {
     "pl": "Uczenie samodzielne",
     "pt": "Aprendizagem Autorregulada",
     "sk": "Samoregulované učenie",
-    "th": "การเรียนรู้แบบกำกับตนเอง",
+    "th": "การเรียนรู้แบบกำกับตนเอง"
   },
   "send-feedback": {
     "de": "Feedback senden",
@@ -7139,7 +7134,7 @@ export default {
     "pl": "Wyślij opinię",
     "pt": "Enviar comentários",
     "sk": "Odoslať spätnú väzbu",
-    "th": "ส่งความคิดเห็น",
+    "th": "ส่งความคิดเห็น"
   },
   "sequence": {
     "de": "Sequenz",
@@ -7152,7 +7147,7 @@ export default {
     "pl": "Sekwencja",
     "pt": "Sequência",
     "sk": "Sekvencia",
-    "th": "เรียงลำดับกิจกรรม",
+    "th": "เรียงลำดับกิจกรรม"
   },
   "sequence-created-successfully": {
     "de": "Sequenz erfolgreich erstellt",
@@ -7165,7 +7160,7 @@ export default {
     "pl": "Sekwencję utworzono pomyślnie",
     "pt": "Sequência criada com sucesso",
     "sk": "Sekvencia bola úspešne vytvorená",
-    "th": "สร้างลำดับสำเร็จ",
+    "th": "สร้างลำดับสำเร็จ"
   },
   "sequence-title": {
     "de": "Sequenztitel",
@@ -7178,7 +7173,7 @@ export default {
     "pl": "Tytuł sekwencji",
     "pt": "Título da sequência",
     "sk": "Názov sekvencie",
-    "th": "ชื่อลำดับ",
+    "th": "ชื่อลำดับ"
   },
   "sequence-updated": {
     "de": "Sequenz aktualisiert",
@@ -7191,7 +7186,7 @@ export default {
     "pl": "Zaktualizowano sekwencję",
     "pt": "Sequência atualizada",
     "sk": "Sekvencia aktualizovaná",
-    "th": "อัปเดตลำดับแล้ว",
+    "th": "อัปเดตลำดับแล้ว"
   },
   "sequences": {
     "de": "Sequenzen",
@@ -7204,7 +7199,7 @@ export default {
     "pl": "Sekwencje",
     "pt": "Sequências",
     "sk": "Sekvencie",
-    "th": "ลำดับ",
+    "th": "ลำดับ"
   },
   "sequences-only": {
     "de": "Nur Sequenzen",
@@ -7217,7 +7212,7 @@ export default {
     "pl": "Tylko sekwencje",
     "pt": "Apenas sequências",
     "sk": "Iba sekvencie",
-    "th": "เฉพาะลำดับ",
+    "th": "เฉพาะลำดับ"
   },
   "set-a-specific-date-and-time-to-publish": {
     "de": "Legen Sie ein bestimmtes Datum und eine Uhrzeit für die Veröffentlichung fest",
@@ -7230,7 +7225,7 @@ export default {
     "pl": "Ustaw konkretną datę i godzinę publikacji",
     "pt": "Defina uma data e hora específicas para publicar",
     "sk": "Nastavte konkrétny dátum a čas zverejnenia",
-    "th": "กำหนดวันและเวลาที่แน่นอนในการเผยแพร่",
+    "th": "กำหนดวันและเวลาที่แน่นอนในการเผยแพร่"
   },
   "set-publication-date": {
     "de": "Legen Sie fest, wann diese Aufgabe für Schüler veröffentlicht wird",
@@ -7243,7 +7238,7 @@ export default {
     "pl": "Ustaw, kiedy to zadanie zostanie opublikowane uczniom",
     "pt": "Defina quando esta tarefa será publicada para os alunos",
     "sk": "Nastavte, kedy sa táto úloha zverejní žiakom",
-    "th": "กำหนดเวลาที่จะเผยแพร่งานนี้ให้นักเรียน",
+    "th": "กำหนดเวลาที่จะเผยแพร่งานนี้ให้นักเรียน"
   },
   "set-publication-date-to-save": {
     "de": "Legen Sie zum Speichern ein Veröffentlichungsdatum fest.",
@@ -7256,7 +7251,7 @@ export default {
     "pl": "Ustaw datę publikacji, aby zapisać.",
     "pt": "Defina uma data de publicação para salvar.",
     "sk": "Ak chcete uložiť, nastavte dátum zverejnenia.",
-    "th": "กำหนดวันที่เผยแพร่เพื่อบันทึก",
+    "th": "กำหนดวันที่เผยแพร่เพื่อบันทึก"
   },
   "settings": {
     "de": "Einstellungen",
@@ -7269,11 +7264,11 @@ export default {
     "pl": "Ustawienia",
     "pt": "Definições",
     "sk": "Nastavenia",
-    "th": "การตั้งค่า",
+    "th": "การตั้งค่า"
   },
   "share-this-link-with-your-students": {
     "de": "Teilen Sie diesen Link mit Ihren Schülerinnen und Schülern:",
-    "en": "Share this link with your students:",
+    "en": "Share this link with your students",
     "es": "Comparte este enlace con tus alumnas:",
     "fr": "Partagez ce lien avec vos élèves :",
     "km": "ចែករំលែកតំណនេះជាមួយសិស្សរបស់អ្នក:",
@@ -7282,7 +7277,7 @@ export default {
     "pl": "Udostępnij ten link swoim uczniom:",
     "pt": "Compartilhe este link com seus alunos:",
     "sk": "Zdieľajte tento odkaz so svojimi žiakmi:",
-    "th": "กรุณาส่งลิงก์นี้ให้กับนักเรียนของท่าน เพื่อเพิ่มนักเรียนเข้าสู่ระบบ: ",
+    "th": "กรุณาส่งลิงก์นี้ให้กับนักเรียนของท่าน เพื่อเพิ่มนักเรียนเข้าสู่ระบบ: "
   },
   "show": {
     "de": "Zeigen",
@@ -7295,7 +7290,7 @@ export default {
     "pl": "Pokaż",
     "pt": "Mostrar",
     "sk": "Zobraziť",
-    "th": "แสดง",
+    "th": "แสดง"
   },
   "show-archived": {
     "de": "Archiviert anzeigen",
@@ -7308,7 +7303,7 @@ export default {
     "pl": "Pokaż archiwum",
     "pt": "Mostrar arquivado",
     "sk": "Zobraziť archivované",
-    "th": " แสดงชั้นเรียนที่ถูกจัดเก็บไว้",
+    "th": " แสดงชั้นเรียนที่ถูกจัดเก็บไว้"
   },
   "show-correct-answers": {
     "de": "Richtige Antworten anzeigen",
@@ -7321,7 +7316,7 @@ export default {
     "pl": "Pokaż poprawne odpowiedzi",
     "pt": "Mostrar respostas corretas",
     "sk": "Zobraziť správne odpovede",
-    "th": "แสดงคำตอบที่ถูกต้อง",
+    "th": "แสดงคำตอบที่ถูกต้อง"
   },
   "show-items": {
     "de": "Elemente anzeigen",
@@ -7334,7 +7329,7 @@ export default {
     "pl": "Pokaż elementy",
     "pt": "Mostrar itens",
     "sk": "Zobraziť položky",
-    "th": "แสดงรายการ",
+    "th": "แสดงรายการ"
   },
   "shuffle-questions": {
     "de": "Fragen mischen",
@@ -7347,7 +7342,7 @@ export default {
     "pl": "Losuj pytania",
     "pt": "Baralhar perguntas",
     "sk": "Premiešať otázky",
-    "th": "สลับคำถาม",
+    "th": "สลับคำถาม"
   },
   "skipped": {
     "de": "Übersprungen",
@@ -7360,7 +7355,7 @@ export default {
     "pl": "Pominięto",
     "pt": "Ignorado",
     "sk": "Preskočené",
-    "th": "ข้ามแล้ว",
+    "th": "ข้ามแล้ว"
   },
   "something-went-wrong": {
     "de": "Etwas ist schief gelaufen",
@@ -7373,7 +7368,7 @@ export default {
     "pl": "Coś poszło nie tak",
     "pt": "Algo deu errado",
     "sk": "Niečo sa pokazilo",
-    "th": "เกิดข้อผิดพลาด",
+    "th": "เกิดข้อผิดพลาด"
   },
   "sort": {
     "de": "Sortieren",
@@ -7386,7 +7381,7 @@ export default {
     "pl": "Sortuj",
     "pt": "Classificar",
     "sk": "Zoradiť",
-    "th": "จัดเรียง",
+    "th": "จัดเรียง"
   },
   "status": {
     "de": "Status",
@@ -7399,7 +7394,7 @@ export default {
     "pl": "Stan",
     "pt": "Estado",
     "sk": "Stav",
-    "th": "สถานะ",
+    "th": "สถานะ"
   },
   "step": {
     "de": "Schritt",
@@ -7412,7 +7407,7 @@ export default {
     "pl": "Krok",
     "pt": "Passo",
     "sk": "Krok",
-    "th": "ขั้นตอน",
+    "th": "ขั้นตอน"
   },
   "step-1-of-4-title-instructions": {
     "de": "Schritt 1 von 4: Titel und Anweisungen hinzufügen",
@@ -7425,7 +7420,7 @@ export default {
     "pl": "Krok 1 z 4: dodaj tytuł i instrukcje",
     "pt": "Passo 1 de 4: adicionar título e instruções",
     "sk": "Krok 1 z 4: pridať názov a pokyny",
-    "th": "ขั้นตอน 1 จาก 4: เพิ่มชื่อและคำแนะนำ",
+    "th": "ขั้นตอน 1 จาก 4: เพิ่มชื่อและคำแนะนำ"
   },
   "step-2-of-4-add-content": {
     "de": "Schritt 2 von 4: Inhalt hinzufügen",
@@ -7438,7 +7433,7 @@ export default {
     "pl": "Krok 2 z 4: dodaj treść",
     "pt": "Passo 2 de 4: adicionar conteúdo",
     "sk": "Krok 2 z 4: pridať obsah",
-    "th": "ขั้นตอน 2 จาก 4: เพิ่มเนื้อหา",
+    "th": "ขั้นตอน 2 จาก 4: เพิ่มเนื้อหา"
   },
   "step-3-of-4-assignment-details": {
     "de": "Schritt 3 von 4: Aufgabendetails hinzufügen",
@@ -7451,7 +7446,7 @@ export default {
     "pl": "Krok 3 z 4: dodaj szczegóły zadania",
     "pt": "Passo 3 de 4: adicionar detalhes da tarefa",
     "sk": "Krok 3 z 4: pridať podrobnosti úlohy",
-    "th": "ขั้นตอน 3 จาก 4: เพิ่มรายละเอียดงาน",
+    "th": "ขั้นตอน 3 จาก 4: เพิ่มรายละเอียดงาน"
   },
   "step-4-of-4-assign-publish": {
     "de": "Schritt 4 von 4: Zuweisen und veröffentlichen",
@@ -7464,7 +7459,7 @@ export default {
     "pl": "Krok 4 z 4: przypisz i opublikuj",
     "pt": "Passo 4 de 4: atribuir e publicar",
     "sk": "Krok 4 z 4: priradiť a zverejniť",
-    "th": "ขั้นตอน 4 จาก 4: มอบหมายและเผยแพร่",
+    "th": "ขั้นตอน 4 จาก 4: มอบหมายและเผยแพร่"
   },
   "step-1-of-3-title-instructions": {
     "de": "Schritt 1 von 3: Titel und Anweisungen hinzufügen",
@@ -7477,7 +7472,7 @@ export default {
     "pl": "Krok 1 z 3: dodaj tytuł i instrukcje",
     "pt": "Passo 1 de 3: adicionar título e instruções",
     "sk": "Krok 1 z 3: pridať názov a pokyny",
-    "th": "ขั้นตอน 1 จาก 3: เพิ่มชื่อและคำแนะนำ",
+    "th": "ขั้นตอน 1 จาก 3: เพิ่มชื่อและคำแนะนำ"
   },
   "step-2-of-3-add-content": {
     "de": "Schritt 2 von 3: Inhalt hinzufügen",
@@ -7490,7 +7485,7 @@ export default {
     "pl": "Krok 2 z 3: dodaj treść",
     "pt": "Passo 2 de 3: adicionar conteúdo",
     "sk": "Krok 2 z 3: pridať obsah",
-    "th": "ขั้นตอน 2 จาก 3: เพิ่มเนื้อหา",
+    "th": "ขั้นตอน 2 จาก 3: เพิ่มเนื้อหา"
   },
   "step-3-of-3-assign-publish": {
     "de": "Schritt 3 von 3: Zuweisen und veröffentlichen",
@@ -7503,7 +7498,7 @@ export default {
     "pl": "Krok 3 z 3: przypisz i opublikuj",
     "pt": "Passo 3 de 3: atribuir e publicar",
     "sk": "Krok 3 z 3: priradiť a zverejniť",
-    "th": "ขั้นตอน 3 จาก 3: มอบหมายและเผยแพร่",
+    "th": "ขั้นตอน 3 จาก 3: มอบหมายและเผยแพร่"
   },
   "step-n": {
     "de": "Schritt {n}",
@@ -7516,7 +7511,7 @@ export default {
     "pl": "Krok {n}",
     "pt": "Etapa {n}",
     "sk": "Krok {n}",
-    "th": "ขั้นตอน {n}",
+    "th": "ขั้นตอน {n}"
   },
   "steps-to-reproduce": {
     "de": "Schritte zur Reproduktion",
@@ -7529,7 +7524,7 @@ export default {
     "pl": "Kroki do odtworzenia",
     "pt": "Etapas para reproduzir",
     "sk": "Popis reprodukcie chyby",
-    "th": "ขั้นตอนในการทำซ้ำ",
+    "th": "ขั้นตอนในการทำซ้ำ"
   },
   "steps-to-reproduce-are-required": {
     "de": "Schritte zur Reproduktion sind erforderlich",
@@ -7542,7 +7537,7 @@ export default {
     "pl": "Wymagane są kroki w celu odtworzenia",
     "pt": "As etapas para reproduzir são necessárias",
     "sk": "Je potrebné uviesť kroky na reprodukciu problému",
-    "th": "ต้องมีขั้นตอนในการสืบพันธุ์",
+    "th": "ต้องมีขั้นตอนในการสืบพันธุ์"
   },
   "student": {
     "de": "Student",
@@ -7555,7 +7550,7 @@ export default {
     "pl": "Studenta",
     "pt": "Estudante",
     "sk": "Žiak",
-    "th": "นักศึกษา",
+    "th": "นักศึกษา"
   },
   "student-account-created": {
     "de": "Schülerkonto erstellt",
@@ -7568,7 +7563,7 @@ export default {
     "pl": "Konto ucznia utworzone",
     "pt": "Conta de estudante criada",
     "sk": "Žiacke konto vytvorené",
-    "th": "สร้างบัญชีนักเรียนแล้ว",
+    "th": "สร้างบัญชีนักเรียนแล้ว"
   },
   "student-added-to-group": {
     "de": "Schüler zur Gruppe hinzugefügt",
@@ -7581,7 +7576,7 @@ export default {
     "pl": "Uczeń dodany do grupy",
     "pt": "Aluno adicionado ao grupo",
     "sk": "Žiak bol pridaný do skupiny",
-    "th": "เพิ่มนักเรียนเข้ากลุ่มแล้ว",
+    "th": "เพิ่มนักเรียนเข้ากลุ่มแล้ว"
   },
   "student-already-in-group": {
     "de": "Schüler bereits in der Gruppe",
@@ -7594,7 +7589,7 @@ export default {
     "pl": "Uczeń jest już w grupie",
     "pt": "Aluno já está no grupo",
     "sk": "Žiak je už v skupine",
-    "th": "นักเรียนอยู่ในกลุ่มแล้ว",
+    "th": "นักเรียนอยู่ในกลุ่มแล้ว"
   },
   "student-and-group-management": {
     "de": "Schüler- und Gruppenverwaltung",
@@ -7607,11 +7602,11 @@ export default {
     "pl": "Zarządzanie uczniami i grupami",
     "pt": "Gestão de alunos e grupos",
     "sk": "Správa študentov a skupín",
-    "th": "การจัดการนักเรียนและกลุ่ม",
+    "th": "การจัดการนักเรียนและกลุ่ม"
   },
   "student-info": {
     "de": "Schülerinnen-/Schülerinfo",
-    "en": "Student Info",
+    "en": "Student info",
     "es": "Información del estudiante",
     "fr": "Informations sur l’élève",
     "km": "ព័ត៌មានសិស្ស",
@@ -7620,7 +7615,7 @@ export default {
     "pl": "Informacje o uczniu",
     "pt": "Informações do aluno",
     "sk": "Informácie o žiakovi",
-    "th": "ข้อมูลนักเรียน",
+    "th": "ข้อมูลนักเรียน"
   },
   "student-name": {
     "de": "Name der Schülerin/Schüler",
@@ -7633,7 +7628,7 @@ export default {
     "pl": "Imię i nazwisko ucznia",
     "pt": "Nome do Aluno",
     "sk": "Meno žiaka",
-    "th": "ชื่อนักเรียน",
+    "th": "ชื่อนักเรียน"
   },
   "student-submissions": {
     "de": "Einreichungen von Schülern",
@@ -7646,7 +7641,7 @@ export default {
     "pl": "Prace uczniów",
     "pt": "Envios de alunos",
     "sk": "Odovzdané práce žiakov",
-    "th": "งานที่นักเรียนส่ง",
+    "th": "งานที่นักเรียนส่ง"
   },
   "student-updated-successfully": {
     "de": "Schüler erfolgreich aktualisiert",
@@ -7659,7 +7654,7 @@ export default {
     "pl": "Uczeń zaktualizowany pomyślnie",
     "pt": "Aluno atualizado com sucesso",
     "sk": "Žiak bol úspešne aktualizovaný",
-    "th": "อัปเดตนักเรียนสำเร็จ",
+    "th": "อัปเดตนักเรียนสำเร็จ"
   },
   "students": {
     "de": "Studenten",
@@ -7672,7 +7667,7 @@ export default {
     "pl": "Studenci",
     "pt": "Alunos",
     "sk": "Žiaci",
-    "th": "นักเรียน",
+    "th": "นักเรียน"
   },
   "students-added-to-group": {
     "de": "{count} Schüler zur Gruppe hinzugefügt",
@@ -7685,7 +7680,7 @@ export default {
     "pl": "Dodano {count} uczniów do grupy",
     "pt": "{count} alunos adicionados ao grupo",
     "sk": "Do skupiny bolo pridaných {count} študentov",
-    "th": "เพิ่มนักเรียน {count} คนเข้ากลุ่มแล้ว",
+    "th": "เพิ่มนักเรียน {count} คนเข้ากลุ่มแล้ว"
   },
   "students-already-in-group": {
     "de": "Schüler bereits in der Gruppe",
@@ -7698,11 +7693,11 @@ export default {
     "pl": "Uczniowie już w grupie",
     "pt": "Alunos já no grupo",
     "sk": "Študenti už sú v skupine",
-    "th": "นักเรียนอยู่ในกลุ่มแล้ว",
+    "th": "นักเรียนอยู่ในกลุ่มแล้ว"
   },
   "students-archived-successfully": {
     "de": "Schüler erfolgreich archiviert",
-    "en": "Students Archived Successfully",
+    "en": "Students successfully archived",
     "es": "Estudiantes archivados exitosamente",
     "fr": "Élèves archivés avec succès",
     "km": "បានទុកសិស្សជាឯកសារដោយជោគជ័យ",
@@ -7711,7 +7706,7 @@ export default {
     "pl": "Uczniowie zarchiwizowani pomyślnie",
     "pt": "Alunos arquivados com sucesso",
     "sk": "Žiaci boli úspešne archivovaní",
-    "th": "เก็บถาวรนักเรียนสำเร็จ",
+    "th": "เก็บถาวรนักเรียนสำเร็จ"
   },
   "students-can-start-right-away": {
     "de": "Schüler können sofort beginnen",
@@ -7724,7 +7719,7 @@ export default {
     "pl": "Uczniowie mogą zacząć od razu",
     "pt": "Os alunos podem começar de imediato",
     "sk": "Študenti môžu začať hneď",
-    "th": "นักเรียนเริ่มได้ทันที",
+    "th": "นักเรียนเริ่มได้ทันที"
   },
   "students-can-start-working-right-away": {
     "de": "Schüler können sofort mit der Arbeit beginnen",
@@ -7737,7 +7732,7 @@ export default {
     "pl": "Uczniowie mogą od razu zacząć pracę",
     "pt": "Os alunos podem começar a trabalhar de imediato",
     "sk": "Študenti môžu hneď začať pracovať",
-    "th": "นักเรียนเริ่มทำงานได้ทันที",
+    "th": "นักเรียนเริ่มทำงานได้ทันที"
   },
   "students-can-submit-after-due-date": {
     "de": "Schüler können nach dem Fälligkeitsdatum abgeben",
@@ -7750,7 +7745,7 @@ export default {
     "pl": "Uczniowie mogą oddać po terminie",
     "pt": "Os alunos podem submeter após a data de entrega",
     "sk": "Študenti môžu odovzdať po termíne",
-    "th": "นักเรียนสามารถส่งหลังวันครบกำหนดได้",
+    "th": "นักเรียนสามารถส่งหลังวันครบกำหนดได้"
   },
   "students-in-class": {
     "de": "Schülerinnen und Schüler in der Klasse:",
@@ -7763,7 +7758,7 @@ export default {
     "pl": "Uczniowie w klasie:",
     "pt": "Alunos em aula:",
     "sk": "Žiaci v triede:",
-    "th": "รายชื่อนักเรียนในชั้นเรียน:",
+    "th": "รายชื่อนักเรียนในชั้นเรียน:"
   },
   "students-in-group": {
     "de": "Schüler in der Gruppe",
@@ -7776,11 +7771,11 @@ export default {
     "pl": "Uczniowie w grupie",
     "pt": "Alunos no grupo",
     "sk": "Študenti v skupine",
-    "th": "นักเรียนในกลุ่ม",
+    "th": "นักเรียนในกลุ่ม"
   },
   "students-profile": {
     "de": "Schülerprofil",
-    "en": "Students Profile",
+    "en": "Student profile",
     "es": "Perfil de los estudiantes",
     "fr": "Profil de l’élève",
     "km": "ប្រវត្តិរូបសិស្ស",
@@ -7789,7 +7784,7 @@ export default {
     "pl": "Profil ucznia",
     "pt": "Perfil dos Alunos",
     "sk": "Profil žiakov",
-    "th": "โปรไฟล์นักเรียน",
+    "th": "โปรไฟล์นักเรียน"
   },
   "students-restored-successfully": {
     "de": "Schüler erfolgreich wiederhergestellt",
@@ -7802,7 +7797,7 @@ export default {
     "pl": "Uczniów przywrócono pomyślnie",
     "pt": "Alunos restaurados com sucesso",
     "sk": "Študenti boli úspešne obnovení",
-    "th": "กู้คืนนักเรียนสำเร็จ",
+    "th": "กู้คืนนักเรียนสำเร็จ"
   },
   "students-successfully-added-to-the-groups": {
     "de": "Schüler wurden erfolgreich zu den Gruppen hinzugefügt",
@@ -7815,7 +7810,7 @@ export default {
     "pl": "Uczniowie pomyślnie dodani do grup",
     "pt": "Alunos adicionados com sucesso aos grupos",
     "sk": "Žiaci sa úspešne pridali do skupín",
-    "th": "เพิ่มนักเรียนเข้ากลุ่มสำเร็จ",
+    "th": "เพิ่มนักเรียนเข้ากลุ่มสำเร็จ"
   },
   "one-or-more-students-were-not-added-to-selected-groups": {
     "de": "Ein oder mehrere Schüler wurden den ausgewählten Gruppen nicht hinzugefügt",
@@ -7828,7 +7823,7 @@ export default {
     "pl": "Co najmniej jeden uczeń nie został dodany do wybranych grup",
     "pt": "Um ou mais alunos não foram adicionados ao(s) grupo(s) selecionado(s)",
     "sk": "Jeden alebo viacerí žiaci neboli pridaní do vybraných skupín",
-    "th": "มีนักเรียนอย่างน้อยหนึ่งคนที่ไม่ได้ถูกเพิ่มไปยังกลุ่มที่เลือก",
+    "th": "มีนักเรียนอย่างน้อยหนึ่งคนที่ไม่ได้ถูกเพิ่มไปยังกลุ่มที่เลือก"
   },
   "studies": {
     "de": "Studien",
@@ -7841,7 +7836,7 @@ export default {
     "pl": "Badania",
     "pt": "Estudos",
     "sk": "Štúdie",
-    "th": "งานวิจัย",
+    "th": "งานวิจัย"
   },
   "subject": {
     "de": "Fach",
@@ -7854,7 +7849,7 @@ export default {
     "pl": "Przedmiot",
     "pt": "Disciplina",
     "sk": "Predmet",
-    "th": "วิชา",
+    "th": "วิชา"
   },
   "submission-details": {
     "de": "Abgabedetails",
@@ -7867,7 +7862,7 @@ export default {
     "pl": "Szczegóły oddania",
     "pt": "Detalhes da submissão",
     "sk": "Podrobnosti odovzdania",
-    "th": "รายละเอียดการส่ง",
+    "th": "รายละเอียดการส่ง"
   },
   "submit": {
     "de": "Einreichen",
@@ -7880,7 +7875,7 @@ export default {
     "pl": "Prześlij",
     "pt": "Enviar",
     "sk": "Odoslať",
-    "th": "ส่ง",
+    "th": "ส่ง"
   },
   "submitted": {
     "de": "Eingereicht",
@@ -7893,7 +7888,7 @@ export default {
     "pl": "Przesłane",
     "pt": "Enviado",
     "sk": "Odovzdané",
-    "th": "ส่งแล้ว",
+    "th": "ส่งแล้ว"
   },
   "success": {
     "de": "Erfolg",
@@ -7906,7 +7901,7 @@ export default {
     "pl": "Sukces",
     "pt": "Sucesso",
     "sk": "Úspešné",
-    "th": "สำเร็จ",
+    "th": "สำเร็จ"
   },
   "suggest-a-feature": {
     "de": "Eine Funktion vorschlagen",
@@ -7919,7 +7914,7 @@ export default {
     "pl": "Zasugeruj funkcję",
     "pt": "Sugira um recurso",
     "sk": "Navrhnite funkciu",
-    "th": "แนะนำคุณสมบัติ",
+    "th": "แนะนำคุณสมบัติ"
   },
   "supervisor": {
     "de": "Supervisorin/Supervisor",
@@ -7932,7 +7927,7 @@ export default {
     "pl": "Opiekun",
     "pt": "Supervisora",
     "sk": "Supervízor",
-    "th": "ผู้ควบคุมงาน",
+    "th": "ผู้ควบคุมงาน"
   },
   "support": {
     "de": "Unterstützung",
@@ -7945,7 +7940,7 @@ export default {
     "pl": "Wsparcie",
     "pt": "Suporte",
     "sk": "Podpora",
-    "th": "สนับสนุน",
+    "th": "สนับสนุน"
   },
   "symbol-passphrase": {
     "de": "Symbol-Passwortsatz",
@@ -7958,7 +7953,7 @@ export default {
     "pl": "Hasło symboliczne",
     "pt": "Frase secreta de símbolos",
     "sk": "Symbolová prístupová fráza",
-    "th": "วลีสัญลักษณ์",
+    "th": "วลีสัญลักษณ์"
   },
   "systems-thinking": {
     "de": "Systemdenken",
@@ -7971,7 +7966,7 @@ export default {
     "pl": "Myślenie systemowe",
     "pt": "Pensamento Sistêmico",
     "sk": "Systémové myslenie",
-    "th": "การคิดเชิงระบบ",
+    "th": "การคิดเชิงระบบ"
   },
   "tag": {
     "de": "Tag hinzufügen",
@@ -7984,7 +7979,7 @@ export default {
     "pl": "Oznacz tagiem",
     "pt": "Etiquetar",
     "sk": "Pridať značku",
-    "th": "ติดแท็ก",
+    "th": "ติดแท็ก"
   },
   "tags": {
     "de": "Schlagworte",
@@ -7997,7 +7992,7 @@ export default {
     "pl": "Tagi",
     "pt": "Etiquetas",
     "sk": "Tagy",
-    "th": "แท็ก",
+    "th": "แท็ก"
   },
   "teacher": {
     "de": "Lehrkraft",
@@ -8010,7 +8005,7 @@ export default {
     "pl": "Nauczyciel",
     "pt": "Professora",
     "sk": "Učiteľ",
-    "th": "ครู",
+    "th": "ครู"
   },
   "teacher-groups": {
     "de": "LEHRKRÄFTEGRUPPEN",
@@ -8023,7 +8018,7 @@ export default {
     "pl": "GRUPY NAUCZYCIELI",
     "pt": "GRUPOS DE PROFESSORES",
     "sk": "SKUPINY UČITEĽA",
-    "th": "กลุ่มครู",
+    "th": "กลุ่มครู"
   },
   "teacher-login": {
     "de": "Lehrkräfte-Anmeldung",
@@ -8036,7 +8031,7 @@ export default {
     "pl": "Logowanie nauczyciela",
     "pt": "Login do professor",
     "sk": "Prihlásenie učiteľa",
-    "th": "เข้าสู่ระบบครู",
+    "th": "เข้าสู่ระบบครู"
   },
   "teacher-name": {
     "de": "Name der Lehrkraft",
@@ -8049,7 +8044,7 @@ export default {
     "pl": "Imię i nazwisko nauczyciela",
     "pt": "Nome do professor",
     "sk": "Meno učiteľa",
-    "th": "ชื่อครู",
+    "th": "ชื่อครู"
   },
   "teacher-notes": {
     "de": "Lehrernotizen",
@@ -8062,7 +8057,7 @@ export default {
     "pl": "Notatki nauczyciela",
     "pt": "Notas do professor",
     "sk": "Poznámky učiteľa",
-    "th": "บันทึกของครู",
+    "th": "บันทึกของครู"
   },
   "teacher-notes-private": {
     "de": "Lehrernotizen (privat)",
@@ -8075,7 +8070,7 @@ export default {
     "pl": "Notatki nauczyciela (prywatne)",
     "pt": "Notas do professor (privadas)",
     "sk": "Poznámky učiteľa (súkromné)",
-    "th": "บันทึกของครู (ส่วนตัว)",
+    "th": "บันทึกของครู (ส่วนตัว)"
   },
   "teacher-view": {
     "de": "Lehrkräfteansicht",
@@ -8088,7 +8083,7 @@ export default {
     "pl": "Widok nauczyciela",
     "pt": "Visão do professor",
     "sk": "Pohľad učiteľa",
-    "th": "มุมมองครู",
+    "th": "มุมมองครู"
   },
   "teachers": {
     "de": "Lehrkräfte",
@@ -8101,7 +8096,7 @@ export default {
     "pl": "Nauczyciele",
     "pt": "Professoras",
     "sk": "Učitelia",
-    "th": "ครู",
+    "th": "ครู"
   },
   "teachers-in-group": {
     "de": "Lehrkräfte in der Gruppe",
@@ -8114,7 +8109,7 @@ export default {
     "pl": "Nauczyciele w grupie",
     "pt": "Professores em grupo",
     "sk": "Učitelia v skupine",
-    "th": "ครูในกลุ่ม",
+    "th": "ครูในกลุ่ม"
   },
   "terms-and-conditions": {
     "de": "Geschäftsbedingungen",
@@ -8127,7 +8122,7 @@ export default {
     "pl": "Regulamin",
     "pt": "Termos e Condições",
     "sk": "Zmluvné podmienky",
-    "th": "ข้อกำหนดและเงื่อนไข",
+    "th": "ข้อกำหนดและเงื่อนไข"
   },
   "terms-of-service-and-data-protection-notice": {
     "de": "Nutzungsbedingungen und Datenschutzhinweise",
@@ -8140,7 +8135,7 @@ export default {
     "pl": "Regulamin i Informacja o ochronie danych",
     "pt": "Termos de Serviço e Aviso de Proteção de Dados",
     "sk": "Zmluvné podmienky a Oznámenie o ochrane osobných údajov",
-    "th": "ประกาศ เรื่อง ข้อกำหนดในการให้บริการและการรักษาความปลอดภัยของข้อมูล",
+    "th": "ประกาศ เรื่อง ข้อกำหนดในการให้บริการและการรักษาความปลอดภัยของข้อมูล"
   },
   "terms-of-service-for-teachers": {
     "de": "Nutzungsbedingungen für Lehrkräfte",
@@ -8153,7 +8148,7 @@ export default {
     "pl": "Warunki świadczenia usług dla nauczycieli",
     "pt": "Termos de Serviço para Professores",
     "sk": "Zmluvné podmienky pre učiteľov",
-    "th": "ข้อกำหนดในการให้บริการ (Terms of Service) สำหรับครู",
+    "th": "ข้อกำหนดในการให้บริการ (Terms of Service) สำหรับครู"
   },
   "thai-teacher-label": {
     "de": "Thai Lehrkraft Label",
@@ -8166,7 +8161,7 @@ export default {
     "pl": "Etykieta nauczyciela tajskiego",
     "pt": "Etiqueta de professor tailandês",
     "sk": "Označenie thajského učiteľa",
-    "th": "ป้ายชื่อครูภาษาไทย",
+    "th": "ป้ายชื่อครูภาษาไทย"
   },
   "thank-you-your-feedback-has-been-sent-our-team-w": {
     "de": "Dankeschön! Ihr Feedback wurde gesendet. Unser Team wird es überprüfen \nund sich bei Bedarf melden.",
@@ -8179,7 +8174,7 @@ export default {
     "pl": "Dziękujemy! Twoja opinia została wysłana. Nasz zespół ją przeanalizuje i skontaktuje się z Tobą, jeśli będzie to potrzebne.",
     "pt": "Obrigado! Seu feedback foi enviado. Nossa equipe irá analisá-lo \ne faça o acompanhamento se necessário.",
     "sk": "Ďakujem! Vaša spätná väzba bola odoslaná. Náš tím to posúdi \na v prípade potreby bude ďalej sledovať.",
-    "th": "ขอบคุณ! ข้อเสนอแนะของคุณถูกส่งแล้ว ทีมงานของเราจะตรวจสอบและติดต่อกลับหากจำเป็น",
+    "th": "ขอบคุณ! ข้อเสนอแนะของคุณถูกส่งแล้ว ทีมงานของเราจะตรวจสอบและติดต่อกลับหากจำเป็น"
   },
   "the-kinds-of-activity-data-include": {
     "de": "Zu den Arten von Aktivitätsdaten gehören:",
@@ -8192,7 +8187,7 @@ export default {
     "pl": "Rodzaje danych aktywności obejmują:",
     "pt": "Os tipos de dados de atividade incluem:",
     "sk": "Medzi typy údajov o aktivitách patria:",
-    "th": "ข้อมูลที่จะดำเนินการเก็บรวบรวม ประกอบด้วย:",
+    "th": "ข้อมูลที่จะดำเนินการเก็บรวบรวม ประกอบด้วย:"
   },
   "there-is-an-issue-with-your-assignment-please-as": {
     "de": "Es gibt ein Problem mit Deiner Aufgabe. Bitte Deine Lehrkraft sicherzustellen, dass sie den beabsichtigten Inhalt zugewiesen hat.",
@@ -8205,7 +8200,7 @@ export default {
     "pl": "Wystąpił problem z Twoim zadaniem. Poproś nauczyciela, aby upewnił się, że przypisał właściwą treść.",
     "pt": "Há um problema com sua tarefa. Por favor, peça ao seu professor para garantir que ele atribuiu o conteúdo pretendido.",
     "sk": "Vyskytol sa problém s tvojou úlohou. Požiadaj svojho učiteľa, aby sa ubezpečil, že pridelil zvolený obsah.",
-    "th": "กิจกรรมของท่านที่ได้รับมอบหมายมามีข้อผิดพลาด กรุณาสอบถามครูว่าได้มอบหมายงานหรือกิจกรรมให้คุณแล้วหรือไม่",
+    "th": "กิจกรรมของท่านที่ได้รับมอบหมายมามีข้อผิดพลาด กรุณาสอบถามครูว่าได้มอบหมายงานหรือกิจกรรมให้คุณแล้วหรือไม่"
   },
   "this-assignment": {
     "de": "Diese Aufgabe",
@@ -8218,7 +8213,7 @@ export default {
     "pl": "To zadanie",
     "pt": "Esta tarefa",
     "sk": "Táto úloha",
-    "th": "งานที่มอบหมายนี้",
+    "th": "งานที่มอบหมายนี้"
   },
   "time-format-placeholder": {
     "de": "hh:mm",
@@ -8231,7 +8226,7 @@ export default {
     "pl": "gg:mm",
     "pt": "hh:mm",
     "sk": "hh:mm",
-    "th": "ชม:นาที",
+    "th": "ชม:นาที"
   },
   "time-spent": {
     "de": "Aufgewendete Zeit",
@@ -8244,7 +8239,7 @@ export default {
     "pl": "Czas spędzony",
     "pt": "Tempo gasto",
     "sk": "Strávený čas",
-    "th": "เวลาที่ใช้",
+    "th": "เวลาที่ใช้"
   },
   "title": {
     "de": "Titel",
@@ -8257,7 +8252,7 @@ export default {
     "pl": "Tytuł",
     "pt": "Título",
     "sk": "Názov",
-    "th": "ชื่อเรื่อง",
+    "th": "ชื่อเรื่อง"
   },
   "to": {
     "de": "Bis",
@@ -8270,7 +8265,7 @@ export default {
     "pl": "Do",
     "pt": "Até",
     "sk": "Do",
-    "th": "ถึง",
+    "th": "ถึง"
   },
   "to-create-a-teacher-or-researcher-account-please": {
     "de": "Um ein Lehrkäfte- oder Forscherinnen-/Forscherkonto zu erstellen, geben Sie bitte unten Ihren Zugangscode ein:",
@@ -8283,7 +8278,7 @@ export default {
     "pl": "Aby utworzyć konto nauczyciela lub badacza, wprowadź poniżej kod dostępu:",
     "pt": "Para criar uma conta de professor ou pesquisador, por favor, insira o seu código de acesso abaixo:",
     "sk": "Ak chcete vytvoriť účet učiteľa/ky alebo výskumníka/čky, zadajte svoj prístupový kód nižšie:",
-    "th": "เพื่อสร้างบัญชีของครูหรือนักวิจัย โปรดป้อนรหัสการเข้าถึงของคุณด้านล่าง:",
+    "th": "เพื่อสร้างบัญชีของครูหรือนักวิจัย โปรดป้อนรหัสการเข้าถึงของคุณด้านล่าง:"
   },
   "to-request-deletion-of-data-please-email-data-re": {
     "de": "Um die Löschung von Daten zu beantragen, senden Sie bitte eine E-Mail an data-requests@knowlearning.org",
@@ -8296,7 +8291,7 @@ export default {
     "pl": "Aby poprosić o usunięcie danych, wyślij e-mail na adres data-requests@knowlearning.org",
     "pt": "Para solicitar a exclusão de dados, envie um e-mail para data-requests@knowlearning.org",
     "sk": "Ak chcete požiadať o vymazanie údajov, pošlite e-mail na adresu data-requests@knowlearning.org",
-    "th": "การร้องขอสำหรับการลบข้อมูล โปรดส่งอีเมล์ไปที่ data-requests@knowlearning.org",
+    "th": "การร้องขอสำหรับการลบข้อมูล โปรดส่งอีเมล์ไปที่ data-requests@knowlearning.org"
   },
   "total": {
     "de": "Gesamt",
@@ -8309,7 +8304,7 @@ export default {
     "pl": "Razem",
     "pt": "Total",
     "sk": "Celkom",
-    "th": "ผลรวม",
+    "th": "ผลรวม"
   },
   "total-items": {
     "de": "Elemente gesamt",
@@ -8322,7 +8317,7 @@ export default {
     "pl": "Łączna liczba elementów",
     "pt": "Total de itens",
     "sk": "Celkový počet položiek",
-    "th": "รายการทั้งหมด",
+    "th": "รายการทั้งหมด"
   },
   "total-student": {
     "de": "Schüler insgesamt",
@@ -8335,7 +8330,7 @@ export default {
     "pl": "Łącznie uczniów",
     "pt": "Total de alunos",
     "sk": "Celkový počet žiakov",
-    "th": "นักเรียนทั้งหมด",
+    "th": "นักเรียนทั้งหมด"
   },
   "total-time-seconds": {
     "de": "Gesamtzeit (Sekunden)",
@@ -8348,7 +8343,7 @@ export default {
     "pl": "Łączny czas (sekundy)",
     "pt": "Tempo total (segundos)",
     "sk": "Celkový čas (sekundy)",
-    "th": "เวลาทั้งหมด (วินาที)",
+    "th": "เวลาทั้งหมด (วินาที)"
   },
   "trainer": {
     "de": "Trainerin/Trainer",
@@ -8361,7 +8356,7 @@ export default {
     "pl": "Trener",
     "pt": "Treinadora",
     "sk": "Školiteľ",
-    "th": "ผู้ฝึกสอน",
+    "th": "ผู้ฝึกสอน"
   },
   "trainers": {
     "de": "Trainerinnen/Trainer",
@@ -8374,7 +8369,7 @@ export default {
     "pl": "Trenerzy",
     "pt": "Formadoras",
     "sk": "Školitelia",
-    "th": "ผู้ฝึกสอน",
+    "th": "ผู้ฝึกสอน"
   },
   "try-again": {
     "de": "Try Again",
@@ -8387,7 +8382,7 @@ export default {
     "pl": "Try Again",
     "pt": "Try Again",
     "sk": "Try Again",
-    "th": "ลองอีกครั้ง",
+    "th": "ลองอีกครั้ง"
   },
   "type": {
     "de": "Typ",
@@ -8400,7 +8395,7 @@ export default {
     "pl": "Wpisz",
     "pt": "Tipo",
     "sk": "Typ",
-    "th": "ประเภท",
+    "th": "ประเภท"
   },
   "unable-to-load-tags": {
     "de": "Unable to Load Tags",
@@ -8413,7 +8408,7 @@ export default {
     "pl": "Unable to Load Tags",
     "pt": "Unable to Load Tags",
     "sk": "Unable to Load Tags",
-    "th": "ไม่สามารถโหลดแท็กที่พร้อมใช้งานได้",
+    "th": "ไม่สามารถโหลดแท็กที่พร้อมใช้งานได้"
   },
   "unable-to-load-your-tasks": {
     "de": "Ihre Fragebögen konnten nicht geladen werden.",
@@ -8426,7 +8421,7 @@ export default {
     "pl": "Nie udało się załadować Twoich zadań.",
     "pt": "Não foi possível carregar suas tarefas.",
     "sk": "Vaše úlohy sa nepodarilo načítať.",
-    "th": "ไม่สามารถโหลดงานของคุณได้",
+    "th": "ไม่สามารถโหลดงานของคุณได้"
   },
   "unable-to-update-tag": {
     "de": "Unable to Update Tag",
@@ -8439,7 +8434,7 @@ export default {
     "pl": "Unable to Update Tag",
     "pt": "Unable to Update Tag",
     "sk": "Unable to Update Tag",
-    "th": "ไม่สามารถอัปเดตแท็กนี้ได้ โปรดลองอีกครั้ง",
+    "th": "ไม่สามารถอัปเดตแท็กนี้ได้ โปรดลองอีกครั้ง"
   },
   "unarchive": {
     "de": "Dearchivieren",
@@ -8452,7 +8447,7 @@ export default {
     "pl": "Przywróć z archiwum",
     "pt": "Desarquivar",
     "sk": "Zrušiť archiváciu",
-    "th": "ยกเลิกการจัดเก็บ",
+    "th": "ยกเลิกการจัดเก็บ"
   },
   "undo": {
     "de": "Rückgängig machen",
@@ -8465,7 +8460,7 @@ export default {
     "pl": "Cofnij",
     "pt": "Desfazer",
     "sk": "Vrátiť späť",
-    "th": "ยกเลิก",
+    "th": "ยกเลิก"
   },
   "undo-request": {
     "de": "Anfrage rückgängig machen",
@@ -8478,7 +8473,7 @@ export default {
     "pl": "Cofnij prośbę",
     "pt": "Anular pedido",
     "sk": "Zrušiť žiadosť",
-    "th": "ยกเลิกคำขอ",
+    "th": "ยกเลิกคำขอ"
   },
   "unknown": {
     "de": "Unbekannt",
@@ -8491,7 +8486,7 @@ export default {
     "pl": "Nieznane",
     "pt": "Desconhecido",
     "sk": "Neznámy",
-    "th": "ไม่ทราบ",
+    "th": "ไม่ทราบ"
   },
   "unlimited": {
     "de": "Unbegrenzt",
@@ -8504,7 +8499,7 @@ export default {
     "pl": "Bez limitu",
     "pt": "Ilimitado",
     "sk": "Neobmedzené",
-    "th": "ไม่จำกัด",
+    "th": "ไม่จำกัด"
   },
   "unnamed": {
     "de": "Unbenannt",
@@ -8517,7 +8512,7 @@ export default {
     "pl": "Bezimienny",
     "pt": "Sem nome",
     "sk": "Bez názvu",
-    "th": "ไม่มีชื่อ",
+    "th": "ไม่มีชื่อ"
   },
   "unsaved-changes-will-be-lost": {
     "de": "Nicht gespeicherte Änderungen gehen verloren.",
@@ -8530,7 +8525,7 @@ export default {
     "pl": "Niezapisane zmiany zostaną utracone.",
     "pt": "As alterações não salvas serão perdidas.",
     "sk": "Neuložené zmeny sa stratia.",
-    "th": "การเปลี่ยนแปลงที่ยังไม่บันทึกจะหายไป",
+    "th": "การเปลี่ยนแปลงที่ยังไม่บันทึกจะหายไป"
   },
   "untitled": {
     "de": "Ohne Titel",
@@ -8543,7 +8538,7 @@ export default {
     "pl": "Bez tytułu",
     "pt": "Sem título",
     "sk": "Bez názvu",
-    "th": "ไม่มีชื่อ",
+    "th": "ไม่มีชื่อ"
   },
   "update": {
     "de": "Aktualisieren",
@@ -8556,7 +8551,7 @@ export default {
     "pl": "Aktualizuj",
     "pt": "Atualizar",
     "sk": "Aktualizovať",
-    "th": "อัปเดต",
+    "th": "อัปเดต"
   },
   "update-the-students-information": {
     "de": "Aktualisieren Sie die Schülerinformationen",
@@ -8569,7 +8564,7 @@ export default {
     "pl": "Zaktualizuj informacje o uczniu",
     "pt": "Atualize as informações dos alunos",
     "sk": "Aktualizujte informácie o žiakoch",
-    "th": "อัปเดตข้อมูลนักเรียน",
+    "th": "อัปเดตข้อมูลนักเรียน"
   },
   "updated": {
     "de": "Aktualisiert",
@@ -8582,7 +8577,7 @@ export default {
     "pl": "Zaktualizowano",
     "pt": "Atualizada",
     "sk": "Aktualizované",
-    "th": "อัพเดทเมื่อ",
+    "th": "อัพเดทเมื่อ"
   },
   "upload": {
     "de": "Hochladen",
@@ -8595,7 +8590,7 @@ export default {
     "pl": "Prześlij",
     "pt": "Carregar",
     "sk": "Nahrať",
-    "th": "อัพโหลด",
+    "th": "อัพโหลด"
   },
   "upload-csv-or-enter-multiple": {
     "de": "CSV hochladen oder mehrere eingeben",
@@ -8608,7 +8603,7 @@ export default {
     "pl": "Prześlij CSV lub wprowadź wiele",
     "pt": "Carregar CSV ou introduzir vários",
     "sk": "Nahrať CSV alebo zadať viaceré",
-    "th": "อัปโหลด CSV หรือป้อนหลายรายการ",
+    "th": "อัปโหลด CSV หรือป้อนหลายรายการ"
   },
   "upload-image": {
     "de": "Bild hochladen",
@@ -8621,7 +8616,7 @@ export default {
     "pl": "Prześlij obraz",
     "pt": "Carregar imagem",
     "sk": "Nahrať obrázok",
-    "th": "อัปโหลดรูปภาพ",
+    "th": "อัปโหลดรูปภาพ"
   },
   "user": {
     "de": "Benutzerin/Benutzer",
@@ -8634,7 +8629,7 @@ export default {
     "pl": "Użytkownik",
     "pt": "Usuária",
     "sk": "Používateľ",
-    "th": "ผู้ใช้งาน",
+    "th": "ผู้ใช้งาน"
   },
   "user-id": {
     "de": "Benutzerin-/Benutzer-ID",
@@ -8647,7 +8642,7 @@ export default {
     "pl": "Identyfikator użytkownika",
     "pt": "ID do usuário",
     "sk": "ID používateľa",
-    "th": "ไอดีผู้ใช้",
+    "th": "ไอดีผู้ใช้"
   },
   "view": {
     "de": "Anzeigen",
@@ -8660,7 +8655,7 @@ export default {
     "pl": "Zobacz",
     "pt": "Ver",
     "sk": "Zobraziť",
-    "th": "ดู",
+    "th": "ดู"
   },
   "view-and-download-login-code": {
     "de": "Anmeldecode ansehen und herunterladen",
@@ -8673,7 +8668,7 @@ export default {
     "pl": "Zobacz i pobierz kod logowania",
     "pt": "Ver e baixar o código de login",
     "sk": "Zobraziť a stiahnuť prihlasovací kód",
-    "th": "ดูและดาวน์โหลดรหัสเข้าสู่ระบบ",
+    "th": "ดูและดาวน์โหลดรหัสเข้าสู่ระบบ"
   },
   "view-assignment-details": {
     "de": "Aufgabendetails anzeigen",
@@ -8686,11 +8681,11 @@ export default {
     "pl": "Zobacz szczegóły zadania",
     "pt": "Ver detalhes da tarefa",
     "sk": "Zobraziť podrobnosti úlohy",
-    "th": "ดูรายละเอียดงานที่มอบหมาย",
+    "th": "ดูรายละเอียดงานที่มอบหมาย"
   },
   "view-dashboard": {
     "de": "Dashboard anzeigen",
-    "en": "View Dashboard",
+    "en": "View dashboard",
     "es": "Ver panel",
     "fr": "Voir le tableau de bord",
     "km": "មើលផ្ទាំងគ្រប់គ្រង",
@@ -8699,11 +8694,11 @@ export default {
     "pl": "Zobacz panel",
     "pt": "Ver painel",
     "sk": "Zobraziť informačný panel",
-    "th": "ดูแดชบอร์ด",
+    "th": "ดูแดชบอร์ด"
   },
   "view-dashboards": {
     "de": "Dashboards anzeigen",
-    "en": "View Dashboards",
+    "en": "View dashboards",
     "es": "Ver paneles",
     "fr": "Voir les tableaux de bord",
     "km": "មើលផ្ទាំងគ្រប់គ្រង",
@@ -8712,7 +8707,7 @@ export default {
     "pl": "Zobacz panele",
     "pt": "Ver painéis",
     "sk": "Zobraziť informačné panely",
-    "th": "ดูแดชบอร์ด",
+    "th": "ดูแดชบอร์ด"
   },
   "view-sequence-content": {
     "de": "Sequenzinhalt anzeigen",
@@ -8725,7 +8720,7 @@ export default {
     "pl": "Zobacz treść sekwencji",
     "pt": "Ver conteúdo da sequência",
     "sk": "Zobraziť obsah sekvencie",
-    "th": "ดูเนื้อหาลำดับ",
+    "th": "ดูเนื้อหาลำดับ"
   },
   "view-students": {
     "de": "Schüler ansehen",
@@ -8738,7 +8733,7 @@ export default {
     "pl": "Zobacz uczniów",
     "pt": "Ver alunos",
     "sk": "Zobraziť žiakov",
-    "th": "ดูนักเรียน",
+    "th": "ดูนักเรียน"
   },
   "visit": {
     "de": "Besuchen",
@@ -8751,7 +8746,7 @@ export default {
     "pl": "Odwiedź",
     "pt": "Visita",
     "sk": "Navštíviť",
-    "th": "เข้าดู",
+    "th": "เข้าดู"
   },
   "what-opting-out-means": {
     "de": "Was Abmelden bedeutet",
@@ -8764,11 +8759,11 @@ export default {
     "pl": "Co oznacza rezygnacja",
     "pt": "O que significa cancelar",
     "sk": "Čo znamená odhlásenie",
-    "th": "ความหมายของการยกเลิก",
+    "th": "ความหมายของการยกเลิก"
   },
   "where-add-content": {
     "de": "Wo möchten Sie diesen Inhalt hinzufügen?",
-    "en": "Where would you like to add this content?",
+    "en": "Select one of two options below:",
     "es": "¿Dónde te gustaría agregar este contenido?",
     "fr": "Où souhaitez-vous ajouter ce contenu ?",
     "km": "តើអ្នកចង់បន្ថែមមាតិកានេះនៅឯណា?",
@@ -8777,7 +8772,7 @@ export default {
     "pl": "Gdzie chcesz dodać tę treść?",
     "pt": "Onde você gostaria de adicionar este conteúdo?",
     "sk": "Kam by ste chceli pridať tento obsah?",
-    "th": "ต้องการเพิ่มเนื้อหานี้ที่ไหน?",
+    "th": "ต้องการเพิ่มเนื้อหานี้ที่ไหน?"
   },
   "without-login-codes": {
     "de": "ohne Login-Codes (unten nicht dargestellt).",
@@ -8790,7 +8785,7 @@ export default {
     "pl": "bez kodów logowania (nie pokazano poniżej).",
     "pt": "sem códigos de login (não mostrados abaixo).",
     "sk": "bez prihlasovacích kódov (nie sú zobrazené nižšie).",
-    "th": "โดยไม่มีรหัสเข้าสู่ระบบ (ไม่ได้แสดงด้านล่าง)",
+    "th": "โดยไม่มีรหัสเข้าสู่ระบบ (ไม่ได้แสดงด้านล่าง)"
   },
   "working": {
     "de": "Working",
@@ -8803,7 +8798,7 @@ export default {
     "pl": "Working",
     "pt": "Working",
     "sk": "Working",
-    "th": "กำลังดำเนินการ",
+    "th": "กำลังดำเนินการ"
   },
   "yes": {
     "de": "Ja",
@@ -8816,7 +8811,7 @@ export default {
     "pl": "Tak",
     "pt": "Sim",
     "sk": "Áno",
-    "th": "ใช่",
+    "th": "ใช่"
   },
   "yes-opt-me-out": {
     "de": "Ja, melde mich ab",
@@ -8829,7 +8824,7 @@ export default {
     "pl": "Tak, zrezygnuj mnie",
     "pt": "Sim, desative-me",
     "sk": "Áno, odhláste ma",
-    "th": "ใช่ ยกเลิกฉัน",
+    "th": "ใช่ ยกเลิกฉัน"
   },
   "you-are-about-to-create-a-student-account-on-pil": {
     "de": "Du bist dabei, ein „Schülerin/Schüler“-Konto auf PILA (der Plattform für innovative Lernbewertungen) zu erstellen. Das bedeutet, dass Du damit einverstanden bist, dass Know Learning, die PILA-Entwicklerinnen und -Entwickler, Daten über Deine Aktivitäten sammeln und speichern können. Du stimmst außerdem zu, dass einige der Aktivitätsdaten von Google Analytics, Google Cloud Platform und OpenAI verarbeitet (aber niemals gespeichert) werden dürfen, damit die Plattform funktioniert. OpenAI wird beispielsweise NIEMALS Deine Antworten auf Fragebögen erhalten.",
@@ -8842,7 +8837,7 @@ export default {
     "pl": "Masz zamiar utworzyć konto „ucznia” na PILA (Platforma Innowacyjnych Oceniania Nauki). Oznacza to, że zgadzasz się, aby Know Learning, twórcy PILA, mogli gromadzić i przechowywać dane o Twojej aktywności. Zgadzasz się również, że niektóre dane dotyczące aktywności mogą być przetwarzane (ale nigdy przechowywane) przez Google Analytics, Google Cloud Platform i OpenAI, aby platforma działała poprawnie. Na przykład OpenAI NIGDY nie otrzyma Twoich odpowiedzi na ankiety.",
     "pt": "Você está prestes a criar uma conta de “estudante” no PILA (a Plataforma para Avaliações de Aprendizagem Inovadoras). ​ Isso significa que você concorda que a Know Learning, os desenvolvedores do PILA, podem coletar e armazenar dados sobre sua atividade.​ Você também concorda que alguns dos dados da atividade podem ser processados ​​(mas nunca armazenados) pelo Google Analytics, Google Cloud Platform e OpenAI, para fazer a plataforma funcionar. Por exemplo, a OpenAI NUNCA receberá suas respostas aos questionários.",
     "sk": "Chystáš sa vytvoriť „žiacky“ účet na PILA (Platforma pre hodnotenie inovatívneho vzdelávania). ​ To znamená, že súhlasíš s tým, aby spoločnosť Know Learning, ktorá je vývojárom platformy PILA, mohla zhromažďovať a ukladať údaje o tvojej aktivite.​ Tiež súhlasíš s tým, že niektoré z údajov o aktivitách môžu byť spracované (ale nikdy nie uložené) pomocou Google Analytics, Google Cloud Platform a OpenAI, aby platforma fungovala. Napríklad OpenAI NIKDY nedostane tvoje odpovede na dotazníky.",
-    "th": "คุณกำลังจะสร้างบัญชี “นักเรียน” บน PILA (แพลตฟอร์มการประเมินการเรียนรู้เชิงนวัตกรรม) ซึ่งหมายความว่าคุณยอมรับว่า Know Learning ผู้พัฒนา PILA สามารถเก็บและจัดเก็บข้อมูลเกี่ยวกับกิจกรรมของคุณได้ นอกจากนี้คุณยังยอมรับว่าข้อมูลบางส่วนของกิจกรรมอาจถูกประมวลผล (แต่จะไม่ถูกจัดเก็บ) โดย Google Analytics, Google Cloud Platform และ OpenAI เพื่อให้แพลตฟอร์มทำงานได้ อย่างเช่น OpenAI จะไม่เคยรับคำตอบของคุณจากแบบสอบถาม",
+    "th": "คุณกำลังจะสร้างบัญชี “นักเรียน” บน PILA (แพลตฟอร์มการประเมินการเรียนรู้เชิงนวัตกรรม) ซึ่งหมายความว่าคุณยอมรับว่า Know Learning ผู้พัฒนา PILA สามารถเก็บและจัดเก็บข้อมูลเกี่ยวกับกิจกรรมของคุณได้ นอกจากนี้คุณยังยอมรับว่าข้อมูลบางส่วนของกิจกรรมอาจถูกประมวลผล (แต่จะไม่ถูกจัดเก็บ) โดย Google Analytics, Google Cloud Platform และ OpenAI เพื่อให้แพลตฟอร์มทำงานได้ อย่างเช่น OpenAI จะไม่เคยรับคำตอบของคุณจากแบบสอบถาม"
   },
   "you-are-currently-included-in-the-treatment-grou": {
     "de": "Sie sind derzeit in der Behandlungsgruppe enthalten. Sie können Sich jederzeit abmelden.",
@@ -8855,7 +8850,7 @@ export default {
     "pl": "Obecnie jesteś w grupie leczenia. Możesz zrezygnować w dowolnym momencie.",
     "pt": "Você está atualmente incluído no grupo de tratamento. Você pode cancelar a qualquer momento.",
     "sk": "Momentálne ste zaradení do experimentálnej skupiny. Kedykoľvek sa môžete odhlásiť.",
-    "th": "ขณะนี้คุณถูกรวมอยู่ในกลุ่มการรักษา คุณสามารถยกเลิกได้ทุกเมื่อ",
+    "th": "ขณะนี้คุณถูกรวมอยู่ในกลุ่มการรักษา คุณสามารถยกเลิกได้ทุกเมื่อ"
   },
   "you-can-now-add-students-to-this-group": {
     "de": "Sie können nun Schüler zu dieser Gruppe hinzufügen",
@@ -8868,7 +8863,7 @@ export default {
     "pl": "Możesz teraz dodać uczniów do tej grupy",
     "pt": "Agora você pode adicionar alunos a este grupo",
     "sk": "Teraz môžete do tejto skupiny pridať žiakov",
-    "th": "คุณสามารถเพิ่มนักเรียนเข้ากลุ่มนี้ได้แล้ว",
+    "th": "คุณสามารถเพิ่มนักเรียนเข้ากลุ่มนี้ได้แล้ว"
   },
   "you-can-request-to-opt-back-in-later-by-contacti": {
     "de": "Sie können die erneute Anmeldung später beantragen, indem Sie den Support kontaktieren oder das Abmelden-Tag entfernen",
@@ -8881,7 +8876,7 @@ export default {
     "pl": "Możesz poprosić o ponowne dołączenie później, kontaktując się z pomocą techniczną lub usuwając znacznik rezygnacji",
     "pt": "Você pode solicitar o retorno mais tarde entrando em contato com o suporte ou removendo a tag de cancelamento",
     "sk": "Ak sa budete chcieť neskôr znova prihlásiť, môžete kontaktovať podporu alebo odstrániť označenie odhlásenia.",
-    "th": "คุณสามารถร้องขอให้กลับเข้าร่วมอีกครั้งได้ในภายหลังโดยติดต่อฝ่ายสนับสนุนหรือลบแท็กการยกเลิกออก",
+    "th": "คุณสามารถร้องขอให้กลับเข้าร่วมอีกครั้งได้ในภายหลังโดยติดต่อฝ่ายสนับสนุนหรือลบแท็กการยกเลิกออก"
   },
   "you-can-revert-later-by-clearing-your-opt-out-ta": {
     "de": "Sie können dies später rückgängig machen, indem Sie Ihr Abmelde-Tag löschen. Fortfahren?",
@@ -8894,7 +8889,7 @@ export default {
     "pl": "Możesz wrócić później, usuwając znacznik rezygnacji. Kontynuować?",
     "pt": "Você pode reverter mais tarde limpando sua etiqueta de cancelamento. Continuar?",
     "sk": "Neskôr sa môžete vrátiť späť vymazaním značky odhlásenia. Pokračovať?",
-    "th": "คุณสามารถกลับเข้าร่วมได้ในภายหลังโดยการลบแท็กการยกเลิก ต้องการดำเนินการต่อหรือไม่?",
+    "th": "คุณสามารถกลับเข้าร่วมได้ในภายหลังโดยการลบแท็กการยกเลิก ต้องการดำเนินการต่อหรือไม่?"
   },
   "you-currently-have-no-active-classes": {
     "de": "Sie haben derzeit keine aktiven Klassen",
@@ -8907,7 +8902,7 @@ export default {
     "pl": "Obecnie nie masz aktywnych klas",
     "pt": "Você não tem aulas ativas no momento",
     "sk": "Momentálne nemáte žiadne aktívne triedy",
-    "th": "ท่านไม่มีชั้นเรียนที่ดำเนินการอยู่ในขณะนี้",
+    "th": "ท่านไม่มีชั้นเรียนที่ดำเนินการอยู่ในขณะนี้"
   },
   "you-currently-have-no-active-groups": {
     "de": "Sie haben derzeit keine aktiven Gruppen.",
@@ -8920,7 +8915,7 @@ export default {
     "pl": "Obecnie nie masz aktywnych grup.",
     "pt": "Atualmente você não tem grupos ativos.",
     "sk": "Momentálne nemáte žiadne aktívne skupiny.",
-    "th": "ท่านไม่มีกลุ่มที่กำลังดำเนินการอยู่ในขณะนี้",
+    "th": "ท่านไม่มีกลุ่มที่กำลังดำเนินการอยู่ในขณะนี้"
   },
   "you-currently-have-no-students": {
     "de": "Sie haben derzeit keine Schülerinnen und Schüler",
@@ -8933,7 +8928,7 @@ export default {
     "pl": "Obecnie nie masz żadnych uczniów",
     "pt": "Você não tem alunos no momento",
     "sk": "Momentálne nemáte žiadnych žiakov",
-    "th": "คุณยังไม่มีนักเรียนในขณะนี้",
+    "th": "คุณยังไม่มีนักเรียนในขณะนี้"
   },
   "you-currently-have-no-teachers": {
     "de": "Sie haben derzeit keine Lehrkräfte.",
@@ -8946,7 +8941,7 @@ export default {
     "pl": "Obecnie nie masz nauczycieli.",
     "pt": "Atualmente você não tem professores.",
     "sk": "Momentálne nemáte žiadnych učiteľov.",
-    "th": "ท่านไม่มีครูผู้สอนที่กำลังดำเนินการอยู่ในขณะนี้",
+    "th": "ท่านไม่มีครูผู้สอนที่กำลังดำเนินการอยู่ในขณะนี้"
   },
   "you-have-joined-this-teacher": {
     "de": "Du bist dieser Lehrkraft beigetreten.",
@@ -8959,7 +8954,7 @@ export default {
     "pl": "Dołączyłeś do tego nauczyciela.",
     "pt": "Você se juntou a este professor.",
     "sk": "Pripojil si sa k tomuto/tejto učiteľovi/ke.",
-    "th": "คุณเข้าร่วมชั้นเรียนเรียบร้อยแล้ว",
+    "th": "คุณเข้าร่วมชั้นเรียนเรียบร้อยแล้ว"
   },
   "you-have-requested-the-role-of": {
     "de": "Sie haben die Rolle angefordert von",
@@ -8972,7 +8967,7 @@ export default {
     "pl": "Poprosiłeś o rolę",
     "pt": "Você solicitou o papel de",
     "sk": "Požiadali ste o rolu",
-    "th": "คุณได้ยื่นคำขอบทบาทเป็น",
+    "th": "คุณได้ยื่นคำขอบทบาทเป็น"
   },
   "you-will-be-able-to-participate-in-research-stud": {
     "de": "Sie haben die Möglichkeit, an Forschungsstudien teilzunehmen",
@@ -8985,7 +8980,7 @@ export default {
     "pl": "Będziesz mógł brać udział w badaniach naukowych",
     "pt": "Você poderá participar de pesquisas",
     "sk": "Budeš sa môcť zúčastniť výskumných štúdií",
-    "th": "คุณจะสามารถเข้าร่วมการศึกษาวิจัยได้",
+    "th": "คุณจะสามารถเข้าร่วมการศึกษาวิจัยได้"
   },
   "you-will-be-excluded-from-future-experiments-for": {
     "de": "Sie werden von zukünftigen Experimenten für diese Partition ausgeschlossen",
@@ -8998,7 +8993,7 @@ export default {
     "pl": "Zostaniesz wyłączony z przyszłych eksperymentów dla tej partycji",
     "pt": "Você será excluído de experiências futuras nesta partição",
     "sk": "Budete vylúčený/á z budúcich experimentov v tejto oblasti",
-    "th": "คุณจะถูกตัดออกจากการทดลองในอนาคตสำหรับพาร์ทิชันนี้",
+    "th": "คุณจะถูกตัดออกจากการทดลองในอนาคตสำหรับพาร์ทิชันนี้"
   },
   "your-clicks": {
     "de": "Deine Klicks",
@@ -9011,7 +9006,7 @@ export default {
     "pl": "Twoje kliknięcia",
     "pt": "seus cliques",
     "sk": "tvoje kliknutia",
-    "th": "การคลิกของท่าน",
+    "th": "การคลิกของท่าน"
   },
   "your-data": {
     "de": "Deine Daten",
@@ -9024,7 +9019,7 @@ export default {
     "pl": "Twoje dane",
     "pt": "Seus dados",
     "sk": "tvoje údaje",
-    "th": "ประกาศชี้แจ้งเรื่องการเก็บรวบรวมข้อมูล",
+    "th": "ประกาศชี้แจ้งเรื่องการเก็บรวบรวมข้อมูล"
   },
   "your-suggestion": {
     "de": "Ihr Vorschlag",
@@ -9037,7 +9032,7 @@ export default {
     "pl": "Twoja sugestia",
     "pt": "Sua sugestão",
     "sk": "Váš návrh",
-    "th": "ข้อเสนอแนะของคุณ",
+    "th": "ข้อเสนอแนะของคุณ"
   },
   "your-tasks": {
     "de": "Ihre Fragebögen",
@@ -9050,7 +9045,7 @@ export default {
     "pl": "Twoje Zadania",
     "pt": "As Suas Tarefas",
     "sk": "Vaše dotazníky ",
-    "th": "งานของคุณ",
+    "th": "งานของคุณ"
   },
   "your-teachers": {
     "de": "Ihre Lehrkräfte",
@@ -9063,7 +9058,7 @@ export default {
     "pl": "Twoi nauczyciele",
     "pt": "Seus professores",
     "sk": "Vaši učitelia",
-    "th": "ครูของท่าน",
+    "th": "ครูของท่าน"
   },
   "youre-currently-opted-out-of-the-treatment-group": {
     "de": "Sie sind derzeit von der Behandlungsgruppe für diesen Abschnitt abgemeldet.",
@@ -9076,7 +9071,7 @@ export default {
     "pl": "Obecnie jesteś wyłączony z grupy leczenia dla tej partycji.",
     "pt": "No momento, você optou por não participar do grupo de tratamento desta partição.",
     "sk": "Momentálne ste odhlásení z experimentálnej skupiny pre túto oblasť.",
-    "th": "ขณะนี้คุณได้ยกเลิกการเข้าร่วมกลุ่มการรักษาสำหรับพาร์ทิชันนี้แล้ว",
+    "th": "ขณะนี้คุณได้ยกเลิกการเข้าร่วมกลุ่มการรักษาสำหรับพาร์ทิชันนี้แล้ว"
   },
   "👉-quick-troubleshooting-checklist-please-make-s": {
     "de": "## 👉 Schnelle Checkliste zur Fehlerbehebung \n\nBitte stellen Sie sicher, dass Sie die folgenden Schritte ausprobiert haben, bevor Sie einen Bericht einreichen: \n\n- Verwenden Sie einen empfohlenen Browser (Chrome) \n- Aktualisieren Sie die Seite \n- Schließen Sie Ihren Browser und öffnen Sie ihn erneut \n- Löschen Sie Ihren Browserverlauf/Cache \n- Überprüfen Sie, ob Ihre Internetverbindung schnell ist",
@@ -9089,7 +9084,7 @@ export default {
     "pl": "## 👉 Szybka lista kontrolna rozwiązywania problemów\n\nUpewnij się, że wykonałeś te kroki przed wysłaniem zgłoszenia:\n\n- Użyj zalecanej przeglądarki (Chrome)  \n- Odśwież stronę  \n- Zamknij i ponownie otwórz przeglądarkę  \n- Wyczyść historię/pamięć podręczną przeglądarki  \n- Sprawdź, czy Twoje połączenie internetowe jest szybkie",
     "pt": "## 👉 Lista de verificação para solução rápida de problemas \n\nCertifique-se de ter tentado estas etapas antes de enviar um relatório: \n\n- Use um navegador recomendado (Chrome) \n- Atualize a página \n- Feche e reabra seu navegador \n- Limpe o histórico/cache do seu navegador \n- Verifique se sua conexão com a internet é rápida",
     "sk": "## 👉 Rýchly kontrolný zoznam na riešenie problémov \n\nPred odoslaním hlásenia sa uistite, že ste vyskúšali tieto kroky: \n\n- Použite odporúčaný prehliadač (Chrome) \n- Obnovte stránku \n- Zatvorte a znova otvorte prehliadač \n- Vymažte históriu / vyrovnávaciu pamäť prehliadača \n- Skontrolujte, či je vaše internetové pripojenie rýchle",
-    "th": "## 👉 รายการตรวจสอบการแก้ไขปัญหาอย่างรวดเร็ว\n\nโปรดตรวจสอบให้แน่ใจว่าคุณได้ลองทำตามขั้นตอนเหล่านี้ก่อนที่จะส่งรายงาน:\n\n- ใช้เบราว์เซอร์ที่แนะนำ (Chrome)  \n- รีเฟรชหน้าเว็บ  \n- ปิดและเปิดเบราว์เซอร์ของคุณอีกครั้ง  \n- ล้างประวัติ/แคชของเบราว์เซอร์  \n- ตรวจสอบว่าการเชื่อมต่ออินเทอร์เน็ตของคุณรวดเร็ว",
+    "th": "## 👉 รายการตรวจสอบการแก้ไขปัญหาอย่างรวดเร็ว\n\nโปรดตรวจสอบให้แน่ใจว่าคุณได้ลองทำตามขั้นตอนเหล่านี้ก่อนที่จะส่งรายงาน:\n\n- ใช้เบราว์เซอร์ที่แนะนำ (Chrome)  \n- รีเฟรชหน้าเว็บ  \n- ปิดและเปิดเบราว์เซอร์ของคุณอีกครั้ง  \n- ล้างประวัติ/แคชของเบราว์เซอร์  \n- ตรวจสอบว่าการเชื่อมต่ออินเทอร์เน็ตของคุณรวดเร็ว"
   },
   "welcome-back": {
     "de": "Willkommen zurück 👋",
@@ -9102,7 +9097,7 @@ export default {
     "pl": "Witaj ponownie 👋",
     "pt": "Bem-vindo de volta 👋",
     "sk": "Vitajte späť 👋",
-    "th": "ยินดีต้อนรับกลับ 👋",
+    "th": "ยินดีต้อนรับกลับ 👋"
   },
   "sign-in-to-access-your-account": {
     "de": "Melden Sie sich an, um auf Ihr Konto zuzugreifen",
@@ -9115,7 +9110,7 @@ export default {
     "pl": "Zaloguj się, aby uzyskać dostęp do konta",
     "pt": "Entre para acessar sua conta",
     "sk": "Prihláste sa pre prístup k svojmu účtu",
-    "th": "ลงชื่อเข้าใช้เพื่อเข้าถึงบัญชีของคุณ",
+    "th": "ลงชื่อเข้าใช้เพื่อเข้าถึงบัญชีของคุณ"
   },
   "student-login": {
     "de": "Schüler-Anmeldung",
@@ -9128,7 +9123,7 @@ export default {
     "pl": "Logowanie ucznia",
     "pt": "Login do aluno",
     "sk": "Prihlásenie žiaka",
-    "th": "เข้าสู่ระบบนักเรียน",
+    "th": "เข้าสู่ระบบนักเรียน"
   },
   "sign-in-with": {
     "de": "Anmelden mit",
@@ -9141,7 +9136,7 @@ export default {
     "pl": "Zaloguj się przez",
     "pt": "Entrar com",
     "sk": "Prihlásiť sa cez",
-    "th": "ลงชื่อเข้าใช้ด้วย",
+    "th": "ลงชื่อเข้าใช้ด้วย"
   },
   "sign-in-with-google": {
     "de": "Mit Google anmelden",
@@ -9154,7 +9149,7 @@ export default {
     "pl": "Zaloguj się przez Google",
     "pt": "Entrar com o Google",
     "sk": "Prihlásiť sa cez Google",
-    "th": "ลงชื่อเข้าใช้ด้วย Google",
+    "th": "ลงชื่อเข้าใช้ด้วย Google"
   },
   "sign-in-with-microsoft": {
     "de": "Mit Microsoft anmelden",
@@ -9167,7 +9162,7 @@ export default {
     "pl": "Zaloguj się przez Microsoft",
     "pt": "Entrar com a Microsoft",
     "sk": "Prihlásiť sa cez Microsoft",
-    "th": "ลงชื่อเข้าใช้ด้วย Microsoft",
+    "th": "ลงชื่อเข้าใช้ด้วย Microsoft"
   },
   "sign-in-with-classlink": {
     "de": "Mit ClassLink anmelden",
@@ -9180,7 +9175,7 @@ export default {
     "pl": "Zaloguj się przez ClassLink",
     "pt": "Entrar com ClassLink",
     "sk": "Prihlásiť sa cez ClassLink",
-    "th": "ลงชื่อเข้าใช้ด้วย ClassLink",
+    "th": "ลงชื่อเข้าใช้ด้วย ClassLink"
   },
   "sign-in-with-line": {
     "de": "Mit LINE anmelden",
@@ -9193,7 +9188,7 @@ export default {
     "pl": "Zaloguj się przez LINE",
     "pt": "Entrar com LINE",
     "sk": "Prihlásiť sa cez LINE",
-    "th": "ลงชื่อเข้าใช้ด้วย LINE",
+    "th": "ลงชื่อเข้าใช้ด้วย LINE"
   },
   "sign-in-with-pila": {
     "de": "Mit PILA anmelden",
@@ -9206,7 +9201,7 @@ export default {
     "pl": "Zaloguj się przez PILA",
     "pt": "Entrar com PILA",
     "sk": "Prihlásiť sa cez PILA",
-    "th": "ลงชื่อเข้าใช้ด้วย PILA",
+    "th": "ลงชื่อเข้าใช้ด้วย PILA"
   },
   "start-scanner": {
     "de": "Scanner starten",
@@ -9219,7 +9214,7 @@ export default {
     "pl": "Uruchom skaner",
     "pt": "Iniciar scanner",
     "sk": "Spustiť skener",
-    "th": "เริ่มสแกน",
+    "th": "เริ่มสแกน"
   },
   "sign-in-with-code": {
     "de": "Mit Code anmelden",
@@ -9232,7 +9227,7 @@ export default {
     "pl": "Zaloguj się kodem",
     "pt": "Entrar com código",
     "sk": "Prihlásiť sa kódom",
-    "th": "ลงชื่อเข้าใช้ด้วยรหัส",
+    "th": "ลงชื่อเข้าใช้ด้วยรหัส"
   },
   "or": {
     "de": "Oder",
@@ -9245,7 +9240,7 @@ export default {
     "pl": "Lub",
     "pt": "Ou",
     "sk": "Alebo",
-    "th": "หรือ",
+    "th": "หรือ"
   },
   "dont-have-an-account": {
     "de": "Noch kein Konto?",
@@ -9258,7 +9253,7 @@ export default {
     "pl": "Nie masz konta?",
     "pt": "Não tem uma conta?",
     "sk": "Nemáte účet?",
-    "th": "ยังไม่มีบัญชี?",
+    "th": "ยังไม่มีบัญชี?"
   },
   "contact-your-administrator": {
     "de": "Wenden Sie sich an Ihren Administrator",
@@ -9271,7 +9266,7 @@ export default {
     "pl": "Skontaktuj się z administratorem",
     "pt": "Contacte o seu administrador",
     "sk": "Kontaktujte správcu",
-    "th": "ติดต่อผู้ดูแลระบบของคุณ",
+    "th": "ติดต่อผู้ดูแลระบบของคุณ"
   },
   "invalid-login-code": {
     "de": "Ungültiger Anmeldecode. Bitte erneut versuchen.",
@@ -9284,7 +9279,7 @@ export default {
     "pl": "Nieprawidłowy kod logowania. Spróbuj ponownie.",
     "pt": "Código de login inválido. Tente novamente.",
     "sk": "Neplatný prihlasovací kód. Skúste znova.",
-    "th": "รหัสเข้าสู่ระบบไม่ถูกต้อง โปรดลองอีกครั้ง",
+    "th": "รหัสเข้าสู่ระบบไม่ถูกต้อง โปรดลองอีกครั้ง"
   },
   "scan-login-code-hint": {
     "de": "Richten Sie die Kamera auf den QR-Code Ihrer Anmeldekarte.",
@@ -9297,7 +9292,7 @@ export default {
     "pl": "Skieruj aparat na kod QR na karcie logowania.",
     "pt": "Aponte a câmara para o código QR do cartão de acesso.",
     "sk": "Namierte kameru na QR kód na prihlasovacej karte.",
-    "th": "หันกล้องไปที่รหัส QR บนบัตรเข้าสู่ระบบของคุณ",
+    "th": "หันกล้องไปที่รหัส QR บนบัตรเข้าสู่ระบบของคุณ"
   },
   "qr-scanner-not-supported": {
     "de": "QR-Scan wird in diesem Browser nicht unterstützt. Nutzen Sie „Mit Code anmelden“.",
@@ -9310,7 +9305,7 @@ export default {
     "pl": "Skanowanie QR nie jest obsługiwane. Użyj logowania kodem.",
     "pt": "Leitura de QR não suportada. Use Entrar com código.",
     "sk": "Skenovanie QR nie je podporované. Použite Prihlásiť sa kódom.",
-    "th": "เบราว์เซอร์นี้ไม่รองรับการสแกน QR ใช้ลงชื่อเข้าใช้ด้วยรหัสแทน",
+    "th": "เบราว์เซอร์นี้ไม่รองรับการสแกน QR ใช้ลงชื่อเข้าใช้ด้วยรหัสแทน"
   },
   "qr-scanner-permission-denied": {
     "de": "Für das Scannen ist eine Kameraberechtigung erforderlich.",
@@ -9323,7 +9318,7 @@ export default {
     "pl": "Do skanowania kodu wymagane jest uprawnienie do kamery.",
     "pt": "É necessária permissão da câmara para ler o código.",
     "sk": "Na skenovanie kódu je potrebné povolenie kamery.",
-    "th": "ต้องอนุญาตกล้องเพื่อสแกนรหัสเข้าสู่ระบบ",
+    "th": "ต้องอนุญาตกล้องเพื่อสแกนรหัสเข้าสู่ระบบ"
   },
   "google": {
     "de": "Google",
@@ -9336,7 +9331,7 @@ export default {
     "pl": "Google",
     "pt": "Google",
     "sk": "Google",
-    "th": "Google",
+    "th": "Google"
   },
   "microsoft": {
     "de": "Microsoft",
@@ -9349,7 +9344,7 @@ export default {
     "pl": "Microsoft",
     "pt": "Microsoft",
     "sk": "Microsoft",
-    "th": "Microsoft",
+    "th": "Microsoft"
   },
   "classlink": {
     "de": "ClassLink",
@@ -9362,7 +9357,7 @@ export default {
     "pl": "ClassLink",
     "pt": "ClassLink",
     "sk": "ClassLink",
-    "th": "ClassLink",
+    "th": "ClassLink"
   },
   "line": {
     "de": "LINE",
@@ -9375,7 +9370,7 @@ export default {
     "pl": "LINE",
     "pt": "LINE",
     "sk": "LINE",
-    "th": "LINE",
+    "th": "LINE"
   },
   "pila": {
     "de": "PILA",
@@ -9388,7 +9383,6 @@ export default {
     "pl": "PILA",
     "pt": "PILA",
     "sk": "PILA",
-    "th": "PILA",
-  },
-
+    "th": "PILA"
+  }
 }
