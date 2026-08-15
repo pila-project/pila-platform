@@ -7,11 +7,8 @@
       <div>
         <h2 class="text-lg font-semibold text-zinc-950">
           <template v-if="isEdit">{{ t('edit-sequence') }}</template>
-          <template v-else>+ {{ t('create-new-sequence') }}</template>
+          <template v-else>{{ t('create-new-sequence') }}</template>
         </h2>
-        <p v-if="!isEdit" class="text-sm text-slate-500 mt-0.5">
-          {{ t('create-sequence-description') }}
-        </p>
       </div>
     </template>
     <template #body>

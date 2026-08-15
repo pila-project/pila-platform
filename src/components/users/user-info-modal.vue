@@ -115,7 +115,6 @@
     <template #title>
       <div>
         <h2 class="text-lg font-semibold text-zinc-950">{{ t('edit-students-details') }}</h2>
-        <p class="text-sm text-slate-500 mt-0.5">{{ t('update-the-students-information') }}</p>
       </div>
     </template>
     <template #body>
@@ -149,7 +148,6 @@
           </div>
           <div class="login-code-card-text">
             <span class="login-code-card-title">{{ t('login-code') }}</span>
-            <span class="login-code-card-subtitle">{{ t('view-and-download-login-code') }}</span>
           </div>
           <LucideIcon name="chevron-right" :size="16" class="login-code-card-arrow" />
         </button>

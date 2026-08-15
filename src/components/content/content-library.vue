@@ -25,14 +25,14 @@
         >
           <PUnifiedFilterSection
             id="sequence-status-mobile"
-            :label="t('status')"
+            :label="t('show-archived')"
             icon="badge-check"
             :options="sequenceStatusFilterOptions"
             v-model="sequenceStatusFilters"
           />
           <PUnifiedFilterSection
             id="sequence-favorites-mobile"
-            :label="t('favorites')"
+            :label="t('favourites')"
             icon="heart"
             :options="favoritesFilterOptions"
             v-model="sequenceFavoritesFilters"
@@ -100,14 +100,14 @@
             >
               <PUnifiedFilterSection
                 id="sequence-status"
-                :label="t('status')"
+                :label="t('show-archived')"
                 icon="badge-check"
                 :options="sequenceStatusFilterOptions"
                 v-model="sequenceStatusFilters"
               />
               <PUnifiedFilterSection
                 id="sequence-favorites"
-                :label="t('favorites')"
+                :label="t('favourites')"
                 icon="heart"
                 :options="favoritesFilterOptions"
                 v-model="sequenceFavoritesFilters"
@@ -204,7 +204,7 @@
             />
             <PUnifiedFilterSection
               id="content-favorites"
-              :label="t('favorites')"
+              :label="t('favourites')"
               icon="heart"
               :options="favoritesFilterOptions"
               v-model="contentFavoritesFilters"
@@ -331,7 +331,7 @@
       width="520px"
       :title="t('archive-sequence')"
       :description="archiveConfirmDescription"
-      :confirm-text="t('archive-sequence')"
+      :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
       :confirm-loading="archiveConfirmLoading"
       @confirm="confirmArchiveSequence"

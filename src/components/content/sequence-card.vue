@@ -37,9 +37,9 @@
             <template v-if="!archived">
               <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="$emit('view-content')" />
               <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
-              <PMenuItem :title="t('preview-sequence')" prepend-icon="lucide:eye" @click="$emit('preview')" />
+              <PMenuItem :title="t('preview')" prepend-icon="lucide:eye" @click="$emit('preview')" />
               <PMenuItem
-                :title="t('archive-sequence')"
+                :title="t('archive')"
                 prepend-icon="lucide:archive"
                 @click="$emit('archive')"
               />

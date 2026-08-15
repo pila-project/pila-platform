@@ -9,7 +9,7 @@
           <div class="section-header-left">
             <LucideIcon name="user" :size="20" class="section-icon" />
             <div>
-              <h2 class="card-section-title">{{ t('student') }} ({{ studentHeaderCount }})</h2>
+              <h2 class="card-section-title">{{ t('my-students') }} ({{ studentHeaderCount }})</h2>
               <p class="card-section-subtitle">{{ t('manage-student-accounts') }}</p>
             </div>
           </div>
@@ -18,7 +18,7 @@
               v-if="!selectedStudents.length"
               icon="lucide:plus"
               variant="primary"
-              :text="t('add-student')"
+              :text="t('add-students')"
               size="sm"
               @click="showAddStudentPicker = true"
             />
@@ -74,14 +74,14 @@
             />
             <PUnifiedFilterSection
               id="status"
-              :label="t('status')"
+              :label="t('show-archived')"
               icon="badge-check"
               :options="statusFilterOptions"
               v-model="activeStatusFilters"
             />
             <PUnifiedFilterSection
               id="group"
-              :label="t('group')"
+              :label="t('groups')"
               icon="list-tree"
               :options="groupFilterOptions"
               v-model="activeGroupFilters"
@@ -203,7 +203,7 @@
           <div class="section-header-left">
             <LucideIcon name="users" :size="20" class="section-icon" />
             <div>
-              <h2 class="card-section-title">{{ t('group') }} ({{ groupHeaderCount }})</h2>
+              <h2 class="card-section-title">{{ t('groups') }} ({{ groupHeaderCount }})</h2>
               <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
             </div>
           </div>
@@ -225,7 +225,7 @@
           >
             <PUnifiedFilterSection
               id="group-status"
-              :label="t('status')"
+              :label="t('show-archived')"
               icon="badge-check"
               :options="groupStatusFilterOptions"
               v-model="groupStatusFilters"
@@ -284,7 +284,6 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('students-profile') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('complete-profile-information-for') }} {{ profileStudentPreferredName }}</p>
         </div>
       </template>
       <template #body>
@@ -783,7 +782,7 @@
       >
         <div class="result-skipped-warning">
           <LucideIcon name="triangle-alert" :size="16" />
-          <span>This student is already in the group "{{ r.groupName }}"</span>
+          <span>{{ t('this-student-is-already-in-the-group').replace('{group}', r.groupName) }}</span>
         </div>
         <div class="result-tile">
           <div class="result-tile-info">
@@ -815,7 +814,6 @@
           <PFileUpload
             accept=".csv,.xlsx,.xls"
             :label="t('drop-csv-file-here')"
-            :description="t('csv-required-columns')"
             @file-selected="csvFile = $event"
           />
           <div class="csv-actions-row">
@@ -852,7 +850,6 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('create-bulk-accounts') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('manual-entry') }}</p>
         </div>
       </template>
       <template #body>
@@ -921,7 +918,7 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('add-to-groups') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ selectedStudents.length }} {{ t('student') }} {{ t('selected') }}</p>
+          <p class="text-sm text-slate-500 mt-0.5">{{ addToGroupsSelectedLabel }}</p>
         </div>
       </template>
       <template #body>
@@ -972,7 +969,7 @@
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showAddToGroupsModal = false" />
         <PButton
           variant="primary"
-          :text="`${t('add-to')} ${selectedGroupsForAssign.length} ${t('group')}`"
+          :text="addToGroupsButtonLabel"
           :disabled="!selectedGroupsForAssign.length"
           :loading="addingToGroups"
           @click="handleAddToGroups"
@@ -990,7 +987,6 @@
       <template #title>
         <div>
           <h2 class="text-lg font-semibold text-zinc-950">{{ t('login-code') }}</h2>
-          <p class="text-sm text-slate-500 mt-0.5">{{ t('view-and-download-login-code') }}</p>
         </div>
       </template>
       <template #body>
@@ -1138,6 +1134,15 @@ const addToGroupsResultTitle = computed(() => {
     return t('one-or-more-students-were-not-added-to-selected-groups')
   }
   return t('students-successfully-added-to-the-groups')
+})
+const addToGroupsSelectedLabel = computed(() => {
+  const n = selectedStudents.value.length
+  return t('n-students-selected').replace('{num}', String(n))
+})
+const addToGroupsButtonLabel = computed(() => {
+  const n = selectedGroupsForAssign.value.length
+  if (n === 1) return t('add-to-n-group').replace('{num}', '1')
+  return t('add-to-n-groups').replace('{num}', String(n))
 })
 const manageGroupId = ref(null)
 const activeGradeFilters = ref([])

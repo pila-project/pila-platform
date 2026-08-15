@@ -1,6 +1,6 @@
 <template>
   <div class="page-container assign-page">
-    <h1 class="page-heading assign-heading capitalize">{{ t('assignments') }}</h1>
+    <h1 class="page-heading assign-heading">{{ t('assign-and-monitor') }}</h1>
 
     <div class="content-card assign-card">
       <!-- Card header -->
@@ -9,7 +9,7 @@
           <div>
             <h2 class="card-section-title flex items-center gap-2">
               <LucideIcon name="clipboard-list" :size="18" class="text-primary-600" />
-              <span>{{ titleCase(t('assignments')) }}</span>
+              <span>{{ t('my-assignments') }}</span>
             </h2>
             <p class="card-section-subtitle">{{ t('create-and-manage-assignments') }}</p>
           </div>
@@ -31,7 +31,7 @@
         >
           <PUnifiedFilterSection
             id="archive-status"
-            :label="t('status')"
+            :label="t('show-archived')"
             icon="badge-check"
             :options="archiveStatusFilterOptions"
             v-model="archiveStatusFilters"
@@ -471,7 +471,7 @@
   const router = useRouter()
   function t(slug) { return store.getters.t(slug) }
   const assignmentTablePerPageOptions = computed(() => tablePerPageOptions(t))
-  function titleCase(str) { return str?.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) ?? '' }
+
 
   // ── Core state ──
   const current = ref(null)
@@ -526,8 +526,8 @@
 
   const assignedToTabs = computed(() => [
     { key: 'all', label: t('all') },
-    { key: 'group', label: t('group') },
-    { key: 'students', label: t('student') },
+    { key: 'group', label: t('groups') },
+    { key: 'students', label: t('students') },
   ])
 
   const ASSIGNED_TO_GROUP_PREFIX = 'group:'

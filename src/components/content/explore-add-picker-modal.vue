@@ -158,7 +158,6 @@
           <p v-if="previewItem.modified" class="eap-preview-meta">{{ previewItem.modified }}</p>
         </div>
 
-        <p class="eap-section-label">{{ t('select-target-sequence') }}</p>
         <PInput
           v-model="sequenceSearch"
           :placeholder="t('search-sequences')"
@@ -379,7 +378,7 @@ const contentLabel = computed(() => {
 })
 
 const headerTitle = computed(() => {
-  if (step.value === 'choose') return t('add-item-or-sequence')
+  if (step.value === 'choose') return t('add-to-assignment-or-sequence')
   if (step.value === 'assignment-choice') {
     return t('add-content-to-assignment')
   }
@@ -401,7 +400,7 @@ const headerSubtitle = computed(() => {
     return t('add-picker-subtitle')
   }
   if (step.value === 'assignment-choice') {
-    return t('add-to-assignment-choice-subtitle').replace('{name}', quoted)
+    return ''
   }
   if (step.value === 'sequence-choice') {
     return t('add-to-sequence-choice-subtitle').replace('{name}', quoted)

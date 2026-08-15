@@ -11,7 +11,6 @@
           <div class="details-header">
             <div>
               <h2 class="details-title">{{ t('view-assignment-details') }}</h2>
-              <p class="details-subtitle">{{ t('complete-information-about') }} {{ data.name }}</p>
             </div>
             <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
           </div>
@@ -86,7 +85,7 @@
             <div class="details-section">
               <h3 class="section-heading">
                 <LucideIcon name="book-open" :size="14" class="section-icon" />
-                {{ t('content-items') }} ({{ contentItems.length }})
+                {{ t('assignment-content') }} ({{ contentItems.length }})
               </h3>
               <div v-if="!contentItems.length" class="empty-text">
                 {{ t('no-content-items-added') }}

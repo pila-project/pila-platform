@@ -6,7 +6,7 @@
     <!-- Header -->
     <div class="wizard-header">
       <div>
-        <h2 class="wizard-title">{{ props.editing ? t('edit-assignment') : t('create-new-assignment') }}</h2>
+        <h2 class="wizard-title">{{ props.editing ? t('edit-assignment') : t('create-assignment') }}</h2>
         <p class="wizard-subtitle">{{ stepSubtitles[currentStep - 1] }}</p>
       </div>
       <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
@@ -210,7 +210,6 @@
               <span class="group-name">
                 <vueScopeComponent :id="gid" :path="['name']" />
               </span>
-              <span class="group-count">{{ t('students') }}</span>
             </div>
             <div class="group-check">
               <LucideIcon v-if="isGroupSelected(gid)" name="check" :size="14" />

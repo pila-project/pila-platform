@@ -79,7 +79,7 @@ export default {
   },
   "account-status": {
     "de": "Kontostatus",
-    "en": "Account Status",
+    "en": "Account status",
     "es": "Estado de la cuenta",
     "fr": "Statut du compte",
     "km": "ស្ថានភាពគណនី",
@@ -196,7 +196,7 @@ export default {
   },
   "add-content-item-or-sequence": {
     "de": "Inhaltselement oder Sequenz hinzufügen",
-    "en": "Add Content Item Or Sequence",
+    "en": "Add content item or sequence",
     "es": "Añadir elemento de contenido o secuencia",
     "fr": "Ajouter un élément de contenu ou une séquence",
     "km": "បន្ថែមធាតុមាតិកា ឬលំដាប់",
@@ -261,7 +261,7 @@ export default {
   },
   "add-group": {
     "de": "Gruppe hinzufügen",
-    "en": "Add Group",
+    "en": "Add group",
     "es": "Añadir grupo",
     "fr": "Ajouter un groupe",
     "km": "បន្ថែមក្រុម",
@@ -352,7 +352,7 @@ export default {
   },
   "add-selected": {
     "de": "Auswahl hinzufügen",
-    "en": "Add Selected",
+    "en": "Add selected",
     "es": "Añadir selección",
     "fr": "Ajouter la sélection",
     "km": "បន្ថែមដែលបានជ្រើស",
@@ -430,7 +430,7 @@ export default {
   },
   "add-to-assignment": {
     "de": "Zur Aufgabe hinzufügen",
-    "en": "Add To Assignment",
+    "en": "Add to assignment",
     "es": "Añadir a la tarea",
     "fr": "Ajouter au devoir",
     "km": "បន្ថែមទៅការងារ",
@@ -495,7 +495,7 @@ export default {
   },
   "add-to-existing-sequence": {
     "de": "Zu einer vorhandenen Sequenz hinzufügen",
-    "en": "Add to an existing sequence",
+    "en": "Add to existing sequence",
     "es": "Añadir a una secuencia existente",
     "fr": "Ajouter à une séquence existante",
     "km": "បន្ថែមទៅលំដាប់ដែលមានស្រាប់",
@@ -508,7 +508,7 @@ export default {
   },
   "add-to-existing-sequence-subtitle": {
     "de": "Wählen Sie eine Sequenz, zu der Sie {name} hinzufügen möchten.",
-    "en": "Choose a sequence you want to add {name} to.",
+    "en": "Add {name} to a one of the sequences listed below.",
     "es": "Elija una secuencia a la que quiera añadir {name}.",
     "fr": "Choisissez une séquence à laquelle ajouter {name}.",
     "km": "ជ្រើសរើសលំដាប់ដែលអ្នកចង់បន្ថែម {name}។",
@@ -573,7 +573,7 @@ export default {
   },
   "add-to-sequence": {
     "de": "Zur Sequenz hinzufügen",
-    "en": "Add To Sequence",
+    "en": "Add to sequence",
     "es": "Añadir a la secuencia",
     "fr": "Ajouter à la séquence",
     "km": "បន្ថែមទៅលំដាប់",
@@ -703,7 +703,7 @@ export default {
   },
   "all-content": {
     "de": "Alle Inhalte",
-    "en": "All Content",
+    "en": "All content",
     "es": "Todo el contenido",
     "fr": "Tout le contenu",
     "km": "មាតិកាទាំងអស់",
@@ -1093,7 +1093,7 @@ export default {
   },
   "archive-student-confirm-description": {
     "de": "Dieser Schüler wird in Ihrer aktiven Liste ausgeblendet. Er wird nicht gelöscht und kann sich weiterhin anmelden. Er bleibt in seinen Gruppen und sieht ggf. weiterhin Aufgaben, bis Sie ihn aus Gruppen entfernen oder die Aufgabe für alle archivieren. Sie können ihn jederzeit aus den archivierten Schülern wiederherstellen.",
-    "en": "This student will be hidden from your active list. They are not deleted and can still log in. They remain in their groups and may still see assignments until you remove them from groups or archive the assignment for all. Restore them anytime from archived students.",
+    "en": "Archiving this student account will remove it from the 'Active' student list. The account can be restored by clicking 'Show archived' and reselecting this profile.",
     "es": "Este estudiante se ocultará de su lista activa. No se elimina y aún puede iniciar sesión. Permanece en sus grupos y puede seguir viendo tareas hasta que lo quite de los grupos o archive la tarea para todos. Puede restaurarlo en cualquier momento desde estudiantes archivados.",
     "fr": "Cet élève sera masqué de votre liste active. Il n'est pas supprimé et peut toujours se connecter. Il reste dans ses groupes et peut encore voir les devoirs jusqu'à ce que vous le retiriez des groupes ou archiviez le devoir pour tous. Restaurez-le à tout moment depuis les élèves archivés.",
     "km": "សិស្សនេះនឹងត្រូវលាក់ពីបញ្ជីសកម្មរបស់អ្នក។ គេមិនត្រូវបានលុបទេ ហើយនៅតែអាចចូលបាន។ គេនៅតែស្ថិតក្នុងក្រុម ហើយអាចនៅតែឃើញការងារ រហូតដល់អ្នកដកគេចេញពីក្រុម ឬទុកការងារជាប្រវត្តិសម្រាប់គ្រប់គ្នា។ ស្តារគេវិញបានគ្រប់ពេលពីសិស្សដែលបានទុកជាប្រវត្តិ។",
@@ -1197,7 +1197,7 @@ export default {
   },
   "assign-students-to-group": {
     "de": "Schüler einer Gruppe zuweisen",
-    "en": "Assign Students To Group",
+    "en": "Assign students to group",
     "es": "Asignar estudiantes a un grupo",
     "fr": "Attribuer des élèves à un groupe",
     "km": "កំណត់សិស្សទៅក្រុម",
@@ -1340,7 +1340,7 @@ export default {
   },
   "assignment-groups-students": {
     "de": "Aufgabengruppen und Schüler",
-    "en": "Assignment Groups Students",
+    "en": "Assignment group & students",
     "es": "Grupos y estudiantes de la tarea",
     "fr": "Groupes et élèves du devoir",
     "km": "ក្រុម និងសិស្សនៃការងារ",
@@ -1431,7 +1431,7 @@ export default {
   },
   "assignment-title": {
     "de": "Aufgabentitel",
-    "en": "Assignment Title",
+    "en": "Assignment title",
     "es": "Título de la tarea",
     "fr": "Titre du devoir",
     "km": "ចំណងជើងការងារ",
@@ -1574,7 +1574,7 @@ export default {
   },
   "available-students": {
     "de": "Verfügbare Schüler",
-    "en": "Available Students",
+    "en": "Available students",
     "es": "Estudiantes disponibles",
     "fr": "Élèves disponibles",
     "km": "សិស្សដែលមាន",
@@ -1938,7 +1938,7 @@ export default {
   },
   "choose-how-to-add-students": {
     "de": "Wählen Sie, wie Schüler hinzugefügt werden",
-    "en": "Choose How To Add Students",
+    "en": "Choose how to create student accounts",
     "es": "Elija cómo añadir estudiantes",
     "fr": "Choisissez comment ajouter des élèves",
     "km": "ជ្រើសរើសរបៀបបន្ថែមសិស្ស",
@@ -2445,7 +2445,7 @@ export default {
   },
   "create-and-manage-assignments": {
     "de": "Aufgaben erstellen und verwalten",
-    "en": "Create And Manage Assignments",
+    "en": "Create, edit, and monitor assignments",
     "es": "Crear y gestionar tareas",
     "fr": "Créer et gérer des devoirs",
     "km": "បង្កើត និងគ្រប់គ្រងការងារ",
@@ -2471,7 +2471,7 @@ export default {
   },
   "create-bulk-accounts": {
     "de": "Massenkonten erstellen",
-    "en": "Create Bulk Accounts",
+    "en": "Create bulk accounts",
     "es": "Crear cuentas en lote",
     "fr": "Créer des comptes en masse",
     "km": "បង្កើតគណនីជាក្រុម",
@@ -2523,7 +2523,7 @@ export default {
   },
   "create-individual-account": {
     "de": "Einzelkonto erstellen",
-    "en": "Create Individual Account",
+    "en": "Create individual account",
     "es": "Crear cuenta individual",
     "fr": "Créer un compte individuel",
     "km": "បង្កើតគណនីបុគ្គល",
@@ -2562,7 +2562,7 @@ export default {
   },
   "create-new-sequence": {
     "de": "Neue Sequenz erstellen",
-    "en": "Create a new sequence",
+    "en": "Create new sequence",
     "es": "Crear una secuencia nueva",
     "fr": "Créer une nouvelle séquence",
     "km": "បង្កើតលំដាប់ថ្មី",
@@ -2653,7 +2653,7 @@ export default {
   },
   "csv-required-columns": {
     "de": "Erforderliche CSV-Spalten",
-    "en": "Csv Required Columns",
+    "en": "Required columns for CSV upload: Name, Nickname, Grade",
     "es": "Columnas obligatorias CSV",
     "fr": "Colonnes CSV obligatoires",
     "km": "ជួរឈរ CSV ដែលត្រូវការ",
@@ -3147,7 +3147,7 @@ export default {
   },
   "due-date-range": {
     "de": "Fälligkeitszeitraum",
-    "en": "Due Date Range",
+    "en": "Due date range",
     "es": "Rango de fechas de entrega",
     "fr": "Plage de dates d'échéance",
     "km": "ជួរថ្ងៃផុតកំណត់",
@@ -3173,7 +3173,7 @@ export default {
   },
   "duplicate-assignment": {
     "de": "Aufgabe duplizieren",
-    "en": "Duplicate Assignment",
+    "en": "Duplicate assignment",
     "es": "Duplicar tarea",
     "fr": "Dupliquer le devoir",
     "km": "ចម្លងការងារ",
@@ -3186,7 +3186,7 @@ export default {
   },
   "duplicate-assignment-description": {
     "de": "Beschreibung der duplizierten Aufgabe",
-    "en": "Duplicate Assignment Description",
+    "en": "A copy of this assignment will be created with all settings preserved. This duplicate copy will be saved as a draft.",
     "es": "Descripción de la tarea duplicada",
     "fr": "Description du devoir dupliqué",
     "km": "ការពិពណ៌នាការងារដែលចម្លង",
@@ -3264,7 +3264,7 @@ export default {
   },
   "edit-assignment": {
     "de": "Aufgabe bearbeiten",
-    "en": "Edit Assignment",
+    "en": "Edit assignment",
     "es": "Editar tarea",
     "fr": "Modifier le devoir",
     "km": "កែសម្រួលការងារ",
@@ -3303,7 +3303,7 @@ export default {
   },
   "edit-sequence-details": {
     "de": "Sequenzdetails bearbeiten",
-    "en": "Edit Sequence Details",
+    "en": "Edit sequence details",
     "es": "Editar detalles de la secuencia",
     "fr": "Modifier les détails de la séquence",
     "km": "កែសម្រួលព័ត៌មានលំដាប់",
@@ -3563,7 +3563,7 @@ export default {
   },
   "favorites": {
     "de": "Favoriten",
-    "en": "Favorites",
+    "en": "Favourites",
     "es": "Favoritos",
     "fr": "Favoris",
     "km": "សំណព្វ",
@@ -4382,7 +4382,7 @@ export default {
   },
   "last-login": {
     "de": "Letzte Anmeldung",
-    "en": "Last Login",
+    "en": "Last login",
     "es": "Último inicio de sesión",
     "fr": "Dernière connexion",
     "km": "ការចូលចុងក្រោយ",
@@ -4655,7 +4655,7 @@ export default {
   },
   "manage-student-accounts": {
     "de": "Schülerkonten verwalten",
-    "en": "Manage Student Accounts",
+    "en": "Manage student accounts",
     "es": "Gestionar cuentas de estudiantes",
     "fr": "Gérer les comptes élèves",
     "km": "គ្រប់គ្រងគណនីសិស្ស",
@@ -4668,7 +4668,7 @@ export default {
   },
   "manage-students-in": {
     "de": "Schüler verwalten in",
-    "en": "Manage Students In",
+    "en": "Manage students in:",
     "es": "Gestionar estudiantes en",
     "fr": "Gérer les élèves dans",
     "km": "គ្រប់គ្រងសិស្សក្នុង",
@@ -4694,7 +4694,7 @@ export default {
   },
   "manually-create-single-student": {
     "de": "Einzelnen Schüler manuell erstellen",
-    "en": "Manually Create Single Student",
+    "en": "Manually create student account",
     "es": "Crear un estudiante manualmente",
     "fr": "Créer un élève manuellement",
     "km": "បង្កើតសិស្សម្នាក់ដោយដៃ",
@@ -4863,7 +4863,7 @@ export default {
   },
   "my-students": {
     "de": "MEINE SCHÜLERINNEN UND SCHÜLER",
-    "en": "MY STUDENTS",
+    "en": "My Students",
     "es": "Mis alumnas",
     "fr": "MES ELEVES",
     "km": "សិស្សរបស់ខ្ញុំ",
@@ -5292,7 +5292,7 @@ export default {
   },
   "no-items-yet": {
     "de": "Noch keine Elemente",
-    "en": "No Items Yet",
+    "en": "No items yet",
     "es": "Aún no hay elementos",
     "fr": "Pas encore d'éléments",
     "km": "មិនទាន់មានធាតុ",
@@ -5526,7 +5526,7 @@ export default {
   },
   "not-set": {
     "de": "Nicht festgelegt",
-    "en": "Not Set",
+    "en": "Not set",
     "es": "No establecido",
     "fr": "Non défini",
     "km": "មិនបានកំណត់",
@@ -5643,7 +5643,7 @@ export default {
   },
   "organise-students-into-groups": {
     "de": "Schüler in Gruppen organisieren",
-    "en": "Organise Students Into Groups",
+    "en": "Organise students into groups",
     "es": "Organizar estudiantes en grupos",
     "fr": "Organiser les élèves en groupes",
     "km": "រៀបចំសិស្សជាក្រុម",
@@ -5656,7 +5656,7 @@ export default {
   },
   "organize-content-into-learning-sequences": {
     "de": "Inhalte in Lernsequenzen organisieren",
-    "en": "Organize Content Into Learning Sequences",
+    "en": "Organise content into learning sequences",
     "es": "Organizar contenido en secuencias de aprendizaje",
     "fr": "Organiser le contenu en séquences d'apprentissage",
     "km": "រៀបចំមាតិកាជាលំដាប់សិក្សា",
@@ -5799,7 +5799,7 @@ export default {
   },
   "pila-content": {
     "de": "PILA-Inhalte",
-    "en": "Pila Content",
+    "en": "PILA content",
     "es": "Contenido PILA",
     "fr": "Contenu PILA",
     "km": "មាតិកា PILA",
@@ -5929,7 +5929,7 @@ export default {
   },
   "preview-sequence": {
     "de": "Sequenz vorschauen",
-    "en": "Preview Sequence",
+    "en": "Preview sequence",
     "es": "Vista previa de la secuencia",
     "fr": "Aperçu de la séquence",
     "km": "មើលលំដាប់ជាមុន",
@@ -6085,7 +6085,7 @@ export default {
   },
   "publication-status": {
     "de": "Veröffentlichungsstatus",
-    "en": "Publication Status",
+    "en": "Publication status",
     "es": "Estado de publicación",
     "fr": "Statut de publication",
     "km": "ស្ថានភាពផ្សាយ",
@@ -6618,7 +6618,7 @@ export default {
   },
   "rows-per-page": {
     "de": "Zeilen pro Seite",
-    "en": "Rows Per Page",
+    "en": "Rows per page",
     "es": "Filas por página",
     "fr": "Lignes par page",
     "km": "ជួរក្នុងមួយទំព័រ",
@@ -7164,7 +7164,7 @@ export default {
   },
   "sequence-title": {
     "de": "Sequenztitel",
-    "en": "Sequence Title",
+    "en": "Sequence title",
     "es": "Título de la secuencia",
     "fr": "Titre de la séquence",
     "km": "ចំណងជើងលំដាប់",
@@ -7229,7 +7229,7 @@ export default {
   },
   "set-publication-date": {
     "de": "Legen Sie fest, wann diese Aufgabe für Schüler veröffentlicht wird",
-    "en": "Set when this assignment will be published to students",
+    "en": "Set a date/time for publication to students",
     "es": "Establecer cuándo se publicará esta tarea para los estudiantes",
     "fr": "Définir quand ce devoir sera publié aux élèves",
     "km": "កំណត់ពេលដែលកិច្ចការនេះនឹងត្រូវបានផ្សព្វផ្សាយទៅសិស្ស",
@@ -7294,7 +7294,7 @@ export default {
   },
   "show-archived": {
     "de": "Archiviert anzeigen",
-    "en": "Show Archived",
+    "en": "Show archived",
     "es": "Mostrar Archivado",
     "fr": "Afficher les éléments archivés",
     "km": "បង្ហាញឯកសារចាស់",
@@ -7320,7 +7320,7 @@ export default {
   },
   "show-items": {
     "de": "Elemente anzeigen",
-    "en": "Show Items",
+    "en": "Show items",
     "es": "Mostrar elementos",
     "fr": "Afficher les éléments",
     "km": "បង្ហាញធាតុ",
@@ -7593,7 +7593,7 @@ export default {
   },
   "student-and-group-management": {
     "de": "Schüler- und Gruppenverwaltung",
-    "en": "Student And Group Management",
+    "en": "Student and Group Management",
     "es": "Gestión de estudiantes y grupos",
     "fr": "Gestion des élèves et des groupes",
     "km": "ការគ្រប់គ្រងសិស្ស និងក្រុម",
@@ -7710,7 +7710,7 @@ export default {
   },
   "students-can-start-right-away": {
     "de": "Schüler können sofort beginnen",
-    "en": "Students Can Start Right Away",
+    "en": "Students can start right away",
     "es": "Los estudiantes pueden empezar de inmediato",
     "fr": "Les élèves peuvent commencer tout de suite",
     "km": "សិស្សអាចចាប់ផ្តើមភ្លាមៗ",
@@ -7762,7 +7762,7 @@ export default {
   },
   "students-in-group": {
     "de": "Schüler in der Gruppe",
-    "en": "Students In Group",
+    "en": "Students in group",
     "es": "Estudiantes en el grupo",
     "fr": "Élèves dans le groupe",
     "km": "សិស្សក្នុងក្រុម",
@@ -8594,7 +8594,7 @@ export default {
   },
   "upload-csv-or-enter-multiple": {
     "de": "CSV hochladen oder mehrere eingeben",
-    "en": "Upload Csv Or Enter Multiple",
+    "en": "Upload CSV file or manually create multiple student accounts",
     "es": "Subir CSV o introducir varios",
     "fr": "Téléverser un CSV ou saisir plusieurs",
     "km": "ផ្ទុក CSV ឬបញ្ចូលច្រើន",
@@ -8672,7 +8672,7 @@ export default {
   },
   "view-assignment-details": {
     "de": "Aufgabendetails anzeigen",
-    "en": "View Assignment Details",
+    "en": "View assignment details",
     "es": "Ver detalles de la tarea",
     "fr": "Voir les détails du devoir",
     "km": "មើលព័ត៌មានការងារ",
@@ -8711,7 +8711,7 @@ export default {
   },
   "view-sequence-content": {
     "de": "Sequenzinhalt anzeigen",
-    "en": "View Sequence Content",
+    "en": "View sequence content",
     "es": "Ver contenido de la secuencia",
     "fr": "Voir le contenu de la séquence",
     "km": "មើលមាតិកាលំដាប់",
@@ -9384,5 +9384,174 @@ export default {
     "pt": "PILA",
     "sk": "PILA",
     "th": "PILA"
+  },
+  "assignment-content": {
+    "de": "Assignment content",
+    "en": "Assignment content",
+    "es": "Assignment content",
+    "fr": "Assignment content",
+    "km": "Assignment content",
+    "lv": "Assignment content",
+    "nl": "Assignment content",
+    "pl": "Assignment content",
+    "pt": "Assignment content",
+    "sk": "Assignment content",
+    "th": "Assignment content"
+  },
+  "favourites": {
+    "de": "Favourites",
+    "en": "Favourites",
+    "es": "Favourites",
+    "fr": "Favourites",
+    "km": "Favourites",
+    "lv": "Favourites",
+    "nl": "Favourites",
+    "pl": "Favourites",
+    "pt": "Favourites",
+    "sk": "Favourites",
+    "th": "Favourites"
+  },
+  "this-student-is-already-in-the-group": {
+    "de": "This student is already in the group {group}",
+    "en": "This student is already in the group {group}",
+    "es": "This student is already in the group {group}",
+    "fr": "This student is already in the group {group}",
+    "km": "This student is already in the group {group}",
+    "lv": "This student is already in the group {group}",
+    "nl": "This student is already in the group {group}",
+    "pl": "This student is already in the group {group}",
+    "pt": "This student is already in the group {group}",
+    "sk": "This student is already in the group {group}",
+    "th": "This student is already in the group {group}"
+  },
+  "n-students-selected": {
+    "de": "{num} student(s) selected",
+    "en": "{num} student(s) selected",
+    "es": "{num} student(s) selected",
+    "fr": "{num} student(s) selected",
+    "km": "{num} student(s) selected",
+    "lv": "{num} student(s) selected",
+    "nl": "{num} student(s) selected",
+    "pl": "{num} student(s) selected",
+    "pt": "{num} student(s) selected",
+    "sk": "{num} student(s) selected",
+    "th": "{num} student(s) selected"
+  },
+  "add-to-n-group": {
+    "de": "Add to {num} group",
+    "en": "Add to {num} group",
+    "es": "Add to {num} group",
+    "fr": "Add to {num} group",
+    "km": "Add to {num} group",
+    "lv": "Add to {num} group",
+    "nl": "Add to {num} group",
+    "pl": "Add to {num} group",
+    "pt": "Add to {num} group",
+    "sk": "Add to {num} group",
+    "th": "Add to {num} group"
+  },
+  "add-to-n-groups": {
+    "de": "Add to {num} groups",
+    "en": "Add to {num} groups",
+    "es": "Add to {num} groups",
+    "fr": "Add to {num} groups",
+    "km": "Add to {num} groups",
+    "lv": "Add to {num} groups",
+    "nl": "Add to {num} groups",
+    "pl": "Add to {num} groups",
+    "pt": "Add to {num} groups",
+    "sk": "Add to {num} groups",
+    "th": "Add to {num} groups"
+  },
+  "use-checkboxes-or-drag-students": {
+    "de": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "en": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "es": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "fr": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "km": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "lv": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "nl": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "pl": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "pt": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "sk": "Use checkboxes or drag students between panels to add/remove them from the group.",
+    "th": "Use checkboxes or drag students between panels to add/remove them from the group."
+  },
+  "loading-game": {
+    "de": "Loading game",
+    "en": "Loading game",
+    "es": "Loading game",
+    "fr": "Loading game",
+    "km": "Loading game",
+    "lv": "Loading game",
+    "nl": "Loading game",
+    "pl": "Loading game",
+    "pt": "Loading game",
+    "sk": "Loading game",
+    "th": "Loading game"
+  },
+  "item-n-of-n": {
+    "de": "Item {current} of {total}",
+    "en": "Item {current} of {total}",
+    "es": "Item {current} of {total}",
+    "fr": "Item {current} of {total}",
+    "km": "Item {current} of {total}",
+    "lv": "Item {current} of {total}",
+    "nl": "Item {current} of {total}",
+    "pl": "Item {current} of {total}",
+    "pt": "Item {current} of {total}",
+    "sk": "Item {current} of {total}",
+    "th": "Item {current} of {total}"
+  },
+  "no-items-in-this-sequence": {
+    "de": "No items in this sequence",
+    "en": "No items in this sequence",
+    "es": "No items in this sequence",
+    "fr": "No items in this sequence",
+    "km": "No items in this sequence",
+    "lv": "No items in this sequence",
+    "nl": "No items in this sequence",
+    "pl": "No items in this sequence",
+    "pt": "No items in this sequence",
+    "sk": "No items in this sequence",
+    "th": "No items in this sequence"
+  },
+  "add-to-assignment-or-sequence": {
+    "de": "Add to assignment or sequence",
+    "en": "Add to assignment or sequence",
+    "es": "Add to assignment or sequence",
+    "fr": "Add to assignment or sequence",
+    "km": "Add to assignment or sequence",
+    "lv": "Add to assignment or sequence",
+    "nl": "Add to assignment or sequence",
+    "pl": "Add to assignment or sequence",
+    "pt": "Add to assignment or sequence",
+    "sk": "Add to assignment or sequence",
+    "th": "Add to assignment or sequence"
+  },
+  "assigned-groups": {
+    "de": "Assigned groups",
+    "en": "Assigned groups",
+    "es": "Assigned groups",
+    "fr": "Assigned groups",
+    "km": "Assigned groups",
+    "lv": "Assigned groups",
+    "nl": "Assigned groups",
+    "pl": "Assigned groups",
+    "pt": "Assigned groups",
+    "sk": "Assigned groups",
+    "th": "Assigned groups"
+  },
+  "n-rows-selected": {
+    "de": "({rows}) rows selected",
+    "en": "({rows}) rows selected",
+    "es": "({rows}) rows selected",
+    "fr": "({rows}) rows selected",
+    "km": "({rows}) rows selected",
+    "lv": "({rows}) rows selected",
+    "nl": "({rows}) rows selected",
+    "pl": "({rows}) rows selected",
+    "pt": "({rows}) rows selected",
+    "sk": "({rows}) rows selected",
+    "th": "({rows}) rows selected"
   }
 }

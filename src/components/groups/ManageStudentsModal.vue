@@ -15,7 +15,7 @@
       <!-- Info banner -->
       <div class="info-banner">
         <LucideIcon name="info" :size="16" />
-        <span>Drag students between panels to add/remove them from the group. Alternatively, use checkboxes to select multiple students and move them to the groups.</span>
+        <span>{{ t('use-checkboxes-or-drag-students') }}</span>
       </div>
 
       <div class="panels">
@@ -45,7 +45,7 @@
             >
               <PUnifiedFilterSection
                 id="available-status"
-                :label="t('status')"
+                :label="t('show-archived')"
                 icon="badge-check"
                 :options="statusFilterOptions"
                 v-model="availableStatusFilters"
