@@ -83,6 +83,7 @@
 
 <script setup>
   import { ref, reactive, watch, computed } from 'vue'
+  import { useStore } from 'vuex'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Filters as TagFilters } from '@knowlearning/tags'
   import ContentMetadataPanel from './content-metadata-panel.vue'
@@ -93,6 +94,21 @@
   import setTagging from '../set-tagging.js'
   import TaggingModal from './tagging-modal.vue'
   import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '../constants.js'
+
+  // use build local name map for alphabetical sorting
+  import getName from '../name-and-translation-for-content.js'
+  async function getDisplayNames(itemIds, language) {
+    const entries = await Promise.all(
+      itemIds.map(async itemId => [
+        itemId,
+        (await getName(itemId, language)) || ''
+      ])
+    )
+
+    return Object.fromEntries(entries)
+  }
+
+  const store = useStore()
 
   const DEFAULT_CONTENT_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
   const SIMPLIFIED_TAG_ROOT = 'f760dad0-f133-11ee-804e-27f76a81958c'
@@ -118,6 +134,9 @@
 
   const selectedTagFilters = ref([])
 
+  const displayNames = ref({})
+  const selectedLanguage = computed(() => store.getters.language())
+
   const myContent = reactive(
     await (
       Agent
@@ -126,13 +145,30 @@
     )
   )
 
-  const currentContentList = computed(() => {
+  const unsortedContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
     if (selectedTagFilters.value.length === 0) {
       l = [...l, ...myContent]
     }
     return l
   })
+
+  const currentContentList = computed(() => {
+    return [...unsortedContentList.value].sort((a, b) =>
+      (displayNames.value[a] || '').localeCompare(
+        displayNames.value[b] || '',
+        selectedLanguage.value
+      )
+    )
+  })
+
+  watch(
+    [unsortedContentList, selectedLanguage],
+    async ([ids, language]) => {
+      displayNames.value = await getDisplayNames(ids, language)
+    },
+    { immediate: true }
+  )
 
   watch(selectedTagFilters, fetchTaggings)
 
