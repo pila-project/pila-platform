@@ -269,8 +269,6 @@
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '../../constants.js'
   import { candliGamesForSequenceItems } from '../../candli-games.js'
 
-  let idToCreated = {}
-
   export default {
     components: {
       PILAModal,
@@ -289,6 +287,7 @@
     },
     data() {
       return {
+        idToCreated: {},
         current: null,
         showEditModal: false,
         showArchived: false,
@@ -304,8 +303,10 @@
       }
     },
     mounted() {
-      this.assignable_items.forEach(async id => {
-        idToCreated[id] = await Agent.metadata(id).then(md => md.created)
+      // fetch created date md for sorting
+      const allAssignments = [...this.assignable_items, ...this.archived_assignable_items]
+      allAssignments.forEach(async id => {
+        this.idToCreated[id] = await Agent.metadata(id).then(md => md.created)
       })
       window.addEventListener('pagehide', this.handlePageHide)
     },
@@ -320,8 +321,10 @@
     },
     computed: {
       assignmentsForActiveTable() {
-        if (this.showArchived) return [...this.assignable_items, ...this.archived_assignable_items]
-        else return this.assignable_items
+        const assignments = this.showArchived
+          ? [...this.assignable_items, ...this.archived_assignable_items]
+          : [...this.assignable_items]
+        return assignments.sort((a, b) => this.idToCreated[b] - this.idToCreated[a])
       },
       assignable_items() {
         return this.$store.getters['pila_tags/withTag'](this.assignable_item_type)
@@ -339,7 +342,7 @@
           {
             title: this.t('assignment-date'),
             key: 'assignment_date',
-            sortRaw: (a, b) => idToCreated[a] - idToCreated[b]
+            sortRaw: (a, b) => this.idToCreated[a] - this.idToCreated[b]
           }
         ]
 
@@ -399,6 +402,9 @@
         const content_id = uuid()
         const assignableItem = await Agent.state(content_id)
         assignableItem.name = this.t('new-assignment')
+        // the following ts is a temporary shim for sorting. roughly correct
+        // and will be populated from created md on subsequent loads
+        this.idToCreated[content_id] = Date.now()
         this.current = content_id
         this.$store.dispatch('pila_tags/tag', { content_id, tag_type: this.assignable_item_type })
         this.showEditModal = true
@@ -415,7 +421,7 @@
         return this.$store.getters['assignments/assignedGroups'](id, this.assignment_type, false)
       },
       async preview(id) {
-        const { content } = await Agent.state(this.current)
+        const { content } = await Agent.state(id)
         this.previewing = content
       },
       primaryDashboardType() {
