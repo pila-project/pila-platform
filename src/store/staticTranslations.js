@@ -216,8 +216,8 @@ export default {
         "lv": "Saskaņā ar PILA personas datu aizsardzības paziņojumu vai īpašajām piekrišanas prasībām, ja piedalāties pētnieciskajā pētījumā, izmantojot PILA, lūdzu, atzīmējiet šo izvēles rūtiņu, lai apstiprinātu, ka esat savācis vecāku/aizbildņu un skolēnu piekrišanu, kā to pieprasa jūsu vietējie vai valsts tiesību akti.",
         "nl": "In overeenstemming met de PILA-kennisgeving inzake de bescherming van persoonsgegevens of de specifieke toestemmingsvereisten als u deelneemt aan een onderzoek via PILA, vinkt u dit vakje aan om te bevestigen dat u de toestemming van ouders/voogd en studenten heeft verzameld, zoals vereist door uw lokale of nationale wetgeving.",
         "pl": "Zgodnie z informacją o ochronie danych osobowych PILA lub konkretnymi wymaganiami zgody, jeśli bierzesz udział w badaniu za pośrednictwem PILA, zaznacz to pole, aby potwierdzić, że uzyskałeś zgodę rodzica/opiekuna i ucznia zgodnie z lokalnymi lub krajowymi przepisami.",
-        "pt": "De acordo com o Aviso de Proteção de Dados Pessoais do PILA ou com os requisitos de consentimento específicos, se você estiver participando de um estudo de pesquisa por meio do PILA, marque esta caixa para confirmar que você obteve o consentimento dos pais/responsáveis ​​e do aluno, conforme exigido pelas leis locais ou nacionais.",
-        "sk": "Ak sa zúčastňujete výskumnej štúdie prostredníctvom PILA, riaďte sa oznámením o ochrane osobných údajov PILA a požiadavkami na súhlas.\nZačiarknutím políčka potvrdzujete, že ste získali súhlas rodiča alebo zákonného zástupcu a žiaka podľa miestnych alebo národných právnych predpisov.",
+        "pt": "De acordo com o Aviso de Proteção de Dados Pessoais do PILA ou com os requisitos de consentimento específicos, se você estiver participando de um estudo de pesquisa por meio do PILA, marque esta caixa para confirmar que você obteve o consentimento dos pais/responsáveis e do aluno, conforme exigido pelas leis locais ou nacionais.",
+        "sk": "Ak sa zúčastňujete štúdie Sila spätnej väzby na platforme PILA, riaďte sa pokynmi koordinačného tímu. Všetci zapojení žiaci/žiačky musia mať platný Informovaný súhlas so zapojením sa do štúdie a Súhlas so spracovaním osobných údajov, ktorý udelil ich rodič alebo zákonný zástupca.",
         "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA หรือข้อกำหนดการให้ความยินยอมเฉพาะกรณีที่ท่านเข้าร่วมการศึกษาวิจัยผ่านทาง PILA กรุณาติ๊กเครื่องหมายในช่องนี้เพื่อยืนยันว่าท่านได้รับความยินยอมจากผู้ปกครอง/ผู้ดูแล และนักเรียน ตามที่กฎหมายท้องถิ่นหรือกฎหมายระดับชาติของท่านกำหนดเรียบร้อยแล้ว"
     },
     "new-group": {
@@ -516,7 +516,7 @@ export default {
         "nl": "Door mijn docentaccount aan te maken, ga ik akkoord met de verwerking van mijn persoonsgegevens zoals beschreven in de Privacyverklaring.",
         "pl": "Tworząc moje konto nauczyciela, wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z opisem zawartym w Informacji o ochronie danych.",
         "pt": "Ao criar a minha conta de professor, concordo com o tratamento dos meus dados pessoais conforme descrito no Aviso de Proteção de Dados.",
-        "sk": "Vytvorením svojho učiteľského účtu súhlasím so spracúvaním svojich osobných údajov tak, ako je opísané v Oznámení o ochrane osobných údajov.",
+        "sk": "Vytvorením svojho učiteľského účtu súhlasím so spracúvaním osobných údajov tak, ako je to opísané v Súhlase učiteľa/učiteľky so spracovaním osobných údajov.",
         "th": "การสร้างบัญชีครูของฉันถือว่าฉันยินยอมให้มีการประมวลผลข้อมูลส่วนบุคคลของฉันตามที่อธิบายไว้ในประกาศการคุ้มครองข้อมูลส่วนบุคคล"
     },
     "you-currently-have-no-teachers": {
@@ -633,7 +633,7 @@ export default {
         "nl": "Stuur uw volledige naam, school/instelling en dit anonieme ID naar edu.pila@oecd.org om toegang te krijgen tot PILA.",
         "pl": "Prosimy o przesłanie pełnego imienia i nazwiska, szkoły/instytucji oraz anonimowego identyfikatora na adres edu.pila@oecd.org w celu uzyskania dostępu do PILA.",
         "pt": "Por favor, envie seu nome completo, escola/instituição e esta identificação anônima para edu.pila@oecd.org para obter acesso ao PILA.",
-        "sk": "Pošlite prosím svoje celé meno, školu/inštitúciu a toto anonymné ID na aitutor@minedu.sk, aby ste získali prístup k PILA.",
+        "sk": "Pošlite prosím svoje celé meno, školu a toto anonymné ID na aitutor@minedu.sk, aby ste získali prístup k PILA.",
         "th": "กรุณาส่งชื่อเต็มของคุณ, ชื่อโรงเรียน/สถาบัน และไอดีนิรนามนี้ไปที่ edu.pila@oecd.org เพื่อขอรับสิทธิ์ในการเข้า PILA"
     },
     "link-students-to-you": {
@@ -997,7 +997,7 @@ export default {
         "nl": "Servicevoorwaarden en mededeling over gegevensbescherming",
         "pl": "Regulamin i Informacja o ochronie danych",
         "pt": "Termos de Serviço e Aviso de Proteção de Dados",
-        "sk": "Zmluvné podmienky a Oznámenie o ochrane osobných údajov",
+        "sk": "Oznámenie o ochrane osobných údajov",
         "th": "ประกาศ เรื่อง ข้อกำหนดในการให้บริการและการรักษาความปลอดภัยของข้อมูล"
     },
     "share-this-link-with-your-students": {
@@ -1036,7 +1036,7 @@ export default {
         "nl": "Klik hier om opnieuw te laden zodra u een goedkeuringsbevestiging ontvangt",
         "pl": "Kliknij tutaj, aby odświeżyć po otrzymaniu potwierdzenia",
         "pt": "Clique aqui para recarregar assim que receber a confirmação de aprovação",
-        "sk": "Po obdržaní potvrdenia o schválení kliknite sem, aby ste stránku znovu načítali",
+        "sk": "Po potvrdení o schválení Vášho účtu znovu načítajte stránku, aby ste sa prihlásili.",
         "th": "คลิ๊กที่นี่เพื่อโหลดอีกครั้ง หลังจากที่คุณได้รับการยืนยันคำอนุมัติ"
     },
     "you-have-joined-this-teacher": {
@@ -1634,7 +1634,7 @@ export default {
         "nl": "Kennisgeving over gegevensbescherming voor docenten",
         "pl": "Informacja o ochronie danych dla nauczycieli",
         "pt": "Aviso de proteção de dados para professores",
-        "sk": "Oznámenie o ochrane osobných údajov pre učiteľov",
+        "sk": "Súhlas učiteľa/učiteľky so spracovaním osobných údajov",
         "th": "ประกาศ เรื่อง การรักษาความปลอดภัยของข้อมูล (Data Protection Notice) สำหรับครู"
     },
     "supervisor": {
@@ -2531,7 +2531,7 @@ export default {
         "nl": "Stappen om te reproduceren",
         "pl": "Kroki do odtworzenia",
         "pt": "Etapas para reproduzir",
-        "sk": "Popis reprodukcie chyby",
+        "sk": "Popíšte, kedy sa chyba objavila (čo jej predchádzalo, čo ste práve robili)",
         "th": "ขั้นตอนในการทำซ้ำ"
     },
     "created": {
