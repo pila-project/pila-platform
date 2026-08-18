@@ -11,7 +11,7 @@
             @click="add"
           />
           <IconButton
-            v-if="type === 'class'"
+            v-if="type === 'class' && !isSimplifiedDomain"
             icon="link"
             background="#FFC442"
             :text="t('link-students-to-you')"
@@ -26,7 +26,7 @@
           />
         </div>
         <div class="class-list">
-          <div style="display: flex; justify-content: space-between; align-items: flex-top; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
             <h3 style="color: #2E32DB;">{{ GET_TEXT.LIST_HEADER }}</h3>
             <ShowArchivedToggle v-model="showArchived" />
           </div>
@@ -215,6 +215,7 @@
   import CreateEditGroupModal from './CreateEditGroupModal.vue'
   import DecryptedName from '../decrypted-name.vue'
   import * as encryption from '../../encryption.js'
+  import { SIMPLIFIED_STUDY_DOMAINS } from '../../constants.js'
 
   export default {
     components: {
@@ -234,7 +235,6 @@
       const namePassword = localStorage.getItem(`zkek-${this.$store.state.user}`) || ''
       return {
         current: null,
-        host: window.location.host,
         showArchived: false,
         showLinkStudentModal: false,
         showEditClassModal: false,
@@ -253,6 +253,9 @@
       }
     },
     computed: {
+      isSimplifiedDomain() {
+        return SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+      },
       GET_TEXT() {
         if (this.type === 'class') {
           return {
