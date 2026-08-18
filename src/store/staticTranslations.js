@@ -275,7 +275,7 @@ export default {
     "role": {
         "de": "Rolle",
         "en": "Role",
-        "es": "Role",
+        "es": "Rol",
         "fr": "Rôle",
         "km": "តួនាទី",
         "lv": "Loma",
@@ -351,17 +351,17 @@ export default {
         "th": "นักเรียนในชั้น"
     },
     "it-looks-like-you-do-not-have-any-assignments-pl": {
-        "de": "Es sieht so aus, als hättest Du keine Aufgaben! Bitte sprich mit Deiner Lehrkraft.",
-        "en": "It looks like you do not have any assignments! Please speak to your teacher.",
-        "es": "¡Parece que no tienes ninguna tarea! Por favor habla con tu maestro.",
-        "fr": "Il semble que tu n'as aucune activité à faire ! Parles-en à ton maître ou à ta maîtresse.",
-        "km": "មើលទៅដូចជាអ្នកមិនមានការងារណាមួយ! សូមពិភាក្សាជាមួយគ្រូរបស់អ្នក។",
-        "lv": "Šķiet, ka jums nav neviena uzdevuma! Lūdzu, runājiet ar savu skolotāju.",
-        "nl": "Het lijkt erop dat je geen opdrachten hebt! Praat alsjeblieft met je leraar.",
-        "pl": "Wygląda na to, że nie masz żadnych zadań! Porozmawiaj ze swoim nauczycielem.",
-        "pt": "Parece que você não tem nenhuma tarefa! Por favor, fale com seu professor.",
-        "sk": "Zdá sa, že nemáš žiadne úlohy! Porozprávaj sa so svojím učiteľom.",
-        "th": "ไม่มีกิจกรรมที่ได้รับมอบหมายในขณะนี้ กรุณาสอบถามกับครูผู้สอน"
+        "de": "Es sieht so aus, als hättest du keine Aufgaben! Bitte wende dich an die Person, die dir die Aufgaben zuweist.",
+        "en": "It looks like you do not have any assignments! Please check with the person who assigns them to you.",
+        "es": "¡Parece que no tienes ninguna tarea! Consulta con la persona que te asigna las tareas.",
+        "fr": "Il semble que tu n'aies aucune activité à faire ! Renseigne-toi auprès de la personne qui te les attribue.",
+        "km": "មើលទៅដូចជាអ្នកមិនមានកិច្ចការណាមួយទេ! សូមសួរអ្នកដែលជាអ្នកប្រគល់កិច្ចការឱ្យអ្នក។",
+        "lv": "Šķiet, ka jums nav neviena uzdevuma! Lūdzu, sazinieties ar personu, kas jums piešķir uzdevumus.",
+        "nl": "Het lijkt erop dat je geen opdrachten hebt! Vraag het aan de persoon die de opdrachten aan je toewijst.",
+        "pl": "Wygląda na to, że nie masz żadnych zadań! Skontaktuj się z osobą, która przydziela Ci zadania.",
+        "pt": "Parece que você não tem nenhuma tarefa! Consulte a pessoa que atribui as tarefas a você.",
+        "sk": "Zdá sa, že nemáš žiadne úlohy! Obráť sa na osobu, ktorá ti úlohy prideľuje.",
+        "th": "ดูเหมือนว่าคุณจะไม่มีงานที่ได้รับมอบหมาย! โปรดสอบถามผู้ที่มอบหมายงานให้คุณ"
     },
     "assignment-details": {
         "de": "AUFGABENDETAILS",
@@ -377,7 +377,7 @@ export default {
         "th": "รายละเอียดกิจกรรมที่ได้รับมอบหมาย"
     },
     "you-are-about-to-create-a-student-account-on-pil": {
-        "de": "Du bist dabei, ein „Schülerin/Schüler“-Konto auf PILA (der Plattform für innovative Lernbewertungen) zu erstellen. Das bedeutet, dass Du damit einverstanden bist, dass Know Learning, die PILA-Entwicklerinnen und -Entwickler, Daten über Deine Aktivitäten sammeln und speichern können. Du stimmst außerdem zu, dass einige der Aktivitätsdaten von Google Analytics, Google Cloud Platform und OpenAI verarbeitet (aber niemals gespeichert) werden dürfen, damit die Plattform funktioniert. OpenAI wird beispielsweise NIEMALS Deine Antworten auf Fragebögen erhalten.",
+        "de": "Du bist dabei, ein „Schülerin/Schüler“-Konto auf PILA (der Plattform für innovative Lernbewertungen) zu erstellen. Das bedeutet, dass du damit einverstanden bist, dass Know Learning, die PILA-Entwicklerinnen und -Entwickler, Daten über deine Aktivitäten sammeln und speichern können. Du stimmst außerdem zu, dass einige der Aktivitätsdaten von Google Analytics, Google Cloud Platform und OpenAI verarbeitet (aber niemals gespeichert) werden dürfen, damit die Plattform funktioniert. OpenAI wird beispielsweise NIEMALS deine Antworten auf Fragebögen erhalten.",
         "en": "You are about to create a “student” account on PILA (the Platform for Innovative Learning Assessments). ​  This means you agree that Know Learning, the PILA developers, can collect and store data about your activity.​ You also agree that some of the activity data may be processed (but never stored) by Google Cloud Platform and OpenAI, to make the platform work. For example, OpenAI will NEVER receive your responses to questionnaires.",
         "es": "Está a punto de crear una cuenta de \"estudiante\" en PILA (la Plataforma para evaluaciones de aprendizaje innovadoras). ​ Esto significa que acepta que Know Learning, los desarrolladores de PILA, pueden recopilar y almacenar datos sobre su actividad. También acepta que algunos de los datos de la actividad pueden ser procesados ​​(pero nunca almacenados) por Google Analytics, Google Cloud Platform y OpenAI, para que la plataforma funcione. Por ejemplo, OpenAI NUNCA recibirá sus respuestas a los cuestionarios.",
         "fr": "Tu es sur le point de créer un compte “élève” sur PILA (la Plateforme pour les Évaluations Innovantes de l’Apprentissage). Cela signifie que tu acceptes que Know Learning, les développeurs de PILA, puissent collecter et stocker des données sur ton activité. Tu acceptes également que certaines de ces données puissent être traitées (mais jamais stockées) par Google Analytics, Google Cloud Platform et OpenAI afin de faire fonctionner la plateforme. Par exemple, OpenAI ne recevra JAMAIS tes réponses aux questionnaires.",
@@ -433,7 +433,7 @@ export default {
         "en": "Description is Required",
         "es": "Se requiere descripción",
         "fr": "Une description est requise",
-        "km": "ដោយប្រព័ន្ធសុវត្ថិភាពទិន្នន័យ PILA គ្រូរបស់អ្នកនឹងទទួលទិន្នន័យរបស់អ្នកតាមផ្ទាំងឌីជីថល។",
+        "km": "តម្រូវឱ្យមានការពិពណ៌នា",
         "lv": "Nepieciešams apraksts",
         "nl": "Beschrijving is vereist",
         "pl": "Wymagany jest opis",
@@ -1413,7 +1413,7 @@ export default {
         "nl": "Om verwijdering van gegevens aan te vragen, kunt u een e-mail sturen naar data-requests@knowlearning.org",
         "pl": "Aby poprosić o usunięcie danych, wyślij e-mail na adres data-requests@knowlearning.org",
         "pt": "Para solicitar a exclusão de dados, envie um e-mail para data-requests@knowlearning.org",
-        "sk": "Ak chcete požiadať o vymazanie údajov, pošlite e-mail na adresu data-requests@knowlearning.org",
+        "sk": "Ak chcete požiadať o vymazanie údajov, pošlite e-mail na adresu aitutor@minedu.sk",
         "th": "การร้องขอสำหรับการลบข้อมูล โปรดส่งอีเมล์ไปที่ data-requests@knowlearning.org"
     },
     "upload": {
@@ -1582,7 +1582,7 @@ export default {
         "nl": "Selecteer Nieuw",
         "pl": "Wybierz nowy",
         "pt": "Selecione Novo",
-        "sk": "Vyberte položku Nový",
+        "sk": "Vyberte novú položku",
         "th": "คลิกที่นี่! เพื่อเลือกกิจกรรม"
     },
     "customised-items": {
@@ -2002,9 +2002,9 @@ export default {
         "th": "ไฟล์"
     },
     "know-learning-will-keep-this-data-safe-and-wont": {
-        "de": "Know Learning verwahrt diese Daten sicher und gibt sie nicht an Dritte weiter, außer an zugelassene Forscherinnen und Forscher. Deine Lehrkraft sieht einige Informationen über Deinen Fortschritt in ihrem „Lehrkraft“-Konto. Sie wird Deine Gespräche mit KI-fähigen Chatbots NICHT sehen. Bitte gib in den Chatbot KEINE Informationen ein, die jemandem helfen könnten, Dich zu identifizieren, wie z. B. Deinen Namen oder Standort. Deine Lehrkraft ist die Einzige, die sehen kann, wer Du sind. Wenn Du mit irgendetwas hier Geschriebenem nicht einverstanden bist, sprich bitte mit Deiner Lehrkraft und erstelle KEIN Schülerinnen-/Schülerkonto auf PILA.",
-        "en": "Know Learning will keep this data safe and won’t share it with anyone outside, except for approved researchers.  Your teacher will see some information about your progress in their “teacher” account.  They will NOT see your conversations with AI-enabled chatbots.  Please DO NOT input into the chatbot any information that could help someone identify who you are, such as your name or location. ​ Your teacher is the only one who will be able to see who you are.  If you do not agree with anything written here, please speak with your teacher and DO NOT create a student account on PILA.",
-        "es": "Know Learning mantendrá estos datos seguros y no los compartirá con nadie externo, excepto con investigadores aprobados. Su maestro verá información sobre su progreso en su cuenta de \"maestro\". NO verán sus conversaciones con chatbots habilitados para IA. NO ingrese en el chatbot ninguna información que pueda ayudar a alguien a identificar quién es usted, como su nombre o ubicación. ​ Tu profesor es el único que podrá ver quién eres. Si no está de acuerdo con algo escrito aquí, hable con su maestro y NO cree una cuenta de estudiante en PILA.",
+        "de": "Know Learning verwahrt diese Daten sicher und gibt sie nicht an Dritte weiter, außer an zugelassene Forscherinnen und Forscher. Deine Lehrkraft sieht einige Informationen über deinen Fortschritt in ihrem „Lehrkraft“-Konto. Sie wird deine Gespräche mit KI-fähigen Chatbots NICHT sehen. Bitte gib in den Chatbot KEINE Informationen ein, die jemandem helfen könnten, Dich zu identifizieren, wie z. B. Deinen Namen oder Standort. Deine Lehrkraft ist die Einzige, die sehen kann, wer du sind. Wenn du mit irgendetwas hier Geschriebenem nicht einverstanden bist, sprich bitte mit Deiner Lehrkraft und erstelle KEIN Schülerinnen-/Schülerkonto auf PILA.",
+        "en": "Know Learning will keep this data safe and won’t share it with anyone outside, except for approved researchers.  Your teacher will see some information about your progress in their “teacher” account.  They will NOT see your conversations with AI-enabled chatbots.  Please DO NOT input into the chatbot any information that could help someone identify who you are, such as your name or location. Your teacher is the only one who will be able to see who you are.  If you do not agree with anything written here, please speak with your teacher and DO NOT create a student account on PILA.",
+        "es": "Know Learning mantendrá estos datos seguros y no los compartirá con nadie externo, excepto con investigadores aprobados. Su maestro verá información sobre su progreso en su cuenta de \"maestro\". NO verán sus conversaciones con chatbots habilitados para IA. NO ingrese en el chatbot ninguna información que pueda ayudar a alguien a identificar quién es usted, como su nombre o ubicación. Tu profesor es el único que podrá ver quién eres. Si no está de acuerdo con algo escrito aquí, hable con su maestro y NO cree una cuenta de estudiante en PILA.",
         "fr": "Know Learning gardera ces données en sécurité et ne les partagera avec personne à l’extérieur, sauf avec des chercheurs approuvés. Ton enseignant verra certaines informations sur tes progrès dans son compte « enseignant ». Il NE verra PAS tes conversations avec les chatbots alimentés par l’IA. Veuille NE PAS saisir dans le chatbot des informations qui pourraient aider quelqu’un à te identifier, telles que ton nom ou ton emplacement. Ton enseignant est le seul à pouvoir savoir qui tu es. Si tu n'es pas d’accord avec ce qui est écrit ici, veuille en parler à ton enseignant et NE crée PAS de compte étudiant sur PILA.",
         "km": "KnowLearning នឹងរក្សាទិន្នន័យនេះឲ្យសុវត្ថិ ហើយមិនចែករំលែកក្រៅប្រព័ន្ធទេ",
         "lv": "Know Learning nodrošinās šo datu drošību un nekopīgos tos ar citiem, izņemot apstiprinātus pētniekus. Tavs skolotājs savā “skolotāja” kontā redzēs informāciju par tavu progresu. Viņš neredzēs tavas sarunas ar AI iespējotiem tērzēšanas robotiem. Lūdzu, NEIEVIETO tērzēšanas robotā nekādu informāciju, kas varētu palīdzēt kādam atpazīt, kas tu esi, piemēram, savu vārdu vai atrašanās vietu. Tavs skolotājs ir vienīgais, kurš varēs redzēt, kas tu esi. Ja nepiekrīti kaut kam šeit rakstītajam, lūdzu, runā ar savu skolotāju un NEVEIDO skolēna kontu PILA.",
@@ -3575,7 +3575,7 @@ export default {
         "th": "สร้าง / แก้ไขกลุ่ม"
     },
     "your-clicks": {
-        "de": "Deine Klicks",
+        "de": "deine Klicks",
         "en": "your clicks",
         "es": "tus clics",
         "fr": "tes clics",
@@ -3757,7 +3757,7 @@ export default {
         "th": "ลบ"
     },
     "information-about-your-screen-and-device": {
-        "de": "Informationen über Deinen Bildschirm und Dein Gerät",
+        "de": "Informationen über Deinen Bildschirm und dein Gerät",
         "en": "information about your screen and device",
         "es": "información sobre su pantalla y dispositivo",
         "fr": "informations sur ton écran et ton appareil",
