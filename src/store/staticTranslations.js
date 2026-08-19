@@ -360,7 +360,7 @@ export default {
         "nl": "Het lijkt erop dat je geen opdrachten hebt! Vraag het aan de persoon die de opdrachten aan je toewijst.",
         "pl": "Wygląda na to, że nie masz żadnych zadań! Skontaktuj się z osobą, która przydziela Ci zadania.",
         "pt": "Parece que você não tem nenhuma tarefa! Consulte a pessoa que atribui as tarefas a você.",
-        "sk": "Zdá sa, že nemáš žiadne úlohy! Obráť sa na osobu, ktorá ti úlohy prideľuje.",
+        "sk": "Zdá sa, že nemáte žiadne úlohy! Obráťte sa na osobu, ktorá vám ich prideľuje.",
         "th": "ดูเหมือนว่าคุณจะไม่มีงานที่ได้รับมอบหมาย! โปรดสอบถามผู้ที่มอบหมายงานให้คุณ"
     },
     "assignment-details": {
