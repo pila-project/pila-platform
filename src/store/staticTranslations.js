@@ -633,7 +633,7 @@ export default {
         "nl": "Stuur uw volledige naam, school/instelling en dit anonieme ID naar edu.pila@oecd.org om toegang te krijgen tot PILA.",
         "pl": "Prosimy o przesłanie pełnego imienia i nazwiska, szkoły/instytucji oraz anonimowego identyfikatora na adres edu.pila@oecd.org w celu uzyskania dostępu do PILA.",
         "pt": "Por favor, envie seu nome completo, escola/instituição e esta identificação anônima para edu.pila@oecd.org para obter acesso ao PILA.",
-        "sk": "Pošlite prosím svoje celé meno, školu a toto anonymné ID na aitutor@minedu.sk, aby ste získali prístup k PILA.",
+        "sk": "Prosím, pošlite svoje celé meno, školu a toto anonymné ID na aitutor@minedu.sk, aby ste získali prístup do PILA.",
         "th": "กรุณาส่งชื่อเต็มของคุณ, ชื่อโรงเรียน/สถาบัน และไอดีนิรนามนี้ไปที่ edu.pila@oecd.org เพื่อขอรับสิทธิ์ในการเข้า PILA"
     },
     "link-students-to-you": {
@@ -1365,7 +1365,7 @@ export default {
         "th": "การเรียนรู้แบบกำกับตนเอง"
     },
     "all-saved-versions-of-your-answers-solutions-inc": {
-        "de": "alle gespeicherten Versionen Deiner Antworten/Lösungen, einschließlich Deiner Gespräche mit KI-Chatbots (falls zutreffend)",
+        "de": "alle gespeicherten Versionen deiner Antworten/Lösungen, einschließlich deiner Gespräche mit KI-Chatbots (falls zutreffend)",
         "en": "all saved versions of your answers/solutions, including your conversations with AI chatbots (if applicable)",
         "es": "todas las versiones guardadas de sus respuestas/soluciones, incluidas sus conversaciones con chatbots de IA (si corresponde)",
         "fr": "toutes les versions sauvegardées de tes réponses/solutions",
@@ -2002,7 +2002,7 @@ export default {
         "th": "ไฟล์"
     },
     "know-learning-will-keep-this-data-safe-and-wont": {
-        "de": "Know Learning verwahrt diese Daten sicher und gibt sie nicht an Dritte weiter, außer an zugelassene Forscherinnen und Forscher. Deine Lehrkraft sieht einige Informationen über deinen Fortschritt in ihrem „Lehrkraft“-Konto. Sie wird deine Gespräche mit KI-fähigen Chatbots NICHT sehen. Bitte gib in den Chatbot KEINE Informationen ein, die jemandem helfen könnten, Dich zu identifizieren, wie z. B. Deinen Namen oder Standort. Deine Lehrkraft ist die Einzige, die sehen kann, wer du sind. Wenn du mit irgendetwas hier Geschriebenem nicht einverstanden bist, sprich bitte mit Deiner Lehrkraft und erstelle KEIN Schülerinnen-/Schülerkonto auf PILA.",
+        "de": "Know Learning verwahrt diese Daten sicher und gibt sie nicht an Dritte weiter, außer an zugelassene Forscherinnen und Forscher. Deine Lehrkraft sieht einige Informationen über deinen Fortschritt in ihrem „Lehrkraft“-Konto. Sie wird deine Gespräche mit KI-fähigen Chatbots NICHT sehen. Bitte gib in den Chatbot KEINE Informationen ein, die jemandem helfen könnten, dich zu identifizieren, wie z. B. deinen Namen oder Standort. Deine Lehrkraft ist die Einzige, die sehen kann, wer du bist. Wenn du mit irgendetwas hier Geschriebenem nicht einverstanden bist, sprich bitte mit deiner Lehrkraft und erstelle KEIN Schülerinnen-/Schülerkonto auf PILA.",
         "en": "Know Learning will keep this data safe and won’t share it with anyone outside, except for approved researchers.  Your teacher will see some information about your progress in their “teacher” account.  They will NOT see your conversations with AI-enabled chatbots.  Please DO NOT input into the chatbot any information that could help someone identify who you are, such as your name or location. Your teacher is the only one who will be able to see who you are.  If you do not agree with anything written here, please speak with your teacher and DO NOT create a student account on PILA.",
         "es": "Know Learning mantendrá estos datos seguros y no los compartirá con nadie externo, excepto con investigadores aprobados. Su maestro verá información sobre su progreso en su cuenta de \"maestro\". NO verán sus conversaciones con chatbots habilitados para IA. NO ingrese en el chatbot ninguna información que pueda ayudar a alguien a identificar quién es usted, como su nombre o ubicación. Tu profesor es el único que podrá ver quién eres. Si no está de acuerdo con algo escrito aquí, hable con su maestro y NO cree una cuenta de estudiante en PILA.",
         "fr": "Know Learning gardera ces données en sécurité et ne les partagera avec personne à l’extérieur, sauf avec des chercheurs approuvés. Ton enseignant verra certaines informations sur tes progrès dans son compte « enseignant ». Il NE verra PAS tes conversations avec les chatbots alimentés par l’IA. Veuille NE PAS saisir dans le chatbot des informations qui pourraient aider quelqu’un à te identifier, telles que ton nom ou ton emplacement. Ton enseignant est le seul à pouvoir savoir qui tu es. Si tu n'es pas d’accord avec ce qui est écrit ici, veuille en parler à ton enseignant et NE crée PAS de compte étudiant sur PILA.",
@@ -2427,7 +2427,7 @@ export default {
         "nl": "Docent",
         "pl": "Nauczyciel",
         "pt": "Professora",
-        "sk": "Učiteľ",
+        "sk": "Učiteľ/ka",
         "th": "ครู"
     },
     "owner": {
@@ -3757,7 +3757,7 @@ export default {
         "th": "ลบ"
     },
     "information-about-your-screen-and-device": {
-        "de": "Informationen über Deinen Bildschirm und dein Gerät",
+        "de": "Informationen über deinen Bildschirm und dein Gerät",
         "en": "information about your screen and device",
         "es": "información sobre su pantalla y dispositivo",
         "fr": "informations sur ton écran et ton appareil",
