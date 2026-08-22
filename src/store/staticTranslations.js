@@ -1,4 +1,30 @@
 export default {
+    "no-active-users-with-login-codes": {
+        "de": "Keine aktiven Benutzer mit Anmeldecodes",
+        "en": "No active users with login codes",
+        "es": "No hay usuarios activos con códigos de inicio de sesión",
+        "fr": "Aucun utilisateur actif avec des codes de connexion",
+        "km": "គ្មានអ្នកប្រើប្រាស់សកម្មដែលមានលេខកូដចូលប្រើទេ",
+        "lv": "Nav aktīvu lietotāju ar pieteikšanās kodiem",
+        "nl": "Geen actieve gebruikers met inlogcodes",
+        "pl": "Brak aktywnych użytkowników z kodami logowania",
+        "pt": "Não há usuários ativos com códigos de acesso",
+        "sk": "Žiadni aktívni používatelia s prihlasovacími kódmi",
+        "th": "ไม่มีผู้ใช้ที่ใช้งานอยู่พร้อมรหัสเข้าสู่ระบบ"
+    },
+    "print-codes": {
+        "de": "Zugangscodes drucken",
+        "en": "Print Codes",
+        "es": "Imprimir códigos",
+        "fr": "Imprimer les codes",
+        "km": "បោះពុម្ពលេខកូដ",
+        "lv": "Drukāt kodus",
+        "nl": "Codes afdrukken",
+        "pl": "Drukuj kody",
+        "pt": "Imprimir códigos",
+        "sk": "Vytlačiť kódy",
+        "th": "พิมพ์รหัส"
+    },
     "assign-and-monitor": {
         "de": "Zuweisen und überwachen",
         "en": "Assign and Monitor",
