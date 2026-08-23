@@ -1483,7 +1483,10 @@ function applyStudentListFilters(items) {
     })
   }
   if (activeGradeFilters.value.length) {
-    result = result.filter(s => s.grade && activeGradeFilters.value.includes(s.grade))
+    const allowed = activeGradeFilters.value.filter(g => validGrades.has(g))
+    if (allowed.length) {
+      result = result.filter(s => s.grade && allowed.includes(s.grade))
+    }
   }
   result = result.filter(s =>
     matchesStatusFilter(activeStatusFilters.value, s.archived),
@@ -1539,16 +1542,21 @@ const studentHeaders = computed(() => [
   { key: 'more', title: '', sortable: false, width: '60px' },
 ])
 
-// ── Grade options (static list for create/edit forms) ──
-const gradeOptions = computed(() => {
-  const grades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-  return grades.map(g => ({ value: g, label: g }))
-})
+// Canonical grades only (UIUX-138: never unique-collect raw users[].grade into filters)
+const VALID_GRADE_VALUES = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+const validGrades = new Set(VALID_GRADE_VALUES)
 
-// ── Filter options (derived from existing students, for table filters only) ──
+const gradeOptions = computed(() =>
+  VALID_GRADE_VALUES.map(g => ({ value: g, label: g })),
+)
+
 const gradeFilterOptions = computed(() => {
-  const grades = [...new Set(students.value.map(s => s.grade).filter(Boolean))]
-  return grades.map(g => ({ value: g, label: g }))
+  const present = new Set(
+    students.value.map(s => s.grade).filter(g => validGrades.has(g)),
+  )
+  return VALID_GRADE_VALUES
+    .filter(g => present.has(g))
+    .map(g => ({ value: g, label: g }))
 })
 
 const statusFilterOptions = computed(() => buildStatusFilterOptions(t))
@@ -2199,8 +2207,6 @@ function parseCSVLine(line) {
   cols.push(current.trim())
   return cols
 }
-
-const validGrades = new Set(['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
 
 function formatBulkCreateResultMessage(created, skipped) {
   if (skipped > 0) {

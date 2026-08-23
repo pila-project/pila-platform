@@ -21,11 +21,15 @@
           </div>
 
           <div class="vso-scroll-body">
-          <!-- Dashboard cards (real entry points — keep) -->
-          <div class="vso-dashboards">
+          <!-- Dashboard cards: same look; only list dashboards this assignment's content supports (UIUX-129). -->
+          <div v-if="hasAnyDashboardCard" class="vso-dashboards">
             <h4 class="vso-section-label">{{ t('view-dashboards') }}:</h4>
             <div class="vso-dashboard-cards">
-              <div class="vso-dcard" @click="$emit('open-dashboard', 'app')">
+              <div
+                v-if="assignmentContainsAppDashboard"
+                class="vso-dcard"
+                @click="$emit('open-dashboard', 'app')"
+              >
                 <div class="vso-dcard-icon vso-dcard-icon-yellow">
                   <LucideIcon name="layout-dashboard" :size="20" />
                 </div>
@@ -34,7 +38,11 @@
                   <span class="vso-dcard-link">{{ t('view-dashboard') }} &rsaquo;</span>
                 </div>
               </div>
-              <div class="vso-dcard" @click="$emit('open-dashboard', 'live')">
+              <div
+                v-if="assignmentContainsLiveDashboard"
+                class="vso-dcard"
+                @click="$emit('open-dashboard', 'live')"
+              >
                 <div class="vso-dcard-icon vso-dcard-icon-red">
                   <LucideIcon name="activity" :size="20" />
                 </div>
@@ -489,6 +497,16 @@
   const assignmentDueDate = ref('--')
   const assignmentContainsCandli = ref(false)
   const assignmentContainsGenAI = ref(false)
+  /** Custom/app dashboard URL (datawise or sequence.reference.dashboard) — trunk's dashboardUrl. */
+  const assignmentContainsAppDashboard = ref(false)
+  // Live is trunk's always-on primary, except when a custom URL replaces it (same Dashboard modal).
+  const assignmentContainsLiveDashboard = computed(() => !assignmentContainsAppDashboard.value)
+  const hasAnyDashboardCard = computed(() =>
+    assignmentContainsAppDashboard.value
+    || assignmentContainsLiveDashboard.value
+    || assignmentContainsCandli.value
+    || assignmentContainsGenAI.value,
+  )
 
   // Overview state
   const studentSearch = ref('')
@@ -907,18 +925,27 @@
     const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
     assignmentContainsCandli.value = false
     assignmentContainsGenAI.value = false
+    assignmentContainsAppDashboard.value = false
     for (const id of contentIds) {
       if (GEN_AI_SEQUENCES[id]) assignmentContainsGenAI.value = true
       try {
         let games = CANDLI_SEQUENCES[id] ? [...CANDLI_SEQUENCES[id]] : null
+        const contentState = await Agent.state(id)
         if (!games) {
-          const sequence = await Agent.state(id)
-          const items = Array.isArray(sequence?.items)
-            ? sequence.items
-            : normalizeSequenceItems(sequence?.items).map((itemId) => ({ id: itemId }))
+          const items = Array.isArray(contentState?.items)
+            ? contentState.items
+            : normalizeSequenceItems(contentState?.items).map((itemId) => ({ id: itemId }))
           games = await candliGamesForSequenceItems(items)
         }
         if (games?.length) assignmentContainsCandli.value = true
+        try {
+          const meta = await Agent.metadata(id)
+          if (meta?.domain === 'datawise.accingo.co') {
+            assignmentContainsAppDashboard.value = true
+          } else if (contentState?.reference?.dashboard) {
+            assignmentContainsAppDashboard.value = true
+          }
+        } catch { /* ignore metadata probe */ }
       } catch {
         /* ignore */
       }

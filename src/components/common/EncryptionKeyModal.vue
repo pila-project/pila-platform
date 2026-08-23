@@ -15,7 +15,7 @@
           <LucideIcon name="circle-alert" :size="16" class="encryption-key-attention-icon" />
           <span>{{ modalHintText }}</span>
         </div>
-        {{ t('enter-an-encryption-key-word-you-will-remember-t') }}
+        <p class="encryption-key-copy">{{ t('enter-an-encryption-key-word-you-will-remember-t') }}</p>
         <input v-model="localKey" class="input encryption-key-input" :disabled="isSaving" />
       </div>
     </template>
@@ -106,14 +106,25 @@ function emitClose() {
 
 <style scoped>
 .encryption-key-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   padding: 20px 42px;
   text-align: center;
   font-size: 14px;
   color: var(--color-slate-600);
 }
 
+.encryption-key-copy {
+  margin: 0;
+  text-align: left;
+  line-height: 1.5;
+}
+
 .encryption-key-input {
-  width: 60%;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   text-align: center;
   margin-top: 16px;
 }

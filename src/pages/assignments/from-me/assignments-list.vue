@@ -1311,7 +1311,14 @@
       if (!candliGames.value.length) return
       await openCandliDashboard(current.value)
     } else if (type === 'genai') {
+      if (!assignmentContainsGenAI.value) await reassessContents()
+      if (!assignmentContainsGenAI.value) return
       await openGenAIDashboard(current.value)
+    } else if (type === 'app') {
+      // App-specific = trunk custom URL dashboard only (not the live/activity primary).
+      await reassessContents()
+      if (!dashboardUrl.value) return
+      await openDashboardWithXapi(current.value, 'live-monitoring', { skipReassess: true })
     } else if (type === 'live') {
       await openLiveDashboard(current.value)
     } else {

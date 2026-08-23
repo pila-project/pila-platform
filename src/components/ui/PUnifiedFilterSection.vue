@@ -219,6 +219,7 @@ watch(isExpanded, async (val) => {
 .ufs-options {
   max-height: 180px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 4px;
 }
 
@@ -227,6 +228,7 @@ watch(isExpanded, async (val) => {
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
+  min-width: 0;
   cursor: pointer;
   border-radius: 4px;
   transition: background 100ms;
@@ -248,8 +250,12 @@ watch(isExpanded, async (val) => {
 
 .ufs-option-label {
   flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ufs-option-label :deep(mark) {
