@@ -60,7 +60,8 @@
             :to="item.to"
             v-show="item.show !== false"
             class="nav-item"
-            active-class="nav-item-active"
+            :active-class="item.exact ? '' : 'nav-item-active'"
+            exact-active-class="nav-item-active"
             :title="!sidebarOpen ? item.title : undefined"
             @click="mobileMenuOpen = false"
           >
@@ -233,14 +234,15 @@
           || DOMAIN_DATA_PROTECTION_LINKS.default
 
   const navItems = computed(() => [
-    { icon: 'user', title: t('admin'), to: 'classes', show: true },
-    { icon: 'file-text', title: t('assignments').toLowerCase(), to: 'assignments-from-me', show: true },
-    { icon: 'list-checks', title: t('your-tasks'), to: 'tasks', show: isSimplifiedStudyDomain },
-    { icon: 'search', title: t('explore'), to: 'content', show: true },
-    { icon: 'folder-plus', title: t('create'), to: 'create', show: !isSimplifiedStudyDomain },
-    { icon: 'file-text', title: t('resources'), to: 'resources', show: true },
-    { icon: 'school', title: t('trainer'), to: 'trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
-    { icon: 'sliders-horizontal', title: t('settings'), to: 'support', show: true },
+    { icon: 'house', title: t('home'), to: '/teacher', show: true, exact: true },
+    { icon: 'user', title: t('admin'), to: '/teacher/classes', show: true },
+    { icon: 'file-text', title: t('assignments').toLowerCase(), to: '/teacher/assignments-from-me', show: true },
+    { icon: 'list-checks', title: t('your-tasks'), to: '/teacher/tasks', show: isSimplifiedStudyDomain },
+    { icon: 'search', title: t('explore'), to: '/teacher/content', show: true },
+    { icon: 'folder-plus', title: t('create'), to: '/teacher/create', show: !isSimplifiedStudyDomain },
+    { icon: 'file-text', title: t('resources'), to: '/teacher/resources', show: true },
+    { icon: 'school', title: t('trainer'), to: '/teacher/trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
+    { icon: 'sliders-horizontal', title: t('settings'), to: '/teacher/support', show: true },
   ])
 
   const LANGUAGE_NAMES = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }

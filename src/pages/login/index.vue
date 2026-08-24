@@ -3,7 +3,7 @@
     <!-- Left illustration (desktop) — Figma hero node family 1:13050 -->
     <aside class="login-hero" aria-hidden="true">
       <div class="login-hero-card">
-        <img class="login-hero-img" src="/login/hero.png" alt="">
+        <img class="login-hero-img" :src="heroImageSrc" alt="">
       </div>
     </aside>
 
@@ -27,7 +27,7 @@
           <img src="/login/logo-figma.png" alt="OECD PILA" class="login-logo">
         </div>
 
-        <h1 class="login-title">{{ t('welcome-back') }}</h1>
+        <h1 class="login-title">{{ t('welcome') }}</h1>
         <p class="login-subtitle">{{ t('sign-in-to-access-your-account') }}</p>
 
         <div v-if="view === 'hub'" class="login-tabs" role="tablist">
@@ -184,6 +184,12 @@ export default {
     },
     showTeacherCodeMethods() {
       return teacherCodeLoginEnabled(this.host)
+    },
+    heroImageSrc() {
+      // UIUX-121: Thai hosts use the Thailand-provided illustration
+      return teacherSsoProvidersForHost(this.host).includes('line')
+        ? '/login/hero-thailand.jpg'
+        : '/login/hero.png'
     },
   },
   methods: {

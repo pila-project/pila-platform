@@ -45,6 +45,7 @@ function makeRouteShell(loader, { cache = true } = {}) {
 
 
 // TeacherView child routes wrapped in shells
+const TeacherHome = makeRouteShell(() => import('@/pages/teacher/home.vue'))
 const ManageClasses = makeRouteShell(() => import('@/pages/teacher/manage-classes.vue'))
 const AssignmentsFromMe = makeRouteShell(() => import('@/pages/assignments/from-me/assignments-list.vue'))
 const AssignmentsToMe = makeRouteShell(() => import('@/pages/assignments/to-me/assignments-list.vue'))
@@ -92,7 +93,8 @@ export default createRouter({
         { path: 'trainer', component: TeacherTrainerPage },
         { path: 'support', component: BugReport },
         { path: 'opt-out', component: TeacherStudyOptOut },
-        { path: '', redirect: '/teacher/classes' }
+        { path: '', component: TeacherHome },
+        { path: 'home', redirect: '/teacher' },
       ]
     },
     {
