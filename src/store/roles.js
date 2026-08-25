@@ -46,6 +46,8 @@ export default {
       state.requests[assignee] = { role, trainer, updated }
     },
     addAssignment(state, { assignee, role, assigner, updated }) {
+      const existingRole = state.assignments[assignee]?.role
+      if (existingRole === 'admin' && role !== 'admin') return
       state.assignments[assignee] = { role, assigner, updated }
     },
     removeRequest(state, assignee) {
