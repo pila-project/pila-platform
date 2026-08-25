@@ -980,13 +980,13 @@
     <!-- Login Code / QR Modal -->
     <PModal
       v-if="loginCodeStudent"
-      :title="t('login-code')"
+      :title="t('pila-login-code')"
       width="500px"
       @close="loginCodeStudent = null"
     >
       <template #title>
         <div>
-          <h2 class="text-lg font-semibold text-zinc-950">{{ t('login-code') }}</h2>
+          <h2 class="text-lg font-semibold text-zinc-950">{{ t('pila-login-code') }}</h2>
         </div>
       </template>
       <template #body>
@@ -1003,10 +1003,8 @@
             </Suspense>
           </div>
           <div class="login-code-passphrase">
-            <span class="passphrase-label">{{ t('login-code') }}</span>
-            <code class="login-code-plain-text">{{ loginCodePlainText }}</code>
-            <span class="passphrase-label passphrase-label-secondary">{{ t('symbol-passphrase') }}</span>
-            <div class="passphrase-icons">
+            <span class="passphrase-label">{{ t('pila-login-code') }}</span>
+            <div class="passphrase-icons" :aria-label="t('pila-login-code')">
               <i
                 v-for="(char, index) in loginCodePassphraseIcons"
                 :key="index"
@@ -1069,7 +1067,6 @@ import GroupCard from '@/components/groups/GroupCard.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
 import codeCharToIcon from '@/utils/code-char-to-icon.js'
-import { formatLoginCodePlain } from '@/utils/login-code-display.js'
 import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 import { useFeedback } from '@/composables/useFeedback.js'
@@ -1813,11 +1810,6 @@ async function toggleArchiveStudent(item) {
 
 const qrContainerRef = ref(null)
 
-const loginCodePlainText = computed(() => {
-  if (!loginCodeStudent.value) return '—'
-  return formatLoginCodePlain(users[loginCodeStudent.value.id]?.secret)
-})
-
 const loginCodePassphraseIcons = computed(() => {
   if (!loginCodeStudent.value) return ''
   return users[loginCodeStudent.value.id]?.secret || ''
@@ -1893,7 +1885,6 @@ async function downloadLoginCard() {
   const student = loginCodeStudent.value
   const studentId = student.id
   const studentName = await resolveLoginCodeStudentName(student)
-  const plainCode = formatLoginCodePlain(users[studentId]?.secret)
   const svgData = new XMLSerializer().serializeToString(svg)
   const canvas = document.createElement('canvas')
   const width = 400
@@ -1928,11 +1919,7 @@ async function downloadLoginCard() {
     ctx.fillStyle = '#64748b'
     ctx.font = '500 12px system-ui, -apple-system, sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText(t('login-code').toUpperCase(), width / 2, codeY - 18)
-
-    ctx.fillStyle = '#334155'
-    ctx.font = '600 22px ui-monospace, monospace'
-    ctx.fillText(plainCode, width / 2, codeY)
+    ctx.fillText(t('pila-login-code'), width / 2, codeY - 18)
 
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob)
@@ -3062,10 +3049,12 @@ function printLoginCodes() {
 .login-code-student-name {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #334155;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
 }
 
 
