@@ -2,6 +2,7 @@
   <div class="create-tab">
   <div v-if="customizersAvailable">
     <h3>{{ t('create-your-own-content') }}</h3>
+    <p class="create-hint">{{ t('create-your-own-content-hint') }}</p>
     <button
       class="custom-button"
       @click="openLink('https://bettysbrain.knowlearning.systems/bb/custom/causal-map?auth=true&oecd=true&custom=true')"
@@ -96,6 +97,7 @@
 
     <div class="id-or-url-input-wrapper">
       <h3>{{ t('import-content') }}</h3>
+      <p class="create-hint">{{ t('import-content-hint') }}</p>
       <input
         :placeholder="t('add-content-by-id-or-url')"
         v-model="userIdOrURL"
@@ -185,7 +187,15 @@ function openLink(link) {
   padding-top: 40px;
 }
 h3 {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+}
+.create-hint {
+  max-width: 420px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #64748b;
+  text-align: center;
 }
 .custom-button {
   display: flex;

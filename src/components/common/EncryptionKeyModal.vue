@@ -3,7 +3,7 @@
     @close="handleClose"
     :show-close-button="!isSaving"
     width="600px"
-    :title="t('enter-encryption-key-word')"
+    :title="t('create-unique-encryption-code')"
   >
     <template #body>
       <div class="encryption-key-body">
@@ -15,7 +15,11 @@
           <LucideIcon name="circle-alert" :size="16" class="encryption-key-attention-icon" />
           <span>{{ modalHintText }}</span>
         </div>
-        <p class="encryption-key-copy">{{ t('enter-an-encryption-key-word-you-will-remember-t') }}</p>
+        <p class="encryption-key-copy">{{ t('encryption-code-intro') }}</p>
+        <div class="encryption-key-attention" role="status">
+          <LucideIcon name="circle-alert" :size="16" class="encryption-key-attention-icon" />
+          <span>{{ t('encryption-code-keep-safe') }}</span>
+        </div>
         <input v-model="localKey" class="input encryption-key-input" :disabled="isSaving" />
       </div>
     </template>
@@ -56,8 +60,6 @@ const keyWasUpdated = ref(false)
 
 // Soft cues: missing key, or stored key failed to decrypt (not while typing a new attempt)
 const modalHintText = computed(() => {
-  if (!localKey.value.trim()) return t('encryption-key-required-hint')
-  // Only show invalid for the *stored* wrong key, not mid-edit of a new value
   if (
     isEncryptionKeyInvalid.value
     && localKey.value === namePassword.value
@@ -116,7 +118,7 @@ function emitClose() {
 }
 
 .encryption-key-copy {
-  margin: 0;
+  margin: 0 0 12px;
   text-align: left;
   line-height: 1.5;
 }

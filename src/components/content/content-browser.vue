@@ -39,7 +39,7 @@
       </slot>
 
       <!-- Grid -->
-      <div v-else class="cb-grid" :style="{ gridTemplateColumns: 'repeat(' + columns + ', 1fr)' }">
+      <div v-else class="cb-grid">
         <div v-for="id in paginatedDisplayList" :key="id">
           <slot
             name="card"
@@ -243,6 +243,7 @@ defineExpose({
 .cb-grid {
   display: grid;
   gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
 @media (max-width: 767px) {

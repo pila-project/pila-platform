@@ -662,17 +662,25 @@
 .pcard-copy-overlay {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.42);
+  background: linear-gradient(
+    to top,
+    rgba(15, 23, 42, 0.58) 0%,
+    rgba(15, 23, 42, 0.32) 42%,
+    rgba(15, 23, 42, 0.08) 72%,
+    transparent 100%
+  );
   opacity: 0;
   pointer-events: none;
   transition: opacity 150ms;
 }
 .pcard:hover .pcard-copy-overlay {
   opacity: 1;
+}
+.pcard:hover .pcard-copy-modify-btn {
   pointer-events: auto;
 }
 .pcard-copy-modify-btn {
@@ -707,7 +715,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 2;
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -976,7 +984,9 @@
 .pcard-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 12px;
+  min-width: 0;
 }
 </style>

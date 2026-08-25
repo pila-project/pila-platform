@@ -60,11 +60,10 @@
               :items="assignmentTypeOptions"
               required
             />
-            <PInput
+            <PDateField
               v-model="form.dueDate"
               :label="t('due-date-optional')"
               :placeholder="t('date-format-placeholder')"
-              type="date"
             />
           </div>
         </div>
@@ -318,7 +317,7 @@ import ContentBrowser from './content-browser.vue'
 import PreviewModal from '@/components/common/preview-modal.vue'
 import SequencePreviewModal from './sequence-preview-modal.vue'
 import { openContentPreview } from '@/utils/open-content-preview.js'
-import { PModal, PInput, PButton, PSelect } from '@/components/ui/index.js'
+import { PModal, PInput, PButton, PSelect, PDateField } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { gridPerPageOptions } from '@/utils/pagination-options.js'
 

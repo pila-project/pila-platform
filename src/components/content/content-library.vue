@@ -240,7 +240,7 @@
               :source="source"
               :grades="grades"
               :favorited="favorites.has(id)"
-              :show-tagging-icon="showTaggingIcons && !!taggingIconVisibility[id]"
+              :show-tagging-icon="showTaggingIcons"
               show-copy-modify
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
@@ -268,7 +268,7 @@
         <TaggingModal
           v-if="taggingContentId && showTaggingIcons"
           :id="taggingContentId"
-          :roots="[ROOT_COMPETENCIES_TAG]"
+          :roots="[COMPETENCY_HIERARCHY_ROOT]"
           @close="taggingContentId = null"
         />
       </div>
@@ -441,7 +441,7 @@
   import ViewAssignmentDetailsModal from '@/pages/assignments/from-me/view-assignment-details-modal.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import setTagging from '@/utils/set-tagging.js'
-  import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
+  import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS, COMPETENCY_HIERARCHY_ROOT } from '@/utils/constants.js'
   import TaggingModal from '@/components/tagging-modal.vue'
   import {
     nameCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
@@ -550,7 +550,6 @@
   // Trunk tagging: icons/modal off on simplified study domains.
   // Only resolve visibility for the *visible page* of cards — never the full catalog.
   // A reactive{} map updated per-id over thousands of rows freezes the main thread.
-  const ROOT_COMPETENCIES_TAG = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
   const showTaggingIcons = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const taggingContentId = ref(null)
   /** @type {import('vue').ShallowRef<Record<string, boolean>>} */

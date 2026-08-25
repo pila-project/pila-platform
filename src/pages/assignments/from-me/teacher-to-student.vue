@@ -49,11 +49,10 @@
           :items="assignmentTypeOptions"
           required
         />
-        <PInput
+        <PDateField
           v-model="dueDate"
           :label="t('due-date')"
           :placeholder="t('date-format-placeholder')"
-          type="date"
         />
       </div>
     </div>
@@ -247,10 +246,9 @@
             class="schedule-fields"
           >
             <div class="field-row">
-              <PInput
+              <PDateField
                 v-model="scheduledDate"
                 :label="t('publication-date')"
-                type="date"
                 :placeholder="t('date-format-placeholder')"
               />
               <PInput
@@ -417,7 +415,7 @@
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import { useToast } from '@/utils/useToast.js'
-  import { PButton, PInput, PSelect, PTooltip } from '@/components/ui/index.js'
+  import { PButton, PInput, PSelect, PDateField, PTooltip } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import {
     ASSIGNMENT_STATUS,

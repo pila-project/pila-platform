@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label v-if="label" :for="inputId" class="label">{{ label }} <span v-if="required" class="required-marker">*Required</span></label>
+    <label v-if="label" :for="inputId" class="label">{{ label }} <span v-if="required" class="required-marker">*{{ t('required') }}</span></label>
     <div :class="icon ? 'relative' : ''">
       <LucideIcon v-if="icon && icon.startsWith('lucide:')" :name="icon.slice(7)" :size="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
       <i v-else-if="icon" :class="iconClass" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" />
@@ -32,7 +32,11 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   modelValue: [String, Number],

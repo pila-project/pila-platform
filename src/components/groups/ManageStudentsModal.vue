@@ -15,7 +15,7 @@
       <!-- Info banner -->
       <div class="info-banner">
         <LucideIcon name="info" :size="16" />
-        <span>{{ t('use-checkboxes-or-drag-students') }}</span>
+        <span>{{ dragHint }}</span>
       </div>
 
       <div class="panels">
@@ -221,6 +221,10 @@ const emit = defineEmits(['close'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+const dragHint = computed(() => {
+  void store.state.language
+  return store.getters.t('use-checkboxes-or-drag-students')
+})
 const { error: toastError } = useToast()
 
 const availableSearch = ref('')

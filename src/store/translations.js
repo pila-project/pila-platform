@@ -12,22 +12,25 @@ export default {
     translations: {},
   }),
   getters: {
-    t: (_state, _getters, rootState) => (slug) => {
-      const lang = rootState.language || 'en'
-      const slugTranslations = staticTranslations[slug]
-      if (!slugTranslations) {
-        console.warn('MISSING TRANSLATION', slug)
+    t: (_state, _getters, rootState) => {
+      // Read language in the outer getter so Vuex invalidates when it changes
+      // (inner-function lookups were staying on the first cached t()).
+      const lang = String(rootState.language || 'en').split(/[-_]/)[0] || 'en'
+      return (slug) => {
+        const slugTranslations = staticTranslations[slug]
+        if (!slugTranslations) {
+          console.warn('MISSING TRANSLATION', slug)
+          return `no translation ${slug}`
+        }
+        if (typeof slugTranslations[lang] === 'string' && slugTranslations[lang]) {
+          return slugTranslations[lang]
+        }
+        if (lang !== 'en' && typeof slugTranslations.en === 'string' && slugTranslations.en) {
+          return slugTranslations.en
+        }
+        console.warn('MISSING TRANSLATION', slug, lang)
         return `no translation ${slug}`
       }
-      // Prefer active language; fall back to English within the static pack (still offline)
-      if (typeof slugTranslations[lang] === 'string' && slugTranslations[lang]) {
-        return slugTranslations[lang]
-      }
-      if (lang !== 'en' && typeof slugTranslations.en === 'string' && slugTranslations.en) {
-        return slugTranslations.en
-      }
-      console.warn('MISSING TRANSLATION', slug, lang)
-      return `no translation ${slug}`
     },
   },
   mutations: {

@@ -39,10 +39,12 @@
             <LucideIcon name="book-open" :size="16" />
             {{ t('learn-about-pila') }}
           </a>
+          <!-- Take a tour hidden for now
           <router-link class="home-outline-btn" to="/teacher/resources">
             <LucideIcon name="flag" :size="16" />
             {{ t('take-a-tour') }}
           </router-link>
+          -->
         </div>
       </div>
       <img class="workspace-banner-art" src="/teacher-home/workspace-ready.png" alt="">
@@ -52,10 +54,12 @@
         <LucideIcon name="book-open" :size="16" />
         {{ t('learn-about-pila') }}
       </a>
+      <!-- Take a tour hidden for now
       <router-link class="home-outline-btn" to="/teacher/resources">
         <LucideIcon name="flag" :size="16" />
         {{ t('take-a-tour') }}
       </router-link>
+      -->
     </div>
 
     <template v-if="homeLayout.quickLinks">

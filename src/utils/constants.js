@@ -174,21 +174,32 @@ export const HOST_TO_EXTRA_TEACHER_TAGS = {
 }
 
 export const HOST_TO_FIRST_LOAD_LANGUAGE = {
+  'app.pilaproject.org': 'en',
+  'ui-dev.pilaproject.org': 'en',
+  'testing.pilaproject.org': 'en',
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898': 'en',
+  'cambodia.pilaproject.org': 'km',
+  'thailand.pilaproject.org': 'th',
+  'dev.gforcesolution.com': 'th',
+  'pila.gforcesolution.com': 'th',
+  'thaipilacreate.gforcesolution.com': 'th',
   'polska-rct-2025.pilaproject.org': 'pl',
   'france-rct-2025.pilaproject.org': 'fr',
-  'thailand.pilaproject.org': 'th',
   'deutschland-rct-2026.pilaproject.org': 'de',
   'nederland-rct-2026.pilaproject.org': 'nl',
   'latvija-rct-2026.pilaproject.org': 'lv',
   'slovensko-rct-2026.pilaproject.org': 'sk',
 }
 
+/** Explore filters + tagging modal share this competency root (UIUX-144). */
+export const COMPETENCY_HIERARCHY_ROOT = 'fde718b0-762e-11f1-a2c5-33e64ed6c140'
+
 /**
  * Teacher SSO providers by host (same HOST_TO_* pattern as partition / titles).
  * Default (international): Google, Microsoft, Classlink.
  * Thai hosts add LINE. Research/study hosts use default SSO + account code (see teacherCodeLoginEnabled).
  */
-export const DEFAULT_TEACHER_SSO_PROVIDERS = ['google', 'microsoft', 'classlink']
+export const DEFAULT_TEACHER_SSO_PROVIDERS = ['google', 'microsoft', 'classlink', 'line']
 
 export const HOST_TO_TEACHER_SSO_PROVIDERS = {
   'thailand.pilaproject.org': ['google', 'microsoft', 'classlink', 'line'],

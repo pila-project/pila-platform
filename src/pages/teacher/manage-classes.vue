@@ -1571,16 +1571,16 @@ const groupFilterOptions = computed(() =>
 )
 
 // ── Subject options (multi-select) ──
-const subjectOptions = [
-  { value: 'Mathematics', title: 'Mathematics' },
-  { value: 'English', title: 'English' },
-  { value: 'Science', title: 'Science' },
-  { value: 'Social Studies', title: 'Social Studies' },
-  { value: 'Art', title: 'Art' },
-  { value: 'Music', title: 'Music' },
-  { value: 'Physical Education', title: 'Physical Education' },
-  { value: 'Other', title: 'Other' },
-]
+const subjectOptions = computed(() => [
+  { value: 'Mathematics', title: t('subject-mathematics') },
+  { value: 'English', title: t('subject-english') },
+  { value: 'Science', title: t('subject-science') },
+  { value: 'Social Studies', title: t('subject-social-studies') },
+  { value: 'Art', title: t('subject-art') },
+  { value: 'Music', title: t('subject-music') },
+  { value: 'Physical Education', title: t('subject-physical-education') },
+  { value: 'Other', title: t('subject-other') },
+])
 
 // ── Profile helpers ──
 const profileStudentInfo = ref(null)

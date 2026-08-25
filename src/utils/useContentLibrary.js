@@ -1,5 +1,5 @@
 import { ref, reactive, computed, watch } from 'vue'
-import { MY_CONTENT_TAG } from '@/utils/constants.js'
+import { MY_CONTENT_TAG, COMPETENCY_HIERARCHY_ROOT } from '@/utils/constants.js'
 import { beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
 import {
   nameCacheVersion, getCachedContentName,
@@ -10,7 +10,6 @@ import {
 } from '@/utils/content-cache.js'
 
 const PILA_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
-const COMPETENCY_TAG = 'f760dad0-f133-11ee-804e-27f76a81958c'
 
 // ── Module-level shared state (survives across component mounts) ──
 const taggedContent = ref([])
@@ -286,7 +285,7 @@ export function useContentLibrary(store) {
 
       if (usedCache) beginRevalidation()
 
-      const hierarchy = await loadTagHierarchy(partition, COMPETENCY_TAG)
+      const hierarchy = await loadTagHierarchy(partition, COMPETENCY_HIERARCHY_ROOT)
       const [pilaContent, myContentResult] = await Promise.all([
         Agent.query('taggings-for-tag', [partition, PILA_TAG], 'tags.knowlearning.systems').catch(() => []),
         Agent.query('taggings-for-tag', [userId, MY_CONTENT_TAG], 'tags.knowlearning.systems').catch(() => []),

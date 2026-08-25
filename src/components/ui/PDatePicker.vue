@@ -25,7 +25,7 @@
           </button>
         </div>
         <div class="datepicker-weekdays">
-          <span v-for="d in weekdays" :key="d" class="datepicker-weekday">{{ d }}</span>
+          <span v-for="d in weekdays" :key="'a-'+d" class="datepicker-weekday">{{ d }}</span>
         </div>
         <div class="datepicker-grid">
           <button
@@ -52,7 +52,7 @@
           </button>
         </div>
         <div class="datepicker-weekdays">
-          <span v-for="d in weekdays" :key="d" class="datepicker-weekday">{{ d }}</span>
+          <span v-for="d in weekdays" :key="'b-'+d" class="datepicker-weekday">{{ d }}</span>
         </div>
         <div class="datepicker-grid">
           <button
@@ -72,6 +72,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 
 const props = defineProps({
@@ -96,7 +97,14 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const store = useStore()
+const dateLocale = computed(() => String(store.state.language || 'en').split(/[-_]/)[0] || 'en')
+
+const weekdays = computed(() => {
+  const formatter = new Intl.DateTimeFormat(dateLocale.value, { weekday: 'short' })
+  // 2023-01-01 is a Sunday — matches JS Date#getDay() = 0
+  return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(2023, 0, 1 + i)))
+})
 
 const today = new Date()
 const initialMonth = props.modelValue instanceof Date
@@ -114,7 +122,7 @@ const viewMonths = ref([
 const rangeStart = ref(null)
 
 function monthLabel(date) {
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  return date.toLocaleDateString(dateLocale.value, { month: 'long', year: 'numeric' })
 }
 
 function prevMonth(idx) {

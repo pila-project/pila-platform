@@ -15,10 +15,8 @@
         <div class="login-code-card-body">
           <QRCodeDisplay :data="`${siteOrigin}/join/${id}`" size="160px" />
           <div class="login-code-secret">
-            <span class="login-code-label">{{ t('login-code') }}</span>
-            <code class="login-code-plain">{{ formatLoginCodePlain(users[id]?.secret) }}</code>
-            <span class="login-code-label login-code-label-secondary">{{ t('symbol-passphrase') }}</span>
-            <div class="login-code-icons" aria-hidden="true">
+            <span class="login-code-label">{{ t('pila-login-code') }}</span>
+            <div class="login-code-icons" :aria-label="t('pila-login-code')">
               <i
                 v-for="(char, index) in users[id]?.secret || ''"
                 :key="`${id}-${index}`"
@@ -38,7 +36,6 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
-import { formatLoginCodePlain } from '@/utils/login-code-display.js'
 import codeCharToIcon from '@/utils/code-char-to-icon.js'
 
 const props = defineProps({
@@ -83,33 +80,27 @@ const studentIds = computed(() =>
 .login-code-card-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-align: center;
 }
 .login-code-card-body {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 16px;
-  align-items: flex-start;
 }
 .login-code-secret {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
 }
 .login-code-label {
   font-size: 12px;
   color: var(--color-slate-500);
-}
-.login-code-plain {
-  display: block;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  font-family: ui-monospace, monospace;
-}
-.login-code-label-secondary {
-  margin-top: 8px;
 }
 
 .login-code-icons {

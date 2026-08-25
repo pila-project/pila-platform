@@ -2,7 +2,7 @@
   <div class="pmulti" ref="rootRef">
     <label v-if="label" :id="labelId" class="label">
       {{ label }}
-      <span v-if="required" class="required-marker">*Required</span>
+      <span v-if="required" class="required-marker">*{{ t('required') }}</span>
     </label>
     <button
       ref="triggerRef"
@@ -56,8 +56,12 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import PCheckbox from './PCheckbox.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   /** Selected values (array). */

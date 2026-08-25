@@ -242,7 +242,7 @@
     { icon: 'folder-plus', title: t('create'), to: '/teacher/create', show: !isSimplifiedStudyDomain },
     { icon: 'file-text', title: t('resources'), to: '/teacher/resources', show: true },
     { icon: 'school', title: t('trainer'), to: '/teacher/trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
-    { icon: 'sliders-horizontal', title: t('settings'), to: '/teacher/support', show: true },
+    { icon: 'message-square', title: t('feedback'), to: '/teacher/support', show: true },
   ])
 
   const LANGUAGE_NAMES = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }

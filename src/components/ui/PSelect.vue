@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <label v-if="label" :for="selectId" class="label">{{ label }} <span v-if="required" class="required-marker">*Required</span></label>
+    <label v-if="label" :for="selectId" class="label">{{ label }} <span v-if="required" class="required-marker">*{{ t('required') }}</span></label>
     <select
       :id="selectId"
       :value="modelValue"
@@ -28,7 +28,11 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   modelValue: [String, Number, Object],

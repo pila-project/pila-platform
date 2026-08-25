@@ -23,6 +23,20 @@
           {{ t('back') }}
         </button>
 
+        <div class="login-lang">
+          <label class="login-lang-label" for="login-language">{{ t('language') }}</label>
+          <select
+            id="login-language"
+            class="login-lang-select"
+            :value="currentLanguage"
+            @change="setLanguage($event.target.value)"
+          >
+            <option v-for="lang in languageChoices" :key="lang" :value="lang">
+              {{ languageLabel(lang) }}
+            </option>
+          </select>
+        </div>
+
         <div class="login-brand">
           <img src="/login/logo-figma.png" alt="OECD PILA" class="login-logo">
         </div>
@@ -133,9 +147,11 @@
         <p v-if="error" class="login-error" role="alert">{{ error }}</p>
 
         <!-- Directly under method buttons (no min-height spacer on methods) -->
-        <p v-if="view === 'hub'" class="login-footer">
-          <span>{{ t('dont-have-an-account') }}</span>
-          <a class="login-footer-link" href="mailto:edu.pila@oecd.org">{{ t('contact-your-administrator') }}</a>
+        <p v-if="view === 'hub' && role === 'student'" class="login-footer">
+          {{ t('dont-have-an-account') }} {{ t('speak-to-your-teacher') }}
+        </p>
+        <p v-else-if="view === 'hub'" class="login-footer login-footer--teacher">
+          {{ t('teacher-login-help') }}
         </p>
       </div>
     </main>
@@ -151,6 +167,7 @@ import {
   teacherCodeLoginEnabled,
   SSO_PROVIDER_META,
 } from '@/utils/constants.js'
+import languageChoices from '@/store/language-choices.js'
 import {
   normalizeLoginCodeInput,
   isCompleteLoginCode,
@@ -170,6 +187,12 @@ export default {
     }
   },
   computed: {
+    languageChoices() {
+      return languageChoices
+    },
+    currentLanguage() {
+      return this.$store.getters.language()
+    },
     host() {
       return typeof window !== 'undefined' ? window.location.host : ''
     },
@@ -195,6 +218,14 @@ export default {
   methods: {
     t(slug) {
       return this.$store.getters.t(slug)
+    },
+    languageLabel(code) {
+      const names = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }
+      const name = names[code] || code.toUpperCase()
+      return `${name} (${code.toUpperCase()})`
+    },
+    setLanguage(code) {
+      this.$store.dispatch('language', code)
     },
     signInWithLabel(provider) {
       return this.t(`sign-in-with-${provider.id}`)
@@ -365,6 +396,29 @@ export default {
   display: flex;
   flex-direction: column;
   gap: var(--login-stack-gap);
+}
+
+.login-lang {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.login-lang-label {
+  font-size: 12px;
+  color: #64748b;
+}
+.login-lang-select {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  color: #0f172a;
+}
+.login-footer--teacher {
+  line-height: 1.45;
 }
 
 /* Code / scanner: less top chrome + fill panel height so keypad fits without scroll */

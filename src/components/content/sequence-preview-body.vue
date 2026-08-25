@@ -2,10 +2,10 @@
   <div class="spb-root" :class="{ 'spb-root-nested': nested }">
     <div v-if="!loaded" class="spb-center spb-muted">
       <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-2" />
-      Loading...
+      {{ t('loading') }}
     </div>
     <div v-else-if="!seqState.items.length" class="spb-center spb-muted">
-      No items in this sequence
+      {{ t('no-items-in-this-sequence') }}
     </div>
     <template v-else>
       <div class="preview-layout">
@@ -27,13 +27,13 @@
         <div class="preview-content">
           <div v-if="resolvingCurrentItem" class="spb-center spb-muted">
             <LucideIcon name="loader-2" :size="14" :spin="true" class="inline mr-2" />
-            Loading...
+            {{ t('loading') }}
           </div>
           <div v-else-if="isCircularReference" class="spb-center spb-muted spb-circular">
-            This sequence can't be previewed here because it creates a circular reference.
+            {{ t('sequence-circular-reference') }}
           </div>
           <div v-else-if="isNestingTooDeep" class="spb-center spb-muted spb-circular">
-            This sequence is nested too deeply to preview here.
+            {{ t('sequence-nested-too-deep') }}
           </div>
           <SequencePreviewBody
             v-else-if="currentItemIsSequence"
