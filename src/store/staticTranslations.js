@@ -988,7 +988,7 @@ export default {
         "th": "ยกเลิก"
     },
     "play": {
-        "de": "spielen",
+        "de": "starten",
         "en": "play",
         "es": "jugar",
         "fr": "démarrer",
