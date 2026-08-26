@@ -57,7 +57,7 @@
               <IconButton
                 class="archive-button"
                 @click="unarchive(id)"
-                text="Unarchive"
+                :text="t('unarchive')"
                 icon="archive"
                 background="#ccc"
               />
