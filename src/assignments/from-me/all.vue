@@ -123,6 +123,7 @@
               />
               <br>
               <IconButton
+                v-if="showDashboardButton"
                 icon="dashboard"
                 @click="openDashboard(primaryDashboardType())"
                 :text="assignmentContainsBetty || assignmentContainsGenAI ? t('activity-dashboard') : t('live-monitoring-dashboard')"
@@ -297,6 +298,7 @@
         candliGames: [],
         assignmentContainsGenAI: null,
         assignmentContainsBetty: null,
+        showDashboardButton: false,
         showGenAIDashboardModal: false,
         dashboardUrl: null,
         openDashboardSession: null
@@ -373,21 +375,28 @@
         this.candliGames = []
         this.assignmentContainsGenAI = null
         this.assignmentContainsBetty = null
+        this.showDashboardButton = false
+        this.dashboardUrl = null
         if (!assignment) return
 
         const { content } = await Agent.state(assignment)
         const sequence = await Agent.state(content)
+        const { domain } = await Agent.metadata(content)
+
+        if (this.current !== assignment) return
+
+        // Questionnaires do not contain sequence items or use a dashboard.
+        if (domain === 'forms.pilaproject.org') return
+
         const candliGames = CANDLI_SEQUENCES[content]
           ? [...CANDLI_SEQUENCES[content]]
           : await candliGamesForSequenceItems(sequence.items)
 
+        // 2nd early return in case this.current changed during awaits above
         if (this.current !== assignment) return
         this.candliGames = candliGames
         this.assignmentContainsGenAI = !!GEN_AI_SEQUENCES[content]
         this.assignmentContainsBetty = !!sequence.id?.includes('betty')
-
-        const { domain } = await Agent.metadata(content)
-        if (this.current !== assignment) return
 
         if (domain === 'datawise.accingo.co') {
           this.dashboardUrl = 'https://datawise.accingo.co/dashboard'
@@ -396,6 +405,8 @@
           this.dashboardUrl = 'https://' + sequence.reference.dashboard
         }
         else this.dashboardUrl = null
+
+        this.showDashboardButton = true
       },
       t(slug) { return this.$store.getters.t(slug) },
       async add() {
