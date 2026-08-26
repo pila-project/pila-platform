@@ -75,7 +75,7 @@
         :key="selfSelected"
         @back="selfSelected = null"
         :id="selfSelected"
-        :partition="TAG_HIERARCHY_PARTITION"
+        :partition="tagRootPartition"
       />
     </div>
   </div>
