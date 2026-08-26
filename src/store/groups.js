@@ -25,7 +25,7 @@ export default {
           .filter(([_, { group_type }]) => group_type === typeFilter )
           .map(([id]) => id)
       )
-      else return Object.keys(state)
+      else return Object.keys(state.groups || {})
     },
     archivedGroups: state => typeFilter => {
       if (typeFilter) return (
@@ -35,18 +35,18 @@ export default {
           .filter(([_, { group_type }]) => group_type === typeFilter )
           .map(([id]) => id)
       )
-      else return Object.keys(state)
+      else return Object.keys(state.groups || {})
     },
     owner: state => groupId => state.groups[groupId].owner,
     members: state => groupId => (
       Object
-        .values(state.members)
+        .values(state.members || {})
         .filter(({ group_id, archived }) => group_id === groupId && !archived )
         .map(({ user_id }) => user_id)
     ),
     belongs: state => (uid, gid) => (
       Object
-        .values(state.members)
+        .values(state.members || {})
         .some(({ group_id, user_id, archived }) => {
           return !archived && group_id === gid && user_id === uid
         })
