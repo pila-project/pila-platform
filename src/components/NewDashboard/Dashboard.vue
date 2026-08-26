@@ -45,11 +45,19 @@
 
   const { content } = await Agent.state(props.assignment)
 
-  const sequenceItems = await (
-    Agent
-      .state(content)
-      .then(c => Object.values(c.items).map(({ id }) => id))
-  )
+  const sequence = await Agent.state(content)
+
+  if (!sequence.items) {
+    console.warn('Dashboard sequence has no items.', {
+      assignment: props.assignment,
+      content,
+      sequence
+    })
+  }
+
+  const sequenceItems = Object.values(sequence.items || {})
+    .map(({ id }) => id)
+
 </script>
 
 <style>
