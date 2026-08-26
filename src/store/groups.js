@@ -68,8 +68,18 @@ export default {
     }
   },
   mutations: {
-    add(state, { id, name, owner, group_type, archived, grade, subject }) {
-      state.groups[id] = { name, owner, group_type, archived, grade, subject }
+    add(state, { id, name, owner, group_type, archived, grade, subject, created, updated }) {
+      const prev = state.groups[id] || {}
+      state.groups[id] = {
+        name,
+        owner,
+        group_type,
+        archived,
+        grade,
+        subject,
+        created: created || prev.created || null,
+        updated: updated || prev.updated || null,
+      }
     },
     remove(state, id) {
       delete state.groups[id]
@@ -198,11 +208,16 @@ export default {
           .query('groups')
           .then(async (groups) => {
             await Promise.all(groups.map(async (group) => {
-              const state = await Agent.state(group.id)
+              const [state, metadata] = await Promise.all([
+                Agent.state(group.id),
+                Agent.metadata(group.id).catch(() => ({})),
+              ])
               commit('add', {
                 ...group,
                 grade: state.grade,
                 subject: state.subject,
+                created: group.created || metadata.created,
+                updated: group.updated || metadata.updated,
               })
             }))
           }),
@@ -214,13 +229,24 @@ export default {
       const members = await Agent.query('group_members')
       members.forEach(member => commit('addMember', member))
     },
-    async add({ dispatch }, { name, type, id=uuid()}) {
+    async add({ dispatch, commit, rootState }, { name, type, id=uuid()}) {
       const metadata = await Agent.metadata(id)
       if (metadata.active_type !== GROUP_TYPE) metadata.active_type = GROUP_TYPE
 
       const state = await Agent.state(id)
       state.name = name
       state.group_type = type
+
+      const now = new Date().toISOString()
+      commit('add', {
+        id,
+        name,
+        owner: rootState.user,
+        group_type: type,
+        archived: false,
+        created: metadata.created || now,
+        updated: metadata.updated || now,
+      })
 
       await Agent.synced()
       await dispatch('loadGroups')

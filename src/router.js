@@ -55,6 +55,7 @@ const TeacherResourcesPage = makeRouteShell(() => import('@/pages/teacher/resour
 const TeacherTrainerPage = makeRouteShell(() => import('@/pages/teacher/trainer-page.vue'))
 const BugReport = makeRouteShell(() => import('@/components/common/bug-report.vue'))
 const TeacherStudyOptOut = makeRouteShell(() => import('@/pages/teacher/study-opt-out.vue'))
+const TeacherSequencesBoard = makeRouteShell(() => import('@/pages/teacher/sequences-board.vue'))
 
 export default createRouter({
   history: createWebHistory(),
@@ -92,6 +93,9 @@ export default createRouter({
         { path: 'resources', component: TeacherResourcesPage },
         { path: 'trainer', component: TeacherTrainerPage },
         { path: 'support', component: BugReport },
+        { path: 'feedback', redirect: '/teacher/support' },
+        { path: 'groups', component: ManageClasses },
+        { path: 'sequences', component: TeacherSequencesBoard },
         { path: 'opt-out', component: TeacherStudyOptOut },
         { path: '', component: TeacherHome },
         { path: 'home', redirect: '/teacher' },

@@ -1,33 +1,52 @@
 <template>
-  <div class="relative">
-    <label v-if="label" :for="selectId" class="label">{{ label }} <span v-if="required" class="required-marker">*{{ t('required') }}</span></label>
-    <select
+  <div class="relative" ref="rootRef">
+    <label v-if="label" :id="labelId" class="label">
+      {{ label }} <span v-if="required" class="required-marker">*{{ t('required') }}</span>
+    </label>
+    <button
       :id="selectId"
-      :value="modelValue"
-      class="input appearance-none pr-10 cursor-pointer"
+      ref="triggerRef"
+      type="button"
+      class="input appearance-none pr-10 cursor-pointer pselect-trigger"
       :class="{ 'border-danger-600': error }"
       :disabled="disabled"
-      :required="required"
       :aria-required="required || undefined"
       :aria-invalid="!!error || undefined"
-      @change="$emit('update:modelValue', $event.target.value)"
+      :aria-expanded="open"
+      :aria-labelledby="label ? labelId : undefined"
+      @click="toggle"
     >
-      <option v-if="placeholder" value="" disabled selected>{{ placeholder }}</option>
-      <option
-        v-for="item in normalizedItems"
-        :key="item.value"
-        :value="item.value"
-      >
-        {{ item.title }}
-      </option>
-    </select>
+      <span :class="{ 'pselect-placeholder': !selectedTitle }">{{ selectedTitle || placeholder }}</span>
+    </button>
     <LucideIcon name="chevron-down" :size="16" class="select-chevron" />
     <p v-if="error" class="mt-1 text-xs text-danger-600">{{ error }}</p>
   </div>
+  <Teleport to="body">
+    <div
+      v-if="open"
+      ref="dropdownRef"
+      class="pselect-dropdown"
+      role="listbox"
+      :style="dropdownStyle"
+      @click.stop
+    >
+      <button
+        v-for="item in normalizedItems"
+        :key="String(item.value)"
+        type="button"
+        class="pselect-option"
+        :class="{ 'pselect-option-active': String(item.value) === String(modelValue) }"
+        role="option"
+        @click="choose(item.value)"
+      >
+        {{ item.title }}
+      </button>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 
@@ -56,9 +75,15 @@ const props = defineProps({
   returnObject: Boolean,
 })
 
-defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue'])
 
+const open = ref(false)
+const rootRef = ref(null)
+const triggerRef = ref(null)
+const dropdownRef = ref(null)
+const dropdownStyle = ref({})
 const selectId = computed(() => `select-${Math.random().toString(36).slice(2, 9)}`)
+const labelId = computed(() => `${selectId.value}-label`)
 
 const normalizedItems = computed(() => {
   return props.items.map(item => {
@@ -72,6 +97,58 @@ const normalizedItems = computed(() => {
     return { title, value }
   })
 })
+
+const selectedTitle = computed(() => {
+  const found = normalizedItems.value.find(i => String(i.value) === String(props.modelValue))
+  return found?.title || ''
+})
+
+function choose(value) {
+  emit('update:modelValue', value)
+  open.value = false
+}
+
+function toggle() {
+  if (props.disabled) return
+  open.value = !open.value
+}
+
+function updateDropdownPosition() {
+  const el = triggerRef.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const gap = 4
+  dropdownStyle.value = {
+    position: 'fixed',
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    top: `${rect.bottom + gap}px`,
+    maxHeight: '240px',
+    zIndex: 10050,
+  }
+}
+
+function onDocPointerDown(e) {
+  if (!open.value) return
+  if (rootRef.value?.contains(e.target) || dropdownRef.value?.contains(e.target)) return
+  open.value = false
+}
+
+watch(open, async (isOpen) => {
+  if (isOpen) {
+    await nextTick()
+    updateDropdownPosition()
+  }
+})
+
+onMounted(() => {
+  document.addEventListener('pointerdown', onDocPointerDown, true)
+  window.addEventListener('resize', updateDropdownPosition)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', onDocPointerDown, true)
+  window.removeEventListener('resize', updateDropdownPosition)
+})
 </script>
 
 <style scoped>
@@ -84,8 +161,42 @@ const normalizedItems = computed(() => {
   position: absolute;
   right: 1rem;
   bottom: 0.7rem;
-  font-size: 0.625rem;
   color: var(--color-slate-400);
   pointer-events: none;
+}
+.pselect-trigger {
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+.pselect-placeholder {
+  color: #94a3b8;
+}
+</style>
+
+<style>
+.pselect-dropdown {
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.16);
+  padding: 4px;
+}
+.pselect-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #0f172a;
+  cursor: pointer;
+}
+.pselect-option:hover,
+.pselect-option-active {
+  background: #eff6ff;
 }
 </style>

@@ -48,7 +48,7 @@
 
   const emit = defineEmits(['close', 'saved'])
   const modalRef = ref(null)
-  const modalWidth = ref('984px')
+  const modalWidth = ref('92vw')
   const childPreviewActive = ref(false)
 
   function handleKeydown(e) {
@@ -92,8 +92,9 @@
   border-radius: 16px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
-  max-width: 90vw;
-  height: 80vh;
+  max-width: 96vw;
+  width: 92vw;
+  height: 90vh;
   overflow: hidden;
   padding: 20px;
   transition: width 300ms ease;

@@ -332,7 +332,9 @@
         this.$store.dispatch('groups/unarchive', id)
       },
       printLoginCodes() {
-        window.open('/teacher/codes')
+        const lang = this.$store.getters.language()
+        const q = lang ? `?lang=${encodeURIComponent(lang)}` : ''
+        window.open(`/teacher/codes${q}`)
       }
     }
   }

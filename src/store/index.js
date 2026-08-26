@@ -18,6 +18,29 @@ import {
 import { recordAuthLastLogin } from '@/utils/record-last-login.js'
 import { getStoredAdminCredentialSecret } from '../teacher-login-credentials.js'
 
+const LANGUAGE_STORAGE_KEY = 'pila-language'
+
+function normalizeUiLanguage(value) {
+  const short = String(value || '').split(/[-_]/)[0]
+  return languageChoices.includes(short) ? short : null
+}
+
+function readStoredLanguage() {
+  try {
+    return normalizeUiLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY))
+  } catch {
+    return null
+  }
+}
+
+function writeStoredLanguage(value) {
+  const lang = normalizeUiLanguage(value)
+  if (!lang) return
+  try {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lang)
+  } catch { /* private mode */ }
+}
+
 export default {
   modules: {
     assignments,
@@ -168,6 +191,7 @@ export default {
     acceptTeacherAgreement(state) { state.hasAcceptedTeacherAgreement = true },
     language(state, val) {
       state.language = val
+      writeStoredLanguage(val)
       Agent
         .environment()
         .then(({ variables }) => {
@@ -187,13 +211,20 @@ export default {
       commit('language', value)
     },
     async load({ commit, state }) {
+      const { auth, variables } = await Agent.environment()
+      commit('load', auth)
+
       if (!Agent.embedded) {
-        const language = HOST_TO_FIRST_LOAD_LANGUAGE[window.location.host] || matchNavigatorLanguage(languageChoices)
+        const envLang = Array.isArray(variables?.LANGUAGES)
+          ? normalizeUiLanguage(variables.LANGUAGES[0])
+          : null
+        const language = readStoredLanguage()
+          || normalizeUiLanguage(state.language)
+          || envLang
+          || HOST_TO_FIRST_LOAD_LANGUAGE[window.location.host]
+          || matchNavigatorLanguage(languageChoices)
         commit('language', language)
       }
-
-      const { auth } = await Agent.environment()
-      commit('load', auth)
 
       if (state.user && state.provider !== 'anonymous') {
         await recordAuthLastLogin(auth).catch(e => console.warn('[Store] lastLogin failed:', e))

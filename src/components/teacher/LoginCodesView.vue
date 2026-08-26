@@ -1,7 +1,7 @@
 <template>
   <div class="login-codes-view">
     <div v-if="!studentIds.length" class="login-codes-empty">
-      <p>{{ t('no-students-selected') || 'No students selected.' }}</p>
+      <p>{{ t('no-students-selected') }}</p>
     </div>
     <template v-else>
       <div
@@ -13,16 +13,15 @@
           <DecryptedName :user="id" />
         </div>
         <div class="login-code-card-body">
-          <QRCodeDisplay :data="`${siteOrigin}/join/${id}`" size="160px" />
+          <QRCodeDisplay :data="`${siteOrigin}/join/${id}`" size="112px" />
           <div class="login-code-secret">
             <span class="login-code-label">{{ t('pila-login-code') }}</span>
             <div class="login-code-icons" :aria-label="t('pila-login-code')">
-              <i
+              <span
                 v-for="(char, index) in users[id]?.secret || ''"
                 :key="`${id}-${index}`"
-                :class="codeCharToIcon[char]"
-                class="login-code-icon"
-              />
+                class="login-code-glyph"
+              >{{ glyphForCodeChar(char) }}</span>
             </div>
           </div>
         </div>
@@ -36,7 +35,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
-import codeCharToIcon from '@/utils/code-char-to-icon.js'
+import { glyphForCodeChar } from '@/utils/login-code-symbols.js'
 
 const props = defineProps({
   studentIds: {
@@ -111,8 +110,11 @@ const studentIds = computed(() =>
   margin-top: 4px;
 }
 
-.login-code-icon {
-  font-size: 20px;
+.login-code-glyph {
+  min-width: 1.1em;
+  font-size: 22px;
+  line-height: 1;
   color: #334155;
+  text-align: center;
 }
 </style>

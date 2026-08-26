@@ -1,10 +1,10 @@
 <template>
   <div class="page-container admin-page">
-    <h1 class="page-heading">{{ t('student-and-group-management') }}</h1>
+    <h1 class="page-heading">{{ groupsBoard ? t('groups') : t('student-and-group-management') }}</h1>
 
-    <div class="admin-layout">
+    <div class="admin-layout" :class="{ 'admin-layout--groups-board': groupsBoard }">
       <!-- Left column: Students -->
-      <div class="student-section content-card">
+      <div v-if="!groupsBoard" class="student-section content-card">
         <div class="section-header">
           <div class="section-header-left">
             <LucideIcon name="user" :size="20" class="section-icon" />
@@ -150,7 +150,7 @@
               </PTooltip>
             </template>
             <template #item.more="{ item }">
-              <div class="action-cell">
+              <div v-if="selectedStudents.length <= 1" class="action-cell">
                 <!-- Archived students still get profile access (UIUX-102) -->
                 <PMenu align-right>
                   <template #activator="{ props }">
@@ -209,6 +209,15 @@
           </div>
           <div class="section-header-actions">
             <PButton
+              v-if="!groupsBoard"
+              variant="ghost"
+              size="sm"
+              icon="lucide:maximize-2"
+              iconOnly
+              :title="t('groups')"
+              @click="openGroupsBoard"
+            />
+            <PButton
               icon="lucide:plus"
               variant="primary"
               :text="t('add-group')"
@@ -218,7 +227,7 @@
           </div>
         </div>
 
-        <div class="search-and-filters">
+        <div class="search-and-filters group-filters">
           <PUnifiedFilter
             v-model:searchQuery="groupSearchFilter"
             :placeholder="t('search-group')"
@@ -231,6 +240,13 @@
               v-model="groupStatusFilters"
             />
           </PUnifiedFilter>
+          <div class="group-sort">
+            <PSelect
+              v-model="groupSort"
+              :placeholder="t('sort')"
+              :items="groupSortOptions"
+            />
+          </div>
         </div>
 
         <div class="group-cards-list">
@@ -252,7 +268,7 @@
             {{ t('no-results') }}
           </p>
           <PPagination
-            v-if="filteredGroups.length > groupsPerPage"
+            v-if="!groupsBoard && filteredGroups.length > groupsPerPage"
             :total-items="filteredGroups.length"
             v-model:current-page="groupListPage"
             :per-page="groupsPerPage"
@@ -761,39 +777,11 @@
       @confirm="addToGroupsResults = null"
       @cancel="addToGroupsResults = null"
     >
-      <div
-        v-for="r in addToGroupsResults.filter(r => r.status === 'added')"
-        :key="'added-' + r.id"
-        class="result-tile"
-      >
-        <div class="result-tile-info">
-          <span class="result-tile-name"><DecryptedName :user="r.id" /></span>
-          <span class="result-tile-grade">{{ r.grade }}</span>
-        </div>
-        <span class="result-badge result-badge-added">
-          <LucideIcon name="check" :size="12" /> Added
-        </span>
-      </div>
-
-      <div
-        v-for="r in addToGroupsResults.filter(r => r.status === 'skipped')"
-        :key="'skipped-' + r.id"
-        class="result-skipped-box"
-      >
-        <div class="result-skipped-warning">
-          <LucideIcon name="triangle-alert" :size="16" />
-          <span>{{ t('this-student-is-already-in-the-group').replace('{group}', r.groupName) }}</span>
-        </div>
-        <div class="result-tile">
-          <div class="result-tile-info">
-            <span class="result-tile-name"><DecryptedName :user="r.id" /></span>
-            <span class="result-tile-grade">{{ r.grade }}</span>
-          </div>
-          <span class="result-badge result-badge-skipped">
-            <LucideIcon name="refresh-cw" :size="12" /> Skipped
-          </span>
-        </div>
-      </div>
+      <p class="result-summary">
+        {{ t('students-added-skipped-summary')
+          .replace('{added}', String(addToGroupsResults[0]?.added || 0))
+          .replace('{skipped}', String(addToGroupsResults[0]?.skipped || 0)) }}
+      </p>
     </PAlertDialog>
 
     <!-- CSV Upload Modal -->
@@ -1056,6 +1044,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlert, PAlertDialog, PInput, PSelect, PMultiSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
@@ -1071,6 +1060,7 @@ import { createUser, resetUserSecret } from '@/utils/user-utils.js'
 import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
+import { glyphForCodeChar } from '@/utils/login-code-symbols.js'
 import {
   normalizeGroupSubjects,
   formatGroupSubjects,
@@ -1090,6 +1080,11 @@ import {
 import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
 
 const store = useStore()
+const route = useRoute()
+const groupsBoard = computed(() => route.path.endsWith('/groups'))
+function openGroupsBoard() {
+  window.open(`${window.location.origin}/teacher/groups`, '_blank', 'noopener')
+}
 function t(slug) { return store.getters.t(slug) }
 const studentTablePerPageOptions = computed(() => tablePerPageOptions(t))
 
@@ -1118,13 +1113,14 @@ const newGroupGrade = ref('')
 const newGroupSubjects = ref([])
 const searchQuery = ref('')
 const groupSearchFilter = ref('')
+const groupSort = ref('newest')
 const groupListPage = ref(1)
 const groupsPerPage = 4
 const pendingAfterAgreement = ref(null)
 const addToGroupsResults = ref(null)
 /** UIUX-128: any skip → non-success title (Sophie copy). */
 const addToGroupsHasSkipped = computed(() =>
-  !!addToGroupsResults.value?.some(r => r.status === 'skipped'),
+  !!addToGroupsResults.value?.some(r => (r.summary ? r.skipped > 0 : r.status === 'skipped')),
 )
 const addToGroupsResultTitle = computed(() => {
   if (addToGroupsHasSkipped.value) {
@@ -1662,24 +1658,67 @@ const groupHeaderCount = computed(() => {
   return n
 })
 
+const groupSortOptions = computed(() => [
+  { title: t('newest-first'), value: 'newest' },
+  { title: t('oldest-first'), value: 'oldest' },
+  { title: t('name-a-z'), value: 'name-asc' },
+  { title: t('name-z-a'), value: 'name-desc' },
+])
+
+function groupCreatedMs(gid) {
+  const g = store.state.groups.groups[gid]
+  const raw = g?.created || g?.updated
+  const ms = raw ? new Date(raw).getTime() : 0
+  return Number.isFinite(ms) ? ms : 0
+}
+
+function sortGroupIds(ids, mode = groupSort.value) {
+  const list = [...ids]
+  if (mode === 'name-asc') {
+    return list.sort((a, b) =>
+      (store.state.groups.groups[a]?.name || '').localeCompare(
+        store.state.groups.groups[b]?.name || '',
+        undefined,
+        { sensitivity: 'base' },
+      ),
+    )
+  }
+  if (mode === 'name-desc') {
+    return list.sort((a, b) =>
+      (store.state.groups.groups[b]?.name || '').localeCompare(
+        store.state.groups.groups[a]?.name || '',
+        undefined,
+        { sensitivity: 'base' },
+      ),
+    )
+  }
+  if (mode === 'oldest') {
+    return list.sort((a, b) => groupCreatedMs(a) - groupCreatedMs(b))
+  }
+  return list.sort((a, b) => groupCreatedMs(b) - groupCreatedMs(a))
+}
+
 const filteredGroups = computed(() =>
-  filterGroupIdsByStatus({
-    activeIds: activeGroups.value,
-    archivedIds: archivedGroups.value,
-    archivedIdSet: archivedGroupIdSet.value,
-    selectedStatuses: groupStatusFilters.value,
-    searchQuery: groupSearchFilter.value,
-    getSearchText: (gid) => store.state.groups.groups[gid]?.name || '',
-  }),
+  sortGroupIds(
+    filterGroupIdsByStatus({
+      activeIds: activeGroups.value,
+      archivedIds: archivedGroups.value,
+      archivedIdSet: archivedGroupIdSet.value,
+      selectedStatuses: groupStatusFilters.value,
+      searchQuery: groupSearchFilter.value,
+      getSearchText: (gid) => store.state.groups.groups[gid]?.name || '',
+    }),
+  ),
 )
 
 const paginatedGroupIds = computed(() => {
   const ids = filteredGroups.value
+  if (groupsBoard.value) return ids
   const start = (groupListPage.value - 1) * groupsPerPage
   return ids.slice(start, start + groupsPerPage)
 })
 
-watch([groupSearchFilter, groupStatusFilters], () => {
+watch([groupSearchFilter, groupStatusFilters, groupSort], () => {
   groupListPage.value = 1
 })
 
@@ -1894,7 +1933,7 @@ async function downloadLoginCard() {
   const ctx = canvas.getContext('2d')
   const img = new Image()
   img.onload = () => {
-    const qrSize = 300
+    const qrSize = 180
     const horizontalPadding = 24
     const nameY = 40
     const qrY = studentName ? 64 : 40
@@ -1920,6 +1959,11 @@ async function downloadLoginCard() {
     ctx.font = '500 12px system-ui, -apple-system, sans-serif'
     ctx.textAlign = 'center'
     ctx.fillText(t('pila-login-code'), width / 2, codeY - 18)
+    const secret = users[studentId]?.secret || ''
+    const glyphs = [...secret].map(ch => glyphForCodeChar(ch)).join('  ')
+    ctx.fillStyle = '#334155'
+    ctx.font = '600 22px system-ui, sans-serif'
+    ctx.fillText(glyphs, width / 2, codeY + 16)
 
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob)
@@ -2372,7 +2416,7 @@ const filteredGroupsForAssign = computed(() => {
       return name.toLowerCase().includes(q)
     })
   }
-  return groups
+  return sortGroupIds(groups)
 })
 
 function toggleGroupForAssign(gid) {
@@ -2396,15 +2440,22 @@ async function handleAddToGroups() {
         if (store.getters['groups/belongs'](student.id, gid)) {
           results.push({ id: student.id, grade: student.grade, status: 'skipped', groupName })
         } else {
-          await store.dispatch('groups/addMember', { user_id: student.id, group_id: gid })
+          await store.dispatch('groups/addMember', { user_id: student.id, group_id: gid, defer: true })
           results.push({ id: student.id, grade: student.grade, status: 'added' })
         }
       }
     }
+    await store.dispatch('groups/flushMembers')
     showAddToGroupsModal.value = false
     selectedGroupsForAssign.value = []
     groupSearchQuery.value = ''
-    addToGroupsResults.value = results
+    const added = results.filter(r => r.status === 'added').length
+    const skipped = results.filter(r => r.status === 'skipped').length
+    addToGroupsResults.value = [{
+      summary: true,
+      added,
+      skipped,
+    }]
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -2440,9 +2491,10 @@ async function handleDropStudent(groupId, studentIds) {
         skipped++
         continue
       }
-      await store.dispatch('groups/addMember', { user_id: studentId, group_id: groupId })
+      await store.dispatch('groups/addMember', { user_id: studentId, group_id: groupId, defer: true })
       added++
     }
+    await store.dispatch('groups/flushMembers')
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -2450,24 +2502,12 @@ async function handleDropStudent(groupId, studentIds) {
   }
 
   const groupName = store.state.groups.groups[groupId]?.name || t('unnamed')
-
-  if (added === 0) {
-    toastInfo(
-      ids.length === 1
-        ? t('student-already-in-group')
-        : t('students-already-in-group'),
-    )
-    return
-  }
-
-  if (added === 1) {
-    showSuccessDialog(t('student-added-to-group'), groupName)
-  } else {
-    showSuccessDialog(
-      t('students-added-to-group').replace('{count}', String(added)),
-      groupName,
-    )
-  }
+  showSuccessDialog(
+    t('students-added-skipped-summary')
+      .replace('{added}', String(added))
+      .replace('{skipped}', String(skipped)),
+    groupName,
+  )
 }
 
 function handlePrintGroupLoginCodes(groupId) {
@@ -2481,7 +2521,7 @@ function handlePrintGroupLoginCodes(groupId) {
     toastError(t('no-active-users-with-login-codes'))
     return
   }
-  window.open(`/teacher/codes?students=${encodeURIComponent(withCodes.join(','))}`)
+  openLoginCodesPage(withCodes)
 }
 
 function printLoginCodes() {
@@ -2492,7 +2532,15 @@ function printLoginCodes() {
     toastError(t('no-active-users-with-login-codes'))
     return
   }
-  window.open(`/teacher/codes?students=${encodeURIComponent(ids.join(','))}`)
+  openLoginCodesPage(ids)
+}
+
+function openLoginCodesPage(studentIds) {
+  const q = new URLSearchParams()
+  if (studentIds?.length) q.set('students', studentIds.join(','))
+  const lang = store.getters.language()
+  if (lang) q.set('lang', lang)
+  window.open(`/teacher/codes?${q.toString()}`)
 }
 </script>
 
@@ -2518,12 +2566,15 @@ function printLoginCodes() {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+  min-width: 0;
 }
 
 .section-header-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  flex: 1 1 160px;
 }
 
 .table-row-archived {
@@ -2571,12 +2622,43 @@ function printLoginCodes() {
 .section-header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
-  flex-shrink: 0;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.section-header-actions :deep(.btn) {
+  white-space: normal;
+  height: auto;
+  min-height: 32px;
+  line-height: 1.25;
+  max-width: 100%;
 }
 
 .search-and-filters {
   margin-bottom: 12px;
+}
+
+.group-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group-sort {
+  width: 100%;
+}
+
+.admin-layout--groups-board .group-filters {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.admin-layout--groups-board .group-sort {
+  width: 200px;
+  flex-shrink: 0;
 }
 
 /* Table scroll wrapper for mobile horizontal scroll */
@@ -2622,6 +2704,13 @@ function printLoginCodes() {
 }
 
 /* Group section (right) */
+.admin-layout--groups-board {
+  display: block;
+}
+.admin-layout--groups-board .group-section {
+  width: 100%;
+}
+
 .group-section {
   width: 317px;
   flex-shrink: 0;
@@ -2651,6 +2740,8 @@ function printLoginCodes() {
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .group-cards-list {
@@ -3106,6 +3197,17 @@ function printLoginCodes() {
   color: #334155;
 }
 
+/* Tablet: stack students + groups before header buttons overflow the column */
+@media (max-width: 1200px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .group-section {
+    width: 100%;
+  }
+}
+
 /* Mobile responsive */
 @media (max-width: 1023px) {
   .admin-page {
@@ -3127,7 +3229,9 @@ function printLoginCodes() {
 
   .section-header-actions {
     align-self: stretch;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    flex: 1 1 auto;
+    width: 100%;
   }
 
   .group-cards-list {

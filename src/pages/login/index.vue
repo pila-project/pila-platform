@@ -166,8 +166,10 @@ import {
   teacherSsoProvidersForHost,
   teacherCodeLoginEnabled,
   SSO_PROVIDER_META,
+  HOST_TO_FIRST_LOAD_LANGUAGE,
 } from '@/utils/constants.js'
 import languageChoices from '@/store/language-choices.js'
+import { languageMenuLabel } from '@/utils/language-labels.js'
 import {
   normalizeLoginCodeInput,
   isCompleteLoginCode,
@@ -177,9 +179,8 @@ export default {
   name: 'LoginMenu',
   components: { LucideIcon, LoginCodePad, LoginQrScanner },
   data() {
-    const path = typeof window !== 'undefined' ? window.location.pathname : '/'
     return {
-      role: path.startsWith('/teacher') ? 'teacher' : 'student',
+      role: 'student',
       view: 'hub',
       codeValue: '',
       signingIn: false,
@@ -209,20 +210,28 @@ export default {
       return teacherCodeLoginEnabled(this.host)
     },
     heroImageSrc() {
-      // UIUX-121: Thai hosts use the Thailand-provided illustration
-      return teacherSsoProvidersForHost(this.host).includes('line')
+      const thaiDomain = HOST_TO_FIRST_LOAD_LANGUAGE[this.host] === 'th'
+      const thaiLanguage = this.currentLanguage === 'th'
+      return (thaiDomain || thaiLanguage)
         ? '/login/hero-thailand.jpg'
         : '/login/hero.png'
     },
+  },
+  mounted() {
+    this.resetSigningIn()
+    window.addEventListener('pageshow', this.resetSigningIn)
+    window.addEventListener('pagehide', this.resetSigningIn)
+  },
+  beforeUnmount() {
+    window.removeEventListener('pageshow', this.resetSigningIn)
+    window.removeEventListener('pagehide', this.resetSigningIn)
   },
   methods: {
     t(slug) {
       return this.$store.getters.t(slug)
     },
     languageLabel(code) {
-      const names = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }
-      const name = names[code] || code.toUpperCase()
-      return `${name} (${code.toUpperCase()})`
+      return languageMenuLabel(code)
     },
     setLanguage(code) {
       this.$store.dispatch('language', code)
@@ -239,6 +248,9 @@ export default {
       this.codeValue = ''
       this.error = null
       this.view = 'code'
+    },
+    resetSigningIn() {
+      this.signingIn = false
     },
     async loginSso(provider) {
       this.error = null
@@ -574,8 +586,9 @@ export default {
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  height: var(--login-method-height);
-  padding: 0 24px;
+  min-height: var(--login-method-height);
+  height: auto;
+  padding: 10px 24px;
   box-sizing: border-box;
   border: var(--login-method-border);
   border-radius: var(--login-method-radius);
@@ -592,6 +605,8 @@ export default {
   flex: 1;
   text-align: center;
   min-width: 0;
+  white-space: normal;
+  line-height: 1.3;
 }
 
 .login-method-btn:hover:not(:disabled) {

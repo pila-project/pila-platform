@@ -169,6 +169,7 @@
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '@/utils/constants.js'
   import languageChoices from '@/store/language-choices.js'
+  import { languageMenuLabel } from '@/utils/language-labels.js'
   import { logout as doLogout } from '@/utils/logout.js'
   import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
   import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
@@ -242,16 +243,12 @@
     { icon: 'folder-plus', title: t('create'), to: '/teacher/create', show: !isSimplifiedStudyDomain },
     { icon: 'file-text', title: t('resources'), to: '/teacher/resources', show: true },
     { icon: 'school', title: t('trainer'), to: '/teacher/trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
-    { icon: 'message-square', title: t('feedback'), to: '/teacher/support', show: true },
   ])
-
-  const LANGUAGE_NAMES = { en: 'English', th: 'Thai', pl: 'Polish', fr: 'French', km: 'Khmer' }
 
   const currentLanguage = computed(() => store.getters.language())
 
   function languageLabel(code) {
-    const name = LANGUAGE_NAMES[code] || code.toUpperCase()
-    return `${name} (${code.toUpperCase()})`
+    return languageMenuLabel(code)
   }
 
   function t(slug) { return store.getters.t(slug) }
@@ -291,6 +288,17 @@
 }
 
 .teacher-main:has(.explore-page) .explore-page {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.teacher-main:has(.create-tab) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-main:has(.create-tab) .create-tab {
   flex: 1 1 auto;
   min-height: 0;
 }

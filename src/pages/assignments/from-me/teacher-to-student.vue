@@ -41,19 +41,23 @@
         multiline
         :rows="5"
       />
-      <div class="field-row">
-        <PSelect
-          v-model="assignmentType"
-          :label="t('assignment-type')"
-          :placeholder="t('assignment')"
-          :items="assignmentTypeOptions"
-          required
-        />
-        <PDateField
-          v-model="dueDate"
-          :label="t('due-date')"
-          :placeholder="t('date-format-placeholder')"
-        />
+      <div class="field-row field-row-type-date">
+        <div class="field-type">
+          <PSelect
+            v-model="assignmentType"
+            :label="t('assignment-type')"
+            :placeholder="t('assignment')"
+            :items="assignmentTypeOptions"
+          />
+        </div>
+        <div class="field-due">
+          <PDateField
+            v-model="dueDate"
+            :label="t('due-date')"
+            :placeholder="t('date-format-placeholder')"
+            :min="dueDateMin"
+          />
+        </div>
       </div>
     </div>
 
@@ -203,7 +207,7 @@
             @click="toggleGroup(gid)"
           >
             <div class="group-icon" :class="isGroupSelected(gid) ? 'group-icon-green' : 'group-icon-blue'">
-              <LucideIcon name="users" :size="16" />
+              <LucideIcon name="users" :size="12" />
             </div>
             <div class="group-info">
               <span class="group-name">
@@ -473,7 +477,7 @@
   }, { immediate: true })
 
   watch(selectingContent, (open) => {
-    emit('update:width', open ? 'min(960px, 96vw)' : '720px')
+    emit('update:width', open ? 'min(1100px, 96vw)' : '92vw')
   }, { immediate: true })
 
   // ── Step definitions (3 steps when settings hidden; 4 when shown) ──
@@ -779,8 +783,13 @@
     return assignmentContentIdSet.value.has(id)
   }
 
+  const dueDateMin = computed(() => {
+    const n = new Date()
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate())
+  })
+
   const step1Valid = computed(() =>
-    (assignment.value.name || '').trim() !== '' && !!assignmentType.value?.trim()
+    (assignment.value.name || '').trim() !== ''
   )
 
   const step2Valid = computed(() => contentList.value.length > 0)
@@ -804,14 +813,8 @@
 
   const stepBlockedReason = computed(() => {
     if (currentStep.value === 1) {
-      const missing = []
-      if (!(assignment.value.name || '').trim()) missing.push(t('assignment-title'))
-      if (!assignmentType.value?.trim()) missing.push(t('assignment-type'))
-      if (missing.length === 2) {
-        return t('fill-required-fields-to-continue')
-      }
-      if (missing.length) {
-        return `${t('required')}: ${missing.join(', ')}`
+      if (!(assignment.value.name || '').trim()) {
+        return `${t('required')}: ${t('assignment-title')}`
       }
     }
     if (currentStep.value === 2 && !step2Valid.value) {
@@ -1040,6 +1043,7 @@
   flex-direction: column;
   gap: 0;
   flex: 1;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
@@ -1194,6 +1198,22 @@
 }
 .field-row > * {
   flex: 1;
+}
+
+.field-row-type-date {
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+.field-row-type-date > * {
+  flex: 0 0 auto;
+}
+.field-type {
+  width: 280px;
+  max-width: 100%;
+}
+.field-due {
+  width: 168px;
+  max-width: 100%;
 }
 
 .field-label {
@@ -1378,9 +1398,11 @@
 .group-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
   margin-top: 4px;
-  max-height: 200px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
   padding: 2px;
 }
@@ -1388,13 +1410,14 @@
 .group-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 4px 8px;
+  min-height: 32px;
   background: #f8fafc;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 150ms;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
 }
 .group-card:hover {
   background: #f1f5f9;
@@ -1405,13 +1428,13 @@
 }
 
 .group-icon {
-  width: 48px;
-  height: 48px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 12px;
   flex-shrink: 0;
 }
 
@@ -1434,9 +1457,12 @@
 }
 
 .group-name {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 500;
   color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .group-count {

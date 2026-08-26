@@ -11,10 +11,8 @@
                 <LucideIcon name="bar-chart" :size="16" class="vso-title-icon" />
                 {{ t('reporting-dashboard') }} — {{ assignmentName }}
               </h2>
-              <p class="vso-subtitle">
-                {{ SHOW_STUDENT_SUBMISSIONS_UI
-                  ? t('review-student-submissions-and-provide-feedback')
-                  : t('view-dashboards') }}
+              <p v-if="SHOW_STUDENT_SUBMISSIONS_UI" class="vso-subtitle">
+                {{ t('review-student-submissions-and-provide-feedback') }}
               </p>
             </div>
             <PButton variant="icon" size="xsm" icon="lucide:x" iconOnly @click="$emit('close')" />
@@ -23,7 +21,6 @@
           <div class="vso-scroll-body">
           <!-- Dashboard cards: same look; only list dashboards this assignment's content supports (UIUX-129). -->
           <div v-if="hasAnyDashboardCard" class="vso-dashboards">
-            <h4 class="vso-section-label">{{ t('view-dashboards') }}:</h4>
             <div class="vso-dashboard-cards">
               <div
                 v-if="assignmentContainsAppDashboard"

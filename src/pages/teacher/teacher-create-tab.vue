@@ -1,5 +1,6 @@
 <template>
   <div class="create-tab">
+  <div class="create-tab-body">
   <div v-if="customizersAvailable">
     <h3>{{ t('create-your-own-content') }}</h3>
     <p class="create-hint">{{ t('create-your-own-content-hint') }}</p>
@@ -88,48 +89,49 @@
       <div class="left">
         <img src="/icon_pilathailand.png" alt="pila-thailand-image" class="btn-image">
       </div>
-      <div class="center">{{ "THAI PILA" }}</div>
+      <div class="center">{{ t('thai-pila') }}</div>
       <LucideIcon name="square-pen" :size="16" class="right" />
     </button>
 
 
   </div>
+  </div>
 
-    <div class="id-or-url-input-wrapper">
-      <h3>{{ t('import-content') }}</h3>
-      <p class="create-hint">{{ t('import-content-hint') }}</p>
-      <input
-        :placeholder="t('add-content-by-id-or-url')"
-        v-model="userIdOrURL"
-        class="input"
-        @keydown="() => {
-          showInvalidMessage = false
-          showSuccessMessage = false
-        }"
-        @keydown.enter="attemptAddContent(userIdOrURL)"
-      />
-      <PButton
-        v-if="userIdOrURL"
-        variant="primary"
-        size="sm"
-        :text="t('add')"
-        @click="attemptAddContent(userIdOrURL)"
-        class="mt-2"
-      />
-      <div
-        v-if="showInvalidMessage"
-        class="mt-2 p-3 rounded-md bg-danger-200 text-danger-600 text-sm"
-      >
+    <div class="create-tab-footer">
+      <div class="import-bar">
+        <div class="import-copy">
+          <LucideIcon name="download" :size="16" class="import-icon" />
+          <span class="import-title">{{ t('import-content') }}</span>
+          <span class="import-hint" :title="t('import-content-hint')">{{ t('import-content-hint') }}</span>
+        </div>
+        <div class="import-row">
+          <input
+            :placeholder="t('add-content-by-id-or-url')"
+            v-model="userIdOrURL"
+            class="input import-input"
+            @keydown="() => {
+              showInvalidMessage = false
+              showSuccessMessage = false
+            }"
+            @keydown.enter="attemptAddContent(userIdOrURL)"
+          />
+          <PButton
+            variant="primary"
+            size="sm"
+            :text="t('add')"
+            :disabled="!userIdOrURL"
+            @click="attemptAddContent(userIdOrURL)"
+          />
+        </div>
+      </div>
+      <p v-if="showInvalidMessage" class="import-status import-status--error">
         {{ t('invalid-id-or-url') }}
-        <button class="ml-2 font-medium" @click="showInvalidMessage = false">&times;</button>
-      </div>
-      <div
-        v-if="showSuccessMessage"
-        class="mt-2 p-3 rounded-md bg-success-50 text-success-600 text-sm"
-      >
+        <button type="button" class="import-status-dismiss" @click="showInvalidMessage = false">&times;</button>
+      </p>
+      <p v-if="showSuccessMessage" class="import-status import-status--ok">
         {{ t('success') }}
-        <button class="ml-2 font-medium" @click="showSuccessMessage = false">&times;</button>
-      </div>
+        <button type="button" class="import-status-dismiss" @click="showSuccessMessage = false">&times;</button>
+      </p>
     </div>
   </div>
 </template>
@@ -141,6 +143,7 @@ import { validate as isUUID } from 'uuid'
 import { useStore } from 'vuex'
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
+import { registerMyContentItem } from '@/utils/useContentLibrary.js'
 import { PButton } from '@/components/ui/index.js'
 
 const store = useStore()
@@ -154,23 +157,28 @@ const showInvalidMessage = ref(false)
 const showSuccessMessage = ref(false)
 const customizersAvailable = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
 
-async function attemptAddContent(userInput) {
-  if (await isValidInput(userInput)) {
-    await setTagging({ tag: MY_CONTENT_TAG, target: userInput, value: true })
+function extractContentId(input) {
+  const trimmed = String(input || '').trim()
+  if (!trimmed) return null
+  if (trimmed.startsWith('https://bettysbrain.knowlearning.systems/bb/')) {
+    const possibleModuleId = trimmed.slice(44, 80)
+    return isUUID(possibleModuleId) ? possibleModuleId : null
+  }
+  if (isUUID(trimmed)) return trimmed
+  const match = trimmed.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)
+  return match && isUUID(match[0]) ? match[0] : null
+}
 
+async function attemptAddContent(userInput) {
+  const contentId = extractContentId(userInput)
+  if (contentId) {
+    await setTagging({ tag: MY_CONTENT_TAG, target: contentId, value: true })
+    registerMyContentItem(contentId)
     userIdOrURL.value = ''
     showSuccessMessage.value = true
   } else {
     showInvalidMessage.value = true
   }
-}
-
-async function isValidInput(input) {
-  if (input.startsWith('https://bettysbrain.knowlearning.systems/bb/')) {
-    const possibleModuleId = input.slice(44, 80)
-    return isUUID(possibleModuleId)
-  }
-  else return isUUID(input)
 }
 
 function openLink(link) {
@@ -183,8 +191,26 @@ function openLink(link) {
 .create-tab {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.create-tab-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  padding-top: 40px;
+  padding: 40px 24px 24px;
+}
+.create-tab-footer {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -8px 24px rgb(15 23 42 / 0.06);
+  padding: 16px 24px 24px;
 }
 h3 {
   margin-bottom: 8px;
@@ -196,6 +222,88 @@ h3 {
   line-height: 1.45;
   color: #64748b;
   text-align: center;
+}
+.import-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  min-width: 0;
+}
+.import-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.import-icon {
+  flex-shrink: 0;
+  color: #2563eb;
+}
+.import-title {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #334155;
+  line-height: 1.2;
+}
+.import-hint {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  line-height: 1.2;
+  color: #64748b;
+}
+.import-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.import-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.import-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 1120px;
+  margin: 8px auto 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.import-status--error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.import-status--ok {
+  background: #ecfdf5;
+  color: #059669;
+}
+.import-status-dismiss {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
 }
 .custom-button {
   display: flex;
@@ -237,9 +345,5 @@ h3 {
   height: 100%;
   overflow:hidden;
 }
-.id-or-url-input-wrapper {
-  text-align: center;
-  margin-top: 20px;
-  width: 340px;
-}
+
 </style>

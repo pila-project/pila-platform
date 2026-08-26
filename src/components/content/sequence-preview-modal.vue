@@ -7,9 +7,9 @@
   >
     <template #title>
       <div>
-        <span class="font-semibold">Preview: "{{ header.name || 'Untitled' }}"</span>
+        <span class="font-semibold">{{ previewTitle(header.name) }}</span>
         <span v-if="header.total" class="text-sm font-normal text-slate-500 ml-2">
-          Question {{ header.index + 1 }} of {{ header.total }}
+          {{ questionCounter(header) }}
         </span>
       </div>
     </template>
@@ -22,12 +22,26 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useStore } from 'vuex'
 import { PModal } from '@/components/ui/index.js'
 import SequencePreviewBody from './sequence-preview-body.vue'
 
 defineProps({
   id: { type: String, required: true },
 })
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
+
+function previewTitle(name) {
+  return `${t('preview')}: "${name || t('untitled')}"`
+}
+
+function questionCounter(header) {
+  return t('item-n-of-n')
+    .replace('{current}', String((header.index || 0) + 1))
+    .replace('{total}', String(header.total || 0))
+}
 
 defineEmits(['close'])
 

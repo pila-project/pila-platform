@@ -637,8 +637,10 @@ function onAssignmentSaved() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 20px;
+  min-width: 0;
 }
 
 .home-greeting {
@@ -657,8 +659,9 @@ function onAssignmentSaved() {
 
 .home-header-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  flex-shrink: 0;
+  min-width: 0;
 }
 
 .workspace-banner {

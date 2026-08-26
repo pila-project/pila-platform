@@ -192,6 +192,15 @@
     @confirm="discardAndClose"
     @cancel="showDiscardConfirm = false"
   />
+  <PAlertDialog
+    v-if="showPendingSelectionConfirm"
+    variant="warning"
+    :title="pendingSelectionKind === 'remove' ? t('selection-not-applied-remove') : t('selection-not-applied-add')"
+    :confirmText="pendingSelectionKind === 'remove' ? t('remove-selected-before-exit') : t('add-selected-before-exit')"
+    :cancelText="pendingSelectionKind === 'remove' ? t('continue-without-removing') : t('continue-without-adding')"
+    @confirm="applyPendingSelectionThenClose"
+    @cancel="continueWithoutPendingSelection"
+  />
 </template>
 
 <script setup>
@@ -554,7 +563,17 @@ function removeSelectedFromGroup() {
   selectedGroup.clear()
 }
 
-async function handleDone() {
+const showPendingSelectionConfirm = ref(false)
+const pendingSelectionKind = ref(null) // 'add' | 'remove'
+const closeAfterPendingChoice = ref(false)
+
+function pendingSelectionKindNow() {
+  if (selectedAvailable.size) return 'add'
+  if (selectedGroup.size) return 'remove'
+  return null
+}
+
+async function flushAndClose() {
   if (hasChanges.value) {
     flushing.value = true
     try {
@@ -569,12 +588,52 @@ async function handleDone() {
   emit('close')
 }
 
+async function handleDone() {
+  const kind = pendingSelectionKindNow()
+  if (kind) {
+    pendingSelectionKind.value = kind
+    closeAfterPendingChoice.value = true
+    showPendingSelectionConfirm.value = true
+    return
+  }
+  await flushAndClose()
+}
+
 function onRequestClose() {
+  const kind = pendingSelectionKindNow()
+  if (kind) {
+    pendingSelectionKind.value = kind
+    closeAfterPendingChoice.value = true
+    showPendingSelectionConfirm.value = true
+    return
+  }
   if (hasChanges.value) {
     showDiscardConfirm.value = true
     return
   }
   emit('close')
+}
+
+async function applyPendingSelectionThenClose() {
+  if (pendingSelectionKind.value === 'add') addSelectedToGroup()
+  if (pendingSelectionKind.value === 'remove') removeSelectedFromGroup()
+  showPendingSelectionConfirm.value = false
+  pendingSelectionKind.value = null
+  await flushAndClose()
+}
+
+function continueWithoutPendingSelection() {
+  selectedAvailable.clear()
+  selectedGroup.clear()
+  showPendingSelectionConfirm.value = false
+  pendingSelectionKind.value = null
+  if (closeAfterPendingChoice.value) {
+    if (hasChanges.value) {
+      showDiscardConfirm.value = true
+      return
+    }
+    emit('close')
+  }
 }
 
 async function revertChanges() {

@@ -1,6 +1,6 @@
 <template>
   <div ref="explorePageRef" class="page-container explore-page">
-    <h1 class="page-heading explore-heading capitalize">{{ t('explore') }}</h1>
+    <h1 class="page-heading explore-heading capitalize">{{ sequencesBoard ? t('my-sequences') : t('explore') }}</h1>
 
     <!-- Mobile: inline sequence section -->
     <div class="mobile-sequences">
@@ -12,9 +12,20 @@
         @click="showCreateSequence = true"
       />
       <div class="mobile-seq-section">
-        <h2 class="sequences-heading text-sm font-semibold text-zinc-950">
-          {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
-        </h2>
+        <div class="sequences-card-header-row">
+          <h2 class="sequences-heading text-sm font-semibold text-zinc-950">
+            {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
+          </h2>
+          <PButton
+            v-if="!sequencesBoard"
+            variant="ghost"
+            size="sm"
+            icon="lucide:maximize-2"
+            iconOnly
+            :title="t('my-sequences')"
+            @click="openSequencesBoard"
+          />
+        </div>
         <p class="text-xs text-slate-500 mt-0.5">{{ t('organize-content-into-learning-sequences') }}</p>
         <PUnifiedFilter
           v-if="isTeacherExplore"
@@ -82,14 +93,25 @@
       </div>
     </div>
 
-    <div class="explore-columns">
+    <div class="explore-columns" :class="{ 'explore-columns--sequences-board': sequencesBoard }">
       <!-- Left panel: My sequences (desktop) -->
-      <aside class="sequences-panel">
+      <aside class="sequences-panel" :class="{ 'sequences-panel--board': sequencesBoard }">
         <div class="sequences-card">
           <div class="sequences-card-header">
-            <h2 class="sequences-heading text-base font-semibold text-zinc-950">
-              {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
-            </h2>
+            <div class="sequences-card-header-row">
+              <h2 class="sequences-heading text-base font-semibold text-zinc-950">
+                {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
+              </h2>
+              <PButton
+                v-if="!sequencesBoard"
+                variant="ghost"
+                size="sm"
+                icon="lucide:maximize-2"
+                iconOnly
+                :title="t('my-sequences')"
+                @click="openSequencesBoard"
+              />
+            </div>
             <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
             <PUnifiedFilter
               v-if="isTeacherExplore"
@@ -161,10 +183,10 @@
       </aside>
 
       <!-- Right panel: Content library -->
-      <div class="content-card content-library-card flex-1 min-w-0">
+      <div v-if="!sequencesBoard" class="content-card content-library-card flex-1 min-w-0">
         <!-- Section header -->
         <div class="content-lib-header">
-          <div class="flex items-center justify-between">
+          <div class="content-lib-header-row">
             <div>
               <h2 class="text-base font-semibold text-zinc-950 flex items-center gap-2">
                 <LucideIcon name="clipboard-list" :size="16" class="text-primary-600" />
@@ -490,6 +512,10 @@
   function t(slug) { return store.getters.t(slug) }
 
   const isTeacherExplore = computed(() => route.path.startsWith('/teacher'))
+  const sequencesBoard = computed(() => route.path.endsWith('/sequences'))
+  function openSequencesBoard() {
+    window.open(`${window.location.origin}/teacher/sequences`, '_blank', 'noopener')
+  }
   const exploreGridPerPageOptions = computed(() => gridPerPageOptions(t))
 
   // ── Shared content library (composable with module-level shared state) ──
@@ -1324,6 +1350,19 @@
   align-self: stretch;
 }
 
+.sequences-panel--board,
+.explore-columns--sequences-board .sequences-panel {
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+.sequences-card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .sequences-heading {
   white-space: nowrap;
 }
@@ -1392,6 +1431,15 @@
 
 .content-lib-header {
   border-bottom: 1px solid #E2E8F0;
+}
+
+.content-lib-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
 }
 
 /* Selection toolbar */

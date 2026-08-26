@@ -3,12 +3,17 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import LoginCodesView from '@/components/teacher/LoginCodesView.vue'
 import { PButton } from '@/components/ui/index.js'
+import languageChoices from '@/store/language-choices.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 
 const users = await Agent.state('users')
 const params = new URLSearchParams(window.location.search)
+const langParam = String(params.get('lang') || '').split(/[-_]/)[0]
+if (languageChoices.includes(langParam)) {
+  store.commit('language', langParam)
+}
 const studentFilter = params.get('students')
 const filterIds = studentFilter ? studentFilter.split(',').filter(Boolean) : null
 
@@ -44,7 +49,7 @@ function printCodes() {
       />
     </div>
     <p v-if="usersMissingCodes.length" class="codes-missing no-print">
-      {{ usersMissingCodes.length }} {{ t('student') }}{{ usersMissingCodes.length === 1 ? '' : 's' }}
+      {{ usersMissingCodes.length }} {{ usersMissingCodes.length === 1 ? t('student') : t('students') }}
       {{ t('without-login-codes') }}
     </p>
     <LoginCodesView v-if="usersWithCodes.length" :student-ids="usersWithCodes" :users="users" />

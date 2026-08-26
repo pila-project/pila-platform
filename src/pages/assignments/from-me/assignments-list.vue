@@ -198,7 +198,7 @@
             <span v-else class="assign-cell-text assign-cell-text--muted">—</span>
           </template>
           <template #item.actions="{ item }">
-            <div @click.stop>
+            <div v-if="selectedItems.length <= 1" @click.stop>
               <PMenu alignRight>
                 <template #activator="{ props: menuProps }">
                   <PButton variant="icon" size="sm" icon="lucide:ellipsis-vertical" iconOnly @click="menuProps.onClick" />
@@ -1427,7 +1427,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
+  min-width: 0;
 }
 
 .assign-new-btn {
@@ -1716,6 +1718,17 @@
 }
 
 /* ── Mobile Responsive ── */
+@media (max-width: 900px) {
+  .assign-card-title-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .assign-new-btn {
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .assign-card-header {
     padding-bottom: 16px;

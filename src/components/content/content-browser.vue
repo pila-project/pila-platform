@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div :class="fillHeight ? 'cb-scroll-body' : 'cb-body'">
+    <div ref="scrollBodyRef" :class="fillHeight ? 'cb-scroll-body' : 'cb-body'">
       <slot name="above-grid" :filtered-list="displayList" />
 
       <!-- Loading (only when we have nothing to show yet — avoids empty → loader flash) -->
@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useContentLibrary } from '@/utils/useContentLibrary.js'
 import { prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
@@ -171,6 +171,19 @@ watch(paginatedDisplayList, (ids) => {
 }, { immediate: true })
 
 onMounted(() => ensureLoaded({ useDiskCache: props.useDiskCache }))
+
+const scrollBodyRef = ref(null)
+
+onActivated(() => {
+  activeShowTab.value = 'all'
+  contentPage.value = 1
+  if (scrollBodyRef.value) scrollBodyRef.value.scrollTop = 0
+})
+
+watch(activeShowTab, () => {
+  contentPage.value = 1
+  if (scrollBodyRef.value) scrollBodyRef.value.scrollTop = 0
+})
 
 defineExpose({
   filteredContentList,
