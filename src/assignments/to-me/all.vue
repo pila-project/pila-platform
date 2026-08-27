@@ -37,10 +37,12 @@
         md="4"
         sm="6"
       >
-        <TeacherTaskCard
-          :assignment="assignment"
-          @play="play(assignment.content_id)"
-        />
+        <NewBadge :show="isNewAssignment(assignment)">
+          <TeacherTaskCard
+            :assignment="assignment"
+            @play="play(assignment.content_id)"
+          />
+        </NewBadge>
       </v-col>
     </v-row>
   </div>
@@ -59,7 +61,12 @@
         allow="camera;microphone;fullscreen"
       />
     </div>
-    <v-card v-else class="task-launch-status" width="min(420px, calc(100vw - 32px))">
+
+    <v-card
+      v-else
+      class="task-launch-status"
+      width="min(420px, calc(100vw - 32px))"
+    >
       <v-card-text class="task-launch-status-content">
         <v-progress-circular
           v-if="loadingTaskEnvironment"
@@ -70,6 +77,7 @@
           {{ taskEnvironmentError || 'Unable to prepare this task.' }}
         </v-alert>
       </v-card-text>
+
       <v-card-actions>
         <v-btn variant="text" @click="router.push('/teacher/tasks')">
           Close
@@ -95,7 +103,10 @@
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import { adminTeacherTaskNamespace } from '../../admin-teacher-grants.js'
   import studyEnvironmentVariableProxy from '../../study-environment-variable-proxy.js'
+  import NewBadge from '../../components/new-badge.vue'
   import TeacherTaskCard from './teacher-task-card.vue'
+
+  const NEW_ASSIGNMENT_DAYS = 3
 
   const props = defineProps({
     id: String
@@ -155,6 +166,12 @@
   function timestamp(value) {
     const parsed = new Date(value).getTime()
     return Number.isNaN(parsed) ? 0 : parsed
+  }
+
+  function isNewAssignment(assignment) {
+    const createdAt = timestamp(assignment.updated)
+    const cutoff = Date.now() - (NEW_ASSIGNMENT_DAYS * 24 * 60 * 60 * 1000)
+    return createdAt >= cutoff
   }
 
   function loadAssignments(background = false) {
