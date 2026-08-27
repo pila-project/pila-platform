@@ -10,7 +10,7 @@
       </template>
     </v-list-item>
     <v-list-item>
-      <TagCloud
+      <TagViewer
         :target="props.id"
         :partition="props.partition"
       />
@@ -39,7 +39,7 @@
   import { ref, watch, computed } from 'vue'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import DecryptedName from './decrypted-name.vue'
-  import TagCloud from './tag-cloud.vue'
+  import TagViewer from './tag-viewer.vue'
   
   import { useStore } from 'vuex'
   const store = useStore()
