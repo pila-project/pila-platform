@@ -136,12 +136,19 @@ import IconButton from './../../components/icon-button.vue'
     display: flex;
     align-items: center;
     width: 256px;
-    height: 32px;
+    height: 56px;
+    box-sizing: border-box;
     padding: 8px;
     margin: 8px;
     border-radius: 8px;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     cursor: pointer;
+  }
+  .login-button > div:last-child {
+    flex: 1;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
   }
   .login-button.disabled {
     filter: grayscale(100%);
