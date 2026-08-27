@@ -1,11 +1,11 @@
 <template>
-  <StudentAgreement v-if="!hasStudentAgreement" />
+  <StudentAgreement v-if="!hasStudentAgreement && !isTeacher" />
   <v-app
     class="student-view"
     v-else
   >
     <Navbar
-      :teacherViewButton="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
+      :teacherViewButton="isTeacher"
     />
 
     <v-navigation-drawer rail permanent>
@@ -19,7 +19,6 @@
             @click.shift="alertUserName"
             :image="userInfo.picture"
           />
-
         </template>
       </v-list-item>
 
@@ -58,6 +57,7 @@
   import StudentAssignments from './student-assignments.vue'
   import IconButton from '../../components/icon-button.vue'
   import StudiesNotAvailable from '../../components/studies-not-available.vue'
+
   export default {
     components: {
       Navbar,
@@ -84,6 +84,12 @@
       ) this.$router.push('/teacher')
     },
     computed: {
+      isTeacher() {
+        return this.$store.getters['roles/hasPermission'](
+          this.$store.state.user,
+          'teacher'
+        )
+      },
       hasStudentAgreement() {
         return this.$store.getters.hasAcceptedStudentAgreement()
       },
@@ -97,7 +103,7 @@
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
       logout() { Agent.logout() },
-      alertUserName() { alert(this.$store.state.user ) }
+      alertUserName() { alert(this.$store.state.user) }
     }
   }
 </script>
