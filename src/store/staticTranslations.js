@@ -6355,5 +6355,31 @@ export default {
         "pt": "Tarefa criada com sucesso",
         "sk": "Úloha bola úspešne vytvorená",
         "th": "สร้างงานที่มอบหมายสำเร็จ"
-    }
+    },
+    "student-view": {
+        "de": "Schüleransicht",
+        "en": "Student View",
+        "es": "Vista de estudiante",
+        "fr": "Vue élève",
+        "km": "ទិដ្ឋភាពសិស្ស",
+        "lv": "Skolēna skats",
+        "nl": "Leerlingweergave",
+        "pl": "Widok ucznia",
+        "pt": "Vista do aluno",
+        "sk": "Zobrazenie žiaka",
+        "th": "มุมมองนักเรียน"
+    },
+    "teacher-agreement": {
+        "de": "Vereinbarung für Lehrkräfte",
+        "en": "Teacher Agreement",
+        "es": "Acuerdo para docentes",
+        "fr": "Accord enseignant",
+        "km": "កិច្ចព្រមព្រៀងសម្រាប់គ្រូបង្រៀន",
+        "lv": "Skolotāja līgums",
+        "nl": "Docentenovereenkomst",
+        "pl": "Umowa dla nauczyciela",
+        "pt": "Acordo do professor",
+        "sk": "Dohoda pre učiteľov",
+        "th": "ข้อตกลงสำหรับครู"
+    },
 }

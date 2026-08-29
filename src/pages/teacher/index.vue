@@ -1,5 +1,24 @@
 <template>
-  <TeacherAgreement v-if="!hasTeacherAgreement" />
+  <div
+    v-if="!hasTeacherAgreement && !showTeacherAgreement"
+    class="view-choice"
+  >
+    <v-btn
+      color="primary"
+      @click="showTeacherAgreement = true"
+    >
+      {{ t('teacher-agreement') }}
+    </v-btn>
+    <v-btn
+      color="primary"
+      variant="outlined"
+      @click="goToStudentView"
+    >
+      {{ t('student-view') }}
+    </v-btn>
+  </div>
+
+  <TeacherAgreement v-else-if="!hasTeacherAgreement" />
   <v-app
     class="teacher-view"
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
@@ -169,6 +188,7 @@
   const tab = ref('classes')
   const userInfo = ref({})
   const userIsTrainer= ref(null)
+  const showTeacherAgreement = ref(false)
 
   Agent
     .query(
@@ -197,15 +217,38 @@
 
   function t(slug) { return store.getters.t(slug) }
 
-  function alertUserName() { alert(store.state.user )}
+  function alertUserName() { alert(store.state.user) }
 
   function logout() { Agent.logout() }
 
   function openLink(link) { window.open(link, '_blank') }
 
+  function goToStudentView() { window.location = '/' }
+
 </script>
 
 <style scoped>
+.view-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 100vh;
+}
+
+.view-choice .v-btn {
+  width: min(360px, calc(100vw - 32px));
+  min-height: 48px;
+  height: auto;
+  padding: 12px 24px;
+}
+
+.view-choice :deep(.v-btn__content) {
+  white-space: normal;
+  text-align: center;
+}
+
 .teacher-view {
   display: flex;
   flex-direction: column;
