@@ -61,81 +61,13 @@
         </div>
 
         <template v-else>
-          <section class="selected-tags-section">
-            <div class="section-label">
-              <span class="tag-outline-icon">◇</span>
-              {{ t('selected-competencies') }}:
-            </div>
-
-            <div class="selected-tags-box">
-              <template v-if="selectedCompetencies.length">
-                <button
-                  v-for="selection in selectedCompetencies"
-                  :key="`${selection.categoryId}-${selection.id}`"
-                  class="selected-tag"
-                  type="button"
-                  :disabled="
-                    isCompetencyWorking(
-                      selection.categoryId,
-                      selection.id,
-                    )
-                  "
-                  :style="{
-                    '--category-color': selection.categoryColor,
-                  }"
-                  @click="
-                    toggleCompetency(
-                      selection.categoryId,
-                      selection.id,
-                    )
-                  "
-                >
-                  <span class="tag-dot" />
-
-                  <span>
-                    <TagTranslation :id="selection.categoryId" />
-                    =
-                    <TagTranslation :id="selection.id" />
-                  </span>
-
-                  <span
-                    v-if="
-                      isCompetencyWorking(
-                        selection.categoryId,
-                        selection.id,
-                      )
-                    "
-                    class="small-spinner"
-                    role="status"
-                    :aria-label="t('working')"
-                  />
-
-                  <span
-                    v-else
-                    class="tag-remove"
-                    aria-hidden="true"
-                  >
-                    ×
-                  </span>
-                </button>
-              </template>
-
-              <span
-                v-else
-                class="empty-selection"
-              >
-                {{ t('no-competencies-selected-yet') }}
-              </span>
-            </div>
-
-            <p
-              v-if="updateError"
-              class="update-error"
-              role="alert"
-            >
-              {{ t('unable-to-update-tag') }}
-            </p>
-          </section>
+          <TagViewer
+            :selected-competencies="selectedCompetencies"
+            :working-competency-ids="workingCompetencyIds"
+            :update-error="updateError"
+            enable-remove
+            @remove="selection => toggleCompetency(selection.categoryId, selection.id)"
+          />
 
           <!-- ROOT GROUPS: one separate accordion per roots[] UUID -->
           <section
@@ -380,10 +312,11 @@
 
 <script>
 import TagTranslation from '@/components/tags/tag-translation.vue'
+import TagViewer from './tag-viewer.vue'
 import setTagging from '../set-tagging.js'
+import { exploreTaxonomy, TAG_HIERARCHY_PARTITION } from '@/utils/explore-taxonomy.js'
 
 const TAGS_DOMAIN = 'tags.knowlearning.systems'
-const TAG_HIERARCHY_PARTITION = 'PILA Tag Hierarchy'
 const FAVORITE_TAG = '59d4b400-8d2e-11f1-8178-475d87d411d7'
 
 function uniqueTargets(taggings) {
@@ -435,7 +368,7 @@ async function hasTag(partition, tag, target) {
 export default {
   name: 'PublishToExploreModal',
 
-  components: { TagTranslation },
+  components: { TagTranslation, TagViewer },
 
   emits: [ 'close' ],
 
@@ -526,7 +459,8 @@ export default {
 
   computed: {
     taggingPartition() {
-      return TAG_HIERARCHY_PARTITION
+      const hostPartition = this.$store?.getters?.tagPartition
+      return exploreTaxonomy(hostPartition).partition || TAG_HIERARCHY_PARTITION
     },
 
     rootGroups() {
@@ -662,7 +596,7 @@ export default {
                   await Agent.query(
                     'targets-for-tag',
                     [
-                      TAG_HIERARCHY_PARTITION,
+                      this.taggingPartition,
                       rootId,
                     ],
                     TAGS_DOMAIN,
@@ -682,7 +616,7 @@ export default {
                           await Agent.query(
                             'targets-for-tag',
                             [
-                              TAG_HIERARCHY_PARTITION,
+                              this.taggingPartition,
                               categoryId,
                             ],
                             TAGS_DOMAIN,
@@ -1177,96 +1111,6 @@ input {
   color: #3979ef;
   background: #ffffff;
   border: 1px solid #9bbaf3;
-}
-
-.selected-tags-section {
-  margin-bottom: 16px;
-}
-
-.section-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.tag-outline-icon {
-  font-size: 14px;
-}
-
-.selected-tags-box {
-  display: flex;
-  min-height: 47px;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 12px;
-  background: #f6f8fc;
-  border-radius: 8px;
-}
-
-.selected-tag {
-  --category-color: #6c7c97;
-
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  max-width: 100%;
-  padding: 5px 8px;
-  color: #465064;
-  background: #ffffff;
-  border: 1px solid #edf0f5;
-  border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(24, 35, 58, 0.04);
-  cursor: pointer;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.selected-tag:hover:not(:disabled) {
-  border-color: #cfd7e5;
-}
-
-.selected-tag:disabled {
-  cursor: wait;
-  opacity: 0.7;
-}
-
-.tag-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 auto;
-  background: var(--category-color);
-  border-radius: 50%;
-}
-
-.tag-remove {
-  color: #8792a5;
-  font-size: 14px;
-  line-height: 1;
-}
-
-.small-spinner {
-  width: 12px;
-  height: 12px;
-  flex: 0 0 auto;
-  border: 2px solid #d5deeb;
-  border-top-color: #3979ef;
-  border-radius: 50%;
-  animation: working-spin 650ms linear infinite;
-}
-
-.empty-selection {
-  color: #8a94a6;
-  font-size: 12px;
-}
-
-.update-error {
-  margin: 8px 0 0;
-  color: #d9414e;
-  font-size: 11px;
 }
 
 /* TOP LEVEL ROOT GROUPS */

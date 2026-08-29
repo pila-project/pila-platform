@@ -1,5 +1,6 @@
 import { ref, reactive, computed, watch } from 'vue'
-import { MY_CONTENT_TAG, COMPETENCY_HIERARCHY_ROOT } from '@/utils/constants.js'
+import { MY_CONTENT_TAG } from '@/utils/constants.js'
+import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
 import { beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
 import {
   nameCacheVersion, getCachedContentName,
@@ -120,7 +121,8 @@ export function resetContentLibraryState() {
 }
 
 export function useContentLibrary(store) {
-  const partition = store.getters.tagPartition
+  const catalogPartition = store.getters.tagPartition
+  const taxonomy = exploreTaxonomy(catalogPartition)
   function t(slug) { return store.getters.t(slug) }
 
   // ── Per-instance UI state ──
@@ -285,9 +287,9 @@ export function useContentLibrary(store) {
 
       if (usedCache) beginRevalidation()
 
-      const hierarchy = await loadTagHierarchy(partition, COMPETENCY_HIERARCHY_ROOT)
+      const hierarchy = await loadTagHierarchy(taxonomy.partition, taxonomy.roots)
       const [pilaContent, myContentResult] = await Promise.all([
-        Agent.query('taggings-for-tag', [partition, PILA_TAG], 'tags.knowlearning.systems').catch(() => []),
+        Agent.query('taggings-for-tag', [catalogPartition, PILA_TAG], 'tags.knowlearning.systems').catch(() => []),
         Agent.query('taggings-for-tag', [userId, MY_CONTENT_TAG], 'tags.knowlearning.systems').catch(() => []),
       ])
 
@@ -314,7 +316,7 @@ export function useContentLibrary(store) {
         }
       }
 
-      const prefetch = prefetchBatch(allIds, store.getters.language(), partition, leafToCategory)
+      const prefetch = prefetchBatch(allIds, store.getters.language(), taxonomy.partition, leafToCategory)
       if (usedCache) {
         prefetch.then(persistAfterPrefetch).catch(() => {})
       } else {

@@ -11,19 +11,28 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, watch } from 'vue'
   import TagTranslation from './tag-translation.vue'
 
   const props = defineProps({ partition: String, target: String })
 
   const tags = ref([])
 
-  Agent
-    .query(
-      'taggings-for-target',
-      [props.partition, props.target],
-      'tags.knowlearning.systems'
-    )
-    .then(r => tags.value = r)
+  watch(
+    () => [props.partition, props.target],
+    ([partition, target]) => {
+      tags.value = []
+      if (!partition || !target) return
+      Agent
+        .query(
+          'taggings-for-target',
+          [partition, target],
+          'tags.knowlearning.systems'
+        )
+        .then(r => { tags.value = r })
+        .catch(() => { tags.value = [] })
+    },
+    { immediate: true },
+  )
 
 </script>

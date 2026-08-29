@@ -76,6 +76,7 @@ import { computed, onActivated, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useContentLibrary } from '@/utils/useContentLibrary.js'
 import { prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
+import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
 import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
 import NoResultsFound from '@/components/common/no-results-found.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -164,7 +165,7 @@ watch(paginatedDisplayList, (ids) => {
   prefetchBatch(
     ids,
     store.getters.language(),
-    store.getters.tagPartition,
+    exploreTaxonomy(store.getters.tagPartition).partition,
     getCachedTagHierarchy()?.leafToCategory,
     { priorityIds: ids },
   ).catch(() => {})

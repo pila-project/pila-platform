@@ -35,10 +35,12 @@
           v-for="assignmentId in filteredAssignmentIds"
           :key="assignmentId"
         >
-          <AssignmentCard
-            :assignment="assignmentId"
-            @play="play(assignmentId)"
-          />
+          <NewBadge :show="isNewAssignment(assignmentId)">
+            <AssignmentCard
+              :assignment="assignmentId"
+              @play="play(assignmentId)"
+            />
+          </NewBadge>
         </div>
       </div>
     </div>
@@ -55,13 +57,16 @@
 <script>
 import CardIconsBar from '@/components/content/card-icons-bar.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
+import NewBadge from '@/components/new-badge.vue'
 import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.js'
 import URL_CONTENT_DATA from '@/utils/url-content-data.js'
 import AssignmentCard from './assignment-card.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 
+const NEW_ASSIGNMENT_DAYS = 3
+
 export default {
-  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName, LucideIcon },
+  components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName, LucideIcon, NewBadge },
   props: ['id'],
   data() {
     return {
@@ -139,6 +144,15 @@ export default {
   },
   methods: {
     t(slug) { return this.$store.getters.t(slug) },
+    timestamp(value) {
+      const parsed = new Date(value).getTime()
+      return Number.isNaN(parsed) ? 0 : parsed
+    },
+    isNewAssignment(assignmentId) {
+      const created = this.assignmentsToAssignerAndCreated[assignmentId]?.created
+      const cutoff = Date.now() - (NEW_ASSIGNMENT_DAYS * 24 * 60 * 60 * 1000)
+      return this.timestamp(created) >= cutoff
+    },
     play(aid) {
       Agent
         .state(aid)

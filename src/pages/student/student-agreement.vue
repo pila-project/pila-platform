@@ -32,7 +32,9 @@
 					</div>
 
 					<div>
-						<p>{{ t('know-learning-will-keep-this-data-safe-and-wont') }}</p>
+						<p style="white-space: pre-line;">
+							{{ t('know-learning-will-keep-this-data-safe-and-wont') }}
+						</p>
 					</div>
 
 				</div>

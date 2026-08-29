@@ -169,6 +169,7 @@ import ContentMetadataPanel from './content-metadata-panel.vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { useContentLibrary } from '@/utils/useContentLibrary.js'
 import { prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
+import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
 import {
   normalizeSequenceItems,
   persistSequenceItems,
@@ -193,7 +194,7 @@ const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 const { error: showError } = useFeedback()
 
-const partition = computed(() => store.getters.tagPartition)
+const partition = computed(() => exploreTaxonomy(store.getters.tagPartition).partition)
 
 const { getItemTagLabels, isMyContent, ensureLoaded } = useContentLibrary(store)
 

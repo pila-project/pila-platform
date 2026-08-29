@@ -1,6 +1,6 @@
 <template>
   <RefreshingIndicator />
-  <StudentAgreement v-if="!hasStudentAgreement" />
+  <StudentAgreement v-if="!hasStudentAgreement && !isTeacher" />
   <div
     class="student-view"
     v-else
@@ -91,6 +91,12 @@
       ) this.$router.push('/teacher')
     },
     computed: {
+      isTeacher() {
+        return this.$store.getters['roles/hasPermission'](
+          this.$store.state.user,
+          'teacher'
+        )
+      },
       hasStudentAgreement() {
         return this.$store.getters.hasAcceptedStudentAgreement()
       },

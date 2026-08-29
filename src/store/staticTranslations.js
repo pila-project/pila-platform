@@ -10385,5 +10385,18 @@ export default {
     "pt": "Nome Z–A",
     "sk": "Názov Z–A",
     "th": "ชื่อ Z–A"
+  },
+  "print-codes": {
+      "de": "Zugangscodes drucken",
+      "en": "Print Codes",
+      "es": "Imprimir códigos",
+      "fr": "Imprimer les codes",
+      "km": "បោះពុម្ពលេខកូដ",
+      "lv": "Drukāt kodus",
+      "nl": "Codes afdrukken",
+      "pl": "Drukuj kody",
+      "pt": "Imprimir códigos",
+      "sk": "Vytlačiť kódy",
+      "th": "พิมพ์รหัส"
   }
 }

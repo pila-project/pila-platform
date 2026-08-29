@@ -17,7 +17,7 @@
         {{ t('tags') }}
       </h3>
       <div class="metadata-tags-wrap">
-        <TagCloud
+        <TagViewer
           :target="props.id"
           :partition="props.partition"
         />
@@ -64,7 +64,7 @@
 <script setup>
   import { ref, computed, watch } from 'vue'
   import DecryptedName from '@/components/common/decrypted-name.vue'
-  import TagCloud from '@/components/tags/tag-cloud.vue'
+  import TagViewer from '@/components/tag-viewer.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { useStore } from 'vuex'
 

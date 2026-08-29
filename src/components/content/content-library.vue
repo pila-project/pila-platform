@@ -262,7 +262,7 @@
               :source="source"
               :grades="grades"
               :favorited="favorites.has(id)"
-              :show-tagging-icon="showTaggingIcons"
+              :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1"
               show-copy-modify
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
@@ -288,9 +288,9 @@
           @close="previewing = null"
         />
         <TaggingModal
-          v-if="taggingContentId && showTaggingIcons"
+          v-if="taggingContentId && showTaggingIcons && selectedItems.size <= 1"
           :id="taggingContentId"
-          :roots="[COMPETENCY_HIERARCHY_ROOT]"
+          :roots="taxonomy.roots"
           @close="taggingContentId = null"
         />
       </div>
@@ -327,7 +327,7 @@
         <ContentMetadataPanel
           :key="infoModalId"
           :id="infoModalId"
-          :partition="partition"
+          :partition="taxonomy.partition"
           embedded
         />
       </template>
@@ -463,7 +463,8 @@
   import ViewAssignmentDetailsModal from '@/pages/assignments/from-me/view-assignment-details-modal.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import setTagging from '@/utils/set-tagging.js'
-  import { MY_CONTENT_TAG, SIMPLIFIED_STUDY_DOMAINS, COMPETENCY_HIERARCHY_ROOT } from '@/utils/constants.js'
+  import { MY_CONTENT_TAG } from '@/utils/constants.js'
+  import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
   import TaggingModal from '@/components/tagging-modal.vue'
   import {
     nameCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
@@ -576,7 +577,8 @@
   // Trunk tagging: icons/modal off on simplified study domains.
   // Only resolve visibility for the *visible page* of cards — never the full catalog.
   // A reactive{} map updated per-id over thousands of rows freezes the main thread.
-  const showTaggingIcons = !SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+  const taxonomy = exploreTaxonomy(store.getters.tagPartition)
+  const showTaggingIcons = taxonomy.allowTagging
   const taggingContentId = ref(null)
   /** @type {import('vue').ShallowRef<Record<string, boolean>>} */
   const taggingIconVisibility = shallowRef({})
@@ -1231,9 +1233,8 @@
       applySequenceLists(sortedActive, sortedArchived)
       persistSequenceList(sortedActive, sortedArchived)
 
-      const partition = store.getters.tagPartition
       const hierarchy = getCachedTagHierarchy()?.leafToCategory
-      await prefetchBatch([...sortedActive, ...sortedArchived], store.getters.language(), partition, hierarchy)
+      await prefetchBatch([...sortedActive, ...sortedArchived], store.getters.language(), taxonomy.partition, hierarchy)
     } finally {
       if (token === loadSequencesToken) sequencesLoading.value = false
     }
@@ -1263,7 +1264,7 @@
       invalidateNames()
       const allIds = currentContentList.value
       if (allIds.length) {
-        await prefetchBatch(allIds, newLang, store.getters.tagPartition, getCachedTagHierarchy()?.leafToCategory)
+        await prefetchBatch(allIds, newLang, taxonomy.partition, getCachedTagHierarchy()?.leafToCategory)
         notifyTagIndexUpdated()
       }
     }

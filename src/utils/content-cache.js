@@ -188,37 +188,41 @@ export function getTagName(tagId) {
 
 // ── Tag hierarchy ──
 
-export async function loadTagHierarchy(partition, competencyTag) {
-  if (tagHierarchyData) return tagHierarchyData
-
-  const cats = await Agent.query(
-    'taggings-targeting-tags', [partition, competencyTag], 'tags.knowlearning.systems'
-  ).catch(() => [])
+export async function loadTagHierarchy(partition, roots) {
+  const rootList = (Array.isArray(roots) ? roots : [roots]).filter(Boolean)
+  const cacheKey = `${partition || ''}:${rootList.join(',')}`
+  if (tagHierarchyData?.cacheKey === cacheKey) return tagHierarchyData
 
   const categories = []
   const leafToCategory = new Map()
 
-  for (const cat of cats) {
-    const catId = cat.target
-    const catName = await getTagName(catId)
-
-    const leaves = await Agent.query(
-      'taggings-targeting-tags', [partition, catId], 'tags.knowlearning.systems'
+  for (const rootId of rootList) {
+    const cats = await Agent.query(
+      'taggings-targeting-tags', [partition, rootId], 'tags.knowlearning.systems'
     ).catch(() => [])
 
-    const leafIds = leaves.map(l => l.target)
+    for (const cat of cats) {
+      const catId = cat.target
+      const catName = await getTagName(catId)
 
-    await Promise.allSettled(
-      leafIds.map(async (leafId) => {
-        leafToCategory.set(leafId, catId)
-        await getTagName(leafId)
-      })
-    )
+      const leaves = await Agent.query(
+        'taggings-targeting-tags', [partition, catId], 'tags.knowlearning.systems'
+      ).catch(() => [])
 
-    categories.push({ id: catId, name: catName, leafIds })
+      const leafIds = leaves.map(l => l.target)
+
+      await Promise.allSettled(
+        leafIds.map(async (leafId) => {
+          leafToCategory.set(leafId, catId)
+          await getTagName(leafId)
+        })
+      )
+
+      categories.push({ id: catId, name: catName, leafIds, rootId })
+    }
   }
 
-  tagHierarchyData = { categories, leafToCategory }
+  tagHierarchyData = { cacheKey, categories, leafToCategory }
   return tagHierarchyData
 }
 

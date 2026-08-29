@@ -12,12 +12,16 @@
     </div>
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <TeacherTaskCard
+      <NewBadge
         v-for="assignment in sortedAssignments"
         :key="assignment.id"
-        :assignment="assignment"
-        @play="play(assignment.content_id)"
-      />
+        :show="isNewAssignment(assignment)"
+      >
+        <TeacherTaskCard
+          :assignment="assignment"
+          @play="play(assignment.content_id)"
+        />
+      </NewBadge>
     </div>
   </div>
 
@@ -67,7 +71,10 @@
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import { adminTeacherTaskNamespace } from '@/admin-teacher-grants.js'
   import studyEnvironmentVariableProxy from '@/study-environment-variable-proxy.js'
+  import NewBadge from '@/components/new-badge.vue'
   import TeacherTaskCard from './teacher-task-card.vue'
+
+  const NEW_ASSIGNMENT_DAYS = 3
 
   const props = defineProps({
     id: String
@@ -127,6 +134,12 @@
   function timestamp(value) {
     const parsed = new Date(value).getTime()
     return Number.isNaN(parsed) ? 0 : parsed
+  }
+
+  function isNewAssignment(assignment) {
+    const createdAt = timestamp(assignment.updated)
+    const cutoff = Date.now() - (NEW_ASSIGNMENT_DAYS * 24 * 60 * 60 * 1000)
+    return createdAt >= cutoff
   }
 
   function loadAssignments(background = false) {
