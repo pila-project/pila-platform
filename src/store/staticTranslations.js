@@ -376,18 +376,18 @@ export default {
         "sk": "V triede",
         "th": "นักเรียนในชั้น"
     },
-    "it-looks-like-you-do-not-have-any-assignments-pl": {
-        "de": "Es sieht so aus, als hättest du keine Aufgaben! Bitte wende dich an die Person, die dir die Aufgaben zuweist.",
-        "en": "It looks like you do not have any assignments! Please check with the person who assigns them to you.",
-        "es": "¡Parece que no tienes ninguna tarea! Consulta con la persona que te asigna las tareas.",
-        "fr": "Il semble que tu n'aies aucune activité à faire ! Renseigne-toi auprès de la personne qui te les attribue.",
-        "km": "មើលទៅដូចជាអ្នកមិនមានកិច្ចការណាមួយទេ! សូមសួរអ្នកដែលជាអ្នកប្រគល់កិច្ចការឱ្យអ្នក។",
-        "lv": "Šķiet, ka jums nav neviena uzdevuma! Lūdzu, sazinieties ar personu, kas jums piešķir uzdevumus.",
-        "nl": "Het lijkt erop dat je geen opdrachten hebt! Vraag het aan de persoon die de opdrachten aan je toewijst.",
-        "pl": "Wygląda na to, że nie masz żadnych zadań! Skontaktuj się z osobą, która przydziela Ci zadania.",
-        "pt": "Parece que você não tem nenhuma tarefa! Consulte a pessoa que atribui as tarefas a você.",
-        "sk": "Zdá sa, že nemáte žiadne úlohy! Obráťte sa na osobu, ktorá vám ich prideľuje.",
-        "th": "ดูเหมือนว่าคุณจะไม่มีงานที่ได้รับมอบหมาย! โปรดสอบถามผู้ที่มอบหมายงานให้คุณ"
+    "it-looks-like-you-do-not-have-any-assignments": {
+        "de": "Es sieht so aus, als hättest du keine Aufgaben!",
+        "en": "It looks like you do not have any assignments!",
+        "es": "¡Parece que no tienes ninguna tarea!",
+        "fr": "Il semble que tu n'aies aucune activité à faire !",
+        "km": "មើលទៅដូចជាអ្នកមិនមានកិច្ចការណាមួយទេ!",
+        "lv": "Šķiet, ka jums nav neviena uzdevuma!",
+        "nl": "Het lijkt erop dat je geen opdrachten hebt!",
+        "pl": "Wygląda na to, że nie masz żadnych zadań!",
+        "pt": "Parece que você não tem nenhuma tarefa!",
+        "sk": "Zdá sa, že nemáte žiadne úlohy!",
+        "th": "ดูเหมือนว่าคุณจะไม่มีงานที่ได้รับมอบหมาย!"
     },
     "assignment-details": {
         "de": "AUFGABENDETAILS",

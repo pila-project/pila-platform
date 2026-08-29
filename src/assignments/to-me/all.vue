@@ -25,7 +25,7 @@
     </v-alert>
 
     <div v-else-if="noAssignments" class="empty-state">
-      {{ t('it-looks-like-you-do-not-have-any-assignments-pl') }}
+      {{ t('it-looks-like-you-do-not-have-any-assignments') }}
     </div>
 
     <v-row v-else class="assignment-grid">
