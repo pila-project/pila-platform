@@ -72,7 +72,7 @@ import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.
 import URL_CONTENT_DATA from '../../url-content-data.js'
 import AssignmentCard from './assignment-card.vue'
 
-const NEW_ASSIGNMENT_DAYS = 3
+const NEW_ASSIGNMENT_DAYS = 7
 
 export default {
   components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName, NewBadge },

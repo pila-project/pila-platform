@@ -106,7 +106,7 @@
   import NewBadge from '../../components/new-badge.vue'
   import TeacherTaskCard from './teacher-task-card.vue'
 
-  const NEW_ASSIGNMENT_DAYS = 3
+  const NEW_ASSIGNMENT_DAYS = 7
 
   const props = defineProps({
     id: String
