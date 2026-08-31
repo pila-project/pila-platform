@@ -1,6 +1,10 @@
 <template>
-  <div ref="explorePageRef" class="page-container explore-page">
-    <h1 class="page-heading explore-heading capitalize">{{ sequencesBoard ? t('my-sequences') : t('explore') }}</h1>
+  <div
+    ref="explorePageRef"
+    class="page-container explore-page"
+    :class="{ 'explore-page--sequences-expanded': sequencesExpanded }"
+  >
+    <h1 class="page-heading explore-heading capitalize">{{ t('explore') }}</h1>
 
     <!-- Mobile: inline sequence section -->
     <div class="mobile-sequences">
@@ -17,13 +21,13 @@
             {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
           </h2>
           <PButton
-            v-if="!sequencesBoard"
             variant="ghost"
             size="sm"
-            icon="lucide:maximize-2"
+            :icon="sequencesExpanded ? 'lucide:x' : 'lucide:maximize-2'"
             iconOnly
-            :title="t('my-sequences')"
-            @click="openSequencesBoard"
+            :title="sequencesExpanded ? t('close') : t('my-sequences')"
+            :aria-label="sequencesExpanded ? t('close') : t('my-sequences')"
+            @click="toggleSequencesExpanded"
           />
         </div>
         <p class="text-xs text-slate-500 mt-0.5">{{ t('organize-content-into-learning-sequences') }}</p>
@@ -93,9 +97,9 @@
       </div>
     </div>
 
-    <div class="explore-columns" :class="{ 'explore-columns--sequences-board': sequencesBoard }">
+    <div class="explore-columns" :class="{ 'explore-columns--sequences-expanded': sequencesExpanded }">
       <!-- Left panel: My sequences (desktop) -->
-      <aside class="sequences-panel" :class="{ 'sequences-panel--board': sequencesBoard }">
+      <aside class="sequences-panel">
         <div class="sequences-card">
           <div class="sequences-card-header">
             <div class="sequences-card-header-row">
@@ -103,13 +107,13 @@
                 {{ t('my-sequences') }}<span v-if="!sequencesPanelLoading"> ({{ activeSequenceCount }})</span>
               </h2>
               <PButton
-                v-if="!sequencesBoard"
                 variant="ghost"
                 size="sm"
-                icon="lucide:maximize-2"
+                :icon="sequencesExpanded ? 'lucide:x' : 'lucide:maximize-2'"
                 iconOnly
-                :title="t('my-sequences')"
-                @click="openSequencesBoard"
+                :title="sequencesExpanded ? t('close') : t('my-sequences')"
+                :aria-label="sequencesExpanded ? t('close') : t('my-sequences')"
+                @click="toggleSequencesExpanded"
               />
             </div>
             <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
@@ -156,7 +160,7 @@
               <LucideIcon name="loader-2" :size="14" :spin="true" />
               {{ t('loading') }}
             </div>
-            <div v-else class="flex flex-col gap-3">
+            <div v-else class="sequences-list" :class="{ 'sequences-list--split': sequencesListSplit }">
               <SequenceCard
                 v-for="seqId in displayedSequenceIds"
                 :key="seqId"
@@ -183,7 +187,7 @@
       </aside>
 
       <!-- Right panel: Content library -->
-      <div v-if="!sequencesBoard" class="content-card content-library-card flex-1 min-w-0">
+      <div class="content-card content-library-card">
         <!-- Section header -->
         <div class="content-lib-header">
           <div class="content-lib-header-row">
@@ -208,7 +212,7 @@
         <ContentBrowser
           ref="browserRef"
           fill-height
-          :columns="3"
+          :columns="exploreGridColumns"
           :per-page="12"
           :per-page-options="exploreGridPerPageOptions"
           :extra-filter="contentExploreFilter"
@@ -447,7 +451,7 @@
   import { ref, reactive, shallowRef, shallowReactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
   import { createDragAutoScroll } from '@/utils/drag-auto-scroll.js'
   import { useStore } from 'vuex'
-  import { useRoute, useRouter } from 'vue-router'
+  import { useRoute } from 'vue-router'
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
   import ContentBrowser from './content-browser.vue'
@@ -511,13 +515,28 @@
 
   const store = useStore()
   const route = useRoute()
-  const router = useRouter()
   function t(slug) { return store.getters.t(slug) }
 
   const isTeacherExplore = computed(() => route.path.startsWith('/teacher'))
-  const sequencesBoard = computed(() => route.path.endsWith('/sequences'))
-  function openSequencesBoard() {
-    window.open(`${window.location.origin}/teacher/sequences`, '_blank', 'noopener')
+  const sequencesExpanded = ref(false)
+  const sequencesListSplit = ref(false)
+  const exploreGridColumns = ref(3)
+  const SEQUENCES_EXPAND_MS = 420
+  let exploreColumnsTimer = null
+
+  function toggleSequencesExpanded() {
+    clearTimeout(exploreColumnsTimer)
+    if (sequencesExpanded.value) {
+      sequencesListSplit.value = false
+      sequencesExpanded.value = false
+      exploreGridColumns.value = 3
+      return
+    }
+    sequencesExpanded.value = true
+    exploreColumnsTimer = setTimeout(() => {
+      sequencesListSplit.value = true
+      exploreGridColumns.value = 1
+    }, 240)
   }
   const exploreGridPerPageOptions = computed(() => gridPerPageOptions(t))
 
@@ -1348,6 +1367,7 @@
   })
 
   onBeforeUnmount(() => {
+    clearTimeout(exploreColumnsTimer)
     dragAutoScroll.stop()
     const root = explorePageRef.value
     if (root) {
@@ -1377,6 +1397,7 @@
 
 .explore-columns {
   display: flex;
+  flex-direction: row;
   gap: 12px;
   flex: 1 1 0;
   min-height: 0;
@@ -1385,18 +1406,46 @@
 }
 
 .sequences-panel {
+  box-sizing: border-box;
+  flex: 0 0 auto;
   width: 264px;
-  flex-shrink: 0;
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  align-self: stretch;
+  overflow: hidden;
+  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.sequences-panel--board,
-.explore-columns--sequences-board .sequences-panel {
-  width: 100%;
-  flex: 1 1 auto;
+.explore-columns--sequences-expanded .sequences-panel {
+  width: calc(100% - 352px);
+}
+
+.content-library-card {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: calc(100% - 276px);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.explore-columns--sequences-expanded .content-library-card {
+  width: 340px;
+}
+
+.sequences-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-content: start;
+}
+.sequences-list--split {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.sequences-list > * {
+  min-width: 0;
 }
 
 .sequences-card-header-row {
@@ -1448,12 +1497,8 @@
 }
 
 .content-library-card {
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   align-self: stretch;
 }
 
@@ -1583,16 +1628,25 @@
 
   .explore-columns {
     flex-direction: column;
-    flex: 1 1 0;
-    min-height: 0;
-    overflow: hidden;
   }
 
-  .sequences-panel {
+  .sequences-panel,
+  .explore-columns--sequences-expanded .sequences-panel {
     width: 100%;
-    flex: 0 1 42%;
-    min-height: 200px;
-    max-height: 46vh;
+    height: 42%;
+    min-height: 180px;
+    transition: height 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .explore-columns--sequences-expanded .sequences-panel {
+    height: 62%;
+  }
+
+  .content-library-card,
+  .explore-columns--sequences-expanded .content-library-card {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .sequences-card {
@@ -1606,12 +1660,6 @@
     min-height: 0;
     overflow-y: auto;
   }
-
-  .content-library-card {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow: hidden;
-  }
 }
 
 @media (max-width: 767px) {
@@ -1620,6 +1668,22 @@
   }
   .mobile-sequences {
     display: flex;
+  }
+  .explore-page--sequences-expanded .mobile-sequences {
+    display: none;
+  }
+  .explore-columns--sequences-expanded .sequences-panel {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+    max-height: none;
+    animation: sequences-expand-in 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .explore-columns--sequences-expanded .content-library-card {
+    display: none;
+  }
+  .explore-columns--sequences-expanded .sequences-list {
+    grid-template-columns: minmax(0, 1fr);
   }
   .mobile-bottom-bar {
     display: block;
@@ -1632,6 +1696,27 @@
     max-width: unset;
     width: 100%;
     left: 0;
+  }
+}
+
+@keyframes sequences-expand-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sequences-panel,
+  .content-library-card {
+    transition: none;
+  }
+  .explore-columns--sequences-expanded .sequences-panel {
+    animation: none;
   }
 }
 </style>
