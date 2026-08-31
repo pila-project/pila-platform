@@ -36,12 +36,12 @@
             <LucideIcon name="check" :size="10" />
             {{ t('in-assignment') || 'In assignment' }}
           </span>
-          <span v-if="!assignmentPicker && sequenceCount" class="pcard-seq-count">
+          <span v-if="!showCopyModify && !assignmentPicker && sequenceCount" class="pcard-seq-count">
             {{ sequenceCount }}
             <LucideIcon name="folders" :size="12" />
           </span>
           <button
-            v-if="!assignmentPicker && showTaggingIcon"
+            v-if="!showCopyModify && !assignmentPicker && showTaggingIcon"
             type="button"
             class="pcard-heart-btn"
             :aria-label="t('tag') || 'Tag'"
@@ -69,17 +69,6 @@
           <LucideIcon name="image" :size="24" class="text-slate-300" />
         </div>
       </div>
-      <!-- Copy & modify (Explore hover) -->
-      <div v-if="showCopyModify" class="pcard-copy-overlay">
-        <button
-          type="button"
-          class="pcard-copy-modify-btn"
-          @click.stop="$emit('copy-modify')"
-        >
-          <LucideIcon name="files" :size="13" />
-          <span>{{ copyModifyLabel }}</span>
-        </button>
-      </div>
     </div>
 
     <!-- Content -->
@@ -92,17 +81,38 @@
         <span v-else class="pcard-source pcard-source-pila">
           <LucideIcon name="crown" :size="10" class="pcard-source-icon" />{{ t('pila-content') }}
         </span>
+        <span
+          v-if="showCopyModify"
+          class="pcard-count-chip"
+        >
+          <LucideIcon name="layers" :size="11" class="pcard-count-icon" />
+          {{ exploreItemCount != null ? exploreItemCount : '…' }}
+        </span>
       </div>
 
-      <!-- Title -->
-      <h3 class="pcard-title">
-        <NameOrTranslatedNameFromItemId :itemId="props.id" />
-      </h3>
-
-      <!-- Description -->
-      <p v-if="props.description" class="pcard-description">
-        {{ props.description }}
-      </p>
+      <div class="pcard-copy">
+        <PTooltip
+          :text="displayTitle"
+          position="top"
+          block
+          only-if-overflow
+          class="pcard-title-wrap"
+        >
+          <h3 class="pcard-title">{{ displayTitle }}</h3>
+        </PTooltip>
+        <PTooltip
+          :text="displayDescription"
+          position="top"
+          block
+          only-if-overflow
+          class="pcard-description-wrap"
+        >
+          <p
+            class="pcard-description"
+            :class="{ 'pcard-description--placeholder': !displayDescription }"
+          >{{ displayDescription || '…' }}</p>
+        </PTooltip>
+      </div>
 
       <!-- Tag pills -->
       <div ref="tagsWrapRef" class="pcard-tags-wrap">
@@ -183,6 +193,86 @@
         class="flex-1"
       />
     </div>
+    <div v-else-if="sequenceView" class="pcard-actions" @click.stop>
+      <PButton
+        variant="secondary"
+        size="sm"
+        icon="lucide:eye"
+        :text="t('preview')"
+        @click.stop="$emit('preview')"
+        class="flex-1"
+      />
+      <PButton
+        variant="secondary"
+        color="danger"
+        size="sm"
+        icon="lucide:trash-2"
+        :text="t('delete')"
+        @click.stop="$emit('remove')"
+        class="flex-1"
+      />
+    </div>
+    <div v-else-if="showCopyModify" class="pcard-actions pcard-actions--explore" @click.stop>
+      <div class="pcard-actions-left">
+        <PTooltip :text="t('preview')">
+          <PButton
+            variant="secondary"
+            size="sm"
+            icon="lucide:eye"
+            iconOnly
+            :aria-label="t('preview')"
+            @click.stop="$emit('preview')"
+          />
+        </PTooltip>
+        <PTooltip :text="addDisabled ? (t('added') || t('add')) : t('add')">
+          <PButton
+            :variant="addDisabled ? 'secondary' : 'primary'"
+            size="sm"
+            :icon="addDisabled ? 'lucide:check' : 'lucide:plus'"
+            iconOnly
+            :disabled="addDisabled"
+            :aria-label="addDisabled ? (t('added') || t('add')) : t('add')"
+            @click.stop="onAddClick"
+          />
+        </PTooltip>
+      </div>
+      <div class="pcard-actions-right" @click.stop>
+        <PMenu align-right>
+          <template #activator="{ props: menuProps }">
+            <PButton
+              variant="ghost"
+              size="sm"
+              icon="lucide:ellipsis-vertical"
+              iconOnly
+              :aria-label="t('actions')"
+              @click="menuProps.onClick"
+            />
+          </template>
+          <PMenuItem
+            :title="t('view-details')"
+            prepend-icon="lucide:info"
+            @click="$emit('info')"
+          />
+          <PMenuItem
+            v-if="canEdit"
+            :title="editMenuTitle"
+            prepend-icon="lucide:pencil"
+            @click="$emit('edit')"
+          />
+          <PMenuItem
+            :title="t('copy-and-modify')"
+            prepend-icon="lucide:copy"
+            @click="$emit('copy-modify')"
+          />
+          <PMenuItem
+            v-if="canEditTags"
+            :title="t('view-edit-tags')"
+            prepend-icon="lucide:tags"
+            @click="$emit('tag')"
+          />
+        </PMenu>
+      </div>
+    </div>
     <div v-else class="pcard-actions" @click.stop>
       <PButton
         variant="secondary"
@@ -193,17 +283,6 @@
         class="flex-1"
       />
       <PButton
-        v-if="sequenceView"
-        variant="secondary"
-        color="danger"
-        size="sm"
-        icon="lucide:trash-2"
-        :text="t('delete')"
-        @click.stop="$emit('remove')"
-        class="flex-1"
-      />
-      <PButton
-        v-else
         :variant="addDisabled ? 'secondary' : 'primary'"
         size="sm"
         :icon="addDisabled ? 'lucide:check' : 'lucide:plus'"
@@ -243,10 +322,15 @@
 <script setup>
   import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
   import { useStore } from 'vuex'
-  import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import {
     getContentImage,
     getContentType,
+    getCachedPreviewMeta,
+    getContentPreviewMeta,
+    getContentName,
+    getCachedContentName,
+    nameCacheVersion,
+    previewMetaVersion,
     imageCache,
     metadataCache,
   } from '@/utils/content-cache.js'
@@ -255,7 +339,7 @@
     isSequenceActiveType,
   } from '@/utils/sequence-items.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
-  import { PCheckbox, PButton } from '@/components/ui/index.js'
+  import { PCheckbox, PButton, PTooltip, PMenu, PMenuItem } from '@/components/ui/index.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -305,13 +389,51 @@
   const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
   const useFixedLayout = computed(() => !props.sequenceView)
 
-  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite', 'tag'])
-
-  const copyModifyLabel = computed(() =>
-    t('copy-and-modify') || t('copy-and-modify-content') || 'Copy & modify',
-  )
+  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite', 'tag', 'edit'])
 
   const addDisabled = computed(() => props.inAssignment || props.inSequence)
+
+  const explorePreviewMeta = computed(() => {
+    void previewMetaVersion.value
+    if (!props.id || !props.showCopyModify) return null
+    return getCachedPreviewMeta(props.id)
+  })
+
+  const displayTitle = computed(() => {
+    void nameCacheVersion.value
+    if (!props.id) return ''
+    return (getCachedContentName(props.id, store.getters.language()) || '').trim()
+  })
+
+  const displayDescription = computed(() => {
+    void previewMetaVersion.value
+    return (props.description || explorePreviewMeta.value?.description || '').trim()
+  })
+
+  watch(
+    () => [props.id, store.getters.language(), nameCacheVersion.value],
+    ([id, lang]) => {
+      if (id && !getCachedContentName(id, lang)) void getContentName(id, lang)
+    },
+    { immediate: true },
+  )
+
+  const exploreItemCount = computed(() => explorePreviewMeta.value?.itemCount ?? null)
+  const contentKind = computed(() => {
+    void previewMetaVersion.value
+    return explorePreviewMeta.value?.kind || getContentType(props.id) || 'item'
+  })
+  const canEdit = computed(() =>
+    props.showCopyModify
+    && props.source === 'mine'
+    && (contentKind.value === 'sequence' || contentKind.value === 'assignment'),
+  )
+  const editMenuTitle = computed(() =>
+    contentKind.value === 'assignment' ? t('edit-assignment') : t('edit-sequence-details'),
+  )
+  const canEditTags = computed(() =>
+    props.showCopyModify && props.source === 'mine' && props.showTaggingIcon,
+  )
 
   const orderLabel = computed(() => {
     if (props.orderIndex == null) return ''
@@ -339,7 +461,7 @@
 
   const isDragging = ref(false)
 
-  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .pcard-copy-overlay, .pcard-grade-more, .pcard-tags-popup'
+  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .p-menu-anchor, .pcard-grade-more, .pcard-tags-popup'
 
   function isSequenceContent() {
     if (getContentType(props.id) === 'sequence') return true
@@ -518,6 +640,10 @@
     window.addEventListener('scroll', onWindowChange, true)
     window.addEventListener('resize', onWindowChange)
 
+    if (props.showCopyModify && props.id) {
+      void getContentPreviewMeta(props.id)
+    }
+
     try {
       if (imageCache.has(props.id)) {
         image.value = imageCache.get(props.id)
@@ -528,6 +654,13 @@
       // silently fail — card renders without image
     }
   })
+
+  watch(
+    () => [props.id, props.showCopyModify, previewMetaVersion.value],
+    ([id, explore]) => {
+      if (explore && id && !getCachedPreviewMeta(id)) void getContentPreviewMeta(id)
+    },
+  )
 
   onUnmounted(() => {
     resizeObserver?.disconnect()
@@ -564,12 +697,28 @@
   gap: 4px;
   overflow: visible;
 }
+.pcard-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pcard-fixed .pcard-copy {
+  flex-shrink: 0;
+  min-height: calc(16px * 1.4 + 2px + 18px);
+}
+.pcard-title-wrap,
+.pcard-description-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
 .pcard-fixed .pcard-title {
   flex-shrink: 0;
   margin-top: 0;
 }
 .pcard-fixed .pcard-description {
   flex-shrink: 0;
+  min-height: 18px;
 }
 .pcard-fixed .pcard-actions {
   flex-shrink: 0;
@@ -824,11 +973,33 @@
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  min-width: 0;
 }
 
 /* Source badge row */
 .pcard-source-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
   padding-top: 4px;
+  margin-bottom: 4px;
+}
+
+.pcard-count-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #fef9c3;
+  color: #a16207;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+}
+.pcard-count-icon {
+  flex-shrink: 0;
 }
 .pcard-fixed .pcard-source-row {
   padding-top: 2px;
@@ -837,12 +1008,12 @@
 .pcard-source {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 500;
-  line-height: 20px;
+  line-height: 18px;
 }
 .pcard-source-icon {
   flex-shrink: 0;
@@ -863,28 +1034,31 @@
 
 /* Title */
 .pcard-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: #334155;
   line-height: 1.4;
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Description */
 .pcard-description {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   color: #64748b;
-  line-height: 20px;
+  line-height: 18px;
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pcard-description--placeholder {
+  color: #94a3b8;
 }
 
 /* Tag pills row */
@@ -937,6 +1111,10 @@
   flex-shrink: 0;
   white-space: nowrap;
 }
+.pcard-grade-placeholder {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
 .pcard-grade-more {
   cursor: default;
   background: #f1f5f9;
@@ -988,5 +1166,21 @@
   gap: 8px;
   padding: 12px;
   min-width: 0;
+}
+
+.pcard-actions--explore {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.pcard-actions-left,
+.pcard-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pcard-actions--explore :deep(.tooltip-anchor) {
+  display: inline-flex;
 }
 </style>

@@ -257,13 +257,22 @@ defineExpose({
 .cb-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .cb-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 767px) {
   .cb-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+  .cb-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

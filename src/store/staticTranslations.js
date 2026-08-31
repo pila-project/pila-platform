@@ -2326,6 +2326,19 @@ export default {
     "sk": "Pokračujte bez pridávania",
     "th": "ดำเนินการต่อโดยไม่เพิ่ม"
   },
+  "copy": {
+    "de": "Kopieren",
+    "en": "Copy",
+    "es": "Copiar",
+    "fr": "Copier",
+    "km": "ចម្លង",
+    "lv": "Kopēt",
+    "nl": "Kopiëren",
+    "pl": "Kopiuj",
+    "pt": "Copiar",
+    "sk": "Kopírovať",
+    "th": "คัดลอก"
+  },
   "copy-and-modify": {
     "de": "Kopieren und bearbeiten",
     "en": "Copy And Modify",
@@ -8695,6 +8708,32 @@ export default {
     "pt": "Ver e baixar o código de login",
     "sk": "Zobraziť a stiahnuť prihlasovací kód",
     "th": "ดูและดาวน์โหลดรหัสเข้าสู่ระบบ"
+  },
+  "view-details": {
+    "de": "Details anzeigen",
+    "en": "View details",
+    "es": "Ver detalles",
+    "fr": "Voir les détails",
+    "km": "មើលព័ត៌មានលម្អិត",
+    "lv": "Skatīt datus",
+    "nl": "Details bekijken",
+    "pl": "Zobacz szczegóły",
+    "pt": "Ver detalhes",
+    "sk": "Zobraziť podrobnosti",
+    "th": "ดูรายละเอียด"
+  },
+  "view-edit-tags": {
+    "de": "Tags anzeigen/bearbeiten",
+    "en": "View/Edit tags",
+    "es": "Ver/editar etiquetas",
+    "fr": "Voir/modifier les tags",
+    "km": "មើល/កែស្លាក",
+    "lv": "Skatīt/rediģēt tagus",
+    "nl": "Tags bekijken/bewerken",
+    "pl": "Zobacz/edytuj tagi",
+    "pt": "Ver/editar tags",
+    "sk": "Zobraziť/upraviť značky",
+    "th": "ดู/แก้ไขแท็ก"
   },
   "view-assignment-details": {
     "de": "Aufgabendetails anzeigen",

@@ -12,6 +12,9 @@ const metadataCache = new Map()
 const tagCache = new Map()
 const imageCache = new Map()
 const tagNameCache = new Map()
+/** Explore card description + item count (UIUX-84). */
+const previewMetaCache = new Map()
+export const previewMetaVersion = ref(0)
 
 // In-flight deduplication — prevents duplicate requests for the same key
 const pending = new Map()
@@ -99,6 +102,7 @@ export function getContentName(id, lang) {
   if (nameCache.has(key)) return Promise.resolve(nameCache.get(key))
   return dedupedFetch(`name:${key}`, async () => {
     const name = await getName(id, lang)
+    if (nameCache.has(key)) return nameCache.get(key)
     if (name) {
       nameCache.set(key, name)
       bumpNameCacheVersion()
@@ -125,12 +129,58 @@ export function getContentMetadata(id) {
   })
 }
 
+export function kindFromActiveType(activeType) {
+  const type = String(activeType || '')
+  if (type.includes('type=sequence')) return 'sequence'
+  if (type.includes('type=assignment')) return 'assignment'
+  return 'item'
+}
+
 export function getContentType(id) {
   const cached = metadataCache.get(id)
-  if (cached) {
-    return cached.active_type === 'application/json;type=sequence' ? 'sequence' : 'item'
+  if (!cached) return null
+  return kindFromActiveType(cached.active_type)
+}
+
+function countSequenceItems(items) {
+  if (items == null) return 0
+  if (Array.isArray(items)) return items.filter(Boolean).length
+  if (typeof items !== 'object') return 0
+  let n = 0
+  for (const entry of Object.values(items)) {
+    if (typeof entry === 'string' && entry) n++
+    else if (entry && typeof entry === 'object' && typeof entry.id === 'string' && entry.id) n++
   }
-  return null
+  return n
+}
+
+export function getCachedPreviewMeta(id) {
+  return previewMetaCache.get(id) || null
+}
+
+/** Description + how many items this card represents (1, or sequence length). */
+export function getContentPreviewMeta(id) {
+  if (!id) return Promise.resolve(null)
+  if (previewMetaCache.has(id)) return Promise.resolve(previewMetaCache.get(id))
+  return dedupedFetch(`preview:${id}`, async () => {
+    const [meta, state] = await Promise.all([
+      getContentMetadata(id).catch(() => null),
+      Agent.state(id).catch(() => null),
+    ])
+    // A live edit may have patched the card while this fetch was in flight.
+    if (previewMetaCache.has(id)) return previewMetaCache.get(id)
+    const kind = kindFromActiveType(meta?.active_type)
+    const isSequence = kind === 'sequence'
+    const entry = {
+      description: String(state?.description || '').trim(),
+      itemCount: isSequence ? countSequenceItems(state?.items) : 1,
+      isSequence,
+      kind,
+    }
+    previewMetaCache.set(id, entry)
+    previewMetaVersion.value++
+    return entry
+  })
 }
 
 export function getContentImage(id) {
@@ -347,11 +397,27 @@ export function persistToDisk(userId) {
 
 export function invalidate(id) {
   for (const key of nameCache.keys()) {
-    if (key.startsWith(`${id}:`)) nameCache.delete(key)
+    if (key === id || key.startsWith(`${id}:`)) nameCache.delete(key)
   }
   metadataCache.delete(id)
   tagCache.delete(id)
   imageCache.delete(id)
+  previewMetaCache.delete(id)
+  bumpNameCacheVersion()
+  previewMetaVersion.value++
+}
+
+/** Merge fields into Explore card preview cache (name/description edits). */
+export function patchPreviewMeta(id, patch) {
+  if (!id || !patch) return
+  const current = previewMetaCache.get(id) || {
+    description: '',
+    itemCount: 1,
+    isSequence: true,
+    kind: 'sequence',
+  }
+  previewMetaCache.set(id, { ...current, ...patch })
+  previewMetaVersion.value++
 }
 
 export function invalidateNames() {
@@ -364,5 +430,6 @@ export function invalidateAll() {
   tagCache.clear()
   imageCache.clear()
   tagNameCache.clear()
+  previewMetaCache.clear()
   tagHierarchyData = null
 }

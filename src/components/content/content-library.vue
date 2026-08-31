@@ -275,6 +275,7 @@
               }"
               @add="handleAddItem(id)"
               @copy-modify="handleCopyModify(id)"
+              @edit="handleExploreEdit(id)"
             />
           </template>
         </ContentBrowser>
@@ -469,7 +470,8 @@
   import {
     nameCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
     getCachedTagHierarchy, prefetchBatch, invalidateNames,
-    getContentMetadata, loadExploreCache, persistSequencesPanelCache,
+    getContentMetadata, getContentType, getCachedPreviewMeta, patchPreviewMeta,
+    setCachedContentName, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
   import { useContentLibrary, notifyTagIndexUpdated, registerMyContentItem } from '@/utils/useContentLibrary.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
@@ -772,6 +774,20 @@
     copyModifyId.value = id
   }
 
+  async function handleExploreEdit(id) {
+    if (!id) return
+    let kind = getContentType(id)
+    if (!kind) {
+      const meta = await getContentMetadata(id)
+      kind = meta ? getContentType(id) : 'item'
+    }
+    if (kind === 'assignment') {
+      editAssignmentId.value = id
+      return
+    }
+    if (kind === 'sequence') editSequence(id)
+  }
+
   function handleExplorePreview(id) {
     void openContentPreview(id, { previewing, sequenceToPreview })
   }
@@ -949,14 +965,30 @@
   async function onSequenceUpdated(payload) {
     const id = payload?.id || sequenceToEdit.value
     sequenceToEdit.value = null
-    if (id && payload?.name) {
-      setCachedLegacyName(id, payload.name)
-      invalidate(id)
-    }
     if (id) {
-      await ensureSequenceMetadataCached(id)
+      const name = payload?.name?.trim()
+      const description = payload?.description != null
+        ? String(payload.description).trim()
+        : ''
+      // Write the card cache first — do not invalidate, or a stale
+      // refetch will flash "…" and can overwrite this patch.
+      if (name) {
+        setCachedLegacyName(id, name)
+        setCachedContentName(id, name, store.getters.language())
+      }
+      const existing = getCachedPreviewMeta(id)
+      patchPreviewMeta(id, {
+        description,
+        itemCount: existing?.itemCount ?? 1,
+        isSequence: existing?.isSequence ?? true,
+        kind: existing?.kind ?? 'sequence',
+      })
+      touchSequenceUpdated(id)
       promoteActiveSequence(id)
+      sequenceVersion.value++
+      showSuccessDialog(t('sequence-updated'))
       await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
+      return
     }
     sequenceVersion.value++
     showSuccessDialog(t('sequence-updated'))
@@ -1096,6 +1128,16 @@
       console.error('[Explore] addItemsToSequence failed', sequenceId, e)
       showError(t('something-went-wrong'))
     }
+  }
+
+  function touchSequenceUpdated(id) {
+    if (!id) return
+    const meta = metadataCache.get(id)
+    metadataCache.set(id, {
+      active_type: meta?.active_type || 'application/json;type=sequence',
+      owner: meta?.owner,
+      updated: new Date().toISOString(),
+    })
   }
 
   async function ensureSequenceMetadataCached(id) {
