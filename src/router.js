@@ -93,7 +93,7 @@ export default createRouter({
         { path: 'trainer', component: TeacherTrainerPage },
         { path: 'support', component: BugReport },
         { path: 'feedback', redirect: '/teacher/support' },
-        { path: 'groups', component: ManageClasses },
+        { path: 'groups', redirect: '/teacher/classes' },
         { path: 'sequences', redirect: '/teacher/content' },
         { path: 'opt-out', component: TeacherStudyOptOut },
         { path: '', component: TeacherHome },

@@ -1,10 +1,10 @@
 <template>
   <div class="page-container admin-page">
-    <h1 class="page-heading page-heading--sr">{{ groupsBoard ? t('groups') : t('student-and-group-management') }}</h1>
+    <h1 class="page-heading page-heading--sr">{{ t('student-and-group-management') }}</h1>
 
-    <div class="admin-layout" :class="{ 'admin-layout--groups-board': groupsBoard }">
+    <div class="admin-layout" :class="{ 'admin-layout--groups-expanded': groupsExpanded }">
       <!-- Left column: Students -->
-      <div v-if="!groupsBoard" class="student-section content-card">
+      <div class="student-section content-card">
         <div class="section-header">
           <div class="section-header-left">
             <LucideIcon name="user" :size="20" class="section-icon" />
@@ -200,31 +200,33 @@
       <!-- Right column: Groups -->
       <div class="group-section content-card">
         <div class="group-section-header">
-          <div class="section-header-left">
-            <LucideIcon name="users" :size="20" class="section-icon" />
-            <div>
-              <h2 class="card-section-title">{{ t('groups') }} ({{ groupHeaderCount }})</h2>
-              <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
+          <div class="group-section-header-top">
+            <div class="section-header-left">
+              <LucideIcon name="users" :size="20" class="section-icon" />
+              <div>
+                <h2 class="card-section-title">{{ t('groups') }} ({{ groupHeaderCount }})</h2>
+                <p class="card-section-subtitle">{{ t('organise-students-into-groups') }}</p>
+              </div>
             </div>
-          </div>
-          <div class="section-header-actions">
             <PButton
-              v-if="!groupsBoard"
+              class="group-expand-btn"
               variant="ghost"
               size="sm"
-              icon="lucide:maximize-2"
+              :icon="groupsExpanded ? 'lucide:x' : 'lucide:maximize-2'"
               iconOnly
-              :title="t('groups')"
-              @click="openGroupsBoard"
-            />
-            <PButton
-              icon="lucide:plus"
-              variant="primary"
-              :text="t('add-group')"
-              size="sm"
-              @click="openCreateGroupModal"
+              :title="groupsExpanded ? t('close') : t('groups')"
+              :aria-label="groupsExpanded ? t('close') : t('groups')"
+              @click="toggleGroupsExpanded"
             />
           </div>
+          <PButton
+            class="group-add-btn"
+            icon="lucide:plus"
+            variant="primary"
+            :text="t('add-group')"
+            size="sm"
+            @click="openCreateGroupModal"
+          />
         </div>
 
         <div class="search-and-filters group-filters">
@@ -249,35 +251,37 @@
           </div>
         </div>
 
-        <div class="group-cards-list">
-          <GroupCard
-            v-for="groupId in paginatedGroupIds"
-            :key="groupId"
-            :group-id="groupId"
-            :students="students"
-            :archived="archivedGroupIdSet.has(groupId)"
-            @manage="openManageStudents(groupId)"
-            @edit="openEditGroup(groupId)"
-            @archive="confirmArchiveGroup(groupId)"
-            @unarchive="confirmRestoreGroup(groupId)"
-            @drop-student="handleDropStudent(groupId, $event)"
-            @print-login-codes="handlePrintGroupLoginCodes(groupId)"
-          />
+        <div class="group-cards-scroll">
+          <div class="group-cards-list" :class="{ 'group-cards-list--split': groupsListSplit }">
+            <GroupCard
+              v-for="groupId in paginatedGroupIds"
+              :key="groupId"
+              :group-id="groupId"
+              :students="students"
+              :archived="archivedGroupIdSet.has(groupId)"
+              @manage="openManageStudents(groupId)"
+              @edit="openEditGroup(groupId)"
+              @archive="confirmArchiveGroup(groupId)"
+              @unarchive="confirmRestoreGroup(groupId)"
+              @drop-student="handleDropStudent(groupId, $event)"
+              @print-login-codes="handlePrintGroupLoginCodes(groupId)"
+            />
 
-          <p v-if="!filteredGroups.length && groupSearchFilter.trim()" class="no-results-text">
-            {{ t('no-results') }}
-          </p>
-          <PPagination
-            v-if="!groupsBoard && filteredGroups.length > groupsPerPage"
-            :total-items="filteredGroups.length"
-            v-model:current-page="groupListPage"
-            :per-page="groupsPerPage"
-            :per-page-options="[]"
-            layout="stacked"
-            :show-row-count="false"
-            class="group-list-pagination"
-          />
+            <p v-if="!filteredGroups.length && groupSearchFilter.trim()" class="no-results-text">
+              {{ t('no-results') }}
+            </p>
+          </div>
         </div>
+        <PPagination
+          v-if="!groupsExpanded && filteredGroups.length > groupsPerPage"
+          :total-items="filteredGroups.length"
+          v-model:current-page="groupListPage"
+          :per-page="groupsPerPage"
+          :per-page-options="[]"
+          layout="stacked"
+          :show-row-count="false"
+          class="group-list-pagination"
+        />
       </div>
     </div>
 
@@ -948,7 +952,6 @@
                 class="assign-group-detail assign-group-detail--subject"
                 :title="formatGroupSubjects(store.state.groups.groups[gid]?.subject)"
               >{{ formatGroupSubjects(store.state.groups.groups[gid]?.subject) }}</span>
-              <PBadge variant="default" :text="`${store.getters['groups/members'](gid).length}`" />
             </label>
           </div>
         </div>
@@ -1044,7 +1047,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
-import { useRoute } from 'vue-router'
+
 import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlert, PAlertDialog, PInput, PSelect, PMultiSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import DecryptedName from '@/components/common/decrypted-name.vue'
@@ -1080,11 +1083,23 @@ import {
 import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
 
 const store = useStore()
-const route = useRoute()
-const groupsBoard = computed(() => route.path.endsWith('/groups'))
-function openGroupsBoard() {
-  window.open(`${window.location.origin}/teacher/groups`, '_blank', 'noopener')
+const groupsExpanded = ref(false)
+const groupsListSplit = ref(false)
+let groupsExpandTimer = null
+
+function toggleGroupsExpanded() {
+  clearTimeout(groupsExpandTimer)
+  if (groupsExpanded.value) {
+    groupsListSplit.value = false
+    groupsExpanded.value = false
+    return
+  }
+  groupsExpanded.value = true
+  groupsExpandTimer = setTimeout(() => {
+    groupsListSplit.value = true
+  }, 240)
 }
+
 function t(slug) { return store.getters.t(slug) }
 const studentTablePerPageOptions = computed(() => tablePerPageOptions(t))
 
@@ -1396,7 +1411,10 @@ onMounted(() => {
     Object.entries(state).forEach(([key, value]) => users[key] = value)
   })
 })
-onBeforeUnmount(() => { if (unwatchUsers) unwatchUsers() })
+onBeforeUnmount(() => {
+  clearTimeout(groupsExpandTimer)
+  if (unwatchUsers) unwatchUsers()
+})
 
 // ── Decrypted student names (preferred labels for sort/search/drag; legal for duplicates) ──
 const decryptedNames = reactive(new Map())
@@ -1713,7 +1731,7 @@ const filteredGroups = computed(() =>
 
 const paginatedGroupIds = computed(() => {
   const ids = filteredGroups.value
-  if (groupsBoard.value) return ids
+  if (groupsExpanded.value) return ids
   const start = (groupListPage.value - 1) * groupsPerPage
   return ids.slice(start, start + groupsPerPage)
 })
@@ -2431,26 +2449,17 @@ function toggleGroupForAssign(gid) {
 async function handleAddToGroups() {
   addingToGroups.value = true
   try {
-    const results = []
-    // Bulk add applies to active selected students only (archived use Restore, not group assign).
     const studentsToAdd = selectedStudents.value.filter(s => !s.archived)
+    const members = []
     for (const gid of selectedGroupsForAssign.value) {
-      const groupName = store.state.groups.groups[gid]?.name || ''
       for (const student of studentsToAdd) {
-        if (store.getters['groups/belongs'](student.id, gid)) {
-          results.push({ id: student.id, grade: student.grade, status: 'skipped', groupName })
-        } else {
-          await store.dispatch('groups/addMember', { user_id: student.id, group_id: gid, defer: true })
-          results.push({ id: student.id, grade: student.grade, status: 'added' })
-        }
+        members.push({ user_id: student.id, group_id: gid })
       }
     }
-    await store.dispatch('groups/flushMembers')
+    const { added, skipped } = await store.dispatch('groups/addMembersBulk', { members })
     showAddToGroupsModal.value = false
     selectedGroupsForAssign.value = []
     groupSearchQuery.value = ''
-    const added = results.filter(r => r.status === 'added').length
-    const skipped = results.filter(r => r.status === 'skipped').length
     addToGroupsResults.value = [{
       summary: true,
       added,
@@ -2486,15 +2495,11 @@ async function handleDropStudent(groupId, studentIds) {
   let added = 0
   let skipped = 0
   try {
-    for (const studentId of ids) {
-      if (store.getters['groups/belongs'](studentId, groupId)) {
-        skipped++
-        continue
-      }
-      await store.dispatch('groups/addMember', { user_id: studentId, group_id: groupId, defer: true })
-      added++
-    }
-    await store.dispatch('groups/flushMembers')
+    const result = await store.dispatch('groups/addMembersBulk', {
+      members: ids.map(studentId => ({ user_id: studentId, group_id: groupId })),
+    })
+    added = result.added
+    skipped = result.skipped
   } catch (e) {
     console.error(e)
     toastError(t('something-went-wrong'))
@@ -2556,8 +2561,15 @@ function openLoginCodesPage(studentIds) {
 
 /* Student section (left) */
 .student-section {
-  flex: 1;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: calc(100% - 333px);
   min-width: 0;
+  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-layout--groups-expanded .student-section {
+  width: 360px;
 }
 
 .section-header {
@@ -2651,12 +2663,12 @@ function openLoginCodesPage(studentIds) {
   width: 100%;
 }
 
-.admin-layout--groups-board .group-filters {
+.admin-layout--groups-expanded .group-filters {
   flex-direction: row;
   align-items: flex-start;
 }
 
-.admin-layout--groups-board .group-sort {
+.admin-layout--groups-expanded .group-sort {
   width: 200px;
   flex-shrink: 0;
 }
@@ -2704,20 +2716,21 @@ function openLoginCodesPage(studentIds) {
 }
 
 /* Group section (right) */
-.admin-layout--groups-board {
-  display: block;
-}
-.admin-layout--groups-board .group-section {
-  width: 100%;
-}
-
 .group-section {
+  box-sizing: border-box;
+  flex: 0 0 auto;
   width: 317px;
-  flex-shrink: 0;
+  min-width: 0;
+  max-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  overflow-y: auto;
+  gap: 12px;
+  overflow: hidden;
+  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-layout--groups-expanded .group-section {
+  width: calc(100% - 376px);
 }
 
 .group-search-wrap {
@@ -2737,17 +2750,76 @@ function openLoginCodesPage(studentIds) {
 
 .group-section-header {
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+}
+.group-section-header-top {
+  display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
   min-width: 0;
+}
+.group-expand-btn {
+  flex-shrink: 0;
+}
+.group-add-btn {
+  width: 100%;
+}
+.group-add-btn :deep(.btn) {
+  width: 100%;
+  justify-content: center;
+}
+.admin-layout--groups-expanded .group-section-header {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.admin-layout--groups-expanded .group-section-header-top {
+  flex: 1;
+  min-width: 0;
+}
+.admin-layout--groups-expanded .group-add-btn,
+.admin-layout--groups-expanded .group-add-btn :deep(.btn) {
+  width: auto;
+}
+
+.group-section-header,
+.group-filters,
+.group-list-pagination {
+  flex-shrink: 0;
+}
+
+.group-cards-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: calc(100vh - 18rem);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.group-cards-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .group-cards-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+.group-cards-list--split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-content: start;
+}
+.group-cards-list--split > * {
+  min-width: 0;
+}
+.group-cards-list--split > :deep(.group-card) {
+  min-width: 0;
 }
 
 .no-results-text {
@@ -3203,8 +3275,15 @@ function openLoginCodesPage(studentIds) {
     flex-direction: column;
   }
 
-  .group-section {
+  .student-section,
+  .admin-layout--groups-expanded .student-section {
     width: 100%;
+  }
+
+  .group-section,
+  .admin-layout--groups-expanded .group-section {
+    width: 100%;
+    max-height: min(70vh, calc(100vh - 40px));
   }
 }
 
@@ -3218,8 +3297,15 @@ function openLoginCodesPage(studentIds) {
     flex-direction: column;
   }
 
-  .group-section {
+  .student-section,
+  .admin-layout--groups-expanded .student-section {
     width: 100%;
+  }
+
+  .group-section,
+  .admin-layout--groups-expanded .group-section {
+    width: 100%;
+    max-height: min(70vh, calc(100vh - 40px));
   }
 
   .section-header {
@@ -3234,14 +3320,14 @@ function openLoginCodesPage(studentIds) {
     width: 100%;
   }
 
-  .group-cards-list {
+  .group-cards-list:not(.group-cards-list--split) {
     flex-direction: row;
     overflow-x: auto;
     gap: 12px;
     padding-bottom: 4px;
   }
 
-  .group-cards-list > :deep(.group-card) {
+  .group-cards-list:not(.group-cards-list--split) > :deep(.group-card) {
     min-width: 260px;
     flex-shrink: 0;
   }
@@ -3261,6 +3347,13 @@ function openLoginCodesPage(studentIds) {
 
   .assign-groups-list {
     max-height: 200px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-section,
+  .group-section {
+    transition: none;
   }
 }
 

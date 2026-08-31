@@ -115,17 +115,41 @@ function toggle() {
 
 function updateDropdownPosition() {
   const el = triggerRef.value
-  if (!el) return
+  if (!el || !open.value) return
   const rect = el.getBoundingClientRect()
   const gap = 4
-  dropdownStyle.value = {
-    position: 'fixed',
-    left: `${rect.left}px`,
-    width: `${rect.width}px`,
-    top: `${rect.bottom + gap}px`,
-    maxHeight: '240px',
-    zIndex: 10050,
-  }
+  const pad = 8
+  const preferred = 240
+  const spaceBelow = window.innerHeight - rect.bottom - gap - pad
+  const spaceAbove = rect.top - gap - pad
+  const openUp = spaceBelow < Math.min(preferred, 160) && spaceAbove > spaceBelow
+  const available = openUp ? spaceAbove : spaceBelow
+  const maxHeight = Math.max(96, Math.min(preferred, available))
+  const width = rect.width
+  const left = Math.min(
+    Math.max(pad, rect.left),
+    Math.max(pad, window.innerWidth - width - pad),
+  )
+
+  dropdownStyle.value = openUp
+    ? {
+        position: 'fixed',
+        left: `${left}px`,
+        width: `${width}px`,
+        bottom: `${window.innerHeight - rect.top + gap}px`,
+        top: 'auto',
+        maxHeight: `${maxHeight}px`,
+        zIndex: 10050,
+      }
+    : {
+        position: 'fixed',
+        left: `${left}px`,
+        width: `${width}px`,
+        top: `${rect.bottom + gap}px`,
+        bottom: 'auto',
+        maxHeight: `${maxHeight}px`,
+        zIndex: 10050,
+      }
 }
 
 function onDocPointerDown(e) {
@@ -134,20 +158,30 @@ function onDocPointerDown(e) {
   open.value = false
 }
 
+function bindPositionListeners() {
+  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('scroll', updateDropdownPosition, true)
+}
+
+function unbindPositionListeners() {
+  window.removeEventListener('resize', updateDropdownPosition)
+  window.removeEventListener('scroll', updateDropdownPosition, true)
+}
+
 watch(open, async (isOpen) => {
-  if (isOpen) {
-    await nextTick()
-    updateDropdownPosition()
-  }
+  unbindPositionListeners()
+  if (!isOpen) return
+  await nextTick()
+  updateDropdownPosition()
+  bindPositionListeners()
 })
 
 onMounted(() => {
   document.addEventListener('pointerdown', onDocPointerDown, true)
-  window.addEventListener('resize', updateDropdownPosition)
 })
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onDocPointerDown, true)
-  window.removeEventListener('resize', updateDropdownPosition)
+  unbindPositionListeners()
 })
 </script>
 
@@ -176,7 +210,9 @@ onBeforeUnmount(() => {
 
 <style>
 .pselect-dropdown {
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;

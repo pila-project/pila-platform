@@ -87,6 +87,18 @@ export default {
     addMember(state, { id, user_id, group_id, archived }) {
       state.members[id] = { user_id, group_id, archived }
     },
+    setMembers(state, members) {
+      const next = {}
+      for (const m of members || []) {
+        if (!m?.id) continue
+        next[m.id] = {
+          user_id: m.user_id,
+          group_id: m.group_id,
+          archived: !!m.archived,
+        }
+      }
+      state.members = next
+    },
     removeMember(state, { user_id, group_id }) {
       Object
         .entries(state.members)
@@ -227,7 +239,7 @@ export default {
     },
     async loadMembers({ commit }) {
       const members = await Agent.query('group_members')
-      members.forEach(member => commit('addMember', member))
+      commit('setMembers', members)
     },
     async add({ dispatch, commit, rootState }, { name, type, id=uuid()}) {
       const metadata = await Agent.metadata(id)
@@ -329,6 +341,36 @@ export default {
     },
     async flushMembers() {
       await Agent.synced()
-    }
+    },
+    async addMembersBulk({ dispatch, getters }, { members, chunkSize = 8 }) {
+      const pairs = (members || []).filter(m => m?.user_id && m?.group_id)
+      const pending = []
+      const seen = new Set()
+      let skipped = 0
+      for (const pair of pairs) {
+        const key = `${pair.user_id}:${pair.group_id}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        if (getters.belongs(pair.user_id, pair.group_id)) skipped++
+        else pending.push(pair)
+      }
+      const size = Math.max(1, chunkSize)
+      try {
+        for (let i = 0; i < pending.length; i += size) {
+          const chunk = pending.slice(i, i + size)
+          await Promise.all(chunk.map(pair => dispatch('addMember', {
+            user_id: pair.user_id,
+            group_id: pair.group_id,
+            defer: true,
+          })))
+        }
+        await dispatch('flushMembers')
+        await dispatch('loadMembers')
+      } catch (e) {
+        await dispatch('loadMembers').catch(() => {})
+        throw e
+      }
+      return { added: pending.length, skipped }
+    },
   }
 }
