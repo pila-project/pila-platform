@@ -1,6 +1,6 @@
 <template>
   <div class="page-container assign-page">
-    <h1 class="page-heading assign-heading">{{ t('assign-and-monitor') }}</h1>
+    <h1 class="page-heading page-heading--sr">{{ t('assign-and-monitor') }}</h1>
 
     <div class="content-card assign-card">
       <!-- Card header -->

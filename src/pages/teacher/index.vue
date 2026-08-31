@@ -144,7 +144,7 @@
       />
 
       <!-- Main content -->
-      <main class="teacher-main">
+      <main ref="teacherMainRef" class="teacher-main">
         <router-view v-slot="{ Component }">
           <KeepAlive :max="4">
             <component :is="Component" :key="$route.path" />
@@ -160,8 +160,8 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-  import { useRouter } from 'vue-router'
+  import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+  import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '@/components/roles/role-requester.vue'
@@ -178,7 +178,19 @@
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const showEncryptionKeyModal = ref(false)
   const store = useStore()
-  const router = useRouter()
+  const route = useRoute()
+  const teacherMainRef = ref(null)
+
+  // UIUX-158: tab switches keep KeepAlive data, but the shared teacher-main
+  // scroller must start at the top (Admin ↔ Assignments).
+  watch(
+    () => route.path,
+    async () => {
+      await nextTick()
+      if (teacherMainRef.value) teacherMainRef.value.scrollTop = 0
+      window.scrollTo(0, 0)
+    },
+  )
   const {
     needsEncryptionAttention,
     isEncryptionKeyMissing,

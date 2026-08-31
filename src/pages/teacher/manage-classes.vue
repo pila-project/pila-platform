@@ -1,6 +1,6 @@
 <template>
   <div class="page-container admin-page">
-    <h1 class="page-heading">{{ groupsBoard ? t('groups') : t('student-and-group-management') }}</h1>
+    <h1 class="page-heading page-heading--sr">{{ groupsBoard ? t('groups') : t('student-and-group-management') }}</h1>
 
     <div class="admin-layout" :class="{ 'admin-layout--groups-board': groupsBoard }">
       <!-- Left column: Students -->

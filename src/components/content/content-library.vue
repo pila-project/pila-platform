@@ -4,7 +4,7 @@
     class="page-container explore-page"
     :class="{ 'explore-page--sequences-expanded': sequencesExpanded }"
   >
-    <h1 class="page-heading explore-heading capitalize">{{ t('explore') }}</h1>
+    <h1 class="page-heading page-heading--sr">{{ t('explore') }}</h1>
 
     <!-- Mobile: inline sequence section -->
     <div class="mobile-sequences">
@@ -1392,7 +1392,6 @@
 
 .explore-page .page-heading {
   flex-shrink: 0;
-  margin-bottom: 16px;
 }
 
 .explore-columns {
