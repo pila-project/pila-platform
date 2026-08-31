@@ -40,7 +40,7 @@
 
         <template v-slot:prepend>
           <v-avatar
-            :image="userInfo.picture"
+            :image="userInfo.picture || '/mascotte.png'"
             class="mx-2"
             @click.shift="alertUserName"
           />
