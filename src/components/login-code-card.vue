@@ -12,12 +12,14 @@
       required: true
     }
   })
+
+  const urlPrifix = `https://${location.host}/login/pila#`
 </script>
 
 <template>
   <div class="login-code-card">
     <div>{{ name }}</div>
-    <QRCode size="2in" :data="loginCode" />
+    <QRCode size="2in" :data="urlPrifix + loginCode" />
     <div>
       <v-icon
         v-for="(character, index) in loginCode"
