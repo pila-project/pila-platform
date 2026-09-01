@@ -67,7 +67,7 @@
     <div class="quick-links">
       <router-link class="quick-link" to="/teacher/content">
         <img src="/teacher-home/quick-explore.png" alt="" class="quick-link-img">
-        <span>{{ t('explore-item-library') }}</span>
+        <span>{{ t('explore-content-library') }}</span>
       </router-link>
       <router-link class="quick-link" to="/teacher/assignments-from-me">
         <img src="/teacher-home/quick-assign.png" alt="" class="quick-link-img">
@@ -109,7 +109,7 @@
         <div class="home-panel-head">
           <div>
             <h3 class="card-section-title home-panel-title">
-              <LucideIcon name="graduation-cap" :size="16" />
+              <LucideIcon name="clipboard-list" :size="16" />
               {{ t('my-assignments') }}
             </h3>
           </div>

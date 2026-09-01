@@ -2,6 +2,7 @@
   <div class="content-browser" :class="{ 'content-browser--fill': fillHeight }">
     <!-- Search + filters -->
     <div class="cb-toolbar">
+      <div class="cb-toolbar-filters">
       <PUnifiedFilter
         v-model:searchQuery="searchQuery"
         :placeholder="placeholder || t('search-content-title')"
@@ -18,6 +19,8 @@
           searchable
         />
       </PUnifiedFilter>
+      <slot name="toolbar-after-filter" />
+      </div>
 
       <div class="cb-tabs-group">
         <span class="cb-tabs-label">{{ t('show') }}:</span>
@@ -233,6 +236,14 @@ defineExpose({
   margin-bottom: 16px;
 }
 
+.cb-toolbar-filters {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .cb-toolbar :deep(.unified-filter) {
   flex: 1;
   min-width: 0;
@@ -275,6 +286,9 @@ defineExpose({
   .cb-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+  .cb-toolbar-filters {
+    flex-direction: column;
   }
   .cb-grid {
     grid-template-columns: minmax(0, 1fr);

@@ -17,11 +17,14 @@
           <div class="login-code-secret">
             <span class="login-code-label">{{ t('pila-login-code') }}</span>
             <div class="login-code-icons" :aria-label="t('pila-login-code')">
-              <span
-                v-for="(char, index) in users[id]?.secret || ''"
-                :key="`${id}-${index}`"
-                class="login-code-glyph"
-              >{{ glyphForCodeChar(char) }}</span>
+              <template v-for="(char, index) in users[id]?.secret || ''" :key="`${id}-${index}`">
+                <i
+                  v-if="faIconForCodeChar(char)"
+                  class="login-code-glyph"
+                  :class="faIconForCodeChar(char)"
+                />
+                <span v-else class="login-code-glyph">{{ char }}</span>
+              </template>
             </div>
           </div>
         </div>
@@ -35,7 +38,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
-import { glyphForCodeChar } from '@/utils/login-code-symbols.js'
+import { faIconForCodeChar } from '@/utils/login-code-symbols.js'
 
 const props = defineProps({
   studentIds: {
@@ -116,5 +119,11 @@ const studentIds = computed(() =>
   line-height: 1;
   color: #334155;
   text-align: center;
+}
+@media print {
+  .login-code-glyph {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 </style>

@@ -69,9 +69,15 @@ function dedupedFetch(key, fetchFn) {
 
 /** Bumped when nameCache entries change so search filters can recompute. */
 export const nameCacheVersion = ref(0)
+/** Bumped when metadata created/updated changes so Explore sorts can recompute. */
+export const metadataCacheVersion = ref(0)
 
 function bumpNameCacheVersion() {
   nameCacheVersion.value++
+}
+
+function bumpMetadataCacheVersion() {
+  metadataCacheVersion.value++
 }
 
 export function nameCacheKey(id, lang) {
@@ -119,9 +125,11 @@ export function getContentMetadata(id) {
       const entry = {
         active_type: meta.active_type,
         owner: meta.owner,
+        created: meta.created,
         updated: meta.updated,
       }
       metadataCache.set(id, entry)
+      bumpMetadataCacheVersion()
       return entry
     } catch {
       return null
@@ -316,7 +324,10 @@ function applyMapsToMemory(maps) {
     for (const [k, v] of maps.names) nameCache.set(k, v)
     bumpNameCacheVersion()
   }
-  if (maps.metadata) for (const [k, v] of maps.metadata) metadataCache.set(k, v)
+  if (maps.metadata) {
+    for (const [k, v] of maps.metadata) metadataCache.set(k, v)
+    bumpMetadataCacheVersion()
+  }
   if (maps.tags) for (const [k, v] of maps.tags) tagCache.set(k, v)
   if (maps.images) for (const [k, v] of maps.images) imageCache.set(k, v)
   if (maps.tagNames) for (const [k, v] of maps.tagNames) tagNameCache.set(k, v)
@@ -404,6 +415,7 @@ export function invalidate(id) {
   imageCache.delete(id)
   previewMetaCache.delete(id)
   bumpNameCacheVersion()
+  bumpMetadataCacheVersion()
   previewMetaVersion.value++
 }
 
@@ -427,6 +439,7 @@ export function invalidateNames() {
 export function invalidateAll() {
   nameCache.clear()
   metadataCache.clear()
+  bumpMetadataCacheVersion()
   tagCache.clear()
   imageCache.clear()
   tagNameCache.clear()

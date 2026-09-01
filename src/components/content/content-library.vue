@@ -31,10 +31,11 @@
           />
         </div>
         <p class="text-xs text-slate-500 mt-0.5">{{ t('organize-content-into-learning-sequences') }}</p>
+        <div class="sequences-toolbar mt-2">
         <PUnifiedFilter
           v-if="isTeacherExplore"
           v-model:searchQuery="sequenceSearchQuery"
-          class="mt-2 sequences-filter"
+          class="sequences-filter"
           compact
           :placeholder="t('search-sequences')"
         >
@@ -56,10 +57,17 @@
         <PInput
           v-else
           v-model="sequenceSearchQuery"
-          class="mt-2"
           :placeholder="t('search-sequences')"
           icon="lucide:search"
         />
+        <div class="sequences-sort">
+          <PSelect
+            v-model="sequenceSort"
+            :placeholder="t('sort')"
+            :items="exploreSortOptions"
+          />
+        </div>
+        </div>
         <button class="mobile-seq-selector" @click="mobileSeqExpanded = !mobileSeqExpanded">
           <span class="mobile-seq-selector-name">
             {{ t('my-sequences') }}
@@ -117,10 +125,11 @@
               />
             </div>
             <p class="text-sm text-slate-500 mt-1">{{ t('organize-content-into-learning-sequences') }}</p>
+            <div class="sequences-toolbar mt-3">
             <PUnifiedFilter
               v-if="isTeacherExplore"
               v-model:searchQuery="sequenceSearchQuery"
-              class="mt-3 sequences-filter"
+              class="sequences-filter"
               compact
               :placeholder="t('search-sequences')"
             >
@@ -142,10 +151,17 @@
             <PInput
               v-else
               v-model="sequenceSearchQuery"
-              class="mt-3"
               :placeholder="t('search-sequences')"
               icon="lucide:search"
             />
+            <div class="sequences-sort">
+              <PSelect
+                v-model="sequenceSort"
+                :placeholder="t('sort')"
+                :items="exploreSortOptions"
+              />
+            </div>
+            </div>
             <PButton
               variant="primary"
               icon="lucide:plus"
@@ -235,6 +251,15 @@
               :options="favoritesFilterOptions"
               v-model="contentFavoritesFilters"
             />
+          </template>
+          <template #toolbar-after-filter>
+            <div class="content-sort">
+              <PSelect
+                v-model="contentSort"
+                :placeholder="t('sort')"
+                :items="exploreSortOptions"
+              />
+            </div>
           </template>
 
           <template #empty>
@@ -472,7 +497,7 @@
   import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
   import TaggingModal from '@/components/tagging-modal.vue'
   import {
-    nameCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
+    nameCacheVersion, metadataCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
     getCachedTagHierarchy, prefetchBatch, invalidateNames,
     getContentMetadata, getContentType, getCachedPreviewMeta, patchPreviewMeta,
     setCachedContentName, loadExploreCache, persistSequencesPanelCache,
@@ -492,7 +517,7 @@
     setExploreSequenceArchived,
   } from '@/utils/explore-sequence-archive.js'
   import { loadExploreFavorites, toggleExploreFavorite } from '@/utils/explore-favorites.js'
-  import { PButton, PCheckbox, PAlertDialog, PModal, PInput, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
+  import { PButton, PCheckbox, PAlertDialog, PModal, PInput, PSelect, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
   import { useFeedback } from '@/composables/useFeedback.js'
   import {
     defaultActiveStatusFilters,
@@ -544,6 +569,7 @@
   const {
     loading,
     searchQuery: contentSearchQuery,
+    contentPage,
     myContent,
     currentContentList,
     filteredContentList,
@@ -703,6 +729,14 @@
   const sequenceFavoritesFilters = ref(defaultFavoritesFilters())
   const contentFavoritesFilters = ref(defaultFavoritesFilters())
   const contentTypeFilters = ref(defaultContentTypeFilters())
+  const sequenceSort = ref('newest')
+  const contentSort = ref('newest')
+  const exploreSortOptions = computed(() => [
+    { title: t('newest-first'), value: 'newest' },
+    { title: t('oldest-first'), value: 'oldest' },
+    { title: t('name-a-z'), value: 'name-asc' },
+    { title: t('name-z-a'), value: 'name-desc' },
+  ])
   const sequenceStatusFilterOptions = computed(() => buildStatusFilterOptions(t))
   const favoritesFilterOptions = computed(() => buildFavoritesFilterOptions(t))
   const contentTypeFilterOptions = computed(() => buildContentTypeFilterOptions(t))
@@ -727,15 +761,14 @@
   const archiveConfirmDescription = computed(() => {
     const name = sequenceToArchiveName.value
     if (name) {
-      return `Archive "${name}"? It will be removed from your active sequences. You can restore it later.`
+      return t('archive-sequence-named-confirm').replace('{name}', name)
     }
-    return (
-      t('archive-sequence-confirm')
-    )
+    return t('archive-sequence-confirm')
   })
 
   const displayedSequenceIds = computed(() => {
     void nameCacheVersion.value
+    void metadataCacheVersion.value
     let ids = mySequenceIds.value
     if (isTeacherExplore.value) {
       ids = ids.filter(id => matchesStatusFilter(
@@ -749,12 +782,14 @@
       ))
     }
     const q = sequenceSearchQuery.value.trim().toLowerCase()
-    if (!q) return ids
-    const lang = store.getters.language()
-    return ids.filter(id => {
-      const name = (getCachedContentName(id, lang) || '').toLowerCase()
-      return name.includes(q)
-    })
+    if (q) {
+      const lang = store.getters.language()
+      ids = ids.filter(id => {
+        const name = (getCachedContentName(id, lang) || '').toLowerCase()
+        return name.includes(q)
+      })
+    }
+    return sortExploreIds(ids, sequenceSort.value)
   })
 
   const sequenceEmptyMessage = computed(() => {
@@ -901,6 +936,8 @@
 
   // ── Content browser filter (hide archived sequences + optional favorites) ──
   function contentExploreFilter(list) {
+    void nameCacheVersion.value
+    void metadataCacheVersion.value
     const archived = archivedSequenceIdSet.value
     let result = list.filter(id => !archived.has(id))
     if (isSequencesOnlyFilterActive(contentTypeFilters.value)) {
@@ -913,8 +950,12 @@
     if (isFavoritesFilterActive(contentFavoritesFilters.value)) {
       result = result.filter(id => favorites.has(id))
     }
-    return result
+    return sortExploreIds(result, contentSort.value)
   }
+
+  watch(contentSort, () => {
+    contentPage.value = 1
+  })
 
   const allSelected = computed(() => {
     const list = browserRef.value?.displayList || filteredContentList.value
@@ -1033,8 +1074,8 @@
       if (sequenceToView.value === id) sequenceToView.value = null
       await loadMySequences({ silent: true })
       showSuccessDialog(
-        'Sequence archived',
-        'This sequence has been moved to your archived list. It no longer appears among active sequences or when adding content to assignments. You can restore it anytime from the sequences panel.',
+        t('sequence-archived'),
+        t('sequence-archived-description'),
       )
     } catch (e) {
       console.error('[Explore] archiveSequence failed', id, e)
@@ -1155,8 +1196,44 @@
     metadataCache.set(id, {
       active_type: meta?.active_type || 'application/json;type=sequence',
       owner: meta?.owner,
+      created: meta?.created,
       updated: new Date().toISOString(),
     })
+    metadataCacheVersion.value++
+  }
+
+  function exploreItemTimestamp(id) {
+    const meta = metadataCache.get(id)
+    const raw = meta?.created || meta?.updated
+    const ms = raw ? new Date(raw).getTime() : 0
+    return Number.isFinite(ms) ? ms : 0
+  }
+
+  function sortExploreIds(ids, mode) {
+    const list = [...ids]
+    const lang = store.getters.language()
+    if (mode === 'name-asc') {
+      return list.sort((a, b) =>
+        (getCachedContentName(a, lang) || '').localeCompare(
+          getCachedContentName(b, lang) || '',
+          undefined,
+          { sensitivity: 'base' },
+        ),
+      )
+    }
+    if (mode === 'name-desc') {
+      return list.sort((a, b) =>
+        (getCachedContentName(b, lang) || '').localeCompare(
+          getCachedContentName(a, lang) || '',
+          undefined,
+          { sensitivity: 'base' },
+        ),
+      )
+    }
+    if (mode === 'oldest') {
+      return list.sort((a, b) => exploreItemTimestamp(a) - exploreItemTimestamp(b))
+    }
+    return list.sort((a, b) => exploreItemTimestamp(b) - exploreItemTimestamp(a))
   }
 
   async function ensureSequenceMetadataCached(id) {
@@ -1174,11 +1251,12 @@
   }
 
   function sequenceUpdatedTimestamp(meta, id) {
-    if (!meta?.updated) {
+    const raw = meta?.created || meta?.updated
+    if (!raw) {
       if (id && id === newestSequenceId.value) return Date.now()
       return 0
     }
-    const ts = new Date(meta.updated).getTime()
+    const ts = new Date(raw).getTime()
     return Number.isFinite(ts) ? ts : 0
   }
 
@@ -1308,8 +1386,8 @@
       await setExploreSequenceArchived(id, false)
       await loadMySequences({ silent: true })
       showSuccessDialog(
-        'Sequence restored',
-        'This sequence is back in your active list. You can edit it, add items, and include it in assignments again.',
+        t('sequence-restored'),
+        t('sequence-restored-description'),
       )
     } catch (e) {
       console.error('[Explore] restoreSequence failed', id, e)
@@ -1514,6 +1592,38 @@
 
 .sequences-filter {
   min-width: 0;
+  flex: 1;
+}
+
+.sequences-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sequences-sort {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.content-sort {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .content-sort {
+    width: 100%;
+  }
+}
+
+.explore-columns--sequences-expanded .sequences-toolbar {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.explore-columns--sequences-expanded .sequences-sort {
+  width: 200px;
 }
 
 .content-lib-header {

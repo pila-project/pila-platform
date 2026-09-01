@@ -19,7 +19,7 @@
           class="p-menu-dropdown"
           :style="floatingStyle"
           @click="onMenuItemClick"
-          @keydown.esc="isOpen = false"
+          @keydown.esc="closeMenu"
           @keydown.arrow-down.prevent="focusNext"
           @keydown.arrow-up.prevent="focusPrev"
         >
@@ -29,6 +29,11 @@
     </Teleport>
   </div>
 </template>
+
+<script>
+/** Shared across all PMenu instances — language submenus are not separate PMenus. */
+let activeMenuClose = null
+</script>
 
 <script setup>
 import { ref, watch, nextTick, onMounted, onBeforeUnmount, computed } from 'vue'
@@ -43,9 +48,28 @@ const menuRef = ref(null)
 const dropdownRef = ref(null)
 const anchorRect = ref(null)
 
+function setActiveMenu(closeFn) {
+  if (activeMenuClose && activeMenuClose !== closeFn) activeMenuClose()
+  activeMenuClose = closeFn
+}
+
+function clearActiveMenu(closeFn) {
+  if (activeMenuClose === closeFn) activeMenuClose = null
+}
+
+function closeMenu() {
+  isOpen.value = false
+}
+
 function toggle() {
-  if (!isOpen.value) updateAnchorRect()
-  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    closeMenu()
+    return
+  }
+  updateAnchorRect()
+  // Close any other root menu before this one opens so actions stay on this row.
+  setActiveMenu(closeMenu)
+  isOpen.value = true
 }
 
 function updateAnchorRect() {
@@ -97,26 +121,34 @@ function focusPrev() {
   items[prev].focus()
 }
 
+let positionGen = 0
+
 watch(isOpen, async (open) => {
-  if (open) {
-    autoFlip.value = false
-    await nextTick()
-    // Auto-flip upward if dropdown extends beyond viewport
-    if (!props.openUp && dropdownRef.value) {
-      const rect = dropdownRef.value.getBoundingClientRect()
-      if (rect.bottom > window.innerHeight) {
-        autoFlip.value = true
-      }
-    }
-    const items = getMenuItems()
-    if (items.length) items[0].focus()
+  const gen = ++positionGen
+  if (!open) {
+    clearActiveMenu(closeMenu)
+    return
   }
+  setActiveMenu(closeMenu)
+  autoFlip.value = false
+  await nextTick()
+  if (gen !== positionGen || !isOpen.value) return
+  // Auto-flip upward if dropdown extends beyond viewport
+  if (!props.openUp && dropdownRef.value) {
+    const rect = dropdownRef.value.getBoundingClientRect()
+    if (rect.bottom > window.innerHeight) {
+      autoFlip.value = true
+    }
+  }
+  const items = getMenuItems()
+  if (items.length) items[0].focus()
 })
 
 function onMenuItemClick(e) {
+  if (!isOpen.value) return
   const menuItem = e.target.closest('[role="menuitem"]')
   if (menuItem && !menuItem.closest('[data-keep-open]')) {
-    isOpen.value = false
+    closeMenu()
   }
 }
 
@@ -124,9 +156,7 @@ function close(e) {
   if (!isOpen.value) return
   const inAnchor = menuRef.value && menuRef.value.contains(e.target)
   const inDropdown = dropdownRef.value && dropdownRef.value.contains(e.target)
-  if (!inAnchor && !inDropdown) {
-    isOpen.value = false
-  }
+  if (!inAnchor && !inDropdown) closeMenu()
 }
 
 function onScrollOrResize() {
@@ -136,15 +166,16 @@ function onScrollOrResize() {
 }
 
 onMounted(() => {
-  document.addEventListener('click', close)
+  document.addEventListener('pointerdown', close, true)
   window.addEventListener('scroll', onScrollOrResize, true)
   window.addEventListener('resize', onScrollOrResize)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', close)
+  document.removeEventListener('pointerdown', close, true)
   window.removeEventListener('scroll', onScrollOrResize, true)
   window.removeEventListener('resize', onScrollOrResize)
+  clearActiveMenu(closeMenu)
 })
 </script>
 
@@ -168,6 +199,7 @@ onBeforeUnmount(() => {
 }
 .p-menu-leave-active {
   transition: opacity 75ms ease-in, transform 75ms ease-in;
+  pointer-events: none;
 }
 .p-menu-enter-from,
 .p-menu-leave-to {

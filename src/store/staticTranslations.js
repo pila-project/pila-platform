@@ -1117,6 +1117,19 @@ export default {
     "sk": "Archivovať túto sekvenciu? Odstráni sa z vašich aktívnych sekvencií. Neskôr ju môžete obnoviť.",
     "th": "เก็บถาวรลำดับนี้หรือไม่? จะถูกลบออกจากลำดับที่ใช้งาน คุณสามารถกู้คืนได้ในภายหลัง"
   },
+  "archive-sequence-named-confirm": {
+    "de": "„{name}“ archivieren? Die Sequenz wird aus Ihren aktiven Sequenzen entfernt. Sie können sie später wiederherstellen.",
+    "en": "Archive \"{name}\"? It will be removed from your active sequences. You can restore it later.",
+    "es": "¿Archivar \"{name}\"? Se eliminará de tus secuencias activas. Puedes restaurarla más tarde.",
+    "fr": "Archiver « {name} » ? Elle sera retirée de vos séquences actives. Vous pourrez la restaurer plus tard.",
+    "km": "ទុក «{name}» ជាឯកសារ? វានឹងត្រូវបានដកចេញពីលំដាប់សកម្ម។ អ្នកអាចស្តារវានៅពេលក្រោយ។",
+    "lv": "Vai arhivēt “{name}”? Tā tiks noņemta no jūsu aktīvajām secībām. Varat to atjaunot vēlāk.",
+    "nl": "“{name}” archiveren? De reeks wordt uit uw actieve reeksen verwijderd. U kunt deze later herstellen.",
+    "pl": "Zarchiwizować „{name}”? Zostanie usunięta z aktywnych sekwencji. Możesz ją później przywrócić.",
+    "pt": "Arquivar \"{name}\"? Ela será removida das suas sequências ativas. Você poderá restaurá-la mais tarde.",
+    "sk": "Archivovať „{name}“? Odstráni sa z vašich aktívnych sekvencií. Neskôr ju môžete obnoviť.",
+    "th": "เก็บถาวร \"{name}\" หรือไม่? จะถูกลบออกจากลำดับที่ใช้งาน คุณสามารถกู้คืนได้ในภายหลัง"
+  },
   "archive-student-confirm-description": {
     "de": "Dieser Schüler wird in Ihrer aktiven Liste ausgeblendet. Er wird nicht gelöscht und kann sich weiterhin anmelden. Er bleibt in seinen Gruppen und sieht ggf. weiterhin Aufgaben, bis Sie ihn aus Gruppen entfernen oder die Aufgabe für alle archivieren. Sie können ihn jederzeit aus den archivierten Schülern wiederherstellen.",
     "en": "Archiving this student account will remove it from the 'Active' student list. The account can be restored by clicking 'Show archived' and reselecting this profile.",
@@ -7188,6 +7201,32 @@ export default {
     "sk": "Sekvencia",
     "th": "เรียงลำดับกิจกรรม"
   },
+  "sequence-archived": {
+    "de": "Sequenz archiviert",
+    "en": "Sequence archived",
+    "es": "Secuencia archivada",
+    "fr": "Séquence archivée",
+    "km": "បានទុកលំដាប់ជាឯកសារ",
+    "lv": "Secība arhivēta",
+    "nl": "Reeks gearchiveerd",
+    "pl": "Sekwencja zarchiwizowana",
+    "pt": "Sequência arquivada",
+    "sk": "Sekvencia archivovaná",
+    "th": "เก็บถาวรลำดับแล้ว"
+  },
+  "sequence-archived-description": {
+    "de": "Diese Sequenz liegt jetzt in Ihrer Archivliste. Sie erscheint nicht mehr bei den aktiven Sequenzen und nicht beim Hinzufügen von Inhalten zu Aufgaben. Sie können sie jederzeit im Sequenzbereich wiederherstellen.",
+    "en": "This sequence has been moved to your archived list. It no longer appears among active sequences or when adding content to assignments. You can restore it anytime from the sequences panel.",
+    "es": "Esta secuencia está ahora en tu lista archivada. Ya no aparece entre las secuencias activas ni al añadir contenido a las tareas. Puedes restaurarla en cualquier momento desde el panel de secuencias.",
+    "fr": "Cette séquence se trouve maintenant dans votre liste d’archives. Elle n’apparaît plus parmi les séquences actives ni lors de l’ajout de contenu aux devoirs. Vous pouvez la restaurer à tout moment depuis le panneau des séquences.",
+    "km": "លំដាប់នេះត្រូវបានផ្លាស់ទៅបញ្ជីឯកសារ។ វាលែងបង្ហាញក្នុងលំដាប់សកម្ម ឬពេលបន្ថែមមាតិកាទៅការងារ។ អ្នកអាចស្តារវាបានគ្រប់ពេលពីផ្ទាំងលំដាប់។",
+    "lv": "Šī secība tagad ir arhīva sarakstā. Tā vairs neparādās aktīvajās secībās un pievienojot saturu uzdevumiem. Varat to jebkurā laikā atjaunot secību panelī.",
+    "nl": "Deze reeks staat nu in uw archieflijst. De reeks verschijnt niet meer bij actieve reeksen of bij het toevoegen van inhoud aan opdrachten. U kunt deze altijd herstellen via het reeksenpaneel.",
+    "pl": "Ta sekwencja jest teraz na liście zarchiwizowanych. Nie pojawia się już wśród aktywnych sekwencji ani przy dodawaniu treści do zadań. Możesz ją w każdej chwili przywrócić z panelu sekwencji.",
+    "pt": "Esta sequência foi para a sua lista de arquivadas. Ela não aparece mais entre as sequências ativas nem ao adicionar conteúdo às tarefas. Você pode restaurá-la a qualquer momento no painel de sequências.",
+    "sk": "Táto sekvencia je teraz v zozname archivovaných. Už sa nezobrazuje medzi aktívnymi sekvenciami ani pri pridávaní obsahu do úloh. Kedykoľvek ju môžete obnoviť v paneli sekvencií.",
+    "th": "ลำดับนี้ย้ายไปรายการที่เก็บถาวรแล้ว จะไม่แสดงในลำดับที่ใช้งานหรือตอนเพิ่มเนื้อหาในงานที่มอบหมาย คุณสามารถกู้คืนได้ทุกเมื่อจากแผงลำดับ"
+  },
   "sequence-created-successfully": {
     "de": "Sequenz erfolgreich erstellt",
     "en": "Sequence created successfully",
@@ -7200,6 +7239,32 @@ export default {
     "pt": "Sequência criada com sucesso",
     "sk": "Sekvencia bola úspešne vytvorená",
     "th": "สร้างลำดับสำเร็จ"
+  },
+  "sequence-restored": {
+    "de": "Sequenz wiederhergestellt",
+    "en": "Sequence restored",
+    "es": "Secuencia restaurada",
+    "fr": "Séquence restaurée",
+    "km": "បានស្តារលំដាប់",
+    "lv": "Secība atjaunota",
+    "nl": "Reeks hersteld",
+    "pl": "Sekwencja przywrócona",
+    "pt": "Sequência restaurada",
+    "sk": "Sekvencia obnovená",
+    "th": "กู้คืนลำดับแล้ว"
+  },
+  "sequence-restored-description": {
+    "de": "Diese Sequenz ist wieder in Ihrer aktiven Liste. Sie können sie bearbeiten, Inhalte hinzufügen und sie wieder in Aufgaben verwenden.",
+    "en": "This sequence is back in your active list. You can edit it, add items, and include it in assignments again.",
+    "es": "Esta secuencia vuelve a estar en tu lista activa. Puedes editarla, añadir elementos e incluirla de nuevo en las tareas.",
+    "fr": "Cette séquence est de nouveau dans votre liste active. Vous pouvez la modifier, y ajouter des éléments et l’inclure à nouveau dans des devoirs.",
+    "km": "លំដាប់នេះត្រឡប់ក្នុងបញ្ជីសកម្មហើយ។ អ្នកអាចកែវា បន្ថែមធាតុ និងបញ្ចូលវាក្នុងការងារម្តងទៀត។",
+    "lv": "Šī secība atkal ir aktīvajā sarakstā. Varat to rediģēt, pievienot vienumus un atkal iekļaut uzdevumos.",
+    "nl": "Deze reeks staat weer in uw actieve lijst. U kunt de reeks bewerken, items toevoegen en opnieuw in opdrachten gebruiken.",
+    "pl": "Ta sekwencja wróciła na aktywną listę. Możesz ją edytować, dodawać elementy i znów umieszczać w zadaniach.",
+    "pt": "Esta sequência voltou para a sua lista ativa. Você pode editá-la, adicionar itens e incluí-la novamente nas tarefas.",
+    "sk": "Táto sekvencia je opäť v aktívnom zozname. Môžete ju upraviť, pridať položky a znova ju použiť v úlohách.",
+    "th": "ลำดับนี้อยู่ในรายการที่ใช้งานอีกแล้ว คุณสามารถแก้ไข เพิ่มรายการ และใส่ในงานที่มอบหมายได้อีกครั้ง"
   },
   "sequence-title": {
     "de": "Sequenztitel",
