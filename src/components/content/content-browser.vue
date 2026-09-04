@@ -16,6 +16,7 @@
           :label="f.label"
           :options="f.options"
           v-model="activeFilters[f.key]"
+          :searchable="(f.options?.length || 0) > 7"
         />
       </PUnifiedFilter>
       <slot name="toolbar-after-filter" />
