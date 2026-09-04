@@ -16,7 +16,6 @@
           :label="f.label"
           :options="f.options"
           v-model="activeFilters[f.key]"
-          searchable
         />
       </PUnifiedFilter>
       <slot name="toolbar-after-filter" />
