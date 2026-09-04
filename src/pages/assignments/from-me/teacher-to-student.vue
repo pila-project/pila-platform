@@ -283,7 +283,7 @@
       />
       <div class="flex-1" />
       <PTooltip
-        v-if="!props.editing"
+        v-if="!publicationLocked"
         :text="!canSaveDraft ? draftBlockedReason : ''"
         position="top"
       >
