@@ -1561,14 +1561,9 @@ const gradeOptions = computed(() =>
   VALID_GRADE_VALUES.map(g => ({ value: g, label: g })),
 )
 
-const gradeFilterOptions = computed(() => {
-  const present = new Set(
-    students.value.map(s => s.grade).filter(g => validGrades.has(g)),
-  )
-  return VALID_GRADE_VALUES
-    .filter(g => present.has(g))
-    .map(g => ({ value: g, label: g }))
-})
+const gradeFilterOptions = computed(() =>
+  VALID_GRADE_VALUES.map(g => ({ value: g, label: g })),
+)
 
 const statusFilterOptions = computed(() => buildStatusFilterOptions(t))
 

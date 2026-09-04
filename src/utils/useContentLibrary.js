@@ -51,6 +51,50 @@ function categoriesEqual(a, b) {
   return a.every((c, i) => c.id === b[i].id)
 }
 
+function isGradeFilterCategory(label) {
+  const name = String(label || '').trim().toLowerCase()
+  return name === 'grade' || name === 'minimum grade'
+}
+
+function gradeSortKey(label) {
+  const raw = String(label || '').trim()
+  const upper = raw.toUpperCase()
+  if (upper === 'K' || upper === 'KINDERGARTEN') return 0
+  if (/(?:^|\s)K(?:\s|$)/i.test(raw) && !/\d/.test(raw)) return 0
+  const match = raw.match(/(\d+)/)
+  if (match) return Number(match[1])
+  return Number.POSITIVE_INFINITY
+}
+
+function contentCountsForCategory(categoryId) {
+  const counts = {}
+  for (const [, tags] of tagCache) {
+    const leafIds = tags[categoryId]
+    if (leafIds) {
+      for (const leafId of leafIds) {
+        counts[leafId] = (counts[leafId] || 0) + 1
+      }
+    }
+  }
+  return counts
+}
+
+function gradeTagOptions(cat) {
+  const counts = contentCountsForCategory(cat.id)
+  return (cat.leafIds || [])
+    .map(leafId => ({
+      value: leafId,
+      label: tagNameCache.get(leafId) || leafId.slice(0, 8),
+      count: counts[leafId] || 0,
+    }))
+    .sort((a, b) => {
+      const keyA = gradeSortKey(a.label)
+      const keyB = gradeSortKey(b.label)
+      if (keyA !== keyB) return keyA - keyB
+      return a.label.localeCompare(b.label)
+    })
+}
+
 function applyMyContentIds(ids) {
   myContent.splice(0, myContent.length, ...ids)
   myContentIds.clear()
@@ -143,23 +187,20 @@ export function useContentLibrary(store) {
   // ── Filter definitions from tag hierarchy ──
   const filterDefinitions = computed(() => {
     void tagIndexVersion.value
-    return tagCategories.value.map(cat => ({
-      key: cat.id,
-      label: tagNameCache.get(cat.id) || cat.name,
-      options: uniqueTagValues(cat.id),
-    }))
+    return tagCategories.value.map(cat => {
+      const label = tagNameCache.get(cat.id) || cat.name
+      return {
+        key: cat.id,
+        label,
+        options: (isGradeFilterCategory(label) || isGradeFilterCategory(cat.name))
+          ? gradeTagOptions(cat)
+          : uniqueTagValues(cat.id),
+      }
+    })
   })
 
   function uniqueTagValues(categoryId) {
-    const counts = {}
-    for (const [, tags] of tagCache) {
-      const leafIds = tags[categoryId]
-      if (leafIds) {
-        for (const leafId of leafIds) {
-          counts[leafId] = (counts[leafId] || 0) + 1
-        }
-      }
-    }
+    const counts = contentCountsForCategory(categoryId)
     return Object.entries(counts)
       .map(([leafId, count]) => ({
         value: leafId,
