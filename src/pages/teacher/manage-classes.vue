@@ -2506,13 +2506,12 @@ async function handleDropStudent(groupId, studentIds) {
     return
   }
 
-  const groupName = store.state.groups.groups[groupId]?.name || t('unnamed')
-  showSuccessDialog(
-    t('students-added-skipped-summary')
-      .replace('{added}', String(added))
-      .replace('{skipped}', String(skipped)),
-    groupName,
-  )
+  // UIUX-184: reuse UIUX-128 result dialog (warning if any skipped)
+  addToGroupsResults.value = [{
+    summary: true,
+    added,
+    skipped,
+  }]
 }
 
 function handlePrintGroupLoginCodes(groupId) {
