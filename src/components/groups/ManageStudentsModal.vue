@@ -62,7 +62,19 @@
                   @update:modelValue="toggleAllAvailable"
                 />
               </label>
-              <span class="panel-name-header">{{ t('name') }}</span>
+              <button
+                type="button"
+                class="panel-name-header panel-name-header--sortable"
+                :aria-sort="availableNameSort === 'asc' ? 'ascending' : 'descending'"
+                @click="toggleAvailableNameSort"
+              >
+                <span>{{ t('name') }}</span>
+                <LucideIcon
+                  :name="availableNameSort === 'asc' ? 'chevron-up' : 'chevron-down'"
+                  :size="12"
+                  class="sort-icon sort-icon-active"
+                />
+              </button>
             </div>
             <div
               v-for="student in filteredAvailable"
@@ -139,7 +151,19 @@
                   @update:modelValue="toggleAllGroup"
                 />
               </label>
-              <span class="panel-name-header">{{ t('name') }}</span>
+              <button
+                type="button"
+                class="panel-name-header panel-name-header--sortable"
+                :aria-sort="groupNameSort === 'asc' ? 'ascending' : 'descending'"
+                @click="toggleGroupNameSort"
+              >
+                <span>{{ t('name') }}</span>
+                <LucideIcon
+                  :name="groupNameSort === 'asc' ? 'chevron-up' : 'chevron-down'"
+                  :size="12"
+                  class="sort-icon sort-icon-active"
+                />
+              </button>
             </div>
             <div
               v-for="student in filteredGroup"
@@ -219,7 +243,7 @@ import {
   activeStudentsInGroup,
   availableStudentsForStatus,
 } from '@/utils/group-student-counts.js'
-import { studentNameSearchText } from '@/utils/student-display-name.js'
+import { formatStudentPreferredName, studentNameSearchText } from '@/utils/student-display-name.js'
 
 const props = defineProps({
   groupId: { type: String, required: true },
@@ -245,16 +269,19 @@ const selectedGroup = reactive(new Set())
 
 const { namePassword: encryptionKey } = useEncryptionKey(store)
 
-// Decrypted name lookup for search
+// Decrypted name lookup for search + alphabetical sort (UIUX-177)
 const nameMap = reactive({})
+const sortNameMap = reactive({})
 
 async function loadStudentNameSearchMap() {
   for (const student of props.students) {
     try {
       const info = await store.getters.decryptUserInfo(student.id, false)
       nameMap[student.id] = studentNameSearchText(info)
+      sortNameMap[student.id] = (formatStudentPreferredName(info) || '').trim()
     } catch {
       nameMap[student.id] = ''
+      sortNameMap[student.id] = ''
     }
   }
 }
@@ -267,6 +294,7 @@ onMounted(() => {
 watch(encryptionKey, (newKey) => {
   if (newKey) {
     Object.keys(nameMap).forEach(k => delete nameMap[k])
+    Object.keys(sortNameMap).forEach(k => delete sortNameMap[k])
     void loadStudentNameSearchMap()
   }
 })
@@ -295,16 +323,49 @@ const visibleAvailableStudents = computed(() =>
   ),
 )
 
+// UIUX-177: default A-Z; toggle independently per panel
+const availableNameSort = ref('asc')
+const groupNameSort = ref('asc')
+
+function studentSortName(id) {
+  void sortNameMap[id]
+  void nameMap[id]
+  return sortNameMap[id] || nameMap[id] || ''
+}
+
+function compareStudentsByName(a, b, order) {
+  const cmp = studentSortName(a.id).localeCompare(
+    studentSortName(b.id),
+    undefined,
+    { sensitivity: 'base', numeric: true },
+  )
+  return order === 'asc' ? cmp : -cmp
+}
+
+function toggleAvailableNameSort() {
+  availableNameSort.value = availableNameSort.value === 'asc' ? 'desc' : 'asc'
+}
+
+function toggleGroupNameSort() {
+  groupNameSort.value = groupNameSort.value === 'asc' ? 'desc' : 'asc'
+}
+
 const filteredAvailable = computed(() => {
-  if (!availableSearch.value) return visibleAvailableStudents.value
-  const q = availableSearch.value.toLowerCase()
-  return visibleAvailableStudents.value.filter(s => (nameMap[s.id] || '').includes(q))
+  let list = visibleAvailableStudents.value
+  if (availableSearch.value) {
+    const q = availableSearch.value.toLowerCase()
+    list = list.filter(s => (nameMap[s.id] || '').includes(q))
+  }
+  return [...list].sort((a, b) => compareStudentsByName(a, b, availableNameSort.value))
 })
 
 const filteredGroup = computed(() => {
-  if (!groupSearch.value) return groupStudents.value
-  const q = groupSearch.value.toLowerCase()
-  return groupStudents.value.filter(s => (nameMap[s.id] || '').includes(q))
+  let list = groupStudents.value
+  if (groupSearch.value) {
+    const q = groupSearch.value.toLowerCase()
+    list = list.filter(s => (nameMap[s.id] || '').includes(q))
+  }
+  return [...list].sort((a, b) => compareStudentsByName(a, b, groupNameSort.value))
 })
 
 // Selection helpers
@@ -760,6 +821,38 @@ async function discardAndClose() {
 
 .panel-name-header {
   flex: 1;
+}
+
+.panel-name-header--sortable {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+}
+
+.panel-name-header--sortable:hover {
+  color: var(--color-slate-700);
+}
+
+.sort-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.sort-icon-active {
+  color: #334155;
 }
 
 .panel-row {

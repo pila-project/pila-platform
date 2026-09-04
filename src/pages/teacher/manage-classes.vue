@@ -1128,7 +1128,7 @@ const newGroupGrade = ref('')
 const newGroupSubjects = ref([])
 const searchQuery = ref('')
 const groupSearchFilter = ref('')
-const groupSort = ref('newest')
+const groupSort = ref('name-asc')
 const groupListPage = ref(1)
 const groupsPerPage = 4
 const pendingAfterAgreement = ref(null)
@@ -1697,7 +1697,7 @@ function sortGroupIds(ids, mode = groupSort.value) {
       (store.state.groups.groups[a]?.name || '').localeCompare(
         store.state.groups.groups[b]?.name || '',
         undefined,
-        { sensitivity: 'base' },
+        { sensitivity: 'base', numeric: true },
       ),
     )
   }
@@ -1706,7 +1706,7 @@ function sortGroupIds(ids, mode = groupSort.value) {
       (store.state.groups.groups[b]?.name || '').localeCompare(
         store.state.groups.groups[a]?.name || '',
         undefined,
-        { sensitivity: 'base' },
+        { sensitivity: 'base', numeric: true },
       ),
     )
   }

@@ -729,8 +729,8 @@
   const sequenceFavoritesFilters = ref(defaultFavoritesFilters())
   const contentFavoritesFilters = ref(defaultFavoritesFilters())
   const contentTypeFilters = ref(defaultContentTypeFilters())
-  const sequenceSort = ref('newest')
-  const contentSort = ref('newest')
+  const sequenceSort = ref('name-asc')
+  const contentSort = ref('name-asc')
   const exploreSortOptions = computed(() => [
     { title: t('newest-first'), value: 'newest' },
     { title: t('oldest-first'), value: 'oldest' },
@@ -1217,7 +1217,7 @@
         (getCachedContentName(a, lang) || '').localeCompare(
           getCachedContentName(b, lang) || '',
           undefined,
-          { sensitivity: 'base' },
+          { sensitivity: 'base', numeric: true },
         ),
       )
     }
@@ -1226,7 +1226,7 @@
         (getCachedContentName(b, lang) || '').localeCompare(
           getCachedContentName(a, lang) || '',
           undefined,
-          { sensitivity: 'base' },
+          { sensitivity: 'base', numeric: true },
         ),
       )
     }
