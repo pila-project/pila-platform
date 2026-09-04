@@ -946,12 +946,12 @@
               />
               <LucideIcon name="users" :size="14" class="assign-group-type-icon" />
               <span class="assign-group-name">{{ store.state.groups.groups[gid]?.name || t('unnamed') }}</span>
-              <span v-if="store.state.groups.groups[gid]?.grade" class="assign-group-detail">{{ store.state.groups.groups[gid].grade }}</span>
+              <span v-if="store.state.groups.groups[gid]?.grade" class="assign-group-detail">{{ t('grade') }}: {{ store.state.groups.groups[gid].grade }}</span>
               <span
                 v-if="formatGroupSubjects(store.state.groups.groups[gid]?.subject)"
                 class="assign-group-detail assign-group-detail--subject"
-                :title="formatGroupSubjects(store.state.groups.groups[gid]?.subject)"
-              >{{ formatGroupSubjects(store.state.groups.groups[gid]?.subject) }}</span>
+                :title="`${t('subject')}: ${formatGroupSubjects(store.state.groups.groups[gid]?.subject)}`"
+              >{{ t('subject') }}: {{ formatGroupSubjects(store.state.groups.groups[gid]?.subject) }}</span>
             </label>
           </div>
         </div>
@@ -3184,14 +3184,21 @@ function openLoginCodesPage(studentIds) {
   flex: 1;
 }
 .assign-group-detail {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
   font-size: 12px;
+  line-height: 16px;
   color: #64748b;
+  white-space: nowrap;
 }
 .assign-group-detail--subject {
-  max-width: 120px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* Login Code Modal */
