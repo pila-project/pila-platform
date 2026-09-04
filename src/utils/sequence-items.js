@@ -52,7 +52,7 @@ export function isSequenceDrag(dataTransfer) {
 /**
  * Split candidate member ids into leaf content vs sequences (UIUX-113).
  * Uses optional knownSequenceIds for fast rejects, then metadata active_type.
- * Fail-closed: missing/unknown metadata is rejected (never nest sequences).
+ * Fail-open for unknown/null metadata (catalog leaves); reject only proven sequences.
  *
  * @param {string[]} itemIds
  * @param {{ knownSequenceIds?: Set<string>|string[] }} [opts]
@@ -73,18 +73,14 @@ export async function partitionSequenceMemberIds(itemIds, opts = {}) {
       continue
     }
 
-    let meta = null
     try {
-      meta = await getContentMetadata(id)
+      const meta = await getContentMetadata(id)
+      if (isSequenceActiveType(meta?.active_type)) {
+        rejectedSequences.push(id)
+        continue
+      }
     } catch {
-      meta = null
-    }
-
-    // Fail closed: only allow when we can prove this is non-sequence content.
-    const activeType = meta?.active_type
-    if (activeType == null || activeType === '' || isSequenceActiveType(activeType)) {
-      rejectedSequences.push(id)
-      continue
+      // allow when type cannot be determined
     }
     allowed.push(id)
   }

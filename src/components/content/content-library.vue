@@ -1132,9 +1132,9 @@
       pendingAddItems.value,
       { knownSequenceIds: mySequenceIdSet.value },
     )
-    // UIUX-113: block pure-sequence selection; reuse existing generic error (no new copy)
+    // UIUX-182/113: block pure-sequence selection; seed mixed picks with leaves only
     if (!allowed.length) {
-      showError(t('something-went-wrong'))
+      showError(t('sequences-cannot-be-nested'))
       return
     }
     if (rejectedSequences.length) {
@@ -1170,7 +1170,7 @@
         // Nested sequence(s) only, or already present
         showError(
           rejectedSequences?.length
-            ? t('something-went-wrong')
+            ? t('sequences-cannot-be-nested')
             : t('all-selected-already-in-sequence'),
         )
         return

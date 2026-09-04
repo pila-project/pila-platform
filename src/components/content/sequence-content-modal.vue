@@ -285,10 +285,10 @@ function prefetchItemMeta(ids) {
 
 async function insertDraftItem(itemId, index = -1) {
   if (!itemId || props.archived || draftIds.value.includes(itemId)) return
-  // UIUX-113: reject nested sequences (existing generic error — no new copy)
+  // UIUX-182/113: reject nested sequences with clearer copy
   const { allowed } = await partitionSequenceMemberIds([itemId])
   if (!allowed.length) {
-    showError(t('something-went-wrong'))
+    showError(t('sequences-cannot-be-nested'))
     return
   }
   const ids = [...draftIds.value]

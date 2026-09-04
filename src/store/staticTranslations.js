@@ -7305,6 +7305,19 @@ export default {
     "sk": "Sekvencie",
     "th": "ลำดับ"
   },
+  "sequences-cannot-be-nested": {
+    "de": "Sequenzen können keine anderen Sequenzen enthalten. Wählen Sie stattdessen Inhaltselemente aus.",
+    "en": "Sequences can't contain other sequences. Select content items instead.",
+    "es": "Las secuencias no pueden contener otras secuencias. Selecciona elementos de contenido.",
+    "fr": "Les séquences ne peuvent pas contenir d'autres séquences. Sélectionnez des éléments de contenu.",
+    "km": "លំដាប់មិនអាចមានលំដាប់ផ្សេងទៀត។ សូមជ្រើសធាតុមាតិកាជំនួស។",
+    "lv": "Secības nevar saturēt citas secības. Tā vietā atlasiet satura vienumus.",
+    "nl": "Reeksen kunnen geen andere reeksen bevatten. Selecteer in plaats daarvan contentitems.",
+    "pl": "Sekwencje nie mogą zawierać innych sekwencji. Wybierz elementy treści.",
+    "pt": "Sequências não podem conter outras sequências. Selecione itens de conteúdo.",
+    "sk": "Sekvencie nemôžu obsahovať iné sekvencie. Namiesto toho vyberte obsahové položky.",
+    "th": "ลำดับไม่สามารถมีลำดับอื่นได้ โปรดเลือกรายการเนื้อหาแทน"
+  },
   "sequences-only": {
     "de": "Nur Sequenzen",
     "en": "Sequences only",
