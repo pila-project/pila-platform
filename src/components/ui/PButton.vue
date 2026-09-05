@@ -13,7 +13,8 @@
       <LucideIcon v-if="isLucide" :name="lucideName" :size="iconSize" :style="iconStyle" />
       <i v-else :class="iconClass" :style="iconStyle" />
     </template>
-    <slot>{{ text }}</slot>
+    <span v-if="!iconOnly" class="btn-text"><slot>{{ text }}</slot></span>
+    <slot v-else>{{ text }}</slot>
     <template v-if="!loading && icon && iconRight">
       <LucideIcon v-if="isLucide" :name="lucideName" :size="iconSize" :style="iconStyle" />
       <i v-else :class="iconClass" :style="iconStyle" />

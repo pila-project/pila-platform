@@ -36,8 +36,7 @@
       />
       <PInput
         v-model="assignment.description"
-        :label="props.editing ? t('learning-goals-and-description') : t('instructions')"
-        :placeholder="t('instructions-placeholder')"
+        :label="t('instructions')"
         multiline
         :rows="5"
       />
@@ -355,7 +354,7 @@
               <LucideIcon name="clipboard-list" :size="16" class="cb-section-icon" />
               {{ t('explore-content-library') }}
             </h3>
-            <p class="cb-section-desc">{{ t('discover-customise-and-add-content') }}</p>
+            <p class="cb-section-desc">{{ t('discover-customise-and-add-content-to-your-assignments') }}</p>
           </div>
           <PButton
             v-if="cbSelectedItems.size"

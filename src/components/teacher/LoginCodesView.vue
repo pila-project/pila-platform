@@ -15,7 +15,6 @@
         <div class="login-code-card-body">
           <QRCodeDisplay :data="`${siteOrigin}/join/${id}`" size="112px" />
           <div class="login-code-secret">
-            <span class="login-code-label">{{ t('pila-login-code') }}</span>
             <div class="login-code-icons" :aria-label="t('pila-login-code')">
               <template v-for="(char, index) in users[id]?.secret || ''" :key="`${id}-${index}`">
                 <i
@@ -100,11 +99,6 @@ const studentIds = computed(() =>
   align-items: center;
   gap: 4px;
 }
-.login-code-label {
-  font-size: 12px;
-  color: var(--color-slate-500);
-}
-
 .login-code-icons {
   display: flex;
   align-items: center;

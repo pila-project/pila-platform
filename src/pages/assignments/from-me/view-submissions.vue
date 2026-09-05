@@ -81,7 +81,7 @@
           <div class="vso-stats">
             <div class="vso-stat-box">
               <span class="vso-stat-num vso-stat-total">{{ students.length }}</span>
-              <span class="vso-stat-label">{{ t('total-student') }}</span>
+              <span class="vso-stat-label">{{ formatStudentCount(students.length, t, { unitOnly: true }) }}</span>
             </div>
             <div class="vso-stat-box">
               <span v-if="activityProgressLoading" class="vso-stat-num vso-stat-progress">…</span>
@@ -456,6 +456,7 @@
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
   import { candliGamesForSequenceItems } from '@/candli-games.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
+  import { formatStudentCount } from '@/utils/group-student-counts.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },

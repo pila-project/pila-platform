@@ -178,11 +178,6 @@
                       prepend-icon="lucide:qr-code"
                       @click="openLoginCodeModal(item)"
                     />
-                    <PMenuItem
-                      :title="t('reset-password')"
-                      prepend-icon="lucide:key-round"
-                      @click="resetPasswordStudent = item"
-                    />
                   </template>
                   <PMenuItem
                     v-else
@@ -373,7 +368,7 @@
               <span class="profile-group-name">{{ g.name }}</span>
               <span v-if="g.detail" class="profile-group-detail">{{ g.detail }}</span>
             </div>
-            <PBadge variant="default" :text="`${g.memberCount} ${t('student')}`" />
+            <PBadge variant="default" :text="formatStudentCount(g.memberCount, t)" />
           </div>
         </div>
       </template>
@@ -672,18 +667,6 @@
       :cancel-text="t('cancel')"
       @confirm="executeArchiveStudent"
       @cancel="archiveConfirmStudent = null"
-    />
-
-    <!-- Reset Password Confirmation -->
-    <PAlertDialog
-      v-if="resetPasswordStudent"
-      variant="warning"
-      :title="t('reset-password-confirm-title')"
-      :description="t('reset-password-confirm-description')"
-      :confirm-text="t('reset-password')"
-      :cancel-text="t('cancel')"
-      @confirm="executeResetPassword"
-      @cancel="resetPasswordStudent = null"
     />
 
     <!-- Archive Group Confirmation -->
@@ -994,7 +977,6 @@
             </Suspense>
           </div>
           <div class="login-code-passphrase">
-            <span class="passphrase-label">{{ t('pila-login-code') }}</span>
             <div class="passphrase-icons" :aria-label="t('pila-login-code')">
               <i
                 v-for="(char, index) in loginCodePassphraseIcons"
@@ -1059,7 +1041,7 @@ import GroupCard from '@/components/groups/GroupCard.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
 import ManageStudentsModal from '@/components/groups/ManageStudentsModal.vue'
 import codeCharToIcon from '@/utils/code-char-to-icon.js'
-import { createUser, resetUserSecret } from '@/utils/user-utils.js'
+import { createUser } from '@/utils/user-utils.js'
 import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
@@ -1080,7 +1062,7 @@ import {
   filterGroupIdsByStatus,
   includesArchivedStatus,
 } from '@/utils/status-filter.js'
-import { activeStudentCountInGroup } from '@/utils/group-student-counts.js'
+import { activeStudentCountInGroup, formatStudentCount } from '@/utils/group-student-counts.js'
 
 const store = useStore()
 const groupsExpanded = ref(false)
@@ -1171,7 +1153,6 @@ const archiveConfirmGroup = ref(null)
 const restoreConfirmStudent = ref(null)
 const restoreConfirmGroup = ref(null)
 const groupCreatedPromptId = ref(null)
-const resetPasswordStudent = ref(null)
 const loginCodeStudent = ref(null)
 
 
@@ -1377,7 +1358,6 @@ const creatingBulk = ref(false)
 const importingCSV = ref(false)
 const creatingGroup = ref(false)
 const savingGroup = ref(false)
-const resettingPassword = ref(false)
 const addingToGroups = ref(false)
 
 // ── Encryption key ──
@@ -1968,10 +1948,7 @@ async function downloadLoginCard() {
 
     ctx.drawImage(img, (width - qrSize) / 2, qrY, qrSize, qrSize)
 
-    ctx.fillStyle = '#64748b'
-    ctx.font = '500 12px system-ui, -apple-system, sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText(t('pila-login-code'), width / 2, codeY - 18)
     const secret = users[studentId]?.secret || ''
     const glyphs = [...secret].map(ch => glyphForCodeChar(ch)).join('  ')
     ctx.fillStyle = '#334155'
@@ -1988,41 +1965,6 @@ async function downloadLoginCard() {
     })
   }
   img.src = 'data:image/svg+xml;base64,' + btoa(svgData)
-}
-
-async function executeResetPassword() {
-  if (!resetPasswordStudent.value) return
-  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-  if (!providerSecret) {
-    resetPasswordStudent.value = null
-    showNamePasswordModal.value = true
-    return
-  }
-  resettingPassword.value = true
-  try {
-    const studentId = resetPasswordStudent.value.id
-    const newSecret = randomString(8, codeCharacterSet)
-    let info = { name: 'Student' }
-    try {
-      info = await store.getters.decryptUserInfo(studentId, false)
-    } catch (e) {
-      // fallback — re-encrypt with minimal info
-    }
-    await resetUserSecret(studentId, newSecret, providerSecret, info)
-    const usersState = await Agent.state('users')
-    if (usersState[studentId]) usersState[studentId].secret = newSecret
-    resetPasswordStudent.value = null
-    showSuccessDialog(
-      t('password-reset-successfully'),
-      t('new-login-code-is-ready'),
-      () => { loginCodeStudent.value = { id: studentId } }
-    )
-  } catch (e) {
-    console.error(e)
-    toastError(t('something-went-wrong'))
-  } finally {
-    resettingPassword.value = false
-  }
 }
 
 async function executeArchiveSelected() {

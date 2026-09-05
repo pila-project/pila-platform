@@ -117,6 +117,11 @@ export function getContentName(id, lang) {
   })
 }
 
+export function peekContentMetadata(id) {
+  if (!id) return null
+  return metadataCache.get(id) || null
+}
+
 export function getContentMetadata(id) {
   if (metadataCache.has(id)) return Promise.resolve(metadataCache.get(id))
   return dedupedFetch(`meta:${id}`, async () => {

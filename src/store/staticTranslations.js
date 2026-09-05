@@ -131,7 +131,7 @@ export default {
   },
   "add": {
     "de": "hinzufügen",
-    "en": "add",
+    "en": "Add",
     "es": "agregar",
     "fr": "ajouter",
     "km": "បន្ថែម",
@@ -469,7 +469,7 @@ export default {
   },
   "add-to-existing-assignment-subtitle": {
     "de": "Wählen Sie eine Aufgabe aus, zu der Sie {name} hinzufügen möchten.",
-    "en": "Add {name} to a one of the assignments listed below.",
+    "en": "Add {name} to one of the assignments listed below.",
     "es": "Elija una tarea a la que desee agregar {name}.",
     "fr": "Choisissez un devoir auquel ajouter {name}.",
     "km": "ជ្រើសរើសកិច្ចការដែលអ្នកចង់បន្ថែម {name}។",
@@ -508,7 +508,7 @@ export default {
   },
   "add-to-existing-sequence-subtitle": {
     "de": "Wählen Sie eine Sequenz, zu der Sie {name} hinzufügen möchten.",
-    "en": "Add {name} to a one of the sequences listed below.",
+    "en": "Add {name} to one of the sequences listed below.",
     "es": "Elija una secuencia a la que quiera añadir {name}.",
     "fr": "Choisissez une séquence à laquelle ajouter {name}.",
     "km": "ជ្រើសរើសលំដាប់ដែលអ្នកចង់បន្ថែម {name}។",
@@ -2874,7 +2874,7 @@ export default {
   },
   "describe-your-sequence": {
     "de": "Beschreiben Sie Ihre Sequenz",
-    "en": "Describe Your Sequence",
+    "en": "Describe your sequence",
     "es": "Describe tu secuencia",
     "fr": "Décrivez votre séquence",
     "km": "ពិពណ៌នាលំដាប់របស់អ្នក",
@@ -3133,17 +3133,17 @@ export default {
     "th": "ลากและวางรูปภาพ"
   },
   "drag-content-here": {
-    "de": "Ziehen Sie Inhalte hierher, um Elemente hinzuzufügen",
-    "en": "Drag content here to add items",
-    "es": "Arrastre el contenido aquí para agregar elementos",
-    "fr": "Glissez du contenu ici pour ajouter des éléments",
-    "km": "អូសមាតិកាមកទីនេះដើម្បីបន្ថែមធាតុ",
-    "lv": "Velciet saturu šeit, lai pievienotu vienumus",
-    "nl": "Sleep inhoud hierheen om items toe te voegen",
-    "pl": "Przeciągnij treść tutaj, aby dodać elementy",
-    "pt": "Arraste o conteúdo aqui para adicionar itens",
-    "sk": "Presuňte obsah sem a pridajte položky",
-    "th": "ลากเนื้อมาที่นี่เพื่อเพิ่มรายการ"
+    "de": "Ziehen Sie Inhalte aus der Bibliothek direkt in diese Sequenz",
+    "en": "Drag content from the library directly into this sequence",
+    "es": "Arrastra contenido de la biblioteca directamente a esta secuencia",
+    "fr": "Faites glisser du contenu de la bibliothèque directement dans cette séquence",
+    "km": "អូសមាតិកាពីបណ្ណាល័យដាក់ចូលលំដាប់នេះដោយផ្ទាល់",
+    "lv": "Velciet saturu no bibliotēkas tieši šajā secībā",
+    "nl": "Sleep inhoud uit de bibliotheek rechtstreeks naar deze reeks",
+    "pl": "Przeciągnij treść z biblioteki bezpośrednio do tej sekwencji",
+    "pt": "Arraste o conteúdo da biblioteca diretamente para esta sequência",
+    "sk": "Presuňte obsah z knižnice priamo do tejto sekvencie",
+    "th": "ลากเนื้อหาจากคลังใส่ลำดับนี้โดยตรง"
   },
   "drop-csv-file-here": {
     "de": "Legen Sie die CSV-Datei hier ab",
@@ -3342,7 +3342,7 @@ export default {
   },
   "edit-sequence": {
     "de": "Sequenz bearbeiten",
-    "en": "Edit Sequence",
+    "en": "Edit sequence",
     "es": "Editar secuencia",
     "fr": "Modifier la séquence",
     "km": "កែសម្រួលលំដាប់",
@@ -4395,7 +4395,7 @@ export default {
   },
   "keep-working-before-publishing": {
     "de": "Vor dem Veröffentlichen weiterarbeiten",
-    "en": "Keep Working Before Publishing",
+    "en": "Continue working before publishing",
     "es": "Seguir trabajando antes de publicar",
     "fr": "Continuer à travailler avant de publier",
     "km": "បន្តធ្វើការមុនពេលផ្សាយ",
@@ -6825,21 +6825,21 @@ export default {
     "th": "ค้นหา"
   },
   "search-assignments": {
-    "de": "Aufgaben suchen…",
-    "en": "Search assignments...",
-    "es": "Buscar tareas…",
-    "fr": "Rechercher des devoirs…",
-    "km": "ស្វែងរកការងារ…",
-    "lv": "Meklēt uzdevumus…",
-    "nl": "Opdrachten zoeken…",
-    "pl": "Szukaj zadań…",
-    "pt": "Pesquisar tarefas…",
-    "sk": "Hľadať úlohy…",
-    "th": "ค้นหางานที่มอบหมาย…"
+    "de": "Aufgaben suchen",
+    "en": "Search assignments",
+    "es": "Buscar tareas",
+    "fr": "Rechercher des devoirs",
+    "km": "ស្វែងរកការងារ",
+    "lv": "Meklēt uzdevumus",
+    "nl": "Opdrachten zoeken",
+    "pl": "Szukaj zadań",
+    "pt": "Pesquisar tarefas",
+    "sk": "Hľadať úlohy",
+    "th": "ค้นหางานที่มอบหมาย"
   },
   "search-available-students": {
     "de": "Verfügbare Schüler suchen",
-    "en": "Search Available Students",
+    "en": "Search available students",
     "es": "Buscar estudiantes disponibles",
     "fr": "Rechercher des élèves disponibles",
     "km": "ស្វែងរកសិស្សដែលមាន",
@@ -6851,17 +6851,17 @@ export default {
     "th": "ค้นหานักเรียนที่ใช้ได้"
   },
   "search-content-title": {
-    "de": "Inhaltstitel suchen",
-    "en": "Search Content Title",
-    "es": "Buscar título de contenido",
-    "fr": "Rechercher un titre de contenu",
-    "km": "ស្វែងរកចំណងជើងមាតិកា",
-    "lv": "Meklēt satura nosaukumu",
-    "nl": "Contenttitel zoeken",
-    "pl": "Szukaj tytułu treści",
-    "pt": "Pesquisar título do conteúdo",
-    "sk": "Hľadať názov obsahu",
-    "th": "ค้นหาชื่อเนื้อหา"
+    "de": "Inhalt suchen",
+    "en": "Search content",
+    "es": "Buscar contenido",
+    "fr": "Rechercher du contenu",
+    "km": "ស្វែងរកមាតិកា",
+    "lv": "Meklēt saturu",
+    "nl": "Content zoeken",
+    "pl": "Szukaj treści",
+    "pt": "Pesquisar conteúdo",
+    "sk": "Hľadať obsah",
+    "th": "ค้นหาเนื้อหา"
   },
   "search-group": {
     "de": "Gruppe suchen",
@@ -6877,15 +6877,15 @@ export default {
     "th": "ค้นหากลุ่ม"
   },
   "search-group-students": {
-    "de": "Gruppenschüler suchen",
-    "en": "Search Group Students",
-    "es": "Buscar estudiantes del grupo",
-    "fr": "Rechercher des élèves du groupe",
+    "de": "Schüler in der Gruppe suchen",
+    "en": "Search students in group",
+    "es": "Buscar estudiantes en el grupo",
+    "fr": "Rechercher des élèves dans le groupe",
     "km": "ស្វែងរកសិស្សក្នុងក្រុម",
-    "lv": "Meklēt grupas skolēnus",
-    "nl": "Groepsleerlingen zoeken",
+    "lv": "Meklēt skolēnus grupā",
+    "nl": "Leerlingen in groep zoeken",
     "pl": "Szukaj uczniów w grupie",
-    "pt": "Pesquisar alunos do grupo",
+    "pt": "Pesquisar alunos no grupo",
     "sk": "Hľadať študentov v skupine",
     "th": "ค้นหานักเรียนในกลุ่ม"
   },
@@ -6917,7 +6917,7 @@ export default {
   },
   "search-student": {
     "de": "Schüler suchen",
-    "en": "Search Student",
+    "en": "Search students",
     "es": "Buscar estudiante",
     "fr": "Rechercher un élève",
     "km": "ស្វែងរកសិស្ស",
@@ -7138,7 +7138,7 @@ export default {
   },
   "selected-students-will-be-added": {
     "de": "Ausgewählte Schüler werden hinzugefügt",
-    "en": "Selected Students Will Be Added",
+    "en": "Selected students will be added",
     "es": "Se agregarán los estudiantes seleccionados",
     "fr": "Les élèves sélectionnés seront ajoutés",
     "km": "សិស្សដែលបានជ្រើសនឹងត្រូវបានបន្ថែម",
@@ -7281,7 +7281,7 @@ export default {
   },
   "sequence-updated": {
     "de": "Sequenz aktualisiert",
-    "en": "Sequence Updated",
+    "en": "Sequence updated",
     "es": "Secuencia actualizada",
     "fr": "Séquence mise à jour",
     "km": "បានធ្វើបច្ចុប្បន្នភាពលំដាប់",
@@ -9567,6 +9567,32 @@ export default {
     "sk": "Tento študent už je v skupine {group}",
     "th": "นักเรียนคนนี้อยู่ในกลุ่ม {group} แล้ว"
   },
+  "n-student": {
+    "de": "{num} Schüler",
+    "en": "{num} student",
+    "es": "{num} estudiante",
+    "fr": "{num} élève",
+    "km": "សិស្ស {num} នាក់",
+    "lv": "{num} skolēns",
+    "nl": "{num} leerling",
+    "pl": "{num} uczeń",
+    "pt": "{num} aluno",
+    "sk": "{num} žiak",
+    "th": "นักเรียน {num} คน"
+  },
+  "n-students": {
+    "de": "{num} Schüler",
+    "en": "{num} students",
+    "es": "{num} estudiantes",
+    "fr": "{num} élèves",
+    "km": "សិស្ស {num} នាក់",
+    "lv": "{num} skolēni",
+    "nl": "{num} leerlingen",
+    "pl": "{num} uczniów",
+    "pt": "{num} alunos",
+    "sk": "{num} žiaci",
+    "th": "นักเรียน {num} คน"
+  },
   "n-students-selected": {
     "de": "{num} Schüler ausgewählt",
     "en": "{num} student(s) selected",
@@ -9892,6 +9918,19 @@ export default {
     "sk": "Vaše nedávne akcie sa tu zobrazia",
     "th": "การดำเนินการล่าสุดของคุณจะแสดงที่นี่"
   },
+  "recent-groups-assignments-sequences-deadlines-show-here": {
+    "de": "Aktuelle Gruppen, Aufgaben, Sequenzen und Fristen erscheinen hier",
+    "en": "Recent groups, assignments, sequences, and deadlines will show up here",
+    "es": "Aquí aparecerán grupos, tareas, secuencias y plazos recientes",
+    "fr": "Les groupes, devoirs, séquences et échéances récents s'afficheront ici",
+    "km": "ក្រុម ការងារ លំដាប់ និងកាលកំណត់ថ្មីៗនឹងបង្ហាញនៅទីនេះ",
+    "lv": "Šeit parādīsies nesenās grupas, uzdevumi, secības un termiņi",
+    "nl": "Recente groepen, opdrachten, reeksen en deadlines verschijnen hier",
+    "pl": "Tutaj pojawią się ostatnie grupy, zadania, sekwencje i terminy",
+    "pt": "Grupos, tarefas, sequências e prazos recentes aparecerão aqui",
+    "sk": "Tu sa zobrazia nedávne skupiny, úlohy, sekvencie a termíny",
+    "th": "กลุ่ม งานที่มอบหมาย ลำดับ และกำหนดล่าสุดจะแสดงที่นี่"
+  },
   "current-assignments": {
     "de": "Aktuelle Aufgaben",
     "en": "Current Assignments",
@@ -9969,6 +10008,58 @@ export default {
     "pt": "Tarefa atualizada",
     "sk": "Aktualizovaná úloha",
     "th": "งานที่อัปเดต"
+  },
+  "created-assignment": {
+    "de": "Aufgabe erstellt",
+    "en": "Created Assignment",
+    "es": "Tarea creada",
+    "fr": "Devoir créé",
+    "km": "ការងារដែលបានបង្កើត",
+    "lv": "Izveidots uzdevums",
+    "nl": "Opdracht aangemaakt",
+    "pl": "Utworzono zadanie",
+    "pt": "Tarefa criada",
+    "sk": "Vytvorená úloha",
+    "th": "สร้างงานที่มอบหมาย"
+  },
+  "created-group": {
+    "de": "Gruppe erstellt",
+    "en": "Created Group",
+    "es": "Grupo creado",
+    "fr": "Groupe créé",
+    "km": "ក្រុមដែលបានបង្កើត",
+    "lv": "Izveidota grupa",
+    "nl": "Groep aangemaakt",
+    "pl": "Utworzono grupę",
+    "pt": "Grupo criado",
+    "sk": "Vytvorená skupina",
+    "th": "สร้างกลุ่ม"
+  },
+  "created-sequence": {
+    "de": "Sequenz erstellt",
+    "en": "Created Sequence",
+    "es": "Secuencia creada",
+    "fr": "Séquence créée",
+    "km": "លំដាប់ដែលបានបង្កើត",
+    "lv": "Izveidota secība",
+    "nl": "Reeks aangemaakt",
+    "pl": "Utworzono sekwencję",
+    "pt": "Sequência criada",
+    "sk": "Vytvorená sekvencia",
+    "th": "สร้างลำดับ"
+  },
+  "deadline-passed": {
+    "de": "Frist abgelaufen",
+    "en": "Deadline Passed",
+    "es": "Fecha límite vencida",
+    "fr": "Échéance dépassée",
+    "km": "ផុតកំណត់ហើយ",
+    "lv": "Termiņš ir beidzies",
+    "nl": "Deadline verstreken",
+    "pl": "Termin minął",
+    "pt": "Prazo encerrado",
+    "sk": "Termín uplynul",
+    "th": "เลยกำหนดแล้ว"
   },
   "n-minutes-ago": {
     "de": "vor {n} Minuten",
@@ -10284,7 +10375,7 @@ export default {
   },
   "pila-login-code": {
     "de": "PILA-Anmeldecode",
-    "en": "PILA Login Code",
+    "en": "PILA login code",
     "es": "Código de acceso PILA",
     "fr": "Code de connexion PILA",
     "km": "កូដចូល PILA",

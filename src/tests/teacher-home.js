@@ -1,16 +1,24 @@
 import {
   CURRENT_ASSIGNMENTS_PREVIEW_LIMIT,
   RECENT_ACTIVITY_LIMIT,
-  HOME_BANNER_DISMISSED_KEY,
   HOME_LAYOUT_KEY,
   DEFAULT_HOME_LAYOUT,
-  workspaceBannerVisible,
+  ASSIGNMENT_UPDATE_GRACE_MS,
   parseHomeLayout,
   greetingFirstName,
   formatWelcomeBack,
   currentAssignmentPreview,
   buildRecentActivity,
   relativeTimeFromNow,
+  getAssignmentDueAt,
+  nextAssignmentDueAt,
+  toEpochMs,
+  parseActivitySequenceCache,
+  newestByCreated,
+  activitySequencesStorageKey,
+  HOME_ACTIVITY_SEQUENCES_KEY,
+  ACTIVITY_PREFETCH_LIMIT,
+  mapPool,
 } from '../utils/teacher-home.js'
 import { ASSIGNMENT_STATUS } from '../utils/assignment-status.js'
 
@@ -19,8 +27,11 @@ function t(slug) {
     'n-minutes-ago': '{n} minutes ago',
     'n-hours-ago': '{n} hours ago',
     'n-days-ago': '{n} days ago',
-    'published-assignment': 'Published Assignment',
+    'created-assignment': 'Created Assignment',
     'updated-assignment': 'Updated Assignment',
+    'created-group': 'Created Group',
+    'created-sequence': 'Created Sequence',
+    'deadline-passed': 'Deadline Passed',
     untitled: 'Untitled',
   }
   return pack[slug] || slug
@@ -28,13 +39,6 @@ function t(slug) {
 
 export default function teacherHomeTests() {
   describe('teacher-home model (shipped src/utils/teacher-home.js)', function () {
-    it('shows workspace banner on every visit until it is dismissed', function () {
-      expect(workspaceBannerVisible()).to.equal(true)
-      expect(workspaceBannerVisible({ dismissed: false })).to.equal(true)
-      expect(workspaceBannerVisible({ dismissed: true })).to.equal(false)
-      expect(HOME_BANNER_DISMISSED_KEY).to.equal('pila-home-banner-dismissed')
-    })
-
     it('parses dashboard layout with all sections on by default', function () {
       expect(parseHomeLayout(null)).to.deep.equal(DEFAULT_HOME_LAYOUT)
       expect(parseHomeLayout({ quickLinks: false, recentActivity: true })).to.deep.equal({
@@ -67,43 +71,152 @@ export default function teacherHomeTests() {
       expect(preview.map(r => r.id)).to.deep.equal(['extra', 'new', 'mid'])
     })
 
-    it('activity source can include more rows than the assignments table preview', function () {
-      const ids = ['a', 'b', 'c', 'd', 'e']
-      const updated = { a: 1, b: 2, c: 3, d: 4, e: 5 }
-      const table = currentAssignmentPreview(ids, id => updated[id], CURRENT_ASSIGNMENTS_PREVIEW_LIMIT)
-      const activity = currentAssignmentPreview(ids, id => updated[id], RECENT_ACTIVITY_LIMIT)
-      expect(table).to.have.length(3)
-      expect(activity).to.have.length(4)
-      expect(activity.map(r => r.id)).to.deep.equal(['e', 'd', 'c', 'b'])
-      expect(activity.map(r => r.id)).to.not.deep.equal(table.map(r => r.id))
+    it('parses assignment due dates at local midnight when time is omitted', function () {
+      expect(getAssignmentDueAt({ dueDate: '2026-08-20' })).to.equal(
+        new Date('2026-08-20T00:00:00').getTime(),
+      )
+      expect(getAssignmentDueAt({ dueDate: '2026-08-20', dueTime: '15:30' })).to.equal(
+        new Date('2026-08-20T15:30:00').getTime(),
+      )
+      expect(getAssignmentDueAt({})).to.equal(0)
+      expect(toEpochMs('2026-08-20T12:00:00.000Z')).to.equal(Date.parse('2026-08-20T12:00:00.000Z'))
     })
 
-    it('builds activity from effective published vs updated assignment status', function () {
-      const now = Date.parse('2026-08-23T12:00:00Z')
-      const items = buildRecentActivity(
+    it('finds the next future published due instant', function () {
+      const now = Date.parse('2026-08-23T12:00:00')
+      const next = nextAssignmentDueAt(
         [
+          { status: ASSIGNMENT_STATUS.PUBLISHED, dueDate: '2026-08-20' },
+          { status: ASSIGNMENT_STATUS.PUBLISHED, dueDate: '2026-08-24' },
+          { status: ASSIGNMENT_STATUS.DRAFT, dueDate: '2026-08-23' },
+          { status: ASSIGNMENT_STATUS.PUBLISHED, dueDate: '2026-08-25' },
+        ],
+        now,
+      )
+      expect(next).to.equal(new Date('2026-08-24T00:00:00').getTime())
+    })
+
+    it('builds a derived recency feed from groups, assignments, sequences, and deadlines', function () {
+      const now = Date.parse('2026-08-23T12:00:00')
+      const items = buildRecentActivity({
+        assignments: [
           {
-            id: 'pub',
-            updated: now - 2 * 3600000,
-            data: { name: 'Fractions', status: ASSIGNMENT_STATUS.PUBLISHED },
-            groupCount: 1,
+            id: 'week3',
+            name: 'Week 3 quiz',
+            created: now - 48 * 3600000,
+            updated: now - 46 * 3600000,
+            status: ASSIGNMENT_STATUS.PUBLISHED,
           },
           {
-            id: 'draft',
-            updated: now - 5 * 3600000,
-            data: { name: 'Quiz', status: ASSIGNMENT_STATUS.DRAFT },
-            groupCount: 0,
+            id: 'week2',
+            name: 'Week 2 quiz',
+            created: now - 10 * 24 * 3600000,
+            updated: now - 9 * 24 * 3600000,
+            dueAt: now - 24 * 3600000,
+            status: ASSIGNMENT_STATUS.PUBLISHED,
           },
         ],
-        { t, now },
+        groups: [
+          { id: 'g1', name: 'Year 8A', created: now - 50 * 3600000 },
+        ],
+        sequences: [
+          { id: 's1', name: 'Fractions pack', created: now - 49 * 3600000 },
+        ],
+        now,
+        t,
+      })
+      expect(items.map(i => `${i.kind}:${i.meta}`)).to.deep.equal([
+        'deadline-passed:Week 2 quiz',
+        'updated-assignment:Week 3 quiz',
+        'created-sequence:Fractions pack',
+        'created-group:Year 8A',
+      ])
+      expect(items[0].when).to.equal('1 days ago')
+      expect(items[0].icon).to.equal('calendar-clock')
+      expect(items).to.have.length(RECENT_ACTIVITY_LIMIT)
+    })
+
+    it('treats near-create assignment writes as created, not updated', function () {
+      const now = Date.parse('2026-08-23T12:00:00Z')
+      const created = now - 3600000
+      const items = buildRecentActivity({
+        assignments: [{
+          id: 'a1',
+          name: 'Quiz',
+          created,
+          updated: created + ASSIGNMENT_UPDATE_GRACE_MS,
+          status: ASSIGNMENT_STATUS.DRAFT,
+        }],
+        now,
+        t,
+      })
+      expect(items).to.have.length(1)
+      expect(items[0].kind).to.equal('created-assignment')
+      expect(items[0].title).to.equal('Created Assignment')
+    })
+
+    it('does not emit deadline-passed for drafts', function () {
+      const now = Date.parse('2026-08-23T12:00:00')
+      const items = buildRecentActivity({
+        assignments: [{
+          id: 'draft',
+          name: 'Draft quiz',
+          created: now - 5 * 3600000,
+          dueDate: '2026-08-20',
+          status: ASSIGNMENT_STATUS.DRAFT,
+        }],
+        now,
+        t,
+      })
+      expect(items.map(i => i.kind)).to.deep.equal(['created-assignment'])
+    })
+
+    it('parses and ranks cached sequence snapshots without network', function () {
+      expect(activitySequencesStorageKey('u1')).to.equal(`${HOME_ACTIVITY_SEQUENCES_KEY}:u1`)
+      expect(parseActivitySequenceCache(null)).to.deep.equal([])
+      expect(parseActivitySequenceCache([{ id: 's1', name: 'Fractions pack', created: 50 }, { skip: true }])).to.deep.equal([
+        { id: 's1', name: 'Fractions pack', created: 50 },
+      ])
+      const newest = newestByCreated(
+        [
+          { id: 'old', created: 1 },
+          { id: 'new', created: 9 },
+          { id: 'mid', created: 5 },
+        ],
+        2,
       )
-      expect(items).to.have.length(2)
-      expect(items[0].kind).to.equal('published')
-      expect(items[0].title).to.equal('Published Assignment:')
-      expect(items[0].meta).to.equal('Fractions')
-      expect(items[0].when).to.equal('2 hours ago')
-      expect(items[1].kind).to.equal('updated')
-      expect(items[1].title).to.equal('Updated Assignment:')
+      expect(newest.map(r => r.id)).to.deep.equal(['new', 'mid'])
+      expect(ACTIVITY_PREFETCH_LIMIT).to.equal(8)
+    })
+
+    it('maps a bounded worker pool in order', async function () {
+      const seen = []
+      const out = await mapPool([3, 1, 2], 2, async (n) => {
+        seen.push(n)
+        return n * 10
+      })
+      expect(out).to.deep.equal([30, 10, 20])
+      expect(seen).to.have.members([3, 1, 2])
+    })
+
+    it('lets one published assignment contribute both an update and a passed deadline', function () {
+      const now = Date.parse('2026-08-23T12:00:00')
+      const items = buildRecentActivity({
+        assignments: [{
+          id: 'a1',
+          name: 'Quiz',
+          created: now - 5 * 24 * 3600000,
+          updated: now - 2 * 3600000,
+          dueDate: '2026-08-22',
+          status: ASSIGNMENT_STATUS.PUBLISHED,
+        }],
+        now,
+        t,
+      })
+      expect(items.map(i => i.kind)).to.deep.equal([
+        'updated-assignment',
+        'deadline-passed',
+      ])
       expect(relativeTimeFromNow(now - 90 * 1000, now, t)).to.equal('2 minutes ago')
     })
   })

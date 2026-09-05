@@ -22,7 +22,7 @@
             <div class="eap-choice-icon eap-choice-icon--assignment">
               <LucideIcon name="file" :size="21" />
             </div>
-            <span class="eap-choice-label">{{ t('add-to-assignment') }}</span>
+            <span class="eap-choice-label label-sentence-case">{{ t('add-to-assignment') }}</span>
           </button>
           <button
             type="button"
@@ -33,7 +33,7 @@
             <div class="eap-choice-icon eap-choice-icon--sequence">
               <LucideIcon name="file-chart-line" :size="21" />
             </div>
-            <span class="eap-choice-label">{{ t('add-to-sequence') }}</span>
+            <span class="eap-choice-label label-sentence-case">{{ t('add-to-sequence') }}</span>
           </button>
         </div>
       </div>
@@ -53,7 +53,7 @@
             <div class="eap-choice-icon eap-choice-icon--assignment">
               <LucideIcon name="file" :size="21" />
             </div>
-            <span class="eap-choice-label eap-choice-label--multiline">{{ t('create-new-assignment') }}</span>
+            <span class="eap-choice-label eap-choice-label--multiline label-sentence-case">{{ t('create-new-assignment') }}</span>
           </button>
           <button
             type="button"
@@ -64,7 +64,7 @@
             <div class="eap-choice-icon eap-choice-icon--sequence">
               <LucideIcon name="file-pen" :size="21" />
             </div>
-            <span class="eap-choice-label eap-choice-label--multiline">
+            <span class="eap-choice-label eap-choice-label--multiline label-sentence-case">
               {{ t('add-to-existing-assignment') }}
             </span>
           </button>
@@ -86,7 +86,7 @@
             <div class="eap-choice-icon eap-choice-icon--sequence">
               <LucideIcon name="file-chart-line" :size="21" />
             </div>
-            <span class="eap-choice-label eap-choice-label--multiline">{{ t('create-new-sequence') }}</span>
+            <span class="eap-choice-label eap-choice-label--multiline label-sentence-case">{{ t('create-new-sequence') }}</span>
           </button>
           <button
             type="button"
@@ -97,7 +97,7 @@
             <div class="eap-choice-icon eap-choice-icon--assignment">
               <LucideIcon name="file-pen" :size="21" />
             </div>
-            <span class="eap-choice-label eap-choice-label--multiline">
+            <span class="eap-choice-label eap-choice-label--multiline label-sentence-case">
               {{ t('add-to-existing-sequence') }}
             </span>
           </button>

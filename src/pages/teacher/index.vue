@@ -60,13 +60,17 @@
             :to="item.to"
             v-show="item.show !== false"
             class="nav-item"
+            :class="{ 'nav-item-preserve-case': item.preserveCase }"
             :active-class="item.exact ? '' : 'nav-item-active'"
             exact-active-class="nav-item-active"
             :title="!sidebarOpen ? item.title : undefined"
             @click="mobileMenuOpen = false"
           >
             <LucideIcon :name="item.icon" :size="20" class="nav-icon" />
-            <span v-if="sidebarOpen || isMobile">{{ item.title }}</span>
+            <span
+              v-if="sidebarOpen || isMobile"
+              :class="item.preserveCase ? '' : 'label-sentence-case'"
+            >{{ item.title }}</span>
           </router-link>
         </div>
 
@@ -249,7 +253,7 @@
   const navItems = computed(() => [
     { icon: 'house', title: t('home'), to: '/teacher', show: true, exact: true },
     { icon: 'user', title: t('admin'), to: '/teacher/classes', show: true },
-    { icon: 'file-text', title: t('assignments').toLowerCase(), to: '/teacher/assignments-from-me', show: true },
+    { icon: 'file-text', title: t('assign-and-monitor'), to: '/teacher/assignments-from-me', show: true, preserveCase: true },
     { icon: 'list-checks', title: t('your-tasks'), to: '/teacher/tasks', show: isSimplifiedStudyDomain },
     { icon: 'search', title: t('explore'), to: '/teacher/content', show: true },
     { icon: 'folder-plus', title: t('create'), to: '/teacher/create', show: !isSimplifiedStudyDomain },
@@ -414,7 +418,7 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  text-transform: capitalize;
+  text-transform: none;
   transition: background-color 150ms;
   white-space: nowrap;
   border: none;
@@ -429,6 +433,9 @@
 .nav-item-active {
   color: #2563EB;
   background: #EFF6FF;
+}
+.nav-item-preserve-case {
+  text-transform: none;
 }
 
 .sidebar-collapsed .nav-list {

@@ -83,7 +83,7 @@
           class="group-card-restore-btn"
           @click="$emit('unarchive')"
         >
-          {{ t('restore') }}
+          <span class="label-sentence-case">{{ t('restore') }}</span>
         </button>
       </div>
     </div>

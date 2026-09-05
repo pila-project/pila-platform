@@ -19,7 +19,7 @@
         <LucideIcon v-if="prependIcon && prependIcon.startsWith('lucide:')" :name="prependIcon.slice(7)" :size="14" />
         <i v-else-if="prependIcon" :class="prependIcon" />
       </span>
-      <span class="flex-1">{{ title }}</span>
+      <span class="flex-1 label-sentence-case">{{ title }}</span>
       <template v-if="appendIcon && !hasSubmenu">
         <LucideIcon
           v-if="appendIcon.startsWith('lucide:')"

@@ -15,16 +15,8 @@
       </div>
     </div>
 
-    <!-- Workspace banner: shown until the user presses X (persisted in localStorage) -->
-    <section v-if="showWorkspaceBanner" class="workspace-banner">
-      <button
-        type="button"
-        class="workspace-banner-close"
-        :aria-label="t('close')"
-        @click="dismissWorkspaceBanner"
-      >
-        <LucideIcon name="x" :size="16" />
-      </button>
+    <!-- Workspace banner: always visible (not dismissible) -->
+    <section class="workspace-banner">
       <div class="workspace-banner-copy">
         <h2 class="workspace-banner-title">{{ t('your-workspace-is-ready') }}</h2>
         <p class="workspace-banner-body">{{ t('pila-helps-you-create-assign-and-monitor') }}</p>
@@ -49,18 +41,6 @@
       </div>
       <img class="workspace-banner-art" src="/teacher-home/workspace-ready.png" alt="">
     </section>
-    <div v-else class="home-persist-actions">
-      <a class="home-outline-btn" :href="learnAboutPilaUrl" target="_blank" rel="noopener noreferrer">
-        <LucideIcon name="book-open" :size="16" />
-        {{ t('learn-about-pila') }}
-      </a>
-      <!-- Take a tour hidden for now
-      <router-link class="home-outline-btn" to="/teacher/resources">
-        <LucideIcon name="flag" :size="16" />
-        {{ t('take-a-tour') }}
-      </router-link>
-      -->
-    </div>
 
     <template v-if="homeLayout.quickLinks">
     <h3 class="home-section-label">{{ t('quick-links') }}</h3>
@@ -89,10 +69,10 @@
         <div v-if="!activityItems.length" class="home-empty">
           <LucideIcon name="clock" :size="28" class="home-empty-icon" />
           <p class="home-empty-title">{{ t('no-activity-yet') }}</p>
-          <p class="home-empty-sub">{{ t('your-recent-actions-will-be-logged-here') }}</p>
+          <p class="home-empty-sub">{{ t('recent-groups-assignments-sequences-deadlines-show-here') }}</p>
         </div>
         <div v-else class="activity-grid">
-          <div v-for="item in activityItems" :key="item.id + item.kind" class="activity-card">
+          <div v-for="item in activityItems" :key="item.kind + ':' + item.id" class="activity-card">
             <div class="activity-icon" :class="'activity-icon--' + item.kind">
               <LucideIcon :name="item.icon" :size="16" />
             </div>
@@ -320,7 +300,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { v4 as uuid } from 'uuid'
 import { vueScopeComponent } from '@knowlearning/agents/vue.js'
@@ -332,21 +312,33 @@ import Dashboard from '@/pages/assignments/from-me/dashboard/index.vue'
 import CandliDashboard from '@/pages/assignments/from-me/candli-dashboard.vue'
 import GenAIDashboard from '@/pages/assignments/from-me/gen-ai-dashboard.vue'
 import { ASSIGNMENT_STATUS, effectiveAssignmentStatus } from '@/utils/assignment-status.js'
-import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
+import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES, MY_CONTENT_TAG } from '@/utils/constants.js'
 import { candliGamesForSequenceItems } from '@/candli-games.js'
-import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+import { normalizeSequenceItems, isValidSequenceAgentState } from '@/utils/sequence-items.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
+import { getContentMetadata, peekContentMetadata, getCachedContentName, loadExploreCache } from '@/utils/content-cache.js'
+import { loadExploreArchivedSequenceIds } from '@/utils/explore-sequence-archive.js'
 import {
   LEARN_ABOUT_PILA_URL,
-  HOME_BANNER_DISMISSED_KEY,
   HOME_LAYOUT_KEY,
-  RECENT_ACTIVITY_LIMIT,
-  workspaceBannerVisible,
+  ACTIVITY_PREFETCH_LIMIT,
+  ACTIVITY_FETCH_CONCURRENCY,
   parseHomeLayout,
   greetingFirstName,
   formatWelcomeBack,
-  currentAssignmentPreview,
   buildRecentActivity,
+  nextAssignmentDueAt,
+  delayUntil,
+  isSequenceMetadata,
+  activitySequencesStorageKey,
+  parseActivitySequenceCache,
+  readLocalJson,
+  writeLocalJson,
+  newestByCreated,
+  scheduleIdle,
+  mapPool,
+  currentAssignmentPreview,
+  toEpochMs,
 } from '@/utils/teacher-home.js'
 
 const store = useStore()
@@ -371,21 +363,21 @@ const assignmentData = reactive({})
 const assignmentTablePerPageOptions = computed(() => tablePerPageOptions(t))
 
 const showCustomizeModal = ref(false)
-const bannerDismissed = ref(false)
 const homeLayout = reactive(parseHomeLayout())
 
 onMounted(() => {
   Agent.environment().then(({ auth: { info } }) => { userInfo.value = info || {} })
   try {
-    bannerDismissed.value = localStorage.getItem(HOME_BANNER_DISMISSED_KEY) === '1'
     const raw = localStorage.getItem(HOME_LAYOUT_KEY)
     if (raw) Object.assign(homeLayout, parseHomeLayout(JSON.parse(raw)))
   } catch { /* private mode / invalid JSON */ }
+  queueActivityHydration()
 })
 
-const showWorkspaceBanner = computed(() =>
-  workspaceBannerVisible({ dismissed: bannerDismissed.value }),
-)
+onUnmounted(() => {
+  if (dueTimer) clearTimeout(dueTimer)
+  if (idleCancel) idleCancel()
+})
 
 function persistHomeLayout() {
   try {
@@ -400,13 +392,6 @@ function persistHomeLayout() {
 function setLayoutSection(key, value) {
   homeLayout[key] = !!value
   persistHomeLayout()
-}
-
-function dismissWorkspaceBanner() {
-  bannerDismissed.value = true
-  try {
-    localStorage.setItem(HOME_BANNER_DISMISSED_KEY, '1')
-  } catch { /* ignore quota / private mode */ }
 }
 
 const greetingName = computed(() =>
@@ -425,6 +410,7 @@ watch(assignableIds, async (ids) => {
 
 async function loadAssignmentData(id) {
   if (!id || assignmentData[id]) return
+  const peek = peekContentMetadata(id)
   try {
     const state = await Agent.state(id)
     assignmentData[id] = {
@@ -432,12 +418,21 @@ async function loadAssignmentData(id) {
       description: state.description || '',
       assignmentType: state.assignmentType || 'Assignment',
       dueDate: state.dueDate || null,
+      dueTime: state.dueTime || null,
       status: state.status || null,
       scheduledDate: state.scheduledDate || null,
       scheduledTime: state.scheduledTime || null,
+      created: peek?.created || null,
+      updated: peek?.updated || null,
     }
   } catch {
-    assignmentData[id] = { name: '', description: '', assignmentType: 'Assignment' }
+    assignmentData[id] = {
+      name: '',
+      description: '',
+      assignmentType: 'Assignment',
+      created: peek?.created || null,
+      updated: peek?.updated || null,
+    }
   }
 }
 
@@ -475,21 +470,217 @@ const homeAssignmentItems = computed(() =>
     .sort((a, b) => b.updated - a.updated),
 )
 
-const activitySourceRows = computed(() =>
-  currentAssignmentPreview(assignableIds.value, getUpdated, RECENT_ACTIVITY_LIMIT),
+const nowTick = ref(Date.now())
+const activityMetaGen = ref(0)
+const sequenceSnapshots = ref(
+  readLocalJson(activitySequencesStorageKey(store.getters.user()), parseActivitySequenceCache),
 )
+let sequencesLoadToken = 0
+let dueTimer = null
+let idleCancel = null
+
+const activityAssignments = computed(() => {
+  activityMetaGen.value
+  return assignableIds.value.map(id => {
+    const data = assignmentData[id] || {}
+    const peek = (!data.created || !data.updated) ? peekContentMetadata(id) : null
+    return {
+      id,
+      name: data.name,
+      created: data.created || peek?.created,
+      updated: data.updated || peek?.updated || getUpdated(id),
+      dueDate: data.dueDate,
+      dueTime: data.dueTime,
+      status: getStatus(id),
+    }
+  })
+})
+
+const activityGroups = computed(() => {
+  const ids = store.getters['groups/groups']('class', true) || []
+  return ids.map(id => {
+    const group = store.state.groups.groups[id] || {}
+    return { id, name: group.name, created: group.created, updated: group.updated }
+  })
+})
 
 const activityItems = computed(() =>
-  buildRecentActivity(
-    activitySourceRows.value.map(row => ({
-      id: row.id,
-      updated: row.updated,
-      data: assignmentData[row.id],
-      groupCount: getAssignedGroups(row.id).length,
-    })),
-    { t },
-  ),
+  buildRecentActivity({
+    assignments: activityAssignments.value,
+    groups: activityGroups.value,
+    sequences: sequenceSnapshots.value,
+    now: nowTick.value,
+    t,
+  }),
 )
+
+function scheduleDueTick(rows) {
+  if (dueTimer) {
+    clearTimeout(dueTimer)
+    dueTimer = null
+  }
+  const delay = delayUntil(nextAssignmentDueAt(rows, nowTick.value), Date.now())
+  if (delay == null) return
+  dueTimer = setTimeout(() => {
+    nowTick.value = Date.now()
+    scheduleDueTick(activityAssignments.value)
+  }, delay)
+}
+
+watch(activityAssignments, rows => scheduleDueTick(rows), { immediate: true })
+
+watch(() => homeLayout.recentActivity, on => {
+  if (on) queueActivityHydration()
+})
+
+function queueActivityHydration() {
+  if (!homeLayout.recentActivity) return
+  if (idleCancel) idleCancel()
+  idleCancel = scheduleIdle(() => {
+    idleCancel = null
+    loadActivitySequences()
+    hydrateAssignmentActivityMeta()
+  })
+}
+
+function persistSequenceSnapshots(userId, rows) {
+  sequenceSnapshots.value = rows
+  writeLocalJson(activitySequencesStorageKey(userId), rows)
+}
+
+function cachedSequenceName(id, fallback = '') {
+  return (
+    fallback
+    || getCachedContentName(id, store.getters.language())
+    || getCachedContentName(id)
+    || ''
+  )
+}
+
+async function hydrateAssignmentActivityMeta() {
+  if (!homeLayout.recentActivity) return
+  const ids = currentAssignmentPreview(
+    assignableIds.value,
+    getUpdated,
+    ACTIVITY_PREFETCH_LIMIT,
+  ).map(row => row.id)
+  await mapPool(ids, ACTIVITY_FETCH_CONCURRENCY, async (id) => {
+    const current = assignmentData[id]
+    if (current?.created && current?.updated) return
+    const meta = await getContentMetadata(id).catch(() => null)
+    if (!meta || !assignmentData[id]) return
+    assignmentData[id] = {
+      ...assignmentData[id],
+      created: assignmentData[id].created || meta.created || null,
+      updated: assignmentData[id].updated || meta.updated || null,
+    }
+  })
+  activityMetaGen.value++
+}
+
+async function resolveSequenceIds(userId, cached) {
+  if (cached?.sequences?.active) {
+    return { ids: [...cached.sequences.active], authoritative: true }
+  }
+
+  const mine = Array.isArray(cached?.myContent) ? cached.myContent.filter(Boolean) : []
+  if (mine.length) {
+    const known = mine.filter(id => isSequenceMetadata(peekContentMetadata(id)))
+    if (known.length) return { ids: known, authoritative: true }
+    await mapPool(mine, ACTIVITY_FETCH_CONCURRENCY, id => getContentMetadata(id).catch(() => null))
+    return {
+      ids: mine.filter(id => isSequenceMetadata(peekContentMetadata(id))),
+      authoritative: true,
+    }
+  }
+
+  if (sequenceSnapshots.value.length) {
+    return { ids: sequenceSnapshots.value.map(row => row.id), authoritative: false }
+  }
+
+  const tagged = await Agent.query(
+    'taggings-for-tag',
+    [userId, MY_CONTENT_TAG],
+    'tags.knowlearning.systems',
+  ).catch(() => null)
+  if (!tagged) return { ids: [], authoritative: false }
+  const allIds = tagged.map(row => row.target).filter(Boolean)
+  await mapPool(allIds, ACTIVITY_FETCH_CONCURRENCY, id => getContentMetadata(id).catch(() => null))
+  return {
+    ids: allIds.filter(id => isSequenceMetadata(peekContentMetadata(id))),
+    authoritative: true,
+  }
+}
+
+async function loadActivitySequences() {
+  if (!homeLayout.recentActivity) return
+  const token = ++sequencesLoadToken
+  try {
+    const env = await Agent.environment()
+    if (token !== sequencesLoadToken) return
+    const userId = env?.auth?.user
+    if (!userId) return
+    if (!sequenceSnapshots.value.length) {
+      const seeded = readLocalJson(activitySequencesStorageKey(userId), parseActivitySequenceCache)
+      if (seeded.length) sequenceSnapshots.value = seeded
+    }
+
+    const cached = await loadExploreCache(userId).catch(() => null)
+    if (token !== sequencesLoadToken) return
+
+    const { ids: rawIds, authoritative } = await resolveSequenceIds(userId, cached)
+    if (token !== sequencesLoadToken) return
+
+    const archived = await loadExploreArchivedSequenceIds().catch(() => new Set())
+    if (token !== sequencesLoadToken) return
+    const ids = rawIds.filter(id => id && !archived.has(id))
+
+    if (!ids.length) {
+      if (authoritative) persistSequenceSnapshots(userId, [])
+      return
+    }
+
+    const metas = await mapPool(ids, ACTIVITY_FETCH_CONCURRENCY, id => getContentMetadata(id).catch(() => null))
+    if (token !== sequencesLoadToken) return
+
+    const candidates = []
+    ids.forEach((id, i) => {
+      const meta = metas[i] || peekContentMetadata(id)
+      const created = toEpochMs(meta?.created) || toEpochMs(meta?.updated)
+      if (!created) return
+      candidates.push({
+        id,
+        name: cachedSequenceName(id),
+        created,
+      })
+    })
+
+    const top = newestByCreated(candidates, ACTIVITY_PREFETCH_LIMIT)
+    if (!top.length) return
+    const missingName = top.filter(row => !row.name)
+    if (missingName.length) {
+      const states = await Promise.allSettled(missingName.map(row => Agent.state(row.id)))
+      if (token !== sequencesLoadToken) return
+      const byId = new Map(missingName.map((row, i) => [row.id, states[i]]))
+      for (let i = top.length - 1; i >= 0; i--) {
+        const row = top[i]
+        const result = byId.get(row.id)
+        if (!result) continue
+        const state = result.status === 'fulfilled' ? result.value : null
+        if (!isValidSequenceAgentState(state) || state.archived) {
+          top.splice(i, 1)
+          continue
+        }
+        row.name = cachedSequenceName(row.id, state.name || '')
+      }
+    }
+
+    if (!top.length) return
+    persistSequenceSnapshots(userId, top)
+  } catch {
+    /* keep whatever was seeded from cache */
+  }
+}
 
 const tableHeaders = computed(() => [
   { key: 'title', title: t('assignment-title') },
@@ -665,7 +856,6 @@ function onAssignmentSaved() {
 }
 
 .workspace-banner {
-  position: relative;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
@@ -674,29 +864,6 @@ function onAssignmentSaved() {
   margin-bottom: 24px;
   border-radius: 16px;
   background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
-}
-
-.workspace-banner-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: #64748b;
-  cursor: pointer;
-}
-
-.workspace-banner-close:hover {
-  background: rgba(15, 23, 42, 0.06);
-  color: #0f172a;
 }
 
 .workspace-banner-copy {
@@ -731,13 +898,6 @@ function onAssignmentSaved() {
   height: 150px;
   object-fit: contain;
   flex-shrink: 0;
-}
-
-.home-persist-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
 }
 
 .home-outline-btn {
@@ -922,9 +1082,25 @@ function onAssignmentSaved() {
   color: #16a34a;
 }
 
-.activity-icon--updated {
+.activity-icon--updated,
+.activity-icon--updated-assignment {
   background: #dbeafe;
   color: #2563eb;
+}
+
+.activity-icon--created-group {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.activity-icon--created-sequence {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.activity-icon--deadline-passed {
+  background: #ffedd5;
+  color: #c2410c;
 }
 
 .activity-title {

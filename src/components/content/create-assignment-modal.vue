@@ -48,7 +48,6 @@
           <PInput
             v-model="form.description"
             :label="t('instructions')"
-            :placeholder="t('instructions-placeholder')"
             multiline
             :rows="4"
           />

@@ -34,8 +34,17 @@
   transition: color 120ms, background-color 120ms, border-color 120ms, box-shadow 80ms, filter 80ms;
   white-space: nowrap;
   cursor: pointer;
-  /* CMS slugs often ship lowercase; match Figma title-case button labels */
-  text-transform: capitalize;
+  text-transform: none;
+}
+/* Sentence case: first letter of the label only (icons break ::first-letter on .btn). */
+.btn-text,
+.label-sentence-case {
+  display: inline-block;
+  text-transform: lowercase;
+}
+.btn-text::first-letter,
+.label-sentence-case::first-letter {
+  text-transform: uppercase;
 }
 .btn:focus { outline: none; }
 .btn:focus-visible {
