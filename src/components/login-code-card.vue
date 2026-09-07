@@ -12,12 +12,14 @@
       required: true,
     },
   })
+
+  const urlPrefix = `https://${location.host}/login/pila#`
 </script>
 
 <template>
   <div class="login-code-card">
     <div class="login-code-card-name">{{ name }}</div>
-    <QRCode size="2in" :data="loginCode" />
+    <QRCode size="2in" :data="urlPrefix + loginCode" />
     <div class="login-code-card-symbols" aria-label="Login code">
       <i
         v-for="(character, index) in loginCode"

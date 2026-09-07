@@ -18,6 +18,10 @@ mathVirtualKeyboard.targetOrigin = '*' // for math input support for RCT content
 
 
 if (window.location.pathname === '/test') runTests()
+else if (window.location.pathname === '/login/pila') {
+  history.replaceState(null, '', '/')
+  Agent.login('login.pilaproject.org')
+}
 else initializeApp()
 
 async function initializeApp() {

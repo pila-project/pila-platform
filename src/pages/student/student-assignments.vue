@@ -1,7 +1,7 @@
 <template>
   <div class="student-assignments">
     <div v-if="noAssignments" style="width: 100%;">
-      {{ t('it-looks-like-you-do-not-have-any-assignments-pl')}}
+      {{ t('it-looks-like-you-do-not-have-any-assignments')}}
     </div>
     <div v-else style="width: 100%;">
       <div class="teacher-select">
@@ -63,7 +63,7 @@ import URL_CONTENT_DATA from '@/utils/url-content-data.js'
 import AssignmentCard from './assignment-card.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 
-const NEW_ASSIGNMENT_DAYS = 3
+const NEW_ASSIGNMENT_DAYS = 5
 
 export default {
   components: { vueEmbedComponent, vueScopeComponent, CardIconsBar, AssignmentCard, DecryptedName, LucideIcon, NewBadge },

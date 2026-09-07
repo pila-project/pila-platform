@@ -8,7 +8,7 @@
     </div>
 
     <div v-else-if="noAssignments" class="empty-state text-sm text-slate-500 py-8 text-center">
-      {{ t('it-looks-like-you-do-not-have-any-assignments-pl') }}
+      {{ t('it-looks-like-you-do-not-have-any-assignments') }}
     </div>
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -74,7 +74,7 @@
   import NewBadge from '@/components/new-badge.vue'
   import TeacherTaskCard from './teacher-task-card.vue'
 
-  const NEW_ASSIGNMENT_DAYS = 3
+  const NEW_ASSIGNMENT_DAYS = 5
 
   const props = defineProps({
     id: String

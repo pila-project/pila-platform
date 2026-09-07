@@ -1,6 +1,21 @@
 <template>
   <RefreshingIndicator />
-  <TeacherAgreement v-if="!hasTeacherAgreement" />
+  <div
+    v-if="!hasTeacherAgreement && !showTeacherAgreement"
+    class="view-choice"
+  >
+    <PButton
+      variant="primary"
+      :text="t('teacher-agreement')"
+      @click="showTeacherAgreement = true"
+    />
+    <PButton
+      variant="secondary"
+      :text="t('student-view')"
+      @click="goToStudentView"
+    />
+  </div>
+  <TeacherAgreement v-else-if="!hasTeacherAgreement" />
   <div
     class="teacher-view"
     v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
@@ -169,7 +184,7 @@
   import { useStore } from 'vuex'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '@/components/roles/role-requester.vue'
-  import { PAvatar, PMenu, PMenuItem } from '@/components/ui/index.js'
+  import { PAvatar, PButton, PMenu, PMenuItem } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '@/utils/constants.js'
   import languageChoices from '@/store/language-choices.js'
@@ -210,6 +225,7 @@
 
   const userInfo = ref({})
   const userIsTrainer = ref(null)
+  const showTeacherAgreement = ref(false)
   const sidebarOpen = ref(true)
   const isMobile = ref(window.innerWidth < 1024)
   const mobileMenuOpen = ref(false)
@@ -273,9 +289,26 @@
 
   function logout() { doLogout(store.state.user) }
 
+  function goToStudentView() { window.location = '/' }
+
 </script>
 
 <style scoped>
+.view-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 100vh;
+  padding: 16px;
+  background: var(--color-slate-100);
+}
+.view-choice :deep(.btn) {
+  width: min(360px, calc(100vw - 32px));
+  min-height: 48px;
+}
+
 .teacher-view {
   height: 100vh;
   overflow: hidden;
