@@ -131,7 +131,7 @@ export default {
         }))
         function pingSession() {
           pilaSession.ping = Date.now()
-          setTimeout(pingSession, 5000)
+          setTimeout(pingSession, 30_000)
         }
         pingSession()
       }
