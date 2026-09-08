@@ -5,8 +5,6 @@ import { encrypt, generateKeyPair } from '../encryption.js'
 const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'
 
-let firstLoad = true
-
 export default {
   scope: null,
   namespaced: true,
@@ -88,17 +86,12 @@ export default {
     }
   },
   actions: {
-    async load({ dispatch }, poll) {
+    async load({ dispatch }) {
       await Promise.all([
         dispatch('loadGroups'),
         dispatch('loadMembers')
       ])
-      if (firstLoad) dispatch('encryptMyUserInfo')
-
-      if (firstLoad || poll === 'do-it') {
-        setTimeout(() => dispatch('load', 'do-it'), 7000 + Math.random()*4000)
-        firstLoad = false
-      }
+      dispatch('encryptMyUserInfo')
     },
     async encryptMyUserInfo({ getters }) {
       const myEncryptedUserInfo = await Agent.state('encrypted-user-info')
