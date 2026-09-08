@@ -6,8 +6,6 @@ import {
 const ASSIGNMENTS_TYPE = 'application/json;type=assignment'
 const TEACHER_TO_STUDENT = 'teacher-to-student'
 
-let firstLoad = true
-
 async function writeAssignmentXapi(
   itemId,
   assignedClassIds,
@@ -107,11 +105,7 @@ export default {
     }
   },
   actions: {
-    async load({commit, dispatch}, poll) {
-      if (firstLoad || poll === 'do-it') {
-        setTimeout(() => dispatch('load', 'do-it'), 7000 + Math.random()*4000)
-        firstLoad = false
-      }
+    async load({commit}) {
       const assignments = await Agent.query('assignments')
       assignments.forEach(assignment => commit('addAssignment', assignment))
     },
