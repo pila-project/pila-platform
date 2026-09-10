@@ -9,6 +9,7 @@ import StudentView from '@/pages/student/index.vue'
 import JoinTeacherView from '@/pages/student/join-teacher.vue'
 import AssignmentView from '@/pages/assignment/index.vue'
 import CandliStates from '@/pages/candli-states.vue'
+import { isThailandTeacherHost } from '@/utils/constants.js'
 
 
 // Wrap  async components in synchronous wrapper
@@ -90,7 +91,14 @@ export default createRouter({
         { path: 'content', component: ContentLibrary },
         { path: 'create', component: TeacherCreateTab },
         { path: 'resources', component: TeacherResourcesPage },
-        { path: 'trainer', component: TeacherTrainerPage },
+        {
+          path: 'trainer',
+          component: TeacherTrainerPage,
+          beforeEnter: (_to, _from, next) => {
+            if (isThailandTeacherHost()) next()
+            else next('/teacher')
+          },
+        },
         { path: 'support', component: BugReport },
         { path: 'feedback', redirect: '/teacher/support' },
         { path: 'groups', redirect: '/teacher/classes' },

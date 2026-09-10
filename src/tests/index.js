@@ -13,6 +13,7 @@ import teacherLoginCredentialTests from './teacher-login-credentials.js'
 import candliGamesTests from './candli-games.js'
 import teacherHomeTests from './teacher-home.js'
 import teacherStudentRowsTests from './teacher-student-rows.js'
+import thailandTeacherHostTests from './thailand-teacher-host.js'
 
 export default function runTests() {
   window.Agent = browserAgent()
@@ -66,6 +67,7 @@ function waitForStoreLoadThenRunTests (store) {
           candliGamesTests()
           teacherHomeTests()
           teacherStudentRowsTests()
+          thailandTeacherHostTests()
         })
       }
       unwatch()

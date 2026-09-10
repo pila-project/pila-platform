@@ -186,7 +186,7 @@
   import RoleRequester from '@/components/roles/role-requester.vue'
   import { PAvatar, PButton, PMenu, PMenuItem } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
-  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '@/utils/constants.js'
+  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS, isThailandTeacherHost } from '@/utils/constants.js'
   import languageChoices from '@/store/language-choices.js'
   import { languageMenuLabel } from '@/utils/language-labels.js'
   import { logout as doLogout } from '@/utils/logout.js'
@@ -195,6 +195,7 @@
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+  const isThailandHost = isThailandTeacherHost()
   const showEncryptionKeyModal = ref(false)
   const store = useStore()
   const route = useRoute()
@@ -274,7 +275,7 @@
     { icon: 'search', title: t('explore'), to: '/teacher/content', show: true },
     { icon: 'folder-plus', title: t('create'), to: '/teacher/create', show: !isSimplifiedStudyDomain },
     { icon: 'file-text', title: t('resources'), to: '/teacher/resources', show: true },
-    { icon: 'school', title: t('trainer'), to: '/teacher/trainer', show: userIsTrainer.value && !isSimplifiedStudyDomain },
+    { icon: 'school', title: t('trainer'), to: '/teacher/trainer', show: userIsTrainer.value && isThailandHost },
   ])
 
   const currentLanguage = computed(() => store.getters.language())

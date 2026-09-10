@@ -159,6 +159,18 @@ export const SIMPLIFIED_STUDY_DOMAINS = [
   'slovensko-rct-2026.pilaproject.org',
 ]
 
+/** Teacher Trainer tab: Thailand production + Thai gforce hosts only. */
+export const THAILAND_TEACHER_HOSTS = [
+  'thailand.pilaproject.org',
+  'dev.gforcesolution.com',
+  'pila.gforcesolution.com',
+  'thaipilacreate.gforcesolution.com',
+]
+
+export function isThailandTeacherHost(host = typeof window !== 'undefined' ? window.location.host : '') {
+  return THAILAND_TEACHER_HOSTS.includes(host)
+}
+
 export const HOST_TO_EXTRA_TEACHER_TAGS = {
   'thailand.pilaproject.org': [
     {
