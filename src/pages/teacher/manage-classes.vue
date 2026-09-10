@@ -1063,6 +1063,7 @@ import {
   includesArchivedStatus,
 } from '@/utils/status-filter.js'
 import { activeStudentCountInGroup, formatStudentCount } from '@/utils/group-student-counts.js'
+import { buildTeacherStudentRows } from '@/utils/teacher-student-rows.js'
 
 const store = useStore()
 const groupsExpanded = ref(false)
@@ -1400,27 +1401,27 @@ onBeforeUnmount(() => {
 const decryptedNames = reactive(new Map())
 const decryptedLegalNames = reactive(new Map())
 
+// Class groups MUST be declared before `students`. That computed is watched
+// immediately; EDU PILA (joined students already in Vuex) used to crash with
+// "Cannot access … before initialization" when this sat below.
+const activeGroups = computed(() => store.getters['groups/groups']('class', true))
+const archivedGroups = computed(() => store.getters['groups/archivedGroups']('class'))
+const archivedGroupIdSet = computed(() => new Set(archivedGroups.value))
+
 // ── Students ──
 const myPILAUsers = computed(() => Object.keys(users))
 
-const students = computed(() => {
-  const ids = [
-    ...myPILAUsers.value,
-    ...store.getters['groups/myStudents']().filter(id => !myPILAUsers.value.includes(id)),
-  ]
-  return ids.map(id => {
-    const groupIds = activeGroups.value.filter(gid => store.getters['groups/belongs'](id, gid))
-    const groupNames = groupIds.map(gid => store.state.groups.groups[gid]?.name || '').filter(Boolean).join(', ')
-    return {
-      id,
-      displayName: decryptedNames.get(id) || '…',
-      archived: !!users[id]?.archived,
-      grade: users[id]?.grade || '',
-      groupNames,
-      groupIds,
-    }
-  })
-})
+const students = computed(() =>
+  buildTeacherStudentRows({
+    createdUserIds: myPILAUsers.value,
+    joinedStudentIds: store.getters['groups/myStudents']() || [],
+    classGroupIds: activeGroups.value,
+    belongs: (id, gid) => store.getters['groups/belongs'](id, gid),
+    getGroupName: gid => store.state.groups.groups[gid]?.name,
+    users,
+    getDisplayName: id => decryptedNames.get(id),
+  }),
+)
 
 watch(
   () => students.value.map(s => s.id),
@@ -1637,11 +1638,6 @@ async function openStudentProfile(studentId) {
 }
 
 // ── Groups ──
-const activeGroups = computed(() => store.getters['groups/groups']('class', true))
-const archivedGroups = computed(() => store.getters['groups/archivedGroups']('class'))
-
-const archivedGroupIdSet = computed(() => new Set(archivedGroups.value))
-
 /** Header count: active groups by default; +archived when status chip is on (ignores search). */
 const groupHeaderCount = computed(() => {
   const n = activeGroups.value.length
