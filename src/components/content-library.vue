@@ -9,40 +9,52 @@
       <TagFilters
         v-model="selectedTagFilters"
         :partition="tagRootPartition"
-        :roots="tagFilters"
+        :roots="tagRoots"
         select-leaves-only
         :LabelComponent="TagTranslation"
       />
+
       <v-progress-linear v-if="loading" indeterminate />
+
       <NoResultsFound v-else-if="!currentContentList.length" />
-      <v-row v-else>
-        <v-col
-          v-for="(id, index) in currentContentList"
-          :key="id + index"
-          cols="12"
-          lg="4"
-          md="6"
-          sm="12"
-        >
-          <TaggedContentCard
-            :id="id"
-            :selected="selfSelected === id"
-            :removable="myContent.includes(id)"
-            :showTaggingIcon="!isSimplifiedDomain && !!taggingIconVisibility[id]"
-            @click="() => {
-              if (selfSelected === id) selfSelected = null
-              else selfSelected = id
-              $emit('select', selfSelected)
-            }"
-            @preview="previewing = id"
-            @tag="tagging = id"
-            @remove="() => {
-              setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
-              myContent.splice(myContent.indexOf(id), 1)
-            }"
-          />
-        </v-col>
-      </v-row>
+
+      <template v-else>
+        <v-row>
+          <v-col
+            v-for="id in paginatedContentList"
+            :key="id"
+            cols="12"
+            lg="4"
+            md="6"
+            sm="12"
+          >
+            <TaggedContentCard
+              :id="id"
+              :selected="selfSelected === id"
+              :removable="myContent.includes(id)"
+              :showTaggingIcon="!isSimplifiedDomain && !!taggingIconVisibility[id]"
+              @click="() => {
+                if (selfSelected === id) selfSelected = null
+                else selfSelected = id
+                $emit('select', selfSelected)
+              }"
+              @preview="previewing = id"
+              @tag="tagging = id"
+              @remove="() => {
+                setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
+                myContent.splice(myContent.indexOf(id), 1)
+              }"
+            />
+          </v-col>
+        </v-row>
+
+        <v-pagination
+          v-if="pageCount > 1"
+          v-model="page"
+          :length="pageCount"
+        />
+      </template>
+
       <PreviewModal
         v-if="previewing"
         :id="previewing"
@@ -50,14 +62,15 @@
         height="90vh"
         @close="previewing = null"
       />
+
       <TaggingModal
         v-if="tagging && !isSimplifiedDomain"
         :id="tagging"
         :roots="tagRoots"
         @close="tagging = null"
       />
-
     </v-container>
+
     <div
       v-if="selfSelected"
       style="
@@ -84,7 +97,6 @@
 <script setup>
   import { ref, reactive, watch, computed } from 'vue'
   import { useStore } from 'vuex'
-  import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { Filters as TagFilters } from '@knowlearning/tags'
   import ContentMetadataPanel from './content-metadata-panel.vue'
   import NoResultsFound from './no-results-found.vue'
@@ -97,6 +109,7 @@
 
   // use build local name map for alphabetical sorting
   import getName from '../name-and-translation-for-content.js'
+
   async function getDisplayNames(itemIds, language) {
     const entries = await Promise.all(
       itemIds.map(async itemId => [
@@ -118,10 +131,14 @@
   const DEFAULT_CONTENT_PARTITION = store.getters.tagPartition
 
   const isSimplifiedDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+
   const tagRoots = isSimplifiedDomain
     ? [ SIMPLIFIED_TAG_ROOT ]
     : [ THAILAND_COMPETENCIES_TAG_ROOT, THAILAND_OTHER_TAGS_ROOT ]
-  const tagRootPartition = isSimplifiedDomain ? store.getters.tagPartition : TAG_HIERARCHY_PARTITION
+
+  const tagRootPartition = isSimplifiedDomain
+    ? store.getters.tagPartition
+    : TAG_HIERARCHY_PARTITION
 
   const { auth: { user } } = await Agent.environment()
 
@@ -137,19 +154,29 @@
   const displayNames = ref({})
   const selectedLanguage = computed(() => store.getters.language())
 
+  // Pagination
+  const page = ref(1)
+  const itemsPerPage = 12
+
   const myContent = reactive(
     await (
       Agent
-        .query('taggings-for-tag', [user, MY_CONTENT_TAG], 'tags.knowlearning.systems')
+        .query(
+          'taggings-for-tag',
+          [user, MY_CONTENT_TAG],
+          'tags.knowlearning.systems'
+        )
         .then(r => r.map(t => t.target))
     )
   )
 
   const unsortedContentList = computed(() => {
     let l = taggedContent.value.map(t => t.target)
+
     if (selectedTagFilters.value.length === 0) {
       l = [...l, ...myContent]
     }
+
     return l
   })
 
@@ -162,6 +189,15 @@
     )
   })
 
+  const paginatedContentList = computed(() => {
+    const start = (page.value - 1) * itemsPerPage
+    return currentContentList.value.slice(start, start + itemsPerPage)
+  })
+
+  const pageCount = computed(() =>
+    Math.ceil(currentContentList.value.length / itemsPerPage)
+  )
+
   watch(
     [unsortedContentList, selectedLanguage],
     async ([ids, language]) => {
@@ -170,7 +206,10 @@
     { immediate: true }
   )
 
-  watch(selectedTagFilters, fetchTaggings)
+  watch(selectedTagFilters, () => {
+    page.value = 1
+    fetchTaggings()
+  })
 
   fetchTaggings()
 
@@ -185,7 +224,7 @@
   ).then(results => {
     tagFilters.value = results.flatMap(r => r.map(t => t.target))
   })
-  
+
   const taggingIconVisibility = reactive({})
 
   async function loadTaggingIconVisibility(id) {
@@ -208,23 +247,32 @@
 
   async function fetchTaggings() {
     loading.value = true
+
     if (selectedTagFilters.value.length) {
       await (
         Agent
-          .query('taggings-intersection', [tagRootPartition, selectedTagFilters.value], 'tags.knowlearning.systems')
+          .query(
+            'taggings-intersection',
+            [tagRootPartition, selectedTagFilters.value],
+            'tags.knowlearning.systems'
+          )
           .then(result => taggedContent.value = result)
       )
     }
     else {
       await (
         Agent
-          .query('taggings-for-tag', [DEFAULT_CONTENT_PARTITION, DEFAULT_CONTENT_TAG], 'tags.knowlearning.systems')
+          .query(
+            'taggings-for-tag',
+            [DEFAULT_CONTENT_PARTITION, DEFAULT_CONTENT_TAG],
+            'tags.knowlearning.systems'
+          )
           .then(result => taggedContent.value = result)
       )
     }
+
     loading.value = false
   }
-
 </script>
 
 <style>
@@ -233,14 +281,17 @@
   {
     display: flex;
   }
+
   .content-wrapper
   {
     flex-grow: 1;
   }
+
   .content-wrapper.metadata-open
   {
     margin-right: calc(30% + 32px);
   }
+
   .tagged-content-card-wrapper
   {
     flex-grow: 2;
