@@ -10,10 +10,12 @@
                 height="32"
             />
         </template>
+
         <v-spacer />
+
         <span
-          v-if="teacherViewButton"
-          style="margin-right: 1em"
+            v-if="teacherViewButton"
+            style="margin-right: 1em"
         >
             <IconButton
                 icon="chalkboard-teacher"
@@ -22,6 +24,19 @@
                 background="#FFC442"
             />
         </span>
+
+        <span
+            v-if="studentViewButton"
+            style="margin-right: 1em"
+        >
+            <IconButton
+                icon="chalkboard-teacher"
+                @click="goToStudentView"
+                :text="t('student-view')"
+                background="#FFC442"
+            />
+        </span>
+
         <v-select
             class="pr-4"
             density="compact"
@@ -31,7 +46,6 @@
             style="max-width: 100px;"
             :model-value="store.getters.language()"
             @update:model-value="store.dispatch('language', $event)"
-
         />
     </v-app-bar>
 </template>
@@ -40,15 +54,29 @@
 import languageChoices from '../store/languageChoices.js'
 import { useStore } from 'vuex'
 import IconButton from '../components/icon-button.vue'
+
 const store = useStore()
 
-defineProps(['teacherViewButton'])
+defineProps({
+    teacherViewButton: {
+        type: Boolean,
+        default: false,
+    },
+    studentViewButton: {
+        type: Boolean,
+        default: false,
+    },
+})
 
 function t(slug) {
-  return store.getters.t(slug)
+    return store.getters.t(slug)
 }
 
 function goToTeacherView() {
-  window.location = '/teacher'
+    window.location = '/teacher'
+}
+
+function goToStudentView() {
+    window.location = '/'
 }
 </script>

@@ -21,9 +21,9 @@
   <TeacherAgreement v-else-if="!hasTeacherAgreement" />
   <v-app
     class="teacher-view"
-    v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
+    v-else-if="store.getters['roles/hasPermission'](store.state.user, 'teacher')"
   >
-    <Navbar />
+    <Navbar studentViewButton />
     <v-navigation-drawer
       v-model:rail="showRail"
       permanent
