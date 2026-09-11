@@ -20,6 +20,7 @@
           :headers="headers"
           :items="assignmentsForActiveTable"
           :items-per-page="-1"
+          :loading="loading"
           fixed-header
           @click:row="handleRowClick"
           :row-props="item => {
@@ -288,6 +289,7 @@
     },
     data() {
       return {
+        loading: true,
         idToCreated: {},
         current: null,
         showEditModal: false,
@@ -307,9 +309,13 @@
     mounted() {
       // fetch created date md for sorting
       const allAssignments = [...this.assignable_items, ...this.archived_assignable_items]
-      allAssignments.forEach(async id => {
-        this.idToCreated[id] = await Agent.metadata(id).then(md => md.created)
-      })
+
+      Promise.all(
+        allAssignments.map(async id => {
+          this.idToCreated[id] = await Agent.metadata(id).then(md => md.created)
+        })
+      ).then(() => this.loading = false)
+
       window.addEventListener('pagehide', this.handlePageHide)
     },
     beforeUnmount() {
