@@ -9,7 +9,7 @@
       <TagFilters
         v-model="selectedTagFilters"
         :partition="tagRootPartition"
-        :roots="tagRoots"
+        :roots="tagFilters"
         select-leaves-only
         :LabelComponent="TagTranslation"
       />
