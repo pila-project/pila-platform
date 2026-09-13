@@ -31,7 +31,7 @@ export function getPublicationDateTime(data) {
  * Product-facing status. Scheduled past due reads as Published without requiring a write.
  *
  * `opts.hasAssignedGroups` is persisted group assignments on a saved item only.
- * Unsaved wizard picks (e.g. pendingGroupIds) are not publication evidence.
+ * Unsaved wizard picks (e.g. pendingGroupId) are not publication evidence.
  * Missing/null status + persisted groups infers Published (legacy saved items).
  *
  * @param {{ status?: string|null, scheduledDate?: string|null, scheduledTime?: string|null }|null|undefined} data

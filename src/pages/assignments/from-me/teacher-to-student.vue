@@ -192,17 +192,26 @@
       <div class="assign-section">
         <label class="field-label">{{ t('assign-to') }} ({{ t('optional') }})</label>
         <p class="field-hint">{{ t('assign-to-groups-optional-hint') }}</p>
+        <p class="field-hint">{{ t('one-group-per-assignment-hint') }}</p>
         <PInput
           v-model="groupSearch"
           :placeholder="t('search-groups')"
           icon="lucide:search"
         />
-        <div ref="groupListRef" class="group-list">
+        <div
+          ref="groupListRef"
+          class="group-list"
+          role="listbox"
+          :aria-label="t('assign-to')"
+          aria-multiselectable="false"
+        >
           <div
             v-for="gid in filteredGroups"
             :key="gid"
             class="group-card"
             :class="{ 'group-card-selected': isGroupSelected(gid) }"
+            role="option"
+            :aria-selected="isGroupSelected(gid)"
             @click="toggleGroup(gid)"
           >
             <div class="group-icon" :class="isGroupSelected(gid) ? 'group-icon-green' : 'group-icon-blue'">
@@ -552,22 +561,22 @@
 
   const groups = computed(() => store.getters['groups/groups']('class', true))
 
-  // ── Pending group assignments (applied on Save only) ──
-  const pendingGroupIds = ref(new Set())
-  /** Stable list order on assign step — selected groups pin to top only when entering the step. */
+  // ── Pending group assignment (applied on Save only; at most one group) ──
+  const pendingGroupId = ref(null)
+  /** Stable list order on assign step — selected group pins to top only when entering the step. */
   const groupDisplayOrder = ref([])
 
-  function buildGroupDisplayOrder(ids, selected) {
+  function buildGroupDisplayOrder(ids, selectedId) {
     return [...ids].sort((a, b) => {
-      const aSelected = selected.has(a) ? 0 : 1
-      const bSelected = selected.has(b) ? 0 : 1
+      const aSelected = a === selectedId ? 0 : 1
+      const bSelected = b === selectedId ? 0 : 1
       if (aSelected !== bSelected) return aSelected - bSelected
       return ids.indexOf(a) - ids.indexOf(b)
     })
   }
 
   function syncGroupDisplayOrder() {
-    groupDisplayOrder.value = buildGroupDisplayOrder(groups.value, pendingGroupIds.value)
+    groupDisplayOrder.value = buildGroupDisplayOrder(groups.value, pendingGroupId.value)
     nextTick(() => groupListRef.value?.scrollTo({ top: 0 }))
   }
 
@@ -585,7 +594,7 @@
     })
   })
 
-  /** Persisted class assignments on this saved item — not unsaved wizard pendingGroupIds. */
+  /** Persisted class assignments on this saved item — not unsaved wizard pendingGroupId. */
   const hasPersistedAssignedGroups = computed(() =>
     store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false).length > 0,
   )
@@ -631,47 +640,44 @@
   }
 
   function isGroupSelected(group_id) {
-    return pendingGroupIds.value.has(group_id)
+    return pendingGroupId.value === group_id
   }
 
   function toggleGroup(group_id) {
-    const next = new Set(pendingGroupIds.value)
-    if (next.has(group_id)) next.delete(group_id)
-    else next.add(group_id)
-    pendingGroupIds.value = next
+    pendingGroupId.value = pendingGroupId.value === group_id ? null : group_id
   }
 
-  function seedPendingGroupsFromStore() {
+  function seedPendingGroupFromStore() {
     const assigned = store.getters['assignments/assignedGroups'](
       props.id,
       'teacher-to-student',
       false
     )
-    pendingGroupIds.value = new Set(assigned)
+    pendingGroupId.value = assigned[0] ?? null
   }
 
   async function applyPendingGroupAssignments() {
     const itemId = props.id
     const assignmentType = 'teacher-to-student'
-    const currentlyAssigned = new Set(
-      store.getters['assignments/assignedGroups'](itemId, assignmentType, false)
+    const currentlyAssigned = store.getters['assignments/assignedGroups'](
+      itemId,
+      assignmentType,
+      false
     )
-    const pending = pendingGroupIds.value
+    const pending = pendingGroupId.value
 
     for (const groupId of currentlyAssigned) {
-      if (!pending.has(groupId)) {
+      if (groupId !== pending) {
         const assignmentId = assignmentForGroup(groupId)
         if (assignmentId) await store.dispatch('assignments/unassign', assignmentId)
       }
     }
-    for (const groupId of pending) {
-      if (!currentlyAssigned.has(groupId)) {
-        await store.dispatch('assignments/assign', {
-          group_id: groupId,
-          item_id: itemId,
-          assignment_type: assignmentType,
-        })
-      }
+    if (pending && !currentlyAssigned.includes(pending)) {
+      await store.dispatch('assignments/assign', {
+        group_id: pending,
+        item_id: itemId,
+        assignment_type: assignmentType,
+      })
     }
   }
 
@@ -1018,13 +1024,13 @@
       } else if (state.status === ASSIGNMENT_STATUS.SCHEDULED) {
         scheduledTime.value = DEFAULT_PUBLICATION_TIME
       }
-      seedPendingGroupsFromStore()
+      seedPendingGroupFromStore()
     } else {
       const seedContent = props.initialContentIds?.length
         ? [...props.initialContentIds]
         : []
       assignment.value = { name: '', description: '', content: seedContent }
-      pendingGroupIds.value = new Set()
+      pendingGroupId.value = null
     }
 
     loading.value = false
@@ -1224,6 +1230,9 @@
   font-size: 13px;
   color: #64748b;
   margin: -4px 0 10px;
+}
+.field-hint + .field-hint {
+  margin-top: -6px;
 }
 
 /* ── Step 2: Wide body ── */
