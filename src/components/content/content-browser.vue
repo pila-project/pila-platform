@@ -183,16 +183,25 @@ onMounted(() => ensureLoaded({ useDiskCache: props.useDiskCache }))
 
 const scrollBodyRef = ref(null)
 
+/** Real overflow node: `.cb-scroll-body` when fillHeight, else `.cb-body`. */
+function resetScroll() {
+  if (scrollBodyRef.value) scrollBodyRef.value.scrollTop = 0
+}
+
 onActivated(() => {
   activeShowTab.value = 'all'
   contentPage.value = 1
-  if (scrollBodyRef.value) scrollBodyRef.value.scrollTop = 0
+  resetScroll()
 })
 
 watch(activeShowTab, () => {
   contentPage.value = 1
-  if (scrollBodyRef.value) scrollBodyRef.value.scrollTop = 0
+  resetScroll()
 })
+
+watch(contentPage, () => {
+  resetScroll()
+}, { flush: 'post' })
 
 defineExpose({
   filteredContentList,
@@ -203,6 +212,7 @@ defineExpose({
   loading,
   getItemTagLabels,
   isMyContent,
+  resetScroll,
 })
 </script>
 
@@ -224,6 +234,7 @@ defineExpose({
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  overflow-anchor: none;
   overscroll-behavior: contain;
   padding-right: 2px;
   -webkit-overflow-scrolling: touch;

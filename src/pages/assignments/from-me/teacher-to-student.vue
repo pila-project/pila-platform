@@ -378,6 +378,8 @@
         <!-- Shared content browser (same as explore page) -->
         <div class="cb-grid-area">
           <ContentBrowser
+            ref="contentBrowserRef"
+            fill-height
             :columns="3"
             :per-page="12"
             use-disk-cache
@@ -466,6 +468,7 @@
   const currentStep = ref(1)
   const assignment = ref({ name: '', description: '', content: [] })
   const selectingContent = ref(false)
+  const contentBrowserRef = ref(null)
   const previewing = ref(null)
   const sequenceToPreview = ref(null)
   const { getItemTagLabels, isMyContent } = useContentLibrary(store)
@@ -699,9 +702,11 @@
   }
 
   // ── Content selection ──
-  function openContentBrowser() {
+  async function openContentBrowser() {
     cbSelectedItems.clear()
     selectingContent.value = true
+    await nextTick()
+    contentBrowserRef.value?.resetScroll?.()
   }
 
   function assignmentContentGrades(id) {
@@ -1655,8 +1660,10 @@
 
 .cb-grid-area {
   flex: 1;
-  overflow-y: auto;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding: 2px 4px 4px;
 }
 
