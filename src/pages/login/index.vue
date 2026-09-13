@@ -179,8 +179,9 @@ export default {
   name: 'LoginMenu',
   components: { LucideIcon, LoginCodePad, LoginQrScanner },
   data() {
+    const path = typeof window !== 'undefined' ? window.location.pathname : ''
     return {
-      role: 'student',
+      role: path.startsWith('/teacher') ? 'teacher' : 'student',
       view: 'hub',
       codeValue: '',
       signingIn: false,
@@ -217,6 +218,11 @@ export default {
         : '/login/hero.png'
     },
   },
+  watch: {
+    '$route.path'(path) {
+      this.role = this.roleFromPath(path)
+    },
+  },
   mounted() {
     this.resetSigningIn()
     window.addEventListener('pageshow', this.resetSigningIn)
@@ -238,6 +244,10 @@ export default {
     },
     signInWithLabel(provider) {
       return this.t(`sign-in-with-${provider.id}`)
+    },
+    roleFromPath(path) {
+      const current = path || this.$route?.path || ''
+      return current.startsWith('/teacher') ? 'teacher' : 'student'
     },
     rememberLoginIntent() {
       try {

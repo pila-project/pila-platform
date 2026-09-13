@@ -1,7 +1,7 @@
 <template>
   <RefreshingIndicator />
   <div
-    v-if="!hasTeacherAgreement && !showTeacherAgreement"
+    v-if="rolesLoaded && hasTeacherPermission && !hasTeacherAgreement && !showTeacherAgreement"
     class="view-choice"
   >
     <PButton
@@ -15,10 +15,10 @@
       @click="goToStudentView"
     />
   </div>
-  <TeacherAgreement v-else-if="!hasTeacherAgreement" />
+  <TeacherAgreement v-else-if="rolesLoaded && hasTeacherPermission && !hasTeacherAgreement" />
   <div
     class="teacher-view"
-    v-else-if="$store.getters['roles/hasPermission']($store.state.user, 'teacher')"
+    v-else-if="rolesLoaded && hasTeacherPermission"
   >
     <div class="teacher-layout">
       <!-- Mobile header bar -->
@@ -175,13 +175,14 @@
     <!-- Footer removed — not in Figma designs -->
   </div>
 
-  <RoleRequester v-else role="teacher" />
+  <RoleRequester v-else-if="rolesLoaded && isAspiringTeacher" role="teacher" />
 </template>
 
 <script setup>
   import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
-  import { useRoute } from 'vue-router'
+  import { useRoute, useRouter } from 'vue-router'
   import { useStore } from 'vuex'
+  import { validate as isUUID } from 'uuid'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '@/components/roles/role-requester.vue'
   import { PAvatar, PButton, PMenu, PMenuItem } from '@/components/ui/index.js'
@@ -199,7 +200,19 @@
   const showEncryptionKeyModal = ref(false)
   const store = useStore()
   const route = useRoute()
+  const router = useRouter()
   const teacherMainRef = ref(null)
+
+  function peekLoginIntent() {
+    try {
+      return sessionStorage.getItem('pila-login-intent')
+    } catch {
+      return null
+    }
+  }
+
+  // Snapshot before App.vue may clear intent after routing.
+  const capturedLoginIntent = peekLoginIntent()
 
   // UIUX-158: tab switches keep KeepAlive data, but the shared teacher-main
   // scroller must start at the top (Admin ↔ Assignments).
@@ -260,9 +273,34 @@
 
   Agent.environment().then(({ auth:{info}}) => userInfo.value = info)
 
+  const rolesLoaded = computed(() => store.getters.loaded())
+  const hasTeacherPermission = computed(() => (
+    store.getters['roles/hasPermission'](store.state.user, 'teacher')
+  ))
   const hasTeacherAgreement = computed(() => {
     return store.getters.hasAcceptedTeacherAgreement()
   })
+  const isAspiringTeacher = computed(() => {
+    if (hasTeacherPermission.value) return false
+    const intent = capturedLoginIntent || peekLoginIntent()
+    if (intent === 'teacher') return true
+    if (intent === 'student') return false
+    const pending = store.getters['roles/request'](store.state.user)
+    if (pending?.role === 'teacher') return true
+    const provider = store.state.provider
+    if (!provider || provider === 'anonymous' || isUUID(provider)) return false
+    return true
+  })
+
+  watch(
+    [rolesLoaded, hasTeacherPermission, isAspiringTeacher],
+    () => {
+      if (!rolesLoaded.value) return
+      if (hasTeacherPermission.value || isAspiringTeacher.value) return
+      if (route.path.startsWith('/teacher')) router.push('/')
+    },
+    { immediate: true },
+  )
 
   const teacherDataProtectionLink = DOMAIN_DATA_PROTECTION_LINKS[location.host]
           || DOMAIN_DATA_PROTECTION_LINKS.default

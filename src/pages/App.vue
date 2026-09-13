@@ -57,15 +57,24 @@
     methods: {
       routeAfterLoginIntent() {
         try {
+          // Roles default to 'student' until loaded; do not consume intent yet.
+          if (!this.loaded) return
           const intent = sessionStorage.getItem('pila-login-intent')
           if (!intent) return
-          sessionStorage.removeItem('pila-login-intent')
+
           const user = this.$store.state.user
-          if (intent === 'teacher'
-            && this.$store.getters['roles/hasPermission'](user, 'teacher')
-            && !this.$route.path.startsWith('/teacher')
-          ) {
-            this.$router.push('/teacher')
+          const hasTeacher = this.$store.getters['roles/hasPermission'](user, 'teacher')
+          const onTeacherPath = this.$route.path.startsWith('/teacher')
+
+          if (intent === 'teacher') {
+            // Teachers and aspiring teachers (no tag yet → RoleRequester) go to /teacher.
+            if (!onTeacherPath) this.$router.push('/teacher')
+            // Keep intent while they lack the teacher tag so /teacher can
+            // show RoleRequester instead of ejecting them as a student.
+            if (hasTeacher) sessionStorage.removeItem('pila-login-intent')
+          } else {
+            if (onTeacherPath) this.$router.push('/')
+            sessionStorage.removeItem('pila-login-intent')
           }
         } catch { /* ignore */ }
       },
