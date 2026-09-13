@@ -322,6 +322,11 @@ const paginatedItems = computed(() => {
   return sortedItems.value.slice(start, start + currentPerPage.value)
 })
 
+// Filter/search can shrink items so currentPage is past the last page; jump to 1 (matches Explore).
+watch(totalPages, (pages) => {
+  if (currentPage.value > pages) currentPage.value = 1
+})
+
 function toggleSort(key) {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
