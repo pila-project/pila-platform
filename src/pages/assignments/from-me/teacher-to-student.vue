@@ -585,6 +585,11 @@
     })
   })
 
+  /** Persisted class assignments on this saved item — not unsaved wizard pendingGroupIds. */
+  const hasPersistedAssignedGroups = computed(() =>
+    store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false).length > 0,
+  )
+
   const publicationLocked = computed(() =>
     isPublicationLocked(
       {
@@ -592,11 +597,7 @@
         scheduledDate: scheduledDate.value,
         scheduledTime: scheduledTime.value,
       },
-      {
-        hasAssignedGroups:
-          pendingGroupIds.value.size > 0
-          || store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false).length > 0,
-      },
+      { hasAssignedGroups: hasPersistedAssignedGroups.value },
     ),
   )
 
@@ -936,11 +937,7 @@
         scheduledDate: scheduledDate.value || state.scheduledDate,
         scheduledTime: scheduledTime.value || state.scheduledTime,
       },
-      {
-        hasAssignedGroups:
-          pendingGroupIds.value.size > 0
-          || store.getters['assignments/assignedGroups'](props.id, 'teacher-to-student', false).length > 0,
-      },
+      { hasAssignedGroups: hasPersistedAssignedGroups.value },
     )
 
     // One-way publish: never write Draft once effectively published

@@ -30,6 +30,10 @@ export function getPublicationDateTime(data) {
 /**
  * Product-facing status. Scheduled past due reads as Published without requiring a write.
  *
+ * `opts.hasAssignedGroups` is persisted group assignments on a saved item only.
+ * Unsaved wizard picks (e.g. pendingGroupIds) are not publication evidence.
+ * Missing/null status + persisted groups infers Published (legacy saved items).
+ *
  * @param {{ status?: string|null, scheduledDate?: string|null, scheduledTime?: string|null }|null|undefined} data
  * @param {{ hasAssignedGroups?: boolean, now?: number }} [opts]
  */
@@ -59,6 +63,7 @@ export function effectiveAssignmentStatus(data, opts = {}) {
 
 /**
  * Once effectively Published, teacher must not revert to Draft.
+ * `opts.hasAssignedGroups` has the same persisted-only contract as effectiveAssignmentStatus.
  */
 export function isPublicationLocked(data, opts = {}) {
   return effectiveAssignmentStatus(data, opts) === ASSIGNMENT_STATUS.PUBLISHED
