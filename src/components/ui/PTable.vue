@@ -134,7 +134,7 @@
         </select>
       </div>
       <div v-if="showPageNavigation" class="ptable-pagination-right">
-        <span v-if="totalPages <= 1" class="ptable-page-label">Page {{ currentPage }} of {{ totalPages }}</span>
+        <span v-if="totalPages <= 1" class="ptable-page-label">{{ t('page-n-of-n').replace('{current}', String(currentPage)).replace('{total}', String(totalPages)) }}</span>
         <div class="ptable-page-buttons">
           <button
             class="ptable-page-btn"

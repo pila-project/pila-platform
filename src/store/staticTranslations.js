@@ -9684,6 +9684,32 @@ export default {
     "sk": "Položka {current} z {total}",
     "th": "รายการ {current} จาก {total}"
   },
+  "page-n-of-n": {
+    "de": "Seite {current} von {total}",
+    "en": "Page {current} of {total}",
+    "es": "Página {current} de {total}",
+    "fr": "Page {current} sur {total}",
+    "km": "ទំព័រ {current} នៃ {total}",
+    "lv": "Lapa {current} no {total}",
+    "nl": "Pagina {current} van {total}",
+    "pl": "Strona {current} z {total}",
+    "pt": "Página {current} de {total}",
+    "sk": "Stránka {current} z {total}",
+    "th": "หน้า {current} จาก {total}"
+  },
+  "range-n-of-n": {
+    "de": "{start}–{end} von {total}",
+    "en": "{start}–{end} of {total}",
+    "es": "{start}–{end} de {total}",
+    "fr": "{start}–{end} sur {total}",
+    "km": "{start}–{end} នៃ {total}",
+    "lv": "{start}–{end} no {total}",
+    "nl": "{start}–{end} van {total}",
+    "pl": "{start}–{end} z {total}",
+    "pt": "{start}–{end} de {total}",
+    "sk": "{start}–{end} z {total}",
+    "th": "{start}–{end} จาก {total}"
+  },
   "no-items-in-this-sequence": {
     "de": "Keine Elemente in dieser Sequenz",
     "en": "No items in this sequence",

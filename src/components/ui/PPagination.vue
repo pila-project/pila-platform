@@ -7,7 +7,7 @@
     }"
   >
     <div v-if="showRowCount || normalizedOptions.length" class="pagination-info">
-      <span v-if="showRowCount">{{ startItem }}–{{ endItem }} of {{ totalItems }}</span>
+      <span v-if="showRowCount">{{ t('range-n-of-n').replace('{start}', String(startItem)).replace('{end}', String(endItem)).replace('{total}', String(totalItems)) }}</span>
       <span v-if="normalizedOptions.length" class="pagination-per-page">
         {{ perPageLabel }}:
         <select
@@ -41,7 +41,7 @@
         @select="$emit('update:currentPage', $event)"
       />
       <span v-else class="pagination-page-info">
-        Page {{ currentPage }} of {{ totalPages }}
+        {{ t('page-n-of-n').replace('{current}', String(currentPage)).replace('{total}', String(totalPages)) }}
       </span>
       <button
         class="pagination-btn"
@@ -57,9 +57,13 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import PPageNumbers from './PPageNumbers.vue'
 import { ALL_PER_PAGE, isAllPerPage, normalizePerPageOptions } from '@/utils/pagination-options.js'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   totalItems: {
