@@ -83,9 +83,7 @@ async function initializeApp() {
           }
         )
       }
-      if (provider === 'anonymous' && location.pathname === '/') {
-        Agent.login('login.pilaproject.org')
-      }
+      // Anonymous `/` stays in-app so App.vue can render LoginMenu.
     })
   }
 }
