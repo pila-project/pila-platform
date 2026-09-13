@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-auto">
+  <div :class="fixedHeader ? 'ptable--fixed-header' : 'overflow-auto'">
     <table class="w-full border-collapse">
       <thead>
         <tr class="bg-slate-50 border-b border-slate-200">
@@ -535,6 +535,19 @@ function toggleExpand(item) {
 </script>
 
 <style scoped>
+/* Stick thead to the nearest ancestor scrollport (e.g. .teacher-main).
+   overflow: visible so this wrapper is not a sticky containing block. */
+.ptable--fixed-header {
+  overflow: visible;
+}
+.ptable--fixed-header thead th,
+.ptable--fixed-header .table-header-cell {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: #f8fafc;
+}
+
 .drag-handle-cell {
   padding: 0 4px !important;
 }

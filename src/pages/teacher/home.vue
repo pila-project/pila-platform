@@ -129,6 +129,7 @@
             :headers="tableHeaders"
             :items="homeAssignmentItems"
             itemKey="id"
+            fixed-header
             :noDataText="t('no-assignments-yet')"
             :itemsPerPage="10"
             :itemsPerPageText="t('rows-per-page')"

@@ -115,6 +115,7 @@
             :headers="studentHeaders"
             :items="filteredStudents"
             item-key="id"
+            fixed-header
             selectable
             :selected="selectedStudents"
             @update:selected="setSelectedStudents"

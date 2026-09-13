@@ -109,6 +109,7 @@
           :headers="tableHeaders"
           :items="tableItems"
           itemKey="id"
+          fixed-header
           selectable
           :selected="selectedItems"
           @update:selected="selectedItems = $event"
@@ -1469,7 +1470,7 @@
 /* Table */
 .assign-table-wrapper {
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid #e2e8f0;
   margin-top: 16px;
 }
