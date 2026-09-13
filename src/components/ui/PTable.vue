@@ -114,7 +114,7 @@
     >
       <div class="ptable-pagination-info">
         <span v-if="selectable && selectedCount > 0" class="ptable-selected-count">
-          {{ selectedCount }} {{ selectedCount === 1 ? 'row' : 'rows' }} selected.
+          {{ t('n-rows-selected').replace('{rows}', String(selectedCount)) }}
         </span>
       </div>
       <div class="ptable-pagination-center">
@@ -182,9 +182,13 @@
 
 <script setup>
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import { PButton, PCheckbox } from './index.js'
 import PPageNumbers from './PPageNumbers.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   headers: {
