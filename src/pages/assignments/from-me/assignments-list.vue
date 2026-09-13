@@ -1717,6 +1717,12 @@
   overflow: hidden;
 }
 
+/* OWN HTML live-monitoring table scrolls both axes; iframe embeds stay clipped */
+.assign-dashboard-fill :deep(.new-dashboard) {
+  height: 100%;
+  overflow: auto;
+}
+
 /* ── Mobile Responsive ── */
 @media (max-width: 900px) {
   .assign-card-title-row {

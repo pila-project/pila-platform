@@ -1,14 +1,13 @@
 <template>
   <tr>
-    <td style="white-space: nowrap;">
-      <LucideIcon
-        name="circle"
-        :size="10"
-        :class="{ 'mr-2': true, 'active': userIsActive }"
-        :fill="userIsActive ? 'limegreen' : '#ccc'"
-        :stroke="userIsActive ? 'limegreen' : '#ccc'"
-      />
-      <DecryptedName :user="user" />
+    <td class="student-name-cell">
+      <span class="student-name-line">
+        <span
+          class="status-pip"
+          :class="{ 'status-pip--active': userIsActive }"
+        />
+        <DecryptedName :user="user" />
+      </span>
     </td>
     <td>
       <StudentSummary
@@ -40,7 +39,6 @@
   import ItemInfo from './item-info.vue'
   import StudentSummary from './student-summary.vue'
   import DecryptedName from '@/components/common/decrypted-name.vue'
-  import LucideIcon from '@/components/ui/LucideIcon.vue'
 
   const props = defineProps({
     user: String,
@@ -97,7 +95,26 @@
 </script>
 
 <style scoped>
-/* Status dot colors handled inline via LucideIcon props */
+.student-name-cell {
+  white-space: nowrap;
+}
+.student-name-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.status-pip {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  flex-shrink: 0;
+}
+.status-pip--active {
+  background: limegreen;
+}
 td.active {
   background: rgba(255, 255, 0, 0.3);;
 }

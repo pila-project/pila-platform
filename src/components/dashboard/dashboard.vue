@@ -54,6 +54,11 @@
 </script>
 
 <style>
+.new-dashboard {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
 .new-dashboard table {
   margin: auto;
   border-collapse: collapse;

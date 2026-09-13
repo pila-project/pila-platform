@@ -1,11 +1,13 @@
 <template>
 	<div class="item-info">
-		<LucideIcon
-			name="check-circle"
-			:size="14"
-			:style="`color: ${iconColor};`"
-		/>
-		<span>{{ timeString }}</span>
+		<template v-if="hasAttempt">
+			<LucideIcon
+				name="check-circle"
+				:size="14"
+				:style="`color: ${iconColor};`"
+			/>
+			<span>{{ timeString }}</span>
+		</template>
 	</div>
 </template>
 
@@ -24,6 +26,11 @@ export default {
 		},
 	},
 	computed: {
+		hasAttempt() {
+			const correct = this.info?.isCorrect
+			const time = Number(this.info?.timeOnTask) || 0
+			return (correct !== null && correct !== undefined) || time > 0
+		},
 		timeString() {
 			if (!this.info.timeOnTask) return "00:00"
 

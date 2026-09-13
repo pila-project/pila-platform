@@ -101,6 +101,8 @@
     position: absolute;
     width: 100%;
     height: 100%;
+    /* clip iframe embeds; OWN .new-dashboard scrolls internally (UIUX-210) */
+    overflow: hidden;
   }
 
 </style>
