@@ -4770,6 +4770,19 @@ export default {
     "sk": "Spravovať študentov v:",
     "th": "จัดการนักเรียนใน:"
   },
+  "upload-csv": {
+    "de": "CSV hochladen",
+    "en": "Upload CSV",
+    "es": "Subir CSV",
+    "fr": "Téléverser un CSV",
+    "km": "ផ្ទុកឡើង CSV",
+    "lv": "Augšupielādēt CSV",
+    "nl": "CSV uploaden",
+    "pl": "Prześlij CSV",
+    "pt": "Carregar CSV",
+    "sk": "Nahrať CSV",
+    "th": "อัปโหลด CSV"
+  },
   "manual-entry": {
     "de": "Manuelle Eingabe",
     "en": "Manual entry",

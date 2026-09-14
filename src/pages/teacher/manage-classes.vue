@@ -833,6 +833,10 @@
         <div class="bulk-entry-container">
           <div class="bulk-entry-toolbar">
             <PButton variant="secondary" size="sm" icon="lucide:plus" :text="t('add-row')" @click="addBulkRow" />
+            <button class="csv-template-link" @click="showBulkEntryModal = false; showCSVUploadModal = true">
+              <LucideIcon name="upload" :size="14" />
+              {{ t('upload-csv') }}
+            </button>
           </div>
           <div class="bulk-entry-table-wrapper">
             <table class="bulk-entry-table">
@@ -885,7 +889,7 @@
         </div>
       </template>
       <template #footer>
-        <PButton variant="secondary" :text="t('back')" @click="showBulkEntryModal = false; showCSVUploadModal = true" />
+        <PButton variant="secondary" :text="t('back')" @click="showBulkEntryModal = false; showAddStudentPicker = true" />
         <div style="flex: 1" />
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showBulkEntryModal = false" />
         <PButton variant="primary" :text="t('create-all-accounts')" :disabled="!validBulkRows" :loading="creatingBulk" @click="handleBulkCreate" />
@@ -2059,7 +2063,7 @@ function handlePickerNext() {
   if (selectedPickerOption.value === 'individual') {
     handleAddStudentIndividual()
   } else if (selectedPickerOption.value === 'bulk') {
-    // UIUX-200: default to bulk manual entry; CSV still reachable via Back
+    // UIUX-200: default to bulk manual entry; CSV via upload-csv link on manual modal (not Back)
     showAddStudentPicker.value = false
     selectedPickerOption.value = null
     showBulkEntryModal.value = true
@@ -3163,7 +3167,9 @@ function openLoginCodesPage(studentIds) {
 }
 .bulk-entry-toolbar {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 16px;
 }
 .bulk-entry-table-wrapper {
   overflow-x: auto;
