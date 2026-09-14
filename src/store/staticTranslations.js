@@ -412,7 +412,7 @@ export default {
         "nl": "Je staat op het punt een “studenten”-account aan te maken op PILA (het Platform voor Innovatieve Leertoetsen). Dit betekent dat u ermee akkoord gaat dat Know Learning, de PILA-ontwikkelaars, gegevens over uw activiteit kan verzamelen en opslaan. U gaat er ook mee akkoord dat sommige activiteitsgegevens kunnen worden verwerkt (maar nooit opgeslagen) door Google Analytics, Google Cloud Platform en OpenAI, om het platform te laten werken. OpenAI zal bijvoorbeeld NOOIT uw antwoorden op vragenlijsten ontvangen.",
         "pl": "Masz zamiar utworzyć konto „ucznia” na PILA (Platforma Innowacyjnych Oceniania Nauki). Oznacza to, że zgadzasz się, aby Know Learning, twórcy PILA, mogli gromadzić i przechowywać dane o Twojej aktywności. Zgadzasz się również, że niektóre dane dotyczące aktywności mogą być przetwarzane (ale nigdy przechowywane) przez Google Analytics, Google Cloud Platform i OpenAI, aby platforma działała poprawnie. Na przykład OpenAI NIGDY nie otrzyma Twoich odpowiedzi na ankiety.",
         "pt": "Você está prestes a criar uma conta de “estudante” no PILA (a Plataforma para Avaliações de Aprendizagem Inovadoras). ​ Isso significa que você concorda que a Know Learning, os desenvolvedores do PILA, podem coletar e armazenar dados sobre sua atividade.​ Você também concorda que alguns dos dados da atividade podem ser processados ​​(mas nunca armazenados) pelo Google Analytics, Google Cloud Platform e OpenAI, para fazer a plataforma funcionar. Por exemplo, a OpenAI NUNCA receberá suas respostas aos questionários.",
-        "sk": "Práve sa prihlasuješ do žiackeho účtu na platforme PILA (Platforma pre hodnotenie inovatívneho vzdelávania). Pri práci na platforme sa budú zaznamenávať niektoré údaje o tom, ako ju používaš:",
+        "sk": "Práve sa prihlasuješ do žiackeho účtu na stránke PILA (internetová aplikácia na podporu učenia sa). Pri práci na platforme sa budú zaznamenávať niektoré údaje o tom, ako ju používaš.",
         "th": "คุณกำลังจะสร้างบัญชี “นักเรียน” บน PILA (แพลตฟอร์มการประเมินการเรียนรู้เชิงนวัตกรรม) ซึ่งหมายความว่าคุณยอมรับว่า Know Learning ผู้พัฒนา PILA สามารถเก็บและจัดเก็บข้อมูลเกี่ยวกับกิจกรรมของคุณได้ นอกจากนี้คุณยังยอมรับว่าข้อมูลบางส่วนของกิจกรรมอาจถูกประมวลผล (แต่จะไม่ถูกจัดเก็บ) โดย Google Analytics, Google Cloud Platform และ OpenAI เพื่อให้แพลตฟอร์มทำงานได้ อย่างเช่น OpenAI จะไม่เคยรับคำตอบของคุณจากแบบสอบถาม"
     },
     "manage-data": {
@@ -1400,7 +1400,7 @@ export default {
         "nl": "alle opgeslagen versies van uw antwoorden/oplossingen, inclusief uw gesprekken met AI-chatbots (indien van toepassing)",
         "pl": "wszystkie zapisane wersje Twoich odpowiedzi/rozwiązań",
         "pt": "todas as versões salvas de suas respostas/soluções, incluindo suas conversas com chatbots de IA (se aplicável)",
-        "sk": "všetky uložené verzie tvojich odpovedí a riešení vrátane tvojich rozhovorov s AI četbotom (ak ho máš k dispozícii).",
+        "sk": "všetky uložené verzie tvojich odpovedí a riešení vrátane tvojich rozhovorov s AI četbotom (ak ho máš k dispozícii)",
         "th": "คำตอบ/วิธีการแก้ปัญหาทั้งหมดของท่านที่ได้ทำการบันทึกไว้"
     },
     "publishing": {
@@ -2037,7 +2037,7 @@ export default {
         "nl": "Know Learning bewaart deze gegevens veilig en deelt deze met niemand buiten de organisatie, behalve met goedgekeurde onderzoekers. Je docent ziet informatie over je voortgang in zijn ‘leraar’-account. Ze zullen uw gesprekken met AI-compatibele chatbots NIET zien. Voer GEEN informatie in de chatbot in waarmee iemand kan identificeren wie u bent, zoals uw naam of locatie. Jouw leraar is de enige die kan zien wie je bent. Als je het niet eens bent met wat hier geschreven staat, neem dan contact op met je docent en maak GEEN studentenaccount aan op PILA.",
         "pl": "Know Learning będzie przechowywać te dane w bezpieczny sposób i nie udostępnia ich nikomu na zewnątrz, z wyjątkiem zatwierdzonych badaczy. Twój nauczyciel zobaczy niektóre informacje o Twoich postępach w swoim koncie „nauczyciela”. NIE będzie widział Twoich rozmów z chatbotami obsługiwanymi przez AI. Proszę NIE wprowadzać do chatbota żadnych informacji, które mogłyby pomóc komuś zidentyfikować Twoją osobę, takich jak imię lub lokalizacja. Tylko Twój nauczyciel będzie mógł zobaczyć, kim jesteś. Jeśli nie zgadzasz się z czymkolwiek, co tu napisano, porozmawiaj ze swoim nauczycielem i NIE twórz konta ucznia na PILA.",
         "pt": "A Know Learning manterá esses dados seguros e não os compartilhará com ninguém de fora, exceto pesquisadores aprovados. Seu professor verá algumas informações sobre seu progresso na conta de “professor”. Eles NÃO verão suas conversas com chatbots habilitados para IA. NÃO insira no chatbot nenhuma informação que possa ajudar alguém a identificar quem você é, como seu nome ou localização. Seu professor é o único que poderá ver quem você é. Se você não concorda com nada escrito aqui, fale com seu professor e NÃO crie uma conta de estudante no PILA.",
-        "sk": "Spoločnosť Know Learning, ktorá je vývojárom platformy PILA, bude tieto údaje uchovávať v bezpečí a nebude ich zdieľať s nikým ďalším, okrem výskumníkov zapojených do projektu z Ministerstva školstva (MŠVVaM SR) a Organizácie pre hospodársku spoluprácu a rozvoj (OECD). Aby platforma správne fungovala, dáta o tvojej aktivite tiež môžu byť spracované (ale nie ukladané) prostredníctvom platformy Google Cloud a OpenAI. OpenAI napríklad nikdy nedostane tvoje odpovede z dotazníkov.\n\nTvoj/a učiteľ/ka uvidí niektoré informácie o tvojom pokroku v jednotlivých cvičeniach vo svojom učiteľskom účte.\n\nAk máš AI četbota, učiteľ/ka neuvidí tvoje konverzácie s AI četbotom. Prosím, NEVKLADAJ do četbota žiadne informácie, ktoré by niekomu pomohli identifikovať, kto si – ako napríklad tvoje meno alebo polohu. V platforme PILA tvoje meno vidí iba tvoj/a učiteľ/ka a vie priradiť tvoj prístupový kód k tebe.\n\nAk niečomu v tomto texte nerozumieš alebo ti niečo nie je príjemné, povedz to učiteľovi/učiteľke skôr, ako začneš platformu používať.",
+        "sk": "Spoločnosť Know Learning, ktorá aplikáciu vytvorila a spravuje, bude tieto údaje uchovávať v bezpečí a bude ich zdieľať len s výskumníkmi z Ministerstva školstva a Organizácie pre hospodársku spoluprácu a rozvoj.\n\nTvoj/a učiteľ/ka uvidí ako sa ti darí v jednotlivých cvičeniach vo svojom učiteľskom účte.\n\nAk más AI četbota, učiteľ/ka neuvidí tvoje konverzácie s AI četbotom. Prosím, NEVKLADAJ do četbota žiadne informácie o tom ako sa voláš, kde bývaš alebo kam chodíš do školy. V platforme PILA tvoje meno vidí iba tvoj/a učiteľ/ka.\n\nAk niečomu v tomto texte nerozumieš alebo ti niečo nie je príjemné, povedz to učiteľke/učiteľovi skôr, ako začneš aplikáciu používať.\n\n(Vstúpiť)",
         "th": "Know Learning จะเก็บข้อมูลนี้อย่างปลอดภัยและจะไม่แชร์กับใครภายนอก ยกเว้นนักวิจัยที่ได้รับอนุมัติ ครูของคุณจะเห็นข้อมูลบางอย่างเกี่ยวกับความก้าวหน้าของคุณในบัญชี “ครู” ของพวกเขา แต่พวกเขาจะไม่เห็นการสนทนาของคุณกับแชทบอทที่ใช้ AI โปรดอย่าใส่ข้อมูลใดๆ ลงในแชทบอทที่อาจช่วยให้ใครบางคนระบุตัวตนของคุณ เช่น ชื่อหรือที่อยู่ ครูของคุณเท่านั้นที่จะสามารถเห็นว่าคุณเป็นใคร หากคุณไม่เห็นด้วยกับสิ่งใดที่เขียนไว้ที่นี่ โปรดปรึกษาครูของคุณและอย่าสร้างบัญชีผู้เรียนบน PILA"
     },
     "num-logins": {
@@ -3610,7 +3610,7 @@ export default {
         "nl": "uw klikken",
         "pl": "Twoje kliknięcia",
         "pt": "seus cliques",
-        "sk": "tvoje kliknutia",
+        "sk": "kam klikáš",
         "th": "การคลิกของท่าน"
     },
     "reports": {
@@ -3792,7 +3792,7 @@ export default {
         "nl": "informatie over uw scherm en apparaat",
         "pl": "informacje o ekranie i urządzeniu",
         "pt": "informações sobre sua tela e dispositivo",
-        "sk": "kam klikáš",
+        "sk": "",
         "th": "ข้อมูลเกี่ยวกับหน้าจอและอุปกรณ์ของท่าน"
     },
     "researcher": {
