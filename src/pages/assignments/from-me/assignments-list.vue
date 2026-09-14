@@ -458,6 +458,7 @@
   import CandliDashboard from './candli-dashboard.vue'
   import GenAIDashboard from './gen-ai-dashboard.vue'
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
+  import { formatDateForDisplay } from '@/utils/iso-date.js'
   import { candliGamesForSequenceItems } from '@/candli-games.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import {
@@ -1013,7 +1014,11 @@
 
   function formatDate(ts) {
     if (!ts) return '--'
+    // Display locale (Thai BE year); stored due dates remain Gregorian ISO.
+    const formatted = formatDateForDisplay(ts, store.getters.language?.() || store.state.language || 'en')
+    if (formatted) return formatted
     const d = new Date(ts)
+    if (Number.isNaN(d.getTime())) return '--'
     return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   }
 

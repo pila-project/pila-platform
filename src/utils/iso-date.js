@@ -30,3 +30,34 @@ export function parseIsoDate(value) {
   }
   return date
 }
+
+/**
+ * Locale for *display* only. Thai uses Buddhist Era years in the UI;
+ * model values and ISO saves stay Gregorian (see toIsoDateString / parseIsoDate).
+ */
+export function dateDisplayLocale(lang) {
+  const short = String(lang || 'en').split(/[-_]/)[0].toLowerCase() || 'en'
+  if (short === 'th') return 'th-TH-u-ca-buddhist'
+  return short
+}
+
+/** Format a Gregorian Date or YYYY-MM-DD for UI (BE years when lang is Thai). */
+export function formatDateForDisplay(value, lang) {
+  let date = null
+  if (value instanceof Date) {
+    date = Number.isNaN(value.getTime()) ? null : value
+  } else if (typeof value === 'string') {
+    date = parseIsoDate(value)
+    if (!date) {
+      const parsed = new Date(value)
+      date = Number.isNaN(parsed.getTime()) ? null : parsed
+    }
+  }
+  if (!date) return ''
+  return date.toLocaleDateString(dateDisplayLocale(lang), {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+

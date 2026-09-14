@@ -74,6 +74,7 @@
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
+import { dateDisplayLocale } from '@/utils/iso-date.js'
 
 const props = defineProps({
   modelValue: {
@@ -98,7 +99,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const store = useStore()
-const dateLocale = computed(() => String(store.state.language || 'en').split(/[-_]/)[0] || 'en')
+const dateLocale = computed(() => dateDisplayLocale(store.state.language || 'en'))
 
 const weekdays = computed(() => {
   const formatter = new Intl.DateTimeFormat(dateLocale.value, { weekday: 'short' })

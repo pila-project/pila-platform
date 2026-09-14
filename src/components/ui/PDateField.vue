@@ -46,7 +46,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import PDatePicker from './PDatePicker.vue'
-import { parseIsoDate, toIsoDateString } from '@/utils/iso-date.js'
+import { parseIsoDate, toIsoDateString, formatDateForDisplay } from '@/utils/iso-date.js'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -84,8 +84,8 @@ const minDate = computed(() => {
 const displayValue = computed(() => {
   const date = parsed.value
   if (!date) return ''
-  const lang = String(store.state.language || 'en').split(/[-_]/)[0]
-  return date.toLocaleDateString(lang, { year: 'numeric', month: 'short', day: 'numeric' })
+  // Display may use Buddhist Era for Thai; modelValue stays Gregorian ISO.
+  return formatDateForDisplay(date, store.state.language || 'en')
 })
 
 function startOfToday() {
