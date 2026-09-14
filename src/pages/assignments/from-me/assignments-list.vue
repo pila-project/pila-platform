@@ -966,9 +966,12 @@
     return t('not-set')
   }
 
+  // UIUX-214: column is "Publication date" — only real publishedAt.
+  // scheduledDate is intended future publish (shown via getScheduledSubline for Scheduled).
+  // Do not fall back to scheduledDate (misleading for drafts / not-yet-published).
   function publicationDateValue(id) {
     const data = assignmentData[id]
-    return data?.publishedAt || data?.scheduledDate || null
+    return data?.publishedAt || null
   }
 
   function publicationDateSortValue(id) {
@@ -979,7 +982,7 @@
   function getPublicationDate(id) {
     const value = publicationDateValue(id)
     if (value) return formatDate(value)
-    return t('not-set')
+    return '-'
   }
 
   function canViewSubmissions(id) {
