@@ -179,6 +179,7 @@ function labelFor(value) {
 // Register with parent
 const selectedLabels = computed(() =>
   props.modelValue.map(val => ({
+    value: val,
     valueLabel: labelFor(val),
     remove: () => removeValue(val),
   }))

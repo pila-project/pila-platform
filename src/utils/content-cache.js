@@ -1,7 +1,8 @@
 import { ref } from 'vue'
-import getName from './name-and-translation-for-content.js'
+import getName, { localizedNameFromValue } from './name-and-translation-for-content.js'
 import getImageFromContent from './image-ref-for-content.js'
 import { localCache } from './local-cache.js'
+import { getHardcodedTagTranslation } from './tag-name-translations.js'
 
 /** Disk cache TTL for explore lists, metadata maps, and image blobs. */
 const CONTENT_CACHE_TTL = 60 * 60 * 1000 // 1 hour
@@ -71,6 +72,8 @@ function dedupedFetch(key, fetchFn) {
 export const nameCacheVersion = ref(0)
 /** Bumped when metadata created/updated changes so Explore sorts can recompute. */
 export const metadataCacheVersion = ref(0)
+/** Bumped when tagNameCache entries change so Explore filters/pills recompute. */
+export const tagNameCacheVersion = ref(0)
 
 function bumpNameCacheVersion() {
   nameCacheVersion.value++
@@ -78,6 +81,15 @@ function bumpNameCacheVersion() {
 
 function bumpMetadataCacheVersion() {
   metadataCacheVersion.value++
+}
+
+function bumpTagNameCacheVersion() {
+  tagNameCacheVersion.value++
+}
+
+function isEnglishLang(lang) {
+  const short = String(lang || 'en').split(/[-_]/)[0].toLowerCase()
+  return !short || short === 'en'
 }
 
 export function nameCacheKey(id, lang) {
@@ -234,27 +246,103 @@ export function getContentTags(id, partition, leafToCategory) {
   })
 }
 
-export function getTagName(tagId) {
-  if (tagNameCache.has(tagId)) return Promise.resolve(tagNameCache.get(tagId))
-  return dedupedFetch(`tagname:${tagId}`, async () => {
-    try {
-      const { name } = await Agent.state(tagId)
-      const resolved = name || tagId.slice(0, 8)
-      tagNameCache.set(tagId, resolved)
-      return resolved
-    } catch {
-      tagNameCache.set(tagId, tagId.slice(0, 8))
-      return tagId.slice(0, 8)
+export function tagNameCacheKey(id, lang) {
+  return `${id}:${lang || 'en'}`
+}
+
+/** Sync read: lang-keyed tag name, with legacy bare-id fallback (old IndexedDB). */
+export function getCachedTagName(id, lang) {
+  if (!id) return null
+  return tagNameCache.get(tagNameCacheKey(id, lang)) ?? tagNameCache.get(id) ?? null
+}
+
+export function setCachedTagName(id, name, lang) {
+  if (!id || !name) return
+  tagNameCache.set(tagNameCacheKey(id, lang), name)
+  bumpTagNameCacheVersion()
+}
+
+function cacheResolvedTagName(id, name, lang, { canonical = false } = {}) {
+  if (!id || !name) return name
+  tagNameCache.set(tagNameCacheKey(id, lang), name)
+  // Bare id is English/canonical only — never store a translated string there.
+  if (canonical || isEnglishLang(lang)) {
+    tagNameCache.set(id, name)
+  }
+  bumpTagNameCacheVersion()
+  return name
+}
+
+async function resolveTagDisplayName(tagId, lang) {
+  const hardcoded = getHardcodedTagTranslation(tagId, lang)
+  if (hardcoded) return { name: hardcoded, canonical: false }
+
+  let stateName
+  try {
+    const state = await Agent.state(tagId)
+    stateName = state?.name
+  } catch {
+    stateName = undefined
+  }
+
+  if (stateName && typeof stateName === 'object' && !Array.isArray(stateName)) {
+    const exact = localizedNameFromValue(stateName, lang, { requireExact: true })
+    if (exact) return { name: exact, canonical: isEnglishLang(lang) }
+  }
+
+  try {
+    const translations = await Agent.query(
+      'translate-item',
+      [tagId, [lang]],
+      'translations.pilaproject.org',
+    )
+    const list = Array.isArray(translations) ? translations : []
+    const nameTranslation = list.find(t => (
+      !t.is_fallback && t.path?.length === 2 && t.path[1] === 'name'
+    ))
+    if (nameTranslation?.value) {
+      return { name: String(nameTranslation.value), canonical: isEnglishLang(lang) }
     }
+  } catch {
+    // fall through to canonical/English
+  }
+
+  const fallback = localizedNameFromValue(stateName, lang) || tagId.slice(0, 8)
+  return { name: fallback, canonical: true }
+}
+
+export function getTagName(tagId, lang) {
+  if (!tagId) return Promise.resolve('')
+  const key = tagNameCacheKey(tagId, lang)
+  if (tagNameCache.has(key)) return Promise.resolve(tagNameCache.get(key))
+  return dedupedFetch(`tagname:${key}`, async () => {
+    if (tagNameCache.has(key)) return tagNameCache.get(key)
+    const { name, canonical } = await resolveTagDisplayName(tagId, lang || 'en')
+    const resolved = name || tagId.slice(0, 8)
+    return cacheResolvedTagName(tagId, resolved, lang, { canonical })
   })
+}
+
+export async function prefetchTagNames(lang) {
+  const hierarchy = tagHierarchyData
+  if (!hierarchy?.categories?.length) return
+  const ids = []
+  for (const cat of hierarchy.categories) {
+    ids.push(cat.id)
+    if (Array.isArray(cat.leafIds)) ids.push(...cat.leafIds)
+  }
+  await Promise.allSettled(ids.map(id => getTagName(id, lang)))
 }
 
 // ── Tag hierarchy ──
 
-export async function loadTagHierarchy(partition, roots) {
+export async function loadTagHierarchy(partition, roots, lang) {
   const rootList = (Array.isArray(roots) ? roots : [roots]).filter(Boolean)
   const cacheKey = `${partition || ''}:${rootList.join(',')}`
-  if (tagHierarchyData?.cacheKey === cacheKey) return tagHierarchyData
+  if (tagHierarchyData?.cacheKey === cacheKey) {
+    await prefetchTagNames(lang)
+    return tagHierarchyData
+  }
 
   const categories = []
   const leafToCategory = new Map()
@@ -266,26 +354,22 @@ export async function loadTagHierarchy(partition, roots) {
 
     for (const cat of cats) {
       const catId = cat.target
-      const catName = await getTagName(catId)
+      // Category .name stays English/canonical for grade-filter detection.
+      const catName = await getTagName(catId, 'en')
 
       const leaves = await Agent.query(
         'taggings-targeting-tags', [partition, catId], 'tags.knowlearning.systems'
       ).catch(() => [])
 
       const leafIds = leaves.map(l => l.target)
-
-      await Promise.allSettled(
-        leafIds.map(async (leafId) => {
-          leafToCategory.set(leafId, catId)
-          await getTagName(leafId)
-        })
-      )
+      for (const leafId of leafIds) leafToCategory.set(leafId, catId)
 
       categories.push({ id: catId, name: catName, leafIds, rootId })
     }
   }
 
   tagHierarchyData = { cacheKey, categories, leafToCategory }
+  await prefetchTagNames(lang)
   return tagHierarchyData
 }
 
@@ -335,7 +419,10 @@ function applyMapsToMemory(maps) {
   }
   if (maps.tags) for (const [k, v] of maps.tags) tagCache.set(k, v)
   if (maps.images) for (const [k, v] of maps.images) imageCache.set(k, v)
-  if (maps.tagNames) for (const [k, v] of maps.tagNames) tagNameCache.set(k, v)
+  if (maps.tagNames) {
+    for (const [k, v] of maps.tagNames) tagNameCache.set(k, v)
+    bumpTagNameCacheVersion()
+  }
 }
 
 /** @deprecated use loadExploreCache */
@@ -448,6 +535,7 @@ export function invalidateAll() {
   tagCache.clear()
   imageCache.clear()
   tagNameCache.clear()
+  bumpTagNameCacheVersion()
   previewMetaCache.clear()
   tagHierarchyData = null
 }

@@ -2,9 +2,11 @@ import { ref, reactive, computed, watch } from 'vue'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
 import { beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
+import { GRADE_CATEGORY_IDS } from '@/utils/tag-name-translations.js'
 import {
   nameCacheVersion, getCachedContentName,
-  tagCache, tagNameCache,
+  tagCache, tagNameCacheVersion,
+  getCachedTagName, prefetchTagNames,
   loadTagHierarchy, getCachedTagHierarchy,
   prefetchBatch, loadExploreCache, persistExploreCache,
   restoreTagHierarchyFromCache, invalidateAll,
@@ -51,8 +53,10 @@ function categoriesEqual(a, b) {
   return a.every((c, i) => c.id === b[i].id)
 }
 
-function isGradeFilterCategory(label) {
-  const name = String(label || '').trim().toLowerCase()
+function isGradeFilterCategory(cat) {
+  if (!cat) return false
+  if (cat.id && GRADE_CATEGORY_IDS.has(cat.id)) return true
+  const name = String(cat.name || '').trim().toLowerCase()
   return name === 'grade' || name === 'minimum grade'
 }
 
@@ -79,12 +83,12 @@ function contentCountsForCategory(categoryId) {
   return counts
 }
 
-function gradeTagOptions(cat) {
+function gradeTagOptions(cat, lang) {
   const counts = contentCountsForCategory(cat.id)
   return (cat.leafIds || [])
     .map(leafId => ({
       value: leafId,
-      label: tagNameCache.get(leafId) || leafId.slice(0, 8),
+      label: getCachedTagName(leafId, lang) || leafId.slice(0, 8),
       count: counts[leafId] || 0,
     }))
     .sort((a, b) => {
@@ -187,24 +191,26 @@ export function useContentLibrary(store) {
   // ── Filter definitions from tag hierarchy ──
   const filterDefinitions = computed(() => {
     void tagIndexVersion.value
+    void tagNameCacheVersion.value
+    const lang = store.getters.language()
     return tagCategories.value.map(cat => {
-      const label = tagNameCache.get(cat.id) || cat.name
+      const label = getCachedTagName(cat.id, lang) || cat.name
       return {
         key: cat.id,
         label,
-        options: (isGradeFilterCategory(label) || isGradeFilterCategory(cat.name))
-          ? gradeTagOptions(cat)
-          : uniqueTagValues(cat.id),
+        options: isGradeFilterCategory(cat)
+          ? gradeTagOptions(cat, lang)
+          : uniqueTagValues(cat.id, lang),
       }
     })
   })
 
-  function uniqueTagValues(categoryId) {
+  function uniqueTagValues(categoryId, lang) {
     const counts = contentCountsForCategory(categoryId)
     return Object.entries(counts)
       .map(([leafId, count]) => ({
         value: leafId,
-        label: tagNameCache.get(leafId) || leafId.slice(0, 8),
+        label: getCachedTagName(leafId, lang) || leafId.slice(0, 8),
         count,
       }))
       .sort((a, b) => a.label.localeCompare(b.label))
@@ -263,11 +269,14 @@ export function useContentLibrary(store) {
 
   // ── Helpers ──
   function getItemTagLabels(id) {
+    void tagIndexVersion.value
+    void tagNameCacheVersion.value
+    const lang = store.getters.language()
     const tags = tagCache.get(id) || {}
     const labels = []
     for (const leafIds of Object.values(tags)) {
       for (const leafId of leafIds) {
-        const name = tagNameCache.get(leafId)
+        const name = getCachedTagName(leafId, lang)
         if (name) labels.push(name)
       }
     }
@@ -328,13 +337,16 @@ export function useContentLibrary(store) {
 
       if (usedCache) beginRevalidation()
 
-      const hierarchy = await loadTagHierarchy(taxonomy.partition, taxonomy.roots)
+      const lang = store.getters.language()
+      const hierarchy = await loadTagHierarchy(taxonomy.partition, taxonomy.roots, lang)
       const [pilaContent, myContentResult] = await Promise.all([
         Agent.query('taggings-for-tag', [catalogPartition, PILA_TAG], 'tags.knowlearning.systems').catch(() => []),
         Agent.query('taggings-for-tag', [userId, MY_CONTENT_TAG], 'tags.knowlearning.systems').catch(() => []),
       ])
 
       applyFreshExploreData(pilaContent, myContentResult, hierarchy)
+      await prefetchTagNames(lang)
+      notifyTagIndexUpdated()
       initFilters()
       _loaded.value = true
       syncExploreLoading()
@@ -357,7 +369,7 @@ export function useContentLibrary(store) {
         }
       }
 
-      const prefetch = prefetchBatch(allIds, store.getters.language(), taxonomy.partition, leafToCategory)
+      const prefetch = prefetchBatch(allIds, lang, taxonomy.partition, leafToCategory)
       if (usedCache) {
         prefetch.then(persistAfterPrefetch).catch(() => {})
       } else {

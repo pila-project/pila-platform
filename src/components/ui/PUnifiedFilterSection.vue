@@ -65,6 +65,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const { registerSection, unregisterSection, expandedSection, setExpanded } = inject('unifiedFilter')
+const sectionLabel = computed(() => props.label)
 
 const internalQuery = ref('')
 const sectionSearchRef = ref(null)
@@ -107,6 +108,7 @@ function labelFor(value) {
 // Register with parent
 const selectedLabels = computed(() =>
   props.modelValue.map(val => ({
+    value: val,
     valueLabel: labelFor(val),
     remove: () => removeValue(val),
   }))
@@ -114,7 +116,7 @@ const selectedLabels = computed(() =>
 
 onMounted(() => {
   registerSection(props.id, {
-    label: props.label,
+    label: sectionLabel,
     icon: props.icon,
     selectedLabels,
     clearFn: () => emit('update:modelValue', []),

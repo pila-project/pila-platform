@@ -69,6 +69,7 @@ function clearValue() {
 const selectedLabels = computed(() => {
   if (!hasValue.value) return []
   return [{
+    value: formattedRange.value,
     valueLabel: formattedRange.value,
     remove: clearValue,
   }]

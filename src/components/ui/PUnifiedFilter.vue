@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, computed, provide, reactive, shallowReactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, unref, provide, reactive, shallowReactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import LucideIcon from './LucideIcon.vue'
 import { useDebounce } from '@/utils/useDebounce'
 
@@ -153,8 +153,8 @@ const allChips = computed(() => {
     if (meta.selectedLabels && meta.selectedLabels.value) {
       for (const item of meta.selectedLabels.value) {
         chips.push({
-          id: `${id}-${item.valueLabel}`,
-          sectionLabel: meta.label,
+          id: `${id}-${item.value ?? item.valueLabel}`,
+          sectionLabel: unref(meta.label),
           valueLabel: item.valueLabel,
           remove: item.remove,
         })
