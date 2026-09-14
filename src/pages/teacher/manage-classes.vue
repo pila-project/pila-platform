@@ -2227,7 +2227,8 @@ function formatBulkCreateResultMessage(created, skipped) {
 
 function parseCSVStudentRows(lines) {
   const header = lines[0].toLowerCase()
-  const hasHeader = header.includes('name')
+  const localizedName = String(t('name') || '').toLowerCase()
+  const hasHeader = header.includes('name') || (localizedName && header.includes(localizedName))
   const dataLines = hasHeader ? lines.slice(1) : lines
   const candidateRows = []
   let invalidSkipped = 0
@@ -2375,7 +2376,7 @@ async function handleBulkCreate() {
 }
 
 function downloadCSVTemplate() {
-  const csv = 'Name,Nickname,Grade\n'
+  const csv = `${t('name')},${t('nickname')},${t('grade')}\n`
   const blob = new Blob([csv], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
