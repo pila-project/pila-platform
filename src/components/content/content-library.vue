@@ -1654,8 +1654,8 @@
 }
 
 .sequences-filter {
-  min-width: 0;
-  flex: 1;
+  min-width: 120px;
+  flex: 1 1 auto;
 }
 
 .sequences-toolbar {
@@ -1670,13 +1670,17 @@
 }
 
 .content-sort {
-  width: 200px;
-  flex-shrink: 0;
+  flex: 0 1 160px;
+  width: 160px;
+  max-width: 160px;
+  min-width: 0;
 }
 
 @media (max-width: 767px) {
   .content-sort {
     width: 100%;
+    max-width: none;
+    flex: 0 0 auto;
   }
 }
 
@@ -1686,7 +1690,10 @@
 }
 
 .explore-columns--sequences-expanded .sequences-sort {
-  width: 200px;
+  flex: 0 1 160px;
+  width: 160px;
+  max-width: 160px;
+  min-width: 0;
 }
 
 .content-lib-header {

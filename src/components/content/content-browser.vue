@@ -256,8 +256,8 @@ defineExpose({
 }
 
 .cb-toolbar :deep(.unified-filter) {
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 auto;
+  min-width: 160px;
 }
 
 .cb-tabs-group {
@@ -300,6 +300,10 @@ defineExpose({
   }
   .cb-toolbar-filters {
     flex-direction: column;
+  }
+  .cb-toolbar :deep(.unified-filter) {
+    min-width: 0;
+    width: 100%;
   }
   .cb-grid {
     grid-template-columns: minmax(0, 1fr);

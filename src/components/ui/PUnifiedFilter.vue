@@ -174,11 +174,19 @@ function updateAnchorRect() {
 const dropdownStyle = computed(() => {
   if (!anchorRect.value) return {}
   const r = anchorRect.value
+  const pad = 8
+  const minComfortableWidth = 260
+  const maxWidth = Math.max(0, window.innerWidth - pad * 2)
+  const width = Math.min(Math.max(r.width, minComfortableWidth), maxWidth)
+  const left = Math.min(
+    Math.max(pad, r.left),
+    Math.max(pad, window.innerWidth - width - pad),
+  )
   return {
     position: 'fixed',
     top: `${r.bottom + 4}px`,
-    left: `${r.left}px`,
-    width: `${r.width}px`,
+    left: `${left}px`,
+    width: `${width}px`,
     zIndex: 9999,
   }
 })
@@ -504,8 +512,8 @@ provide('unifiedFilter', {
 }
 
 .unified-filter-input {
-  flex: 1 0 80px;
-  min-width: 80px;
+  flex: 1 0 112px;
+  min-width: 112px;
   border: none;
   outline: none;
   font-size: 13px;

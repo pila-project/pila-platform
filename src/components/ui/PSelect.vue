@@ -1,5 +1,5 @@
 <template>
-  <div class="relative" ref="rootRef">
+  <div class="relative pselect" ref="rootRef">
     <label v-if="label" :id="labelId" class="label">
       {{ label }} <span v-if="required" class="required-marker">*{{ t('required') }}</span>
     </label>
@@ -16,7 +16,7 @@
       :aria-labelledby="label ? labelId : undefined"
       @click="toggle"
     >
-      <span :class="{ 'pselect-placeholder': !selectedTitle }">{{ selectedTitle || placeholder }}</span>
+      <span class="pselect-trigger-label" :class="{ 'pselect-placeholder': !selectedTitle }">{{ selectedTitle || placeholder }}</span>
     </button>
     <LucideIcon name="chevron-down" :size="16" class="select-chevron" />
     <p v-if="error" class="mt-1 text-xs text-danger-600">{{ error }}</p>
@@ -125,7 +125,9 @@ function updateDropdownPosition() {
   const openUp = spaceBelow < Math.min(preferred, 160) && spaceAbove > spaceBelow
   const available = openUp ? spaceAbove : spaceBelow
   const maxHeight = Math.max(96, Math.min(preferred, available))
-  const width = rect.width
+  const minComfortableWidth = 176
+  const maxWidth = Math.max(0, window.innerWidth - pad * 2)
+  const width = Math.min(Math.max(rect.width, minComfortableWidth), maxWidth)
   const left = Math.min(
     Math.max(pad, rect.left),
     Math.max(pad, window.innerWidth - width - pad),
@@ -191,6 +193,9 @@ onBeforeUnmount(() => {
   font-size: 12px;
   font-weight: 400;
 }
+.pselect {
+  min-width: 0;
+}
 .select-chevron {
   position: absolute;
   right: 1rem;
@@ -202,6 +207,14 @@ onBeforeUnmount(() => {
   text-align: left;
   display: flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
+}
+.pselect-trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .pselect-placeholder {
   color: #94a3b8;
