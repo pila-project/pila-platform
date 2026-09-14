@@ -3792,7 +3792,7 @@ export default {
         "nl": "informatie over uw scherm en apparaat",
         "pl": "informacje o ekranie i urządzeniu",
         "pt": "informações sobre sua tela e dispositivo",
-        "sk": "",
+        "sk": "informácie o tvojej obrazovke a zariadení",
         "th": "ข้อมูลเกี่ยวกับหน้าจอและอุปกรณ์ของท่าน"
     },
     "researcher": {
