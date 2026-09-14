@@ -5,7 +5,6 @@
         v-if="step !== 'assignment-success'"
         :title="headerTitle"
         :subtitle="headerSubtitle"
-        @close="$emit('close')"
       />
     </template>
 

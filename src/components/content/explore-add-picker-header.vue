@@ -7,32 +7,16 @@
       </div>
       <p v-if="subtitle" class="eap-subtitle">{{ subtitle }}</p>
     </div>
-    <PButton
-      variant="icon"
-      size="sm"
-      icon="lucide:x"
-      iconOnly
-      class="eap-close"
-      :aria-label="t('close')"
-      @click="$emit('close')"
-    />
   </div>
 </template>
 
 <script setup>
-import { useStore } from 'vuex'
-import PButton from '@/components/ui/PButton.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
-
-const store = useStore()
-function t(slug) { return store.getters.t(slug) }
 
 defineProps({
   title: { type: String, required: true },
   subtitle: { type: String, default: '' },
 })
-
-defineEmits(['close'])
 </script>
 
 <style scoped>
@@ -75,9 +59,5 @@ defineEmits(['close'])
   font-size: 12px;
   line-height: 16px;
   color: #334155;
-}
-
-.eap-close {
-  flex-shrink: 0;
 }
 </style>
