@@ -2718,7 +2718,7 @@ export default {
   },
   "csv-required-columns": {
     "de": "Erforderliche CSV-Spalten",
-    "en": "Required columns for CSV upload: Name, Nickname, Grade",
+    "en": "Required columns for CSV upload",
     "es": "Columnas obligatorias CSV",
     "fr": "Colonnes CSV obligatoires",
     "km": "ជួរឈរ CSV ដែលត្រូវការ",

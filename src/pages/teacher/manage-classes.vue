@@ -804,7 +804,7 @@
           </div>
           <div class="csv-info-text">
             <LucideIcon name="info" :size="14" />
-            <span>{{ t('csv-required-columns') }}: Name ({{ t('required') }}), Nickname, Grade ({{ t('required') }})</span>
+            <span>{{ t('csv-required-columns') }}: {{ t('name') }} ({{ t('required') }}), {{ t('nickname') }}, {{ t('grade') }} ({{ t('required') }})</span>
           </div>
         </div>
       </template>
