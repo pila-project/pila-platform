@@ -2674,9 +2674,13 @@ function openLoginCodesPage(studentIds) {
   flex: 1 1 160px;
 }
 
-.table-row-archived {
+/* UIUX-204: pierce into PTable rows; shared rule also in layers.css */
+:deep(.table-row-archived) {
   opacity: 0.85;
   background: #fffbeb;
+}
+:deep(.table-row-archived:hover) {
+  background: #fef3c7;
 }
 
 .selected-group-chips {
