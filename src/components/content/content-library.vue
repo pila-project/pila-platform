@@ -1640,6 +1640,8 @@
   display: flex;
   flex-direction: column;
   align-self: stretch;
+  container-type: inline-size;
+  container-name: explore-library;
 }
 
 .content-library-card .content-lib-header {
@@ -1681,6 +1683,44 @@
     width: 100%;
     max-width: none;
     flex: 0 0 auto;
+  }
+}
+
+/*
+ * UIUX-228: Explore library pane is 340px when My sequences is expanded.
+ * Viewport ≤767 stacking never fires on desktop, so d1a4146 shrink still
+ * crams search + sort + Show tabs onto one overflowing row.
+ * Container query is Explore-scoped (this card only) — full-width Explore
+ * stays a single row. At ≤560px: 2 rows (search/sort, then tabs). When
+ * search+sort no longer fit side-by-side (~340px), they wrap to 3 rows.
+ * Selectors are descendants of the container (.content-library-card).
+ */
+@container explore-library (max-width: 560px) {
+  :deep(.cb-toolbar) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  :deep(.cb-toolbar-filters) {
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: stretch;
+  }
+  :deep(.cb-toolbar .unified-filter) {
+    flex: 1 1 180px;
+    min-width: 0;
+    width: auto;
+  }
+  .content-sort {
+    flex: 1 1 160px;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+  }
+  :deep(.cb-tabs-group) {
+    width: 100%;
+    min-width: 0;
+    flex-shrink: 1;
   }
 }
 
