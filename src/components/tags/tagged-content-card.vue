@@ -476,7 +476,8 @@
     if (isSequenceContent()) {
       event.dataTransfer.setData(SEQUENCE_DRAG_MIME, props.id)
     }
-    event.dataTransfer.effectAllowed = 'move'
+    // UIUX-222: copyMove so sequence targets may set dropEffect=copy (move-only never fires drop).
+    event.dataTransfer.effectAllowed = 'copyMove'
   }
 
   function onCardDragStart(event) {
