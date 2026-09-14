@@ -50,6 +50,35 @@ export function isSequenceDrag(dataTransfer) {
 }
 
 /**
+ * Sync partition for UI counts (same nesting rules as partitionSequenceMemberIds).
+ * Rejects known sequence ids and ids for which isSequence(id) is true.
+ * Fail-open when type is unknown — no fetches, no behaviour change at write time.
+ *
+ * @param {string[]} itemIds
+ * @param {{ knownSequenceIds?: Set<string>|string[], isSequence?: (id: string) => boolean }} [opts]
+ * @returns {{ allowed: string[], rejectedSequences: string[] }}
+ */
+export function partitionKnownSequenceMemberIds(itemIds, opts = {}) {
+  const known = toIdSet(opts.knownSequenceIds)
+  const isSequence = opts.isSequence
+  const allowed = []
+  const rejectedSequences = []
+  const seen = new Set()
+
+  for (const id of itemIds || []) {
+    if (!id || seen.has(id)) continue
+    seen.add(id)
+    if (known?.has(id) || isSequence?.(id)) {
+      rejectedSequences.push(id)
+      continue
+    }
+    allowed.push(id)
+  }
+
+  return { allowed, rejectedSequences }
+}
+
+/**
  * Split candidate member ids into leaf content vs sequences (UIUX-113).
  * Uses optional knownSequenceIds for fast rejects, then metadata active_type.
  * Fail-open for unknown/null metadata (catalog leaves); reject only proven sequences.

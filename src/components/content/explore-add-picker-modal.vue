@@ -294,7 +294,8 @@
             <PButton
               variant="primary"
               :text="t('add-to-sequence')"
-              :disabled="!selectedSequenceId"
+              :disabled="!selectedSequenceId || !!savingSequenceId"
+              :loading="!!savingSequenceId"
               @click="onConfirmSequence"
             />
           </div>
@@ -334,6 +335,7 @@ const props = defineProps({
   itemIds: { type: Array, default: () => [] },
   sequenceIds: { type: Array, default: () => [] },
   savingAssignmentId: { type: String, default: null },
+  savingSequenceId: { type: String, default: null },
   assignmentResult: { type: Object, default: null },
   /** Skip destination choose so sequences cannot take the add-to-sequence path. */
   assignmentOnly: { type: Boolean, default: false },
@@ -528,12 +530,20 @@ async function loadSequenceEntry(id) {
   }
 }
 
+let loadSequencesToken = 0
+
+function sequenceIdsMembershipKey(ids) {
+  if (!ids?.length) return ''
+  return [...ids].sort().join('\n')
+}
+
 async function loadSequences() {
+  const token = ++loadSequencesToken
   sequencesLoading.value = true
   try {
     await Promise.allSettled(props.sequenceIds.map(loadSequenceEntry))
   } finally {
-    sequencesLoading.value = false
+    if (token === loadSequencesToken) sequencesLoading.value = false
   }
 }
 
@@ -610,6 +620,7 @@ function onConfirmAssignment() {
 
 function onConfirmSequence() {
   if (props.assignmentOnly) return
+  if (props.savingSequenceId) return
   if (selectedSequenceId.value) {
     emit('confirm-sequence', selectedSequenceId.value)
   }
@@ -651,6 +662,15 @@ watch(step, (s) => {
     loadPreviewItem()
   }
 })
+
+watch(
+  () => sequenceIdsMembershipKey(props.sequenceIds),
+  (next, prev) => {
+    if (next === prev) return
+    if (step.value !== 'sequence-list') return
+    loadSequences()
+  },
+)
 
 onMounted(() => {
   if (props.assignmentResult) step.value = 'assignment-success'

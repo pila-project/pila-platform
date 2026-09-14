@@ -220,7 +220,7 @@
               v-if="selectedItems.size"
               variant="secondary"
               icon="lucide:plus"
-              :text="t('add-selected') + ' (' + selectedItems.size + ')'"
+              :text="addSelectedButtonLabel"
               @click="addSelectedToSequence"
             />
           </div>
@@ -334,7 +334,7 @@
         variant="primary"
         class="w-full"
         icon="lucide:plus"
-        :text="t('add-selected') + ' (' + selectedItems.size + ')'"
+        :text="addSelectedButtonLabel"
         @click="addSelectedToSequence"
       />
     </div>
@@ -463,6 +463,7 @@
       :item-ids="pendingAddItems"
       :sequence-ids="pickerSequenceIds"
       :saving-assignment-id="assignmentSavingId"
+      :saving-sequence-id="sequenceSavingId"
       :assignment-result="assignmentAddResult"
       :assignment-only="addPickerAssignmentOnly"
       @close="closeAddPicker"
@@ -501,7 +502,7 @@
   import TaggingModal from '@/components/tagging-modal.vue'
   import {
     nameCacheVersion, metadataCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
-    getCachedTagHierarchy, prefetchBatch, invalidateNames,
+    getCachedTagHierarchy, prefetchBatch, invalidateNames, prefetchTagNames,
     getContentMetadata, getContentType, getCachedPreviewMeta, patchPreviewMeta,
     setCachedContentName, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
@@ -511,6 +512,7 @@
     appendItemsToSequence,
     isValidSequenceAgentState,
     partitionSequenceMemberIds,
+    partitionKnownSequenceMemberIds,
     SEQUENCE_DRAG_MIME,
     isSequenceActiveType,
   } from '@/utils/sequence-items.js'
@@ -864,6 +866,7 @@
   const addPickerAssignmentOnly = ref(false)
   const TEACHER_ASSIGNMENT_TAG = 'teacher-created'
   const assignmentSavingId = ref(null)
+  const sequenceSavingId = ref(null)
   const assignmentAddResult = ref(null)
 
   async function addItemsToAssignment(assignmentId, itemIds) {
@@ -1108,6 +1111,7 @@
     pendingAddItems.value = []
     assignmentAddResult.value = null
     assignmentSavingId.value = null
+    sequenceSavingId.value = null
     addPickerAssignmentOnly.value = false
   }
 
@@ -1130,6 +1134,24 @@
   function addSelectedToSequence() {
     openAddPicker([...selectedItems])
   }
+
+  function isCachedSequenceId(id) {
+    return isSequenceActiveType(metadataCache.get(id)?.active_type)
+  }
+
+  const addSelectedButtonLabel = computed(() => {
+    void metadataCacheVersion.value
+    const total = selectedItems.size
+    const { allowed } = partitionKnownSequenceMemberIds([...selectedItems], {
+      knownSequenceIds: mySequenceIdSet.value,
+      isSequence: isCachedSequenceId,
+    })
+    const actionable = allowed.length
+    if (actionable < total) {
+      return `${t('add-selected')} (${actionable} ${t('of')} ${total})`
+    }
+    return `${t('add-selected')} (${total})`
+  })
 
   function navigateToCreateAssignment() {
     const contentIds = [...pendingAddItems.value]
@@ -1173,6 +1195,8 @@
 
   async function addItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {
     if (!sequenceId || !itemIds?.length || archivedSequenceIdSet.value.has(sequenceId)) return
+    if (sequenceSavingId.value) return
+    sequenceSavingId.value = sequenceId
     try {
       const { added, rejectedSequences } = await appendItemsToSequence(sequenceId, itemIds, {
         insertIndex,
@@ -1199,6 +1223,8 @@
     } catch (e) {
       console.error('[Explore] addItemsToSequence failed', sequenceId, e)
       showError(t('something-went-wrong'))
+    } finally {
+      sequenceSavingId.value = null
     }
   }
 
@@ -1345,7 +1371,11 @@
   }
 
   async function loadMySequences({ silent = false } = {}) {
-    if (loading.value && myContent.length === 0) return
+    if (loading.value && myContent.length === 0) {
+      // Wait for my-content; do not leave sequencesLoading stuck true.
+      sequencesLoading.value = false
+      return
+    }
 
     const token = ++loadSequencesToken
     if (!silent && !mySequenceIds.value.length) sequencesLoading.value = true
@@ -1409,15 +1439,22 @@
     }
   }
 
-  // ── Invalidate name cache on language change ──
+  // ── Invalidate content-name cache on language change; fetch tag names for the new lang key ──
   watch(() => store.getters.language(), async (newLang, oldLang) => {
     if (newLang && oldLang && newLang !== oldLang) {
       invalidateNames()
+      notifyTagIndexUpdated()
       const allIds = currentContentList.value
+      const tagNames = prefetchTagNames(newLang)
       if (allIds.length) {
-        await prefetchBatch(allIds, newLang, taxonomy.partition, getCachedTagHierarchy()?.leafToCategory)
-        notifyTagIndexUpdated()
+        await Promise.allSettled([
+          prefetchBatch(allIds, newLang, taxonomy.partition, getCachedTagHierarchy()?.leafToCategory),
+          tagNames,
+        ])
+      } else {
+        await tagNames
       }
+      notifyTagIndexUpdated()
     }
   })
 

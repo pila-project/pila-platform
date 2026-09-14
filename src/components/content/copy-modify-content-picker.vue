@@ -59,6 +59,11 @@ import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
 import { PButton } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { useToast } from '@/utils/useToast.js'
+import { metadataCache, metadataCacheVersion } from '@/utils/content-cache.js'
+import {
+  isSequenceActiveType,
+  partitionKnownSequenceMemberIds,
+} from '@/utils/sequence-items.js'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -89,24 +94,31 @@ function close() {
 }
 
 const pickerNewSelectionCount = computed(() => {
-  let count = 0
+  void metadataCacheVersion.value
+  const newIds = []
   for (const id of cbSelectedItems) {
-    if (!existingIdSet.value.has(id)) count++
+    if (!existingIdSet.value.has(id)) newIds.push(id)
   }
-  return count
+  const { allowed } = partitionKnownSequenceMemberIds(newIds, {
+    isSequence: (id) => isSequenceActiveType(metadataCache.get(id)?.active_type),
+  })
+  return allowed.length
 })
 
 const addSelectedButtonLabel = computed(() => {
   const newCount = pickerNewSelectionCount.value
-  const total = cbSelectedItems.size
+  const selectedTotal = cbSelectedItems.size
   const titleSuffix = props.copyTitle ? ` ${t('to')} "${props.copyTitle}"` : ''
-  if (newCount > 0 && newCount < total) {
+  if (newCount < selectedTotal) {
+    return `${t('add-selected')} (${newCount} ${t('of')} ${selectedTotal})${titleSuffix}`
+  }
+  if (newCount > 0 && props.existingItemIds.length > 0) {
     return `${t('add-selected')} (${newCount} ${t('new')})${titleSuffix}`
   }
   if (newCount > 0) {
     return `${t('add-selected')} (${newCount})${titleSuffix}`
   }
-  return `${t('add-selected')} (${total})${titleSuffix}`
+  return `${t('add-selected')} (${selectedTotal})${titleSuffix}`
 })
 
 function toggleSelection(id) {
