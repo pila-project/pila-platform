@@ -213,16 +213,47 @@ async function loadSequenceItemsState(sequenceId) {
   }
 }
 
-/** Agent.synced() can resolve before the server rejects a patch — verify with a fresh read. */
+/** Bound hung Agent.synced() so Update/delete UI cannot spin forever (UIUX-229). */
+export const SEQUENCE_SYNC_TIMEOUT_MS = 15_000
+
+function withTimeout(promise, ms, message) {
+  let timer
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms)
+  })
+  return Promise.race([
+    Promise.resolve(promise).finally(() => clearTimeout(timer)),
+    timeout,
+  ])
+}
+
+/** Agent.synced() can hang or resolve before the server rejects a patch — timeout + verify. */
 async function syncSequenceMutation(sequenceId) {
-  await Agent.synced()
   try {
-    const state = await Agent.state(sequenceId)
+    await withTimeout(
+      Agent.synced(),
+      SEQUENCE_SYNC_TIMEOUT_MS,
+      'Sequence sync timed out',
+    )
+  } catch (e) {
+    // If synced() hung after a successful write, fall through and verify via Agent.state.
+    if (!String(e?.message || e).includes('timed out')) throw e
+  }
+  try {
+    const state = await withTimeout(
+      Agent.state(sequenceId),
+      SEQUENCE_SYNC_TIMEOUT_MS,
+      'Sequence verify timed out',
+    )
     if (!isValidSequenceAgentState(state)) {
       throw new Error('Sequence items invalid after save')
     }
   } catch (e) {
-    const err = new Error('Sequence update was rejected by the server')
+    const err = new Error(
+      String(e?.message || e).includes('timed out')
+        ? 'Sequence sync timed out'
+        : 'Sequence update was rejected by the server',
+    )
     err.cause = e
     throw err
   }

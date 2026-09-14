@@ -80,6 +80,7 @@ import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { PButton, PAlertDialog } from '@/components/ui/index.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { getContentMetadata } from '@/utils/content-cache.js'
+import { useFeedback } from '@/composables/useFeedback.js'
 import {
   normalizeSequenceItems,
   removeItemFromSequence,
@@ -102,6 +103,7 @@ const emit = defineEmits(['changed', 'select', 'preview', 'drop-item'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+const { error: showError } = useFeedback()
 
 const seqState = ref(null)
 const itemMeta = reactive({})
@@ -175,6 +177,7 @@ async function confirmRemoveItem() {
     emit('changed', { items: nextItems })
   } catch (e) {
     console.warn('[SequenceItemsList] remove item failed', props.sequenceId, e)
+    showError(t('something-went-wrong'))
   }
 }
 

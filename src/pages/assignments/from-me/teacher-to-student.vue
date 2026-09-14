@@ -429,7 +429,7 @@
   import { getCachedContentName, getContentName, prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
   import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
-  import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
+  import { normalizeAssignmentContent, removeAssignmentContentId } from '@/utils/assignment-content.js'
   import { useToast } from '@/utils/useToast.js'
   import { PButton, PInput, PSelect, PDateField, PTooltip } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -738,19 +738,16 @@
 
   function onContentSelect(id) {
     if (!id || assignmentContentIdSet.value.has(id)) return false
-    if (!Array.isArray(assignment.value.content)) {
-      assignment.value.content = assignment.value.content ? [assignment.value.content] : []
-    }
-    assignment.value.content.push(id)
+    // Always rewrite as a dense id[] so legacy object-map / string shapes stay mutable.
+    const next = normalizeAssignmentContent(assignment.value.content)
+    next.push(id)
+    assignment.value.content = next
     return true
   }
 
   function removeContent(id) {
-    if (Array.isArray(assignment.value.content)) {
-      assignment.value.content = assignment.value.content.filter(c => c !== id)
-    } else if (assignment.value.content === id) {
-      assignment.value.content = []
-    }
+    // UIUX-229: object-map content made Array.isArray-filter a no-op while contentList still showed cards.
+    assignment.value.content = removeAssignmentContentId(assignment.value.content, id)
   }
 
   function reorderAssignmentContent(fromIndex, toIndex) {
@@ -803,11 +800,9 @@
   }
 
   const contentList = computed(() => {
-    if (!assignment.value.content) return []
-    const raw = Array.isArray(assignment.value.content)
-      ? assignment.value.content
-      : [assignment.value.content]
-    return [...new Set(normalizeAssignmentContent(raw))]
+    // Pass content through as-is — normalize handles array / string / object-map.
+    // Wrapping a map in [map] previously broke id extraction.
+    return [...new Set(normalizeAssignmentContent(assignment.value.content))]
   })
 
   /** O(1) membership — recomputed only when contentList changes. */

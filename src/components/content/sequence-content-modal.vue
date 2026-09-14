@@ -437,7 +437,9 @@ async function onUpdate() {
     draftIds.value = [...next]
     emit('changed')
   } catch (e) {
+    // UIUX-229: always clear loading (finally) and tell the user — hung synced() used to look stuck.
     console.warn('[SequenceContentModal] update failed', props.id, e)
+    showError(t('something-went-wrong'))
   } finally {
     saving.value = false
   }
