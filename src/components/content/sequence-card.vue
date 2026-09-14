@@ -38,6 +38,7 @@
               <PMenuItem :title="t('view-sequence-content')" prepend-icon="lucide:list" @click="$emit('view-content')" />
               <PMenuItem :title="t('edit-sequence-details')" prepend-icon="lucide:pencil" @click="$emit('edit')" />
               <PMenuItem :title="t('preview')" prepend-icon="lucide:eye" @click="$emit('preview')" />
+              <PMenuItem :title="t('add-to-assignment')" prepend-icon="lucide:file" @click="$emit('add-to-assignment')" />
               <PMenuItem
                 :title="t('archive')"
                 prepend-icon="lucide:archive"
@@ -121,7 +122,7 @@ const props = defineProps({
   version: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['edit', 'archive', 'restore', 'preview', 'view-content', 'drop-item', 'toggle-favorite', 'items-changed'])
+const emit = defineEmits(['edit', 'archive', 'restore', 'preview', 'view-content', 'add-to-assignment', 'drop-item', 'toggle-favorite', 'items-changed'])
 
 const isDragOver = ref(false)
 

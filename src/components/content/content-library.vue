@@ -94,6 +94,7 @@
               @restore="onRestoreSequence(seqId)"
               @preview="sequenceToPreview = seqId"
               @view-content="openSequenceContent(seqId)"
+              @add-to-assignment="handleAddSequenceToAssignment(seqId)"
               @items-changed="sequenceVersion++"
               @drop-item="payload => onDropItemToSequence(seqId, payload)"
             />
@@ -191,6 +192,7 @@
                 @restore="onRestoreSequence(seqId)"
                 @preview="sequenceToPreview = seqId"
                 @view-content="openSequenceContent(seqId)"
+                @add-to-assignment="handleAddSequenceToAssignment(seqId)"
                 @items-changed="sequenceVersion++"
                 @drop-item="payload => onDropItemToSequence(seqId, payload)"
               />
@@ -462,6 +464,7 @@
       :sequence-ids="pickerSequenceIds"
       :saving-assignment-id="assignmentSavingId"
       :assignment-result="assignmentAddResult"
+      :assignment-only="addPickerAssignmentOnly"
       @close="closeAddPicker"
       @create-assignment="navigateToCreateAssignment"
       @create-sequence="navigateToCreateSequence"
@@ -858,6 +861,7 @@
   // ── Add picker state ──
   const showAddPicker = ref(false)
   const pendingAddItems = ref([])
+  const addPickerAssignmentOnly = ref(false)
   const TEACHER_ASSIGNMENT_TAG = 'teacher-created'
   const assignmentSavingId = ref(null)
   const assignmentAddResult = ref(null)
@@ -1104,16 +1108,23 @@
     pendingAddItems.value = []
     assignmentAddResult.value = null
     assignmentSavingId.value = null
+    addPickerAssignmentOnly.value = false
   }
 
-  function openAddPicker(itemIds) {
+  function openAddPicker(itemIds, { assignmentOnly = false } = {}) {
     pendingAddItems.value = itemIds
     assignmentAddResult.value = null
+    addPickerAssignmentOnly.value = assignmentOnly
     showAddPicker.value = true
   }
 
   function handleAddItem(id) {
     openAddPicker([id])
+  }
+
+  function handleAddSequenceToAssignment(seqId) {
+    if (!seqId || archivedSequenceIdSet.value.has(seqId)) return
+    openAddPicker([seqId], { assignmentOnly: true })
   }
 
   function addSelectedToSequence() {
@@ -1128,6 +1139,7 @@
   }
 
   async function navigateToCreateSequence() {
+    if (addPickerAssignmentOnly.value) return
     const { allowed, rejectedSequences } = await partitionSequenceMemberIds(
       pendingAddItems.value,
       { knownSequenceIds: mySequenceIdSet.value },

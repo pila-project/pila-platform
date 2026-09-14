@@ -335,6 +335,8 @@ const props = defineProps({
   sequenceIds: { type: Array, default: () => [] },
   savingAssignmentId: { type: String, default: null },
   assignmentResult: { type: Object, default: null },
+  /** Skip destination choose so sequences cannot take the add-to-sequence path. */
+  assignmentOnly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits([
@@ -352,8 +354,8 @@ function t(slug) { return store.getters.t(slug) }
 const TEACHER_ASSIGNMENT_TAG = 'teacher-created'
 const TEACHER_ASSIGNMENT_TYPE = 'teacher-to-student'
 
-const step = ref('choose')
-const destination = ref(null)
+const step = ref(props.assignmentOnly ? 'assignment-choice' : 'choose')
+const destination = ref(props.assignmentOnly ? 'assignment' : null)
 const assignmentMode = ref(null)
 const sequenceMode = ref(null)
 const selectedAssignmentId = ref(null)
@@ -565,6 +567,10 @@ async function loadPreviewItem() {
 }
 
 function onChooseNext() {
+  if (props.assignmentOnly) {
+    step.value = 'assignment-choice'
+    return
+  }
   if (destination.value === 'assignment') {
     step.value = 'assignment-choice'
   } else if (destination.value === 'sequence') {
@@ -584,6 +590,7 @@ function onAssignmentChoiceNext() {
 }
 
 function onSequenceChoiceNext() {
+  if (props.assignmentOnly) return
   if (sequenceMode.value === 'new') {
     emit('create-sequence')
     return
@@ -602,6 +609,7 @@ function onConfirmAssignment() {
 }
 
 function onConfirmSequence() {
+  if (props.assignmentOnly) return
   if (selectedSequenceId.value) {
     emit('confirm-sequence', selectedSequenceId.value)
   }
@@ -609,6 +617,10 @@ function onConfirmSequence() {
 
 function goBack() {
   if (step.value === 'assignment-choice') {
+    if (props.assignmentOnly) {
+      emit('close')
+      return
+    }
     step.value = 'choose'
     assignmentMode.value = null
   } else if (step.value === 'assignment-list') {
@@ -642,6 +654,7 @@ watch(step, (s) => {
 
 onMounted(() => {
   if (props.assignmentResult) step.value = 'assignment-success'
+  else if (props.assignmentOnly) step.value = 'assignment-choice'
 })
 </script>
 
