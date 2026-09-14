@@ -169,6 +169,11 @@
               {{ getDueDate(item.id) }}
             </span>
           </template>
+          <template #item.publicationDate="{ item }">
+            <span class="assign-cell-text">
+              {{ getPublicationDate(item.id) }}
+            </span>
+          </template>
           <template #item.status="{ item }">
             <span :class="getStatusBadgeClass(item.id)">
               {{ t(getStatus(item.id).toLowerCase()) }}
@@ -897,6 +902,7 @@
   const tableHeaders = computed(() => [
     { key: 'title', title: t('assignment-title') },
     { key: 'dueDate', title: t('due-date') },
+    { key: 'publicationDate', title: t('publication-date') },
     { key: 'status', title: t('publication-status') },
     { key: 'assignedTo', title: t('assigned-to'), sortable: false },
     { key: 'submissions', title: t('reporting-dashboard'), sortable: false },
@@ -912,6 +918,7 @@
       id,
       title: assignmentData[id]?.name || '',
       dueDate: assignmentData[id]?.dueDate ? new Date(assignmentData[id].dueDate).getTime() : 0,
+      publicationDate: publicationDateSortValue(id),
       status: getStatus(id),
       updated: getAssignmentUpdated(id),
     }))
@@ -959,6 +966,22 @@
   function getDueDate(id) {
     const data = assignmentData[id]
     if (data?.dueDate) return formatDate(data.dueDate)
+    return t('not-set')
+  }
+
+  function publicationDateValue(id) {
+    const data = assignmentData[id]
+    return data?.publishedAt || data?.scheduledDate || null
+  }
+
+  function publicationDateSortValue(id) {
+    const value = publicationDateValue(id)
+    return value ? new Date(value).getTime() : 0
+  }
+
+  function getPublicationDate(id) {
+    const value = publicationDateValue(id)
+    if (value) return formatDate(value)
     return t('not-set')
   }
 
