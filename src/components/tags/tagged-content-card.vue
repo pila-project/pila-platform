@@ -414,7 +414,8 @@
   watch(
     () => [props.id, store.getters.language(), nameCacheVersion.value],
     ([id, lang]) => {
-      if (id && !getCachedContentName(id, lang)) void getContentName(id, lang)
+      // Always resolve for current language (bare-id English must not block Thai/etc.).
+      if (id) void getContentName(id, lang)
     },
     { immediate: true },
   )

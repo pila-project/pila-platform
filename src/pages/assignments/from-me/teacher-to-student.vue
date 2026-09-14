@@ -426,6 +426,8 @@
   import PreviewModal from '@/components/common/preview-modal.vue'
   import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
   import { useContentLibrary } from '@/utils/useContentLibrary.js'
+  import { getCachedContentName, getContentName, prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
+  import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import { useToast } from '@/utils/useToast.js'
@@ -494,6 +496,23 @@
   watch(selectingContent, (open) => {
     emit('update:width', open ? 'min(1100px, 96vw)' : '92vw')
   }, { immediate: true })
+
+  // UIUX-212: when UI language changes, re-resolve content titles (no bare-id English stick).
+  watch(() => store.getters.language(), (lang) => {
+    for (const id of contentList.value) {
+      if (id && !getCachedContentName(id, lang)) void getContentName(id, lang)
+    }
+    const visibleIds = contentBrowserRef.value?.paginatedDisplayList
+    if (visibleIds?.length) {
+      prefetchBatch(
+        visibleIds,
+        lang,
+        exploreTaxonomy(store.getters.tagPartition).partition,
+        getCachedTagHierarchy()?.leafToCategory,
+        { priorityIds: visibleIds },
+      ).catch(() => {})
+    }
+  })
 
   // ── Step definitions (3 steps when settings hidden; 4 when shown) ──
   const showAssignmentSettingsStep = SHOW_ASSIGNMENT_SETTINGS_STEP

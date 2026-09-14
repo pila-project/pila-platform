@@ -96,10 +96,17 @@ export function nameCacheKey(id, lang) {
   return `${id}:${lang || 'en'}`
 }
 
-/** Sync read: lang-keyed content name, with legacy bare-id fallback (sequences). */
+/**
+ * Sync read: lang-keyed content name.
+ * Bare-id entries are English/canonical (sequences/legacy) — only use that
+ * fallback for English so non-English UIs do not stick on an English title.
+ */
 export function getCachedContentName(id, lang) {
   if (!id) return null
-  return nameCache.get(nameCacheKey(id, lang)) ?? nameCache.get(id) ?? null
+  const keyed = nameCache.get(nameCacheKey(id, lang))
+  if (keyed != null) return keyed
+  if (isEnglishLang(lang)) return nameCache.get(id) ?? null
+  return null
 }
 
 export function setCachedContentName(id, name, lang) {
