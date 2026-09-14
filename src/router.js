@@ -56,6 +56,8 @@ function isIntentionallyPublic(path) {
 
 function postLoginHome(store) {
   const intent = getSessionItem(LOGIN_INTENT_KEY)
+  // Student tab must win over hasTeacher (admins/teachers also have teacher perm).
+  if (intent === 'student') return '/'
   const hasTeacher = store.getters['roles/hasPermission'](store.state.user, 'teacher')
   if (intent === 'teacher' || hasTeacher) return '/teacher'
   return '/'
@@ -75,6 +77,8 @@ function authRedirectFor(to, store) {
     }
     if (path.startsWith('/teacher')) {
       setSessionItem(LOGIN_INTENT_KEY, 'teacher')
+      // Preserve deep links (e.g. /teacher/classes); intent kept for aspiring teachers.
+      setSessionItem(RETURN_PATH_KEY, to.fullPath)
       return '/login'
     }
     if (isIntentionallyPublic(path)) return null
@@ -84,17 +88,26 @@ function authRedirectFor(to, store) {
 
   if (path === '/login') {
     const returnPath = getSessionItem(RETURN_PATH_KEY)
+    const intent = getSessionItem(LOGIN_INTENT_KEY)
+    // Student tab overrides a stale /teacher* deep-link return path.
+    const skipTeacherReturn = intent === 'student' && returnPath?.startsWith('/teacher')
     if (
       returnPath
+      && !skipTeacherReturn
       && isSafeInternalPath(returnPath)
       && !returnPath.startsWith('/login')
     ) {
       try {
         sessionStorage.removeItem(RETURN_PATH_KEY)
-        // Prevent stale teacher/student intent from overriding deep-link restore.
-        sessionStorage.removeItem(LOGIN_INTENT_KEY)
+        // Keep teacher intent on /teacher* restores so aspiring RoleRequester survives.
+        if (!returnPath.startsWith('/teacher')) {
+          sessionStorage.removeItem(LOGIN_INTENT_KEY)
+        }
       } catch { /* private mode */ }
       return returnPath
+    }
+    if (skipTeacherReturn) {
+      try { sessionStorage.removeItem(RETURN_PATH_KEY) } catch { /* private mode */ }
     }
     return postLoginHome(store)
   }

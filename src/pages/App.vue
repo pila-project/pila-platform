@@ -58,16 +58,25 @@
           if (!this.loaded) return
 
           const returnPath = sessionStorage.getItem('pila-return-path')
+          const intentEarly = sessionStorage.getItem('pila-login-intent')
+          const skipTeacherReturn = intentEarly === 'student' && returnPath?.startsWith('/teacher')
           if (
             returnPath
+            && !skipTeacherReturn
             && returnPath.startsWith('/')
             && !returnPath.startsWith('//')
             && !returnPath.startsWith('/login')
           ) {
             sessionStorage.removeItem('pila-return-path')
-            sessionStorage.removeItem('pila-login-intent')
+            // Keep teacher intent on /teacher* restores for aspiring RoleRequester.
+            if (!returnPath.startsWith('/teacher')) {
+              sessionStorage.removeItem('pila-login-intent')
+            }
             if (this.$route.fullPath !== returnPath) this.$router.push(returnPath)
             return
+          }
+          if (skipTeacherReturn) {
+            sessionStorage.removeItem('pila-return-path')
           }
 
           const intent = sessionStorage.getItem('pila-login-intent')
@@ -84,7 +93,8 @@
             // show RoleRequester instead of ejecting them as a student.
             if (hasTeacher) sessionStorage.removeItem('pila-login-intent')
           } else {
-            if (onTeacherPath) this.$router.push('/')
+            // Agent.login returns to /login; eject from /login and /teacher*.
+            if (onTeacherPath || this.$route.path === '/login') this.$router.push('/')
             sessionStorage.removeItem('pila-login-intent')
           }
         } catch { /* ignore */ }
