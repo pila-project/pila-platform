@@ -122,16 +122,28 @@ export function installAuthNavigationGuards(router, store) {
     else next()
   })
 
+  const tryAuthRedirect = () => {
+    if (!store.getters.loaded()) return
+    if (isEmbedded()) return
+    const current = router.currentRoute.value
+    const redirect = authRedirectFor(current, store)
+    if (redirect && redirect !== current.fullPath && redirect !== current.path) {
+      router.replace(redirect)
+    }
+  }
+
   store.watch(
     (state) => state.loaded,
     (loaded) => {
       if (!loaded) return
-      const current = router.currentRoute.value
-      const redirect = authRedirectFor(current, store)
-      if (redirect && redirect !== current.fullPath && redirect !== current.path) {
-        router.replace(redirect)
-      }
+      tryAuthRedirect()
     }
+  )
+
+  // SSO can finish after loaded=true while still anonymous; re-run when auth flips.
+  store.watch(
+    () => store.getters.isAnonymous(),
+    () => { tryAuthRedirect() }
   )
 }
 
