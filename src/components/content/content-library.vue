@@ -293,13 +293,13 @@
               :source="source"
               :grades="grades"
               :favorited="favorites.has(id)"
-              :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1"
+              :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1 && !isSequenceId(id)"
               show-copy-modify
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
               @toggle-favorite="toggleFavorite(id)"
               @preview="handleExplorePreview(id)"
-              @tag="taggingContentId = id"
+              @tag="openTagging(id)"
               @remove="() => {
                 setTagging({ tag: MY_CONTENT_TAG, target: id, value: null })
                 myContent.splice(myContent.indexOf(id), 1)
@@ -320,7 +320,7 @@
           @close="previewing = null"
         />
         <TaggingModal
-          v-if="taggingContentId && showTaggingIcons && selectedItems.size <= 1"
+          v-if="taggingContentId && showTaggingIcons && selectedItems.size <= 1 && !isSequenceId(taggingContentId)"
           :id="taggingContentId"
           :roots="taxonomy.roots"
           @close="taggingContentId = null"
@@ -1137,6 +1137,20 @@
 
   function isCachedSequenceId(id) {
     return isSequenceActiveType(metadataCache.get(id)?.active_type)
+  }
+
+  function isSequenceId(id) {
+    void metadataCacheVersion.value
+    if (!id) return false
+    if (mySequenceIdSet.value.has(id)) return true
+    if (getContentType(id) === 'sequence') return true
+    if (getCachedPreviewMeta(id)?.kind === 'sequence') return true
+    return isCachedSequenceId(id)
+  }
+
+  function openTagging(id) {
+    if (!id || isSequenceId(id)) return
+    taggingContentId.value = id
   }
 
   const addSelectedButtonLabel = computed(() => {

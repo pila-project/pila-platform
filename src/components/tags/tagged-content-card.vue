@@ -41,11 +41,11 @@
             <LucideIcon name="folders" :size="12" />
           </span>
           <button
-            v-if="!showCopyModify && !assignmentPicker && showTaggingIcon"
+            v-if="!showCopyModify && !assignmentPicker && showTaggingIcon && !isSequenceCard"
             type="button"
             class="pcard-heart-btn"
             :aria-label="t('tag') || 'Tag'"
-            @click.stop="$emit('tag')"
+            @click.stop="onTag"
           >
             <LucideIcon name="tag" :size="14" />
           </button>
@@ -268,7 +268,7 @@
             v-if="canEditTags"
             :title="t('view-edit-tags')"
             prepend-icon="lucide:tags"
-            @click="$emit('tag')"
+            @click="onTag"
           />
         </PMenu>
       </div>
@@ -331,6 +331,7 @@
     getCachedContentName,
     nameCacheVersion,
     previewMetaVersion,
+    metadataCacheVersion,
     imageCache,
     metadataCache,
   } from '@/utils/content-cache.js'
@@ -423,6 +424,19 @@
     void previewMetaVersion.value
     return explorePreviewMeta.value?.kind || getContentType(props.id) || 'item'
   })
+
+  function isSequenceContent() {
+    if (getContentType(props.id) === 'sequence') return true
+    const meta = metadataCache.get(props.id)
+    return isSequenceActiveType(meta?.active_type)
+  }
+
+  const isSequenceCard = computed(() => {
+    void previewMetaVersion.value
+    void metadataCacheVersion.value
+    return contentKind.value === 'sequence' || isSequenceContent()
+  })
+
   const canEdit = computed(() =>
     props.showCopyModify
     && props.source === 'mine'
@@ -432,7 +446,10 @@
     contentKind.value === 'assignment' ? t('edit-assignment') : t('edit-sequence-details'),
   )
   const canEditTags = computed(() =>
-    props.showCopyModify && props.source === 'mine' && props.showTaggingIcon,
+    props.showCopyModify
+    && props.source === 'mine'
+    && props.showTaggingIcon
+    && !isSequenceCard.value,
   )
 
   const orderLabel = computed(() => {
@@ -463,10 +480,9 @@
 
   const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .p-menu-anchor, .pcard-grade-more, .pcard-tags-popup'
 
-  function isSequenceContent() {
-    if (getContentType(props.id) === 'sequence') return true
-    const meta = metadataCache.get(props.id)
-    return isSequenceActiveType(meta?.active_type)
+  function onTag() {
+    if (isSequenceCard.value) return
+    emit('tag')
   }
 
   function setDragPayload(event) {

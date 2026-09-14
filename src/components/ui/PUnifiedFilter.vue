@@ -32,6 +32,7 @@
             v-for="chip in allChips"
             :key="chip.id"
             class="unified-chip"
+            @pointerdown.stop
           >
             <span class="unified-chip-label">{{ chip.sectionLabel }}</span>
             <span class="unified-chip-eq">=</span>
@@ -260,7 +261,7 @@ function onBarWheel(e) {
   updateScrollFade()
 }
 
-const PAN_SKIP_SELECTOR = 'button, input, a, textarea, select, label'
+const PAN_SKIP_SELECTOR = 'button, input, a, textarea, select, label, .unified-chip'
 
 let panPointerId = null
 let panStartX = 0
@@ -483,13 +484,16 @@ provide('unifiedFilter', {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
   border: none;
   background: transparent;
   color: #94a3b8;
   cursor: pointer;
   padding: 0;
+  margin: -2px -4px -2px 0;
   border-radius: 2px;
   flex-shrink: 0;
 }
