@@ -88,7 +88,9 @@
 
           if (intent === 'teacher') {
             // Teachers and aspiring teachers (no tag yet → RoleRequester) go to /teacher.
-            if (!onTeacherPath) this.$router.push('/teacher')
+            // Skip /login: auth guard owns return-path / postLoginHome (avoid clobbering
+            // an in-flight /teacher/classes restore while $route is still /login).
+            if (!onTeacherPath && this.$route.path !== '/login') this.$router.push('/teacher')
             // Keep intent while they lack the teacher tag so /teacher can
             // show RoleRequester instead of ejecting them as a student.
             if (hasTeacher) sessionStorage.removeItem('pila-login-intent')
