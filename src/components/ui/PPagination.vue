@@ -6,9 +6,33 @@
       'pagination--no-nav': !showPageControls,
     }"
   >
-    <div v-if="showRowCount || normalizedOptions.length" class="pagination-info">
-      <span v-if="showRowCount">{{ t('range-n-of-n').replace('{start}', String(startItem)).replace('{end}', String(endItem)).replace('{total}', String(totalItems)) }}</span>
-      <span v-if="normalizedOptions.length" class="pagination-per-page">
+    <template v-if="layout === 'stacked'">
+      <div v-if="showRowCount || normalizedOptions.length" class="pagination-info">
+        <span v-if="showRowCount">{{ rangeText }}</span>
+        <span v-if="normalizedOptions.length" class="pagination-per-page">
+          {{ perPageLabel }}:
+          <select
+            :value="perPage"
+            class="pagination-select"
+            @change="$emit('update:perPage', Number($event.target.value))"
+          >
+            <option
+              v-for="opt in normalizedOptions"
+              :key="opt.value"
+              :value="opt.value"
+            >
+              {{ opt.title }}
+            </option>
+          </select>
+        </span>
+      </div>
+    </template>
+
+    <template v-else>
+      <div class="pagination-info">
+        <span v-if="showRowCount">{{ rangeText }}</span>
+      </div>
+      <div v-if="normalizedOptions.length" class="pagination-per-page">
         {{ perPageLabel }}:
         <select
           :value="perPage"
@@ -23,8 +47,9 @@
             {{ opt.title }}
           </option>
         </select>
-      </span>
-    </div>
+      </div>
+    </template>
+
     <div v-if="showPageControls" class="pagination-controls">
       <button
         class="pagination-btn"
@@ -124,10 +149,18 @@ const endItem = computed(() => {
   if (isAllPerPage(props.perPage)) return props.totalItems
   return Math.min(props.currentPage * props.perPage, props.totalItems)
 })
+
+const rangeText = computed(() => (
+  t('range-n-of-n')
+    .replace('{start}', String(startItem.value))
+    .replace('{end}', String(endItem.value))
+    .replace('{total}', String(props.totalItems))
+))
 </script>
 
 <style>
 .pagination--stacked {
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -140,6 +173,8 @@ const endItem = computed(() => {
   display: flex;
   justify-content: center;
   width: 100%;
+  grid-column: auto;
+  justify-self: auto;
 }
 
 .pagination--stacked .pagination-per-page {
@@ -148,12 +183,16 @@ const endItem = computed(() => {
   gap: 6px;
   white-space: nowrap;
   font-size: 12px;
+  grid-column: auto;
+  justify-self: auto;
 }
 
 .pagination--stacked .pagination-controls {
   justify-content: center;
   gap: 12px;
   width: 100%;
+  grid-column: auto;
+  justify-self: auto;
 }
 
 .pagination--stacked .pagination-page-info {
