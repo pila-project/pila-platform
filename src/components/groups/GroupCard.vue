@@ -111,7 +111,7 @@ const groupData = computed(() => store.state.groups.groups[props.groupId] || {})
 const groupName = computed(() => groupData.value.name || t('unnamed'))
 const groupGrade = computed(() => groupData.value.grade || '')
 /** string (legacy) or string[] — always display as joined label */
-const groupSubject = computed(() => formatGroupSubjects(groupData.value.subject))
+const groupSubject = computed(() => formatGroupSubjects(groupData.value.subject, t))
 const memberCount = computed(() =>
   activeStudentCountInGroup(props.groupId, props.students, store),
 )

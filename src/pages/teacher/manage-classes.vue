@@ -932,10 +932,10 @@
               <span class="assign-group-name">{{ store.state.groups.groups[gid]?.name || t('unnamed') }}</span>
               <span v-if="store.state.groups.groups[gid]?.grade" class="assign-group-detail">{{ t('grade') }}: {{ store.state.groups.groups[gid].grade }}</span>
               <span
-                v-if="formatGroupSubjects(store.state.groups.groups[gid]?.subject)"
+                v-if="formatGroupSubjects(store.state.groups.groups[gid]?.subject, t)"
                 class="assign-group-detail assign-group-detail--subject"
-                :title="`${t('subject')}: ${formatGroupSubjects(store.state.groups.groups[gid]?.subject)}`"
-              >{{ t('subject') }}: {{ formatGroupSubjects(store.state.groups.groups[gid]?.subject) }}</span>
+                :title="`${t('subject')}: ${formatGroupSubjects(store.state.groups.groups[gid]?.subject, t)}`"
+              >{{ t('subject') }}: {{ formatGroupSubjects(store.state.groups.groups[gid]?.subject, t) }}</span>
             </label>
           </div>
         </div>
@@ -1605,7 +1605,7 @@ const profileUserGroups = computed(() => {
     .filter(gid => store.getters['groups/belongs'](viewProfileUser.value, gid))
     .map(gid => {
       const groupData = store.state.groups.groups[gid] || {}
-      const subjectLabel = formatGroupSubjects(groupData.subject)
+      const subjectLabel = formatGroupSubjects(groupData.subject, t)
       const detail = [groupData.grade, subjectLabel].filter(Boolean).join(' | ')
       return {
         id: gid,
