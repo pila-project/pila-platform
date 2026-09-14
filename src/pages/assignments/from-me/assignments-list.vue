@@ -140,6 +140,12 @@
                 >
                   {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
                 </span>
+                <PBadge
+                  v-if="archivedIds[item.id]"
+                  variant="warning"
+                  :text="t('archived')"
+                  class="assign-archived-badge"
+                />
               </div>
               <!-- Hover only on the description text (not the whole row/card) -->
               <PTooltip
@@ -435,7 +441,7 @@
   import { useRouter, onBeforeRouteLeave } from 'vue-router'
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable, PTooltip } from '@/components/ui/index.js'
+  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable, PTooltip, PBadge } from '@/components/ui/index.js'
   import { useFeedback } from '@/composables/useFeedback.js'
   import { useAssignmentArchive } from '@/composables/useAssignmentArchive.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -1630,6 +1636,11 @@
 .assign-action-btn:hover {
   background: #f8fafc;
   color: #334155;
+}
+
+/* Archived tag — same PBadge warning as students table */
+.assign-archived-badge {
+  flex-shrink: 0;
 }
 
 /* Compact type pill next to title — never ellipsis; title truncates instead */
