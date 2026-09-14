@@ -43,6 +43,7 @@
           />
           <vueEmbedComponent
             v-else-if="currentItemId"
+            ref="embedRef"
             :key="currentItemId"
             :id="currentItemId"
             class="spb-embed"
@@ -81,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
@@ -111,6 +112,18 @@ const loaded = ref(false)
 const currentIndex = ref(0)
 const itemIsSequence = ref({})
 const resolvingCurrentItem = ref(false)
+const embedRef = ref(null)
+
+/** vueEmbed hardcodes allow without fullscreen — enable for Candli (UIUX-221). */
+function patchEmbedFullscreenAllow() {
+  nextTick(() => {
+    const el = embedRef.value?.$el
+    if (el && el.tagName === 'IFRAME') {
+      el.setAttribute('allow', 'camera;microphone;fullscreen')
+      el.setAttribute('allowfullscreen', '')
+    }
+  })
+}
 
 let previewVarProxy = null
 
@@ -225,6 +238,11 @@ async function loadSequence() {
 watch(currentIndex, async () => {
   await ensureCurrentItemType()
   emitHeader()
+  patchEmbedFullscreenAllow()
+})
+
+watch(currentItemId, () => {
+  patchEmbedFullscreenAllow()
 })
 
 // immediate: load on mount; re-run if parent reuses the component with a new id

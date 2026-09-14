@@ -1,8 +1,10 @@
 <template>
   <PModal
     layer="preview"
-    width="90vw"
-    height="90vh"
+    width="98vw"
+    height="98vh"
+    noPadBody
+    enableFullscreen
     @close="$emit('close')"
   >
     <template #title>

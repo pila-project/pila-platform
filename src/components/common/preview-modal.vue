@@ -7,6 +7,7 @@
     :width="width"
     :height="height"
     noPadBody
+    enableFullscreen
   >
     <template v-slot:title>
       <span>{{ t('previewing') }}
@@ -47,11 +48,12 @@
       id: String,
       width: {
         type: String,
-        default: '90vw'
+        // UIUX-221: larger default canvas so embeds (esp. Candli) are less cramped
+        default: '98vw'
       },
       height: {
         type: String,
-        default: '90vh'
+        default: '98vh'
       }
     },
     data() {
@@ -61,10 +63,13 @@
       varProxy = studyEnvironmentVariableProxy({ PREVIEW: true })
     },
     mounted() {
-      // Listen for the iframe's native load event
+      // Listen for the iframe's native load event; enable fullscreen permission
+      // (vueEmbed hardcodes allow without fullscreen — patch for UIUX-221).
       this.$nextTick(() => {
         const iframe = this.$refs.embedRef?.$el
         if (iframe && iframe.tagName === 'IFRAME') {
+          iframe.setAttribute('allow', 'camera;microphone;fullscreen')
+          iframe.setAttribute('allowfullscreen', '')
           iframe.addEventListener('load', () => { this.loading = false }, { once: true })
         }
       })

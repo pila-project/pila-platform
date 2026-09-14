@@ -37,11 +37,11 @@
       id: String,
       width: {
         type: String,
-        default: '90vw'
+        default: '98vw'
       },
       height: {
         type: String,
-        default: '90vh'
+        default: '98vh'
       }
     },
     created() {

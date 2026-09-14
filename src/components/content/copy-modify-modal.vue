@@ -280,8 +280,8 @@
   <PreviewModal
     v-if="previewingId"
     :id="previewingId"
-    width="90vw"
-    height="90vh"
+    width="98vw"
+    height="98vh"
     @close="previewingId = null"
   />
 

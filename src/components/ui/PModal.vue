@@ -13,7 +13,7 @@
         ref="modalRef"
         role="dialog"
         aria-modal="true"
-        class="relative flex flex-col bg-white rounded-lg shadow-lg overflow-hidden"
+        class="p-modal-panel relative flex flex-col bg-white rounded-lg shadow-lg overflow-hidden"
         :style="panelStyle"
         tabindex="-1"
       >
@@ -24,7 +24,18 @@
               <h2 class="text-lg font-semibold text-zinc-950">{{ title }}</h2>
             </slot>
           </div>
-          <PButton variant="icon" size="sm" icon="lucide:x" iconOnly class="ml-4" aria-label="Close" @click="close('top-x')" />
+          <div class="flex items-center gap-1 ml-4 shrink-0">
+            <PButton
+              v-if="enableFullscreen"
+              variant="icon"
+              size="sm"
+              :icon="isFullscreen ? 'lucide:minimize' : 'lucide:maximize'"
+              iconOnly
+              :aria-label="isFullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+              @click="toggleFullscreen"
+            />
+            <PButton variant="icon" size="sm" icon="lucide:x" iconOnly aria-label="Close" @click="close('top-x')" />
+          </div>
         </div>
 
         <!--
@@ -83,6 +94,8 @@ const props = defineProps({
   },
   persistent: Boolean,
   noPadBody: Boolean,
+  /** Show maximize control; uses Fullscreen API on the modal panel (UIUX-221). */
+  enableFullscreen: Boolean,
   /** Overlay tier — maps to --z-modal-* tokens in tokens.css */
   layer: {
     type: String,
@@ -107,15 +120,42 @@ const overlayStyle = computed(() => ({
   zIndex: layerZIndex.value,
 }))
 
-const panelStyle = computed(() => ({
-  zIndex: 1,
-  width: props.width,
-  maxWidth: '90vw',
-  ...(props.height !== 'auto'
-    ? { height: props.height, maxHeight: '90vh' }
-    : { maxHeight: '90vh' }
-  ),
-}))
+const isPreviewLayer = computed(() => props.layer === 'preview')
+
+// Preview overlays need a larger canvas (Candli etc.); keep other modals at 90.
+const panelStyle = computed(() => {
+  const maxW = isPreviewLayer.value ? '98vw' : '90vw'
+  const maxH = isPreviewLayer.value ? '98vh' : '90vh'
+  return {
+    zIndex: 1,
+    width: props.width,
+    maxWidth: maxW,
+    ...(props.height !== 'auto'
+      ? { height: props.height, maxHeight: maxH }
+      : { maxHeight: maxH }
+    ),
+  }
+})
+
+const isFullscreen = ref(false)
+
+function onFullscreenChange() {
+  isFullscreen.value = document.fullscreenElement === modalRef.value
+}
+
+async function toggleFullscreen() {
+  const el = modalRef.value
+  if (!el) return
+  try {
+    if (document.fullscreenElement === el) {
+      await document.exitFullscreen?.()
+    } else if (!document.fullscreenElement) {
+      await el.requestFullscreen?.()
+    }
+  } catch (e) {
+    console.warn('[PModal] fullscreen failed', e)
+  }
+}
 
 function close(reason) {
   if (props.persistent && reason === 'outside') return
@@ -126,6 +166,8 @@ const captureEscape = props.layer === 'preview'
 
 function handleKeydown(e) {
   if (e.key !== 'Escape') return
+  // Let the browser exit fullscreen first; don't also dismiss the modal.
+  if (document.fullscreenElement === modalRef.value) return
   if (captureEscape) {
     e.stopPropagation()
     e.stopImmediatePropagation()
@@ -135,12 +177,28 @@ function handleKeydown(e) {
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown, captureEscape)
+  document.addEventListener('fullscreenchange', onFullscreenChange)
   lockBodyScroll()
   modalRef.value?.focus()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown, captureEscape)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
+  if (document.fullscreenElement === modalRef.value) {
+    document.exitFullscreen?.().catch(() => {})
+  }
   unlockBodyScroll()
 })
 </script>
+
+<style scoped>
+/* Native fullscreen: fill the screen; keep flex column so iframe body still grows. */
+.p-modal-panel:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border-radius: 0;
+}
+</style>
