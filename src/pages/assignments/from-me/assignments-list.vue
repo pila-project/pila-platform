@@ -963,7 +963,7 @@
   function getDueDate(id) {
     const data = assignmentData[id]
     if (data?.dueDate) return formatDate(data.dueDate)
-    return t('not-set')
+    return '-'
   }
 
   // UIUX-214: column is "Publication date" — only real publishedAt.
