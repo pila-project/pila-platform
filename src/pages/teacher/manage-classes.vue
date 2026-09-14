@@ -837,9 +837,9 @@
             <table class="bulk-entry-table">
               <thead>
                 <tr>
-                  <th>{{ t('name') }} <span class="required-label">* Required</span></th>
+                  <th>{{ t('name') }} <span class="required-label">*{{ t('required') }}</span></th>
                   <th>{{ t('nickname') }}</th>
-                  <th>{{ t('grade') }} <span class="required-label">* Required</span></th>
+                  <th>{{ t('grade') }} <span class="required-label">*{{ t('required') }}</span></th>
                   <th></th>
                 </tr>
               </thead>
