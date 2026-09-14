@@ -4,7 +4,6 @@
       Loading<span class="dots"></span>
     </div>
   </div>
-  <LoginMenu v-else-if="isAnonymous" />
   <AccessCodeScreen v-else-if="accessCodeRequired" />
   <div
     id="main-app"
@@ -20,14 +19,12 @@
 </template>
 
 <script>
-  import LoginMenu from './login/index.vue'
   import AccessCodeScreen from './login/AccessCodeScreen.vue'
   import PToastContainer from '@/components/ui/PToastContainer.vue'
   import { SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
 
   export default {
     components: {
-      LoginMenu,
       AccessCodeScreen,
       PToastContainer,
     },
@@ -59,6 +56,20 @@
         try {
           // Roles default to 'student' until loaded; do not consume intent yet.
           if (!this.loaded) return
+
+          const returnPath = sessionStorage.getItem('pila-return-path')
+          if (
+            returnPath
+            && returnPath.startsWith('/')
+            && !returnPath.startsWith('//')
+            && !returnPath.startsWith('/login')
+          ) {
+            sessionStorage.removeItem('pila-return-path')
+            sessionStorage.removeItem('pila-login-intent')
+            if (this.$route.fullPath !== returnPath) this.$router.push(returnPath)
+            return
+          }
+
           const intent = sessionStorage.getItem('pila-login-intent')
           if (!intent) return
 

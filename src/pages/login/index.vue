@@ -175,13 +175,21 @@ import {
   isCompleteLoginCode,
 } from '@/utils/login-code-symbols.js'
 
+function seedLoginRole(path = '') {
+  try {
+    const intent = sessionStorage.getItem('pila-login-intent')
+    if (intent === 'teacher' || intent === 'student') return intent
+  } catch { /* private mode */ }
+  const current = path || (typeof window !== 'undefined' ? window.location.pathname : '')
+  return current.startsWith('/teacher') ? 'teacher' : 'student'
+}
+
 export default {
   name: 'LoginMenu',
   components: { LucideIcon, LoginCodePad, LoginQrScanner },
   data() {
-    const path = typeof window !== 'undefined' ? window.location.pathname : ''
     return {
-      role: path.startsWith('/teacher') ? 'teacher' : 'student',
+      role: seedLoginRole(),
       view: 'hub',
       codeValue: '',
       signingIn: false,
@@ -246,8 +254,7 @@ export default {
       return this.t(`sign-in-with-${provider.id}`)
     },
     roleFromPath(path) {
-      const current = path || this.$route?.path || ''
-      return current.startsWith('/teacher') ? 'teacher' : 'student'
+      return seedLoginRole(path || this.$route?.path || '')
     },
     rememberLoginIntent() {
       try {

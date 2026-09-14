@@ -8,8 +8,119 @@ import TeacherCodesView from '@/pages/teacher/codes.vue'
 import StudentView from '@/pages/student/index.vue'
 import JoinTeacherView from '@/pages/student/join-teacher.vue'
 import AssignmentView from '@/pages/assignment/index.vue'
+import LoginMenu from '@/pages/login/index.vue'
 import CandliStates from '@/pages/candli-states.vue'
 import { isThailandTeacherHost } from '@/utils/constants.js'
+
+const LOGIN_INTENT_KEY = 'pila-login-intent'
+const RETURN_PATH_KEY = 'pila-return-path'
+
+const RESERVED_APP_SEGMENTS = new Set([
+  'admin',
+  'researcher',
+  'teacher',
+  'login',
+  'candli-states',
+  'test',
+  'join',
+  'assignment',
+])
+
+function isEmbedded() {
+  return typeof Agent !== 'undefined' && Agent.embedded
+}
+
+function setSessionItem(key, value) {
+  try { sessionStorage.setItem(key, value) } catch { /* private mode */ }
+}
+
+function getSessionItem(key) {
+  try { return sessionStorage.getItem(key) } catch { return null }
+}
+
+function isSafeInternalPath(path) {
+  return typeof path === 'string'
+    && path.startsWith('/')
+    && !path.startsWith('//')
+}
+
+function isIntentionallyPublic(path) {
+  if (path === '/login' || path.startsWith('/login/')) return true
+  if (path === '/join' || path.startsWith('/join/')) return true
+  if (path === '/assignment' || path.startsWith('/assignment/')) return true
+  if (path === '/candli-states' || path.startsWith('/candli-states/')) return true
+
+  const segments = path.split('/').filter(Boolean)
+  return segments.length === 1 && !RESERVED_APP_SEGMENTS.has(segments[0])
+}
+
+function postLoginHome(store) {
+  const intent = getSessionItem(LOGIN_INTENT_KEY)
+  const hasTeacher = store.getters['roles/hasPermission'](store.state.user, 'teacher')
+  if (intent === 'teacher' || hasTeacher) return '/teacher'
+  return '/'
+}
+
+function authRedirectFor(to, store) {
+  if (isEmbedded()) return null
+  if (!store.getters.loaded()) return null
+
+  const path = to.path
+  const anonymous = store.getters.isAnonymous()
+
+  if (anonymous) {
+    if (path === '/') {
+      setSessionItem(LOGIN_INTENT_KEY, 'student')
+      return '/login'
+    }
+    if (path.startsWith('/teacher')) {
+      setSessionItem(LOGIN_INTENT_KEY, 'teacher')
+      return '/login'
+    }
+    if (isIntentionallyPublic(path)) return null
+    setSessionItem(RETURN_PATH_KEY, to.fullPath)
+    return '/login'
+  }
+
+  if (path === '/login') {
+    const returnPath = getSessionItem(RETURN_PATH_KEY)
+    if (
+      returnPath
+      && isSafeInternalPath(returnPath)
+      && !returnPath.startsWith('/login')
+    ) {
+      try {
+        sessionStorage.removeItem(RETURN_PATH_KEY)
+        // Prevent stale teacher/student intent from overriding deep-link restore.
+        sessionStorage.removeItem(LOGIN_INTENT_KEY)
+      } catch { /* private mode */ }
+      return returnPath
+    }
+    return postLoginHome(store)
+  }
+
+  return null
+}
+
+export function installAuthNavigationGuards(router, store) {
+  router.beforeEach((to, _from, next) => {
+    const redirect = authRedirectFor(to, store)
+    if (redirect && redirect !== to.fullPath && redirect !== to.path) next(redirect)
+    else next()
+  })
+
+  store.watch(
+    (state) => state.loaded,
+    (loaded) => {
+      if (!loaded) return
+      const current = router.currentRoute.value
+      const redirect = authRedirectFor(current, store)
+      if (redirect && redirect !== current.fullPath && redirect !== current.path) {
+        router.replace(redirect)
+      }
+    }
+  )
+}
 
 
 // Wrap  async components in synchronous wrapper
@@ -57,7 +168,7 @@ const TeacherTrainerPage = makeRouteShell(() => import('@/pages/teacher/trainer-
 const BugReport = makeRouteShell(() => import('@/components/common/bug-report.vue'))
 const TeacherStudyOptOut = makeRouteShell(() => import('@/pages/teacher/study-opt-out.vue'))
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
@@ -126,13 +237,19 @@ export default createRouter({
       component: JoinTeacherView
     },
     {
-      path: '/:id',
-      component: AssignmentView
+      path: '/login',
+      component: LoginMenu
     },
     {
       path: '/candli-states',
       component: CandliStates
     },
+    {
+      path: '/:id',
+      component: AssignmentView
+    },
 
   ]
 })
+
+export default router

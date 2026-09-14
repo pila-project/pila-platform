@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import { validate as isUUID } from 'uuid'
-import router from '@/router.js'
+import router, { installAuthNavigationGuards } from '@/router.js'
 import Agent from '@knowlearning/agents/browser.js'
 import { vuePersistentStore } from '@knowlearning/agents/vue.js'
 import storeDef from '@/store/index.js'
@@ -64,6 +64,7 @@ async function initializeApp() {
     }
   }
   const store = createStore(resolvedStoreDef)
+  installAuthNavigationGuards(router, store)
 
   createApp(App)
     .use(store)
@@ -83,7 +84,7 @@ async function initializeApp() {
           }
         )
       }
-      // Anonymous `/` stays in-app so App.vue can render LoginMenu.
+      // Anonymous `/` redirects via router to `/login` (not Agent.login bounce).
     })
   }
 }
