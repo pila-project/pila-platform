@@ -2034,9 +2034,10 @@ function handlePickerNext() {
   if (selectedPickerOption.value === 'individual') {
     handleAddStudentIndividual()
   } else if (selectedPickerOption.value === 'bulk') {
+    // UIUX-200: default to bulk manual entry; CSV still reachable via Back
     showAddStudentPicker.value = false
     selectedPickerOption.value = null
-    showCSVUploadModal.value = true
+    showBulkEntryModal.value = true
   } else if (selectedPickerOption.value === 'sso') {
     showAddStudentPicker.value = false
     selectedPickerOption.value = null
