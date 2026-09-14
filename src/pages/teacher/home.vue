@@ -152,9 +152,9 @@
                   </span>
                   <span
                     v-if="assignmentData[item.id]?.assignmentType"
-                    :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)"
+                    :class="assignmentTypeBadgeClass(assignmentData[item.id].assignmentType)"
                   >
-                    {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
+                    {{ assignmentTypeLabel(assignmentData[item.id].assignmentType, t) }}
                   </span>
                 </div>
                 <div class="assign-cell-desc assign-cell-desc--ellipsis">
@@ -323,6 +323,7 @@ import Dashboard from '@/pages/assignments/from-me/dashboard/index.vue'
 import CandliDashboard from '@/pages/assignments/from-me/candli-dashboard.vue'
 import GenAIDashboard from '@/pages/assignments/from-me/gen-ai-dashboard.vue'
 import { ASSIGNMENT_STATUS, effectiveAssignmentStatus } from '@/utils/assignment-status.js'
+import { assignmentTypeLabel, assignmentTypeBadgeClass } from '@/utils/assignment-type.js'
 import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES, MY_CONTENT_TAG } from '@/utils/constants.js'
 import { candliGamesForSequenceItems } from '@/candli-games.js'
 import { normalizeSequenceItems, isValidSequenceAgentState } from '@/utils/sequence-items.js'
@@ -711,14 +712,6 @@ function getStatusBadgeClass(id) {
   return 'assign-badge assign-badge-scheduled'
 }
 
-function getTypeBadgeClass(type) {
-  const k = (type || '').toLowerCase()
-  if (k === 'assessment') return 'assign-type-pill assign-type-assessment'
-  if (k === 'homework') return 'assign-type-pill assign-type-homework'
-  if (k === 'practice') return 'assign-type-pill assign-type-practice'
-  if (k === 'learning') return 'assign-type-pill assign-type-learning'
-  return 'assign-type-pill assign-type-default'
-}
 
 function openCreateAssignment() {
   current.value = uuid()

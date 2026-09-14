@@ -12,6 +12,7 @@ import assignmentXapiTests from './assignment-xapi.js'
 import teacherLoginCredentialTests from './teacher-login-credentials.js'
 import candliGamesTests from './candli-games.js'
 import teacherHomeTests from './teacher-home.js'
+import assignmentTypeTests from './assignment-type.js'
 import teacherStudentRowsTests from './teacher-student-rows.js'
 import thailandTeacherHostTests from './thailand-teacher-host.js'
 
@@ -66,6 +67,7 @@ function waitForStoreLoadThenRunTests (store) {
           assignmentXapiTests()
           candliGamesTests()
           teacherHomeTests()
+          assignmentTypeTests()
           teacherStudentRowsTests()
           thailandTeacherHostTests()
         })

@@ -436,6 +436,10 @@
     isPublicationLocked,
     tryPromoteScheduledAssignment,
   } from '@/utils/assignment-status.js'
+  import {
+    assignmentTypeOptions as buildAssignmentTypeOptions,
+    normalizeAssignmentType,
+  } from '@/utils/assignment-type.js'
 
   /**
    * UIUX-79: hide Assignment Settings step (and view-details settings) for now.
@@ -533,7 +537,7 @@
   const assignmentType = ref('')
   const dueDate = ref('')
   const DEFAULT_DUE_TIME = '00:00'
-  const assignmentTypeOptions = computed(() => [t('assessment'), t('practice'), t('homework'), t('learning')])
+  const assignmentTypeOptions = computed(() => buildAssignmentTypeOptions(t))
 
   // ── Assignment settings (UIUX-79: step hidden; defaults still applied on save) ──
   const allowLate = ref(true)
@@ -931,7 +935,7 @@
     state.name = assignment.value.name || ''
     state.description = assignment.value.description || ''
     state.content = [...contentList.value]
-    state.assignmentType = assignmentType.value || 'Assignment'
+    state.assignmentType = normalizeAssignmentType(assignmentType.value) || assignmentType.value || 'Assignment'
     state.dueDate = dueDate.value || null
     state.dueTime = dueDate.value ? DEFAULT_DUE_TIME : null
     // Settings defaults always written (UIUX-79: step may be hidden; missing values are not fine for readers)
@@ -1011,7 +1015,7 @@
       }
 
       // Load persisted settings
-      if (state.assignmentType) assignmentType.value = state.assignmentType
+      if (state.assignmentType) assignmentType.value = normalizeAssignmentType(state.assignmentType) || state.assignmentType
       if (state.dueDate) dueDate.value = state.dueDate
       if (state.allowLate !== undefined) allowLate.value = state.allowLate
       if (state.maxAttempts) maxAttempts.value = state.maxAttempts

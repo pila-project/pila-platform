@@ -29,7 +29,7 @@
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('type') }}</span>
-                  <span class="info-value">{{ t(data.assignmentType ? data.assignmentType.toLowerCase() : 'assignment') }}</span>
+                  <span class="info-value">{{ data.assignmentType ? assignmentTypeLabel(data.assignmentType, t) : t('assignment') }}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label">{{ t('due-date') }}</span>
@@ -137,6 +137,7 @@
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PButton } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
+  import { assignmentTypeLabel } from '@/utils/assignment-type.js'
   import PreviewModal from '@/components/common/preview-modal.vue'
   import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
   import { openContentPreview } from '@/utils/open-content-preview.js'

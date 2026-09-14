@@ -136,9 +136,9 @@
                 </PTooltip>
                 <span
                   v-if="assignmentData[item.id]?.assignmentType"
-                  :class="getTypeBadgeClass(assignmentData[item.id].assignmentType)"
+                  :class="assignmentTypeBadgeClass(assignmentData[item.id].assignmentType)"
                 >
-                  {{ t(assignmentData[item.id].assignmentType.toLowerCase()) }}
+                  {{ assignmentTypeLabel(assignmentData[item.id].assignmentType, t) }}
                 </span>
                 <PBadge
                   v-if="archivedIds[item.id]"
@@ -471,6 +471,11 @@
     nextScheduledPublishAt,
     tryPromoteScheduledAssignment,
   } from '@/utils/assignment-status.js'
+  import {
+    assignmentTypeLabel,
+    assignmentTypeBadgeClass,
+    normalizeAssignmentType,
+  } from '@/utils/assignment-type.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 
@@ -875,8 +880,12 @@
     if (typeFilter.value.length > 0) {
       items = items.filter(id => {
         const data = assignmentData[id]
-        const type = (data?.assignmentType || 'Assignment').toLowerCase()
-        return data && typeFilter.value.some(v => v.toLowerCase() === type)
+        const raw = data?.assignmentType || 'Assignment'
+        const type = normalizeAssignmentType(raw) || String(raw).toLowerCase()
+        return data && typeFilter.value.some(v => {
+          const fv = normalizeAssignmentType(v) || String(v).toLowerCase()
+          return fv === type
+        })
       })
     }
 
@@ -953,14 +962,6 @@
     return 'assign-badge assign-badge-scheduled'
   }
 
-  function getTypeBadgeClass(type) {
-    const t = (type || '').toLowerCase()
-    if (t === 'assessment') return 'assign-type-pill assign-type-assessment'
-    if (t === 'homework') return 'assign-type-pill assign-type-homework'
-    if (t === 'practice') return 'assign-type-pill assign-type-practice'
-    if (t === 'learning') return 'assign-type-pill assign-type-learning'
-    return 'assign-type-pill assign-type-default'
-  }
 
   // ── Due date ──
   function getDueDate(id) {
@@ -1100,7 +1101,7 @@
     newState.content = Array.isArray(sourceState.content)
       ? [...sourceState.content]
       : (sourceState.content || null)
-    newState.assignmentType = sourceState.assignmentType || 'Assignment'
+    newState.assignmentType = normalizeAssignmentType(sourceState.assignmentType) || sourceState.assignmentType || 'Assignment'
     newState.dueDate = sourceState.dueDate || null
     newState.dueTime = sourceState.dueTime || null
     newState.allowLate = sourceState.allowLate
