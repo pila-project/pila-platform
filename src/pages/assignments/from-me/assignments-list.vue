@@ -140,12 +140,6 @@
                 >
                   {{ assignmentTypeLabel(assignmentData[item.id].assignmentType, t) }}
                 </span>
-                <PBadge
-                  v-if="archivedIds[item.id]"
-                  variant="warning"
-                  :text="t('archived')"
-                  class="assign-archived-badge"
-                />
               </div>
               <!-- Hover only on the description text (not the whole row/card) -->
               <PTooltip
@@ -176,9 +170,9 @@
           </template>
           <template #item.status="{ item }">
             <span :class="getStatusBadgeClass(item.id)">
-              {{ t(getStatus(item.id).toLowerCase()) }}
+              {{ archivedIds[item.id] ? t('archived') : t(getStatus(item.id).toLowerCase()) }}
             </span>
-            <div v-if="getScheduledSubline(item.id)" class="assign-cell-desc">
+            <div v-if="!archivedIds[item.id] && getScheduledSubline(item.id)" class="assign-cell-desc">
               {{ getScheduledSubline(item.id) }}
             </div>
           </template>
@@ -446,7 +440,7 @@
   import { useRouter, onBeforeRouteLeave } from 'vue-router'
   import { v4 as uuid } from 'uuid'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
-  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable, PTooltip, PBadge } from '@/components/ui/index.js'
+  import { PModal, PButton, PInput, PMenu, PMenuItem, PAlertDialog, PUnifiedFilter, PUnifiedFilterSection, PUnifiedFilterDateSection, PUnifiedFilterTabSection, PTable, PTooltip } from '@/components/ui/index.js'
   import { useFeedback } from '@/composables/useFeedback.js'
   import { useAssignmentArchive } from '@/composables/useAssignmentArchive.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -957,6 +951,7 @@
   }
 
   function getStatusBadgeClass(id) {
+    if (archivedIds.value[id]) return 'assign-badge assign-badge-archived'
     const s = getStatus(id)
     if (s === ASSIGNMENT_STATUS.PUBLISHED) return 'assign-badge assign-badge-published'
     if (s === ASSIGNMENT_STATUS.DRAFT) return 'assign-badge assign-badge-draft'
@@ -1667,9 +1662,11 @@
   color: #334155;
 }
 
-/* Archived tag — same PBadge warning as students table */
-.assign-archived-badge {
-  flex-shrink: 0;
+/* Archived status chip — warning look (UI only; stored status unchanged) */
+.assign-badge-archived {
+  background: var(--color-warning-50);
+  color: var(--color-warning-600);
+  border: 1px solid var(--color-warning-500);
 }
 
 /* Compact type pill next to title — never ellipsis; title truncates instead */
