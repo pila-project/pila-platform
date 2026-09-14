@@ -41,7 +41,7 @@
           <span v-if="opt.count != null" class="ufs-option-count">{{ opt.count }}</span>
         </label>
         <div v-if="!filteredOptions.length" class="ufs-empty">
-          No options found
+          {{ t('no-options-found') }}
         </div>
       </div>
     </div>
@@ -50,6 +50,7 @@
 
 <script setup>
 import { ref, computed, inject, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import { PCheckbox } from './index.js'
 
@@ -65,6 +66,8 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const { registerSection, unregisterSection, expandedSection, setExpanded } = inject('unifiedFilter')
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 const sectionLabel = computed(() => props.label)
 
 const internalQuery = ref('')
