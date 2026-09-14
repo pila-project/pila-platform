@@ -30,7 +30,7 @@
             ref="tabSearchRef"
             v-model="internalQuery"
             type="text"
-            placeholder="Search"
+            :placeholder="t('search')"
             class="ufts-search-input"
           />
         </div>
@@ -65,7 +65,7 @@
             </span>
           </label>
           <div v-if="!filteredOptions.length" class="ufts-empty">
-            No options found
+            {{ t('no-options-found') }}
           </div>
         </div>
       </div>
@@ -75,9 +75,13 @@
 
 <script setup>
 import { ref, computed, inject, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import { PCheckbox, PBadge } from './index.js'
 import PTabs from './PTabs.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -93,6 +97,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'update:activeTab'])
 
 const { registerSection, unregisterSection, expandedSection, setExpanded } = inject('unifiedFilter')
+const sectionLabel = computed(() => props.label)
 
 const internalQuery = ref('')
 const tabSearchRef = ref(null)
@@ -187,7 +192,7 @@ const selectedLabels = computed(() =>
 
 onMounted(() => {
   registerSection(props.id, {
-    label: props.label,
+    label: sectionLabel,
     icon: props.icon,
     selectedLabels,
     clearFn: () => emit('update:modelValue', []),

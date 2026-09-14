@@ -1167,7 +1167,7 @@ export default {
     "pl": "Archiwum",
     "pt": "Arquivada",
     "sk": "Archivované",
-    "th": "ชั้นเรียนที่ถูกจัดเก็บไว้"
+    "th": "ถูกจัดเก็บไว้"
   },
   "are-you-sure": {
     "de": "Sind Sie sicher?",
@@ -2052,6 +2052,19 @@ export default {
     "pt": "Aulas atribuídas",
     "sk": "Priradené triedy",
     "th": "ชั้นเรียนที่ได้รับมอบหมาย"
+  },
+  "clear-dates": {
+    "de": "Daten löschen",
+    "en": "Clear dates",
+    "es": "Borrar fechas",
+    "fr": "Effacer les dates",
+    "km": "សម្អាតកាលបរិច្ឆេទ",
+    "lv": "Notīrīt datumus",
+    "nl": "Datums wissen",
+    "pl": "Wyczyść daty",
+    "pt": "Limpar datas",
+    "sk": "Vymazať dátumy",
+    "th": "ล้างวันที่"
   },
   "clear-filters": {
     "de": "Filter zurücksetzen",
@@ -7446,7 +7459,7 @@ export default {
     "pl": "Pokaż archiwum",
     "pt": "Mostrar arquivado",
     "sk": "Zobraziť archivované",
-    "th": " แสดงชั้นเรียนที่ถูกจัดเก็บไว้"
+    "th": "แสดงที่ถูกจัดเก็บไว้"
   },
   "show-correct-answers": {
     "de": "Richtige Antworten anzeigen",
@@ -8464,7 +8477,7 @@ export default {
   },
   "total-student": {
     "de": "Schüler insgesamt",
-    "en": "Total Student",
+    "en": "Total Students",
     "es": "Total de estudiantes",
     "fr": "Total élèves",
     "km": "សិស្សសរុប",

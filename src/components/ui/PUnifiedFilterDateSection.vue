@@ -19,7 +19,7 @@
         class="ufds-clear"
         @click="clearValue"
       >
-        Clear dates
+        {{ t('clear-dates') }}
       </button>
     </div>
   </div>
@@ -27,8 +27,12 @@
 
 <script setup>
 import { computed, inject, onMounted, onBeforeUnmount } from 'vue'
+import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import PDatePicker from './PDatePicker.vue'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -40,6 +44,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const { registerSection, unregisterSection, expandedSection, setExpanded } = inject('unifiedFilter')
+const sectionLabel = computed(() => props.label)
 
 const isExpanded = computed(() => expandedSection.value === props.id)
 
@@ -49,7 +54,8 @@ const hasValue = computed(() =>
 
 const formattedRange = computed(() => {
   if (!hasValue.value) return ''
-  const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const lang = store.getters.language() || 'en'
+  const fmt = (d) => d.toLocaleDateString(lang, { month: 'short', day: 'numeric', year: 'numeric' })
   return `${fmt(props.modelValue[0])} – ${fmt(props.modelValue[1])}`
 })
 
@@ -77,7 +83,7 @@ const selectedLabels = computed(() => {
 
 onMounted(() => {
   registerSection(props.id, {
-    label: props.label,
+    label: sectionLabel,
     icon: props.icon,
     selectedLabels,
     clearFn: clearValue,
