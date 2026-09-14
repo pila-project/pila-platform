@@ -67,6 +67,21 @@ export const ACTIVITY_KIND = {
   DEADLINE_PASSED: 'deadline-passed',
 }
 
+export function activityDestination(kind) {
+  switch (kind) {
+    case ACTIVITY_KIND.CREATED_ASSIGNMENT:
+    case ACTIVITY_KIND.UPDATED_ASSIGNMENT:
+    case ACTIVITY_KIND.DEADLINE_PASSED:
+      return { type: 'assignment' }
+    case ACTIVITY_KIND.CREATED_GROUP:
+      return { type: 'route', path: '/teacher/classes' }
+    case ACTIVITY_KIND.CREATED_SEQUENCE:
+      return { type: 'route', path: '/teacher/content' }
+    default:
+      return null
+  }
+}
+
 /** Lower wins when timestamps tie. */
 export const ACTIVITY_KIND_PRIORITY = {
   [ACTIVITY_KIND.DEADLINE_PASSED]: 0,

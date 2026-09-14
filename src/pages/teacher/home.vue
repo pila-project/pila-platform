@@ -72,7 +72,16 @@
           <p class="home-empty-sub">{{ t('recent-groups-assignments-sequences-deadlines-show-here') }}</p>
         </div>
         <div v-else class="activity-grid">
-          <div v-for="item in activityItems" :key="item.kind + ':' + item.id" class="activity-card">
+          <div
+            v-for="item in activityItems"
+            :key="item.kind + ':' + item.id"
+            class="activity-card"
+            role="button"
+            tabindex="0"
+            @click="openActivityItem(item)"
+            @keydown.enter.prevent="openActivityItem(item)"
+            @keydown.space.prevent="openActivityItem(item)"
+          >
             <div class="activity-icon" :class="'activity-icon--' + item.kind">
               <LucideIcon :name="item.icon" :size="16" />
             </div>
@@ -303,6 +312,7 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import { v4 as uuid } from 'uuid'
 import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 import { PButton, PTable, PModal, PCheckbox } from '@/components/ui/index.js'
@@ -328,6 +338,7 @@ import {
   greetingFirstName,
   formatWelcomeBack,
   buildRecentActivity,
+  activityDestination,
   nextAssignmentDueAt,
   delayUntil,
   isSequenceMetadata,
@@ -343,6 +354,7 @@ import {
 } from '@/utils/teacher-home.js'
 
 const store = useStore()
+const router = useRouter()
 function t(slug) { return store.getters.t(slug) }
 
 const learnAboutPilaUrl = LEARN_ABOUT_PILA_URL
@@ -720,6 +732,18 @@ function openEdit(id) {
   showEditModal.value = true
 }
 
+function openActivityItem(item) {
+  const dest = activityDestination(item?.kind)
+  if (!dest) return
+  if (dest.type === 'assignment') {
+    openEdit(item.id)
+    return
+  }
+  if (dest.type === 'route' && dest.path) {
+    router.push(dest.path)
+  }
+}
+
 function canViewSubmissions(id) {
   if (getStatus(id) !== ASSIGNMENT_STATUS.PUBLISHED) return false
   if (!getAssignedGroups(id).length) return false
@@ -1069,6 +1093,15 @@ function onAssignmentSaved() {
   padding: 12px;
   background: #f8fafc;
   border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.activity-card:hover,
+.activity-card:focus-visible {
+  background: #f1f5f9;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+  outline: none;
 }
 
 .activity-icon {

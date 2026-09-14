@@ -9,6 +9,8 @@ import {
   formatWelcomeBack,
   currentAssignmentPreview,
   buildRecentActivity,
+  activityDestination,
+  ACTIVITY_KIND,
   relativeTimeFromNow,
   getAssignmentDueAt,
   nextAssignmentDueAt,
@@ -48,6 +50,22 @@ export default function teacherHomeTests() {
       })
       expect(HOME_LAYOUT_KEY).to.equal('pila-home-layout')
     })
+
+    it('maps recent-activity kinds to assignment edit or list routes', function () {
+      expect(activityDestination(ACTIVITY_KIND.CREATED_ASSIGNMENT)).to.deep.equal({ type: 'assignment' })
+      expect(activityDestination(ACTIVITY_KIND.UPDATED_ASSIGNMENT)).to.deep.equal({ type: 'assignment' })
+      expect(activityDestination(ACTIVITY_KIND.DEADLINE_PASSED)).to.deep.equal({ type: 'assignment' })
+      expect(activityDestination(ACTIVITY_KIND.CREATED_GROUP)).to.deep.equal({
+        type: 'route',
+        path: '/teacher/classes',
+      })
+      expect(activityDestination(ACTIVITY_KIND.CREATED_SEQUENCE)).to.deep.equal({
+        type: 'route',
+        path: '/teacher/content',
+      })
+      expect(activityDestination('unknown')).to.equal(null)
+    })
+
 
     it('formats greeting from the first name token', function () {
       expect(greetingFirstName('Ms. Rodriguez', 'Teacher')).to.equal('Ms.')
