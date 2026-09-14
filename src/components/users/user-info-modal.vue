@@ -9,7 +9,10 @@
 
   const store = useStore()
 
-  const props = defineProps({ id: String })
+  const props = defineProps({
+    id: String,
+    runDuplicateGuard: { type: Function, default: null },
+  })
   const emit = defineEmits(['close', 'open-login-code', 'saved'])
 
   const open = ref(true)
@@ -66,6 +69,19 @@
   }
 
   async function save() {
+    const commit = () => commitSave()
+    if (typeof props.runDuplicateGuard === 'function') {
+      props.runDuplicateGuard(
+        (editUserInfo?.name || '').trim(),
+        studentGrade.value || '',
+        commit,
+      )
+      return
+    }
+    await commit()
+  }
+
+  async function commitSave() {
     saving.value = true
     try {
       if (teacherOwnedUserAccount && userSecret) {

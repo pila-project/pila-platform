@@ -27,16 +27,18 @@ export function findDuplicateName(name, existingNames) {
  *
  * @param {string} name
  * @param {string} [grade]
- * @param {{ name: string, grade?: string }[]} existingStudents
+ * @param {{ name: string, grade?: string, id?: string }[]} existingStudents
+ * @param {string} [excludeId] - skip this student (edit-self)
  * @returns {{ type: 'hard'|'soft', existingName: string, existingGrade?: string } | null}
  */
-export function findStudentDuplicate(name, grade, existingStudents = []) {
+export function findStudentDuplicate(name, grade, existingStudents = [], excludeId) {
   const n = normalizeName(name)
   if (!n) return null
   const g = normalizeGrade(grade)
 
   let soft = null
   for (const e of existingStudents) {
+    if (excludeId && e?.id === excludeId) continue
     if (!e?.name || normalizeName(e.name) !== n) continue
     // Legacy name-only roster entries (no grade): treat as hard match
     if (e.matchAnyGrade) {
@@ -146,9 +148,9 @@ export function partitionBulkStudentRows(rows, existing = []) {
 export function useDuplicateGuard({ getExistingNames, getExistingStudents } = {}) {
   const duplicatePrompt = ref(null)
 
-  function findDuplicate(name, grade) {
+  function findDuplicate(name, grade, excludeId) {
     if (typeof getExistingStudents === 'function') {
-      return findStudentDuplicate(name, grade, getExistingStudents())
+      return findStudentDuplicate(name, grade, getExistingStudents(), excludeId)
     }
     const match = findDuplicateName(name, getExistingNames?.() || [])
     return match ? { type: 'hard', existingName: match } : null
@@ -158,9 +160,10 @@ export function useDuplicateGuard({ getExistingNames, getExistingStudents } = {}
    * @param {string} name
    * @param {Function} proceed
    * @param {string} [grade] - required for student grade-aware checks
+   * @param {string} [excludeId] - skip this student (edit-self)
    */
-  function runWithGuard(name, proceed, grade) {
-    const match = findDuplicate(name, grade)
+  function runWithGuard(name, proceed, grade, excludeId) {
+    const match = findDuplicate(name, grade, excludeId)
     if (match) {
       duplicatePrompt.value = {
         name,

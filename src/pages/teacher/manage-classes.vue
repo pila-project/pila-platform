@@ -285,6 +285,7 @@
     <UserInfoModal
       v-if="userModalUser"
       :id="userModalUser"
+      :run-duplicate-guard="runEditStudentDuplicateGuard"
       @close="userModalUser = null"
       @saved="showSuccessDialog(t('student-updated-successfully'))"
       @open-login-code="openLoginCodeModal({ id: $event }); userModalUser = null"
@@ -1224,10 +1225,15 @@ const bulkDuplicateConfirmLoading = ref(false)
 function getStudentExistingRoster() {
   return students.value
     .map(s => ({
+      id: s.id,
       name: decryptedLegalNames.get(s.id),
       grade: s.grade || users[s.id]?.grade || '',
     }))
     .filter(s => s.name && s.name !== '…')
+}
+
+function runEditStudentDuplicateGuard(name, grade, proceed) {
+  runStudentWithGuard(name, proceed, grade, userModalUser.value)
 }
 
 /** @deprecated name-only list — prefer getStudentExistingRoster */
