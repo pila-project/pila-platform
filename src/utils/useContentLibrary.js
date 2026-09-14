@@ -226,7 +226,10 @@ export function useContentLibrary(store) {
   const currentContentList = computed(() => {
     const pilaList = taggedContent.value.map(t => t.target)
     if (activeShowTab.value === 'mine') return [...myContent]
-    if (activeShowTab.value === 'pila') return pilaList
+    // PILA Expert is exclusive: never include myContent ids (UIUX-215).
+    if (activeShowTab.value === 'pila') {
+      return pilaList.filter(id => !myContentIds.has(id))
+    }
     return [...new Set([...pilaList, ...myContent])]
   })
 
