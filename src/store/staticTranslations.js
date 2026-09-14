@@ -4069,17 +4069,17 @@ export default {
     "th": "การบ้าน"
   },
   "i-confirm-consent-collected": {
-    "de": "Ich bestätige die eingeholte Einwilligung",
-    "en": "I confirm consent collected",
-    "es": "Confirmo el consentimiento obtenido",
-    "fr": "Je confirme que le consentement a été recueilli",
-    "km": "ខ្ញុំបញ្ជាក់ថាបានប្រមូលការយល់ព្រម",
-    "lv": "Es apstiprinu, ka piekrišana ir savākta",
-    "nl": "Ik bevestig dat toestemming is verkregen",
-    "pl": "Potwierdzam, że uzyskano zgodę",
-    "pt": "Confirmo o consentimento coletado",
-    "sk": "Potvrdzujem zhromaždený súhlas",
-    "th": "ฉันยืนยันว่าได้รับความยินยอมแล้ว"
+    "de": "Ich bestätige, dass ich die erforderliche Einwilligung eingeholt habe",
+    "en": "I confirm that I collected the necessary consent",
+    "es": "Confirmo que he recogido el consentimiento necesario",
+    "fr": "Je confirme que j’ai recueilli le consentement nécessaire",
+    "km": "ខ្ញុំបញ្ជាក់ថាខ្ញុំបានប្រមូលការយល់ព្រមចាំបាច់",
+    "lv": "Es apstiprinu, ka esmu ieguvis nepieciešamo piekrišanu",
+    "nl": "Ik bevestig dat ik de benodigde toestemming heb verkregen",
+    "pl": "Potwierdzam, że zebrałem niezbędną zgodę",
+    "pt": "Confirmo que recolhi o consentimento necessário",
+    "sk": "Potvrdzujem, že som získal potrebný súhlas",
+    "th": "ฉันยืนยันว่าได้เก็บรวบรวมความยินยอมที่จำเป็นแล้ว"
   },
   "if-you": {
     "de": "Wenn Du",
@@ -4758,17 +4758,17 @@ export default {
     "th": "จัดการบัญชีนักเรียน"
   },
   "manage-students-in": {
-    "de": "Schüler verwalten in",
+    "de": "Schüler verwalten in:",
     "en": "Manage students in:",
-    "es": "Gestionar estudiantes en",
-    "fr": "Gérer les élèves dans",
-    "km": "គ្រប់គ្រងសិស្សក្នុង",
-    "lv": "Pārvaldīt skolēnus",
-    "nl": "Leerlingen beheren in",
-    "pl": "Zarządzaj uczniami w",
-    "pt": "Gerir alunos em",
-    "sk": "Spravovať študentov v",
-    "th": "จัดการนักเรียนใน"
+    "es": "Gestionar estudiantes en:",
+    "fr": "Gérer les élèves dans :",
+    "km": "គ្រប់គ្រងសិស្សក្នុង:",
+    "lv": "Pārvaldīt skolēnus:",
+    "nl": "Leerlingen beheren in:",
+    "pl": "Zarządzaj uczniami w:",
+    "pt": "Gerir alunos em:",
+    "sk": "Spravovať študentov v:",
+    "th": "จัดการนักเรียนใน:"
   },
   "manual-entry": {
     "de": "Manuelle Eingabe",
@@ -5876,17 +5876,17 @@ export default {
     "th": "รีเซ็ตรหัสผ่านสำเร็จ"
   },
   "per-the-pila-personal-data-protection-notice-or": {
-    "de": "Aktivieren Sie bitte dieses Kästchen gemäß der PILA-Richtlinie zum Schutz personenbezogener Daten oder den spezifischen Einwilligungsanforderungen, wenn Sie an einer Forschungsstudie über PILA teilnehmen, um zu bestätigen, dass Sie die Einwilligung der Eltern/Erziehungsberechtigten und der Schülerinnen und Schüler gemäß Ihren lokalen oder nationalen Gesetzen eingeholt haben.",
-    "en": "Per the PILA Personal Data Protection Notice or the specific consent requirements if you are participating in a research study through PILA, please check this box to confirm you have collected parental/guardian and student consent as required by your local or national laws.",
-    "es": "Según el Aviso de protección de datos personales de PILA o los requisitos de consentimiento específicos, si participa en un estudio de investigación a través de PILA, marque esta casilla para confirmar que ha obtenido el consentimiento de los padres/tutores y del estudiante según lo exigen las leyes locales o nacionales.",
-    "fr": "Conformément à l’Avis de protection des données personnelles de PILA, ainsi qu’aux exigences relatives au consentement implicite sur la base légale de mission d’intérêt public, veuillez cocher cette case afin de confirmer que vous ne créez des profils que pour les élèves dont les parents ou représentants légaux, après avoir reçu la note d’information, n’ont pas exprimé de refus de participation à cette étude.",
-    "km": "យោងតាមសេចក្តីជូនដំណឹងការពារទិន្នន័យផ្ទាល់ខ្លួន PILA ឬតាមលក្ខខណ្ឌការយល់ព្រមបច្ចេកទេស ប្រសិនបើអ្នកចូលរួមក្នុងការស្រាវជ្រាវតាម PILA សូមត្រួតពិនិត្យប្រអប់នេះដើម្បីបញ្ជាក់ថាអ្នកបានប្រមូលការយល់ព្រមពីមាតា/ឪពុក និងសិស្ស ដូចដែលតម្រូវដោយច្បាប់ក្នុងស្រុក ឬជាតិនៃអ្នក។",
-    "lv": "Saskaņā ar PILA personas datu aizsardzības paziņojumu vai īpašajām piekrišanas prasībām, ja piedalāties pētnieciskajā pētījumā, izmantojot PILA, lūdzu, atzīmējiet šo izvēles rūtiņu, lai apstiprinātu, ka esat savācis vecāku/aizbildņu un skolēnu piekrišanu, kā to pieprasa jūsu vietējie vai valsts tiesību akti.",
-    "nl": "In overeenstemming met de PILA-kennisgeving inzake de bescherming van persoonsgegevens of de specifieke toestemmingsvereisten als u deelneemt aan een onderzoek via PILA, vinkt u dit vakje aan om te bevestigen dat u de toestemming van ouders/voogd en studenten heeft verzameld, zoals vereist door uw lokale of nationale wetgeving.",
-    "pl": "Zgodnie z informacją o ochronie danych osobowych PILA lub konkretnymi wymaganiami zgody, jeśli bierzesz udział w badaniu za pośrednictwem PILA, zaznacz to pole, aby potwierdzić, że uzyskałeś zgodę rodzica/opiekuna i ucznia zgodnie z lokalnymi lub krajowymi przepisami.",
-    "pt": "De acordo com o Aviso de Proteção de Dados Pessoais do PILA ou com os requisitos de consentimento específicos, se você estiver participando de um estudo de pesquisa por meio do PILA, marque esta caixa para confirmar que você obteve o consentimento dos pais/responsáveis ​​e do aluno, conforme exigido pelas leis locais ou nacionais.",
-    "sk": "Ak sa zúčastňujete výskumnej štúdie prostredníctvom PILA, riaďte sa oznámením o ochrane osobných údajov PILA a požiadavkami na súhlas.\nZačiarknutím políčka potvrdzujete, že ste získali súhlas rodiča alebo zákonného zástupcu a žiaka podľa miestnych alebo národných právnych predpisov.",
-    "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA หรือข้อกำหนดการให้ความยินยอมเฉพาะกรณีที่ท่านเข้าร่วมการศึกษาวิจัยผ่านทาง PILA กรุณาติ๊กเครื่องหมายในช่องนี้เพื่อยืนยันว่าท่านได้รับความยินยอมจากผู้ปกครอง/ผู้ดูแล และนักเรียน ตามที่กฎหมายท้องถิ่นหรือกฎหมายระดับชาติของท่านกำหนดเรียบร้อยแล้ว"
+    "de": "Gemäß der PILA-Mitteilung zum Schutz personenbezogener Daten aktivieren Sie bitte dieses Kästchen, um zu bestätigen, dass Sie die Einwilligung der Eltern/Erziehungsberechtigten und der Schülerinnen und Schüler gemäß Ihren lokalen und/oder nationalen Gesetzen eingeholt haben.",
+    "en": "Per the PILA Personal Data Protection Notice, please check this box to confirm you have collected parental/guardian and student consent as required by your local and/or national laws.",
+    "es": "Según el Aviso de protección de datos personales de PILA, marque esta casilla para confirmar que ha obtenido el consentimiento de los padres/tutores y del estudiante según lo exigen sus leyes locales y/o nacionales.",
+    "fr": "Conformément à l’Avis de protection des données personnelles de PILA, veuillez cocher cette case afin de confirmer que vous avez recueilli le consentement des parents/tuteurs et des élèves comme l’exigent vos lois locales et/ou nationales.",
+    "km": "យោងតាមសេចក្តីជូនដំណឹងការពារទិន្នន័យផ្ទាល់ខ្លួនរបស់ PILA សូមធីកប្រអប់នេះដើម្បីបញ្ជាក់ថាអ្នកបានប្រមូលការយល់ព្រមពីមាតា/ឪពុក ឬអាណាព្យាបាល និងសិស្ស ដូចដែលតម្រូវដោយច្បាប់ក្នុងស្រុក និង/ឬជាតិរបស់អ្នក។",
+    "lv": "Saskaņā ar PILA personas datu aizsardzības paziņojumu, lūdzu, atzīmējiet šo izvēles rūtiņu, lai apstiprinātu, ka esat savācis vecāku/aizbildņu un skolēnu piekrišanu, kā to pieprasa jūsu vietējie un/vai valsts tiesību akti.",
+    "nl": "In overeenstemming met de PILA-kennisgeving inzake de bescherming van persoonsgegevens vinkt u dit vakje aan om te bevestigen dat u de toestemming van ouders/voogd en leerlingen heeft verzameld, zoals vereist door uw lokale en/of nationale wetgeving.",
+    "pl": "Zgodnie z Informacją o ochronie danych osobowych PILA zaznacz to pole, aby potwierdzić, że uzyskałeś zgodę rodzica/opiekuna i ucznia zgodnie z lokalnymi i/lub krajowymi przepisami.",
+    "pt": "De acordo com o Aviso de Proteção de Dados Pessoais do PILA, marque esta caixa para confirmar que você obteve o consentimento dos pais/responsáveis e do aluno, conforme exigido pelas leis locais e/ou nacionais.",
+    "sk": "Podľa oznámenia o ochrane osobných údajov PILA začiarknite toto políčko, aby ste potvrdili, že ste získali súhlas rodiča/zákonného zástupcu a žiaka podľa miestnych a/alebo národných právnych predpisov.",
+    "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA กรุณาติ๊กเครื่องหมายในช่องนี้เพื่อยืนยันว่าท่านได้รับความยินยอมจากผู้ปกครอง/ผู้ดูแลและนักเรียนตามที่กฎหมายท้องถิ่นและ/หรือกฎหมายระดับชาติของท่านกำหนด"
   },
   "pila-content": {
     "de": "PILA-Inhalte",
@@ -9644,6 +9644,32 @@ export default {
     "pt": "{num} aluno(s) selecionado(s)",
     "sk": "Vybraných študentov: {num}",
     "th": "เลือกนักเรียน {num} คน"
+  },
+  "n-students-created": {
+    "de": "{num} Schüler erstellt",
+    "en": "{num} students created",
+    "es": "{num} estudiantes creados",
+    "fr": "{num} élèves créés",
+    "km": "បានបង្កើតសិស្ស {num} នាក់",
+    "lv": "Izveidoti {num} skolēni",
+    "nl": "{num} leerlingen aangemaakt",
+    "pl": "Utworzono {num} uczniów",
+    "pt": "{num} alunos criados",
+    "sk": "Vytvorených študentov: {num}",
+    "th": "สร้างนักเรียนแล้ว {num} คน"
+  },
+  "n-students-created-skipped": {
+    "de": "{num} Schüler erstellt, {skipped} übersprungen ({reason})",
+    "en": "{num} students created, {skipped} skipped ({reason})",
+    "es": "{num} estudiantes creados, {skipped} omitidos ({reason})",
+    "fr": "{num} élèves créés, {skipped} ignorés ({reason})",
+    "km": "បានបង្កើតសិស្ស {num} នាក់ រំលង {skipped} ({reason})",
+    "lv": "Izveidoti {num} skolēni, izlaisti {skipped} ({reason})",
+    "nl": "{num} leerlingen aangemaakt, {skipped} overgeslagen ({reason})",
+    "pl": "Utworzono {num} uczniów, pominięto {skipped} ({reason})",
+    "pt": "{num} alunos criados, {skipped} ignorados ({reason})",
+    "sk": "Vytvorených študentov: {num}, preskočených: {skipped} ({reason})",
+    "th": "สร้างนักเรียนแล้ว {num} คน ข้าม {skipped} คน ({reason})"
   },
   "add-to-n-group": {
     "de": "Zu {num} Gruppe hinzufügen",

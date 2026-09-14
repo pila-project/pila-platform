@@ -2340,9 +2340,12 @@ function parseCSVLine(line) {
 function formatBulkCreateResultMessage(created, skipped) {
   if (skipped > 0) {
     const reason = t('bulk-duplicate-skipped-reason')
-    return `${created} ${t('student')} ${t('created')}, ${skipped} ${t('skipped')} (${reason})`
+    return t('n-students-created-skipped')
+      .replace('{num}', String(created))
+      .replace('{skipped}', String(skipped))
+      .replace('{reason}', reason)
   }
-  return `${created} ${t('student')} ${t('created')}`
+  return t('n-students-created').replace('{num}', String(created))
 }
 
 function parseCSVStudentRows(lines) {

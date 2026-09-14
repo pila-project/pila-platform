@@ -7,7 +7,7 @@
     <template #title>
       <div>
         <h2 class="text-lg font-semibold text-zinc-950">{{ t('assign-students-to-group') }}</h2>
-        <p class="text-sm text-slate-500 mt-0.5">{{ t('manage-students-in') }}: {{ groupName }}</p>
+        <p class="text-sm text-slate-500 mt-0.5">{{ t('manage-students-in') }} {{ groupName }}</p>
       </div>
     </template>
 
