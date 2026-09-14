@@ -846,16 +846,35 @@
               </thead>
               <tbody>
                 <tr v-for="(row, index) in bulkEntryRows" :key="index">
-                  <td><input v-model="row.name" class="input bulk-input" :placeholder="t('name')" /></td>
-                  <td><input v-model="row.nickname" class="input bulk-input" :placeholder="t('nickname')" /></td>
                   <td>
-                    <select v-model="row.grade" class="input bulk-input">
+                    <input
+                      v-model="row.name"
+                      class="input bulk-input"
+                      :class="{ 'bulk-input--error': !!bulkEntryErrors[index]?.name }"
+                      :placeholder="t('name')"
+                      :aria-invalid="!!bulkEntryErrors[index]?.name || undefined"
+                      @blur="onBulkFieldBlur(index)"
+                      @input="clearBulkFieldError(index, 'name')"
+                    />
+                    <p v-if="bulkEntryErrors[index]?.name" class="bulk-field-error">{{ bulkEntryErrors[index].name }}</p>
+                  </td>
+                  <td><input v-model="row.nickname" class="input bulk-input" :placeholder="t('nickname')" @blur="onBulkFieldBlur(index)" /></td>
+                  <td>
+                    <select
+                      v-model="row.grade"
+                      class="input bulk-input"
+                      :class="{ 'bulk-input--error': !!bulkEntryErrors[index]?.grade }"
+                      :aria-invalid="!!bulkEntryErrors[index]?.grade || undefined"
+                      @blur="onBulkFieldBlur(index)"
+                      @change="clearBulkFieldError(index, 'grade')"
+                    >
                       <option value="">{{ t('select-grade') }}</option>
                       <option v-for="g in gradeOptions" :key="g.value" :value="g.value">{{ g.label }}</option>
                     </select>
+                    <p v-if="bulkEntryErrors[index]?.grade" class="bulk-field-error">{{ bulkEntryErrors[index].grade }}</p>
                   </td>
                   <td>
-                    <button class="bulk-delete-row" @click="bulkEntryRows.splice(index, 1)">
+                    <button class="bulk-delete-row" @click="removeBulkRow(index)">
                       <LucideIcon name="trash-2" :size="14" />
                     </button>
                   </td>
@@ -1169,6 +1188,12 @@ const bulkEntryRows = ref([
   { name: '', nickname: '', grade: '' },
   { name: '', nickname: '', grade: '' },
   { name: '', nickname: '', grade: '' },
+])
+/** UIUX-203: per-row required-field errors for bulk manual entry (parallel to bulkEntryRows). */
+const bulkEntryErrors = ref([
+  { name: '', grade: '' },
+  { name: '', grade: '' },
+  { name: '', grade: '' },
 ])
 // ── Feedback (success modal, error toast) ──
 const {
@@ -2188,12 +2213,100 @@ async function createSingleStudent(name, nickname, grade) {
   return id
 }
 
+function emptyBulkErrors() {
+  return { name: '', grade: '' }
+}
+
+function resetBulkEntryRows() {
+  bulkEntryRows.value = [
+    { name: '', nickname: '', grade: '' },
+    { name: '', nickname: '', grade: '' },
+    { name: '', nickname: '', grade: '' },
+  ]
+  bulkEntryErrors.value = [
+    emptyBulkErrors(),
+    emptyBulkErrors(),
+    emptyBulkErrors(),
+  ]
+}
+
 function addBulkRow() {
   bulkEntryRows.value.push({ name: '', nickname: '', grade: '' })
+  bulkEntryErrors.value.push(emptyBulkErrors())
+}
+
+function removeBulkRow(index) {
+  bulkEntryRows.value.splice(index, 1)
+  bulkEntryErrors.value.splice(index, 1)
+  if (!bulkEntryRows.value.length) {
+    addBulkRow()
+  }
+}
+
+function isBulkRowEmpty(row) {
+  return !String(row.name || '').trim() && !String(row.nickname || '').trim() && !row.grade
+}
+
+function isBulkRowComplete(row) {
+  return !!String(row.name || '').trim() && !!row.grade
+}
+
+function clearBulkFieldError(index, field) {
+  const errs = bulkEntryErrors.value[index]
+  if (!errs || !errs[field]) return
+  bulkEntryErrors.value[index] = { ...errs, [field]: '' }
+}
+
+/** Surface required errors for a partially filled (or force-validated) bulk row. */
+function validateBulkRow(index, { force = false } = {}) {
+  const row = bulkEntryRows.value[index]
+  if (!row) return true
+  if (isBulkRowEmpty(row) && !force) {
+    bulkEntryErrors.value[index] = emptyBulkErrors()
+    return true
+  }
+  if (isBulkRowComplete(row)) {
+    bulkEntryErrors.value[index] = emptyBulkErrors()
+    return true
+  }
+  // Empty on force (submit with nothing) or partial: mark missing required fields
+  if (isBulkRowEmpty(row) && force) {
+    bulkEntryErrors.value[index] = emptyBulkErrors()
+    return true
+  }
+  const nameErr = String(row.name || '').trim() ? '' : t('required')
+  const gradeErr = row.grade ? '' : t('required')
+  bulkEntryErrors.value[index] = { name: nameErr, grade: gradeErr }
+  return !nameErr && !gradeErr
+}
+
+function onBulkFieldBlur(index) {
+  validateBulkRow(index)
+}
+
+/** Validate all rows; returns { ok, validRows }. Empty rows skipped; partials fail. */
+function validateAllBulkRows() {
+  let ok = true
+  const validRows = []
+  bulkEntryRows.value.forEach((row, index) => {
+    if (isBulkRowEmpty(row)) {
+      bulkEntryErrors.value[index] = emptyBulkErrors()
+      return
+    }
+    if (isBulkRowComplete(row)) {
+      bulkEntryErrors.value[index] = emptyBulkErrors()
+      validRows.push(row)
+      return
+    }
+    // partial — surface errors, do not drop silently
+    validateBulkRow(index, { force: true })
+    ok = false
+  })
+  return { ok, validRows }
 }
 
 const validBulkRows = computed(() =>
-  bulkEntryRows.value.some(r => r.name.trim() && r.grade)
+  bulkEntryRows.value.some(r => isBulkRowComplete(r))
 )
 
 function parseCSVLine(line) {
@@ -2342,11 +2455,7 @@ async function executeBulkCreate(rows, duplicateSkipped) {
     }
     if (created > 0) await Agent.synced()
     showBulkEntryModal.value = false
-    bulkEntryRows.value = [
-      { name: '', nickname: '', grade: '' },
-      { name: '', nickname: '', grade: '' },
-      { name: '', nickname: '', grade: '' },
-    ]
+    resetBulkEntryRows()
     const msg = formatBulkCreateResultMessage(created, duplicateSkipped)
     if (created > 0) {
       showSuccessDialog(msg)
@@ -2362,6 +2471,17 @@ async function executeBulkCreate(rows, duplicateSkipped) {
 }
 
 async function handleBulkCreate() {
+  // UIUX-203: validate before leaving the form — do not silently drop partial rows
+  const { ok, validRows } = validateAllBulkRows()
+  if (!ok) {
+    toastError(t('fill-required-fields-to-continue'))
+    return
+  }
+  if (!validRows.length) {
+    toastError(t('fill-required-fields-to-continue'))
+    return
+  }
+
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
   if (!providerSecret) {
     showBulkEntryModal.value = false
@@ -2375,10 +2495,8 @@ async function handleBulkCreate() {
     showAcceptStudentAgreementModal.value = true
     return
   }
-  const rows = bulkEntryRows.value.filter(r => r.name.trim() && r.grade)
-  if (!rows.length) return
   await ensureDecryptedStudentNames()
-  const partition = partitionBulkStudentRows(rows, getStudentExistingRoster())
+  const partition = partitionBulkStudentRows(validRows, getStudentExistingRoster())
   promptBulkDuplicates(partition, executeBulkCreate)
 }
 
@@ -3068,6 +3186,18 @@ function openLoginCodesPage(studentIds) {
   padding: 8px 12px;
   border: 1px solid var(--color-slate-200);
   border-radius: 6px;
+}
+.bulk-input--error {
+  border-color: #dc2626;
+}
+.bulk-input--error:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px #dc2626;
+}
+.bulk-field-error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #dc2626;
 }
 .bulk-delete-row {
   display: flex;

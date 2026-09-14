@@ -23,6 +23,7 @@
           error ? 'border-danger-600 focus:ring-danger-600' : ''
         ]"
         @input="$emit('update:modelValue', $event.target.value)"
+        @blur="$emit('blur', $event)"
         @keypress.enter="$emit('enter', $event)"
       />
     </div>
@@ -59,7 +60,7 @@ const props = defineProps({
   icon: String,
 })
 
-defineEmits(['update:modelValue', 'enter'])
+defineEmits(['update:modelValue', 'enter', 'blur'])
 
 const inputId = computed(() => props.id || `input-${Math.random().toString(36).slice(2, 9)}`)
 
