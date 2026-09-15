@@ -426,7 +426,7 @@
   import PreviewModal from '@/components/common/preview-modal.vue'
   import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
   import { useContentLibrary } from '@/utils/useContentLibrary.js'
-  import { getCachedContentName, getContentName, prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
+  import { getContentName, prefetchBatch, getCachedTagHierarchy, invalidateNames, hasCachedContentNameForLang } from '@/utils/content-cache.js'
   import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent, removeAssignmentContentId } from '@/utils/assignment-content.js'
@@ -497,10 +497,12 @@
     emit('update:width', open ? 'min(1100px, 96vw)' : '92vw')
   }, { immediate: true })
 
-  // UIUX-212: when UI language changes, re-resolve content titles (no bare-id English stick).
-  watch(() => store.getters.language(), (lang) => {
+  // UIUX-212: language change — clear name cache (same as Explore) and re-resolve.
+  watch(() => store.getters.language(), (lang, prev) => {
+    if (!lang || lang === prev) return
+    invalidateNames()
     for (const id of contentList.value) {
-      if (id && !getCachedContentName(id, lang)) void getContentName(id, lang)
+      if (id && !hasCachedContentNameForLang(id, lang)) void getContentName(id, lang)
     }
     const visibleIds = contentBrowserRef.value?.paginatedDisplayList
     if (visibleIds?.length) {

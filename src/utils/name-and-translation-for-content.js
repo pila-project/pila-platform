@@ -3,6 +3,15 @@ import { validate as isUUID } from 'uuid'
 const DEFAULT_TRANSLATION_DOMAIN = 'translate-karel-alpha.netlify.app'
 const isBettyURL = url => url?.startsWith?.('https://bettysbrain.knowlearning.systems/')
 
+function isNameMap(value) {
+    return !!value && typeof value === 'object' && !Array.isArray(value)
+}
+
+function isEnglishLang(lang) {
+    const short = String(lang || 'en').split(/[-_]/)[0].toLowerCase()
+    return !short || short === 'en'
+}
+
 export function localizedNameFromValue(value, lang = 'en', { requireExact = false } = {}) {
     if (typeof value === 'string') return value.trim()
     if (typeof value === 'number') return String(value)
@@ -29,36 +38,69 @@ export function localizedNameFromValue(value, lang = 'en', { requireExact = fals
     return ''
 }
 
-export default async function displayTranslatedContent(
+/**
+ * Resolve a display name for content plus whether it is a true translation
+ * for `lang` (not an English/canonical fallback).
+ * Plain string state names are canonical — never treated as lang-exact —
+ * so translate-item can still supply Thai/etc.
+ */
+export async function resolveTranslatedContentName(
     content,
     lang,
     domain = DEFAULT_TRANSLATION_DOMAIN
 ) {
     if (isBettyURL(content)) {
-        const name = await nameFromBettyURL(content, lang)
-        return isUUID(name) ? (await translateId(name, lang, domain)) : name
-    } else { // content is task
-        return translateNameFromTaskId(content, lang, domain)
+        return resolveBettyURLName(content, lang, domain)
     }
+    return resolveTaskDisplayName(content, lang, domain)
 }
 
-async function nameFromBettyURL(url, lang) {
+export default async function displayTranslatedContent(
+    content,
+    lang,
+    domain = DEFAULT_TRANSLATION_DOMAIN
+) {
+    const { name } = await resolveTranslatedContentName(content, lang, domain)
+    return name
+}
+
+async function resolveBettyURLName(url, lang, domain) {
     if (!isBettyURL(url)) {
         console.warn('non-betty url', url)
-        return `betty url name not found: ${url}`
+        return { name: `betty url name not found: ${url}`, exact: false }
     }
     const bettyId = url.split('/')[4]
     if (!isUUID(bettyId)) {
         console.warn('unfound id in betty url', bettyId)
-        return `betty url id not id ${bettyId}`
+        return { name: `betty url id not id ${bettyId}`, exact: false }
     }
     const { name } = await Agent.metadata(bettyId)
-    const localizedName = localizedNameFromValue(name, lang)
-    if (!localizedName) {
-        console.warn('name from metadata not found for betty url, id', url, bettyId)
-        return `betty md name not found ${bettyId}`
+
+    if (isNameMap(name)) {
+        const exact = localizedNameFromValue(name, lang, { requireExact: true })
+        if (exact) {
+            if (isUUID(exact)) {
+                return translateIdResolved(exact, lang, domain)
+            }
+            return { name: exact, exact: true }
+        }
     }
-    return localizedName
+
+    // Betty metadata id may itself need translate-item via task path when it is a UUID name
+    if (typeof name === 'string' && isUUID(name)) {
+        return translateIdResolved(name, lang, domain)
+    }
+
+    const fallback = localizedNameFromValue(name, lang)
+    if (!fallback) {
+        console.warn('name from metadata not found for betty url, id', url, bettyId)
+        return { name: `betty md name not found ${bettyId}`, exact: false }
+    }
+    if (isUUID(fallback)) {
+        return translateIdResolved(fallback, lang, domain)
+    }
+    // Canonical/English fallback — exact only when UI language is English
+    return { name: fallback, exact: isEnglishLang(lang) }
 }
 
 export async function translateNameFromTaskId (
@@ -66,50 +108,85 @@ export async function translateNameFromTaskId (
     lang,
     domain = DEFAULT_TRANSLATION_DOMAIN
 ) {
-    const { name } = await Agent.state(taskId)
-    const exactLocalizedName = localizedNameFromValue(name, lang, { requireExact: true })
-
-    if (exactLocalizedName) {
-        return isUUID(exactLocalizedName)
-            ? await translateId(exactLocalizedName, lang, domain)
-            : exactLocalizedName
-    }
-
-    // attempt translation site translation first
-    const translations = await Agent.query('translate-item', [ taskId, [ lang ] ], 'translations.pilaproject.org')
-    const nameTranslations = translations.filter(({ path })  => path.length === 2 && path[1] === 'name')
-    if (nameTranslations.length) return nameTranslations[0].value
-
-    const localizedName = localizedNameFromValue(name, lang)
-    if (!localizedName) {
-        console.warn(`task name not found for ${taskId}`)
-        return `task name not found for ${taskId}`
-    } else if (isUUID(localizedName)) {
-        return await translateId(localizedName, lang, domain)
-    } else {
-        return localizedName
-    }
+    const { name } = await resolveTaskDisplayName(taskId, lang, domain)
+    return name
 }
 
-async function translateId(id, lang, domain = DEFAULT_TRANSLATION_DOMAIN) {
-    // order of return preference is this:
-    // - no translation needed, return source_string (breadcrumb)
-    // - translation in lang found, return
-    // - translation in lang NOT found, return fallback with warning if exists
-    // - neither translation nor fallback, return something is wrong
+async function resolveTaskDisplayName(taskId, lang, domain) {
+    const { name } = await Agent.state(taskId)
+
+    // Object maps only: per-lang keys are true exact translations.
+    // A plain string name is canonical/English — do NOT treat it as lang-exact
+    // or we skip translate-item and permanently cache English under id:th.
+    if (isNameMap(name)) {
+        const exactLocalizedName = localizedNameFromValue(name, lang, { requireExact: true })
+        if (exactLocalizedName) {
+            if (isUUID(exactLocalizedName)) {
+                return translateIdResolved(exactLocalizedName, lang, domain)
+            }
+            return { name: exactLocalizedName, exact: true }
+        }
+    }
+
+    // Prefer real translations (same filter as tag names — skip is_fallback).
+    try {
+        const translations = await Agent.query('translate-item', [ taskId, [ lang ] ], 'translations.pilaproject.org')
+        const list = Array.isArray(translations) ? translations : []
+        const nameTranslation = list.find(t => (
+            !t.is_fallback && t.path?.length === 2 && t.path[1] === 'name' && t.value
+        ))
+        if (nameTranslation?.value) {
+            return { name: String(nameTranslation.value), exact: true }
+        }
+    } catch {
+        // fall through to canonical/English
+    }
+
+    if (typeof name === 'string' && isUUID(name.trim())) {
+        return translateIdResolved(name.trim(), lang, domain)
+    }
+
+    if (isNameMap(name)) {
+        const localizedName = localizedNameFromValue(name, lang)
+        if (!localizedName) {
+            console.warn(`task name not found for ${taskId}`)
+            return { name: `task name not found for ${taskId}`, exact: false }
+        }
+        if (isUUID(localizedName)) {
+            return translateIdResolved(localizedName, lang, domain)
+        }
+        return { name: localizedName, exact: isEnglishLang(lang) }
+    }
+
+    if (typeof name === 'string' && name.trim()) {
+        return { name: name.trim(), exact: isEnglishLang(lang) }
+    }
+
+    console.warn(`task name not found for ${taskId}`)
+    return { name: `task name not found for ${taskId}`, exact: false }
+}
+
+async function translateIdResolved(id, lang, domain = DEFAULT_TRANSLATION_DOMAIN) {
     const {
         source_string: fallback,
         language: srcLanguage
     } = await Agent.state(id)
-    if (lang === srcLanguage && fallback) return fallback 
+    if (lang === srcLanguage && fallback) {
+        return { name: fallback, exact: true }
+    }
     const translation = await attemptTranslation(id, lang, domain)
-    if (translation) return translation // translation found
-    if (fallback) { // no translation found, use fallback with warning
+    if (translation) return { name: translation, exact: true }
+    if (fallback) {
         console.warn(`translation for ${id} in ${lang} not found, using fallback`)
-        return fallback 
+        return { name: fallback, exact: isEnglishLang(lang) }
     }
     console.warn(`neither translation nor fallback found for ${id}found`)
-    return undefined
+    return { name: undefined, exact: false }
+}
+
+async function translateId(id, lang, domain = DEFAULT_TRANSLATION_DOMAIN) {
+    const { name } = await translateIdResolved(id, lang, domain)
+    return name
 }
 
 async function attemptTranslation(id, lang, domain) {

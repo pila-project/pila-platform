@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import getName, { localizedNameFromValue } from './name-and-translation-for-content.js'
+import getName, { localizedNameFromValue, resolveTranslatedContentName } from './name-and-translation-for-content.js'
 import getImageFromContent from './image-ref-for-content.js'
 import { localCache } from './local-cache.js'
 import { getHardcodedTagTranslation } from './tag-name-translations.js'
@@ -9,6 +9,8 @@ const CONTENT_CACHE_TTL = 60 * 60 * 1000 // 1 hour
 
 // ── Module-level caches — persist across component mounts ──
 const nameCache = new Map()
+/** Lang keys that resolved only to English/canonical fallback (do not re-hit network). */
+const unresolvedLangKeys = new Set()
 const metadataCache = new Map()
 const tagCache = new Map()
 const imageCache = new Map()
@@ -97,16 +99,23 @@ export function nameCacheKey(id, lang) {
 }
 
 /**
- * Sync read: lang-keyed content name.
- * Bare-id entries are English/canonical (sequences/legacy) — only use that
- * fallback for English so non-English UIs do not stick on an English title.
+ * Sync read: lang-keyed content name for display.
+ * Prefer id:lang. For non-English, English/bare is display-only fallback and
+ * must NOT be treated as "resolved for lang" — getContentName still runs when
+ * the lang key is missing (see hasCachedContentNameForLang).
  */
 export function getCachedContentName(id, lang) {
   if (!id) return null
   const keyed = nameCache.get(nameCacheKey(id, lang))
   if (keyed != null) return keyed
-  if (isEnglishLang(lang)) return nameCache.get(id) ?? null
-  return null
+  // Display-only English/canonical fallback (including non-EN UI).
+  return nameCache.get(nameCacheKey(id, 'en')) ?? nameCache.get(id) ?? null
+}
+
+/** True only when a value was stored under id:lang (exact or English). */
+export function hasCachedContentNameForLang(id, lang) {
+  if (!id) return false
+  return nameCache.has(nameCacheKey(id, lang))
 }
 
 export function setCachedContentName(id, name, lang) {
@@ -122,15 +131,59 @@ export function setCachedLegacyName(id, name) {
   bumpNameCacheVersion()
 }
 
+/**
+ * Resolve + cache content display name for lang.
+ * Exact translations (and English) are stored under id:lang permanently.
+ * Non-English English/canonical fallbacks are NOT stored under id:lang
+ * (UIUX-212 residual) — they seed en/bare only and are remembered in
+ * unresolvedLangKeys so we do not refetch-loop on every card watch.
+ */
 export function getContentName(id, lang) {
   const key = nameCacheKey(id, lang)
   if (nameCache.has(key)) return Promise.resolve(nameCache.get(key))
+  if (unresolvedLangKeys.has(key)) {
+    return Promise.resolve(
+      nameCache.get(nameCacheKey(id, 'en')) ?? nameCache.get(id) ?? null
+    )
+  }
   return dedupedFetch(`name:${key}`, async () => {
-    const name = await getName(id, lang)
     if (nameCache.has(key)) return nameCache.get(key)
-    if (name) {
+    if (unresolvedLangKeys.has(key)) {
+      return nameCache.get(nameCacheKey(id, 'en')) ?? nameCache.get(id) ?? null
+    }
+    let name
+    let exact = false
+    try {
+      const resolved = await resolveTranslatedContentName(id, lang)
+      name = resolved?.name
+      exact = !!resolved?.exact
+    } catch {
+      // Backward-compatible fallback if resolver throws
+      name = await getName(id, lang)
+      exact = isEnglishLang(lang)
+    }
+    if (nameCache.has(key)) return nameCache.get(key)
+    if (!name) return name
+
+    if (exact || isEnglishLang(lang)) {
+      unresolvedLangKeys.delete(key)
       nameCache.set(key, name)
+      if (isEnglishLang(lang)) nameCache.set(id, name)
       bumpNameCacheVersion()
+    } else {
+      // Do not poison id:lang with English — mark unresolved and seed en/bare.
+      unresolvedLangKeys.add(key)
+      const enKey = nameCacheKey(id, 'en')
+      let seeded = false
+      if (!nameCache.has(enKey)) {
+        nameCache.set(enKey, name)
+        seeded = true
+      }
+      if (!nameCache.has(id)) {
+        nameCache.set(id, name)
+        seeded = true
+      }
+      if (seeded) bumpNameCacheVersion()
     }
     return name
   })
@@ -414,10 +467,20 @@ export { nameCache, metadataCache, tagCache, imageCache, tagNameCache }
 
 // ── Disk persistence (IndexedDB) ──
 
+function isSeedableNameCacheKey(key) {
+  // Bare ids and English lang keys only — never rehydrate id:th etc. from disk
+  // (stale English-under-th poison from older builds).
+  const idx = String(key).lastIndexOf(':')
+  if (idx <= 0) return true
+  return isEnglishLang(String(key).slice(idx + 1))
+}
+
 function applyMapsToMemory(maps) {
   if (!maps) return
   if (maps.names) {
-    for (const [k, v] of maps.names) nameCache.set(k, v)
+    for (const [k, v] of maps.names) {
+      if (isSeedableNameCacheKey(k)) nameCache.set(k, v)
+    }
     bumpNameCacheVersion()
   }
   if (maps.metadata) {
@@ -509,6 +572,9 @@ export function invalidate(id) {
   for (const key of nameCache.keys()) {
     if (key === id || key.startsWith(`${id}:`)) nameCache.delete(key)
   }
+  for (const key of [...unresolvedLangKeys]) {
+    if (key === id || key.startsWith(`${id}:`)) unresolvedLangKeys.delete(key)
+  }
   metadataCache.delete(id)
   tagCache.delete(id)
   imageCache.delete(id)
@@ -533,10 +599,12 @@ export function patchPreviewMeta(id, patch) {
 
 export function invalidateNames() {
   nameCache.clear()
+  unresolvedLangKeys.clear()
 }
 
 export function invalidateAll() {
   nameCache.clear()
+  unresolvedLangKeys.clear()
   metadataCache.clear()
   bumpMetadataCacheVersion()
   tagCache.clear()

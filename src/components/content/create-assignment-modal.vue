@@ -307,7 +307,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
@@ -316,6 +316,7 @@ import ContentBrowser from './content-browser.vue'
 import PreviewModal from '@/components/common/preview-modal.vue'
 import SequencePreviewModal from './sequence-preview-modal.vue'
 import { openContentPreview } from '@/utils/open-content-preview.js'
+import { invalidateNames, getContentName, hasCachedContentNameForLang } from '@/utils/content-cache.js'
 import { PModal, PInput, PButton, PSelect, PDateField } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { gridPerPageOptions } from '@/utils/pagination-options.js'
@@ -339,6 +340,15 @@ function openPreview(id) {
   void openContentPreview(id, { previewing: previewingId, sequenceToPreview })
 }
 const browsingContent = ref(false)
+
+// UIUX-212: re-resolve Explore card titles when UI language changes.
+watch(() => store.getters.language(), (lang, prev) => {
+  if (!lang || lang === prev) return
+  invalidateNames()
+  for (const id of form.contentIds) {
+    if (id && !hasCachedContentNameForLang(id, lang)) void getContentName(id, lang)
+  }
+})
 const groupSearch = ref('')
 
 // Groups
