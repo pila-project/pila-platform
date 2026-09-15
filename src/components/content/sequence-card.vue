@@ -110,9 +110,11 @@ import {
   isSequenceDrag,
   isValidSequenceAgentState,
 } from '@/utils/sequence-items.js'
+import { useFeedback } from '@/composables/useFeedback.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
+const { error: showError } = useFeedback()
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -134,6 +136,8 @@ function acceptsLeafDrop(dataTransfer) {
 function onCardDragOver(e) {
   if (props.archived) return
   if (isSequenceDrag(e.dataTransfer)) {
+    // preventDefault so drop fires (HTML5); dropEffect none keeps the cursor rejecting
+    e.preventDefault()
     e.dataTransfer.dropEffect = 'none'
     isDragOver.value = false
     return
@@ -151,8 +155,11 @@ function onCardDragLeave() {
 function onDrop(e) {
   if (props.archived) return
   isDragOver.value = false
-  // Refuse nested sequences even if MIME was missing (write path also fail-closed).
-  if (isSequenceDrag(e.dataTransfer) || !acceptsLeafDrop(e.dataTransfer)) return
+  if (isSequenceDrag(e.dataTransfer)) {
+    showError(t('sequences-cannot-be-nested'))
+    return
+  }
+  if (!acceptsLeafDrop(e.dataTransfer)) return
   const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
   emitExternalDrop(itemId)
 }

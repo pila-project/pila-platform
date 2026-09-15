@@ -201,6 +201,7 @@ function onItemDragEnd() {
 function onItemDragOver(index, e) {
   // UIUX-113: refuse nested sequences from explore
   if (e?.dataTransfer && isSequenceDrag(e.dataTransfer)) {
+    e.preventDefault()
     e.dataTransfer.dropEffect = 'none'
     dropTarget.value = null
     return
@@ -223,7 +224,10 @@ function onItemDragLeave() {
 
 async function onItemDrop(toIndex, e) {
   dropTarget.value = null
-  if (e && isSequenceDrag(e.dataTransfer)) return
+  if (e && isSequenceDrag(e.dataTransfer)) {
+    showError(t('sequences-cannot-be-nested'))
+    return
+  }
   if (e && isLeafContentExploreDrop(e.dataTransfer, dragIndex.value)) {
     const itemId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text')
     emitExternalDrop(itemId, toIndex)

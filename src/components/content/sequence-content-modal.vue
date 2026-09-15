@@ -342,6 +342,7 @@ function onCardDragEnd() {
 
 function onCardDragOver(index, e) {
   if (e?.dataTransfer && isSequenceDrag(e.dataTransfer)) {
+    e.preventDefault()
     e.dataTransfer.dropEffect = 'none'
     dropTarget.value = null
     return
@@ -365,6 +366,7 @@ function onCardDragLeave() {
 function onCardDrop(toIndex, e) {
   dropTarget.value = null
   if (e && isSequenceDrag(e.dataTransfer)) {
+    showError(t('sequences-cannot-be-nested'))
     dragIndex.value = null
     return
   }
@@ -384,6 +386,7 @@ function onCardDrop(toIndex, e) {
 function onEmptyDragOver(e) {
   if (props.archived) return
   if (isSequenceDrag(e.dataTransfer)) {
+    e.preventDefault()
     e.dataTransfer.dropEffect = 'none'
     emptyDragOver.value = false
     return
@@ -401,7 +404,10 @@ function onEmptyDragLeave() {
 function onEmptyDrop(e) {
   emptyDragOver.value = false
   if (props.archived) return
-  if (isSequenceDrag(e.dataTransfer)) return
+  if (isSequenceDrag(e.dataTransfer)) {
+    showError(t('sequences-cannot-be-nested'))
+    return
+  }
   const itemId = e.dataTransfer?.getData('text/plain') || e.dataTransfer?.getData('text')
   if (itemId && isLeafContentExploreDrop(e.dataTransfer, null)) {
     insertDraftItem(itemId)
@@ -411,6 +417,7 @@ function onEmptyDrop(e) {
 function onGridDragOver(e) {
   if (props.archived) return
   if (isSequenceDrag(e.dataTransfer)) {
+    e.preventDefault()
     e.dataTransfer.dropEffect = 'none'
     return
   }
@@ -421,7 +428,10 @@ function onGridDragOver(e) {
 
 function onGridDrop(e) {
   if (props.archived || dragIndex.value !== null) return
-  if (isSequenceDrag(e.dataTransfer)) return
+  if (isSequenceDrag(e.dataTransfer)) {
+    showError(t('sequences-cannot-be-nested'))
+    return
+  }
   const itemId = e.dataTransfer?.getData('text/plain') || e.dataTransfer?.getData('text')
   if (itemId && isLeafContentExploreDrop(e.dataTransfer, null)) {
     insertDraftItem(itemId)
