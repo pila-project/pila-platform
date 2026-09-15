@@ -55,8 +55,8 @@
 
 <style>
 .new-dashboard {
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  inset: 0;
   overflow: auto;
 }
 .new-dashboard table {

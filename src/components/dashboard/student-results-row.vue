@@ -97,11 +97,19 @@
 <style scoped>
 .student-name-cell {
   white-space: nowrap;
+  vertical-align: middle;
 }
 .student-name-line {
   display: inline-flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+}
+.student-name-cell .student-name-line :deep(.decrypted-name),
+.student-name-cell .student-name-line :deep(.p-truncated-text) {
+  display: inline;
+  max-width: none;
   white-space: nowrap;
 }
 .status-pip {

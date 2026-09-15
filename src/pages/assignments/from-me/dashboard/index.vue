@@ -99,9 +99,10 @@
   .dashboard-wrapper
   {
     position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    /* clip iframe embeds; OWN .new-dashboard scrolls internally (UIUX-210) */
+    /* OWN HTML table (.new-dashboard) scrolls internally; iframe embeds stay clipped */
     overflow: hidden;
   }
 
