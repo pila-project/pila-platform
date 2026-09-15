@@ -26,6 +26,37 @@ describe('tag name translations', () => {
     )
     assert.equal(getHardcodedTagTranslation(MINIMUM_GRADE_TAG_ID, 'en'), undefined)
   })
+
+  it('has fr/pl/km parity with Thai for Minimum Grade', () => {
+    assert.equal(
+      getHardcodedTagTranslation(MINIMUM_GRADE_TAG_ID, 'fr'),
+      'Niveau minimum',
+    )
+    assert.equal(
+      getHardcodedTagTranslation(MINIMUM_GRADE_TAG_ID, 'pl'),
+      'Minimalna ocena',
+    )
+    assert.equal(
+      getHardcodedTagTranslation(MINIMUM_GRADE_TAG_ID, 'km'),
+      'ថ្នាក់អប្បបរមា',
+    )
+  })
+
+  it('ships the same locale keys for every hardcoded tag', async () => {
+    const { TAG_NAME_TRANSLATIONS } = await import('./tag-name-translations.js')
+    const required = ['th', 'fr', 'pl', 'km']
+    for (const [id, locales] of Object.entries(TAG_NAME_TRANSLATIONS)) {
+      for (const lang of required) {
+        assert.equal(
+          typeof locales[lang],
+          'string',
+          `${id} missing ${lang}`,
+        )
+        assert.ok(locales[lang].length > 0, `${id} empty ${lang}`)
+      }
+      assert.equal(locales.en, undefined, `${id} should not hardcode en`)
+    }
+  })
 })
 
 describe('tag name cache keys', () => {
