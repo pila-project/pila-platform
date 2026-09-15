@@ -599,7 +599,11 @@
       const aSelected = a === selectedId ? 0 : 1
       const bSelected = b === selectedId ? 0 : 1
       if (aSelected !== bSelected) return aSelected - bSelected
-      return ids.indexOf(a) - ids.indexOf(b)
+      return (store.state.groups.groups[a]?.name || '').localeCompare(
+        store.state.groups.groups[b]?.name || '',
+        undefined,
+        { sensitivity: 'base', numeric: true },
+      )
     })
   }
 

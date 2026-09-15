@@ -396,9 +396,24 @@ const distributionOptions = computed(() => [
 
 const groups = computed(() => store.getters['groups/groups']('class', true))
 
+function sortGroupIdsByName(ids) {
+  return [...ids].sort((a, b) =>
+    (store.state.groups.groups[a]?.name || '').localeCompare(
+      store.state.groups.groups[b]?.name || '',
+      undefined,
+      { sensitivity: 'base', numeric: true },
+    ),
+  )
+}
+
 const filteredGroups = computed(() => {
-  if (!groupSearch.value) return groups.value
-  return groups.value
+  const sorted = sortGroupIdsByName(groups.value)
+  if (!groupSearch.value) return sorted
+  const q = groupSearch.value.toLowerCase()
+  return sorted.filter(gid => {
+    const group = store.state.groups.groups[gid]
+    return group?.name?.toLowerCase().includes(q)
+  })
 })
 
 function toggleContent(id) {
