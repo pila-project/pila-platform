@@ -206,11 +206,8 @@ export default {
     },
 
     remove(selection) {
-      this.$emit(
-        'remove',
-        selection.categoryId,
-        selection.id,
-      )
+      // tagging-modal: @remove="selection => toggleCompetency(selection.categoryId, selection.id)"
+      this.$emit('remove', selection)
     },
 
     async loadCompetencies() {
