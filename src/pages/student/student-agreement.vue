@@ -17,15 +17,11 @@
 					<div>
 						<p>{{ t('the-kinds-of-activity-data-include') }}</p>
 						<p class="icon-row">
-							<i class="fa fa-cloud-download"></i>
+							<i class="fa fa-mouse-pointer"></i>
 							<span>{{ t('your-clicks') }}</span>
 						</p>
 						<p class="icon-row">
-							<i class="fa fa-mouse-pointer"></i>
-							<span>{{ t('information-about-your-screen-and-device') }}</span>
-						</p>
-						<p class="icon-row">
-							<i class="fa fa-desktop"></i>
+							<i class="fa fa-cloud-download"></i>
 							<span>{{ t('all-saved-versions-of-your-answers-solutions-inc') }}</span>
 						</p>
 					</div>
