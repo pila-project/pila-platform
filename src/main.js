@@ -5,6 +5,7 @@ import router, { installAuthNavigationGuards } from '@/router.js'
 import Agent from '@knowlearning/agents/browser.js'
 import { vuePersistentStore } from '@knowlearning/agents/vue.js'
 import storeDef from '@/store/index.js'
+import { resolveUiLanguage } from '@/store/ui-language.js'
 import App from '@/pages/App.vue'
 import runTests from '@/tests/index.js'
 
@@ -44,7 +45,7 @@ async function initializeApp() {
         })
         store.commit('acceptTeacherAgreement')
         store.commit('acceptStudentAgreement')
-        store.commit('language', 'en')
+        store.commit('language', resolveUiLanguage())
         store.state.codeEntered = true
         await store.dispatch('fetchTranslations')
         store.dispatch('loaded', true)

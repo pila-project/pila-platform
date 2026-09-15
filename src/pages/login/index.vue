@@ -169,6 +169,7 @@ import {
   HOST_TO_FIRST_LOAD_LANGUAGE,
 } from '@/utils/constants.js'
 import languageChoices from '@/store/language-choices.js'
+import { persistUiLanguage } from '@/store/ui-language.js'
 import { languageMenuLabel } from '@/utils/language-labels.js'
 import {
   normalizeLoginCodeInput,
@@ -248,6 +249,7 @@ export default {
       return languageMenuLabel(code)
     },
     setLanguage(code) {
+      persistUiLanguage(code)
       this.$store.dispatch('language', code)
     },
     signInWithLabel(provider) {

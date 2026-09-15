@@ -7,39 +7,14 @@ import assignments from './assignments.js'
 import pila_tags from './pila-tags.js'
 import translations from './translations.js'
 
-import languageChoices from './language-choices.js'
-import { matchNavigatorLanguage } from './match-navigator-language.js'
 import {
   EXPERT_LIST,
   HOST_TO_TITLE,
   HOST_TO_PARTITION,
-  HOST_TO_FIRST_LOAD_LANGUAGE
 } from '@/utils/constants.js'
 import { recordAuthLastLogin } from '@/utils/record-last-login.js'
 import { getStoredAdminCredentialSecret } from '../teacher-login-credentials.js'
-
-const LANGUAGE_STORAGE_KEY = 'pila-language'
-
-function normalizeUiLanguage(value) {
-  const short = String(value || '').split(/[-_]/)[0]
-  return languageChoices.includes(short) ? short : null
-}
-
-function readStoredLanguage() {
-  try {
-    return normalizeUiLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY))
-  } catch {
-    return null
-  }
-}
-
-function writeStoredLanguage(value) {
-  const lang = normalizeUiLanguage(value)
-  if (!lang) return
-  try {
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, lang)
-  } catch { /* private mode */ }
-}
+import { persistUiLanguage, resolveUiLanguage } from './ui-language.js'
 
 export default {
   modules: {
@@ -191,10 +166,10 @@ export default {
     acceptTeacherAgreement(state) { state.hasAcceptedTeacherAgreement = true },
     language(state, val) {
       state.language = val
-      writeStoredLanguage(val)
       Agent
         .environment()
         .then(({ variables }) => {
+          // Content embedding still reads LANGUAGES[0]; UI load does not.
           variables.LANGUAGES?.unshift(val)
         })
     },
@@ -207,24 +182,18 @@ export default {
   actions: {
     loaded({ commit }, loaded) { commit('loaded', loaded) },
     async language({ commit, dispatch }, value) {
+      persistUiLanguage(value)
       await dispatch('fetchTranslations')
       commit('language', value)
     },
     async load({ commit, state }) {
-      const { auth, variables } = await Agent.environment()
-      commit('load', auth)
-
       if (!Agent.embedded) {
-        const envLang = Array.isArray(variables?.LANGUAGES)
-          ? normalizeUiLanguage(variables.LANGUAGES[0])
-          : null
-        const language = readStoredLanguage()
-          || normalizeUiLanguage(state.language)
-          || envLang
-          || HOST_TO_FIRST_LOAD_LANGUAGE[window.location.host]
-          || matchNavigatorLanguage(languageChoices)
-        commit('language', language)
+        // Always re-apply cascade on load so vuePersistentStore language cannot stick.
+        commit('language', resolveUiLanguage())
       }
+
+      const { auth } = await Agent.environment()
+      commit('load', auth)
 
       if (state.user && state.provider !== 'anonymous') {
         await recordAuthLastLogin(auth).catch(e => console.warn('[Store] lastLogin failed:', e))

@@ -30,7 +30,7 @@
             :items="languageChoices"
             style="max-width: 100px;"
             :model-value="store.getters.language()"
-            @update:model-value="store.dispatch('language', $event)"
+            @update:model-value="setLanguage($event)"
 
         />
     </v-app-bar>
@@ -38,6 +38,7 @@
 
 <script setup>
 import languageChoices from '../store/language-choices.js'
+import { persistUiLanguage } from '@/store/ui-language.js'
 import { useStore } from 'vuex'
 import { PButton } from '@/components/ui/index.js'
 const store = useStore()
@@ -46,6 +47,11 @@ defineProps(['teacherViewButton'])
 
 function t(slug) {
   return store.getters.t(slug)
+}
+
+function setLanguage(code) {
+  persistUiLanguage(code)
+  store.dispatch('language', code)
 }
 
 function goToTeacherView() {

@@ -131,7 +131,7 @@
                   :key="lang"
                   :title="languageLabel(lang)"
                   :prepend-icon="lang === currentLanguage ? 'lucide:check' : ''"
-                  @click="store.dispatch('language', lang)"
+                  @click="setLanguage(lang)"
                 />
               </template>
             </PMenuItem>
@@ -189,6 +189,7 @@
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS, isThailandTeacherHost } from '@/utils/constants.js'
   import languageChoices from '@/store/language-choices.js'
+  import { persistUiLanguage } from '@/store/ui-language.js'
   import { languageMenuLabel } from '@/utils/language-labels.js'
   import { logout as doLogout } from '@/utils/logout.js'
   import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
@@ -320,6 +321,11 @@
 
   function languageLabel(code) {
     return languageMenuLabel(code)
+  }
+
+  function setLanguage(code) {
+    persistUiLanguage(code)
+    store.dispatch('language', code)
   }
 
   function t(slug) { return store.getters.t(slug) }
