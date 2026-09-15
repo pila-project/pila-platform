@@ -199,8 +199,26 @@ export function createMapSequenceItems(itemIds = []) {
   return serializeMapSequenceItems(itemIds, null)
 }
 
+/** Bound hung Agent.state/synced so Update/delete/load UI cannot spin forever (UIUX-229). */
+export const SEQUENCE_SYNC_TIMEOUT_MS = 15_000
+
+export function withTimeout(promise, ms, message) {
+  let timer
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms)
+  })
+  return Promise.race([
+    Promise.resolve(promise).finally(() => clearTimeout(timer)),
+    timeout,
+  ])
+}
+
 async function loadSequenceItemsState(sequenceId) {
-  const state = await Agent.state(sequenceId)
+  const state = await withTimeout(
+    Agent.state(sequenceId),
+    SEQUENCE_SYNC_TIMEOUT_MS,
+    'Sequence load timed out',
+  )
   if (!isValidSequenceAgentState(state)) {
     const err = new Error('Sequence has invalid or unsupported items format')
     err.sequenceId = sequenceId
@@ -211,20 +229,6 @@ async function loadSequenceItemsState(sequenceId) {
     rawItems: state.items,
     ids: normalizeSequenceItems(state.items),
   }
-}
-
-/** Bound hung Agent.synced() so Update/delete UI cannot spin forever (UIUX-229). */
-export const SEQUENCE_SYNC_TIMEOUT_MS = 15_000
-
-function withTimeout(promise, ms, message) {
-  let timer
-  const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error(message)), ms)
-  })
-  return Promise.race([
-    Promise.resolve(promise).finally(() => clearTimeout(timer)),
-    timeout,
-  ])
 }
 
 /** Agent.synced() can hang or resolve before the server rejects a patch — timeout + verify. */

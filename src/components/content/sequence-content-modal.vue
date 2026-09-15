@@ -177,6 +177,8 @@ import {
   isSequenceDrag,
   isValidSequenceAgentState,
   partitionSequenceMemberIds,
+  SEQUENCE_SYNC_TIMEOUT_MS,
+  withTimeout,
 } from '@/utils/sequence-items.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 
@@ -232,25 +234,29 @@ function idsEqual(a, b) {
   return a.every((id, i) => id === b[i])
 }
 
-function applyLoadedState(name, description, ids) {
+function applyLoadedState(name, description, ids, { forceDraft = false } = {}) {
   seqName.value = name || ''
   seqDescription.value = description || ''
-  const keepDraft = dirty.value && !idsEqual(draftIds.value, ids)
+  const keepDraft = !forceDraft && dirty.value && !idsEqual(draftIds.value, ids)
   savedIds.value = [...ids]
   if (!keepDraft) {
     draftIds.value = [...ids]
   }
 }
 
-async function loadSequenceMeta() {
+async function loadSequenceMeta({ forceDraft = false } = {}) {
   try {
-    const state = await Agent.state(props.id)
+    const state = await withTimeout(
+      Agent.state(props.id),
+      SEQUENCE_SYNC_TIMEOUT_MS,
+      'Sequence load timed out',
+    )
     if (!isValidSequenceAgentState(state)) {
       emit('close')
       return
     }
     const ids = normalizeSequenceItems(state.items)
-    applyLoadedState(state.name, state.description, ids)
+    applyLoadedState(state.name, state.description, ids, { forceDraft })
     void prefetchItemMeta(ids)
   } catch (e) {
     console.warn('[SequenceContentModal] failed to load', props.id, e)
@@ -448,8 +454,10 @@ async function onUpdate() {
     emit('changed')
   } catch (e) {
     // UIUX-229: always clear loading (finally) and tell the user — hung synced() used to look stuck.
+    // Reload from server so draft/saved match reality if the write partially landed.
     console.warn('[SequenceContentModal] update failed', props.id, e)
     showError(t('something-went-wrong'))
+    await loadSequenceMeta({ forceDraft: true })
   } finally {
     saving.value = false
   }
