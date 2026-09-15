@@ -1400,7 +1400,7 @@ export default {
         "nl": "alle opgeslagen versies van uw antwoorden/oplossingen, inclusief uw gesprekken met AI-chatbots (indien van toepassing)",
         "pl": "wszystkie zapisane wersje Twoich odpowiedzi/rozwiązań",
         "pt": "todas as versões salvas de suas respostas/soluções, incluindo suas conversas com chatbots de IA (se aplicável)",
-        "sk": " ",
+        "sk": "všetky uložené verzie tvojich odpovedí a riešení vrátane tvojich rozhovorov s AI četbotom (ak ho máš k dispozícii)",
         "th": "คำตอบ/วิธีการแก้ปัญหาทั้งหมดของท่านที่ได้ทำการบันทึกไว้"
     },
     "publishing": {
@@ -3792,7 +3792,7 @@ export default {
         "nl": "informatie over uw scherm en apparaat",
         "pl": "informacje o ekranie i urządzeniu",
         "pt": "informações sobre sua tela e dispositivo",
-        "sk": "všetky uložené verzie tvojich odpovedí a riešení vrátane tvojich rozhovorov s AI četbotom (ak ho máš k dispozícii)",
+        "sk": " ",
         "th": "ข้อมูลเกี่ยวกับหน้าจอและอุปกรณ์ของท่าน"
     },
     "researcher": {
