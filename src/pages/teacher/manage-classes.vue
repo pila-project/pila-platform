@@ -2110,30 +2110,6 @@ async function createStudentAccount() {
   runStudentWithGuard(name, () => executeCreateStudentAccount(), grade)
 }
 
-/** Auto-enroll only when exactly one class group filter maps to one active class. */
-function resolveSingleFilteredClassGroupId() {
-  const filters = activeGroupFilters.value
-  if (!Array.isArray(filters) || filters.length !== 1) return null
-  const filterValue = filters[0]
-  if (filterValue == null || filterValue === '') return null
-  const matches = activeGroups.value.filter(gid => {
-    const name = store.state.groups.groups[gid]?.name || ''
-    return name === filterValue || gid === filterValue
-  })
-  return matches.length === 1 ? matches[0] : null
-}
-
-async function enrollCreatedStudentIfSingleGroupFilter(userId) {
-  if (!userId) return
-  const groupId = resolveSingleFilteredClassGroupId()
-  if (!groupId) return
-  try {
-    await store.dispatch('groups/addMember', { user_id: userId, group_id: groupId })
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 async function executeCreateStudentAccount() {
   creatingStudent.value = true
   try {
@@ -2146,7 +2122,6 @@ async function executeCreateStudentAccount() {
     const id = await createUser(userSecret, providerSecret, info)
     const usersState = await Agent.state('users')
     usersState[id] = { grade: newStudentGrade.value || undefined, secret: userSecret }
-    await enrollCreatedStudentIfSingleGroupFilter(id)
     await Agent.synced()
     showCreateStudentForm.value = false
     newStudentName.value = ''
@@ -2213,7 +2188,6 @@ async function createSingleStudent(name, nickname, grade) {
   const id = await createUser(userSecret, providerSecret, info)
   const usersState = await Agent.state('users')
   usersState[id] = { grade: grade || undefined, secret: userSecret }
-  await enrollCreatedStudentIfSingleGroupFilter(id)
   return id
 }
 

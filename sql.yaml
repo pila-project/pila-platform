@@ -389,11 +389,14 @@ postgres:
       LEFT JOIN metadata am ON am.id = assignments.id
       WHERE am.owner = $REQUESTER
         OR (
-          assignments.group_id IN (
-            SELECT group_id
-            FROM group_members
-            WHERE user_id = $REQUESTER
-              AND (archived IS NULL OR archived = false)
+          assignments.item_id IN (
+            SELECT item_id
+            FROM assignments
+            WHERE group_id IN (
+              SELECT group_id
+              FROM group_members
+              WHERE user_id = $REQUESTER
+            )
           )
           AND (
             assignments.assignment_type = 'teacher-to-student'

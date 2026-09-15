@@ -12,8 +12,8 @@
       >
         {{ name }}
       </span>
-      <p v-if="createdLabel" class="text-xs text-slate-500 mt-0.5">
-        {{ createdLabel }}
+      <p class="text-xs text-slate-500 mt-0.5">
+        {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
       </p>
     </template>
     <template #text>
@@ -36,117 +36,56 @@
 <script setup>
   import { computed, ref, watch } from 'vue'
   import { useStore } from 'vuex'
+  import { validate as isUUID } from 'uuid'
   import getName, { localizedNameFromValue } from '@/utils/name-and-translation-for-content.js'
-  import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
-  import { getContentImage } from '@/utils/content-cache.js'
   import { PCard, PButton } from '@/components/ui/index.js'
-
   const store = useStore()
-  const props = defineProps(['assignment', 'selected'])
 
-  const assignmentState = ref(null)
-  const assignmentItem = ref(null)
-  const assignmentMetadata = ref(null)
+  const props = defineProps(['assignment', 'selected'])
+  const assignment = await Agent.state(props.assignment)
+  const assignmentItem = await Agent.state(assignment.item_id)
+  const assignmentMetadata = await Agent.metadata(props.assignment)
   const name = ref('')
-  const image = ref('/mascotte.png')
   const selectedLanguage = computed(() => store.getters.language())
   let nameLoadRun = 0
-  let imageLoadRun = 0
-  let cardLoadRun = 0
-
-  const createdLabel = computed(() => {
-    const created = assignmentMetadata.value?.created
-    if (!created) return ''
-    const date = new Date(created)
-    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString()
-  })
-
-  function isStringId(value) {
-    return typeof value === 'string' && value.length > 0
-  }
-
-  async function loadName(language) {
-    const runId = ++nameLoadRun
-    const itemId = assignmentState.value?.item_id
-    try {
-      if (!isStringId(itemId)) {
-        if (runId === nameLoadRun) name.value = ''
-        return
-      }
-      const translatedName = await getName(itemId, language)
-      if (runId === nameLoadRun) name.value = translatedName || ''
-    } catch (error) {
-      console.warn(`Unable to load translated assignment item name for ${itemId}.`, error)
-      if (runId === nameLoadRun) {
-        name.value = localizedNameFromValue(assignmentItem.value?.name, language)
-      }
-    }
-  }
-
-  async function loadImage() {
-    const runId = ++imageLoadRun
-    try {
-      const contentIds = normalizeAssignmentContent(assignmentItem.value?.content)
-      const contentId = contentIds.find(id => isStringId(id)) || null
-      if (!contentId) {
-        if (runId === imageLoadRun) image.value = '/mascotte.png'
-        return
-      }
-      const nextImage = await getContentImage(contentId)
-      if (runId === imageLoadRun) image.value = nextImage || '/mascotte.png'
-    } catch (error) {
-      console.warn(`Unable to load student assignment image for ${props.assignment}.`, error)
-      if (runId === imageLoadRun) image.value = '/mascotte.png'
-    }
-  }
+  const content = await Agent.state(assignmentItem.content)
+  const metadata = await Agent.metadata(assignmentItem.content)
+  let image = ref('')
 
   watch(
-    () => props.assignment,
-    async (assignmentId) => {
-      const runId = ++cardLoadRun
-      assignmentState.value = null
-      assignmentItem.value = null
-      assignmentMetadata.value = null
-      name.value = ''
-      image.value = '/mascotte.png'
-
-      if (!isStringId(assignmentId)) return
+    selectedLanguage,
+    async (language) => {
+      const runId = ++nameLoadRun
 
       try {
-        const [state, metadata] = await Promise.all([
-          Agent.state(assignmentId).catch(() => null),
-          Agent.metadata(assignmentId).catch(() => null),
-        ])
-        if (runId !== cardLoadRun) return
-
-        assignmentState.value = state
-        assignmentMetadata.value = metadata
-
-        const itemId = state?.item_id
-        if (isStringId(itemId)) {
-          const item = await Agent.state(itemId).catch(() => null)
-          if (runId !== cardLoadRun) return
-          assignmentItem.value = item
-        }
-
-        await Promise.all([
-          loadName(selectedLanguage.value),
-          loadImage(),
-        ])
+        const translatedName = await getName(assignment.item_id, language)
+        if (runId === nameLoadRun) name.value = translatedName || ''
       } catch (error) {
-        console.warn(`Unable to load student assignment card for ${assignmentId}.`, error)
+        console.warn(`Unable to load translated assignment item name for ${assignment.item_id}.`, error)
+        if (runId === nameLoadRun) {
+          name.value = localizedNameFromValue(assignmentItem.name, language)
+        }
       }
     },
     { immediate: true }
   )
 
-  watch(
-    selectedLanguage,
-    (language) => {
-      if (!assignmentState.value?.item_id) return
-      loadName(language)
+  if (isUUID(content.image)) image = await Agent.download(content.image).url()
+  else if (content.image) image = content.image
+  else {
+    if (metadata.active_type?.startsWith('application/json;type=sequence')) {
+      image = '/pila_sequence.png'
     }
-  )
+    else if (metadata.active_type?.startsWith('application/json;type=karel-map')) {
+      image = '/karel_new.png'
+    }
+    else if (content.id?.includes('betty')) {
+      image = '/betty.png'
+    }
+    else {
+      image = '/mascotte.png'
+    }
+  }
 
   function t(slug) { return store.getters.t(slug)}
 </script>

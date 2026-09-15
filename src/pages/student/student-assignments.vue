@@ -95,27 +95,18 @@ export default {
     allAssigners() {
       return Object.values(this.assignmentsToAssignerAndCreated)
         .map(aid => aid.owner)
-        .filter(Boolean)
         .reduce((acc, cur) => acc.includes(cur) ? acc : [ ...acc, cur ], [])
     },
     filteredAssignmentIds() {
       const compareCreated = (id1, id2) => {
-        const ts1 = this.timestamp(this.assignmentsToAssignerAndCreated[id1]?.created)
-        const ts2 = this.timestamp(this.assignmentsToAssignerAndCreated[id2]?.created)
-        return ts1 - ts2
+        const ts1 = this.assignmentsToAssignerAndCreated[id1].created
+        const ts2 = this.assignmentsToAssignerAndCreated[id2].created
+        return ts1 > ts2 ? 1 : -1
       }
 
-      // Show all until an assigner is known; never hide ids still missing owner metadata.
-      const visibleIds = this.activeAssigner
-        ? this.assignmentIds.filter(aid => {
-            const meta = this.assignmentsToAssignerAndCreated[aid]
-            if (!meta || !meta.owner) return true
-            return meta.owner === this.activeAssigner
-          })
-        : this.assignmentIds
-
-      const sorted = [...visibleIds].sort(compareCreated)
-      return this.oldestFirst ? sorted : sorted.reverse()
+      const aidsFromActiveAssigner = this.assignmentIds.filter(aid => this.assignmentsToAssignerAndCreated[aid]?.owner === this.activeAssigner)
+      const oldestFirst = aidsFromActiveAssigner.sort(compareCreated)
+      return this.oldestFirst ? oldestFirst : oldestFirst.reverse()
     }
 
   },
@@ -123,26 +114,12 @@ export default {
     assignmentIds: {
       immediate: true,
       async handler(val) {
-        const ids = Array.isArray(val) ? val : []
-        ids.forEach(async aid => {
-          try {
-            const metadata = await Agent.metadata(aid)
-            const stored = this.$store.getters['assignments/get'](aid) || {}
-            const owner = metadata?.owner || stored.assigner_id || null
-            const created = metadata?.created || null
-            this.assignmentsToAssignerAndCreated[aid] = { owner, created }
-            if (!this.activeAssigner && owner) this.activeAssigner = owner
-          } catch (error) {
-            console.warn(`Unable to load assignment metadata for ${aid}.`, error)
-            const stored = this.$store.getters['assignments/get'](aid) || {}
-            this.assignmentsToAssignerAndCreated[aid] = {
-              owner: stored.assigner_id || null,
-              created: null,
-            }
-            if (!this.activeAssigner && stored.assigner_id) {
-              this.activeAssigner = stored.assigner_id
-            }
-          }
+        val.forEach(async aid => {
+
+          // happens every time, but i don't care
+          const { owner, created } = await Agent.metadata(aid)
+          this.assignmentsToAssignerAndCreated[aid] = { owner, created }
+          if (!this.activeAssigner) this.activeAssigner = owner
 
           if (this.assignmentsToContent[aid]) return
 
