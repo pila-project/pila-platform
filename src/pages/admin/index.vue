@@ -115,8 +115,8 @@
     { icon: 'book-open', title: t('content') || 'Content', key: 'content', show: isSimplifiedStudyDomain },
     { icon: 'list-checks', title: t('assign') || 'Assign', key: 'assign', show: isSimplifiedStudyDomain },
     { icon: 'clipboard-list', title: t('role-requests'), key: 'role-requests', show: true },
-    { icon: 'search', title: t('reports'), key: 'reports', show: !isSimplifiedStudyDomain },
-    { icon: 'flask-conical', title: t('studies'), key: 'studies', show: !isSimplifiedStudyDomain },
+    { icon: 'search', title: t('reports'), key: 'reports', show: false },
+    { icon: 'flask-conical', title: t('studies'), key: 'studies', show: false },
   ])
 
   async function isAdmin(user) {
