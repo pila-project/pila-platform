@@ -1,4 +1,5 @@
 import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
+import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
 import {
   assignmentXapiStatement,
   countAssignedStudents
@@ -22,7 +23,7 @@ async function writeAssignmentXapi(
     ])
     const statement = assignmentXapiStatement(
       user,
-      assignment.content,
+      primaryAssignmentContentId(assignment),
       assignedClassIds,
       numberOfStudentsAssigned
     )

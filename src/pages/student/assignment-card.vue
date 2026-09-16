@@ -38,6 +38,7 @@
   import { useStore } from 'vuex'
   import { validate as isUUID } from 'uuid'
   import getName, { localizedNameFromValue } from '@/utils/name-and-translation-for-content.js'
+  import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import { PCard, PButton } from '@/components/ui/index.js'
   const store = useStore()
 
@@ -48,9 +49,10 @@
   const name = ref('')
   const selectedLanguage = computed(() => store.getters.language())
   let nameLoadRun = 0
-  const content = await Agent.state(assignmentItem.content)
-  const metadata = await Agent.metadata(assignmentItem.content)
-  let image = ref('')
+  const contentId = normalizeAssignmentContent(assignmentItem?.content).find(id => typeof id === 'string' && id) || null
+  let content = {}
+  let metadata = {}
+  let image = ref('/mascotte.png')
 
   watch(
     selectedLanguage,
@@ -70,10 +72,15 @@
     { immediate: true }
   )
 
-  if (isUUID(content.image)) image = await Agent.download(content.image).url()
-  else if (content.image) image = content.image
-  else {
-    if (metadata.active_type?.startsWith('application/json;type=sequence')) {
+  try {
+    if (contentId) {
+      content = await Agent.state(contentId) || {}
+      metadata = await Agent.metadata(contentId) || {}
+    }
+
+    if (isUUID(content.image)) image = await Agent.download(content.image).url()
+    else if (content.image) image = content.image
+    else if (metadata.active_type?.startsWith('application/json;type=sequence')) {
       image = '/pila_sequence.png'
     }
     else if (metadata.active_type?.startsWith('application/json;type=karel-map')) {
@@ -85,6 +92,9 @@
     else {
       image = '/mascotte.png'
     }
+  } catch (error) {
+    console.warn(`Unable to load assignment content image for ${contentId}.`, error)
+    image = '/mascotte.png'
   }
 
   function t(slug) { return store.getters.t(slug)}

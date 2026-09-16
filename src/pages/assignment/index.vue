@@ -1,7 +1,7 @@
 <template>
-  <div v-if="assignment && assignment.content && addVariables" class="wrapper">
+  <div v-if="assignment && playableId && addVariables" class="wrapper">
     <vueEmbedComponent
-      :id="assignment.content"
+      :id="playableId"
       @close="closeAssignment"
       :namespace="route.params.id"
       :environmentProxy="addVariables"
@@ -17,11 +17,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
+import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
 
 const route = useRoute()
 const store = useStore()
@@ -29,6 +30,7 @@ const store = useStore()
 const { id } = route.params
 const assignment = ref(null)
 const addVariables = ref(null)
+const playableId = computed(() => primaryAssignmentContentId(assignment.value))
 
 const t = slug => store.getters.t(slug)
 const closeAssignment = () => Agent.close()
