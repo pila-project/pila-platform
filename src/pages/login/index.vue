@@ -174,7 +174,9 @@ import { languageMenuLabel } from '@/utils/language-labels.js'
 import {
   normalizeLoginCodeInput,
   isCompleteLoginCode,
+  secretFromLoginScan,
 } from '@/utils/login-code-symbols.js'
+import { loginWithPilaSecret } from '@/utils/pila-secret-login.js'
 
 function seedLoginRole(path = '') {
   try {
@@ -236,6 +238,7 @@ export default {
     this.resetSigningIn()
     window.addEventListener('pageshow', this.resetSigningIn)
     window.addEventListener('pagehide', this.resetSigningIn)
+    this.consumePendingPilaSecret()
   },
   beforeUnmount() {
     window.removeEventListener('pageshow', this.resetSigningIn)
@@ -268,6 +271,23 @@ export default {
       this.error = null
       this.view = 'code'
     },
+    consumePendingPilaSecret() {
+      let secret = null
+      try {
+        secret = sessionStorage.getItem('pila-login-secret')
+        if (secret) sessionStorage.removeItem('pila-login-secret')
+      } catch { /* private mode */ }
+      if (!isCompleteLoginCode(secret)) {
+        secret = secretFromLoginScan(window.location.hash)
+      }
+      if (!isCompleteLoginCode(secret)) return
+      if (window.location.hash) {
+        history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+      }
+      this.view = 'code'
+      this.codeValue = secret
+      this.loginWithCode()
+    },
     resetSigningIn() {
       this.signingIn = false
     },
@@ -295,7 +315,7 @@ export default {
       this.rememberLoginIntent()
       this.$emit('signingIn')
       try {
-        await Agent.login('code', code)
+        await loginWithPilaSecret(code)
       } catch (e) {
         console.error('[login] code error', e)
         this.error = this.t('invalid-login-code')

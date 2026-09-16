@@ -13,7 +13,11 @@
           <DecryptedName :user="id" />
         </div>
         <div class="login-code-card-body">
-          <QRCodeDisplay :data="`${siteOrigin}/join/${id}`" size="112px" />
+          <QRCodeDisplay
+            v-if="users[id]?.secret"
+            :data="pilaSecretLoginUrl(users[id].secret)"
+            size="112px"
+          />
           <div class="login-code-secret">
             <div class="login-code-icons" :aria-label="t('pila-login-code')">
               <template v-for="(char, index) in users[id]?.secret || ''" :key="`${id}-${index}`">
@@ -37,7 +41,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
-import { faIconForCodeChar } from '@/utils/login-code-symbols.js'
+import { faIconForCodeChar, pilaSecretLoginUrl } from '@/utils/login-code-symbols.js'
 
 const props = defineProps({
   studentIds: {
@@ -51,7 +55,6 @@ const props = defineProps({
 })
 
 const store = useStore()
-const siteOrigin = window.location.origin
 function t(slug) { return store.getters.t(slug) }
 
 const studentIds = computed(() =>

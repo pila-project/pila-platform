@@ -51,7 +51,7 @@
 import { ref, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
-import { normalizeLoginCodeInput, isCompleteLoginCode } from '@/utils/login-code-symbols.js'
+import { secretFromLoginScan, isCompleteLoginCode } from '@/utils/login-code-symbols.js'
 
 const props = defineProps({
   signingIn: Boolean,
@@ -111,7 +111,7 @@ async function tick() {
       const codes = await detector.detect(videoEl.value)
       if (codes?.length) {
         const raw = codes[0].rawValue || ''
-        const code = normalizeLoginCodeInput(raw)
+        const code = secretFromLoginScan(raw)
         if (isCompleteLoginCode(code)) {
           stop()
           emit('detected', code)

@@ -42,6 +42,28 @@ export function normalizeLoginCodeInput(raw) {
   return s.replace(/[^a-y]/g, '').slice(0, LOGIN_CODE_LENGTH)
 }
 
+/**
+ * IdP pad/scanner: URL payloads yield the fragment; raw secrets pass through.
+ * Do not run the generic [a-y]{6,12} matcher on a full URL first — hosts like
+ * pilaproject.org match before the hash secret.
+ */
+export function secretFromLoginScan(raw) {
+  if (!raw) return ''
+  const s = String(raw).trim()
+  const fromUrl = /^https?:\/\//i.test(s) || s.startsWith('#')
+  if (fromUrl) {
+    const hashIdx = s.indexOf('#')
+    // URL with no fragment is not a secret (old /join/{uuid} cards, host names).
+    if (hashIdx < 0) return ''
+    return normalizeLoginCodeInput(s.slice(hashIdx + 1))
+  }
+  return normalizeLoginCodeInput(s)
+}
+
+export function pilaSecretLoginUrl(secret, host = typeof location !== 'undefined' ? location.host : '') {
+  return `https://${host}/login/pila#${secret}`
+}
+
 export function isCompleteLoginCode(code) {
   return typeof code === 'string'
     && code.length === LOGIN_CODE_LENGTH

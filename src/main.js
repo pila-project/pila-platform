@@ -8,6 +8,7 @@ import storeDef from '@/store/index.js'
 import { resolveUiLanguage } from '@/store/ui-language.js'
 import App from '@/pages/App.vue'
 import runTests from '@/tests/index.js'
+import { isCompleteLoginCode, secretFromLoginScan } from '@/utils/login-code-symbols.js'
 
 import 'mathlive' // for math input support for RCT content
 
@@ -20,8 +21,17 @@ mathVirtualKeyboard.targetOrigin = '*' // for math input support for RCT content
 
 if (window.location.pathname === '/test') runTests()
 else if (window.location.pathname === '/login/pila') {
-  history.replaceState(null, '', '/')
-  Agent.login('login.pilaproject.org')
+  const secret = secretFromLoginScan(window.location.hash)
+  if (isCompleteLoginCode(secret)) {
+    try { sessionStorage.setItem('pila-login-secret', secret) } catch { /* private mode */ }
+    // Drop /login/pila (avoids the old loop) but keep #secret. sessionStorage
+    // alone is not enough if storage is blocked.
+    history.replaceState(null, '', `/login#${secret}`)
+    initializeApp()
+  } else {
+    history.replaceState(null, '', '/')
+    Agent.login('login.pilaproject.org')
+  }
 }
 else initializeApp()
 

@@ -994,8 +994,8 @@
             <span><DecryptedName :user="loginCodeStudent.id" /></span>
           </div>
           <div class="login-code-qr" ref="qrContainerRef">
-            <Suspense>
-              <QRCodeDisplay :data="`${siteOrigin}/join/${loginCodeStudent.id}`" size="200px" />
+            <Suspense v-if="loginCodeQrPayload">
+              <QRCodeDisplay :data="loginCodeQrPayload" size="200px" />
               <template #fallback>
                 <div class="qr-placeholder">{{ t('loading') }}...</div>
               </template>
@@ -1070,7 +1070,7 @@ import { createUser } from '@/utils/user-utils.js'
 import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
-import { glyphForCodeChar } from '@/utils/login-code-symbols.js'
+import { glyphForCodeChar, pilaSecretLoginUrl } from '@/utils/login-code-symbols.js'
 import {
   normalizeGroupSubjects,
   formatGroupSubjects,
@@ -1112,7 +1112,6 @@ function t(slug) { return store.getters.t(slug) }
 const studentTablePerPageOptions = computed(() => tablePerPageOptions(t))
 
 // ── State ──
-const siteOrigin = window.location.origin
 const users = reactive({})
 const userModalUser = ref(null)
 const viewProfileUser = ref(null)
@@ -1877,6 +1876,11 @@ const qrContainerRef = ref(null)
 const loginCodePassphraseIcons = computed(() => {
   if (!loginCodeStudent.value) return ''
   return users[loginCodeStudent.value.id]?.secret || ''
+})
+
+const loginCodeQrPayload = computed(() => {
+  const secret = loginCodePassphraseIcons.value
+  return secret ? pilaSecretLoginUrl(secret) : ''
 })
 
 const archiveGroupConfirmTitle = computed(() => {
