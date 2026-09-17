@@ -993,7 +993,7 @@ export default {
         "es": "jugar",
         "fr": "démarrer",
         "km": "លេង",
-        "lv": "spēlēt",
+        "lv": "sākt",
         "nl": "toneelstuk",
         "pl": "odtwórz",
         "pt": "jogar",
