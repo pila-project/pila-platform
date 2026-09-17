@@ -14,13 +14,13 @@
         </div>
         <div class="login-code-card-body">
           <QRCodeDisplay
-            v-if="users[id]?.secret"
-            :data="pilaSecretLoginUrl(users[id].secret)"
+            v-if="secretFor(id)"
+            :data="pilaSecretLoginUrl(secretFor(id))"
             size="112px"
           />
           <div class="login-code-secret">
             <div class="login-code-icons" :aria-label="t('pila-login-code')">
-              <template v-for="(char, index) in users[id]?.secret || ''" :key="`${id}-${index}`">
+              <template v-for="(char, index) in secretFor(id)" :key="`${id}-${index}`">
                 <i
                   v-if="faIconForCodeChar(char)"
                   class="login-code-glyph"
@@ -37,11 +37,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
 import DecryptedName from '@/components/common/decrypted-name.vue'
 import QRCodeDisplay from '@/components/common/qrcode.vue'
 import { faIconForCodeChar, pilaSecretLoginUrl } from '@/utils/login-code-symbols.js'
+import {
+  namedStudentLoginSecret,
+  resolveStudentLoginSecret,
+} from '@/utils/student-login-secret.js'
 
 const props = defineProps({
   studentIds: {
@@ -60,6 +64,36 @@ function t(slug) { return store.getters.t(slug) }
 const studentIds = computed(() =>
   props.studentIds.filter(id => !props.users[id]?.archived)
 )
+
+const resolvedSecrets = reactive({})
+let resolveGen = 0
+
+watch(
+  () => studentIds.value.map(id => `${id}:${props.users[id]?.secret || ''}`),
+  async () => {
+    const gen = ++resolveGen
+    const ids = studentIds.value
+    for (const id of ids) {
+      const named = namedStudentLoginSecret(props.users[id]?.secret)
+      if (named) resolvedSecrets[id] = named
+    }
+    await Promise.all(ids.map(async id => {
+      if (namedStudentLoginSecret(resolvedSecrets[id])) return
+      const secret = await resolveStudentLoginSecret(
+        '',
+        id,
+        store.getters.decryptUserSecret,
+      )
+      if (gen !== resolveGen) return
+      resolvedSecrets[id] = secret
+    }))
+  },
+  { immediate: true },
+)
+
+function secretFor(id) {
+  return resolvedSecrets[id] || ''
+}
 
 </script>
 

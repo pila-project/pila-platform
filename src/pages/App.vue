@@ -56,53 +56,28 @@
         try {
           // Roles default to 'student' until loaded; do not consume intent yet.
           if (!this.loaded) return
-
-          const returnPath = sessionStorage.getItem('pila-return-path')
-          const intentEarly = sessionStorage.getItem('pila-login-intent')
-          const skipTeacherReturn = intentEarly === 'student' && returnPath?.startsWith('/teacher')
-          if (
-            returnPath
-            && !skipTeacherReturn
-            && returnPath.startsWith('/')
-            && !returnPath.startsWith('//')
-            && !returnPath.startsWith('/login')
-          ) {
-            sessionStorage.removeItem('pila-return-path')
-            // Keep teacher intent on /teacher* restores for aspiring RoleRequester.
-            if (!returnPath.startsWith('/teacher')) {
-              sessionStorage.removeItem('pila-login-intent')
-            }
-            if (this.$route.fullPath !== returnPath) this.$router.push(returnPath)
-            return
-          }
-          if (skipTeacherReturn) {
-            sessionStorage.removeItem('pila-return-path')
-          }
+          // Router owns /login: pila-return-path restore and postLoginHome via
+          // tryAuthRedirect (loaded + isAnonymous). Do not consume the return
+          // path or push from /login — that races the in-flight restore and
+          // clobbers /teacher/classes and /admin after SSO (bf12035).
+          if (this.$route.path === '/login') return
 
           const intent = sessionStorage.getItem('pila-login-intent')
+          if (!intent) return
+
           const user = this.$store.state.user
           const hasTeacher = this.$store.getters['roles/hasPermission'](user, 'teacher')
           const onTeacherPath = this.$route.path.startsWith('/teacher')
-          const onLogin = this.$route.path === '/login'
-
-          if (!intent) {
-            // Failsafe: authenticated on /login with missing intent → leave like postLoginHome.
-            if (!this.isAnonymous && onLogin) {
-              this.$router.push(hasTeacher ? '/teacher' : '/')
-            }
-            return
-          }
 
           if (intent === 'teacher') {
+            // Secret-login /auth bounce lands on /; send teacher-tab pad here.
             // Teachers and aspiring teachers (no tag yet → RoleRequester) go to /teacher.
-            // Include /login so post-SSO leaves LoginMenu (return-path block above still wins).
             if (!onTeacherPath) this.$router.push('/teacher')
             // Keep intent while they lack the teacher tag so /teacher can
             // show RoleRequester instead of ejecting them as a student.
             if (hasTeacher) sessionStorage.removeItem('pila-login-intent')
           } else {
-            // Agent.login returns to /login; eject from /login and /teacher*.
-            if (onTeacherPath || onLogin) this.$router.push('/')
+            if (onTeacherPath) this.$router.push('/')
             sessionStorage.removeItem('pila-login-intent')
           }
         } catch { /* ignore */ }

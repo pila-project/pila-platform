@@ -209,9 +209,13 @@
             v-for="gid in filteredGroups"
             :key="gid"
             class="group-card"
-            :class="{ 'group-card-selected': isGroupSelected(gid) }"
+            :class="{
+              'group-card-selected': isGroupSelected(gid),
+              'group-card-disabled': isSecondGroupBlocked(gid),
+            }"
             role="option"
             :aria-selected="isGroupSelected(gid)"
+            :aria-disabled="isSecondGroupBlocked(gid) ? 'true' : undefined"
             @click="toggleGroup(gid)"
           >
             <div class="group-icon" :class="isGroupSelected(gid) ? 'group-icon-green' : 'group-icon-blue'">
@@ -415,6 +419,16 @@
       @close="sequenceToPreview = null"
     />
   </Teleport>
+
+  <PAlertDialog
+    v-if="showOneGroupError"
+    variant="error"
+    :title="t('only-one-group-per-assignment')"
+    :confirm-text="t('done')"
+    cancel-text=""
+    @confirm="showOneGroupError = false"
+    @cancel="showOneGroupError = false"
+  />
 </template>
 
 <script setup>
@@ -431,7 +445,7 @@
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent, removeAssignmentContentId } from '@/utils/assignment-content.js'
   import { useToast } from '@/utils/useToast.js'
-  import { PButton, PInput, PSelect, PDateField, PTooltip } from '@/components/ui/index.js'
+  import { PButton, PInput, PSelect, PDateField, PTooltip, PAlertDialog } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import {
     ASSIGNMENT_STATUS,
@@ -591,6 +605,7 @@
 
   // ── Pending group assignment (applied on Save only; at most one group) ──
   const pendingGroupId = ref(null)
+  const showOneGroupError = ref(false)
   /** Stable list order on assign step — selected group pins to top only when entering the step. */
   const groupDisplayOrder = ref([])
 
@@ -675,36 +690,59 @@
     return pendingGroupId.value === group_id
   }
 
+  function isSecondGroupBlocked(group_id) {
+    return !!pendingGroupId.value && pendingGroupId.value !== group_id
+  }
+
   function toggleGroup(group_id) {
+    if (isSecondGroupBlocked(group_id)) {
+      showOneGroupError.value = true
+      return
+    }
     pendingGroupId.value = pendingGroupId.value === group_id ? null : group_id
   }
 
-  function seedPendingGroupFromStore() {
+  function seedPendingGroupFromStore(itemState) {
     const assigned = store.getters['assignments/assignedGroups'](
       props.id,
       'teacher-to-student',
       false
     )
-    pendingGroupId.value = assigned[0] ?? null
+    pendingGroupId.value = assigned[0] ?? itemState?.pendingGroupId ?? null
   }
 
   async function applyPendingGroupAssignments() {
     const itemId = props.id
     const assignmentType = 'teacher-to-student'
-    const currentlyAssigned = store.getters['assignments/assignedGroups'](
+    const currentlyAssigned = [...new Set(store.getters['assignments/assignedGroups'](
+      itemId,
+      assignmentType,
+      false
+    ))]
+    const pending = pendingGroupId.value
+
+    if (!pending) {
+      for (const groupId of currentlyAssigned) {
+        const assignmentId = assignmentForGroup(groupId)
+        if (assignmentId) await store.dispatch('assignments/unassign', assignmentId)
+      }
+      return
+    }
+
+    // Legacy multi-group rows: never silently archive siblings.
+    if (currentlyAssigned.length > 1) return
+
+    if (currentlyAssigned.length === 1 && currentlyAssigned[0] !== pending) {
+      const oldId = assignmentForGroup(currentlyAssigned[0])
+      if (oldId) await store.dispatch('assignments/unassign', oldId)
+    }
+
+    const assignedAfter = store.getters['assignments/assignedGroups'](
       itemId,
       assignmentType,
       false
     )
-    const pending = pendingGroupId.value
-
-    for (const groupId of currentlyAssigned) {
-      if (groupId !== pending) {
-        const assignmentId = assignmentForGroup(groupId)
-        if (assignmentId) await store.dispatch('assignments/unassign', assignmentId)
-      }
-    }
-    if (pending && !currentlyAssigned.includes(pending)) {
+    if (!assignedAfter.includes(pending)) {
       await store.dispatch('assignments/assign', {
         group_id: pending,
         item_id: itemId,
@@ -993,6 +1031,7 @@
       state.scheduledTime = scheduledTime.value || DEFAULT_PUBLICATION_TIME
     }
     storedStatus.value = state.status
+    state.pendingGroupId = pendingGroupId.value || null
   }
 
   async function saveDraft() {
@@ -1000,7 +1039,7 @@
     savingDraft.value = true
     try {
       await saveSettings({ asDraft: true })
-      await applyPendingGroupAssignments()
+      // Do not create group assignment records for Draft — students would see them.
       await Agent.synced()
       emit('saved', { asDraft: true })
       emit('close')
@@ -1015,7 +1054,9 @@
   async function saveAndClose() {
     if (!canSave.value) return
     await saveSettings()
-    await applyPendingGroupAssignments()
+    if (storedStatus.value !== ASSIGNMENT_STATUS.DRAFT) {
+      await applyPendingGroupAssignments()
+    }
     await Agent.synced()
     emit('saved', { asDraft: distributionOption.value === 'draft' })
     emit('close')
@@ -1053,7 +1094,7 @@
       } else if (state.status === ASSIGNMENT_STATUS.SCHEDULED) {
         scheduledTime.value = DEFAULT_PUBLICATION_TIME
       }
-      seedPendingGroupFromStore()
+      seedPendingGroupFromStore(state)
     } else {
       const seedContent = props.initialContentIds?.length
         ? [...props.initialContentIds]
@@ -1459,6 +1500,13 @@
 .group-card-selected {
   border-color: #2563eb;
   background: #eff6ff;
+}
+.group-card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.group-card-disabled:hover {
+  background: #f8fafc;
 }
 
 .group-icon {

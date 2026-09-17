@@ -23,6 +23,7 @@ import { useStore } from 'vuex'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
 import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
+import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 
 const route = useRoute()
 const store = useStore()
@@ -37,7 +38,13 @@ const closeAssignment = () => Agent.close()
 
 onMounted(async () => {
   try {
-    assignment.value = await Agent.state(id)
+    const state = await Agent.state(id)
+    // `to` membership already implies a class record; still hide Draft / not-due Scheduled.
+    if (!isStudentVisibleAssignment(state, { hasAssignedGroups: true })) {
+      assignment.value = state
+      return
+    }
+    assignment.value = state
     const { owner: teacher } = await Agent.metadata(id)
     addVariables.value = await studyEnvironmentVariableProxy({}, teacher)
   } catch (e) {

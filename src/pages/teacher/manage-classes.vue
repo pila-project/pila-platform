@@ -1015,7 +1015,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" color="danger" :text="t('close')" @click="loginCodeStudent = null" />
-        <PButton variant="primary" :text="t('download-login')" @click="downloadLoginCard" />
+        <PButton variant="primary" :text="t('download-login')" :disabled="!loginCodeQrPayload" @click="downloadLoginCard" />
       </template>
     </PModal>
 
@@ -1071,6 +1071,10 @@ import { formatStudentPreferredName } from '@/utils/student-display-name.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
 import { glyphForCodeChar, pilaSecretLoginUrl } from '@/utils/login-code-symbols.js'
+import {
+  namedStudentLoginSecret,
+  resolveStudentLoginSecret,
+} from '@/utils/student-login-secret.js'
 import {
   normalizeGroupSubjects,
   formatGroupSubjects,
@@ -1873,13 +1877,36 @@ async function toggleArchiveStudent(item) {
 
 const qrContainerRef = ref(null)
 
-const loginCodePassphraseIcons = computed(() => {
-  if (!loginCodeStudent.value) return ''
-  return users[loginCodeStudent.value.id]?.secret || ''
-})
+const recoveredLoginSecret = ref('')
+let loginSecretGen = 0
+
+watch(
+  () => [
+    loginCodeStudent.value?.id || '',
+    loginCodeStudent.value?.id ? (users[loginCodeStudent.value.id]?.secret || '') : '',
+  ],
+  async ([id, named]) => {
+    const gen = ++loginSecretGen
+    if (!id) {
+      recoveredLoginSecret.value = ''
+      return
+    }
+    const fromNamed = namedStudentLoginSecret(named)
+    if (fromNamed) {
+      recoveredLoginSecret.value = fromNamed
+      return
+    }
+    recoveredLoginSecret.value = ''
+    const secret = await resolveStudentLoginSecret('', id, store.getters.decryptUserSecret)
+    if (gen !== loginSecretGen) return
+    recoveredLoginSecret.value = secret
+  },
+)
+
+const loginCodePassphraseIcons = computed(() => recoveredLoginSecret.value)
 
 const loginCodeQrPayload = computed(() => {
-  const secret = loginCodePassphraseIcons.value
+  const secret = recoveredLoginSecret.value
   return secret ? pilaSecretLoginUrl(secret) : ''
 })
 
@@ -1985,7 +2012,7 @@ async function downloadLoginCard() {
     ctx.drawImage(img, (width - qrSize) / 2, qrY, qrSize, qrSize)
 
     ctx.textAlign = 'center'
-    const secret = users[studentId]?.secret || ''
+    const secret = recoveredLoginSecret.value || ''
     const glyphs = [...secret].map(ch => glyphForCodeChar(ch)).join('  ')
     ctx.fillStyle = '#334155'
     ctx.font = '600 22px system-ui, sans-serif'
@@ -2585,13 +2612,26 @@ async function handleDropStudent(groupId, studentIds) {
   }]
 }
 
-function handlePrintGroupLoginCodes(groupId) {
+async function idsWithLoginSecrets(ids) {
+  const results = await Promise.all((ids || []).map(async id => {
+    if (!id || users[id]?.archived) return null
+    const secret = await resolveStudentLoginSecret(
+      users[id]?.secret,
+      id,
+      store.getters.decryptUserSecret,
+    )
+    return secret ? id : null
+  }))
+  return results.filter(Boolean)
+}
+
+async function handlePrintGroupLoginCodes(groupId) {
   const memberIds = store.getters['groups/members'](groupId)
   if (!memberIds.length) {
     toastError(t('no-students-in-group'))
     return
   }
-  const withCodes = memberIds.filter(id => users[id]?.secret && !users[id]?.archived)
+  const withCodes = await idsWithLoginSecrets(memberIds)
   if (!withCodes.length) {
     toastError(t('no-active-users-with-login-codes'))
     return
@@ -2599,10 +2639,8 @@ function handlePrintGroupLoginCodes(groupId) {
   openLoginCodesPage(withCodes)
 }
 
-function printLoginCodes() {
-  const ids = selectedStudents.value
-    .filter(s => users[s.id]?.secret && !users[s.id]?.archived)
-    .map(s => s.id)
+async function printLoginCodes() {
+  const ids = await idsWithLoginSecrets(selectedStudents.value.map(s => s.id))
   if (!ids.length) {
     toastError(t('no-active-users-with-login-codes'))
     return

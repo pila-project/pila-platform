@@ -85,6 +85,8 @@ export default {
           .flat()
       ))
     },
+    // Membership only. Student list/play also filter item status via
+    // isStudentVisibleAssignment (status lives on Agent.state(item_id)).
     to: (state, _getters, _rootState, rootGetters) => (user_id, assignment_type) => {
       return (
         Object
@@ -162,15 +164,13 @@ export default {
       { getters, rootGetters, dispatch },
       { group_id, item_id, assignment_type }
     ) {
-      // Teacher-to-student: at most one active group per item. Unassign extras
-      // first so xAPI class-id lists are the remaining group only.
+      // Teacher-to-student: at most one active group per item. Refuse a second
+      // group instead of silently unassigning siblings (UI blocks + explains).
       if (assignment_type === TEACHER_TO_STUDENT) {
         const extras = getters
           .assignments(item_id, assignment_type)
           .filter(id => getters.get(id).group_id !== group_id)
-        for (const extraId of extras) {
-          await dispatch('unassign', extraId)
-        }
+        if (extras.length > 0) return
       }
 
       if (getters.isAssigned(group_id, item_id, assignment_type)) return

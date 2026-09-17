@@ -141,6 +141,8 @@ export function installAuthNavigationGuards(router, store) {
   )
 
   // SSO can finish after loaded=true while still anonymous; re-run when auth flips.
+  // Sole owner of leaving /login (return-path / postLoginHome). App.vue must not
+  // push from /login — that races this restore.
   store.watch(
     () => store.getters.isAnonymous(),
     () => { tryAuthRedirect() }

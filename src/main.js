@@ -24,6 +24,10 @@ else if (window.location.pathname === '/login/pila') {
   const secret = secretFromLoginScan(window.location.hash)
   if (isCompleteLoginCode(secret)) {
     try { sessionStorage.setItem('pila-login-secret', secret) } catch { /* private mode */ }
+    // IMPORTANT: do not replace this with trunk/92fa932 behaviour that strips
+    // #secret and IdP-bounces (replaceState to / + Agent.login). That discards
+    // the QR fragment and breaks /login/pila#secret deep-links. Keep a740aed:
+    // hash → sessionStorage pila-login-secret + /login#secret + initializeApp.
     // Drop /login/pila (avoids the old loop) but keep #secret. sessionStorage
     // alone is not enough if storage is blocked.
     history.replaceState(null, '', `/login#${secret}`)

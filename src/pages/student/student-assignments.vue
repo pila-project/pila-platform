@@ -46,10 +46,17 @@
     </div>
     <div v-if="id" class="assignment-overlay">
       <vueEmbedComponent
+        v-if="overlayVisible"
         :id="id"
         @close="$router.push('/')"
         allow="camera;microphone;fullscreen"
       />
+      <div v-else-if="overlayChecked">
+        {{ t('there-is-an-issue-with-your-assignment-please-as') }}
+      </div>
+      <div v-else>
+        ... {{ t('loading') }} ...
+      </div>
     </div>
   </div>
 </template>
@@ -62,6 +69,7 @@ import { vueEmbedComponent, vueScopeComponent, } from '@knowlearning/agents/vue.
 import URL_CONTENT_DATA from '@/utils/url-content-data.js'
 import AssignmentCard from './assignment-card.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 
 const NEW_ASSIGNMENT_DAYS = 5
 
@@ -73,6 +81,9 @@ export default {
       assignmentsToContent: {},
       assignmentsToAssignableItem: {},
       assignmentsToAssignerAndCreated: {},
+      itemVisibility: {},
+      overlayVisible: false,
+      overlayChecked: false,
       activeAssigner: null,
       oldestFirst: false
     }
@@ -81,8 +92,11 @@ export default {
     assignments() {
       return Object.keys(this.assignmentsToContent)
     },
+    visibleAssignmentIds() {
+      return this.assignmentIds.filter(aid => this.itemVisibility[aid] === true)
+    },
     noAssignments() {
-      return this.assignmentIds.length === 0
+      return this.visibleAssignmentIds.length === 0
     },
     URL_CONTENT_DATA() {
         return URL_CONTENT_DATA
@@ -93,8 +107,9 @@ export default {
       return this.$store.getters['assignments/to'](user, type)
     },
     allAssigners() {
-      return Object.values(this.assignmentsToAssignerAndCreated)
-        .map(aid => aid.owner)
+      return this.visibleAssignmentIds
+        .map(aid => this.assignmentsToAssignerAndCreated[aid]?.owner)
+        .filter(Boolean)
         .reduce((acc, cur) => acc.includes(cur) ? acc : [ ...acc, cur ], [])
     },
     filteredAssignmentIds() {
@@ -104,13 +119,37 @@ export default {
         return ts1 > ts2 ? 1 : -1
       }
 
-      const aidsFromActiveAssigner = this.assignmentIds.filter(aid => this.assignmentsToAssignerAndCreated[aid]?.owner === this.activeAssigner)
+      const aidsFromActiveAssigner = this.visibleAssignmentIds.filter(aid => this.assignmentsToAssignerAndCreated[aid]?.owner === this.activeAssigner)
       const oldestFirst = aidsFromActiveAssigner.sort(compareCreated)
       return this.oldestFirst ? oldestFirst : oldestFirst.reverse()
     }
 
   },
   watch: {
+    id: {
+      immediate: true,
+      async handler(id) {
+        this.overlayVisible = false
+        this.overlayChecked = false
+        if (!id) return
+        try {
+          const state = await Agent.state(id)
+          if (this.id !== id) return
+          this.overlayVisible = isStudentVisibleAssignment(state, { hasAssignedGroups: true })
+        } catch (e) {
+          console.error('[Assignment] failed to load', id, e)
+          if (this.id !== id) return
+          this.overlayVisible = false
+        } finally {
+          if (this.id === id) this.overlayChecked = true
+        }
+      }
+    },
+    allAssigners(val) {
+      if (val.length && !val.includes(this.activeAssigner)) {
+        this.activeAssigner = val[0]
+      }
+    },
     assignmentIds: {
       immediate: true,
       async handler(val) {
@@ -120,6 +159,8 @@ export default {
           const { owner, created } = await Agent.metadata(aid)
           this.assignmentsToAssignerAndCreated[aid] = { owner, created }
           if (!this.activeAssigner) this.activeAssigner = owner
+
+          this.resolveItemVisibility(aid)
 
           if (this.assignmentsToContent[aid]) return
 
@@ -153,7 +194,23 @@ export default {
       const cutoff = Date.now() - (NEW_ASSIGNMENT_DAYS * 24 * 60 * 60 * 1000)
       return this.timestamp(created) >= cutoff
     },
+    async resolveItemVisibility(aid) {
+      if (this.itemVisibility[aid] === true) return
+      try {
+        const rec = this.$store.getters['assignments/get'](aid)
+        const itemId = rec?.item_id
+        if (!itemId) {
+          this.itemVisibility[aid] = false
+          return
+        }
+        const state = await Agent.state(itemId)
+        this.itemVisibility[aid] = isStudentVisibleAssignment(state, { hasAssignedGroups: true })
+      } catch {
+        this.itemVisibility[aid] = false
+      }
+    },
     play(aid) {
+      if (this.itemVisibility[aid] !== true) return
       Agent
         .state(aid)
         .then(({ item_id }) => {

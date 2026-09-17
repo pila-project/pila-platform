@@ -51,10 +51,10 @@ export default {
 	components: { PModal, LucideIcon },
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
-		modalClose(e) {
+		async modalClose(e) {
 			// only accept/handle modal close from 'agree' button
 			const agreeBtn = e === 'primary-button'
-			if (agreeBtn) this.$store.dispatch('acceptStudentAgreement')
+			if (agreeBtn) await this.$store.dispatch('acceptStudentAgreement')
 		}
 	}
 }

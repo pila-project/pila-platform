@@ -54,7 +54,7 @@ export default {
 		t(slug) { return this.$store.getters.t(slug) },
 		async modalClose(e) {
 			// Trunk: TC treatment/control tagging moved to admin role grant — not on agreement close
-			if (e === 'primary-button') this.$store.dispatch('acceptTeacherAgreement')
+			if (e === 'primary-button') await this.$store.dispatch('acceptTeacherAgreement')
 		}
 	},
 	computed: {

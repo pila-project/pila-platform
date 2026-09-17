@@ -27,14 +27,6 @@ const visibleUsers = computed(() =>
   })
 )
 
-const usersWithCodes = computed(() =>
-  visibleUsers.value.filter(id => users[id]?.secret)
-)
-
-const usersMissingCodes = computed(() =>
-  visibleUsers.value.filter(id => !users[id]?.secret)
-)
-
 function printCodes() {
   window.print()
 }
@@ -42,7 +34,7 @@ function printCodes() {
 
 <template>
   <div class="codes-page p-6">
-    <div v-if="usersWithCodes.length" class="codes-toolbar no-print">
+    <div v-if="visibleUsers.length" class="codes-toolbar no-print">
       <PButton
         variant="primary"
         icon="lucide:printer"
@@ -50,16 +42,9 @@ function printCodes() {
         @click="printCodes"
       />
     </div>
-    <p v-if="usersMissingCodes.length" class="codes-missing no-print">
-      {{ usersMissingCodes.length }} {{ usersMissingCodes.length === 1 ? t('student') : t('students') }}
-      {{ t('without-login-codes') }}
-    </p>
-    <LoginCodesView v-if="usersWithCodes.length" :student-ids="usersWithCodes" :users="users" />
+    <LoginCodesView v-if="visibleUsers.length" :student-ids="visibleUsers" :users="users" />
     <p v-if="!visibleUsers.length" class="codes-empty">
       {{ t('no-students-selected') }}
-    </p>
-    <p v-else-if="!usersWithCodes.length" class="codes-empty">
-      {{ t('no-active-users-with-login-codes') }}
     </p>
   </div>
 </template>
@@ -74,16 +59,11 @@ function printCodes() {
   justify-content: center;
   margin-bottom: 16px;
 }
-.codes-empty,
-.codes-missing {
+.codes-empty {
   text-align: center;
   margin-top: 16px;
   color: var(--color-slate-500);
   font-size: 14px;
-}
-.codes-missing {
-  margin-bottom: 16px;
-  color: var(--color-amber-700, #b45309);
 }
 @media print {
   .no-print {

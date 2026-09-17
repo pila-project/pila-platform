@@ -194,6 +194,7 @@
         <div v-else-if="step === 4" class="step-body">
           <div class="assign-section">
             <label class="field-label">{{ t('assign-to') }}</label>
+            <p class="field-hint">{{ t('one-group-per-assignment-hint') }}</p>
             <PInput
               v-model="groupSearch"
               :placeholder="t('search-groups')"
@@ -204,10 +205,14 @@
                 v-for="gid in filteredGroups"
                 :key="gid"
                 class="group-card"
-                :class="{ 'group-card-selected': selectedGroups.has(gid) }"
+                :class="{
+                  'group-card-selected': isGroupSelected(gid),
+                  'group-card-disabled': isSecondGroupBlocked(gid),
+                }"
+                :aria-disabled="isSecondGroupBlocked(gid) ? 'true' : undefined"
                 @click="toggleGroup(gid)"
               >
-                <div class="group-icon" :class="selectedGroups.has(gid) ? 'group-icon-green' : 'group-icon-blue'">
+                <div class="group-icon" :class="isGroupSelected(gid) ? 'group-icon-green' : 'group-icon-blue'">
                   <LucideIcon name="users" :size="16" />
                 </div>
                 <div class="group-info">
@@ -219,7 +224,7 @@
                   </span>
                 </div>
                 <div class="group-check">
-                  <LucideIcon v-if="selectedGroups.has(gid)" name="check" :size="14" />
+                  <LucideIcon v-if="isGroupSelected(gid)" name="check" :size="14" />
                 </div>
               </div>
               <div v-if="!filteredGroups.length" class="text-xs text-slate-400 py-3">
@@ -304,6 +309,16 @@
     :id="sequenceToPreview"
     @close="sequenceToPreview = null"
   />
+
+  <PAlertDialog
+    v-if="showOneGroupError"
+    variant="error"
+    :title="t('only-one-group-per-assignment')"
+    :confirm-text="t('done')"
+    cancel-text=""
+    @confirm="showOneGroupError = false"
+    @cancel="showOneGroupError = false"
+  />
 </template>
 
 <script setup>
@@ -317,7 +332,7 @@ import PreviewModal from '@/components/common/preview-modal.vue'
 import SequencePreviewModal from './sequence-preview-modal.vue'
 import { openContentPreview } from '@/utils/open-content-preview.js'
 import { invalidateNames, getContentName, hasCachedContentNameForLang } from '@/utils/content-cache.js'
-import { PModal, PInput, PButton, PSelect, PDateField } from '@/components/ui/index.js'
+import { PModal, PInput, PButton, PSelect, PDateField, PAlertDialog } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { gridPerPageOptions } from '@/utils/pagination-options.js'
 
@@ -351,8 +366,9 @@ watch(() => store.getters.language(), (lang, prev) => {
 })
 const groupSearch = ref('')
 
-// Groups
-const selectedGroups = reactive(new Set())
+// Groups — at most one class per assignment
+const selectedGroupId = ref(null)
+const showOneGroupError = ref(false)
 
 // Form state
 const form = reactive({
@@ -427,16 +443,27 @@ function removeContent(id) {
   if (idx >= 0) form.contentIds.splice(idx, 1)
 }
 
+function isGroupSelected(gid) {
+  return selectedGroupId.value === gid
+}
+
+function isSecondGroupBlocked(gid) {
+  return !!selectedGroupId.value && selectedGroupId.value !== gid
+}
+
 function toggleGroup(gid) {
-  if (selectedGroups.has(gid)) selectedGroups.delete(gid)
-  else selectedGroups.add(gid)
+  if (isSecondGroupBlocked(gid)) {
+    showOneGroupError.value = true
+    return
+  }
+  selectedGroupId.value = selectedGroupId.value === gid ? null : gid
 }
 
 const canProceed = computed(() => {
   if (step.value === 1) return form.name.trim() !== '' && form.assignmentType !== ''
   if (step.value === 2) return form.contentIds.length > 0
   if (step.value === 3) return true
-  if (step.value === 4) return selectedGroups.size > 0
+  if (step.value === 4) return !!selectedGroupId.value
   return false
 })
 
@@ -468,15 +495,14 @@ async function createAssignment() {
   creating.value = true
 
   try {
-    // Create assignments for each selected group + content item
+    const groupId = selectedGroupId.value
+    if (!groupId) return
     for (const contentId of form.contentIds) {
-      for (const groupId of selectedGroups) {
-        await store.dispatch('assignments/assign', {
-          group_id: groupId,
-          item_id: contentId,
-          assignment_type: 'teacher-to-student',
-        })
-      }
+      await store.dispatch('assignments/assign', {
+        group_id: groupId,
+        item_id: contentId,
+        assignment_type: 'teacher-to-student',
+      })
     }
     step.value = 'success'
     emit('created')
@@ -742,6 +768,18 @@ async function createAssignment() {
 .group-card-selected {
   border-color: #2563eb;
   background: #eff6ff;
+}
+.group-card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.group-card-disabled:hover {
+  background: #f8fafc;
+}
+.field-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: -4px 0 10px;
 }
 .group-icon {
   width: 48px;

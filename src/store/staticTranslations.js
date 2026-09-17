@@ -1286,6 +1286,19 @@ export default {
     "sk": "Iba jedna skupina na úlohu. Ak chcete tú istú úlohu zdieľať s viacerými skupinami, vytvorte duplicitnú úlohu.",
     "th": "ได้เพียงหนึ่งกลุ่มต่องานที่มอบหมาย หากต้องการมอบหมายงานเดียวกันให้หลายกลุ่ม ให้สร้างงานที่มอบหมายซ้ำ"
   },
+  "only-one-group-per-assignment": {
+    "de": "Nur eine Gruppe pro Aufgabe. Um dieselbe Aufgabe mit mehreren Gruppen zu teilen, erstellen Sie eine doppelte Aufgabe.",
+    "en": "Only one group per assignment. To share the same assignment with multiple groups, create a duplicate assignment.",
+    "es": "Solo un grupo por tarea. Para compartir la misma tarea con varios grupos, cree una tarea duplicada.",
+    "fr": "Un seul groupe par devoir. Pour partager le même devoir avec plusieurs groupes, créez un devoir en double.",
+    "km": "កិច្ចការមួយអាចកំណត់បានតែមួយក្រុមប៉ុណ្ណោះ។ ដើម្បីចែករំលែកកិច្ចការដូចគ្នាជាមួយក្រុមច្រើន សូមបង្កើតកិច្ចការចម្លង។",
+    "lv": "Tikai viena grupa katram uzdevumam. Lai kopīgotu to pašu uzdevumu ar vairākām grupām, izveidojiet uzdevuma dublikātu.",
+    "nl": "Slechts één groep per opdracht. Om dezelfde opdracht met meerdere groepen te delen, maak je een duplicaat van de opdracht.",
+    "pl": "Tylko jedna grupa na zadanie. Aby udostępnić to samo zadanie wielu grupom, utwórz duplikat zadania.",
+    "pt": "Apenas um grupo por tarefa. Para compartilhar a mesma tarefa com vários grupos, crie uma tarefa duplicada.",
+    "sk": "Iba jedna skupina na úlohu. Ak chcete tú istú úlohu zdieľať s viacerými skupinami, vytvorte duplicitnú úlohu.",
+    "th": "ได้เพียงหนึ่งกลุ่มต่องานที่มอบหมาย หากต้องการมอบหมายงานเดียวกันให้หลายกลุ่ม ให้สร้างงานที่มอบหมายซ้ำ"
+  },
   "assigned-by": {
     "de": "Zugewiesen von",
     "en": "Assigned By",

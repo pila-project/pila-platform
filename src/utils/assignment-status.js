@@ -70,6 +70,14 @@ export function isPublicationLocked(data, opts = {}) {
 }
 
 /**
+ * Student list/play: only effective Published. Draft and not-yet-due Scheduled
+ * stay hidden even when a class membership exists.
+ */
+export function isStudentVisibleAssignment(data, opts = {}) {
+  return effectiveAssignmentStatus(data, opts) === ASSIGNMENT_STATUS.PUBLISHED
+}
+
+/**
  * Whether a stored Scheduled item is due for a promote write.
  */
 export function shouldPromoteScheduled(data, now = Date.now()) {

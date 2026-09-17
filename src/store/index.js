@@ -15,6 +15,11 @@ import {
 import { recordAuthLastLogin } from '@/utils/record-last-login.js'
 import { getStoredAdminCredentialSecret } from '../teacher-login-credentials.js'
 import { persistUiLanguage, resolveUiLanguage } from './ui-language.js'
+import {
+  hydrateVuexAgreements,
+  persistStudentAgreement,
+  persistTeacherAgreement,
+} from '@/utils/user-agreements.js'
 
 export default {
   modules: {
@@ -51,12 +56,7 @@ export default {
       if (userInfo?.name) return userInfo
 
       const key = localStorage.getItem(`zkek-${state.user}`)
-
-      // Trunk: try teacher zkek + admin credential secret; soft-fail each key
-      const providerKeys = [
-        key,
-        state.user ? getStoredAdminCredentialSecret(state.user) : ''
-      ].filter((value, index, values) => value && values.indexOf(value) === index)
+      const providerKeys = teacherProviderKeys(state)
 
       let createdUserInfo = null
       for (const providerKey of providerKeys) {
@@ -91,6 +91,35 @@ export default {
         } catch (error) { console.warn(error) }
       }
       return info
+    },
+
+    /**
+     * Decrypt a teacher-created student's login secret from
+     * Agent.state(id).providerEncryptedKey. Display-only (QR/glyphs/download).
+     */
+    decryptUserSecret: (state) => async (userId) => {
+      if (!userId) return ''
+      const providerKeys = teacherProviderKeys(state)
+      if (!providerKeys.length) return ''
+
+      let encryptedKey
+      try {
+        encryptedKey = (await Agent.state(userId))?.providerEncryptedKey
+      } catch (error) {
+        console.warn('[decryptUserSecret] failed to load user', error)
+        return ''
+      }
+      if (!encryptedKey) return ''
+
+      for (const providerKey of providerKeys) {
+        try {
+          const secret = await decryptProviderEncryptedLoginSecret(encryptedKey, providerKey)
+          if (secret) return secret
+        } catch (error) {
+          console.warn('[decryptUserSecret] decrypt failed', error)
+        }
+      }
+      return ''
     },
 
     /**
@@ -194,6 +223,7 @@ export default {
 
       const { auth } = await Agent.environment()
       commit('load', auth)
+      await hydrateVuexAgreements({ commit, state })
 
       if (state.user && state.provider !== 'anonymous') {
         await recordAuthLastLogin(auth).catch(e => console.warn('[Store] lastLogin failed:', e))
@@ -209,11 +239,13 @@ export default {
         pingSession()
       }
     },
-    acceptStudentAgreement({ commit }) {
+    async acceptStudentAgreement({ commit }) {
       commit('acceptStudentAgreement')
+      await persistStudentAgreement()
     },
-    acceptTeacherAgreement({ commit }) {
+    async acceptTeacherAgreement({ commit }) {
       commit('acceptTeacherAgreement')
+      await persistTeacherAgreement()
     }
   },
   plugins: [
@@ -243,6 +275,20 @@ export default {
       store.dispatch('loaded', true)
     }
   ]
+}
+
+function teacherProviderKeys(state) {
+  const key = localStorage.getItem(`zkek-${state.user}`)
+  return [
+    key,
+    state.user ? getStoredAdminCredentialSecret(state.user) : ''
+  ].filter((value, index, values) => value && values.indexOf(value) === index)
+}
+
+async function decryptProviderEncryptedLoginSecret(encryptedKey, providerKey) {
+  if (!encryptedKey || !providerKey) return ''
+  const { secretKey } = await generateKeyPair(providerKey)
+  return decryptSymmetric(secretKey, encryptedKey)
 }
 
 async function getTeacherCreatedUserInfo(id, key) {

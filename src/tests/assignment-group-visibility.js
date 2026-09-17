@@ -1,4 +1,5 @@
 import assignments from '../store/assignments.js'
+import { ASSIGNMENT_STATUS, isStudentVisibleAssignment } from '../utils/assignment-status.js'
 
 export default function assignmentGroupVisibilityTests() {
   describe('Assignment group visibility', function () {
@@ -104,6 +105,60 @@ export default function assignmentGroupVisibilityTests() {
       })(studentId, 'teacher-to-student')
 
       expect(visibleAssignments).to.deep.equal(['assignment1'])
+    })
+  })
+
+  describe('Student assignment status visibility', function () {
+    const now = Date.parse('2026-09-17T12:00:00')
+
+    it('hides Draft even when a class is assigned', function () {
+      expect(isStudentVisibleAssignment(
+        { status: ASSIGNMENT_STATUS.DRAFT },
+        { hasAssignedGroups: true, now }
+      )).to.equal(false)
+    })
+
+    it('hides future Scheduled even when a class is assigned', function () {
+      expect(isStudentVisibleAssignment(
+        {
+          status: ASSIGNMENT_STATUS.SCHEDULED,
+          scheduledDate: '2099-01-01',
+          scheduledTime: '08:00',
+        },
+        { hasAssignedGroups: true, now }
+      )).to.equal(false)
+    })
+
+    it('shows Scheduled that is due as effective Published', function () {
+      expect(isStudentVisibleAssignment(
+        {
+          status: ASSIGNMENT_STATUS.SCHEDULED,
+          scheduledDate: '2020-01-01',
+          scheduledTime: '08:00',
+        },
+        { hasAssignedGroups: true, now }
+      )).to.equal(true)
+    })
+
+    it('shows Published', function () {
+      expect(isStudentVisibleAssignment(
+        { status: ASSIGNMENT_STATUS.PUBLISHED },
+        { hasAssignedGroups: true, now }
+      )).to.equal(true)
+    })
+
+    it('shows legacy missing status with groups as Published', function () {
+      expect(isStudentVisibleAssignment(
+        {},
+        { hasAssignedGroups: true, now }
+      )).to.equal(true)
+    })
+
+    it('hides missing status with no groups', function () {
+      expect(isStudentVisibleAssignment(
+        {},
+        { hasAssignedGroups: false, now }
+      )).to.equal(false)
     })
   })
 }

@@ -103,6 +103,14 @@ describe('student code login wiring', () => {
     const main = readFileSync(join(srcDir, 'main.js'), 'utf8')
     assert.match(main, /replaceState\(null, '', `\/login#\$\{secret\}`\)/)
     assert.equal(main.includes("Agent.login('code'"), false)
+    // RR-05: do not land trunk/92fa932 hash-strip + IdP bounce over a740aed.
+    assert.match(main, /do not replace this with trunk\/92fa932/)
+    const pilaHandler = main.slice(
+      main.indexOf("pathname === '/login/pila'"),
+      main.indexOf('else initializeApp()')
+    )
+    assert.match(pilaHandler, /sessionStorage\.setItem\('pila-login-secret'/)
+    assert.match(pilaHandler, /initializeApp\(\)/)
   })
 
   it('wraps oauth code as login.pilaproject.org, not code', () => {
@@ -131,5 +139,38 @@ describe('student code login wiring', () => {
     assert.equal(codesView.includes('pilaSecretLoginUrl'), true)
     assert.equal(manage.includes('/join/${loginCodeStudent.id}'), false)
     assert.equal(manage.includes('pilaSecretLoginUrl'), true)
+  })
+
+  it('recovers QR/glyphs via providerEncryptedKey when users[id].secret is missing', () => {
+    const codesView = readFileSync(join(srcDir, 'components/teacher/LoginCodesView.vue'), 'utf8')
+    const manage = readFileSync(join(srcDir, 'pages/teacher/manage-classes.vue'), 'utf8')
+    const store = readFileSync(join(srcDir, 'store/index.js'), 'utf8')
+    const codesPage = readFileSync(join(srcDir, 'pages/teacher/codes.vue'), 'utf8')
+    assert.equal(codesView.includes('resolveStudentLoginSecret'), true)
+    assert.equal(codesView.includes('decryptUserSecret'), true)
+    assert.equal(manage.includes('resolveStudentLoginSecret'), true)
+    assert.equal(manage.includes('decryptUserSecret'), true)
+    assert.equal(store.includes('decryptUserSecret'), true)
+    assert.equal(store.includes('providerEncryptedKey'), true)
+    assert.equal(codesPage.includes('users[id]?.secret'), false)
+    assert.equal(codesView.includes('/join/'), false)
+    assert.equal(manage.includes('/join/${loginCodeStudent.id}'), false)
+    assert.equal(manage.includes("'/join/'"), false)
+  })
+})
+
+describe('post-login routing owners (RR-03)', () => {
+  it('App.vue does not consume pila-return-path or push from /login', () => {
+    const app = readFileSync(join(srcDir, 'pages/App.vue'), 'utf8')
+    assert.match(app, /if \(this\.\$route\.path === '\/login'\) return/)
+    assert.equal(app.includes("sessionStorage.removeItem('pila-return-path')"), false)
+    assert.equal(app.includes("sessionStorage.getItem('pila-return-path')"), false)
+  })
+
+  it('router tryAuthRedirect re-runs when isAnonymous flips', () => {
+    const router = readFileSync(join(srcDir, 'router.js'), 'utf8')
+    assert.match(router, /store\.getters\.isAnonymous\(\)/)
+    assert.match(router, /tryAuthRedirect/)
+    assert.match(router, /RETURN_PATH_KEY = 'pila-return-path'/)
   })
 })
