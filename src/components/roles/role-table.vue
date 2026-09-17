@@ -11,14 +11,14 @@
           :text="t('download')"
         />
         <PButton
-          v-if="editable && props.approvalColumns"
+          v-if="editable && props.approvalColumns && isSimplifiedStudyDomain"
           variant="primary"
           size="sm"
           text="Create teacher account"
           @click="openCreateTeacherAccount"
         />
         <PButton
-          v-if="editable && props.approvalColumns"
+          v-if="editable && props.approvalColumns && isSimplifiedStudyDomain"
           variant="secondary"
           size="sm"
           text="Admin encryption key"
@@ -326,6 +326,7 @@
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { createUser, randomUserSecret } from '@/user-utils.js'
   import { downloadLoginCode, printLoginCode } from '@/login-code-document.js'
+  import { SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
   import {
     createTeacherLoginCredentialRecord,
     decryptTeacherLoginCredentialRecord,
@@ -336,6 +337,7 @@
   } from '@/teacher-login-credentials.js'
 
   const store = useStore()
+  const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   function t(slug) { return store.getters.t(slug) }
 
   function submitNewTeacher(user) {

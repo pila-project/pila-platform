@@ -28,7 +28,7 @@
     <RoleRequestTable
       v-else-if="props.role === 'role-requests'"
       @tag="setTagging"
-      showTrainer
+      :showTrainer="!isInternationalHost()"
     />
   </div>
 </template>
@@ -45,6 +45,7 @@
     SIMPLIFIED_STUDY_DOMAINS,
     TREATMENT_TAG,
     CONTROL_TAG,
+    isInternationalHost,
   } from '@/utils/constants.js'
 
   const props = defineProps({ role: String })
@@ -54,7 +55,7 @@
   const { tagPartition } = store.getters
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
-  const teacherRelatedTags = isSimplifiedStudyDomain
+  const teacherRelatedTags = (isSimplifiedStudyDomain || isInternationalHost())
     ? []
     : [{ id: TRAINER_TAG, editable: true }]
 

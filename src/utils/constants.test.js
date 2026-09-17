@@ -65,6 +65,60 @@ describe('isInternationalHost', () => {
   })
 })
 
+describe('UIUX-245 admin chrome host gates', () => {
+  function trainersTabVisible(host) {
+    return !SIMPLIFIED_STUDY_DOMAINS.includes(host) && !isInternationalHost(host)
+  }
+  function createTeacherVisible(host) {
+    return SIMPLIFIED_STUDY_DOMAINS.includes(host)
+  }
+
+  it('hides Trainers and Create teacher / encryption on International hosts', () => {
+    for (const host of ['app.pilaproject.org', 'ui-dev.pilaproject.org', 'testing.pilaproject.org']) {
+      assert.equal(isInternationalHost(host), true, host)
+      assert.equal(trainersTabVisible(host), false, host)
+      assert.equal(createTeacherVisible(host), false, host)
+    }
+  })
+
+  it('keeps Trainers, hides Create teacher / encryption on Thailand + gforce', () => {
+    for (const host of THAILAND_TEACHER_HOSTS) {
+      assert.equal(isInternationalHost(host), false, host)
+      assert.equal(isThailandTeacherHost(host), true, host)
+      assert.equal(trainersTabVisible(host), true, host)
+      assert.equal(createTeacherVisible(host), false, host)
+    }
+  })
+
+  it('hides Trainers, keeps Create teacher / encryption on RCT / SIMPLIFIED_STUDY_DOMAINS', () => {
+    assert.ok(SIMPLIFIED_STUDY_DOMAINS.includes('france-rct-2025.pilaproject.org'))
+    assert.ok(SIMPLIFIED_STUDY_DOMAINS.includes('deutschland-rct-2026.pilaproject.org'))
+    for (const host of SIMPLIFIED_STUDY_DOMAINS) {
+      assert.equal(isInternationalHost(host), false, host)
+      assert.equal(trainersTabVisible(host), false, host)
+      assert.equal(createTeacherVisible(host), true, host)
+    }
+  })
+
+  it('keeps Trainers, hides Create teacher / encryption on Cambodia', () => {
+    const host = 'cambodia.pilaproject.org'
+    assert.equal(isInternationalHost(host), false)
+    assert.equal(isThailandTeacherHost(host), false)
+    assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes(host), false)
+    assert.equal(trainersTabVisible(host), true)
+    assert.equal(createTeacherVisible(host), false)
+  })
+
+  it('does not put International hosts into SIMPLIFIED_STUDY_DOMAINS', () => {
+    for (const host of INTERNATIONAL_HOSTS) {
+      assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes(host), false, host)
+    }
+    assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes('app.pilaproject.org'), false)
+    assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes('ui-dev.pilaproject.org'), false)
+    assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes('testing.pilaproject.org'), false)
+  })
+})
+
 describe('consentCopyVariant', () => {
   it('returns international / thailand / legacy (RCT unchanged)', () => {
     assert.equal(consentCopyVariant('app.pilaproject.org'), 'international')

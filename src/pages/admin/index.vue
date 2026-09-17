@@ -93,7 +93,8 @@
     TEACHER_TAG,
     TRAINER_TAG,
     PILA_CONTENT_TAG,
-    SIMPLIFIED_STUDY_DOMAINS
+    SIMPLIFIED_STUDY_DOMAINS,
+    isInternationalHost,
   } from '@/utils/constants.js'
   import { logout as doLogout } from '@/utils/logout.js'
   import RefreshingIndicator from '@/components/ui/RefreshingIndicator.vue'
@@ -110,7 +111,7 @@
   const iAmAnAdmin = await isAdmin(user)
 
   const navItems = computed(() => [
-    { icon: 'presentation', title: t('trainers'), key: 'trainers', show: !isSimplifiedStudyDomain },
+    { icon: 'presentation', title: t('trainers'), key: 'trainers', show: !isSimplifiedStudyDomain && !isInternationalHost() },
     { icon: 'presentation', title: t('teachers'), key: 'teachers', show: true },
     { icon: 'book-open', title: t('content') || 'Content', key: 'content', show: isSimplifiedStudyDomain },
     { icon: 'list-checks', title: t('assign') || 'Assign', key: 'assign', show: isSimplifiedStudyDomain },

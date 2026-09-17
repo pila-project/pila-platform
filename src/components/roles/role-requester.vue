@@ -50,7 +50,7 @@
 
 <script>
   import { PButton } from '@/components/ui/index.js'
-  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS } from '@/utils/constants.js'
+  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, isInternationalHost } from '@/utils/constants.js'
   import DecryptedName from '@/components/common/decrypted-name.vue'
 
   export default {
@@ -79,7 +79,7 @@
     },
     computed: {
       hideTrainerSelect() {
-        return SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
+        return SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host) || isInternationalHost()
       },
       headerText() {
         let output = this.t('you-have-requested-the-role-of')
