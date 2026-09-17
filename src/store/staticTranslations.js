@@ -714,6 +714,19 @@ export default {
     "sk": "Všetok obsah",
     "th": "เนื้อหาทั้งหมด"
   },
+  "all-saved-versions-of-your-answers-and-solutions": {
+    "de": "alle gespeicherten Versionen Deiner Antworten und Lösungen",
+    "en": "all saved versions of your answers and solutions",
+    "es": "todas las versiones guardadas de tus respuestas y soluciones",
+    "fr": "toutes les versions enregistrées de tes réponses et solutions",
+    "km": "កំណែដែលបានរក្សាទុកទាំងអស់នៃចម្លើយ និងដំណោះស្រាយរបស់អ្នក",
+    "lv": "visas saglabātās tavu atbilžu un risinājumu versijas",
+    "nl": "alle opgeslagen versies van je antwoorden en oplossingen",
+    "pl": "wszystkie zapisane wersje Twoich odpowiedzi i rozwiązań",
+    "pt": "todas as versões salvas das suas respostas e soluções",
+    "sk": "všetky uložené verzie tvojich odpovedí a riešení",
+    "th": "คำตอบและวิธีการแก้ปัญหาทั้งหมดของท่านที่ได้ทำการบันทึกไว้"
+  },
   "all-saved-versions-of-your-answers-solutions-inc": {
     "de": "alle gespeicherten Versionen Deiner Antworten/Lösungen, einschließlich Deiner Gespräche mit KI-Chatbots (falls zutreffend)",
     "en": "all saved versions of your answers/solutions, including your conversations with AI chatbots (if applicable)",
@@ -2377,6 +2390,19 @@ export default {
     "pt": "Continuar sem adicionar",
     "sk": "Pokračujte bez pridávania",
     "th": "ดำเนินการต่อโดยไม่เพิ่ม"
+  },
+  "conversations-with-ai-chatbots-designed-for-educ": {
+    "de": "Gespräche mit KI-Chatbots, die für den Bildungsbereich entwickelt wurden (falls verfügbar)",
+    "en": "conversations with AI chatbots designed for educational use (if available)",
+    "es": "conversaciones con chatbots de IA diseñados para uso educativo (si están disponibles)",
+    "fr": "les conversations avec des chatbots d’IA conçus pour un usage éducatif (s’ils sont disponibles)",
+    "km": "ការសន្ទនាជាមួយជជែកបូត AI ដែលបានរចនាសម្រាប់ការប្រើប្រាស់ក្នុងការអប់រំ (ប្រសិនបើមាន)",
+    "lv": "sarunas ar MI tērzēšanas robotiem, kas paredzēti izglītības vajadzībām (ja pieejami)",
+    "nl": "gesprekken met AI-chatbots die voor educatief gebruik zijn ontworpen (indien beschikbaar)",
+    "pl": "rozmowy z chatbotami AI przeznaczonymi do użytku edukacyjnego (jeśli są dostępne)",
+    "pt": "conversas com chatbots de IA concebidos para uso educacional (se disponíveis)",
+    "sk": "konverzácie s chatbotmi s umelou inteligenciou určenými na vzdelávacie účely (ak sú k dispozícii)",
+    "th": "การสนทนากับแชทบอท AI ที่ออกแบบมาเพื่อการศึกษา (หากมี)"
   },
   "copy": {
     "de": "Kopieren",
@@ -4081,6 +4107,32 @@ export default {
     "sk": "Domáce úlohy",
     "th": "การบ้าน"
   },
+  "i-also-confirm-that-as-participation-in-pila-is": {
+    "de": "Ich bestätige außerdem, dass ich, da die Teilnahme an PILA freiwillig ist, jedem Wunsch von Schülerinnen und Schülern oder deren Eltern/Erziehungsberechtigten, die Teilnahme zu beenden, nachkommen und unverzüglich die Löschung der im Zusammenhang mit PILA gespeicherten Daten der Schülerin bzw. des Schülers beantragen werde.",
+    "en": "I also confirm that, as participation in PILA is voluntary, I will respect any request from students or their parent/legal guardian to stop participating and promptly request the erasure of the student’s data held in connection with PILA.",
+    "es": "También confirmo que, dado que la participación en PILA es voluntaria, respetaré cualquier solicitud de los estudiantes o de su padre, madre o tutor legal para dejar de participar y solicitaré de inmediato la eliminación de los datos del estudiante conservados en relación con PILA.",
+    "fr": "Je confirme également que, la participation à PILA étant volontaire, je respecterai toute demande des élèves ou de leur parent/tuteur légal de cesser de participer et demanderai promptement l’effacement des données de l’élève détenues dans le cadre de PILA.",
+    "km": "ខ្ញុំក៏បញ្ជាក់ដែរថា ដោយសារការចូលរួមក្នុង PILA គឺស្ម័គ្រចិត្ត ខ្ញុំនឹងគោរពសំណើណាមួយពីសិស្ស ឬឪពុកម្តាយ/អាណាព្យាបាលស្របច្បាប់របស់ពួកគេ ដើម្បីឈប់ចូលរួម ហើយនឹងស្នើសុំលុបទិន្នន័យរបស់សិស្សដែលរក្សាទុកទាក់ទងនឹង PILA ភ្លាមៗ។",
+    "lv": "Es arī apstiprinu, ka, tā kā dalība PILA ir brīvprātīga, es ievērošu jebkuru skolēnu vai viņu vecāku/likumīgā aizbildņa lūgumu pārtraukt dalību un nekavējoties pieprasīšu dzēst skolēna datus, kas tiek glabāti saistībā ar PILA.",
+    "nl": "Ik bevestig ook dat, aangezien deelname aan PILA vrijwillig is, ik elk verzoek van leerlingen of hun ouder/wettelijke voogd om te stoppen met deelnemen zal respecteren en onverwijld zal verzoeken om wissing van de gegevens van de leerling die in verband met PILA worden bewaard.",
+    "pl": "Potwierdzam również, że ponieważ udział w PILA jest dobrowolny, uszanuję każdą prośbę uczniów lub ich rodzica/opiekuna prawnego o zaprzestanie udziału i niezwłocznie złożę wniosek o usunięcie danych ucznia przechowywanych w związku z PILA.",
+    "pt": "Confirmo também que, uma vez que a participação no PILA é voluntária, respeitarei qualquer pedido dos alunos ou do respetivo progenitor/tutor legal para deixar de participar e solicitarei prontamente o apagamento dos dados do aluno conservados em ligação com o PILA.",
+    "sk": "Tiež potvrdzujem, že keďže účasť na PILA je dobrovoľná, budem rešpektovať akúkoľvek žiadosť žiakov alebo ich rodiča/zákonného zástupcu o ukončenie účasti a bezodkladne požiadam o vymazanie údajov žiaka uchovávaných v súvislosti s PILA.",
+    "th": "ข้าพเจ้าขอยืนยันด้วยว่า เนื่องจากการเข้าร่วม PILA เป็นไปโดยสมัครใจ ข้าพเจ้าจะเคารพคำขอใด ๆ จากนักเรียนหรือผู้ปกครอง/ผู้แทนโดยชอบธรรมให้นักเรียนหยุดเข้าร่วม และจะดำเนินการขอให้ลบข้อมูลของนักเรียนที่เก็บไว้เกี่ยวเนื่องกับ PILA โดยทันที"
+  },
+  "i-confirm": {
+    "de": "Ich bestätige.",
+    "en": "I confirm.",
+    "es": "Confirmo.",
+    "fr": "Je confirme.",
+    "km": "ខ្ញុំបញ្ជាក់។",
+    "lv": "Es apstiprinu.",
+    "nl": "Ik bevestig.",
+    "pl": "Potwierdzam.",
+    "pt": "Confirmo.",
+    "sk": "Potvrdzujem.",
+    "th": "ฉันยืนยัน"
+  },
   "i-confirm-consent-collected": {
     "de": "Ich bestätige, dass ich die erforderliche Einwilligung eingeholt habe",
     "en": "I confirm that I collected the necessary consent",
@@ -4093,6 +4145,19 @@ export default {
     "pt": "Confirmo que recolhi o consentimento necessário",
     "sk": "Potvrdzujem, že som získal potrebný súhlas",
     "th": "ฉันยืนยันว่าได้เก็บรวบรวมความยินยอมที่จำเป็นแล้ว"
+  },
+  "if-there-is-anything-in-this-text-you-do-not-und": {
+    "de": "Wenn Du etwas in diesem Text nicht verstehst oder etwas Dich unwohl fühlen lässt, sage bitte Deiner Lehrkraft Bescheid, bevor Du PILA zu nutzen beginnst.",
+    "en": "If there is anything in this text you do not understand or anything that makes you uncomfortable, please tell your teacher before you start using PILA.",
+    "es": "Si hay algo en este texto que no entiendes o algo que te incomoda, díselo a tu profesor o profesora antes de empezar a usar PILA.",
+    "fr": "S’il y a quoi que ce soit dans ce texte que tu ne comprends pas ou qui te met mal à l’aise, dis-le à ton enseignant avant de commencer à utiliser PILA.",
+    "km": "ប្រសិនបើមានអ្វីនៅក្នុងអត្ថបទនេះដែលអ្នកមិនយល់ ឬអ្វីដែលធ្វើឱ្យអ្នកមិនស្រួល សូមប្រាប់គ្រូរបស់អ្នកមុនពេលអ្នកចាប់ផ្តើមប្រើ PILA។",
+    "lv": "Ja šajā tekstā ir kaut kas, ko tu nesaproti, vai kaut kas, kas tevī rada diskomfortu, lūdzu, pasaki to savam skolotājam, pirms sāc lietot PILA.",
+    "nl": "Als er iets in deze tekst staat dat je niet begrijpt of waardoor je je ongemakkelijk voelt, vertel het dan aan je docent voordat je PILA gaat gebruiken.",
+    "pl": "Jeśli cokolwiek w tym tekście jest dla Ciebie niezrozumiałe albo sprawia, że czujesz się niekomfortowo, powiedz o tym nauczycielowi, zanim zaczniesz korzystać z PILA.",
+    "pt": "Se houver algo neste texto que não compreenda ou que o deixe desconfortável, informe o seu professor antes de começar a usar o PILA.",
+    "sk": "Ak je v tomto texte niečo, čomu nerozumieš, alebo niečo, čo ťa znepokojuje, povedz to, prosím, svojmu učiteľovi skôr, ako začneš PILA používať.",
+    "th": "หากมีข้อความใดในที่นี้ที่ท่านไม่เข้าใจ หรือมีสิ่งใดที่ทำให้ท่านรู้สึกไม่สบายใจ กรุณาบอกครูของท่านก่อนเริ่มใช้งาน PILA"
   },
   "if-you": {
     "de": "Wenn Du",
@@ -4132,6 +4197,19 @@ export default {
     "pt": "IMPORTAR CONTEÚDO",
     "sk": "IMPORTOVAŤ OBSAH",
     "th": "นำเข้าบทเรียน"
+  },
+  "in-accordance-with-the-pila-personal-data-protec": {
+    "de": "Gemäß der PILA-Mitteilung zum Schutz personenbezogener Daten bestätige ich, dass ich und/oder meine Einrichtung, bevor Schülerinnen und Schüler PILA nutzen dürfen, alle erforderlichen Datenschutzhinweise bereitgestellt und jede nach geltendem Recht erforderliche Einwilligung oder Genehmigung der Eltern/Erziehungsberechtigten und/oder der Schülerinnen und Schüler eingeholt haben.",
+    "en": "In accordance with the PILA Personal Data Protection Notice, I confirm that, before allowing students to use PILA, I and/or my institution have provided any required privacy notices and obtained any parental/legal guardian and/or student consent or authorisation required by applicable law.",
+    "es": "De conformidad con el Aviso de protección de datos personales de PILA, confirmo que, antes de permitir que los estudiantes usen PILA, yo y/o mi institución hemos proporcionado los avisos de privacidad exigidos y hemos obtenido cualquier consentimiento o autorización de los padres/tutores legales y/o de los estudiantes requerido por la legislación aplicable.",
+    "fr": "Conformément à l’Avis de protection des données personnelles de PILA, je confirme qu’avant d’autoriser les élèves à utiliser PILA, moi-même et/ou mon établissement avons fourni les notices d’information requises et obtenu tout consentement ou toute autorisation des parents/tuteurs légaux et/ou des élèves exigé par le droit applicable.",
+    "km": "ស្របតាមសេចក្តីជូនដំណឹងការពារទិន្នន័យផ្ទាល់ខ្លួនរបស់ PILA ខ្ញុំបញ្ជាក់ថា មុនពេលអនុញ្ញាតឱ្យសិស្សប្រើ PILA ខ្ញុំ និង/ឬស្ថាប័នរបស់ខ្ញុំបានផ្តល់សេចក្តីជូនដំណឹងឯកជនភាពណាមួយដែលត្រូវការ និងបានទទួលការយល់ព្រម ឬការអនុញ្ញាតពីឪពុកម្តាយ/អាណាព្យាបាលស្របច្បាប់ និង/ឬសិស្ស ដូចដែលច្បាប់ដែលអនុវត្តតម្រូវ។",
+    "lv": "Saskaņā ar PILA personas datu aizsardzības paziņojumu es apstiprinu, ka pirms skolēniem tiek ļauts izmantot PILA, es un/vai mana iestāde esam snieguši visus nepieciešamos privātuma paziņojumus un esam ieguvuši jebkuru vecāku/likumīgā aizbildņa un/vai skolēna piekrišanu vai atļauju, ko prasa piemērojamie tiesību akti.",
+    "nl": "In overeenstemming met de PILA-kennisgeving inzake de bescherming van persoonsgegevens bevestig ik dat ik en/of mijn instelling, voordat leerlingen PILA mogen gebruiken, de vereiste privacyverklaringen hebben verstrekt en elke door het toepasselijke recht vereiste toestemming of machtiging van de ouder/wettelijke voogd en/of de leerling hebben verkregen.",
+    "pl": "Zgodnie z Informacją o ochronie danych osobowych PILA potwierdzam, że zanim uczniowie zostaną dopuszczeni do korzystania z PILA, ja i/lub moja placówka przekazaliśmy wszelkie wymagane informacje o ochronie prywatności oraz uzyskaliśmy każdą zgodę lub upoważnienie rodzica/opiekuna prawnego i/lub ucznia wymagane przez obowiązujące prawo.",
+    "pt": "Em conformidade com o Aviso de Proteção de Dados Pessoais do PILA, confirmo que, antes de permitir que os alunos utilizem o PILA, eu e/ou a minha instituição prestámos os avisos de privacidade exigidos e obtivemos qualquer consentimento ou autorização dos pais/tutores legais e/ou dos alunos exigido pela legislação aplicável.",
+    "sk": "V súlade s oznámením o ochrane osobných údajov PILA potvrdzujem, že pred tým, ako žiakom umožníme používať PILA, ja a/alebo moja inštitúcia sme poskytli všetky požadované informácie o ochrane súkromia a získali sme akýkoľvek súhlas alebo splnomocnenie rodiča/zákonného zástupcu a/alebo žiaka požadované podľa uplatniteľného práva.",
+    "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA ข้าพเจ้าขอยืนยันว่า ก่อนอนุญาตให้นักเรียนใช้ PILA ข้าพเจ้าและ/หรือสถาบันของข้าพเจ้าได้จัดให้มีประกาศความเป็นส่วนตัวที่จำเป็น และได้รับความยินยอมหรือการอนุญาตจากผู้ปกครอง/ผู้แทนโดยชอบธรรมและ/หรือนักเรียนตามที่กฎหมายที่ใช้บังคับกำหนดแล้ว"
   },
   "in-assignment": {
     "de": "In Aufgabe",
@@ -4470,6 +4548,32 @@ export default {
     "pt": "Continue a trabalhar nisto antes de publicar",
     "sk": "Pokračujte v práci pred zverejnením",
     "th": "ทำงานต่อก่อนเผยแพร่"
+  },
+  "know-learning-keeps-this-data-secure-and-shares": {
+    "de": "Know Learning, das Unternehmen, das PILA erstellt hat und betreibt, bewahrt diese Daten sicher auf und gibt sie nur an die OECD weiter. Einige dieser Daten können von Google Cloud Platform und von der OECD zugelassenen LLM-Anbietern verarbeitet (aber niemals gespeichert) werden, damit die Plattform korrekt funktioniert. Das LLM erhält niemals identifizierende Informationen.",
+    "en": "Know Learning, the company that created and manages PILA, keeps this data secure and shares it only with the OECD. Some of this data may be processed (but never stored) by Google Cloud Platform and OECD-approved LLM providers to ensure the platform functions correctly. The LLM never receives identifying information.",
+    "es": "Know Learning, la empresa que creó y gestiona PILA, mantiene estos datos seguros y los comparte únicamente con la OCDE. Algunos de estos datos pueden ser procesados (pero nunca almacenados) por Google Cloud Platform y por proveedores de LLM aprobados por la OCDE para que la plataforma funcione correctamente. El LLM nunca recibe información identificativa.",
+    "fr": "Know Learning, l’entreprise qui a créé et gère PILA, conserve ces données en sécurité et les partage uniquement avec l’OCDE. Certaines de ces données peuvent être traitées (mais jamais stockées) par Google Cloud Platform et par des fournisseurs de LLM approuvés par l’OCDE afin que la plateforme fonctionne correctement. Le LLM ne reçoit jamais d’informations identifiantes.",
+    "km": "Know Learning ដែលជាក្រុមហ៊ុនដែលបានបង្កើត និងគ្រប់គ្រង PILA រក្សាទិន្នន័យនេះឱ្យមានសុវត្ថិភាព និងចែករំលែកតែជាមួយ OECD ប៉ុណ្ណោះ។ ទិន្នន័យមួយចំនួននេះអាចត្រូវបានដំណើរការ (ប៉ុន្តែមិនដែលរក្សាទុក) ដោយ Google Cloud Platform និងអ្នកផ្តល់ LLM ដែល OECD អនុម័ត ដើម្បីធានាថាវេទិកាដំណើរការបានត្រឹមត្រូវ។ LLM មិនដែលទទួលព័ត៌មានដែលអាចកំណត់អត្តសញ្ញាណបានឡើយ។",
+    "lv": "Know Learning, uzņēmums, kas izveidoja un pārvalda PILA, droši glabā šos datus un kopīgo tos tikai ar OECD. Daļu no šiem datiem var apstrādāt (bet nekad nesaglabāt) Google Cloud Platform un OECD apstiprināti LLM pakalpojumu sniedzēji, lai platforma darbotos pareizi. LLM nekad nesaņem identificējošu informāciju.",
+    "nl": "Know Learning, het bedrijf dat PILA heeft gemaakt en beheert, houdt deze gegevens veilig en deelt ze alleen met de OESO. Sommige van deze gegevens kunnen worden verwerkt (maar nooit opgeslagen) door Google Cloud Platform en door de OESO goedgekeurde LLM-aanbieders om ervoor te zorgen dat het platform correct werkt. De LLM ontvangt nooit identificerende informatie.",
+    "pl": "Know Learning, firma, która stworzyła i zarządza PILA, przechowuje te dane w bezpieczny sposób i udostępnia je wyłącznie OECD. Część tych danych może być przetwarzana (ale nigdy przechowywana) przez Google Cloud Platform oraz zatwierdzonych przez OECD dostawców LLM, aby platforma działała poprawnie. LLM nigdy nie otrzymuje informacji identyfikujących.",
+    "pt": "A Know Learning, a empresa que criou e gere o PILA, mantém estes dados seguros e partilha-os apenas com a OCDE. Alguns destes dados podem ser processados (mas nunca armazenados) pela Google Cloud Platform e por fornecedores de LLM aprovados pela OCDE para garantir o correto funcionamento da plataforma. O LLM nunca recebe informação identificativa.",
+    "sk": "Know Learning, spoločnosť, ktorá PILA vytvorila a spravuje, tieto údaje bezpečne uchováva a zdieľa ich iba s OECD. Niektoré z týchto údajov môžu spracúvať (ale nikdy neukladať) Google Cloud Platform a poskytovatelia LLM schválení OECD, aby platforma fungovala správne. LLM nikdy nedostane identifikačné informácie.",
+    "th": "Know Learning บริษัทที่สร้างและบริหาร PILA จะเก็บข้อมูลนี้อย่างปลอดภัยและแบ่งปันเฉพาะกับ OECD เท่านั้น ข้อมูลบางส่วนอาจถูกประมวลผล (แต่จะไม่ถูกจัดเก็บ) โดย Google Cloud Platform และผู้ให้บริการ LLM ที่ OECD อนุมัติ เพื่อให้แพลตฟอร์มทำงานได้อย่างถูกต้อง LLM จะไม่ได้รับข้อมูลที่สามารถระบุตัวตนได้"
+  },
+  "know-learning-the-company-that-created-and-manag": {
+    "de": "Know Learning, das Unternehmen, das PILA erstellt hat und betreibt, bewahrt diese Daten sicher auf. Einige dieser Daten können von Google Cloud Platform verarbeitet (aber niemals gespeichert) werden, damit die Plattform korrekt funktioniert.",
+    "en": "Know Learning, the company that created and manages PILA, will keep this data secure. Some of this data may be processed (but never stored) by Google Cloud Platform to ensure the platform functions correctly.",
+    "es": "Know Learning, la empresa que creó y gestiona PILA, mantendrá estos datos seguros. Algunos de estos datos pueden ser procesados (pero nunca almacenados) por Google Cloud Platform para que la plataforma funcione correctamente.",
+    "fr": "Know Learning, l’entreprise qui a créé et gère PILA, conservera ces données en sécurité. Certaines de ces données peuvent être traitées (mais jamais stockées) par Google Cloud Platform afin que la plateforme fonctionne correctement.",
+    "km": "Know Learning ដែលជាក្រុមហ៊ុនដែលបានបង្កើត និងគ្រប់គ្រង PILA នឹងរក្សាទិន្នន័យនេះឱ្យមានសុវត្ថិភាព។ ទិន្នន័យមួយចំនួននេះអាចត្រូវបានដំណើរការ (ប៉ុន្តែមិនដែលរក្សាទុក) ដោយ Google Cloud Platform ដើម្បីធានាថាវេទិកាដំណើរការបានត្រឹមត្រូវ។",
+    "lv": "Know Learning, uzņēmums, kas izveidoja un pārvalda PILA, droši glabās šos datus. Daļu no šiem datiem var apstrādāt (bet nekad nesaglabāt) Google Cloud Platform, lai platforma darbotos pareizi.",
+    "nl": "Know Learning, het bedrijf dat PILA heeft gemaakt en beheert, houdt deze gegevens veilig. Sommige van deze gegevens kunnen worden verwerkt (maar nooit opgeslagen) door Google Cloud Platform om ervoor te zorgen dat het platform correct werkt.",
+    "pl": "Know Learning, firma, która stworzyła i zarządza PILA, będzie przechowywać te dane w bezpieczny sposób. Część tych danych może być przetwarzana (ale nigdy przechowywana) przez Google Cloud Platform, aby platforma działała poprawnie.",
+    "pt": "A Know Learning, a empresa que criou e gere o PILA, manterá estes dados seguros. Alguns destes dados podem ser processados (mas nunca armazenados) pela Google Cloud Platform para garantir o correto funcionamento da plataforma.",
+    "sk": "Know Learning, spoločnosť, ktorá PILA vytvorila a spravuje, bude tieto údaje bezpečne uchovávať. Niektoré z týchto údajov môže spracúvať (ale nikdy neukladať) Google Cloud Platform, aby platforma fungovala správne.",
+    "th": "Know Learning บริษัทที่สร้างและบริหาร PILA จะเก็บข้อมูลนี้อย่างปลอดภัย ข้อมูลบางส่วนอาจถูกประมวลผล (แต่จะไม่ถูกจัดเก็บ) โดย Google Cloud Platform เพื่อให้แพลตฟอร์มทำงานได้อย่างถูกต้อง"
   },
   "know-learning-will-keep-this-data-safe-and-wont": {
     "de": "Know Learning verwahrt diese Daten sicher und gibt sie nicht an Dritte weiter, außer an zugelassene Forscherinnen und Forscher. Deine Lehrkraft sieht einige Informationen über Deinen Fortschritt in ihrem „Lehrkraft“-Konto. Sie wird Deine Gespräche mit KI-fähigen Chatbots NICHT sehen. Bitte gib in den Chatbot KEINE Informationen ein, die jemandem helfen könnten, Dich zu identifizieren, wie z. B. Deinen Namen oder Standort. Deine Lehrkraft ist die Einzige, die sehen kann, wer Du sind. Wenn Du mit irgendetwas hier Geschriebenem nicht einverstanden bist, sprich bitte mit Deiner Lehrkraft und erstelle KEIN Schülerinnen-/Schülerkonto auf PILA.",
@@ -8371,6 +8475,19 @@ export default {
     "sk": "Medzi typy údajov o aktivitách patria:",
     "th": "ข้อมูลที่จะดำเนินการเก็บรวบรวม ประกอบด้วย:"
   },
+  "the-types-of-activity-data-include": {
+    "de": "Zu den Arten von Aktivitätsdaten gehören:",
+    "en": "The types of activity data include:",
+    "es": "Los tipos de datos de actividad incluyen:",
+    "fr": "Les types de données d’activité comprennent :",
+    "km": "ប្រភេទទិន្នន័យសកម្មភាពរួមមាន:",
+    "lv": "Aktivitātes datu veidi ietver:",
+    "nl": "De soorten activiteitsgegevens omvatten:",
+    "pl": "Rodzaje danych o aktywności obejmują:",
+    "pt": "Os tipos de dados de atividade incluem:",
+    "sk": "Medzi typy údajov o aktivitách patria:",
+    "th": "ข้อมูลกิจกรรมที่จะเก็บรวบรวม ประกอบด้วย:"
+  },
   "there-is-an-issue-with-your-assignment-please-as": {
     "de": "Es gibt ein Problem mit Deiner Aufgabe. Bitte Deine Lehrkraft sicherzustellen, dass sie den beabsichtigten Inhalt zugewiesen hat.",
     "en": "There is an issue with your assignment. Please ask your teacher to ensure they have assigned the intended content.",
@@ -8982,6 +9099,32 @@ export default {
     "sk": "Kam by ste chceli pridať tento obsah?",
     "th": "ต้องการเพิ่มเนื้อหานี้ที่ไหน?"
   },
+  "where-you-click": {
+    "de": "wo Du klickst",
+    "en": "where you click",
+    "es": "dónde haces clic",
+    "fr": "l’endroit où tu cliques",
+    "km": "កន្លែងដែលអ្នកចុច",
+    "lv": "kur tu klikšķini",
+    "nl": "waar je klikt",
+    "pl": "gdzie klikasz",
+    "pt": "onde você clica",
+    "sk": "kde klikáš",
+    "th": "ตำแหน่งที่ท่านคลิก"
+  },
+  "while-you-work-on-the-platform-certain-data-rega": {
+    "de": "Während Du auf der Plattform arbeitest, werden bestimmte Daten zu Deiner Nutzung aufgezeichnet.",
+    "en": "While you work on the platform, certain data regarding your usage will be recorded.",
+    "es": "Mientras trabajas en la plataforma, se registrarán ciertos datos sobre tu uso.",
+    "fr": "Pendant que tu travailles sur la plateforme, certaines données concernant ton utilisation seront enregistrées.",
+    "km": "ខណៈពេលដែលអ្នកធ្វើការលើវេទិកា ទិន្នន័យមួយចំនួនអំពីការប្រើប្រាស់របស់អ្នកនឹងត្រូវបានកត់ត្រា។",
+    "lv": "Kamēr tu strādā platformā, tiks reģistrēti noteikti dati par tavu lietošanu.",
+    "nl": "Terwijl je op het platform werkt, worden bepaalde gegevens over je gebruik vastgelegd.",
+    "pl": "Podczas pracy na platformie rejestrowane będą określone dane dotyczące Twojego korzystania z niej.",
+    "pt": "Enquanto trabalha na plataforma, determinados dados relativos à sua utilização serão registados.",
+    "sk": "Kým pracuješ na platforme, budú sa zaznamenávať určité údaje o tvojom používaní.",
+    "th": "ในขณะที่ท่านใช้งานแพลตฟอร์ม จะมีการบันทึกข้อมูลบางอย่างเกี่ยวกับการใช้งานของท่าน"
+  },
   "without-login-codes": {
     "de": "ohne Login-Codes (unten nicht dargestellt).",
     "en": "without login codes (not shown below).",
@@ -9059,6 +9202,19 @@ export default {
     "pt": "Você está atualmente incluído no grupo de tratamento. Você pode cancelar a qualquer momento.",
     "sk": "Momentálne ste zaradení do experimentálnej skupiny. Kedykoľvek sa môžete odhlásiť.",
     "th": "ขณะนี้คุณถูกรวมอยู่ในกลุ่มการรักษา คุณสามารถยกเลิกได้ทุกเมื่อ"
+  },
+  "you-are-currently-logging-into-a-student-account": {
+    "de": "Du meldest Dich gerade bei einem Schülerkonto auf der Platform for Innovative Learning Assessments (PILA) an.",
+    "en": "You are currently logging into a student account on the Platform for Innovative Learning Assessments (PILA).",
+    "es": "Actualmente estás iniciando sesión en una cuenta de estudiante en la Platform for Innovative Learning Assessments (PILA).",
+    "fr": "Tu es en train de te connecter à un compte élève sur la Platform for Innovative Learning Assessments (PILA).",
+    "km": "បច្ចុប្បន្នអ្នកកំពុងចូលគណនីសិស្សនៅលើ Platform for Innovative Learning Assessments (PILA)។",
+    "lv": "Tu pašlaik piesakies skolēna kontā platformā Platform for Innovative Learning Assessments (PILA).",
+    "nl": "Je bent nu aan het inloggen op een leerlingenaccount op de Platform for Innovative Learning Assessments (PILA).",
+    "pl": "Logujesz się obecnie na konto ucznia na Platform for Innovative Learning Assessments (PILA).",
+    "pt": "Está neste momento a iniciar sessão numa conta de estudante na Platform for Innovative Learning Assessments (PILA).",
+    "sk": "Práve sa prihlasuješ do žiackeho účtu na Platform for Innovative Learning Assessments (PILA).",
+    "th": "ขณะนี้ท่านกำลังเข้าสู่ระบบบัญชีนักเรียนบน Platform for Innovative Learning Assessments (PILA)"
   },
   "you-can-now-add-students-to-this-group": {
     "de": "Sie können nun Schüler zu dieser Gruppe hinzufügen",
@@ -9254,6 +9410,32 @@ export default {
     "pt": "As Suas Tarefas",
     "sk": "Vaše dotazníky ",
     "th": "งานของคุณ"
+  },
+  "your-teacher-will-be-able-to-see-your-progress-o": {
+    "de": "Deine Lehrkraft kann Deinen Fortschritt bei einzelnen Übungen über ihr Lehrkraft-Konto sehen. Innerhalb von PILA kann nur Deine Lehrkraft Deinen Namen sehen.",
+    "en": "Your teacher will be able to see your progress on individual exercises via their teacher account. Within PILA, only your teacher can see your name.",
+    "es": "Tu profesor o profesora podrá ver tu progreso en los ejercicios individuales a través de su cuenta de docente. Dentro de PILA, solo tu profesor o profesora puede ver tu nombre.",
+    "fr": "Ton enseignant pourra voir tes progrès sur les exercices individuels via son compte enseignant. Au sein de PILA, seul ton enseignant peut voir ton nom.",
+    "km": "គ្រូរបស់អ្នកនឹងអាចមើលឃើញវឌ្ឍនភាពរបស់អ្នកលើលំហាត់នីមួយៗតាមរយៈគណនីគ្រូរបស់ពួកគេ។ ក្នុង PILA មានតែគ្រូរបស់អ្នកទេដែលអាចមើលឃើញឈ្មោះរបស់អ្នក។",
+    "lv": "Tavs skolotājs savā skolotāja kontā varēs redzēt tavu progresu atsevišķos vingrinājumos. PILA ietvaros tikai tavs skolotājs var redzēt tavu vārdu.",
+    "nl": "Je docent kan je voortgang bij afzonderlijke oefeningen zien via het docentenaccount. Binnen PILA kan alleen je docent je naam zien.",
+    "pl": "Twój nauczyciel będzie mógł zobaczyć Twoje postępy w poszczególnych ćwiczeniach za pośrednictwem konta nauczyciela. W ramach PILA tylko Twój nauczyciel może zobaczyć Twoje imię i nazwisko.",
+    "pt": "O seu professor poderá ver o seu progresso nos exercícios individuais através da conta de professor. Dentro do PILA, apenas o seu professor pode ver o seu nome.",
+    "sk": "Tvoj učiteľ uvidí tvoj pokrok v jednotlivých cvičeniach cez svoj učiteľský účet. V rámci PILA môže tvoje meno vidieť iba tvoj učiteľ.",
+    "th": "ครูของท่านจะสามารถดูความก้าวหน้าของท่านในแบบฝึกแต่ละรายการผ่านบัญชีครูได้ ภายใน PILA มีเพียงครูของท่านเท่านั้นที่เห็นชื่อของท่าน"
+  },
+  "your-teacher-will-see-progress-but-not-chatbot-c": {
+    "de": "Deine Lehrkraft kann Deinen Fortschritt bei einzelnen Übungen über ihr Lehrkraft-Konto sehen. Innerhalb von PILA kann nur Deine Lehrkraft Deinen Namen sehen. Deine Lehrkraft sieht Deine Gespräche mit KI-Chatbots NICHT. Bitte gib Deinen Namen, Deine Adresse oder Deine Schule NICHT in den Chatbot ein.",
+    "en": "Your teacher will be able to see your progress on individual exercises via their teacher account. Within PILA, only your teacher can see your name. Your teacher will NOT see your conversations with AI chatbots. Please do NOT enter your name, address, or school into the chatbot.",
+    "es": "Tu profesor o profesora podrá ver tu progreso en los ejercicios individuales a través de su cuenta de docente. Dentro de PILA, solo tu profesor o profesora puede ver tu nombre. Tu profesor o profesora NO verá tus conversaciones con los chatbots de IA. Por favor, NO introduzcas tu nombre, dirección ni escuela en el chatbot.",
+    "fr": "Ton enseignant pourra voir tes progrès sur les exercices individuels via son compte enseignant. Au sein de PILA, seul ton enseignant peut voir ton nom. Ton enseignant ne verra PAS tes conversations avec les chatbots d’IA. Merci de NE PAS saisir ton nom, ton adresse ou ton école dans le chatbot.",
+    "km": "គ្រូរបស់អ្នកនឹងអាចមើលឃើញវឌ្ឍនភាពរបស់អ្នកលើលំហាត់នីមួយៗតាមរយៈគណនីគ្រូរបស់ពួកគេ។ ក្នុង PILA មានតែគ្រូរបស់អ្នកទេដែលអាចមើលឃើញឈ្មោះរបស់អ្នក។ គ្រូរបស់អ្នកនឹងមិនឃើញការសន្ទនារបស់អ្នកជាមួយជជែកបូត AI ឡើយ។ សូមកុំបញ្ចូលឈ្មោះ អាសយដ្ឋាន ឬសាលារបស់អ្នកទៅក្នុងជជែកបូត។",
+    "lv": "Tavs skolotājs savā skolotāja kontā varēs redzēt tavu progresu atsevišķos vingrinājumos. PILA ietvaros tikai tavs skolotājs var redzēt tavu vārdu. Tavs skolotājs NEREDZĒS tavas sarunas ar MI tērzēšanas robotiem. Lūdzu, NEIEVADI tērzēšanas robotā savu vārdu, adresi vai skolu.",
+    "nl": "Je docent kan je voortgang bij afzonderlijke oefeningen zien via het docentenaccount. Binnen PILA kan alleen je docent je naam zien. Je docent ziet je gesprekken met AI-chatbots NIET. Voer je naam, adres of school NIET in de chatbot in.",
+    "pl": "Twój nauczyciel będzie mógł zobaczyć Twoje postępy w poszczególnych ćwiczeniach za pośrednictwem konta nauczyciela. W ramach PILA tylko Twój nauczyciel może zobaczyć Twoje imię i nazwisko. Twój nauczyciel NIE zobaczy Twoich rozmów z chatbotami AI. NIE wpisuj do chatbota swojego imienia i nazwiska, adresu ani szkoły.",
+    "pt": "O seu professor poderá ver o seu progresso nos exercícios individuais através da conta de professor. Dentro do PILA, apenas o seu professor pode ver o seu nome. O seu professor NÃO verá as suas conversas com chatbots de IA. NÃO introduza o seu nome, morada ou escola no chatbot.",
+    "sk": "Tvoj učiteľ uvidí tvoj pokrok v jednotlivých cvičeniach cez svoj učiteľský účet. V rámci PILA môže tvoje meno vidieť iba tvoj učiteľ. Tvoj učiteľ NEUVIDÍ tvoje konverzácie s chatbotmi s umelou inteligenciou. Prosím, NEZADÁVAJ do chatbota svoje meno, adresu ani školu.",
+    "th": "ครูของท่านจะสามารถดูความก้าวหน้าของท่านในแบบฝึกแต่ละรายการผ่านบัญชีครูได้ ภายใน PILA มีเพียงครูของท่านเท่านั้นที่เห็นชื่อของท่าน ครูจะไม่เห็นการสนทนาของท่านกับแชทบอท AI กรุณาอย่าใส่ชื่อ ที่อยู่ หรือชื่อโรงเรียนลงในแชทบอท"
   },
   "your-teachers": {
     "de": "Ihre Lehrkräfte",

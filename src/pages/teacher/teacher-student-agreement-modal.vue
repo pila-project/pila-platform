@@ -15,14 +15,22 @@
             <LucideIcon name="shield-check" :size="24" />
           </div>
         </div>
-        <p class="agreement-text">
+        <p v-if="copyVariant === 'legacy'" class="agreement-text">
           {{ t('per-the-pila-personal-data-protection-notice-or') }}
         </p>
+        <template v-else>
+          <p class="agreement-text">
+            {{ t('in-accordance-with-the-pila-personal-data-protec') }}
+          </p>
+          <p v-if="copyVariant === 'international'" class="agreement-text">
+            {{ t('i-also-confirm-that-as-participation-in-pila-is') }}
+          </p>
+        </template>
         <label class="agreement-checkbox-label" @click.prevent="confirmed = !confirmed">
           <div :class="['agreement-checkbox', { 'agreement-checkbox--checked': confirmed }]">
             <LucideIcon v-if="confirmed" name="check" :size="14" />
           </div>
-          <span class="agreement-checkbox-text">{{ t('i-confirm-consent-collected') }}</span>
+          <span class="agreement-checkbox-text">{{ checkboxLabel }}</span>
         </label>
       </div>
     </template>
@@ -40,15 +48,23 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import { PModal, PButton } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
+  import { consentCopyVariant } from '@/utils/constants.js'
 
   const emit = defineEmits(['agreed', 'close'])
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
+
+  const copyVariant = computed(() => consentCopyVariant())
+  const checkboxLabel = computed(() => (
+    copyVariant.value === 'legacy'
+      ? t('i-confirm-consent-collected')
+      : t('i-confirm')
+  ))
 
   /**
    * Always require a fresh confirm each open (product: every student create).

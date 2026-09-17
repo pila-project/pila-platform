@@ -171,6 +171,31 @@ export function isThailandTeacherHost(host = typeof window !== 'undefined' ? win
   return THAILAND_TEACHER_HOSTS.includes(host)
 }
 
+/**
+ * PILA International (non-RCT, non-Thailand) hosts for Emma student/teacher
+ * consent copy. Expert localhost is included when HOST_TO_TITLE maps it to
+ * International (same pattern as partition / first-load language).
+ */
+export const INTERNATIONAL_HOSTS = [
+  'app.pilaproject.org',
+  'ui-dev.pilaproject.org',
+  'testing.pilaproject.org',
+]
+
+export function isInternationalHost(host = typeof window !== 'undefined' ? window.location.host : '') {
+  return INTERNATIONAL_HOSTS.includes(host) || HOST_TO_TITLE[host] === 'International'
+}
+
+/**
+ * Consent copy variant for student-agreement and the add-student teacher modal.
+ * RCT / SIMPLIFIED_STUDY_DOMAINS and any unlisted host keep legacy slugs.
+ */
+export function consentCopyVariant(host = typeof window !== 'undefined' ? window.location.host : '') {
+  if (isThailandTeacherHost(host)) return 'thailand'
+  if (isInternationalHost(host)) return 'international'
+  return 'legacy'
+}
+
 export const HOST_TO_EXTRA_TEACHER_TAGS = {
   'thailand.pilaproject.org': [
     {
