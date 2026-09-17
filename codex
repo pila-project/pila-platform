@@ -1,13 +1,12 @@
 #!/usr/bin/env sh
 set -eu
 
-CODEX_VERSION="${CODEX_VERSION:-0.153.4}"
+CODEX_VERSION="${CODEX_VERSION:-0.154.0}"
 IMAGE="${IMAGE:-codex:local}"
 NAME="${NAME:-codex}"
 REPO_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 WORKDIR="${WORKDIR:-/workspace}"
 ALLOW_NET="${ALLOW_NET:-1}"
-MODEL="${MODEL:-gpt-5.4}"
 
 NET_ARGS="--network none"
 if [ "$ALLOW_NET" = "1" ]; then
@@ -76,6 +75,5 @@ exec docker run --rm -it \
   $HARDEN_ARGS \
   "$IMAGE" \
   codex \
-  --model "$MODEL" \
   --dangerously-bypass-approvals-and-sandbox \
   "$@"
