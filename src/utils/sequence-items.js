@@ -38,6 +38,20 @@ function toIdSet(knownSequenceIds) {
   return null
 }
 
+/** Bound hung Agent.state/synced/metadata so Update/delete/load UI cannot spin forever (UIUX-229). */
+export const SEQUENCE_SYNC_TIMEOUT_MS = 15_000
+
+export function withTimeout(promise, ms, message) {
+  let timer
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms)
+  })
+  return Promise.race([
+    Promise.resolve(promise).finally(() => clearTimeout(timer)),
+    timeout,
+  ])
+}
+
 /**
  * True when the current drag payload is marked as a sequence (UIUX-113).
  * Safe during dragover (types only) and drop (types + data).
@@ -84,11 +98,12 @@ export function partitionKnownSequenceMemberIds(itemIds, opts = {}) {
  * Fail-open for unknown/null metadata (catalog leaves); reject only proven sequences.
  *
  * @param {string[]} itemIds
- * @param {{ knownSequenceIds?: Set<string>|string[] }} [opts]
+ * @param {{ knownSequenceIds?: Set<string>|string[], timeoutMs?: number }} [opts]
  * @returns {Promise<{ allowed: string[], rejectedSequences: string[] }>}
  */
 export async function partitionSequenceMemberIds(itemIds, opts = {}) {
   const known = toIdSet(opts.knownSequenceIds)
+  const timeoutMs = opts.timeoutMs ?? SEQUENCE_SYNC_TIMEOUT_MS
   const allowed = []
   const rejectedSequences = []
   const seen = new Set()
@@ -103,13 +118,18 @@ export async function partitionSequenceMemberIds(itemIds, opts = {}) {
     }
 
     try {
-      const meta = await getContentMetadata(id)
+      // UIUX-229: Agent.metadata can hang the same way as Agent.synced/state.
+      const meta = await withTimeout(
+        getContentMetadata(id),
+        timeoutMs,
+        'Sequence metadata timed out',
+      )
       if (isSequenceActiveType(meta?.active_type)) {
         rejectedSequences.push(id)
         continue
       }
     } catch {
-      // allow when type cannot be determined
+      // allow when type cannot be determined (including timeout)
     }
     allowed.push(id)
   }
@@ -199,20 +219,6 @@ export function createMapSequenceItems(itemIds = []) {
   return serializeMapSequenceItems(itemIds, null)
 }
 
-/** Bound hung Agent.state/synced so Update/delete/load UI cannot spin forever (UIUX-229). */
-export const SEQUENCE_SYNC_TIMEOUT_MS = 15_000
-
-export function withTimeout(promise, ms, message) {
-  let timer
-  const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error(message)), ms)
-  })
-  return Promise.race([
-    Promise.resolve(promise).finally(() => clearTimeout(timer)),
-    timeout,
-  ])
-}
-
 async function loadSequenceItemsState(sequenceId) {
   const state = await withTimeout(
     Agent.state(sequenceId),
@@ -267,8 +273,8 @@ async function syncSequenceMutation(sequenceId) {
  * Persist a full item-id list; returns normalized ids for UI.
  * UIUX-113: nested sequence ids are stripped before write.
  */
-export async function persistSequenceItems(sequenceId, itemIds, { knownSequenceIds } = {}) {
-  const { allowed } = await partitionSequenceMemberIds(itemIds, { knownSequenceIds })
+export async function persistSequenceItems(sequenceId, itemIds, { knownSequenceIds, timeoutMs } = {}) {
+  const { allowed } = await partitionSequenceMemberIds(itemIds, { knownSequenceIds, timeoutMs })
   const { state, rawItems } = await loadSequenceItemsState(sequenceId)
   state.items = serializeMapSequenceItems(allowed, rawItems)
   await syncSequenceMutation(sequenceId)

@@ -244,7 +244,7 @@ function applyLoadedState(name, description, ids, { forceDraft = false } = {}) {
   }
 }
 
-async function loadSequenceMeta({ forceDraft = false } = {}) {
+async function loadSequenceMeta({ forceDraft = false, closeOnError = true } = {}) {
   try {
     const state = await withTimeout(
       Agent.state(props.id),
@@ -252,7 +252,7 @@ async function loadSequenceMeta({ forceDraft = false } = {}) {
       'Sequence load timed out',
     )
     if (!isValidSequenceAgentState(state)) {
-      emit('close')
+      if (closeOnError) emit('close')
       return
     }
     const ids = normalizeSequenceItems(state.items)
@@ -260,7 +260,7 @@ async function loadSequenceMeta({ forceDraft = false } = {}) {
     void prefetchItemMeta(ids)
   } catch (e) {
     console.warn('[SequenceContentModal] failed to load', props.id, e)
-    emit('close')
+    if (closeOnError) emit('close')
   } finally {
     loaded.value = true
   }
@@ -452,12 +452,14 @@ async function onUpdate() {
     savedIds.value = [...next]
     draftIds.value = [...next]
     emit('changed')
+    emit('close')
   } catch (e) {
     // UIUX-229: always clear loading (finally) and tell the user — hung synced() used to look stuck.
     // Reload from server so draft/saved match reality if the write partially landed.
+    // Stay open on failure so the draft is not discarded.
     console.warn('[SequenceContentModal] update failed', props.id, e)
     showError(t('something-went-wrong'))
-    await loadSequenceMeta({ forceDraft: true })
+    await loadSequenceMeta({ forceDraft: true, closeOnError: false })
   } finally {
     saving.value = false
   }
