@@ -512,7 +512,6 @@
     appendItemsToSequence,
     isValidSequenceAgentState,
     partitionSequenceMemberIds,
-    partitionKnownSequenceMemberIds,
     SEQUENCE_DRAG_MIME,
     isSequenceActiveType,
   } from '@/utils/sequence-items.js'
@@ -1154,17 +1153,7 @@
   }
 
   const addSelectedButtonLabel = computed(() => {
-    void metadataCacheVersion.value
-    const total = selectedItems.size
-    const { allowed } = partitionKnownSequenceMemberIds([...selectedItems], {
-      knownSequenceIds: mySequenceIdSet.value,
-      isSequence: isCachedSequenceId,
-    })
-    const actionable = allowed.length
-    if (actionable < total) {
-      return `${t('add-selected')} (${actionable} ${t('of')} ${total})`
-    }
-    return `${t('add-selected')} (${total})`
+    return `${t('add-selected')} (${selectedItems.size})`
   })
 
   function navigateToCreateAssignment() {
