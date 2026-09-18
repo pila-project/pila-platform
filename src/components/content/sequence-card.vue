@@ -111,6 +111,7 @@ import {
   isValidSequenceAgentState,
 } from '@/utils/sequence-items.js'
 import { useFeedback } from '@/composables/useFeedback.js'
+import { formatDateForDisplay } from '@/utils/iso-date.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -210,7 +211,8 @@ const itemCount = computed(() => seqState.value?.items?.length || 0)
 
 const lastModifiedDate = computed(() => {
   if (!metadata.value?.updated) return '—'
-  return new Date(metadata.value.updated).toLocaleDateString('en-CA')
+  // Display-only: Thai UI uses Buddhist Era years; stored timestamps stay Gregorian.
+  return formatDateForDisplay(metadata.value.updated, store.state.language || 'en') || '—'
 })
 
 function onListChanged({ items }) {

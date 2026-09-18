@@ -456,6 +456,7 @@
   import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
   import { candliGamesForSequenceItems } from '@/candli-games.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
+  import { dateDisplayLocale, formatDateForDisplay } from '@/utils/iso-date.js'
 
   const props = defineProps({
     assignmentId: { type: String, required: true },
@@ -491,7 +492,14 @@
   const performanceData = ref(null)
   const submittedAt = ref(null)
   const maxAttempts = ref('1')
-  const assignmentDueDate = ref('--')
+  const assignmentDueDateRaw = ref('')
+  const assignmentDueDate = computed(() => {
+    if (!assignmentDueDateRaw.value) return '--'
+    return formatDateForDisplay(
+      assignmentDueDateRaw.value,
+      store.getters.language?.() || store.state.language || 'en',
+    ) || '--'
+  })
   const assignmentContainsCandli = ref(false)
   const assignmentContainsGenAI = ref(false)
   /** Custom/app dashboard URL (datawise or sequence.reference.dashboard) — trunk's dashboardUrl. */
@@ -755,11 +763,15 @@
   function formatDateTime(ts) {
     if (!ts) return '--'
     const d = new Date(ts)
-    return d.toLocaleString('en-US', {
-      month: 'numeric', day: 'numeric', year: 'numeric',
-      hour: 'numeric', minute: '2-digit', second: '2-digit',
-      hour12: true
-    })
+    if (Number.isNaN(d.getTime())) return '--'
+    return d.toLocaleString(
+      dateDisplayLocale(store.getters.language?.() || store.state.language || 'en'),
+      {
+        month: 'numeric', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit', second: '2-digit',
+        hour12: true,
+      },
+    )
   }
 
   function formatDuration(seconds) {
@@ -909,12 +921,7 @@
     maxAttempts.value = assignState.maxAttempts || '1'
 
     if (assignState.dueDate) {
-      const d = new Date(assignState.dueDate)
-      assignmentDueDate.value = d.toLocaleDateString('en-US', {
-        month: 'numeric',
-        day: 'numeric',
-        year: 'numeric',
-      })
+      assignmentDueDateRaw.value = assignState.dueDate
     }
 
     // Load sequence items + dashboard availability (trunk: Candli only when games resolve)

@@ -329,6 +329,7 @@ import {
   getContentMetadata,
 } from '@/utils/content-cache.js'
 import { effectiveAssignmentStatus } from '@/utils/assignment-status.js'
+import { formatDateForDisplay } from '@/utils/iso-date.js'
 
 const props = defineProps({
   itemIds: { type: Array, default: () => [] },
@@ -446,11 +447,7 @@ const filteredSequenceIds = computed(() => {
 
 function formatDate(value) {
   if (!value) return ''
-  try {
-    return new Date(value).toLocaleDateString('en-CA')
-  } catch {
-    return ''
-  }
+  return formatDateForDisplay(value, store.getters.language?.() || store.state.language || 'en')
 }
 
 function assignmentBadges(id) {

@@ -328,6 +328,7 @@ import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES, MY_CONTENT_TAG } from '@/utils/cons
 import { candliGamesForSequenceItems } from '@/candli-games.js'
 import { normalizeSequenceItems, isValidSequenceAgentState } from '@/utils/sequence-items.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
+import { formatDateForDisplay } from '@/utils/iso-date.js'
 import { getContentMetadata, peekContentMetadata, getCachedContentName, loadExploreCache } from '@/utils/content-cache.js'
 import { loadExploreArchivedSequenceIds } from '@/utils/explore-sequence-archive.js'
 import {
@@ -462,9 +463,8 @@ function getStatus(id) {
 function getDueDate(id) {
   const d = assignmentData[id]?.dueDate
   if (!d) return t('not-set')
-  const dt = new Date(d)
-  if (Number.isNaN(dt.getTime())) return t('not-set')
-  return dt.toLocaleDateString()
+  const formatted = formatDateForDisplay(d, store.getters.language?.() || store.state.language || 'en')
+  return formatted || t('not-set')
 }
 
 function getUpdated(id) {

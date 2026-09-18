@@ -313,6 +313,7 @@ import CopyModifyContentPicker from './copy-modify-content-picker.vue'
 import { useStore } from 'vuex'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
+import { formatDateForDisplay } from '@/utils/iso-date.js'
 
 const MODAL_WIDTH = '984px'
 const SUCCESS_MODAL_WIDTH = '520px'
@@ -523,11 +524,7 @@ async function onPickerAddItems(ids) {
 
 function formatDate(value) {
   if (!value) return ''
-  try {
-    return new Date(value).toLocaleDateString('en-CA')
-  } catch {
-    return ''
-  }
+  return formatDateForDisplay(value, store.getters.language?.() || store.state.language || 'en')
 }
 
 async function loadRowMeta(id) {

@@ -30,6 +30,7 @@ import { computed, inject, onMounted, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
 import LucideIcon from './LucideIcon.vue'
 import PDatePicker from './PDatePicker.vue'
+import { formatDateForDisplay } from '@/utils/iso-date.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -54,8 +55,8 @@ const hasValue = computed(() =>
 
 const formattedRange = computed(() => {
   if (!hasValue.value) return ''
-  const lang = store.getters.language() || 'en'
-  const fmt = (d) => d.toLocaleDateString(lang, { month: 'short', day: 'numeric', year: 'numeric' })
+  const lang = store.state.language || store.getters.language?.() || 'en'
+  const fmt = (d) => formatDateForDisplay(d, lang)
   return `${fmt(props.modelValue[0])} – ${fmt(props.modelValue[1])}`
 })
 

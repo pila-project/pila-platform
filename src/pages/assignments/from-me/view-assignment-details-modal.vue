@@ -145,6 +145,7 @@
     effectiveAssignmentStatus,
     tryPromoteScheduledAssignment,
   } from '@/utils/assignment-status.js'
+  import { formatDateForDisplay } from '@/utils/iso-date.js'
 
   const props = defineProps({
     id: { type: String, required: true },
@@ -200,8 +201,8 @@
 
   function formatDate(ts) {
     if (!ts) return '--'
-    const d = new Date(ts)
-    return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
+    const formatted = formatDateForDisplay(ts, store.getters.language?.() || store.state.language || 'en')
+    return formatted || '--'
   }
 
   function handleKeydown(e) {

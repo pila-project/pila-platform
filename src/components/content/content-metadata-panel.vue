@@ -67,6 +67,7 @@
   import TagViewer from '@/components/tag-viewer.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { useStore } from 'vuex'
+  import { formatDateForDisplay } from '@/utils/iso-date.js'
 
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
@@ -102,12 +103,12 @@
 
   const contentCreated = computed(() => {
     if (!contentMetadata.value?.created) return '—'
-    return new Date(contentMetadata.value.created).toLocaleDateString()
+    return formatDateForDisplay(contentMetadata.value.created, store.state.language || 'en') || '—'
   })
 
   const contentUpdated = computed(() => {
     if (!contentMetadata.value?.updated) return '—'
-    return new Date(contentMetadata.value.updated).toLocaleDateString()
+    return formatDateForDisplay(contentMetadata.value.updated, store.state.language || 'en') || '—'
   })
 
   const languagesDisplay = computed(() => '—')
