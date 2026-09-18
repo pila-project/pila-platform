@@ -467,21 +467,46 @@ export { nameCache, metadataCache, tagCache, imageCache, tagNameCache }
 
 // ── Disk persistence (IndexedDB) ──
 
-function isSeedableNameCacheKey(key) {
-  // Bare ids and English lang keys only — never rehydrate id:th etc. from disk
-  // (stale English-under-th poison from older builds).
-  const idx = String(key).lastIndexOf(':')
-  if (idx <= 0) return true
-  return isEnglishLang(String(key).slice(idx + 1))
+/**
+ * Restore explore name map from IndexedDB.
+ * Bare + English keys always seed. Non-English id:lang seeds only when the
+ * value differs from that id's English/canonical string — so exact Thai (etc.)
+ * first-paints like tag names, while English-under-th poison from older builds
+ * is still skipped (UIUX-212).
+ */
+export function seedNameCacheFromDisk(entries) {
+  if (!entries) return
+  const englishById = new Map()
+  const pendingNonEn = []
+  for (const [k, v] of entries) {
+    const key = String(k)
+    const idx = key.lastIndexOf(':')
+    if (idx <= 0) {
+      nameCache.set(key, v)
+      if (v) englishById.set(key, v)
+      continue
+    }
+    const lang = key.slice(idx + 1)
+    const id = key.slice(0, idx)
+    if (isEnglishLang(lang)) {
+      nameCache.set(key, v)
+      if (v && !englishById.has(id)) englishById.set(id, v)
+    } else {
+      pendingNonEn.push([id, key, v])
+    }
+  }
+  for (const [id, key, v] of pendingNonEn) {
+    const english = englishById.get(id)
+    if (english && v === english) continue
+    if (typeof v === 'string' && v.trim()) nameCache.set(key, v)
+  }
+  bumpNameCacheVersion()
 }
 
 function applyMapsToMemory(maps) {
   if (!maps) return
   if (maps.names) {
-    for (const [k, v] of maps.names) {
-      if (isSeedableNameCacheKey(k)) nameCache.set(k, v)
-    }
-    bumpNameCacheVersion()
+    seedNameCacheFromDisk(maps.names)
   }
   if (maps.metadata) {
     for (const [k, v] of maps.metadata) metadataCache.set(k, v)
