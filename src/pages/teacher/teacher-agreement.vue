@@ -20,18 +20,24 @@
 					</p>
 					<p v-if="!isSimplifiedStudyDomain">
 						<a
+							class="policy-external-link"
 							href="https://pilaproject.org/about-pila/terms-and-conditions-for-teachers"
 							target="_blank"
+							rel="noopener noreferrer"
 						>
-							{{ t('terms-of-service-for-teachers') }}
+							<span>{{ t('terms-of-service-for-teachers') }}</span>
+							<LucideIcon name="external-link" :size="14" />
 						</a>
 					</p>
 					<p>
 						<a
+							class="policy-external-link"
 							:href="teacherDataProtectionLink"
 							target="_blank"
+							rel="noopener noreferrer"
 						>
-							{{ t('data-protection-notice-for-teachers') }}
+							<span>{{ t('data-protection-notice-for-teachers') }}</span>
+							<LucideIcon name="external-link" :size="14" />
 						</a>
 					</p>
 				</div>
@@ -42,6 +48,7 @@
 
 <script>
 import { PModal } from '@/components/ui/index.js'
+import LucideIcon from '@/components/ui/LucideIcon.vue'
 import {
 	DOMAIN_DATA_PROTECTION_LINKS,
 	SIMPLIFIED_STUDY_DOMAINS,
@@ -49,7 +56,7 @@ import {
 
 export default {
 	name: 'teacher-agreement',
-	components: { PModal },
+	components: { PModal, LucideIcon },
 	methods: {
 		t(slug) { return this.$store.getters.t(slug) },
 		async modalClose(e) {
@@ -82,6 +89,21 @@ export default {
 }
 .teacher-agreement .teacher-agreement-body p {
 	margin: 8px;
+}
+.teacher-agreement .policy-external-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3em;
+	color: inherit;
+	text-decoration: none;
+}
+.teacher-agreement .policy-external-link span {
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+}
+.teacher-agreement .policy-external-link svg {
+	flex-shrink: 0;
 }
 .teacher-agreement .teacher-agreement-body i {
 	min-width: 50px;
