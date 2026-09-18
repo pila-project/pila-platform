@@ -34,38 +34,57 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
+  import { useStore } from 'vuex'
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
   import Dashboard from '@/components/dashboard/dashboard.vue'
   import BettyDashboard from './betty-dashboard.vue'
   import RCTDashboard from './rct-dashboard.vue'
   import UrlDashboard from './url-dashboard.vue'
   import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
+  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+  import {
+    resolveBettyDashboard,
+    usersForDashboardEmbed,
+  } from '@/utils/assignment-dashboards.js'
 
-  const props = defineProps({ assignment: String, url: String })
+  const props = defineProps({ assignment: String, url: String, users: Array })
 
-  const users = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
+  const store = useStore()
+  const users = computed(() =>
+    usersForDashboardEmbed(props.users, store, props.assignment),
+  )
 
   const assignmentState = await Agent.state(props.assignment)
   const content = primaryAssignmentContentId(assignmentState)
-  const contentState = content ? await Agent.state(content) : null
-  const id = contentState?.id ?? content
+  let contentState = null
+  if (content) {
+    try {
+      contentState = await Agent.state(content)
+    } catch {
+      contentState = null
+    }
+  }
   const customDashboardUrl = ref(null)
 
   const isRCTAssignment = async () => {
     if (!content) return false
-    const { domain } = await Agent.metadata(content)
-    return domain === 'rct-problem-creator.pilaproject.org'
+    try {
+      const { domain } = await Agent.metadata(content)
+      return domain === 'rct-problem-creator.pilaproject.org'
+    } catch {
+      return false
+    }
   }
-  const isBettyLink = str => str?.startsWith?.('https://bettysbrain.knowlearning.systems/')
 
-  let bettyLink
-  if (isBettyLink(id)) bettyLink = id
-  else if (isBettyLink(content)) bettyLink = content
+  const betty = await resolveBettyDashboard({
+    contentId: content,
+    contentState,
+    sequenceItemIds: normalizeSequenceItems(contentState?.items),
+  })
+  const bettyModuleId = betty.bettyModuleId
 
   const rctAssignment = await isRCTAssignment()
-
-  const bettyModuleId = bettyLink ? (new URL(bettyLink)).pathname.split('/')[2] : null
 
   const candliDashboardContent = [
     // '881f5110-a910-11f0-92ae-3f96e8a36c18'
@@ -78,7 +97,7 @@
     const dashboardConfigId = Agent.uuid()
     const dashboardConfig = await Agent.state(dashboardConfigId)
     dashboardConfig.placeholder = {
-      states: Object.fromEntries(users.map(id => [id, 'placeholder']))
+      states: Object.fromEntries(users.value.map(id => [id, 'placeholder']))
     }
     console.log('dashboard cofing!', dashboardConfig)
     await Agent.response()

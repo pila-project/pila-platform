@@ -7,14 +7,20 @@
 </template>
 
 <script setup>
+  import { computed } from 'vue'
   import { useStore } from 'vuex'
   import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
+  import { usersForDashboardEmbed } from '@/utils/assignment-dashboards.js'
 
   const props = defineProps({ assignment: String, module: String, users: Array, url: String })
 
   const store = useStore()
-  const users = store.getters['assignments/assignedStudents'](props.assignment, 'teacher-to-student')
-  const params = new URLSearchParams(users.map(id => ['user', id]))
+  const users = computed(() =>
+    usersForDashboardEmbed(props.users, store, props.assignment),
+  )
+  const params = computed(() =>
+    new URLSearchParams(users.value.map(id => ['user', id])).toString(),
+  )
 
   async function proxyEnvironmentCall(user) {
     if (user) {
@@ -27,7 +33,7 @@
         ...env,
         variables: {
           ...env.variables,
-          users: props.users,
+          users: users.value,
           assignment: props.assignment
         }
       }

@@ -228,13 +228,13 @@
     >
       <template #title>
         <span>
-          {{ assignmentContainsBetty || assignmentContainsGenAI ? t('activity-dashboard') : t('live-monitoring-dashboard') }}
+          {{ t(resultsDashboardTitleSlug(resultsDashboardType)) }}
         </span>
       </template>
       <template #body>
         <div class="assign-dashboard-fill">
           <suspense>
-            <Dashboard :assignment="current" :url="dashboardUrl" />
+            <Dashboard :assignment="current" :url="dashboardUrl" :users="assignedDashboardUsers" />
           </suspense>
         </div>
       </template>
@@ -324,9 +324,13 @@ import CandliDashboard from '@/pages/assignments/from-me/candli-dashboard.vue'
 import GenAIDashboard from '@/pages/assignments/from-me/gen-ai-dashboard.vue'
 import { ASSIGNMENT_STATUS, effectiveAssignmentStatus } from '@/utils/assignment-status.js'
 import { assignmentTypeLabel, assignmentTypeBadgeClass } from '@/utils/assignment-type.js'
-import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES, MY_CONTENT_TAG } from '@/utils/constants.js'
-import { candliGamesForSequenceItems } from '@/candli-games.js'
-import { normalizeSequenceItems, isValidSequenceAgentState } from '@/utils/sequence-items.js'
+import { MY_CONTENT_TAG } from '@/utils/constants.js'
+import { isValidSequenceAgentState } from '@/utils/sequence-items.js'
+import {
+  assessAssignmentDashboards,
+  assignedStudentsForAssignment,
+  resultsDashboardTitleSlug,
+} from '@/utils/assignment-dashboards.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
 import { formatDateForDisplay } from '@/utils/iso-date.js'
 import { getContentMetadata, peekContentMetadata, getCachedContentName, loadExploreCache } from '@/utils/content-cache.js'
@@ -371,8 +375,10 @@ const dashboardUrl = ref(null)
 const candliGames = ref([])
 const assignmentContainsCandli = ref(null)
 const assignmentContainsGenAI = ref(null)
-const assignmentContainsBetty = ref(null)
 const current = ref(null)
+const assignedDashboardUsers = computed(() =>
+  assignedStudentsForAssignment(store, current.value),
+)
 const wasCreating = ref(true)
 const assignmentData = reactive({})
 const assignmentTablePerPageOptions = computed(() => tablePerPageOptions(t))
@@ -748,58 +754,19 @@ function openSubmissions(id) {
   showSubmissionsView.value = true
 }
 
-async function resolveCandliGamesForContent(contentId) {
-  if (!contentId) return []
-  if (CANDLI_SEQUENCES[contentId]) return [...CANDLI_SEQUENCES[contentId]]
-  try {
-    const sequence = await Agent.state(contentId)
-    const rawItems = sequence?.items
-    const items = Array.isArray(rawItems)
-      ? rawItems
-      : normalizeSequenceItems(rawItems).map((id) => ({ id }))
-    return await candliGamesForSequenceItems(items)
-  } catch {
-    return []
-  }
-}
-
 async function reassessContents() {
   const assignmentId = current.value
   assignmentContainsCandli.value = null
   assignmentContainsGenAI.value = null
-  assignmentContainsBetty.value = null
   candliGames.value = []
   dashboardUrl.value = null
   if (!assignmentId) return
-  const stateData = await Agent.state(assignmentId)
+  const flags = await assessAssignmentDashboards(assignmentId)
   if (current.value !== assignmentId) return
-  const rawContent = stateData.content
-  const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
-  const allGames = []
-  for (const content of contentIds) {
-    const games = await resolveCandliGamesForContent(content)
-    if (current.value !== assignmentId) return
-    if (games.length) {
-      assignmentContainsCandli.value = true
-      allGames.push(...games)
-    }
-    if (GEN_AI_SEQUENCES[content]) assignmentContainsGenAI.value = true
-    try {
-      const contentState = await Agent.state(content)
-      if (current.value !== assignmentId) return
-      if (contentState?.id?.includes('betty')) assignmentContainsBetty.value = true
-      const meta = await Agent.metadata(content)
-      if (current.value !== assignmentId) return
-      if (meta?.domain === 'datawise.accingo.co') {
-        dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
-      } else if (contentState?.reference?.dashboard) {
-        dashboardUrl.value = 'https://' + contentState.reference.dashboard
-      }
-    } catch { /* ignore */ }
-  }
-  if (current.value === assignmentId) {
-    candliGames.value = [...new Set(allGames.filter(Boolean))]
-  }
+  assignmentContainsCandli.value = flags.isCandli
+  assignmentContainsGenAI.value = flags.isGenAI
+  candliGames.value = flags.candliGames
+  dashboardUrl.value = flags.dashboardUrl
 }
 
 async function handleOpenDashboardFromHome(type) {
@@ -811,8 +778,7 @@ async function handleOpenDashboardFromHome(type) {
     if (!assignmentContainsGenAI.value) return
     showGenAIDashboardModal.value = true
   } else if (type === 'app') {
-    if (!dashboardUrl.value) return
-    resultsDashboardType.value = 'live-monitoring'
+    resultsDashboardType.value = 'app'
     showResultsModal.value = true
   } else {
     resultsDashboardType.value = 'live-monitoring'

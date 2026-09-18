@@ -96,7 +96,7 @@
             <PButton
               icon="layout-dashboard"
               variant="primary"
-              :text="assignmentContainsBetty || assignmentContainsGenAI ? t('activity-dashboard') : t('live-monitoring-dashboard')"
+              :text="t(resultsDashboardTitleSlug(primaryDashboardType()))"
               @click="openDashboard(primaryDashboardType())"
             />
             <PButton
@@ -165,13 +165,13 @@
   >
     <template #title>
       <span>
-        {{ assignmentContainsBetty || assignmentContainsGenAI ? t('activity-dashboard') : t('live-monitoring-dashboard') }} -
+        {{ t(resultsDashboardTitleSlug(primaryDashboardType())) }} -
         <vueScopeComponent :id="current" :path="['name']" />
       </span>
     </template>
     <template #body>
       <suspense>
-        <Dashboard :assignment="current" :url="dashboardUrl" />
+        <Dashboard :assignment="current" :url="dashboardUrl" :users="assignedDashboardUsers" />
       </suspense>
     </template>
   </PModal>
@@ -227,9 +227,12 @@
   import CreateEditAssignmentModal from '@/pages/assignments/from-me/create-edit-assignment-modal.vue'
   import CandliDashboard from '@/pages/assignments/from-me/candli-dashboard.vue'
   import GenAIDashboard from '@/pages/assignments/from-me/gen-ai-dashboard.vue'
-  import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
-  import { candliGamesForSequenceItems } from '@/candli-games.js'
-  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+  import {
+    assessAssignmentDashboards,
+    assignedStudentsForAssignment,
+    primaryDashboardTypeFromFlags,
+    resultsDashboardTitleSlug,
+  } from '@/utils/assignment-dashboards.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -251,11 +254,14 @@
   const showGenAIDashboardModal = ref(false)
   const assignmentContainsCandli = ref(null)
   const assignmentContainsGenAI = ref(null)
-  const assignmentContainsBetty = ref(null)
+  const assignmentContainsApp = ref(null)
   /** Resolved Candli game ids; competency UI only when non-empty (trunk parity). */
   const candliGames = ref([])
   const dashboardUrl = ref(null)
   const openDashboardSession = ref(null)
+  const assignedDashboardUsers = computed(() =>
+    assignedStudentsForAssignment(store, current.value),
+  )
 
   const assignable_items = computed(() =>
     store.getters['pila_tags/withTag'](props.assignable_item_type)
@@ -339,63 +345,22 @@
     router.push(`/teacher/support?assignment=${current.value}`)
   }
 
-  async function resolveCandliGamesForContent(contentId) {
-    if (!contentId) return []
-    if (CANDLI_SEQUENCES[contentId]) return [...CANDLI_SEQUENCES[contentId]]
-    try {
-      const sequence = await Agent.state(contentId)
-      const rawItems = sequence?.items
-      const items = Array.isArray(rawItems)
-        ? rawItems
-        : normalizeSequenceItems(rawItems).map((id) => ({ id }))
-      return await candliGamesForSequenceItems(items)
-    } catch {
-      return []
-    }
-  }
-
   async function reassessContents() {
     const assignmentId = current.value
     assignmentContainsCandli.value = null
     assignmentContainsGenAI.value = null
-    assignmentContainsBetty.value = null
+    assignmentContainsApp.value = null
     candliGames.value = []
     dashboardUrl.value = null
     if (!assignmentId) return
 
-    const { content } = await Agent.state(assignmentId)
+    const flags = await assessAssignmentDashboards(assignmentId)
     if (current.value !== assignmentId) return
-    const contentIds = Array.isArray(content) ? content : (content ? [content] : [])
-    const allGames = []
-
-    for (const contentId of contentIds) {
-      const games = await resolveCandliGamesForContent(contentId)
-      if (current.value !== assignmentId) return
-      if (games.length) {
-        assignmentContainsCandli.value = true
-        allGames.push(...games)
-      }
-      if (GEN_AI_SEQUENCES[contentId]) assignmentContainsGenAI.value = true
-      try {
-        const contentState = await Agent.state(contentId)
-        if (current.value !== assignmentId) return
-        if (contentState?.id?.includes('betty')) {
-          assignmentContainsBetty.value = true
-        }
-        const meta = await Agent.metadata(contentId)
-        if (current.value !== assignmentId) return
-        if (meta?.domain === 'datawise.accingo.co') {
-          dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
-        } else if (contentState?.reference?.dashboard) {
-          dashboardUrl.value = 'https://' + contentState.reference.dashboard
-        }
-      } catch {
-        /* ignore per-content probe failures */
-      }
-    }
-    if (current.value === assignmentId) {
-      candliGames.value = [...new Set(allGames.filter(Boolean))]
-    }
+    assignmentContainsCandli.value = flags.isCandli
+    assignmentContainsGenAI.value = flags.isGenAI
+    assignmentContainsApp.value = flags.isApp
+    candliGames.value = flags.candliGames
+    dashboardUrl.value = flags.dashboardUrl
   }
 
   async function add() {
@@ -422,7 +387,10 @@
   }
 
   function primaryDashboardType() {
-    return assignmentContainsBetty.value || assignmentContainsGenAI.value ? 'activity' : 'live-monitoring'
+    return primaryDashboardTypeFromFlags({
+      isApp: assignmentContainsApp.value,
+      isGenAI: assignmentContainsGenAI.value,
+    })
   }
 
   async function openDashboard(dashboard) {

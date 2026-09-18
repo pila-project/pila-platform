@@ -294,14 +294,14 @@
   >
     <template v-slot:title>
       <span>
-        {{ assignmentContainsBetty || assignmentContainsGenAI ? t('activity-dashboard') : t('live-monitoring-dashboard') }} -
+        {{ t(resultsDashboardTitleSlug(resultsDashboardType)) }} -
         <vueScopeComponent :id="current" :path="['name']" />
       </span>
     </template>
     <template v-slot:body>
       <div class="assign-dashboard-fill">
         <suspense>
-          <Dashboard :assignment="current" :url="dashboardUrl" />
+          <Dashboard :assignment="current" :url="dashboardUrl" :users="assignedDashboardUsers" />
         </suspense>
       </div>
     </template>
@@ -451,10 +451,13 @@
   import ViewSubmissions from './view-submissions.vue'
   import CandliDashboard from './candli-dashboard.vue'
   import GenAIDashboard from './gen-ai-dashboard.vue'
-  import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
   import { formatDateForDisplay } from '@/utils/iso-date.js'
-  import { candliGamesForSequenceItems } from '@/candli-games.js'
-  import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+  import {
+    assessAssignmentDashboards,
+    assignedStudentsForAssignment,
+    primaryDashboardTypeFromFlags,
+    resultsDashboardTitleSlug,
+  } from '@/utils/assignment-dashboards.js'
   import {
     STATUS_FILTER,
     defaultActiveStatusFilters,
@@ -494,10 +497,13 @@
   const showGenAIDashboardModal = ref(false)
   const assignmentContainsCandli = ref(null)
   const assignmentContainsGenAI = ref(null)
-  const assignmentContainsBetty = ref(null)
+  const assignmentContainsApp = ref(null)
   /** Resolved Candli game ids for competency dashboard (trunk: map or embed scan). */
   const candliGames = ref([])
   const dashboardUrl = ref(null)
+  const assignedDashboardUsers = computed(() =>
+    assignedStudentsForAssignment(store, current.value),
+  )
   const searchQuery = ref('')
   const selectedItems = ref([])
   const showDetailsModal = ref(false)
@@ -1257,7 +1263,10 @@
 
   // ── Dashboard ──
   function primaryDashboardType() {
-    return assignmentContainsBetty.value || assignmentContainsGenAI.value ? 'activity' : 'live-monitoring'
+    return primaryDashboardTypeFromFlags({
+      isApp: assignmentContainsApp.value,
+      isGenAI: assignmentContainsGenAI.value,
+    })
   }
 
   async function openDashboardWithXapi(item, dashboard, { skipReassess = false } = {}) {
@@ -1349,10 +1358,9 @@
       if (!assignmentContainsGenAI.value) return
       await openGenAIDashboard(current.value)
     } else if (type === 'app') {
-      // App-specific = trunk custom URL dashboard only (not the live/activity primary).
+      // Betty has no dashboardUrl; Datawise does. Do not require a URL to open.
       await reassessContents()
-      if (!dashboardUrl.value) return
-      await openDashboardWithXapi(current.value, 'live-monitoring', { skipReassess: true })
+      await openDashboardWithXapi(current.value, 'app', { skipReassess: true })
     } else if (type === 'live') {
       await openLiveDashboard(current.value)
     } else {
@@ -1360,68 +1368,22 @@
     }
   }
 
-  /**
-   * Trunk parity: games from static CANDLI_SEQUENCES map, else scan sequence
-   * items for custom/embed Candli games (candliGamesForSequenceItems).
-   */
-  async function resolveCandliGamesForContent(contentId) {
-    if (!contentId) return []
-    if (CANDLI_SEQUENCES[contentId]) return [...CANDLI_SEQUENCES[contentId]]
-    try {
-      const sequence = await Agent.state(contentId)
-      const rawItems = sequence?.items
-      const items = Array.isArray(rawItems)
-        ? rawItems
-        : normalizeSequenceItems(rawItems).map((id) => ({ id }))
-      return await candliGamesForSequenceItems(items)
-    } catch {
-      return []
-    }
-  }
-
   async function reassessContents() {
     const assignmentId = current.value
     assignmentContainsCandli.value = null
     assignmentContainsGenAI.value = null
-    assignmentContainsBetty.value = null
+    assignmentContainsApp.value = null
     candliGames.value = []
     dashboardUrl.value = null
     if (!assignmentId) return
 
-    const stateData = await Agent.state(assignmentId)
+    const flags = await assessAssignmentDashboards(assignmentId)
     if (current.value !== assignmentId) return
-    const rawContent = stateData.content
-    const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
-    const allGames = []
-
-    for (const content of contentIds) {
-      const games = await resolveCandliGamesForContent(content)
-      if (current.value !== assignmentId) return
-      if (games.length) {
-        assignmentContainsCandli.value = true
-        allGames.push(...games)
-      }
-      if (GEN_AI_SEQUENCES[content]) assignmentContainsGenAI.value = true
-      try {
-        const contentState = await Agent.state(content)
-        if (current.value !== assignmentId) return
-        if (contentState?.id?.includes('betty')) {
-          assignmentContainsBetty.value = true
-        }
-        const meta = await Agent.metadata(content)
-        if (current.value !== assignmentId) return
-        if (meta?.domain === 'datawise.accingo.co') {
-          dashboardUrl.value = 'https://datawise.accingo.co/dashboard'
-        } else if (contentState?.reference?.dashboard) {
-          dashboardUrl.value = 'https://' + contentState.reference.dashboard
-        }
-      } catch {
-        /* ignore per-content probe failures */
-      }
-    }
-    if (current.value === assignmentId) {
-      candliGames.value = [...new Set(allGames.filter(Boolean))]
-    }
+    assignmentContainsCandli.value = flags.isCandli
+    assignmentContainsGenAI.value = flags.isGenAI
+    assignmentContainsApp.value = flags.isApp
+    candliGames.value = flags.candliGames
+    dashboardUrl.value = flags.dashboardUrl
   }
 
   watch(current, reassessContents)

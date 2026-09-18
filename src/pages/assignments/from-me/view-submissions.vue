@@ -453,8 +453,10 @@
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
-  import { CANDLI_SEQUENCES, GEN_AI_SEQUENCES } from '@/utils/constants.js'
-  import { candliGamesForSequenceItems } from '@/candli-games.js'
+  import {
+    assessAssignmentDashboards,
+    hasLiveMonitoringCard,
+  } from '@/utils/assignment-dashboards.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   import { dateDisplayLocale, formatDateForDisplay } from '@/utils/iso-date.js'
 
@@ -502,10 +504,12 @@
   })
   const assignmentContainsCandli = ref(false)
   const assignmentContainsGenAI = ref(false)
-  /** Custom/app dashboard URL (datawise or sequence.reference.dashboard) — trunk's dashboardUrl. */
+  /** Betty iframe or Datawise / reference.dashboard — App-specific card (UIUX-231). */
   const assignmentContainsAppDashboard = ref(false)
-  // Live is trunk's always-on primary, except when a custom URL replaces it (same Dashboard modal).
-  const assignmentContainsLiveDashboard = computed(() => !assignmentContainsAppDashboard.value)
+  // Live is exclusive of app-specific for Betty-only / Datawise-only. Mixed unions: UIUX-237.
+  const assignmentContainsLiveDashboard = computed(() =>
+    hasLiveMonitoringCard({ isApp: assignmentContainsAppDashboard.value }),
+  )
   const hasAnyDashboardCard = computed(() =>
     assignmentContainsAppDashboard.value
     || assignmentContainsLiveDashboard.value
@@ -924,36 +928,11 @@
       assignmentDueDateRaw.value = assignState.dueDate
     }
 
-    // Load sequence items + dashboard availability (trunk: Candli only when games resolve)
-    const rawContent = assignState.content
-    const contentIds = Array.isArray(rawContent) ? rawContent : (rawContent ? [rawContent] : [])
-    assignmentContainsCandli.value = false
-    assignmentContainsGenAI.value = false
-    assignmentContainsAppDashboard.value = false
-    for (const id of contentIds) {
-      if (GEN_AI_SEQUENCES[id]) assignmentContainsGenAI.value = true
-      try {
-        let games = CANDLI_SEQUENCES[id] ? [...CANDLI_SEQUENCES[id]] : null
-        const contentState = await Agent.state(id)
-        if (!games) {
-          const items = Array.isArray(contentState?.items)
-            ? contentState.items
-            : normalizeSequenceItems(contentState?.items).map((itemId) => ({ id: itemId }))
-          games = await candliGamesForSequenceItems(items)
-        }
-        if (games?.length) assignmentContainsCandli.value = true
-        try {
-          const meta = await Agent.metadata(id)
-          if (meta?.domain === 'datawise.accingo.co') {
-            assignmentContainsAppDashboard.value = true
-          } else if (contentState?.reference?.dashboard) {
-            assignmentContainsAppDashboard.value = true
-          }
-        } catch { /* ignore metadata probe */ }
-      } catch {
-        /* ignore */
-      }
-    }
+    // Dashboard cards: shared classifier (Betty + Datawise = app; Candli/GenAI unchanged).
+    const flags = await assessAssignmentDashboards(props.assignmentId)
+    assignmentContainsCandli.value = flags.isCandli
+    assignmentContainsGenAI.value = flags.isGenAI
+    assignmentContainsAppDashboard.value = flags.isApp
 
     if (contentId.value) {
       try {
