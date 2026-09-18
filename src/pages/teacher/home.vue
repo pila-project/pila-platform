@@ -951,8 +951,22 @@ function onAssignmentSaved() {
   width: 100%;
 }
 
+.teacher-home,
+.home-assignments,
+.home-assign-table {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Table-only overflow-x (UIUX-236/238 same clip as Assign). */
+.home-assign-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .home-panel {
   width: 100%;
+  min-width: 0;
   min-height: 0;
 }
 

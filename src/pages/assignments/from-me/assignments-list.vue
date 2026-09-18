@@ -1412,6 +1412,13 @@
 </script>
 
 <style scoped>
+.assign-page,
+.assign-card,
+.assign-table-wrapper {
+  min-width: 0;
+  max-width: 100%;
+}
+
 /* Card header */
 .assign-card-header {
   padding-bottom: 20px;
@@ -1462,10 +1469,11 @@
   min-width: 8px;
 }
 
-/* Table */
+/* Table-only overflow-x (UIUX-236/238). Wrapper is the sticky containing block. */
 .assign-table-wrapper {
   border-radius: 8px;
-  overflow: visible;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #e2e8f0;
   margin-top: 16px;
 }
@@ -1759,8 +1767,6 @@
   }
 
   .assign-table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     margin-top: 12px;
   }
 

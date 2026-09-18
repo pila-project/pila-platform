@@ -110,8 +110,9 @@
           </div>
         </PAlert>
 
-        <!-- Student table -->
-        <PTable
+        <!-- Student table: in-card overflow-x (UIUX-238). CSS already defined. -->
+        <div class="table-scroll-wrapper">
+          <PTable
             :headers="studentHeaders"
             :items="filteredStudents"
             item-key="id"
@@ -190,6 +191,7 @@
               </div>
             </template>
           </PTable>
+        </div>
 
       </div>
 
@@ -2673,6 +2675,8 @@ function openLoginCodesPage(studentIds) {
   flex: 0 0 auto;
   width: calc(100% - 333px);
   min-width: 0;
+  position: relative;
+  z-index: 0;
   transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -2785,8 +2789,10 @@ function openLoginCodesPage(studentIds) {
   flex-shrink: 0;
 }
 
-/* Table scroll wrapper for mobile horizontal scroll */
+/* Table-only overflow-x (UIUX-238). Wrapper is the sticky containing block. */
 .table-scroll-wrapper {
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -2838,6 +2844,8 @@ function openLoginCodesPage(studentIds) {
   flex-direction: column;
   gap: 12px;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
   transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
