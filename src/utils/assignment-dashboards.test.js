@@ -11,12 +11,17 @@ import {
   hasLiveMonitoringCard,
   idLooksLikeBetty,
   isBettyPlayerUrl,
+  isLiveDashboardMode,
   looksLikeBettyContent,
   primaryDashboardTypeFromFlags,
   resolveBettyDashboard,
   resultsDashboardTitleSlug,
+  resultsDashboardUrlForType,
   usersForDashboardEmbed,
 } from './assignment-dashboards.js'
+import { CANDLI_SEQUENCES } from './constants.js'
+
+const CANDLI_ID = Object.keys(CANDLI_SEQUENCES)[0]
 
 const BETTY_URL = `${BETTY_PLAYER_PREFIX}bb/practice?oecd=true&disable-guide=true`
 const BETTY_CLIMATE = `${BETTY_PLAYER_PREFIX}bb/climate-change?oecd=true`
@@ -65,7 +70,7 @@ describe('Betty URL helpers (trunk player prefix + module path)', () => {
   })
 })
 
-describe('app dashboard URL + titles + exclusive live card', () => {
+describe('app dashboard URL + titles + live card (not mutex with app)', () => {
   it('maps Datawise domain and reference.dashboard the way trunk all.vue does', () => {
     assert.equal(
       appDashboardUrlFromProbe({ domain: 'datawise.accingo.co' }),
@@ -90,12 +95,28 @@ describe('app dashboard URL + titles + exclusive live card', () => {
     assert.equal(resultsDashboardTitleSlug('generative-ai-module'), 'activity-dashboard')
   })
 
-  it('Betty-only / Datawise-only hide live; ordinary keeps live', () => {
+  it('live card follows hasLive / hasNonDatawiseContent, not !isApp', () => {
+    assert.equal(hasLiveMonitoringCard({ isApp: true, hasLive: true }), true)
+    assert.equal(hasLiveMonitoringCard({ isApp: true, hasLive: false }), false)
+    assert.equal(hasLiveMonitoringCard({ isApp: false, hasLive: true }), true)
+    assert.equal(hasLiveMonitoringCard({ hasNonDatawiseContent: true }), true)
+    assert.equal(hasLiveMonitoringCard({ hasNonDatawiseContent: false }), false)
+    // No !isApp fallback — mixed must not regress if a caller only passes isApp.
     assert.equal(hasLiveMonitoringCard({ isApp: true }), false)
-    assert.equal(hasLiveMonitoringCard({ isApp: false }), true)
+    assert.equal(hasLiveMonitoringCard({ isApp: false }), false)
     assert.equal(primaryDashboardTypeFromFlags({ isApp: true }), 'app')
     assert.equal(primaryDashboardTypeFromFlags({ isGenAI: true }), 'activity')
     assert.equal(primaryDashboardTypeFromFlags({}), 'live-monitoring')
+  })
+
+  it('live open drops Datawise url; app keeps it', () => {
+    assert.equal(isLiveDashboardMode('live'), true)
+    assert.equal(isLiveDashboardMode('live-monitoring'), true)
+    assert.equal(isLiveDashboardMode('app'), false)
+    assert.equal(resultsDashboardUrlForType('live-monitoring', DATAWISE_DASHBOARD_URL), null)
+    assert.equal(resultsDashboardUrlForType('live', DATAWISE_DASHBOARD_URL), null)
+    assert.equal(resultsDashboardUrlForType('app', DATAWISE_DASHBOARD_URL), DATAWISE_DASHBOARD_URL)
+    assert.equal(resultsDashboardUrlForType('app', null), null)
   })
 })
 
@@ -158,8 +179,8 @@ describe('resolveBettyDashboard walks nested sequence items', () => {
   })
 })
 
-describe('assessAssignmentDashboards (Betty-only / Datawise-only / ordinary)', () => {
-  it('Betty-only → app, no dashboardUrl (open must not require URL)', async () => {
+describe('assessAssignmentDashboards (Betty-only / Datawise-only / mixed / ordinary)', () => {
+  it('Betty-only → app AND live (237 union; open must not require URL)', async () => {
     mockAgent({
       states: {
         'asg-betty': { content: 'seq-betty' },
@@ -171,10 +192,11 @@ describe('assessAssignmentDashboards (Betty-only / Datawise-only / ordinary)', (
     assert.equal(flags.isApp, true)
     assert.equal(flags.dashboardUrl, null)
     assert.equal(flags.bettyModuleId, 'practice')
-    assert.equal(hasLiveMonitoringCard(flags), false)
+    assert.equal(flags.hasLive, true)
+    assert.equal(hasLiveMonitoringCard(flags), true)
   })
 
-  it('Datawise-only → app + Datawise dashboard URL', async () => {
+  it('Datawise-only → app + Datawise URL, no live card', async () => {
     mockAgent({
       states: {
         'asg-dw': { content: 'dw-1' },
@@ -188,7 +210,45 @@ describe('assessAssignmentDashboards (Betty-only / Datawise-only / ordinary)', (
     assert.equal(flags.isBetty, false)
     assert.equal(flags.isApp, true)
     assert.equal(flags.dashboardUrl, DATAWISE_DASHBOARD_URL)
+    assert.equal(flags.hasLive, false)
     assert.equal(hasLiveMonitoringCard(flags), false)
+  })
+
+  it('mixed Datawise + ordinary → app AND live (UIUX-237 regression)', async () => {
+    mockAgent({
+      states: {
+        'asg-mix': { content: ['dw-1', 'seq-ord'] },
+        'dw-1': { items: {} },
+        'seq-ord': { id: 'ordinary', items: { 0: { id: 'leaf-a' } } },
+      },
+      metadata: {
+        'dw-1': { domain: 'datawise.accingo.co' },
+      },
+    })
+    const flags = await assessAssignmentDashboards('asg-mix')
+    assert.equal(flags.isApp, true)
+    assert.equal(flags.dashboardUrl, DATAWISE_DASHBOARD_URL)
+    assert.equal(flags.hasLive, true)
+    assert.equal(hasLiveMonitoringCard(flags), true)
+    assert.equal(primaryDashboardTypeFromFlags(flags), 'app')
+  })
+
+  it('mixed Datawise + Candli → app AND live AND competency', async () => {
+    mockAgent({
+      states: {
+        'asg-candli-mix': { content: ['dw-1', CANDLI_ID] },
+        'dw-1': { items: {} },
+        [CANDLI_ID]: { items: {} },
+      },
+      metadata: {
+        'dw-1': { domain: 'datawise.accingo.co' },
+      },
+    })
+    const flags = await assessAssignmentDashboards('asg-candli-mix')
+    assert.equal(flags.isApp, true)
+    assert.equal(flags.isCandli, true)
+    assert.equal(flags.hasLive, true)
+    assert.equal(hasLiveMonitoringCard(flags), true)
   })
 
   it('ordinary sequence → not app, live card stays', async () => {
@@ -202,11 +262,12 @@ describe('assessAssignmentDashboards (Betty-only / Datawise-only / ordinary)', (
     assert.equal(flags.isApp, false)
     assert.equal(flags.isBetty, false)
     assert.equal(flags.dashboardUrl, null)
+    assert.equal(flags.hasLive, true)
     assert.equal(hasLiveMonitoringCard(flags), true)
     assert.equal(primaryDashboardTypeFromFlags(flags), 'live-monitoring')
   })
 
-  it('assignment content that is itself a Betty player URL is app-specific', async () => {
+  it('assignment content that is itself a Betty player URL is app-specific and live', async () => {
     mockAgent({
       states: {
         'asg-url': { content: BETTY_URL },
@@ -216,5 +277,6 @@ describe('assessAssignmentDashboards (Betty-only / Datawise-only / ordinary)', (
     assert.equal(flags.isApp, true)
     assert.equal(flags.isBetty, true)
     assert.equal(flags.bettyModuleId, 'practice')
+    assert.equal(flags.hasLive, true)
   })
 })

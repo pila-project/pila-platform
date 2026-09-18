@@ -161,17 +161,23 @@
     showCloseButton
     width="90vw"
     height="90vh"
-    @close="closeDashboard(primaryDashboardType())"
+    @close="closeDashboard(resultsDashboardType)"
   >
     <template #title>
       <span>
-        {{ t(resultsDashboardTitleSlug(primaryDashboardType())) }} -
+        {{ t(resultsDashboardTitleSlug(resultsDashboardType)) }} -
         <vueScopeComponent :id="current" :path="['name']" />
       </span>
     </template>
     <template #body>
       <suspense>
-        <Dashboard :assignment="current" :url="dashboardUrl" :users="assignedDashboardUsers" />
+        <Dashboard
+          :key="`${current}-${resultsDashboardType}`"
+          :assignment="current"
+          :url="resultsDashboardUrl"
+          :mode="resultsDashboardMode"
+          :users="assignedDashboardUsers"
+        />
       </suspense>
     </template>
   </PModal>
@@ -230,8 +236,10 @@
   import {
     assessAssignmentDashboards,
     assignedStudentsForAssignment,
+    isLiveDashboardMode,
     primaryDashboardTypeFromFlags,
     resultsDashboardTitleSlug,
+    resultsDashboardUrlForType,
   } from '@/utils/assignment-dashboards.js'
 
   const props = defineProps({
@@ -259,8 +267,15 @@
   const candliGames = ref([])
   const dashboardUrl = ref(null)
   const openDashboardSession = ref(null)
+  const resultsDashboardType = ref('live-monitoring')
   const assignedDashboardUsers = computed(() =>
     assignedStudentsForAssignment(store, current.value),
+  )
+  const resultsDashboardUrl = computed(() =>
+    resultsDashboardUrlForType(resultsDashboardType.value, dashboardUrl.value),
+  )
+  const resultsDashboardMode = computed(() =>
+    isLiveDashboardMode(resultsDashboardType.value) ? 'live' : undefined,
   )
 
   const assignable_items = computed(() =>
@@ -404,6 +419,12 @@
     } else if (dashboard === 'generative-ai-module') {
       showGenAIDashboardModal.value = true
     } else {
+      if (dashboard === 'app') resultsDashboardType.value = 'app'
+      else if (dashboard === 'live' || dashboard === 'live-monitoring') {
+        resultsDashboardType.value = 'live-monitoring'
+      } else {
+        resultsDashboardType.value = dashboard
+      }
       showResultsModal.value = true
     }
 

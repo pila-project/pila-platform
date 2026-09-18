@@ -1,10 +1,9 @@
 /**
- * Shared assignment dashboard classification (UIUX-231).
+ * Shared assignment dashboard classification (UIUX-231 + UIUX-237).
  *
- * Product defaults for Betty-only / Datawise-only:
- *   Betty or Datawise / reference.dashboard → App-specific (not Live, not Activity)
- *   Ordinary content → Live-monitoring
- * Mixed card unions stay UIUX-237 (live remains !app).
+ * App-specific (231): Betty or Datawise / reference.dashboard.
+ * Live-monitoring (237): any non-Datawise content (not Datawise-only).
+ * Mixed Datawise + other → BOTH app and live. Betty-only → BOTH (not mutex).
  */
 
 import { candliGamesForSequenceItems } from '../candli-games.js'
@@ -71,9 +70,25 @@ export function primaryDashboardTypeFromFlags({ isApp, isGenAI } = {}) {
   return 'live-monitoring'
 }
 
-/** Live card is the inverse of app-specific (Betty/Datawise exclusive). Mixed unions: UIUX-237. */
-export function hasLiveMonitoringCard({ isApp } = {}) {
-  return !isApp
+/** True when the shared Dashboard modal must render the HTML live table (not Url/Betty/RCT). */
+export function isLiveDashboardMode(modeOrType) {
+  return modeOrType === 'live' || modeOrType === 'live-monitoring'
+}
+
+/** Live open must not pass a Datawise / reference.dashboard URL. */
+export function resultsDashboardUrlForType(type, dashboardUrl) {
+  if (isLiveDashboardMode(type)) return null
+  return dashboardUrl ?? null
+}
+
+/**
+ * Live card = hasNonDatawise content, not !isApp.
+ * Mixed Datawise + other and Betty-only both show live. Do not fall back to !isApp.
+ */
+export function hasLiveMonitoringCard(flags = {}) {
+  if (typeof flags.hasLive === 'boolean') return flags.hasLive
+  if (typeof flags.hasNonDatawiseContent === 'boolean') return flags.hasNonDatawiseContent
+  return false
 }
 
 export function assignedStudentsForAssignment(store, assignmentId) {
@@ -96,7 +111,25 @@ export function emptyDashboardAssessment() {
     isGenAI: false,
     isCandli: false,
     candliGames: [],
+    hasDatawise: false,
+    hasNonDatawiseContent: false,
+    hasLive: false,
   }
+}
+
+/** A probe is Datawise / custom-dashboard when it produced an app dashboard URL. */
+function probeHasDatawise(probe) {
+  return Boolean(probe?.dashboardUrl)
+}
+
+/**
+ * Non-Datawise: Betty, Candli, GenAI, ordinary, or anything without a Datawise URL.
+ * A Datawise probe that is also Betty/Candli/GenAI is mixed within one content id.
+ */
+function probeHasNonDatawiseContent(probe) {
+  if (!probe) return false
+  if (probe.isBetty || probe.isGenAI || probe.candliGames?.length) return true
+  return !probeHasDatawise(probe)
 }
 
 function sequenceItemsForCandliScan(contentState) {
@@ -228,6 +261,8 @@ export async function assessAssignmentDashboards(assignmentId) {
     if (probe.dashboardUrl && !assessment.dashboardUrl) {
       assessment.dashboardUrl = probe.dashboardUrl
     }
+    if (probeHasDatawise(probe)) assessment.hasDatawise = true
+    if (probeHasNonDatawiseContent(probe)) assessment.hasNonDatawiseContent = true
     if (probe.isGenAI) assessment.isGenAI = true
     if (probe.candliGames?.length) {
       assessment.isCandli = true
@@ -237,5 +272,6 @@ export async function assessAssignmentDashboards(assignmentId) {
 
   assessment.candliGames = [...new Set(allGames.filter(Boolean))]
   assessment.isApp = assessment.isBetty || Boolean(assessment.dashboardUrl)
+  assessment.hasLive = assessment.hasNonDatawiseContent
   return assessment
 }

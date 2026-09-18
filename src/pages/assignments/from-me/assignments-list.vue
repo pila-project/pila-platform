@@ -301,7 +301,13 @@
     <template v-slot:body>
       <div class="assign-dashboard-fill">
         <suspense>
-          <Dashboard :assignment="current" :url="dashboardUrl" :users="assignedDashboardUsers" />
+          <Dashboard
+            :key="`${current}-${resultsDashboardType}`"
+            :assignment="current"
+            :url="resultsDashboardUrl"
+            :mode="resultsDashboardMode"
+            :users="assignedDashboardUsers"
+          />
         </suspense>
       </div>
     </template>
@@ -455,8 +461,10 @@
   import {
     assessAssignmentDashboards,
     assignedStudentsForAssignment,
+    isLiveDashboardMode,
     primaryDashboardTypeFromFlags,
     resultsDashboardTitleSlug,
+    resultsDashboardUrlForType,
   } from '@/utils/assignment-dashboards.js'
   import {
     STATUS_FILTER,
@@ -501,15 +509,21 @@
   /** Resolved Candli game ids for competency dashboard (trunk: map or embed scan). */
   const candliGames = ref([])
   const dashboardUrl = ref(null)
-  const assignedDashboardUsers = computed(() =>
-    assignedStudentsForAssignment(store, current.value),
-  )
   const searchQuery = ref('')
   const selectedItems = ref([])
   const showDetailsModal = ref(false)
   const showSubmissionsView = ref(false)
   const openDashboardSession = ref(null)
   const resultsDashboardType = ref('live-monitoring')
+  const assignedDashboardUsers = computed(() =>
+    assignedStudentsForAssignment(store, current.value),
+  )
+  const resultsDashboardUrl = computed(() =>
+    resultsDashboardUrlForType(resultsDashboardType.value, dashboardUrl.value),
+  )
+  const resultsDashboardMode = computed(() =>
+    isLiveDashboardMode(resultsDashboardType.value) ? 'live' : undefined,
+  )
   const {
     successDialog,
     success: showSuccessDialog,

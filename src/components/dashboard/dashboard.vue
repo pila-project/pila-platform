@@ -25,7 +25,8 @@
           v-for="id in props.users"
           :key="`student-${id}`"
           :assignment="assignment"
-          :sequenceId="content"
+          :sequenceId="sequenceGroups[0]?.sequenceId"
+          :sequenceGroups="sequenceGroups"
           :sequenceItems="sequenceItems"
           :user="id"
         />
@@ -38,10 +39,7 @@
   import { ref } from 'vue'
   import StudentResultsRow from './student-results-row.vue'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
-  import {
-    primaryAssignmentContentId,
-    loadDashboardSequenceItems,
-  } from '@/utils/dashboard-sequence-items.js'
+  import { loadAssignmentDashboardSequenceItems } from '@/utils/dashboard-sequence-items.js'
 
   const props = defineProps({
     users: Array,
@@ -49,8 +47,9 @@
   })
 
   const assignmentState = await Agent.state(props.assignment)
-  const content = primaryAssignmentContentId(assignmentState)
-  const sequenceItems = ref(await loadDashboardSequenceItems(content))
+  const loaded = await loadAssignmentDashboardSequenceItems(assignmentState)
+  const sequenceItems = ref(loaded.items)
+  const sequenceGroups = loaded.groups
 </script>
 
 <style>

@@ -506,10 +506,8 @@
   const assignmentContainsGenAI = ref(false)
   /** Betty iframe or Datawise / reference.dashboard — App-specific card (UIUX-231). */
   const assignmentContainsAppDashboard = ref(false)
-  // Live is exclusive of app-specific for Betty-only / Datawise-only. Mixed unions: UIUX-237.
-  const assignmentContainsLiveDashboard = computed(() =>
-    hasLiveMonitoringCard({ isApp: assignmentContainsAppDashboard.value }),
-  )
+  /** Live except Datawise-only. Mixed Datawise+other and Betty-only can be true with app (UIUX-237). */
+  const assignmentContainsLiveDashboard = ref(false)
   const hasAnyDashboardCard = computed(() =>
     assignmentContainsAppDashboard.value
     || assignmentContainsLiveDashboard.value
@@ -928,11 +926,12 @@
       assignmentDueDateRaw.value = assignState.dueDate
     }
 
-    // Dashboard cards: shared classifier (Betty + Datawise = app; Candli/GenAI unchanged).
+    // Dashboard cards: app = Betty or Datawise (231); live = not Datawise-only (237).
     const flags = await assessAssignmentDashboards(props.assignmentId)
     assignmentContainsCandli.value = flags.isCandli
     assignmentContainsGenAI.value = flags.isGenAI
     assignmentContainsAppDashboard.value = flags.isApp
+    assignmentContainsLiveDashboard.value = hasLiveMonitoringCard(flags)
 
     if (contentId.value) {
       try {

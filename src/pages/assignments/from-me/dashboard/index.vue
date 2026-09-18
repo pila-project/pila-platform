@@ -1,26 +1,26 @@
 <template>
   <div class="dashboard-wrapper">
     <vueEmbedComponent
-      v-if="customDashboardUrl"
+      v-if="!liveMode && customDashboardUrl"
       :id="customDashboardUrl"
       :namespace="props.assignment"
       :environmentProxy="proxyEnvironmentCall"
     />
     <UrlDashboard
-      v-else-if="props.url"
+      v-else-if="!liveMode && props.url"
       :url="props.url"
       :users="users"
       :assignment="props.assignment"
       :module="content"
     />
     <RCTDashboard
-      v-else-if="rctAssignment"
+      v-else-if="!liveMode && rctAssignment"
       :users="users"
       :assignment="props.assignment"
       :module="content"
     />
     <BettyDashboard
-      v-else-if="bettyModuleId"
+      v-else-if="!liveMode && bettyModuleId"
       :users="users"
       :assignment="props.assignment"
       :module="bettyModuleId"
@@ -44,64 +44,70 @@
   import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import {
+    isLiveDashboardMode,
     resolveBettyDashboard,
     usersForDashboardEmbed,
   } from '@/utils/assignment-dashboards.js'
 
-  const props = defineProps({ assignment: String, url: String, users: Array })
+  const props = defineProps({ assignment: String, url: String, users: Array, mode: String })
 
   const store = useStore()
   const users = computed(() =>
     usersForDashboardEmbed(props.users, store, props.assignment),
   )
+  const liveMode = isLiveDashboardMode(props.mode)
 
   const assignmentState = await Agent.state(props.assignment)
   const content = primaryAssignmentContentId(assignmentState)
   let contentState = null
-  if (content) {
-    try {
-      contentState = await Agent.state(content)
-    } catch {
-      contentState = null
-    }
-  }
   const customDashboardUrl = ref(null)
+  let bettyModuleId = null
+  let rctAssignment = false
 
-  const isRCTAssignment = async () => {
-    if (!content) return false
-    try {
-      const { domain } = await Agent.metadata(content)
-      return domain === 'rct-problem-creator.pilaproject.org'
-    } catch {
-      return false
+  if (!liveMode) {
+    if (content) {
+      try {
+        contentState = await Agent.state(content)
+      } catch {
+        contentState = null
+      }
     }
-  }
 
-  const betty = await resolveBettyDashboard({
-    contentId: content,
-    contentState,
-    sequenceItemIds: normalizeSequenceItems(contentState?.items),
-  })
-  const bettyModuleId = betty.bettyModuleId
-
-  const rctAssignment = await isRCTAssignment()
-
-  const candliDashboardContent = [
-    // '881f5110-a910-11f0-92ae-3f96e8a36c18'
-    'e6b4b836-c4b9-46b7-b4bd-6da86d4d6b21',
-    '2711888d-177e-4284-aa35-304275a487c5',
-    'bb1e41e0-082b-4488-b03e-1a3829094bce'
-  ]
-
-  if (candliDashboardContent.includes(content)) {
-    const dashboardConfigId = Agent.uuid()
-    const dashboardConfig = await Agent.state(dashboardConfigId)
-    dashboardConfig.placeholder = {
-      states: Object.fromEntries(users.value.map(id => [id, 'placeholder']))
+    const isRCTAssignment = async () => {
+      if (!content) return false
+      try {
+        const { domain } = await Agent.metadata(content)
+        return domain === 'rct-problem-creator.pilaproject.org'
+      } catch {
+        return false
+      }
     }
-    console.log('dashboard cofing!', dashboardConfig)
-    await Agent.response()
-    customDashboardUrl.value = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${dashboardConfigId}`
+
+    const betty = await resolveBettyDashboard({
+      contentId: content,
+      contentState,
+      sequenceItemIds: normalizeSequenceItems(contentState?.items),
+    })
+    bettyModuleId = betty.bettyModuleId
+    rctAssignment = await isRCTAssignment()
+
+    const candliDashboardContent = [
+      // '881f5110-a910-11f0-92ae-3f96e8a36c18'
+      'e6b4b836-c4b9-46b7-b4bd-6da86d4d6b21',
+      '2711888d-177e-4284-aa35-304275a487c5',
+      'bb1e41e0-082b-4488-b03e-1a3829094bce'
+    ]
+
+    if (candliDashboardContent.includes(content)) {
+      const dashboardConfigId = Agent.uuid()
+      const dashboardConfig = await Agent.state(dashboardConfigId)
+      dashboardConfig.placeholder = {
+        states: Object.fromEntries(users.value.map(id => [id, 'placeholder']))
+      }
+      console.log('dashboard cofing!', dashboardConfig)
+      await Agent.response()
+      customDashboardUrl.value = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${dashboardConfigId}`
+    }
   }
 
   async function proxyEnvironmentCall(user) {

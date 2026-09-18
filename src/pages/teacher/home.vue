@@ -234,7 +234,13 @@
       <template #body>
         <div class="assign-dashboard-fill">
           <suspense>
-            <Dashboard :assignment="current" :url="dashboardUrl" :users="assignedDashboardUsers" />
+            <Dashboard
+              :key="`${current}-${resultsDashboardType}`"
+              :assignment="current"
+              :url="resultsDashboardUrl"
+              :mode="resultsDashboardMode"
+              :users="assignedDashboardUsers"
+            />
           </suspense>
         </div>
       </template>
@@ -329,7 +335,9 @@ import { isValidSequenceAgentState } from '@/utils/sequence-items.js'
 import {
   assessAssignmentDashboards,
   assignedStudentsForAssignment,
+  isLiveDashboardMode,
   resultsDashboardTitleSlug,
+  resultsDashboardUrlForType,
 } from '@/utils/assignment-dashboards.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
 import { formatDateForDisplay } from '@/utils/iso-date.js'
@@ -378,6 +386,12 @@ const assignmentContainsGenAI = ref(null)
 const current = ref(null)
 const assignedDashboardUsers = computed(() =>
   assignedStudentsForAssignment(store, current.value),
+)
+const resultsDashboardUrl = computed(() =>
+  resultsDashboardUrlForType(resultsDashboardType.value, dashboardUrl.value),
+)
+const resultsDashboardMode = computed(() =>
+  isLiveDashboardMode(resultsDashboardType.value) ? 'live' : undefined,
 )
 const wasCreating = ref(true)
 const assignmentData = reactive({})

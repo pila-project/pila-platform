@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed, reactive } from 'vue'
   import ItemInfo from './item-info.vue'
   import StudentSummary from './student-summary.vue'
   import DecryptedName from '@/components/common/decrypted-name.vue'
@@ -44,54 +44,85 @@
     user: String,
     sequenceItems: Array,
     assignment: String,
-    sequenceId: String
+    sequenceId: String,
+    sequenceGroups: Array,
   })
 
   const userIsActive = ref(null)
+  const performanceBySeq = reactive({})
 
-  const performance = ref(null)
+  const groups = (
+    Array.isArray(props.sequenceGroups) && props.sequenceGroups.length
+      ? props.sequenceGroups
+      : (props.sequenceId
+        ? [{ sequenceId: props.sequenceId, itemIds: props.sequenceItems || [] }]
+        : [])
+  )
+  const uniqueSeqIds = [...new Set(groups.map(g => g.sequenceId).filter(Boolean))]
 
   const startCountdown = () => setTimeout(() => userIsActive.value = false, 3000)
   let countdown = startCountdown()
 
   const { auth } = await Agent.environment()
 
-  let initialLoad = true
-  await new Promise(r => {
-    Agent
-      .watch(
-        `${props.assignment}/sequence-${props.sequenceId}`,
+  if (uniqueSeqIds.length) {
+    await Promise.all(uniqueSeqIds.map(seqId => new Promise(r => {
+      let initialLoad = true
+      const resolveInitial = () => {
+        if (!initialLoad) return
+        initialLoad = false
+        r()
+      }
+      Agent.watch(
+        `${props.assignment}/sequence-${seqId}`,
         ({ state }) => {
-          performance.value = state
+          performanceBySeq[seqId] = state
           clearTimeout(countdown)
           countdown = startCountdown()
           if (initialLoad) {
-            r()
-            initialLoad = false
+            resolveInitial()
           } else {
             userIsActive.value = true
           }
         },
         props.user === auth.user ? undefined : props.user
       )
+      // Mixed assignments may include a content id with no sequence performance.
+      setTimeout(resolveInitial, 3000)
+    })))
+  }
+
+  const performance = computed(() => {
+    let totalTime = 0
+    let activeItemIndex = null
+    for (const group of groups) {
+      const state = performanceBySeq[group.sequenceId]
+      if (!state) continue
+      totalTime += Number(state.totalTime) || 0
+      if (state.activeItemIndex != null && state.activeItemIndex !== '') {
+        const localId = group.itemIds?.[state.activeItemIndex]
+        const unionIndex = (props.sequenceItems || []).indexOf(localId)
+        if (unionIndex !== -1) activeItemIndex = unionIndex
+      }
+    }
+    return { totalTime, activeItemIndex }
   })
 
-// gross. build only for "active items" [ { time, correct}, ... ]
+  // Look up itemInfo by item id + that content's local index, not unioned column index.
   const activeItemInfoArray = computed(() => {
-    const userItemInfo = performance?.value?.itemInfo
-    if (userItemInfo) {
-      return props.sequenceItems.map((_,i) => userItemInfo[key(i)])
-    } else {
-      return props.sequenceItems.map(() => ({ correct: null, time: 0 }))
-    }
+    return (props.sequenceItems || []).map((itemId) => {
+      for (const group of groups) {
+        const localIndex = group.itemIds?.indexOf(itemId)
+        if (localIndex == null || localIndex === -1) continue
+        const info = performanceBySeq[group.sequenceId]?.itemInfo?.[`${localIndex}/${itemId}`]
+        if (info) return info
+      }
+      return { correct: null, time: 0 }
+    })
   })
 
   const numItems = computed(() => activeItemInfoArray.value.length)
   const numCorrect = computed(() => activeItemInfoArray.value.filter(obj => obj?.correct).length)
-
-  function key(i) {
-    return `${i}/${props.sequenceItems[i]}`
-  }
 </script>
 
 <style scoped>
