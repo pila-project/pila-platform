@@ -11,6 +11,12 @@ const CONTENT_CACHE_TTL = 60 * 60 * 1000 // 1 hour
 const nameCache = new Map()
 /** Lang keys that resolved only to English/canonical fallback (do not re-hit network). */
 const unresolvedLangKeys = new Set()
+/**
+ * Tag lang keys that resolved only to canonical fallback.
+ * Parallel to unresolvedLangKeys — must not share that set (invalidateNames
+ * clears content keys on language switch; tags are prefetched instead).
+ */
+const unresolvedTagLangKeys = new Set()
 const metadataCache = new Map()
 const tagCache = new Map()
 const imageCache = new Map()
@@ -322,14 +328,34 @@ export function setCachedTagName(id, name, lang) {
   bumpTagNameCacheVersion()
 }
 
+/**
+ * Exact translations (and English) are stored under id:lang permanently.
+ * Non-English canonical fallbacks are NOT stored under id:lang (RR-23) —
+ * they seed en/bare only and are remembered in unresolvedTagLangKeys.
+ */
 function cacheResolvedTagName(id, name, lang, { canonical = false } = {}) {
   if (!id || !name) return name
-  tagNameCache.set(tagNameCacheKey(id, lang), name)
-  // Bare id is English/canonical only — never store a translated string there.
-  if (canonical || isEnglishLang(lang)) {
-    tagNameCache.set(id, name)
+  const key = tagNameCacheKey(id, lang)
+  if (!canonical || isEnglishLang(lang)) {
+    unresolvedTagLangKeys.delete(key)
+    tagNameCache.set(key, name)
+    if (isEnglishLang(lang)) tagNameCache.set(id, name)
+    bumpTagNameCacheVersion()
+  } else {
+    // Do not poison id:lang with English — mark unresolved and seed en/bare.
+    unresolvedTagLangKeys.add(key)
+    const enKey = tagNameCacheKey(id, 'en')
+    let seeded = false
+    if (!tagNameCache.has(enKey)) {
+      tagNameCache.set(enKey, name)
+      seeded = true
+    }
+    if (!tagNameCache.has(id)) {
+      tagNameCache.set(id, name)
+      seeded = true
+    }
+    if (seeded) bumpTagNameCacheVersion()
   }
-  bumpTagNameCacheVersion()
   return name
 }
 
@@ -371,12 +397,27 @@ async function resolveTagDisplayName(tagId, lang) {
   return { name: fallback, canonical: true }
 }
 
+/**
+ * Resolve + cache tag display name for lang.
+ * Exact translations (and English) are stored under id:lang permanently.
+ * Non-English canonical fallbacks are NOT stored under id:lang (RR-23) —
+ * they seed en/bare only and are remembered in unresolvedTagLangKeys so we
+ * do not refetch-loop. Unresolved is not cleared by invalidateNames.
+ */
 export function getTagName(tagId, lang) {
   if (!tagId) return Promise.resolve('')
   const key = tagNameCacheKey(tagId, lang)
   if (tagNameCache.has(key)) return Promise.resolve(tagNameCache.get(key))
+  if (unresolvedTagLangKeys.has(key)) {
+    return Promise.resolve(
+      tagNameCache.get(tagNameCacheKey(tagId, 'en')) ?? tagNameCache.get(tagId) ?? ''
+    )
+  }
   return dedupedFetch(`tagname:${key}`, async () => {
     if (tagNameCache.has(key)) return tagNameCache.get(key)
+    if (unresolvedTagLangKeys.has(key)) {
+      return tagNameCache.get(tagNameCacheKey(tagId, 'en')) ?? tagNameCache.get(tagId) ?? ''
+    }
     const { name, canonical } = await resolveTagDisplayName(tagId, lang || 'en')
     const resolved = name || tagId.slice(0, 8)
     return cacheResolvedTagName(tagId, resolved, lang, { canonical })
@@ -468,28 +509,27 @@ export { nameCache, metadataCache, tagCache, imageCache, tagNameCache }
 // ── Disk persistence (IndexedDB) ──
 
 /**
- * Restore explore name map from IndexedDB.
+ * Restore a lang-keyed name map from IndexedDB.
  * Bare + English keys always seed. Non-English id:lang seeds only when the
  * value differs from that id's English/canonical string — so exact Thai (etc.)
- * first-paints like tag names, while English-under-th poison from older builds
- * is still skipped (UIUX-212).
+ * first-paints, while English-under-th poison from older builds is skipped
+ * (UIUX-212 / RR-23).
  */
-export function seedNameCacheFromDisk(entries) {
-  if (!entries) return
+function seedLangKeyedEntriesFromDisk(entries, targetMap) {
   const englishById = new Map()
   const pendingNonEn = []
   for (const [k, v] of entries) {
     const key = String(k)
     const idx = key.lastIndexOf(':')
     if (idx <= 0) {
-      nameCache.set(key, v)
+      targetMap.set(key, v)
       if (v) englishById.set(key, v)
       continue
     }
     const lang = key.slice(idx + 1)
     const id = key.slice(0, idx)
     if (isEnglishLang(lang)) {
-      nameCache.set(key, v)
+      targetMap.set(key, v)
       if (v && !englishById.has(id)) englishById.set(id, v)
     } else {
       pendingNonEn.push([id, key, v])
@@ -498,9 +538,20 @@ export function seedNameCacheFromDisk(entries) {
   for (const [id, key, v] of pendingNonEn) {
     const english = englishById.get(id)
     if (english && v === english) continue
-    if (typeof v === 'string' && v.trim()) nameCache.set(key, v)
+    if (typeof v === 'string' && v.trim()) targetMap.set(key, v)
   }
+}
+
+export function seedNameCacheFromDisk(entries) {
+  if (!entries) return
+  seedLangKeyedEntriesFromDisk(entries, nameCache)
   bumpNameCacheVersion()
+}
+
+export function seedTagNameCacheFromDisk(entries) {
+  if (!entries) return
+  seedLangKeyedEntriesFromDisk(entries, tagNameCache)
+  bumpTagNameCacheVersion()
 }
 
 function applyMapsToMemory(maps) {
@@ -515,8 +566,7 @@ function applyMapsToMemory(maps) {
   if (maps.tags) for (const [k, v] of maps.tags) tagCache.set(k, v)
   if (maps.images) for (const [k, v] of maps.images) imageCache.set(k, v)
   if (maps.tagNames) {
-    for (const [k, v] of maps.tagNames) tagNameCache.set(k, v)
-    bumpTagNameCacheVersion()
+    seedTagNameCacheFromDisk(maps.tagNames)
   }
 }
 
@@ -630,6 +680,7 @@ export function invalidateNames() {
 export function invalidateAll() {
   nameCache.clear()
   unresolvedLangKeys.clear()
+  unresolvedTagLangKeys.clear()
   metadataCache.clear()
   bumpMetadataCacheVersion()
   tagCache.clear()

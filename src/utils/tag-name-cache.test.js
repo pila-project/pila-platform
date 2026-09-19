@@ -10,6 +10,8 @@ import {
   setCachedTagName,
   getTagName,
   tagNameCache,
+  seedTagNameCacheFromDisk,
+  invalidateAll,
 } from './content-cache.js'
 
 function clearTagKeys(id) {
@@ -85,9 +87,7 @@ describe('getTagName resolution', () => {
   const mappedId = '33333333-3333-3333-3333-333333333333'
 
   beforeEach(() => {
-    clearTagKeys(writingId)
-    clearTagKeys(mappedId)
-    clearTagKeys(MINIMUM_GRADE_TAG_ID)
+    invalidateAll()
     globalThis.Agent = {
       state: async () => ({ name: 'Writing' }),
       query: async () => [],
@@ -141,5 +141,130 @@ describe('getTagName resolution', () => {
     assert.equal(name, 'เกรด')
     assert.equal(queried, false)
     assert.equal(tagNameCache.has(mappedId), false)
+  })
+
+  it('does not poison id:th with English canonical fallback', async () => {
+    let queries = 0
+    let states = 0
+    globalThis.Agent.state = async () => {
+      states++
+      return { name: 'Writing' }
+    }
+    globalThis.Agent.query = async () => {
+      queries++
+      return []
+    }
+    const name = await getTagName(writingId, 'th')
+    assert.equal(name, 'Writing')
+    assert.equal(tagNameCache.has(`${writingId}:th`), false)
+    assert.equal(tagNameCache.get(`${writingId}:en`), 'Writing')
+    assert.equal(tagNameCache.get(writingId), 'Writing')
+    assert.equal(queries, 1)
+    assert.equal(states, 1)
+
+    const again = await getTagName(writingId, 'th')
+    assert.equal(again, 'Writing')
+    assert.equal(queries, 1)
+    assert.equal(states, 1)
+    assert.equal(tagNameCache.has(`${writingId}:th`), false)
+  })
+})
+
+describe('seedTagNameCacheFromDisk (RR-23)', () => {
+  const exactId = '44444444-4444-4444-4444-444444444444'
+  const poisonId = '55555555-5555-5555-5555-555555555555'
+  const thaiOnlyId = '66666666-6666-6666-6666-666666666666'
+  const mixedId = '77777777-7777-7777-7777-777777777777'
+  const retryId = '88888888-8888-8888-8888-888888888888'
+  const TH_WRITING = 'การเขียน'
+
+  beforeEach(() => {
+    invalidateAll()
+    globalThis.Agent = {
+      state: async () => ({ name: 'Writing' }),
+      query: async () => [],
+    }
+  })
+
+  it('rehydrates exact Thai that differs from English so filters first-paint in th', () => {
+    seedTagNameCacheFromDisk([
+      [exactId, 'Writing'],
+      [`${exactId}:en`, 'Writing'],
+      [`${exactId}:th`, TH_WRITING],
+    ])
+    assert.equal(tagNameCache.get(`${exactId}:th`), TH_WRITING)
+    assert.equal(getCachedTagName(exactId, 'th'), TH_WRITING)
+  })
+
+  it('skips English-under-th poison so getTagName still fetches', async () => {
+    seedTagNameCacheFromDisk([
+      [poisonId, 'Writing'],
+      [`${poisonId}:en`, 'Writing'],
+      [`${poisonId}:th`, 'Writing'],
+    ])
+    assert.equal(tagNameCache.has(`${poisonId}:th`), false)
+    assert.equal(getCachedTagName(poisonId, 'th'), 'Writing')
+
+    let queried = false
+    globalThis.Agent.query = async () => {
+      queried = true
+      return []
+    }
+    const name = await getTagName(poisonId, 'th')
+    assert.equal(name, 'Writing')
+    assert.equal(queried, true)
+    assert.equal(tagNameCache.has(`${poisonId}:th`), false)
+  })
+
+  it('restores Thai-only persist with no en/bare sibling', () => {
+    seedTagNameCacheFromDisk([
+      [`${thaiOnlyId}:th`, TH_WRITING],
+    ])
+    assert.equal(tagNameCache.get(`${thaiOnlyId}:th`), TH_WRITING)
+    assert.equal(getCachedTagName(thaiOnlyId, 'th'), TH_WRITING)
+  })
+
+  it('skips empty/whitespace id:th', () => {
+    seedTagNameCacheFromDisk([
+      [exactId, 'Writing'],
+      [`${exactId}:th`, '   '],
+    ])
+    assert.equal(tagNameCache.has(`${exactId}:th`), false)
+  })
+
+  it('restores th and fr in one seed when both differ from English', () => {
+    seedTagNameCacheFromDisk([
+      [mixedId, 'Writing'],
+      [`${mixedId}:en`, 'Writing'],
+      [`${mixedId}:th`, TH_WRITING],
+      [`${mixedId}:fr`, 'Écriture'],
+    ])
+    assert.equal(tagNameCache.get(`${mixedId}:th`), TH_WRITING)
+    assert.equal(tagNameCache.get(`${mixedId}:fr`), 'Écriture')
+  })
+
+  it('invalidateAll clears unresolved so a later getTagName can retry', async () => {
+    let queries = 0
+    globalThis.Agent.query = async () => {
+      queries++
+      return []
+    }
+    await getTagName(retryId, 'th')
+    assert.equal(tagNameCache.has(`${retryId}:th`), false)
+    assert.equal(queries, 1)
+
+    await getTagName(retryId, 'th')
+    assert.equal(queries, 1)
+
+    invalidateAll()
+    globalThis.Agent = {
+      state: async () => ({ name: 'Writing' }),
+      query: async () => {
+        queries++
+        return []
+      },
+    }
+    await getTagName(retryId, 'th')
+    assert.equal(queries, 2)
   })
 })
