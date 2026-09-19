@@ -12,6 +12,7 @@ export function randomUserSecret(length = 8) {
 }
 
 export async function saveProviderSecret(user, providerSecret) {
+  if (typeof providerSecret !== 'string' || !providerSecret.trim()) return
   localStorage.setItem(`zkek-${user}`, providerSecret)
   const publicKeys = await Agent.state('user-info-public-keys')
   const { publicKey } = await generateKeyPair(providerSecret)

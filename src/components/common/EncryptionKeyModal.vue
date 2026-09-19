@@ -29,7 +29,7 @@
         variant="primary"
         :text="isSaving ? t('applying-key') : t('done')"
         :loading="isSaving"
-        :disabled="isSaving"
+        :disabled="isSaving || !canCommitKey"
         @click="handleDone"
       />
     </template>
@@ -57,6 +57,7 @@ const {
 const localKey = ref(namePassword.value)
 const isSaving = ref(false)
 const keyWasUpdated = ref(false)
+const canCommitKey = computed(() => typeof localKey.value === 'string' && !!localKey.value.trim())
 
 // Soft cues: missing key, or stored key failed to decrypt (not while typing a new attempt)
 const modalHintText = computed(() => {
@@ -77,6 +78,8 @@ watch(localKey, (val) => {
 })
 
 async function handleDone() {
+  if (!canCommitKey.value) return
+
   const previousKey = namePassword.value
 
   if (localKey.value !== previousKey) {

@@ -10,6 +10,7 @@ import assignmentGroupVisibilityTests from './assignment-group-visibility.js'
 import adminTeacherGrantTests from './admin-teacher-grants.js'
 import assignmentXapiTests from './assignment-xapi.js'
 import teacherLoginCredentialTests from './teacher-login-credentials.js'
+import encryptionKeyPublishTests from './encryption-key-publish.js'
 import candliGamesTests from './candli-games.js'
 import teacherHomeTests from './teacher-home.js'
 import assignmentTypeTests from './assignment-type.js'
@@ -64,6 +65,7 @@ function waitForStoreLoadThenRunTests (store) {
           assignmentGroupVisibilityTests()
           adminTeacherGrantTests(store)
           teacherLoginCredentialTests()
+          encryptionKeyPublishTests()
           assignmentXapiTests()
           candliGamesTests()
           teacherHomeTests()

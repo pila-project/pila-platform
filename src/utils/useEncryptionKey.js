@@ -1,6 +1,5 @@
 import { ref, computed, watch } from 'vue'
-import * as encryption from '@/utils/encryption.js'
-import naclUtil from 'tweetnacl-util'
+import { isEmptyEncryptionSecret, publishDerivedPublicKey } from './publish-derived-public-key.js'
 
 let sharedNamePassword = null
 let sharedUserId = null
@@ -20,20 +19,18 @@ export function useEncryptionKey(store) {
     lastProbeUserIds = []
 
     watch(sharedNamePassword, async (val) => {
-      localStorage.setItem(`zkek-${userId}`, val)
-      if (!val) {
+      if (isEmptyEncryptionSecret(val)) {
         sharedKeyStatus.value = 'missing'
-      } else {
-        // Until re-probed, don't assume valid
-        sharedKeyStatus.value = 'unknown'
-        if (lastProbeUserIds.length) {
-          await revalidateEncryptionKey(lastProbeUserIds)
-        }
+        return
+      }
+      localStorage.setItem(`zkek-${userId}`, val)
+      // Until re-probed, don't assume valid
+      sharedKeyStatus.value = 'unknown'
+      if (lastProbeUserIds.length) {
+        await revalidateEncryptionKey(lastProbeUserIds)
       }
       try {
-        const publicKeys = await Agent.state('user-info-public-keys')
-        const { publicKey: publicKeyBuffer } = await encryption.generateKeyPair(val)
-        publicKeys.public = naclUtil.encodeBase64(publicKeyBuffer)
+        await publishDerivedPublicKey(val)
       } catch (e) {
         console.warn('[useEncryptionKey] public key update failed', e)
       }

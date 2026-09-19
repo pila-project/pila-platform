@@ -216,7 +216,6 @@
 </template>
 
 <script>
-  import naclUtil from 'tweetnacl-util'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import { PButton } from '@/components/ui/index.js'
   import { PModal } from '@/components/ui/index.js'
@@ -225,7 +224,7 @@
   import LinkStudentModal from './link-student-modal.vue'
   import CreateEditGroupModal from './create-edit-group-modal.vue'
   import DecryptedName from '@/components/common/decrypted-name.vue'
-  import * as encryption from '@/utils/encryption.js'
+  import { isEmptyEncryptionSecret, publishDerivedPublicKey } from '@/utils/publish-derived-public-key.js'
 
   export default {
     components: {
@@ -257,11 +256,9 @@
     },
     watch: {
       async namePassword(val) {
+        if (isEmptyEncryptionSecret(val)) return
         localStorage.setItem(`zkek-${this.$store.state.user}`, val)
-        const publicKeys = await Agent.state('user-info-public-keys')
-        const { publicKey: publicKeyBuffer } = await encryption.generateKeyPair(val)
-        publicKeys.public = naclUtil.encodeBase64(publicKeyBuffer)
-        console.log('stringified length', publicKeys.public.length)
+        await publishDerivedPublicKey(val)
       }
     },
     computed: {
