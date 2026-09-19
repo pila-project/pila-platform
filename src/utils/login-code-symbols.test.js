@@ -141,6 +141,12 @@ describe('student code login wiring', () => {
     assert.equal(manage.includes('pilaSecretLoginUrl'), true)
   })
 
+  it('teacher HTML Save/Print QR uses /login/pila#secret, not the raw secret', () => {
+    const document = readFileSync(join(srcDir, 'login-code-document.js'), 'utf8')
+    assert.equal(document.includes('pilaSecretLoginUrl'), true)
+    assert.equal(document.includes('QRCode.toString(loginCode'), false)
+  })
+
   it('recovers QR/glyphs via providerEncryptedKey when users[id].secret is missing', () => {
     const codesView = readFileSync(join(srcDir, 'components/teacher/LoginCodesView.vue'), 'utf8')
     const manage = readFileSync(join(srcDir, 'pages/teacher/manage-classes.vue'), 'utf8')

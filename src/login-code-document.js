@@ -1,4 +1,5 @@
 import QRCode from 'qrcode'
+import { pilaSecretLoginUrl } from '@/utils/login-code-symbols.js'
 
 const CODE_CHARACTER_SYMBOLS = {
   a: '0', b: '1', c: '2', d: '3', e: '4',
@@ -9,7 +10,7 @@ const CODE_CHARACTER_SYMBOLS = {
 }
 
 export async function loginCodeDocument({ name, loginCode }) {
-  const qrCode = await QRCode.toString(loginCode, { type: 'svg', margin: 1 })
+  const qrCode = await QRCode.toString(pilaSecretLoginUrl(loginCode), { type: 'svg', margin: 1 })
   const symbols = [...loginCode]
     .map(character => `<span>${escapeHtml(CODE_CHARACTER_SYMBOLS[character] || character)}</span>`)
     .join('')
