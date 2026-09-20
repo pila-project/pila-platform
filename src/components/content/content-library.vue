@@ -1847,7 +1847,12 @@
   gap: 8px;
 }
 
-/* Responsive: keep pane scroll on tablet when stacked */
+/*
+ * UIUX-247: stacked Explore (≤1023px) must shrink My Sequences so the list
+ * can scroll. Base `.sequences-panel { flex: 0 0 auto }` in a column means
+ * "do not shrink"; `min-height: 180px` was smaller than the header and
+ * clipped the list to one title row with no inner scrollbar.
+ */
 @media (max-width: 1023px) {
   .explore-page {
     height: 100%;
@@ -1858,22 +1863,22 @@
     flex-direction: column;
   }
 
-  .sequences-panel,
-  .explore-columns--sequences-expanded .sequences-panel {
+  .sequences-panel {
     width: 100%;
-    height: 42%;
-    min-height: 180px;
-    transition: height 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    flex: 0 1 42%;
+    min-height: 0;
+    overflow: hidden;
+    transition: flex-basis 420ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .explore-columns--sequences-expanded .sequences-panel {
-    height: 62%;
+    flex: 0 1 62%;
   }
 
   .content-library-card,
   .explore-columns--sequences-expanded .content-library-card {
     width: 100%;
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-height: 0;
   }
 
@@ -1887,6 +1892,18 @@
     flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;
+  }
+
+  .sequences-toolbar {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .sequences-sort {
+    flex: 0 1 160px;
+    width: 160px;
+    max-width: 160px;
+    min-width: 0;
   }
 }
 
@@ -1905,6 +1922,7 @@
     width: 100%;
     min-height: 0;
     max-height: none;
+    flex: 1 1 auto;
     animation: sequences-expand-in 280ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .explore-columns--sequences-expanded .content-library-card {
