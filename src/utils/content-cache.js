@@ -210,6 +210,7 @@ export function getContentMetadata(id) {
         owner: meta.owner,
         created: meta.created,
         updated: meta.updated,
+        domain: meta.domain,
       }
       metadataCache.set(id, entry)
       bumpMetadataCacheVersion()
@@ -275,7 +276,11 @@ export function getContentPreviewMeta(id) {
 }
 
 export function getContentImage(id) {
-  if (imageCache.has(id)) return Promise.resolve(imageCache.get(id))
+  if (imageCache.has(id)) {
+    const cached = imageCache.get(id)
+    if (cached) return Promise.resolve(cached)
+    imageCache.delete(id)
+  }
   return dedupedFetch(`img:${id}`, async () => {
     const userId = await getUserId()
     if (userId) {
@@ -554,6 +559,11 @@ export function seedTagNameCacheFromDisk(entries) {
   bumpTagNameCacheVersion()
 }
 
+/** Session-live blob: object URLs must not be written to or restored from Explore maps. */
+function isPersistableImageUrl(url) {
+  return typeof url === 'string' && url.length > 0 && !url.startsWith('blob:')
+}
+
 function applyMapsToMemory(maps) {
   if (!maps) return
   if (maps.names) {
@@ -564,7 +574,11 @@ function applyMapsToMemory(maps) {
     bumpMetadataCacheVersion()
   }
   if (maps.tags) for (const [k, v] of maps.tags) tagCache.set(k, v)
-  if (maps.images) for (const [k, v] of maps.images) imageCache.set(k, v)
+  if (maps.images) {
+    for (const [k, v] of maps.images) {
+      if (isPersistableImageUrl(v)) imageCache.set(k, v)
+    }
+  }
   if (maps.tagNames) {
     seedTagNameCacheFromDisk(maps.tagNames)
   }
@@ -614,7 +628,7 @@ export function persistExploreCache(userId, {
         names: [...nameCache],
         metadata: [...metadataCache],
         tags: [...tagCache],
-        images: [...imageCache],
+        images: [...imageCache].filter(([, v]) => isPersistableImageUrl(v)),
         tagNames: [...tagNameCache],
       },
     })

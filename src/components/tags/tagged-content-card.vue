@@ -64,7 +64,7 @@
       </div>
       <!-- Image -->
       <div class="pcard-image">
-        <img v-if="image" :src="image" loading="lazy" decoding="async" style="pointer-events: none;" />
+        <img v-if="image" :src="image" loading="lazy" decoding="async" style="pointer-events: none;" @error="onImageError" />
         <div v-else class="pcard-image-placeholder">
           <LucideIcon name="image" :size="24" class="text-slate-300" />
         </div>
@@ -652,6 +652,32 @@
 
   const image = ref(null)
 
+  async function loadCardImage() {
+    if (!props.id) {
+      image.value = null
+      return
+    }
+    try {
+      if (imageCache.has(props.id)) {
+        const cached = imageCache.get(props.id)
+        if (cached) {
+          image.value = cached
+          return
+        }
+      }
+      image.value = await getContentImage(props.id)
+    } catch (error) {
+      console.warn(`Unable to load content image for ${props.id}.`, error)
+    }
+  }
+
+  function onImageError() {
+    if (props.id && imageCache.get(props.id) === image.value) {
+      imageCache.delete(props.id)
+    }
+    image.value = null
+  }
+
   onMounted(async () => {
     setupTagResizeObserver()
     recalculateVisibleTags()
@@ -662,16 +688,16 @@
       void getContentPreviewMeta(props.id)
     }
 
-    try {
-      if (imageCache.has(props.id)) {
-        image.value = imageCache.get(props.id)
-        return
-      }
-      image.value = await getContentImage(props.id)
-    } catch {
-      // silently fail — card renders without image
-    }
+    await loadCardImage()
   })
+
+  watch(
+    () => props.id,
+    () => {
+      image.value = null
+      void loadCardImage()
+    },
+  )
 
   watch(
     () => [props.id, props.showCopyModify, previewMetaVersion.value],

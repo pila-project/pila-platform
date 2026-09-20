@@ -13,7 +13,7 @@
 
     <!-- Thumbnail -->
     <div class="list-thumb">
-      <img v-if="image" :src="image" />
+      <img v-if="image" :src="image" @error="onImageError" />
       <LucideIcon v-else name="file-text" :size="16" class="text-slate-300" />
     </div>
 
@@ -55,10 +55,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
-import { getContentImage, getContentMetadata } from '@/utils/content-cache.js'
+import { getContentImage, getContentMetadata, imageCache } from '@/utils/content-cache.js'
 import { PButton, PBadge, PCheckbox } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 
@@ -77,12 +77,33 @@ defineEmits(['click', 'toggle-select', 'preview', 'add'])
 const image = ref(null)
 const isSequence = ref(false)
 
-onMounted(async () => {
+async function loadRow() {
+  if (!props.id) {
+    image.value = null
+    isSequence.value = false
+    return
+  }
   try {
     image.value = await getContentImage(props.id)
     const meta = await getContentMetadata(props.id)
     isSequence.value = meta.active_type === 'application/json;type=sequence'
-  } catch {}
+  } catch (error) {
+    console.warn(`Unable to load content image for ${props.id}.`, error)
+  }
+}
+
+function onImageError() {
+  if (props.id && imageCache.get(props.id) === image.value) {
+    imageCache.delete(props.id)
+  }
+  image.value = null
+}
+
+onMounted(loadRow)
+watch(() => props.id, () => {
+  image.value = null
+  isSequence.value = false
+  void loadRow()
 })
 </script>
 
