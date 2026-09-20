@@ -101,17 +101,16 @@
           <h3 class="pcard-title">{{ displayTitle }}</h3>
         </PTooltip>
         <PTooltip
+          v-if="displayDescription"
           :text="displayDescription"
           position="top"
           block
           only-if-overflow
           class="pcard-description-wrap"
         >
-          <p
-            class="pcard-description"
-            :class="{ 'pcard-description--placeholder': !displayDescription }"
-          >{{ displayDescription || '…' }}</p>
+          <p class="pcard-description">{{ displayDescription }}</p>
         </PTooltip>
+        <p v-else class="pcard-description" />
       </div>
 
       <!-- Tag pills -->
@@ -1100,9 +1099,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.pcard-description--placeholder {
-  color: #94a3b8;
 }
 
 /* Tag pills row */
