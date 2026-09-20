@@ -315,6 +315,12 @@ import TagTranslation from '@/components/tags/tag-translation.vue'
 import TagViewer from './tag-viewer.vue'
 import setTagging from '../set-tagging.js'
 import { exploreTaxonomy, TAG_HIERARCHY_PARTITION } from '@/utils/explore-taxonomy.js'
+import {
+  tagCache,
+  prefetchBatch,
+  getCachedTagHierarchy,
+} from '@/utils/content-cache.js'
+import { notifyTagIndexUpdated } from '@/utils/useContentLibrary.js'
 
 const TAGS_DOMAIN = 'tags.knowlearning.systems'
 const FAVORITE_TAG = '59d4b400-8d2e-11f1-8178-475d87d411d7'
@@ -889,6 +895,19 @@ export default {
             competencyId,
           )
         }
+
+        // Drop stale Explore tagCache for this id only (not
+        // name/image/preview). Refill before notify so pills
+        // do not flash empty.
+        tagCache.delete(this.id)
+        prefetchBatch(
+          [this.id],
+          this.$store?.getters?.language?.(),
+          this.taggingPartition,
+          getCachedTagHierarchy()?.leafToCategory,
+        ).finally(() => {
+          notifyTagIndexUpdated()
+        })
       } catch (error) {
         this.updateError = true
 

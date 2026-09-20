@@ -323,7 +323,7 @@
           v-if="taggingContentId && showTaggingIcons && selectedItems.size <= 1 && !isSequenceId(taggingContentId)"
           :id="taggingContentId"
           :roots="taxonomy.roots"
-          @close="taggingContentId = null"
+          @close="closeTagging"
         />
       </div>
     </div>
@@ -477,7 +477,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, shallowRef, shallowReactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+  import { ref, reactive, shallowRef, shallowReactive, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
   import { createDragAutoScroll } from '@/utils/drag-auto-scroll.js'
   import { useStore } from 'vuex'
   import { useRoute } from 'vue-router'
@@ -502,7 +502,7 @@
   import TaggingModal from '@/components/tagging-modal.vue'
   import {
     nameCacheVersion, metadataCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
-    getCachedTagHierarchy, prefetchBatch, invalidateNames, prefetchTagNames,
+    tagCache, getCachedTagHierarchy, prefetchBatch, invalidateNames, prefetchTagNames,
     getContentMetadata, getContentType, getCachedPreviewMeta, patchPreviewMeta,
     setCachedContentName, loadExploreCache, persistSequencesPanelCache,
   } from '@/utils/content-cache.js'
@@ -1150,6 +1150,26 @@
   function openTagging(id) {
     if (!id || isSequenceId(id)) return
     taggingContentId.value = id
+  }
+
+  function closeTagging() {
+    const id = taggingContentId.value
+    taggingContentId.value = null
+    if (!id) return
+    // After unmount paint (cache still has the last toggle refill),
+    // drop tags only and re-query so pills/filters match
+    // taggings-for-target without wiping name/image/preview.
+    nextTick(() => {
+      tagCache.delete(id)
+      prefetchBatch(
+        [id],
+        store.getters.language(),
+        taxonomy.partition,
+        getCachedTagHierarchy()?.leafToCategory,
+      ).finally(() => {
+        notifyTagIndexUpdated()
+      })
+    })
   }
 
   const addSelectedButtonLabel = computed(() => {

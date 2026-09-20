@@ -235,6 +235,7 @@ export function useContentLibrary(store) {
 
   const filteredContentList = computed(() => {
     void nameCacheVersion.value
+    void tagIndexVersion.value
     let list = currentContentList.value
     const lang = store.getters.language()
 
