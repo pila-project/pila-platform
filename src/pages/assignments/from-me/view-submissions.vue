@@ -77,6 +77,31 @@
             </div>
           </div>
 
+          <!-- Assignment content: all ids (normalizeAssignmentContent), titles via content-cache. -->
+          <div class="vso-content">
+            <h4 class="vso-section-label">{{ t('assignment-content') }} ({{ contentItems.length }})</h4>
+            <div v-if="!contentItems.length" class="vso-content-empty">
+              {{ t('no-content-items-added') }}
+            </div>
+            <div v-else class="vso-content-list">
+              <div
+                v-for="cid in contentItems"
+                :key="cid"
+                class="vso-content-row"
+              >
+                <span class="vso-content-name">
+                  <NameOrTranslatedNameFromItemId :itemId="cid" />
+                </span>
+                <PButton
+                  variant="secondary"
+                  size="xsm"
+                  :text="t('preview')"
+                  @click="openPreview(cid)"
+                />
+              </div>
+            </div>
+          </div>
+
           <!-- Real counts: assigned students + performance-based "started" (live-dashboard data path) -->
           <div class="vso-stats">
             <div class="vso-stat-box">
@@ -441,6 +466,18 @@
       </template>
     </div>
   </Teleport>
+
+  <PreviewModal
+    v-if="previewing"
+    :id="previewing"
+    @close="previewing = null"
+  />
+
+  <SequencePreviewModal
+    v-if="sequenceToPreview"
+    :id="sequenceToPreview"
+    @close="sequenceToPreview = null"
+  />
 </template>
 
 <script setup>
@@ -450,8 +487,12 @@
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { PButton, PUnifiedFilter, PTable, PTabs, PCheckbox } from '@/components/ui/index.js'
+  import PreviewModal from '@/components/common/preview-modal.vue'
+  import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
+  import { openContentPreview } from '@/utils/open-content-preview.js'
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
+  import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
   import {
     assessAssignmentDashboards,
@@ -483,6 +524,10 @@
   const viewMode = ref('overview')
   const assignmentName = ref('')
   const contentId = ref(null)
+  /** All assignment content ids for the overview list (not used by In Progress). */
+  const contentItems = ref([])
+  const previewing = ref(null)
+  const sequenceToPreview = ref(null)
   const sequenceItems = ref([])
   const selectedStudentIndex = ref(0)
   const selectedItemIndex = ref(0)
@@ -723,6 +768,10 @@
     }))
   })
 
+  function openPreview(id) {
+    void openContentPreview(id, { previewing, sequenceToPreview })
+  }
+
   function openDetailView(studentId) {
     const idx = students.value.indexOf(studentId)
     selectedStudentIndex.value = idx >= 0 ? idx : 0
@@ -920,6 +969,7 @@
     const assignState = await Agent.state(props.assignmentId)
     assignmentName.value = assignState.name || t('assignment')
     contentId.value = Array.isArray(assignState.content) ? assignState.content[0] : assignState.content
+    contentItems.value = normalizeAssignmentContent(assignState.content)
     maxAttempts.value = assignState.maxAttempts || '1'
 
     if (assignState.dueDate) {
@@ -1749,6 +1799,47 @@
   font-weight: 500;
 }
 
+/* Assignment content (under dashboard cards) */
+.vso-content {
+  padding: 16px 28px 20px;
+}
+.vso-dashboards + .vso-content {
+  padding-top: 0;
+}
+
+.vso-content-empty {
+  font-size: 13px;
+  color: #94a3b8;
+  padding: 4px 0 0;
+}
+
+.vso-content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vso-content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.vso-content-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Stats summary */
 .vso-stats {
   display: flex;
@@ -1974,6 +2065,13 @@
 
   .vso-dcard {
     min-width: unset;
+  }
+
+  .vso-content {
+    padding: 12px 16px 16px;
+  }
+  .vso-dashboards + .vso-content {
+    padding-top: 0;
   }
 
   .vso-stats {
