@@ -285,13 +285,12 @@
           </template>
 
           <!-- Custom card rendering with explore-page features -->
-          <template #card="{ id, source, grades }">
+          <template #card="{ id, source }">
             <TaggedContentCard
               :id="id"
               :checked="selectedItems.has(id)"
               :removable="myContent.includes(id)"
               :source="source"
-              :grades="grades"
               :favorited="favorites.has(id)"
               :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1 && !isSequenceId(id)"
               show-copy-modify

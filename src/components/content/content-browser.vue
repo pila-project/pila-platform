@@ -53,12 +53,10 @@
             name="card"
             :id="id"
             :source="isMyContent(id) ? 'mine' : 'pila'"
-            :grades="getItemTagLabels(id)"
           >
             <TaggedContentCard
               :id="id"
               :source="isMyContent(id) ? 'mine' : 'pila'"
-              :grades="getItemTagLabels(id)"
             />
           </slot>
         </div>
@@ -124,7 +122,6 @@ const {
   filteredContentList,
   myContent,
   myContentIds,
-  getItemTagLabels,
   isMyContent,
   ensureLoaded,
 } = useContentLibrary(store)
@@ -210,7 +207,6 @@ defineExpose({
   myContent,
   myContentIds,
   loading,
-  getItemTagLabels,
   isMyContent,
   resetScroll,
 })
