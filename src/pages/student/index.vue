@@ -27,11 +27,16 @@
         <div class="flex-1" />
 
         <!-- Settings -->
-        <div class="border-t border-slate-200 py-2">
-          <PMenu>
+        <div class="flex justify-center border-t border-slate-200 py-4">
+          <PMenu openUp>
             <template #activator="{ props }">
-              <button class="flex items-center justify-center w-full py-2 text-slate-500 hover:text-slate-700" @click="props.onClick">
-                <LucideIcon name="settings" :size="16" />
+              <button
+                type="button"
+                class="flex items-center justify-center w-10 h-10 text-slate-500 hover:text-slate-700"
+                :aria-label="t('settings')"
+                @click="props.onClick"
+              >
+                <LucideIcon name="settings" :size="22" />
               </button>
             </template>
             <PMenuItem
