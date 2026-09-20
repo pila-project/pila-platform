@@ -63,8 +63,8 @@ export default {
         try {
           createdUserInfo = await getTeacherCreatedUserInfo(user, providerKey)
           if (createdUserInfo) break
-        } catch (error) {
-          console.warn('[decryptUserInfo] teacher-created decrypt failed', error)
+        } catch {
+          // key may belong to a different account-creation role / wrong key — fall through
         }
       }
 
@@ -115,8 +115,8 @@ export default {
         try {
           const secret = await decryptProviderEncryptedLoginSecret(encryptedKey, providerKey)
           if (secret) return secret
-        } catch (error) {
-          console.warn('[decryptUserSecret] decrypt failed', error)
+        } catch {
+          // key may belong to a different account-creation role / wrong key — fall through
         }
       }
       return ''
