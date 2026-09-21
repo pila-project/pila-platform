@@ -6,6 +6,7 @@ import storeDef from '../store/index.js'
 import basicContentManagementTests from './basic-content-management.js'
 import adminContentManagementTests from './admin-content-management.js'
 import assignmentGroupVisibilityTests from './assignment-group-visibility.js'
+import groupMembershipTests from './group-membership.js'
 import adminTeacherGrantTests from './admin-teacher-grants.js'
 import studentsJoiningTeachersTests from './students-joining-teachers.js'
 import assignmentXapiTests from './assignment-xapi.js'
@@ -59,6 +60,7 @@ function waitForStoreLoadThenRunTests (store) {
           adminTeacherGrantTests(store)
           teacherLoginCredentialTests()
           assignmentGroupVisibilityTests()
+          groupMembershipTests()
           assignmentXapiTests()
           studentsJoiningTeachersTests(store)
           candliGamesTests()
