@@ -64,6 +64,102 @@ export function isSequenceDrag(dataTransfer) {
 }
 
 /**
+ * Reject a sequence dragged onto a sequence target (UIUX-222).
+ * preventDefault + dropEffect "none" is the not-allowed cursor. Per the HTML
+ * drag-and-drop model that operation is "none", so the UA fires dragleave and
+ * does not fire drop. Returns false for any other drag.
+ *
+ * @param {DragEvent} event
+ * @returns {boolean}
+ */
+export function applyNestedSequenceDragReject(event) {
+  if (!event?.dataTransfer || !isSequenceDrag(event.dataTransfer)) return false
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'none'
+  return true
+}
+
+/**
+ * True when this dragleave did not geometrically exit `current`.
+ * `contains(relatedTarget)` is a child move. relatedTarget null with the
+ * pointer still inside is either a child move (Safari) or drag-end; the
+ * caller tells those apart. Missing coordinates count as a leave.
+ */
+function dragPointerStillInside(current, related, event) {
+  if (!current) return false
+  if (related != null && typeof current.contains === 'function') {
+    try {
+      if (current.contains(related)) return true
+    } catch {
+      // relatedTarget was not a Node.
+    }
+  }
+  if (related != null) return false
+  if (typeof current.getBoundingClientRect !== 'function') return false
+  const x = event?.clientX
+  const y = event?.clientY
+  if (typeof x !== 'number' || typeof y !== 'number') return false
+  const rect = current.getBoundingClientRect()
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+}
+
+/**
+ * One error toast per hover over a sequence drop target (UIUX-222).
+ * dragover repeats while the pointer stays inside; `toasted` collapses those.
+ * onDragLeave resets when the pointer leaves the boundary (default
+ * `event.currentTarget`). Pass `boundary` when child targets share one toast.
+ *
+ * A failed drag (dropEffect "none") ends with dragleave and no relatedTarget
+ * while the pointer is still inside (HTML drag-and-drop processing model).
+ * That must clear `toasted`, or the next attempt on this target is silent.
+ * Safari can also null relatedTarget when the pointer enters a child; that
+ * leave is followed by dragover in the same turn, which cancels the clear.
+ *
+ * @param {(message: string) => void} showError
+ * @param {(slug: string) => string} t
+ * @returns {{
+ *   onDragOver: (event: DragEvent) => boolean,
+ *   onDragLeave: (event: DragEvent, boundary?: EventTarget) => void,
+ * }}
+ */
+export function createNestedSequenceRejectToast(showError, t) {
+  let toasted = false
+  let resetGen = 0
+  function cancelPendingReset() {
+    resetGen += 1
+  }
+  function scheduleReset() {
+    const gen = ++resetGen
+    queueMicrotask(() => {
+      if (gen !== resetGen) return
+      toasted = false
+    })
+  }
+  return {
+    onDragOver(event) {
+      if (!applyNestedSequenceDragReject(event)) return false
+      // Same-turn dragover after a null-relatedTarget leave: still this hover.
+      cancelPendingReset()
+      if (!toasted) {
+        showError(t('sequences-cannot-be-nested'))
+        toasted = true
+      }
+      return true
+    },
+    onDragLeave(event, boundary) {
+      const current = boundary || event?.currentTarget
+      const related = event?.relatedTarget
+      if (dragPointerStillInside(current, related, event)) {
+        if (related == null) scheduleReset()
+        return
+      }
+      cancelPendingReset()
+      toasted = false
+    },
+  }
+}
+
+/**
  * Sync partition for UI counts (same nesting rules as partitionSequenceMemberIds).
  * Rejects known sequence ids and ids for which isSequence(id) is true.
  * Fail-open when type is unknown — no fetches, no behaviour change at write time.

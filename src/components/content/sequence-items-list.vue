@@ -1,5 +1,5 @@
 <template>
-  <div class="sil" :class="{ 'sil--comfortable': comfortable }">
+  <div ref="listRoot" class="sil" :class="{ 'sil--comfortable': comfortable }">
     <div v-if="items.length" class="sil-items">
       <div
         v-for="(itemId, i) in items"
@@ -87,6 +87,7 @@ import {
   reorderSequenceItems,
   isLeafContentExploreDrop,
   isSequenceDrag,
+  createNestedSequenceRejectToast,
 } from '@/utils/sequence-items.js'
 
 const props = defineProps({
@@ -104,6 +105,7 @@ const emit = defineEmits(['changed', 'select', 'preview', 'drop-item'])
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 const { error: showError } = useFeedback()
+const nestedRejectToast = createNestedSequenceRejectToast(showError, t)
 
 const seqState = ref(null)
 const itemMeta = reactive({})
@@ -112,6 +114,7 @@ const itemToDelete = ref(null)
 
 const dragIndex = ref(null)
 const dropTarget = ref(null)
+const listRoot = ref(null)
 
 const items = computed(() => {
   itemVersion.value
@@ -199,10 +202,8 @@ function onItemDragEnd() {
 }
 
 function onItemDragOver(index, e) {
-  // UIUX-113: refuse nested sequences from explore
-  if (e?.dataTransfer && isSequenceDrag(e.dataTransfer)) {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'none'
+  // UIUX-113/222: refuse nesting. dropEffect none suppresses drop, so toast here.
+  if (nestedRejectToast.onDragOver(e)) {
     dropTarget.value = null
     return
   }
@@ -218,8 +219,10 @@ function onItemDragOver(index, e) {
   dropTarget.value = index
 }
 
-function onItemDragLeave() {
+function onItemDragLeave(e) {
   dropTarget.value = null
+  // Rows share one toast. The list, not each row, is the leave boundary.
+  nestedRejectToast.onDragLeave(e, listRoot.value)
 }
 
 async function onItemDrop(toIndex, e) {

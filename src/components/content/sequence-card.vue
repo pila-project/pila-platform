@@ -1,6 +1,7 @@
 <template>
   <div
     v-if="isRenderable"
+    ref="cardRoot"
     class="sc"
     :class="{ 'sc-archived': archived, 'sc-dragover': isDragOver && !archived }"
     @dragover="onCardDragOver"
@@ -109,6 +110,7 @@ import {
   isLeafContentExploreDrop,
   isSequenceDrag,
   isValidSequenceAgentState,
+  createNestedSequenceRejectToast,
 } from '@/utils/sequence-items.js'
 import { useFeedback } from '@/composables/useFeedback.js'
 import { formatDateForDisplay } from '@/utils/iso-date.js'
@@ -116,6 +118,7 @@ import { formatDateForDisplay } from '@/utils/iso-date.js'
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 const { error: showError } = useFeedback()
+const nestedRejectToast = createNestedSequenceRejectToast(showError, t)
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -128,6 +131,7 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'archive', 'restore', 'preview', 'view-content', 'add-to-assignment', 'drop-item', 'toggle-favorite', 'items-changed'])
 
 const isDragOver = ref(false)
+const cardRoot = ref(null)
 
 /** UIUX-113: only leaf content may be dropped onto a sequence. */
 function acceptsLeafDrop(dataTransfer) {
@@ -136,10 +140,9 @@ function acceptsLeafDrop(dataTransfer) {
 
 function onCardDragOver(e) {
   if (props.archived) return
-  if (isSequenceDrag(e.dataTransfer)) {
-    // preventDefault so drop fires (HTML5); dropEffect none keeps the cursor rejecting
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'none'
+  // UIUX-222: preventDefault + dropEffect none = not-allowed cursor and no drop.
+  // Toast once on this dragover. onDrop showError is only a safety net.
+  if (nestedRejectToast.onDragOver(e)) {
     isDragOver.value = false
     return
   }
@@ -149,7 +152,13 @@ function onCardDragOver(e) {
   isDragOver.value = true
 }
 
-function onCardDragLeave() {
+function onCardDragLeave(e) {
+  // Footer dragleave delegates here while currentTarget is still the footer.
+  // Only the card root (including that event once it bubbles) is the boundary,
+  // so moving between the card's children does not toast again.
+  if (!e || e.currentTarget === cardRoot.value) {
+    nestedRejectToast.onDragLeave(e)
+  }
   if (!props.archived) isDragOver.value = false
 }
 
@@ -175,8 +184,8 @@ function onFooterDragOver(e) {
   onCardDragOver(e)
 }
 
-function onFooterDragLeave() {
-  onCardDragLeave()
+function onFooterDragLeave(e) {
+  onCardDragLeave(e)
 }
 
 function onFooterDrop(e) {

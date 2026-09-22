@@ -35,8 +35,10 @@
 
         <div
           v-else
+          ref="gridRoot"
           class="scm-grid"
           @dragover.prevent="onGridDragOver"
+          @dragleave="onGridDragLeave"
           @drop.prevent="onGridDrop"
         >
           <div
@@ -175,6 +177,7 @@ import {
   isLeafContentExploreDrop,
   isSequenceDrag,
   isValidSequenceAgentState,
+  createNestedSequenceRejectToast,
   partitionSequenceMemberIds,
   SEQUENCE_SYNC_TIMEOUT_MS,
   withTimeout,
@@ -194,6 +197,7 @@ const emit = defineEmits(['close', 'changed'])
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
 const { error: showError } = useFeedback()
+const nestedRejectToast = createNestedSequenceRejectToast(showError, t)
 
 const partition = computed(() => exploreTaxonomy(store.getters.tagPartition).partition)
 
@@ -220,6 +224,7 @@ const showDiscardConfirm = ref(false)
 const dragIndex = ref(null)
 const dropTarget = ref(null)
 const emptyDragOver = ref(false)
+const gridRoot = ref(null)
 
 const dirty = computed(() => {
   const saved = savedIds.value
@@ -346,9 +351,8 @@ function onCardDragEnd() {
 }
 
 function onCardDragOver(index, e) {
-  if (e?.dataTransfer && isSequenceDrag(e.dataTransfer)) {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'none'
+  // UIUX-222: dropEffect none suppresses drop, so the nested-sequence toast runs here.
+  if (nestedRejectToast.onDragOver(e)) {
     dropTarget.value = null
     return
   }
@@ -364,8 +368,10 @@ function onCardDragOver(index, e) {
   dropTarget.value = index
 }
 
-function onCardDragLeave() {
+function onCardDragLeave(e) {
   dropTarget.value = null
+  // Cards share the grid toast. Leaving one card for another stays inside the grid.
+  nestedRejectToast.onDragLeave(e, gridRoot.value)
 }
 
 function onCardDrop(toIndex, e) {
@@ -390,9 +396,7 @@ function onCardDrop(toIndex, e) {
 
 function onEmptyDragOver(e) {
   if (props.archived) return
-  if (isSequenceDrag(e.dataTransfer)) {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'none'
+  if (nestedRejectToast.onDragOver(e)) {
     emptyDragOver.value = false
     return
   }
@@ -402,8 +406,9 @@ function onEmptyDragOver(e) {
   }
 }
 
-function onEmptyDragLeave() {
+function onEmptyDragLeave(e) {
   emptyDragOver.value = false
+  nestedRejectToast.onDragLeave(e)
 }
 
 function onEmptyDrop(e) {
@@ -421,14 +426,14 @@ function onEmptyDrop(e) {
 
 function onGridDragOver(e) {
   if (props.archived) return
-  if (isSequenceDrag(e.dataTransfer)) {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'none'
-    return
-  }
+  if (nestedRejectToast.onDragOver(e)) return
   if (isLeafContentExploreDrop(e.dataTransfer, dragIndex.value)) {
     e.dataTransfer.dropEffect = 'copy'
   }
+}
+
+function onGridDragLeave(e) {
+  nestedRejectToast.onDragLeave(e)
 }
 
 function onGridDrop(e) {
