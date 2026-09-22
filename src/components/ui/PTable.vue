@@ -246,7 +246,15 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['click:row', 'update:selected', 'dragstart', 'dragend'])
+const emit = defineEmits([
+  'click:row',
+  'update:selected',
+  'dragstart',
+  'dragend',
+  'update:page',
+  'update:itemsPerPage',
+  'update:visible-ids',
+])
 
 const currentPage = ref(1)
 const currentPerPage = ref(props.itemsPerPage)
@@ -321,6 +329,28 @@ const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * currentPerPage.value
   return sortedItems.value.slice(start, start + currentPerPage.value)
 })
+
+watch(
+  () => {
+    const ids = props.itemKey
+      ? paginatedItems.value
+        .map(item => item?.[props.itemKey])
+        .filter(id => id != null && id !== '')
+      : []
+    return {
+      page: currentPage.value,
+      per: currentPerPage.value,
+      idsKey: ids.join('\u001f'),
+      ids,
+    }
+  },
+  ({ page, per, ids }) => {
+    emit('update:page', page)
+    emit('update:itemsPerPage', per)
+    if (props.itemKey) emit('update:visible-ids', ids)
+  },
+  { immediate: true },
+)
 
 // Filter/search can shrink items so currentPage is past the last page; jump to 1 (matches Explore).
 watch(totalPages, (pages) => {

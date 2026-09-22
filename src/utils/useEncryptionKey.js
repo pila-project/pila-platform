@@ -1,5 +1,9 @@
 import { ref, computed, watch } from 'vue'
 import { isEmptyEncryptionSecret, publishDerivedPublicKey } from './publish-derived-public-key.js'
+import {
+  clearDecryptUserInfoCache,
+  setSkipExpensiveDecrypt,
+} from './decrypt-user-info-cache.js'
 
 let sharedNamePassword = null
 let sharedUserId = null
@@ -7,6 +11,8 @@ let sharedUserId = null
 let sharedKeyStatus = null
 /** Last student ids used for probing (so key changes can re-probe) */
 let lastProbeUserIds = []
+/** Drop stale probe results so an older invalid cannot skip-nacl after a newer key. */
+let probeGeneration = 0
 
 export function useEncryptionKey(store) {
   const userId = store.state.user
@@ -17,10 +23,17 @@ export function useEncryptionKey(store) {
     sharedNamePassword = ref(stored)
     sharedKeyStatus = ref(stored ? 'unknown' : 'missing')
     lastProbeUserIds = []
+    probeGeneration += 1
 
     watch(sharedNamePassword, async (val) => {
+      probeGeneration += 1
+      clearDecryptUserInfoCache()
+      setSkipExpensiveDecrypt(false)
       if (isEmptyEncryptionSecret(val)) {
         sharedKeyStatus.value = 'missing'
+        if (lastProbeUserIds.length) {
+          await revalidateEncryptionKey(lastProbeUserIds)
+        }
         return
       }
       localStorage.setItem(`zkek-${userId}`, val)
@@ -56,21 +69,25 @@ export function useEncryptionKey(store) {
     if (Array.isArray(userIds) && userIds.length) {
       lastProbeUserIds = [...userIds]
     }
-    if (!namePassword.value) {
-      keyStatus.value = 'missing'
-      return keyStatus.value
-    }
     const ids = lastProbeUserIds
+    const gen = ++probeGeneration
     if (!ids.length) {
-      keyStatus.value = 'unknown'
+      if (gen !== probeGeneration) return keyStatus.value
+      keyStatus.value = namePassword.value ? 'unknown' : 'missing'
+      setSkipExpensiveDecrypt(false)
       return keyStatus.value
     }
     try {
       const result = await store.getters.probeEncryptionKey(ids)
-      keyStatus.value = result
+      if (gen !== probeGeneration) return keyStatus.value
+      // Banner is about the teacher zkek field; skip-nacl follows probe (admin credential included).
+      keyStatus.value = !namePassword.value ? 'missing' : result
+      setSkipExpensiveDecrypt(result === 'missing' || result === 'invalid')
     } catch (e) {
+      if (gen !== probeGeneration) return keyStatus.value
       console.warn('[useEncryptionKey] probe failed', e)
-      keyStatus.value = 'unknown'
+      keyStatus.value = namePassword.value ? 'unknown' : 'missing'
+      setSkipExpensiveDecrypt(false)
     }
     return keyStatus.value
   }

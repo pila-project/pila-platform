@@ -120,6 +120,9 @@
             selectable
             :selected="selectedStudents"
             @update:selected="setSelectedStudents"
+            @update:page="studentTablePage = $event"
+            @update:items-per-page="studentTablePerPage = $event"
+            @update:visible-ids="studentTableVisibleIds = $event"
             :row-class="studentRowClass"
             :items-per-page="25"
             :items-per-page-options="studentTablePerPageOptions"
@@ -1095,6 +1098,12 @@ import {
 } from '@/utils/status-filter.js'
 import { activeStudentCountInGroup, formatStudentCount } from '@/utils/group-student-counts.js'
 import { buildTeacherStudentRows } from '@/utils/teacher-student-rows.js'
+import {
+  DECRYPT_USER_INFO_CONCURRENCY,
+  clearDecryptQueue,
+  enqueueDecryptUserIds,
+  yieldToMain,
+} from '@/utils/decrypt-user-info-cache.js'
 
 const store = useStore()
 const groupsExpanded = ref(false)
@@ -1278,22 +1287,48 @@ function getStudentExistingNames() {
 function cacheStudentDisplayName(id, info) {
   decryptedNames.set(id, formatStudentPreferredName(info) || '')
   decryptedLegalNames.set(id, String(info?.name ?? '').trim())
+  scheduleDecryptedNamesFlush()
+}
+
+function scheduleDecryptedNamesFlush() {
+  if (decryptedNamesFlushScheduled) return
+  decryptedNamesFlushScheduled = true
+  const flush = () => {
+    decryptedNamesFlushScheduled = false
+    decryptedNamesVersion.value++
+  }
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(flush)
+  else setTimeout(flush, 0)
+}
+
+function flushDecryptedNamesNow() {
+  decryptedNamesFlushScheduled = false
+  decryptedNamesVersion.value++
 }
 
 async function ensureDecryptedStudentNames() {
-  await Promise.all(
-    students.value.map(async ({ id }) => {
+  const pending = students.value
+    .map(({ id }) => id)
+    .filter(id => {
       const cached = decryptedNames.get(id)
-      if (cached && cached !== '…') return
+      return !cached || cached === '…'
+    })
+  const cap = DECRYPT_USER_INFO_CONCURRENCY
+  for (let i = 0; i < pending.length; i += cap) {
+    const chunk = pending.slice(i, i + cap)
+    await Promise.all(chunk.map(async (id) => {
       try {
         const info = await store.getters.decryptUserInfo(id, false)
         cacheStudentDisplayName(id, info)
       } catch {
         decryptedNames.set(id, '')
         decryptedLegalNames.set(id, '')
+        scheduleDecryptedNamesFlush()
       }
-    }),
-  )
+    }))
+    await yieldToMain()
+  }
+  flushDecryptedNamesNow()
 }
 
 function getOtherGroupNames(excludeGroupId) {
@@ -1436,11 +1471,19 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearTimeout(groupsExpandTimer)
   if (unwatchUsers) unwatchUsers()
+  clearDecryptQueue(MANAGE_CLASSES_DECRYPT_OWNER)
 })
 
 // ── Decrypted student names (preferred labels for sort/search/drag; legal for duplicates) ──
-const decryptedNames = reactive(new Map())
-const decryptedLegalNames = reactive(new Map())
+const MANAGE_CLASSES_DECRYPT_OWNER = 'manage-classes'
+const decryptedNames = new Map()
+const decryptedLegalNames = new Map()
+const decryptedNamesVersion = ref(0)
+let decryptedNamesFlushScheduled = false
+let decryptGeneration = 0
+const studentTablePage = ref(1)
+const studentTablePerPage = ref(25)
+const studentTableVisibleIds = ref([])
 
 // Class groups MUST be declared before `students`. That computed is watched
 // immediately; EDU PILA (joined students already in Vuex) used to crash with
@@ -1452,54 +1495,92 @@ const archivedGroupIdSet = computed(() => new Set(archivedGroups.value))
 // ── Students ──
 const myPILAUsers = computed(() => Object.keys(users))
 
-const students = computed(() =>
-  buildTeacherStudentRows({
+const students = computed(() => {
+  void decryptedNamesVersion.value
+  return buildTeacherStudentRows({
     createdUserIds: myPILAUsers.value,
     joinedStudentIds: store.getters['groups/myStudents']() || [],
     classGroupIds: activeGroups.value,
     belongs: (id, gid) => store.getters['groups/belongs'](id, gid),
+    membersForGroup: gid => store.getters['groups/members'](gid),
     getGroupName: gid => store.state.groups.groups[gid]?.name,
     users,
     getDisplayName: id => decryptedNames.get(id),
-  }),
-)
+  })
+})
+
+async function decryptManageClassesStudent(id) {
+  const gen = decryptGeneration
+  if (decryptedNames.has(id)) return
+  try {
+    const info = await store.getters.decryptUserInfo(id, false)
+    if (gen !== decryptGeneration) return
+    cacheStudentDisplayName(id, info)
+  } catch {
+    if (gen !== decryptGeneration) return
+    decryptedNames.set(id, '')
+    decryptedLegalNames.set(id, '')
+    scheduleDecryptedNamesFlush()
+  }
+}
+
+function highPriorityStudentIds(ids) {
+  const idSet = new Set(ids)
+  const visible = studentTableVisibleIds.value.filter(id => idSet.has(id))
+  if (visible.length) return visible
+  const per = studentTablePerPage.value
+  if (per === -1) return ids
+  const start = (Math.max(1, studentTablePage.value) - 1) * per
+  return ids.slice(start, start + per)
+}
+
+function enqueueManageClassesDecrypt(ids, priority) {
+  const pending = (ids || []).filter(id => id && !decryptedNames.has(id))
+  if (!pending.length) return
+  enqueueDecryptUserIds(pending, {
+    owner: MANAGE_CLASSES_DECRYPT_OWNER,
+    priority,
+    run: decryptManageClassesStudent,
+  })
+}
 
 watch(
-  () => students.value.map(s => s.id),
-  (ids) => {
-    for (const id of ids) {
-      if (decryptedNames.has(id)) continue
-      store.getters.decryptUserInfo(id, false)
-        .then(info => { cacheStudentDisplayName(id, info) })
-        .catch(() => {
-          decryptedNames.set(id, '')
-          decryptedLegalNames.set(id, '')
-        })
-    }
-    // Soft-probe key health when we have student ids (wrong vs empty key)
+  () => students.value.map(s => s.id).join('\u001f'),
+  (key) => {
+    const ids = key ? key.split('\u001f') : []
+    const high = highPriorityStudentIds(ids)
+    const highSet = new Set(high)
+    const low = ids.filter(id => !highSet.has(id))
+    enqueueManageClassesDecrypt(high, 'high')
+    enqueueManageClassesDecrypt(low, 'low')
     revalidateEncryptionKey(ids)
   },
   { immediate: true }
 )
 
+watch(
+  studentTableVisibleIds,
+  (visible) => {
+    enqueueManageClassesDecrypt(visible, 'high')
+  },
+)
+
 // Re-fetch decrypted names when the encryption key is set or changed
 watch(namePassword, async (newKey) => {
+  const currentIds = students.value.map(s => s.id)
   if (newKey) {
+    decryptGeneration += 1
+    clearDecryptQueue(MANAGE_CLASSES_DECRYPT_OWNER)
     decryptedNames.clear()
     decryptedLegalNames.clear()
-    const currentIds = students.value.map(s => s.id)
-    for (const id of currentIds) {
-      try {
-        const info = await store.getters.decryptUserInfo(id, false)
-        cacheStudentDisplayName(id, info)
-      } catch {
-        decryptedNames.set(id, '')
-        decryptedLegalNames.set(id, '')
-      }
-    }
+    flushDecryptedNamesNow()
+    const high = highPriorityStudentIds(currentIds)
+    const highSet = new Set(high)
+    enqueueManageClassesDecrypt(high, 'high')
+    enqueueManageClassesDecrypt(currentIds.filter(id => !highSet.has(id)), 'low')
     await revalidateEncryptionKey(currentIds)
   } else {
-    await revalidateEncryptionKey([])
+    await revalidateEncryptionKey(currentIds)
   }
 })
 
@@ -1533,6 +1614,7 @@ function applyStudentListFilters(items) {
 }
 
 const filteredStudents = computed(() => {
+  void decryptedNamesVersion.value
   const items = applyStudentListFilters(students.value)
   return [...items].sort((a, b) => {
     if (a.archived === b.archived) return 0

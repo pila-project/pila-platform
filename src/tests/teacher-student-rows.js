@@ -1,5 +1,9 @@
 import { computed, watch } from 'vue'
-import { buildTeacherStudentRows, classGroupIdsForStudent } from '../utils/teacher-student-rows.js'
+import {
+  buildTeacherStudentRows,
+  classGroupIdsForStudent,
+  groupIdsByStudentFromMembers,
+} from '../utils/teacher-student-rows.js'
 
 export default function teacherStudentRowsTests() {
   describe('teacher Admin student rows (src/utils/teacher-student-rows.js)', function () {
@@ -53,6 +57,38 @@ export default function teacherStudentRowsTests() {
 
     it('filters class membership with belongs()', function () {
       expect(classGroupIdsForStudent('s1', ['g1', 'g2'], (id, gid) => gid === 'g2')).to.deep.equal(['g2'])
+    })
+
+    it('invert path builds group names from membersForGroup without scanning belongs per student', function () {
+      const members = {
+        'class-a': ['student-1'],
+        'class-b': ['student-2', 'student-1'],
+      }
+      let belongsCalls = 0
+      const rows = buildTeacherStudentRows({
+        createdUserIds: ['student-1'],
+        joinedStudentIds: ['student-2'],
+        classGroupIds: ['class-a', 'class-b'],
+        belongs: () => {
+          belongsCalls += 1
+          return false
+        },
+        membersForGroup: gid => members[gid] || [],
+        getGroupName: gid => (gid === 'class-a' ? 'Year 8A' : 'Year 8B'),
+      })
+      expect(belongsCalls).to.equal(0)
+      expect(rows[0].groupIds).to.deep.equal(['class-a', 'class-b'])
+      expect(rows[0].groupNames).to.equal('Year 8A, Year 8B')
+      expect(rows[1].groupIds).to.deep.equal(['class-b'])
+      expect(rows[1].groupNames).to.equal('Year 8B')
+    })
+
+    it('groupIdsByStudentFromMembers de-duplicates a user listed twice in one group', function () {
+      const byStudent = groupIdsByStudentFromMembers(
+        ['class-a'],
+        () => ['student-1', 'student-1'],
+      )
+      expect(byStudent.get('student-1')).to.deep.equal(['class-a'])
     })
 
     it('immediate watch can evaluate a computed that reads class groups declared first', function () {

@@ -2,20 +2,40 @@ import naclUtil from 'tweetnacl-util'
 import { v4 as uuid } from 'uuid'
 import { encrypt, generateKeyPair } from '@/utils/encryption.js'
 import { localCache, beginRevalidation, endRevalidation } from '@/utils/local-cache.js'
+import {
+  addMembershipPair,
+  belongsInIndex,
+  createMembershipIndex,
+  membersInIndex,
+  rebuildMembershipIndex,
+  removeMembershipPair,
+} from '@/utils/membership-index.js'
 
 const GROUP_TYPE = 'application/json;type=group'
 const GROUP_MEMBER_TYPE = 'application/json;type=group_member'
 
 let firstLoad = true
 
+function ensureMembershipIndex(state) {
+  if (state.membersByGroup instanceof Map && state.membersByUser instanceof Map) return
+  const index = rebuildMembershipIndex(state.members)
+  state.membersByGroup = index.byGroup
+  state.membersByUser = index.byUser
+}
+
 export default {
   scope: null,
   namespaced: true,
-  state: () => ({
-    specialGroupIds: {},
-    groups: {},
-    members: {}
-  }),
+  state: () => {
+    const index = createMembershipIndex()
+    return {
+      specialGroupIds: {},
+      groups: {},
+      members: {},
+      membersByGroup: index.byGroup,
+      membersByUser: index.byUser,
+    }
+  },
   getters: {
     groups: (state, _getters, rootState) => (typeFilter, mine=false) => {
       if (typeFilter) return (
@@ -39,19 +59,14 @@ export default {
       else return Object.keys(state.groups || {})
     },
     owner: state => groupId => state.groups[groupId].owner,
-    members: state => groupId => (
-      Object
-        .values(state.members || {})
-        .filter(({ group_id, archived }) => group_id === groupId && !archived )
-        .map(({ user_id }) => user_id)
-    ),
-    belongs: state => (uid, gid) => (
-      Object
-        .values(state.members || {})
-        .some(({ group_id, user_id, archived }) => {
-          return !archived && group_id === gid && user_id === uid
-        })
-    ),
+    members: state => {
+      ensureMembershipIndex(state)
+      return groupId => membersInIndex(state.membersByGroup, groupId)
+    },
+    belongs: state => {
+      ensureMembershipIndex(state)
+      return (uid, gid) => belongsInIndex(state.membersByUser, uid, gid)
+    },
     specialGroupId: state => name => state.specialGroupIds[name] || null,
     myTeachers: (state, getters) => () => {
       const myTeacherGroupId = getters.specialGroupId('my-teachers')
@@ -85,7 +100,15 @@ export default {
       delete state.groups[id]
     },
     addMember(state, { id, user_id, group_id, archived }) {
+      ensureMembershipIndex(state)
+      const prev = state.members[id]
+      if (prev && !prev.archived) {
+        removeMembershipPair(state.membersByGroup, state.membersByUser, prev.user_id, prev.group_id)
+      }
       state.members[id] = { user_id, group_id, archived }
+      if (!archived) {
+        addMembershipPair(state.membersByGroup, state.membersByUser, user_id, group_id)
+      }
     },
     setMembers(state, members) {
       const next = {}
@@ -98,13 +121,18 @@ export default {
         }
       }
       state.members = next
+      const index = rebuildMembershipIndex(next)
+      state.membersByGroup = index.byGroup
+      state.membersByUser = index.byUser
     },
     removeMember(state, { user_id, group_id }) {
+      ensureMembershipIndex(state)
       Object
         .entries(state.members)
         .forEach(([id, { user_id: u, group_id: g }]) => {
           if (user_id === u && group_id === g) delete state.members[id]
         })
+      removeMembershipPair(state.membersByGroup, state.membersByUser, user_id, group_id)
     },
     setSpecialGroup(state, { name, id }) {
       state.specialGroupIds[name] = id

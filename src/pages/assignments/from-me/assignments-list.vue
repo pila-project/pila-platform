@@ -484,6 +484,7 @@
   } from '@/utils/assignment-type.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
+  import { clearDecryptQueue, enqueueDecryptUserIds } from '@/utils/decrypt-user-info-cache.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -566,6 +567,7 @@
   const ASSIGNED_TO_STUDENT_PREFIX = 'student:'
 
   const decryptedNames = reactive(new Map())
+  const ASSIGN_DECRYPT_OWNER = 'assign-filter'
 
   onMounted(() => {
     window.addEventListener('pagehide', handlePageHide)
@@ -579,6 +581,7 @@
       clearTimeout(promoteTimerId)
       promoteTimerId = null
     }
+    clearDecryptQueue(ASSIGN_DECRYPT_OWNER)
     closeOpenDashboardSession().catch(() => {})
   })
 
@@ -604,12 +607,22 @@
   watch(
     activeStudentIdsForFilter,
     (ids) => {
-      for (const id of ids) {
-        if (decryptedNames.has(id)) continue
-        store.getters.decryptUserInfo(id, false)
-          .then(info => { decryptedNames.set(id, formatStudentPreferredName(info) || '') })
-          .catch(() => { decryptedNames.set(id, '') })
-      }
+      enqueueDecryptUserIds(
+        (ids || []).filter(id => id && !decryptedNames.has(id)),
+        {
+          owner: ASSIGN_DECRYPT_OWNER,
+          priority: 'low',
+          run: async (id) => {
+            if (decryptedNames.has(id)) return
+            try {
+              const info = await store.getters.decryptUserInfo(id, false)
+              decryptedNames.set(id, formatStudentPreferredName(info) || '')
+            } catch {
+              decryptedNames.set(id, '')
+            }
+          },
+        },
+      )
     },
     { immediate: true },
   )

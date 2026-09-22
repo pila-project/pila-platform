@@ -20,6 +20,11 @@ import {
   persistStudentAgreement,
   persistTeacherAgreement,
 } from '@/utils/user-agreements.js'
+import {
+  decryptUserInfoWithCache,
+  providerKeyFingerprint,
+  shouldSkipNaclAfterPublicInfo,
+} from '@/utils/decrypt-user-info-cache.js'
 
 export default {
   modules: {
@@ -48,49 +53,13 @@ export default {
     hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
     hasAcceptedTeacherAgreement: state => () => state.hasAcceptedTeacherAgreement,
     decryptUserInfo: (state, getters) => async (user, useAlias) => {
-      if (useAlias && EXPERT_LIST.includes(user)) {
-        return { name: 'PILA Expert', picture: null }
-      }
-
-      const userInfo = await Agent.state('user-info', user)
-      if (userInfo?.name) return userInfo
-
-      const key = localStorage.getItem(`zkek-${state.user}`)
-      const providerKeys = teacherProviderKeys(state)
-
-      let createdUserInfo = null
-      for (const providerKey of providerKeys) {
-        try {
-          createdUserInfo = await getTeacherCreatedUserInfo(user, providerKey)
-          if (createdUserInfo) break
-        } catch {
-          // key may belong to a different account-creation role / wrong key — fall through
-        }
-      }
-
-      if (createdUserInfo) return createdUserInfo
-
-      let info = { name: `${getters.t('anonymous')}_${user.slice(0,4)}`, picture: null }
-      const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
-      const { secretKey: mySecretKey} = await generateKeyPair(key)
-      const toTry = Object.values(encryptedUserInfo || {})
-      let success = false
-      while (toTry.length && !success) {
-        const { publicKey: theirPublicKey, encryptedInfo } = toTry.pop()
-        try {
-          info = JSON.parse(
-            encodeUTF8(
-              decrypt(
-                mySecretKey,
-                decodeBase64(theirPublicKey),
-                decodeBase64(encryptedInfo)
-              )
-            )
-          )
-          success = true
-        } catch (error) { console.warn(error) }
-      }
-      return info
+      const fingerprint = providerKeyFingerprint(teacherProviderKeys(state))
+      return decryptUserInfoWithCache({
+        userId: user,
+        useAlias: !!useAlias,
+        fingerprint,
+        run: () => decryptUserInfoUncached(state, getters, user, useAlias),
+      })
     },
 
     /**
@@ -131,9 +100,10 @@ export default {
      * - unknown: no encrypted student data available to test
      */
     probeEncryptionKey: (state) => async (userIds = []) => {
-      const key = localStorage.getItem(`zkek-${state.user}`)
-      if (!key) return 'missing'
+      const providerKeys = teacherProviderKeys(state)
+      if (!providerKeys.length) return 'missing'
 
+      const zkek = localStorage.getItem(`zkek-${state.user}`)
       let attempted = 0
       const maxAttempts = 12
 
@@ -146,28 +116,35 @@ export default {
           if (publicInfo?.name) continue
         } catch { /* ignore */ }
 
-        // Teacher-created accounts (symmetric)
+        // Teacher-created accounts (symmetric) — same keys as decryptUserInfo
         try {
           const { providerEncryptedInfo } = await Agent.state(user)
           if (providerEncryptedInfo) {
             attempted++
-            try {
-              const secretKey = await generateKeyPair(key).then(p => p.secretKey)
-              decryptSymmetric(secretKey, providerEncryptedInfo)
-              return 'ok'
-            } catch {
-              continue
+            let opened = false
+            for (const providerKey of providerKeys) {
+              try {
+                const secretKey = await generateKeyPair(providerKey).then(p => p.secretKey)
+                decryptSymmetric(secretKey, providerEncryptedInfo)
+                opened = true
+                break
+              } catch {
+                // try next provider key
+              }
             }
+            if (opened) return 'ok'
+            continue
           }
         } catch { /* ignore */ }
 
-        // Linked / multi-teacher encrypted blobs
+        // Linked / multi-teacher encrypted blobs — zkek-derived box key
+        if (!zkek) continue
         try {
           const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
           const blobs = Object.values(encryptedUserInfo || {})
           if (!blobs.length) continue
           attempted++
-          const { secretKey: mySecretKey } = await generateKeyPair(key)
+          const { secretKey: mySecretKey } = await generateKeyPair(zkek)
           for (const { publicKey: theirPublicKey, encryptedInfo } of blobs) {
             try {
               decrypt(
@@ -275,6 +252,61 @@ export default {
       store.dispatch('loaded', true)
     }
   ]
+}
+
+async function decryptUserInfoUncached(state, getters, user, useAlias) {
+  if (useAlias && EXPERT_LIST.includes(user)) {
+    return { name: 'PILA Expert', picture: null }
+  }
+
+  const userInfo = await Agent.state('user-info', user)
+  if (userInfo?.name) return userInfo
+
+  const anonymousInfo = () => ({
+    name: `${getters.t('anonymous')}_${user.slice(0, 4)}`,
+    picture: null,
+  })
+
+  if (shouldSkipNaclAfterPublicInfo(userInfo)) return anonymousInfo()
+
+  const key = localStorage.getItem(`zkek-${state.user}`)
+  const providerKeys = teacherProviderKeys(state)
+
+  let createdUserInfo = null
+  for (const providerKey of providerKeys) {
+    try {
+      createdUserInfo = await getTeacherCreatedUserInfo(user, providerKey)
+      if (createdUserInfo) break
+    } catch {
+      // key may belong to a different account-creation role / wrong key — fall through
+    }
+  }
+
+  if (createdUserInfo) return createdUserInfo
+
+  let info = anonymousInfo()
+  const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
+  const { secretKey: mySecretKey } = await generateKeyPair(key)
+  const toTry = Object.values(encryptedUserInfo || {})
+  let success = false
+  while (toTry.length && !success) {
+    const { publicKey: theirPublicKey, encryptedInfo } = toTry.pop()
+    try {
+      info = JSON.parse(
+        encodeUTF8(
+          decrypt(
+            mySecretKey,
+            decodeBase64(theirPublicKey),
+            decodeBase64(encryptedInfo)
+          )
+        )
+      )
+      success = true
+    } catch {
+      // blob mismatch — skip nacl + negative-cache the anonymous fallback
+    }
+  }
+  return info
 }
 
 function teacherProviderKeys(state) {
