@@ -33,8 +33,12 @@
           v-model="trainer"
           class="input"
         >
-          <option v-for="t in trainers" :key="t" :value="t">
-            {{ t }}
+          <option
+            v-for="t in trainers"
+            :key="t.value"
+            :value="t.value"
+          >
+            {{ t.title }}
           </option>
         </select>
       </div>
@@ -66,16 +70,13 @@
       }
     },
     async created() {
-      this.trainers = await (
-        Agent
-          .query(
-            'taggings-for-tag',
-            [this.$store.getters.tagPartition, TRAINER_TAG],
-            'tags.knowlearning.systems'
-          ).then(
-            taggings => taggings.map(t => t.target)
-          )
+      const taggings = await Agent.query(
+        'taggings-for-tag',
+        [this.$store.getters.tagPartition, TRAINER_TAG],
+        'tags.knowlearning.systems'
       )
+      const ids = taggings.map(t => t.target)
+      this.trainers = await Promise.all(ids.map(id => this.trainerOption(id)))
     },
     computed: {
       hideTrainerSelect() {
@@ -100,6 +101,17 @@
     },
     methods: {
       t(slug) { return this.$store.getters.t(slug) },
+      async trainerOption(id) {
+        try {
+          const info = await this.$store.getters.decryptUserInfo(id)
+          return {
+            value: id,
+            title: info?.name || `anonymous_${String(id).slice(0, 4)}`
+          }
+        } catch {
+          return { value: id, title: '...' }
+        }
+      },
       requestRole(role) {
         this.$store.dispatch('roles/request', { role, trainer: this.trainer })
       },
