@@ -1010,7 +1010,6 @@
     // One-way publish: never write Draft once effectively published
     if (locked) {
       state.status = ASSIGNMENT_STATUS.PUBLISHED
-      if (!state.publishedAt) state.publishedAt = new Date().toISOString()
       distributionOption.value = 'publish'
     } else if (asDraft) {
       state.status = ASSIGNMENT_STATUS.DRAFT
@@ -1019,6 +1018,9 @@
       state.status = distributionOption.value === 'publish' ? ASSIGNMENT_STATUS.PUBLISHED
         : distributionOption.value === 'schedule' ? ASSIGNMENT_STATUS.SCHEDULED
         : ASSIGNMENT_STATUS.DRAFT
+    }
+    if (state.status === ASSIGNMENT_STATUS.PUBLISHED && !state.publishedAt) {
+      state.publishedAt = new Date().toISOString()
     }
     if (distributionOption.value === 'schedule' && !asDraft && !locked) {
       state.scheduledDate = scheduledDate.value || null
