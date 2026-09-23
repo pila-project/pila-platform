@@ -32,12 +32,13 @@
             :per-page="12"
             use-disk-cache
           >
-            <template #card="{ id, source }">
+            <template #card="{ id, source, grades }">
               <TaggedContentCard
                 :id="id"
                 :checked="isInCopy(id) || cbSelectedItems.has(id)"
                 :in-assignment="isInCopy(id)"
                 :source="source"
+                :grades="grades"
                 @toggle-select="toggleSelection(id)"
                 @preview="emit('preview', id)"
                 @add="addOne(id)"

@@ -116,6 +116,7 @@
               :order-index="i"
               :draggable="false"
               :source="isMyContent(id) ? 'mine' : 'pila'"
+              :grades="assignmentContentGrades(id)"
               @preview="openPreview(id)"
               @remove="removeContent(id)"
             />
@@ -387,13 +388,14 @@
             :per-page="12"
             use-disk-cache
           >
-            <template #card="{ id, source }">
+            <template #card="{ id, source, grades }">
               <TaggedContentCard
                 :id="id"
                 assignment-picker
                 :checked="isInAssignmentContent(id) || cbSelectedItems.has(id)"
                 :in-assignment="isInAssignmentContent(id)"
                 :source="source"
+                :grades="grades"
                 @toggle-select="toggleModalContent(id)"
                 @preview="openPreview(id)"
               />
@@ -489,7 +491,7 @@
   const contentBrowserRef = ref(null)
   const previewing = ref(null)
   const sequenceToPreview = ref(null)
-  const { isMyContent } = useContentLibrary(store)
+  const { getItemTagLabels, isMyContent } = useContentLibrary(store)
 
   const CONTENT_REORDER_MIME = 'text/x-assignment-content-reorder'
   const contentDragIndex = ref(null)
@@ -771,6 +773,10 @@
     selectingContent.value = true
     await nextTick()
     contentBrowserRef.value?.resetScroll?.()
+  }
+
+  function assignmentContentGrades(id) {
+    return getItemTagLabels(id)
   }
 
   function onContentSelect(id) {

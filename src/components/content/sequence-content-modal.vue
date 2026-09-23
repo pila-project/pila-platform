@@ -63,6 +63,7 @@
               :order-index="i"
               :draggable="false"
               :source="isMyContent(itemId) ? 'mine' : 'pila'"
+              :grades="getItemTagLabels(itemId)"
               :description="itemDescriptions[itemId] || ''"
               @preview="openPreview(itemId)"
               @info="infoModalId = itemId"
@@ -201,7 +202,7 @@ const nestedRejectToast = createNestedSequenceRejectToast(showError, t)
 
 const partition = computed(() => exploreTaxonomy(store.getters.tagPartition).partition)
 
-const { isMyContent, ensureLoaded } = useContentLibrary(store)
+const { getItemTagLabels, isMyContent, ensureLoaded } = useContentLibrary(store)
 
 const loaded = ref(false)
 const saving = ref(false)

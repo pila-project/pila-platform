@@ -86,11 +86,12 @@
             :per-page-options="assignmentGridPerPageOptions"
             use-disk-cache
           >
-            <template #card="{ id, source }">
+            <template #card="{ id, source, grades }">
               <TaggedContentCard
                 :id="id"
                 :checked="form.contentIds.includes(id)"
                 :source="source"
+                :grades="grades"
                 @click="openPreview(id)"
                 @toggle-select="toggleContent(id)"
               />

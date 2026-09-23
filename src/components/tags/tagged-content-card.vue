@@ -112,6 +112,54 @@
         </PTooltip>
         <p v-else class="pcard-description" />
       </div>
+
+      <!-- Tag pills -->
+      <div ref="tagsWrapRef" class="pcard-tags-wrap">
+        <div v-if="useFixedLayout" class="pcard-tags-measure" aria-hidden="true">
+          <span
+            v-for="(grade, index) in displayGrades"
+            :key="'measure-' + grade + '-' + index"
+            :ref="el => setMeasureTagRef(el, index)"
+            class="pcard-grade"
+          >{{ grade }}</span>
+          <span ref="moreBadgeMeasureRef" class="pcard-grade pcard-grade-more">+99</span>
+          <span v-if="duration" ref="durationMeasureRef" class="pcard-duration">
+            <LucideIcon name="clock-2" :size="12" />
+            {{ duration }}
+          </span>
+        </div>
+
+        <div class="pcard-tags" :class="{ 'pcard-tags--single-line': useFixedLayout }">
+          <template v-if="useFixedLayout">
+            <span
+              v-for="(grade, index) in visibleGrades"
+              :key="grade + '-' + index"
+              class="pcard-grade"
+            >{{ grade }}</span>
+            <span
+              v-if="hiddenGradeCount > 0"
+              ref="moreBadgeRef"
+              class="pcard-grade pcard-grade-more"
+              @mouseenter="openOverflowPopup"
+              @mouseleave="scheduleCloseOverflowPopup"
+              @click.stop
+            >
+              +{{ hiddenGradeCount }}
+            </span>
+          </template>
+          <template v-else>
+            <span
+              v-for="(grade, index) in displayGrades"
+              :key="grade + '-' + index"
+              class="pcard-grade"
+            >{{ grade }}</span>
+          </template>
+          <span v-if="duration" class="pcard-duration">
+            <LucideIcon name="clock-2" :size="12" />
+            {{ duration }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Actions — @click.stop on container blocks native bubble to card root (assignment picker). -->
@@ -251,10 +299,27 @@
       />
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="overflowPopupOpen && hiddenGradeCount > 0"
+      class="pcard-tags-popup"
+      :style="overflowPopupStyle"
+      @mouseenter="openOverflowPopup"
+      @mouseleave="scheduleCloseOverflowPopup"
+      @click.stop
+    >
+      <span
+        v-for="(grade, index) in hiddenGrades"
+        :key="'hidden-' + grade + '-' + index"
+        class="pcard-grade"
+      >{{ grade }}</span>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, watch } from 'vue'
+  import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
   import { useStore } from 'vuex'
   import {
     getContentImage,
@@ -289,7 +354,6 @@
       default: 'pila'
     },
     description: String,
-    /** Face pills removed (UIUX-246); callers may still pass. */
     grades: Array,
     typeBadge: {
       type: String,
@@ -394,7 +458,6 @@
   )
   const canEditTags = computed(() =>
     props.showCopyModify
-    && props.source === 'mine'
     && props.showTaggingIcon
     && !isSequenceCard.value,
   )
@@ -425,7 +488,7 @@
 
   const isDragging = ref(false)
 
-  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .p-menu-anchor'
+  const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .p-menu-anchor, .pcard-grade-more, .pcard-tags-popup'
 
   function onTag() {
     if (isSequenceCard.value) return
@@ -464,6 +527,138 @@
     isDragging.value = false
   }
 
+  const TAG_GAP = 5
+  const displayGrades = computed(() => props.grades || [])
+  const visibleCount = ref(0)
+  const overflowPopupOpen = ref(false)
+
+  const tagsWrapRef = ref(null)
+  const moreBadgeRef = ref(null)
+  const moreBadgeMeasureRef = ref(null)
+  const durationMeasureRef = ref(null)
+  const measureTagRefs = ref([])
+  const overflowPopupStyle = ref({})
+
+  const visibleGrades = computed(() => displayGrades.value.slice(0, visibleCount.value))
+  const hiddenGrades = computed(() => displayGrades.value.slice(visibleCount.value))
+  const hiddenGradeCount = computed(() => hiddenGrades.value.length)
+
+  let overflowPopupTimer = null
+  let resizeObserver = null
+
+  function setMeasureTagRef(el, index) {
+    if (el) measureTagRefs.value[index] = el
+    else delete measureTagRefs.value[index]
+  }
+
+  function measureEl(el) {
+    return el?.offsetWidth ?? 0
+  }
+
+  function rowWidth(tagWidths, visible, hiddenCount, durationWidth) {
+    let used = 0
+
+    for (let i = 0; i < visible; i++) {
+      used += tagWidths[i] + (i > 0 ? TAG_GAP : 0)
+    }
+
+    if (hiddenCount > 0 && moreBadgeMeasureRef.value) {
+      moreBadgeMeasureRef.value.textContent = `+${hiddenCount}`
+      used += (visible > 0 ? TAG_GAP : 0) + measureEl(moreBadgeMeasureRef.value)
+    }
+
+    if (durationWidth > 0) {
+      used += (used > 0 ? TAG_GAP : 0) + durationWidth
+    }
+
+    return used
+  }
+
+  async function recalculateVisibleTags() {
+    if (!useFixedLayout.value) return
+
+    await nextTick()
+
+    const wrap = tagsWrapRef.value
+    const grades = displayGrades.value
+    if (!wrap) return
+
+    if (!grades.length) {
+      visibleCount.value = 0
+      return
+    }
+
+    const containerWidth = wrap.clientWidth
+    const tagEls = measureTagRefs.value.filter(Boolean)
+    const tagWidths = tagEls.map(measureEl)
+    const durationWidth = props.duration ? measureEl(durationMeasureRef.value) : 0
+
+    if (rowWidth(tagWidths, grades.length, 0, durationWidth) <= containerWidth) {
+      visibleCount.value = grades.length
+      return
+    }
+
+    for (let visible = grades.length - 1; visible >= 0; visible--) {
+      const hidden = grades.length - visible
+      if (rowWidth(tagWidths, visible, hidden, durationWidth) <= containerWidth) {
+        visibleCount.value = visible
+        return
+      }
+    }
+
+    visibleCount.value = 0
+  }
+
+  function updateOverflowPopupPosition() {
+    const badge = moreBadgeRef.value
+    if (!badge) return
+
+    const rect = badge.getBoundingClientRect()
+    overflowPopupStyle.value = {
+      position: 'fixed',
+      top: `${rect.bottom + 6}px`,
+      left: `${rect.left}px`,
+      zIndex: '9999',
+    }
+  }
+
+  function openOverflowPopup() {
+    clearTimeout(overflowPopupTimer)
+    updateOverflowPopupPosition()
+    overflowPopupOpen.value = true
+  }
+
+  function scheduleCloseOverflowPopup() {
+    clearTimeout(overflowPopupTimer)
+    overflowPopupTimer = setTimeout(() => {
+      overflowPopupOpen.value = false
+    }, 200)
+  }
+
+  function setupTagResizeObserver() {
+    resizeObserver?.disconnect()
+    if (!useFixedLayout.value || !tagsWrapRef.value) return
+
+    resizeObserver = new ResizeObserver(() => {
+      recalculateVisibleTags()
+      if (overflowPopupOpen.value) updateOverflowPopupPosition()
+    })
+    resizeObserver.observe(tagsWrapRef.value)
+  }
+
+  function onWindowChange() {
+    if (overflowPopupOpen.value) updateOverflowPopupPosition()
+  }
+
+  watch(
+    [displayGrades, () => props.duration, useFixedLayout],
+    () => {
+      overflowPopupOpen.value = false
+      recalculateVisibleTags()
+    },
+    { deep: true },
+  )
+
   const image = ref(null)
 
   async function loadCardImage() {
@@ -493,6 +688,11 @@
   }
 
   onMounted(async () => {
+    setupTagResizeObserver()
+    recalculateVisibleTags()
+    window.addEventListener('scroll', onWindowChange, true)
+    window.addEventListener('resize', onWindowChange)
+
     if (props.showCopyModify && props.id) {
       void getContentPreviewMeta(props.id)
     }
@@ -514,6 +714,13 @@
       if (explore && id && !getCachedPreviewMeta(id)) void getContentPreviewMeta(id)
     },
   )
+
+  onUnmounted(() => {
+    resizeObserver?.disconnect()
+    clearTimeout(overflowPopupTimer)
+    window.removeEventListener('scroll', onWindowChange, true)
+    window.removeEventListener('resize', onWindowChange)
+  })
 </script>
 
 <style scoped>
@@ -901,6 +1108,103 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tag pills row */
+.pcard-tags-wrap {
+  position: relative;
+  flex-shrink: 0;
+  min-height: 28px;
+}
+.pcard-fixed .pcard-tags-wrap {
+  height: 28px;
+  margin-bottom: 15px;
+  overflow: visible;
+}
+.pcard-tags-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  white-space: nowrap;
+  height: 0;
+  overflow: hidden;
+}
+.pcard-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding-bottom: 2px;
+  align-items: center;
+}
+.pcard-tags--single-line {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  height: 28px;
+  padding-bottom: 0;
+}
+
+.pcard-grade {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  line-height: 16px;
+  background: white;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.pcard-grade-placeholder {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+.pcard-grade-more {
+  cursor: default;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+.pcard-tags-popup {
+  position: fixed;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: max-content;
+  max-width: min(240px, 70vw);
+  padding: 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+.pcard-tags-popup::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+}
+
+/* Duration badge */
+.pcard-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  flex-shrink: 0;
   white-space: nowrap;
 }
 
