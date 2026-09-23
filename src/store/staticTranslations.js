@@ -62,7 +62,7 @@ export default {
     "pl": "Aktywność konta",
     "pt": "Atividade da conta",
     "sk": "Aktivita účtu",
-    "th": "กิจกรรมบัญชี"
+    "th": "สิ่งที่เกิดขึ้นกับบัญชีนี้"
   },
   "account-created": {
     "de": "Konto erstellt",
@@ -75,7 +75,7 @@ export default {
     "pl": "Konto utworzone",
     "pt": "Conta criada",
     "sk": "Účet vytvorený",
-    "th": "สร้างบัญชีแล้ว"
+    "th": "สร้างเมื่อวันที่"
   },
   "account-status": {
     "de": "Kontostatus",
@@ -413,7 +413,7 @@ export default {
     "pl": "Dodaj uczniów do listy uczniów",
     "pt": "Adicione alunos à sua lista de alunos",
     "sk": "Pridajte žiakov do svojho zoznamu žiakov",
-    "th": "เพิ่มนักเรียนเข้าสู่ระบบ"
+    "th": "สร้างบัญชีนักเรียนในระบบ PILA"
   },
   "add-to": {
     "de": "Hinzufügen zu",
@@ -1119,7 +1119,7 @@ export default {
   },
   "archive-sequence-confirm": {
     "de": "Diese Sequenz archivieren? Sie wird aus Ihren aktiven Sequenzen entfernt. Sie können sie später wiederherstellen.",
-    "en": "Archive this sequence? It will be removed from 'My Sequences' and can be restored later.",
+    "en": "Archive this sequence? It will be removed from 'Sequence Builder' and can be restored later.",
     "es": "¿Archivar esta secuencia? Se eliminará de tus secuencias activas. Puedes restaurarla más tarde.",
     "fr": "Archiver cette séquence ? Elle sera retirée de vos séquences actives. Vous pourrez la restaurer plus tard.",
     "km": "ទុកលំដាប់នេះជាឯកសារ? វានឹងត្រូវបានដកចេញពីលំដាប់សកម្ម។ អ្នកអាចស្តារវានៅពេលក្រោយ។",
@@ -1128,7 +1128,7 @@ export default {
     "pl": "Zarchiwizować tę sekwencję? Zostanie usunięta z aktywnych sekwencji. Możesz ją później przywrócić.",
     "pt": "Arquivar esta sequência? Ela será removida das suas sequências ativas. Você poderá restaurá-la mais tarde.",
     "sk": "Archivovať túto sekvenciu? Odstráni sa z vašich aktívnych sekvencií. Neskôr ju môžete obnoviť.",
-    "th": "เก็บถาวรลำดับนี้หรือไม่? จะถูกลบออกจากลำดับที่ใช้งาน คุณสามารถกู้คืนได้ในภายหลัง"
+    "th": "เก็บลำดับนี้ไว้ในคลังหรือไม่? ลำดับนี้จะถูกนำออกจาก 'ตัวสร้างลำดับ' และสามารถกู้คืนได้ภายหลัง"
   },
   "archive-sequence-named-confirm": {
     "de": "„{name}“ archivieren? Die Sequenz wird aus Ihren aktiven Sequenzen entfernt. Sie können sie später wiederherstellen.",
@@ -1154,7 +1154,7 @@ export default {
     "pl": "Ten uczeń zostanie ukryty na aktywnej liście. Nie jest usuwany i nadal może się logować. Pozostaje w grupach i może nadal widzieć zadania, dopóki nie usuniesz go z grup lub nie zarchiwizujesz zadania dla wszystkich. Przywróć w dowolnym momencie z zarchiwizowanych uczniów.",
     "pt": "Este aluno será ocultado da sua lista ativa. Não é eliminado e ainda pode iniciar sessão. Permanece nos grupos e pode continuar a ver tarefas até o remover dos grupos ou arquivar a tarefa para todos. Restaure a qualquer momento a partir dos alunos arquivados.",
     "sk": "Tento študent bude skrytý z vášho aktívneho zoznamu. Nie je odstránený a stále sa môže prihlásiť. Zostáva v skupinách a môže stále vidieť úlohy, kým ho neodstránite zo skupín alebo nearchivujete úlohu pre všetkých. Kedykoľvek ho obnovte z archivovaných študentov.",
-    "th": "นักเรียนคนนี้จะถูกซ่อนจากรายการที่ใช้งานอยู่ ไม่ถูกลบและยังเข้าสู่ระบบได้ ยังอยู่ในกลุ่มและอาจยังเห็นงานจนกว่าคุณจะนำออกจากกลุ่มหรือเก็บถาวรงานสำหรับทุกคน กู้คืนได้ตลอดเวลาจากนักเรียนที่เก็บถาวร"
+    "th": "บัญชีที่ถูกจัดเก็บจะไม่แสดงในลิสต์บัญชีนักเรียนของคุณ จะไม่ถูกลบทิ้งและนักเรียนยังเข้าสู่ระบบได้ ถ้าต้องการให้บัญชีที่ถูกจัดเก็บกลับมาแสดงในลิสต์ ให้กด ‘แสดงบัญชีที่ถูกจัดเก็บ’ แล้วเลือกบัญชีนั้นๆ"
   },
   "archive-student-confirm-title": {
     "de": "Diesen Schüler archivieren?",
@@ -1167,7 +1167,7 @@ export default {
     "pl": "Zarchiwizować tego ucznia?",
     "pt": "Arquivar este aluno?",
     "sk": "Archivovať tohto študenta?",
-    "th": "เก็บถาวรนักเรียนคนนี้?"
+    "th": "ต้องการจัดเก็บบัญชีนี้แบบถาวรหรือไม่"
   },
   "archived": {
     "de": "Archiviert",
@@ -1232,7 +1232,7 @@ export default {
     "pl": "Przypisz i monitoruj",
     "pt": "Atribuir e monitorar",
     "sk": "Priradiť a sledovať",
-    "th": "มอบหมายและติดตาม"
+    "th": "งานที่มอบหมายไว้"
   },
   "assign-relevant-competencies-to-make-this-conten": {
     "de": "Weisen Sie relevante Kompetenzen zu, damit dieser Inhalt auffindbar ist",
@@ -2025,7 +2025,7 @@ export default {
     "pl": "Wybierz sposób dodawania uczniów",
     "pt": "Escolha como adicionar alunos",
     "sk": "Vyberte, ako pridať študentov",
-    "th": "เลือกวิธีเพิ่มนักเรียน"
+    "th": "เลือกวิธีสร้างบัญชีนักเรียน"
   },
   "class-assigned": {
     "de": "Klasse zugewiesen",
@@ -2506,7 +2506,7 @@ export default {
     "pl": "Utwórz",
     "pt": "Criar",
     "sk": "Vytvoriť",
-    "th": "สร้างบทเรียนด้วยตนเอง"
+    "th": "สร้างบทเรียนเอง"
   },
   "create-a-copy-of": {
     "de": "Erstellen Sie eine Kopie von",
@@ -2532,7 +2532,7 @@ export default {
     "pl": "Utwórz konto",
     "pt": "Criar Conta",
     "sk": "Vytvoriť účet",
-    "th": "สร้างบัญชี"
+    "th": "สร้าง"
   },
   "create-all-accounts": {
     "de": "Alle Konten erstellen",
@@ -2545,7 +2545,7 @@ export default {
     "pl": "Utwórz wszystkie konta",
     "pt": "Criar todas as contas",
     "sk": "Vytvoriť všetky účty",
-    "th": "สร้างบัญชีทั้งหมด"
+    "th": "สร้าง"
   },
   "create-an-account-or-log-in-with-the-service-tha": {
     "de": "Erstelle ein Konto oder melde Dich mit dem Dienst an, den Du an Deiner Schule nutzt. Wenn der Dienst, den Du normalerweise nutzt, nicht zu den Optionen gehört, bitte Deine Lehrkraft, sich an koordination.power.feedback@uni-rostock.de zu wenden.",
@@ -2597,7 +2597,7 @@ export default {
     "pl": "Utwórz konta zbiorczo",
     "pt": "Criar contas em lote",
     "sk": "Vytvoriť účty hromadne",
-    "th": "สร้างบัญชีจำนวนมาก"
+    "th": "สร้างหลายๆบัญชีในครั้งเดียว"
   },
   "create-copy": {
     "de": "Kopie erstellen",
@@ -2649,7 +2649,7 @@ export default {
     "pl": "Utwórz konto indywidualne",
     "pt": "Criar conta individual",
     "sk": "Vytvoriť individuálny účet",
-    "th": "สร้างบัญชีรายบุคคล"
+    "th": "สร้างครั้งละบัญชี"
   },
   "create-modify-assignment": {
     "de": "Aufgabe erstellen/ändern",
@@ -3130,7 +3130,7 @@ export default {
     "pl": "Pobierz dane logowania",
     "pt": "Baixar código de login",
     "sk": "Stiahnuť prihlasovací kód",
-    "th": "ดาวน์โหลดข้อมูลเข้าสู่ระบบ"
+    "th": "ดาวน์โหลดรหัสเข้าสู่ระบบ"
   },
   "download-login-code": {
     "de": "Anmeldecode herunterladen",
@@ -3143,7 +3143,7 @@ export default {
     "pl": "Pobierz kod logowania",
     "pt": "Baixar código de login",
     "sk": "Stiahnuť prihlasovací kód",
-    "th": "ดาวน์โหลดรหัสเข้าสู่ระบบ"
+    "th": "ดาวน์โหลดรหัสเข้าสู่ระบบของบัญชีนี้"
   },
   "download-template": {
     "de": "Vorlage herunterladen",
@@ -3442,7 +3442,7 @@ export default {
     "pl": "Edytuj ucznia",
     "pt": "Editar aluno",
     "sk": "Upraviť žiaka",
-    "th": "แก้ไขนักเรียน"
+    "th": "แก้ไขข้อมูล"
   },
   "edit-students-details": {
     "de": "Schülerdetails bearbeiten",
@@ -3455,7 +3455,7 @@ export default {
     "pl": "Edytuj dane ucznia",
     "pt": "Editar detalhes dos alunos",
     "sk": "Upraviť podrobnosti o žiakoch",
-    "th": "แก้ไขรายละเอียดนักเรียน"
+    "th": "แก้ไขข้อมูลบัญชีนี้"
   },
   "email": {
     "de": "E-Mail",
@@ -3533,7 +3533,7 @@ export default {
     "pl": "Informacje o uczniach są pokazywane jako anonimowe ID, dopóki nie wprowadzisz słowa kluczowego szyfrowania.",
     "pt": "As informações dos alunos são mostradas como IDs anônimos até que você insira sua palavra-chave de criptografia.",
     "sk": "Informácie o žiakovi sa zobrazujú ako anonymné ID, kým nezadáte svoje šifrovacie kľúčové slovo.",
-    "th": "ข้อมูลนักเรียนจะแสดงเป็นรหัสนิรนามจนกว่าคุณจะใส่คำสำคัญการเข้ารหัส"
+    "th": "ข้อมูลบัญชีนักเรียนจะถูกแสดงเป็นรหัสนิรนาม จนกว่าคุณจะใส่รหัสเพื่อเข้าถึงข้อมูล"
   },
   "encryption-key-required-hint": {
     "de": "Zum Anzeigen der Schülerinformationen ist ein Verschlüsselungsschlüsselwort erforderlich.",
@@ -3585,7 +3585,7 @@ export default {
     "pl": "Wprowadź słowo-klucz szyfrowania",
     "pt": "Insira a palavra-chave de criptografia",
     "sk": "Zadajte šifrovacie heslo",
-    "th": "กรุณาใส่รหัสในการเข้าถึงข้อมูล"
+    "th": "ใส่รหัสเพื่อเข้าถึงข้อมูล"
   },
   "enter-score-placeholder": {
     "de": "Punktzahl eingeben",
@@ -3676,7 +3676,7 @@ export default {
     "pl": "Przeglądaj bibliotekę treści",
     "pt": "Explorar biblioteca de conteúdo",
     "sk": "Preskúmať knižnicu obsahu",
-    "th": "สำรวจคลังเนื้อหา"
+    "th": "ค้นหากิจกรรมที่มีอยู่"
   },
   "favorites": {
     "de": "Favoriten",
@@ -4144,7 +4144,7 @@ export default {
     "pl": "Potwierdzam, że zebrałem niezbędną zgodę",
     "pt": "Confirmo que recolhi o consentimento necessário",
     "sk": "Potvrdzujem, že som získal potrebný súhlas",
-    "th": "ฉันยืนยันว่าได้เก็บรวบรวมความยินยอมที่จำเป็นแล้ว"
+    "th": "ฉันยืนยันว่าได้รับความยินยอมแล้ว"
   },
   "if-there-is-anything-in-this-text-you-do-not-und": {
     "de": "Wenn Du etwas in diesem Text nicht verstehst oder etwas Dich unwohl fühlen lässt, sage bitte Deiner Lehrkraft Bescheid, bevor Du PILA zu nutzen beginnst.",
@@ -4703,7 +4703,7 @@ export default {
     "pl": "Połącz uczniów ze sobą",
     "pt": "Vincule alunos a você",
     "sk": "Prepojte žiakov s vami",
-    "th": "เพิ่มนักเรียนเข้าสู่ระบบ"
+    "th": "สร้างบัญชีผ่านลิงก์"
   },
   "link-via-sso": {
     "de": "Über SSO verknüpfen",
@@ -4924,7 +4924,7 @@ export default {
     "pl": "Utwórz jednego ucznia ręcznie",
     "pt": "Criar um aluno manualmente",
     "sk": "Manuálne vytvoriť jedného študenta",
-    "th": "สร้างนักเรียนรายบุคคลด้วยตนเอง"
+    "th": "สร้างบัญชีนักเรียนทีละหนึ่งบัญชี"
   },
   "mark-as-graded": {
     "de": "Als bewertet markieren",
@@ -5071,7 +5071,7 @@ export default {
   },
   "my-sequences": {
     "de": "Meine Sequenzen",
-    "en": "My Sequences",
+    "en": "Sequence Builder",
     "es": "Mis secuencias",
     "fr": "Mes séquences",
     "km": "លំដាប់របស់ខ្ញុំ",
@@ -5080,7 +5080,7 @@ export default {
     "pl": "Moje sekwencje",
     "pt": "As minhas sequências",
     "sk": "Moje sekvencie",
-    "th": "ลำดับของฉัน"
+    "th": "ตัวสร้างลำดับ"
   },
   "my-students": {
     "de": "MEINE SCHÜLERINNEN UND SCHÜLER",
@@ -5873,7 +5873,7 @@ export default {
     "pl": "Organizuj uczniów w grupy",
     "pt": "Organizar alunos em grupos",
     "sk": "Organizovať študentov do skupín",
-    "th": "จัดนักเรียนเป็นกลุ่ม"
+    "th": "จัดกลุ่มให้นักเรียน"
   },
   "organize-content-into-learning-sequences": {
     "de": "Inhalte in Lernsequenzen organisieren",
@@ -6016,7 +6016,7 @@ export default {
     "pl": "Zgodnie z Informacją o ochronie danych osobowych PILA zaznacz to pole, aby potwierdzić, że uzyskałeś zgodę rodzica/opiekuna i ucznia zgodnie z lokalnymi i/lub krajowymi przepisami.",
     "pt": "De acordo com o Aviso de Proteção de Dados Pessoais do PILA, marque esta caixa para confirmar que você obteve o consentimento dos pais/responsáveis e do aluno, conforme exigido pelas leis locais e/ou nacionais.",
     "sk": "Podľa oznámenia o ochrane osobných údajov PILA začiarknite toto políčko, aby ste potvrdili, že ste získali súhlas rodiča/zákonného zástupcu a žiaka podľa miestnych a/alebo národných právnych predpisov.",
-    "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA กรุณาติ๊กเครื่องหมายในช่องนี้เพื่อยืนยันว่าท่านได้รับความยินยอมจากผู้ปกครอง/ผู้ดูแลและนักเรียนตามที่กฎหมายท้องถิ่นและ/หรือกฎหมายระดับชาติของท่านกำหนด"
+    "th": "ตามประกาศคุ้มครองข้อมูลส่วนบุคคลของ PILA กรุณาติ๊กเครื่องหมายในช่องนี้เพื่อยืนยันว่าคุณได้รับความยินยอมจากผู้ปกครอง/ผู้ดูแลและนักเรียนตามที่กฎหมายท้องถิ่นและ/หรือกฎหมายระดับชาติของคุณกำหนด"
   },
   "pila-content": {
     "de": "PILA-Inhalte",
@@ -6705,7 +6705,7 @@ export default {
     "pl": "Zasoby",
     "pt": "Recursos",
     "sk": "Zdroje",
-    "th": "ทรัพยากร"
+    "th": "ข้อมูลเพิ่มเติม"
   },
   "restore": {
     "de": "Wiederherstellen",
@@ -7563,7 +7563,7 @@ export default {
     "pl": "Udostępnij ten link swoim uczniom:",
     "pt": "Compartilhe este link com seus alunos:",
     "sk": "Zdieľajte tento odkaz so svojimi žiakmi:",
-    "th": "กรุณาส่งลิงก์นี้ให้กับนักเรียนของท่าน เพื่อเพิ่มนักเรียนเข้าสู่ระบบ: "
+    "th": "ส่งลิงก์นี้ให้นักเรียนที่ต้องการสร้างบัญชี บัญชีนักเรียนคนนี้จะถูกสร้างเมื่อนักเรียนตอบรับ"
   },
   "show": {
     "de": "Zeigen",
@@ -7901,7 +7901,7 @@ export default {
     "pl": "Informacje o uczniu",
     "pt": "Informações do aluno",
     "sk": "Informácie o žiakovi",
-    "th": "ข้อมูลนักเรียน"
+    "th": "ข้อมูลบัญชีนี้"
   },
   "student-name": {
     "de": "Name der Schülerin/Schüler",
@@ -8070,7 +8070,7 @@ export default {
     "pl": "Profil ucznia",
     "pt": "Perfil dos Alunos",
     "sk": "Profil žiakov",
-    "th": "โปรไฟล์นักเรียน"
+    "th": "ข้อมูลบัญชีนี้"
   },
   "students-restored-successfully": {
     "de": "Schüler erfolgreich wiederhergestellt",
@@ -8902,7 +8902,7 @@ export default {
     "pl": "Prześlij CSV lub wprowadź wiele",
     "pt": "Carregar CSV ou introduzir vários",
     "sk": "Nahrať CSV alebo zadať viaceré",
-    "th": "อัปโหลด CSV หรือป้อนหลายรายการ"
+    "th": "สร้างบัญชีนักเรียนหลายๆบัญชีในครั้งเดียวหรืออัปโหลด CSV"
   },
   "upload-image": {
     "de": "Bild hochladen",
@@ -9292,7 +9292,7 @@ export default {
     "pl": "Obecnie nie masz żadnych uczniów",
     "pt": "Você não tem alunos no momento",
     "sk": "Momentálne nemáte žiadnych žiakov",
-    "th": "คุณยังไม่มีนักเรียนในขณะนี้"
+    "th": "ยังไม่มีบัญชีนักเรียน"
   },
   "you-currently-have-no-teachers": {
     "de": "Sie haben derzeit keine Lehrkräfte.",
@@ -10059,7 +10059,7 @@ export default {
     "pl": "Witaj ponownie, {name}",
     "pt": "Bem-vindo de volta, {name}",
     "sk": "Vitajte späť, {name}",
-    "th": "ยินดีต้อนรับกลับ, {name}"
+    "th": "สวัสดี {name}"
   },
   "heres-whats-happening-with-your-classes-today": {
     "de": "Das passiert heute in Ihren Klassen",
@@ -10085,7 +10085,7 @@ export default {
     "pl": "Twoja przestrzeń robocza jest gotowa!",
     "pt": "Seu espaço de trabalho está pronto!",
     "sk": "Váš pracovný priestor je pripravený!",
-    "th": "พื้นที่ทำงานของคุณพร้อมแล้ว!"
+    "th": "PILA พร้อมให้คุณใช้งานแล้ว!"
   },
   "pila-helps-you-create-assign-and-monitor": {
     "de": "PILA hilft Ihnen, PISA-basierte Lerninhalte zu erstellen, zuzuweisen und zu überwachen. Beginnen Sie mit den empfohlenen Ressourcen unten oder erstellen Sie gleich Ihre erste Aufgabe.",
@@ -10150,7 +10150,7 @@ export default {
     "pl": "Szybkie łącza",
     "pt": "Links rápidos",
     "sk": "Rýchle odkazy",
-    "th": "ลิงก์ด่วน"
+    "th": "ลิงก์ที่คุณใช้บ่อยๆ"
   },
   "explore-item-library": {
     "de": "Aufgabenbibliothek erkunden",
@@ -10202,7 +10202,7 @@ export default {
     "pl": "Brak aktywności",
     "pt": "Ainda não há atividade",
     "sk": "Zatiaľ žiadna aktivita",
-    "th": "ยังไม่มีกิจกรรม"
+    "th": "ไม่มีสิ่งที่ทำไว้ล่าสุด"
   },
   "your-recent-actions-will-be-logged-here": {
     "de": "Ihre letzten Aktionen werden hier protokolliert",
@@ -10228,7 +10228,7 @@ export default {
     "pl": "Tutaj pojawią się ostatnie grupy, zadania, sekwencje i terminy",
     "pt": "Grupos, tarefas, sequências e prazos recentes aparecerão aqui",
     "sk": "Tu sa zobrazia nedávne skupiny, úlohy, sekvencie a termíny",
-    "th": "กลุ่ม งานที่มอบหมาย ลำดับ และกำหนดล่าสุดจะแสดงที่นี่"
+    "th": "กลุ่ม งานที่มอบหมายไว้ กำหนดส่งงาน และสิ่งใดก็ตามที่คุณทำไว้ล่าสุดจะแสดงขึ้นตรงนี้"
   },
   "current-assignments": {
     "de": "Aktuelle Aufgaben",
@@ -10267,7 +10267,7 @@ export default {
     "pl": "Utwórz pierwsze zadanie, przeglądając bibliotekę treści lub tworząc własne moduły.",
     "pt": "Crie sua primeira tarefa navegando pela biblioteca de conteúdos ou criando módulos personalizados.",
     "sk": "Vytvorte svoju prvú úlohu prehliadaním knižnice obsahu alebo vytvorením vlastných modulov.",
-    "th": "สร้างงานมอบหมายชิ้นแรกโดยเรียกดูคลังเนื้อหา หรือสร้างโมดูลเอง"
+    "th": "มอบหมายงานชิ้นแรก โดยค้นหากิจกรรมที่มีอยู่หรือสร้างบทเรียนเอง"
   },
   "browse-content": {
     "de": "Inhalte durchsuchen",
@@ -10436,7 +10436,7 @@ export default {
     "pl": "Dostosuj pulpit",
     "pt": "Personalizar painel",
     "sk": "Prispôsobiť nástenku",
-    "th": "ปรับแต่งแดชบอร์ด"
+    "th": "ปรับแต่งหน้าจอ"
   },
   "choose-which-sections-to-show": {
     "de": "Wählen Sie, welche Bereiche auf Ihrer Startseite angezeigt werden.",
@@ -10527,7 +10527,7 @@ export default {
     "pl": "Wprowadź poniżej swój unikalny kod szyfrowania (jak hasło) albo utwórz go, jeśli korzystasz po raz pierwszy. Chroni on dane uczniów i pozwala Ci bezpiecznie do nich wracać.",
     "pt": "Insira abaixo seu código de criptografia exclusivo (como uma senha), ou crie um se for a primeira vez. Esse código protege as informações dos seus alunos e permite o acesso seguro.",
     "sk": "Nižšie zadajte svoj jedinečný šifrovací kód (ako heslo), alebo si vytvorte nový, ak ste prvýkrát používateľ. Tento kód chráni informácie o vašich študentoch a umožňuje vám k nim bezpečne pristupovať.",
-    "th": "ป้อนรหัสเข้ารหัสที่ไม่ซ้ำกัน (เหมือนรหัสผ่าน) ด้านล่าง หรือสร้างรหัสใหม่หากคุณเป็นผู้ใช้ครั้งแรก รหัสนี้ปกป้องข้อมูลนักเรียนและให้คุณเข้าถึงได้อย่างปลอดภัย"
+    "th": "ใส่รหัสที่สร้างไว้แล้ว หรือสร้างรหัสใหม่ถ้าคุณใช้งานเป็นครั้งแรก รหัสเพื่อเข้าถึงข้อมูลคล้ายกับพาสเวิร์ด ควรเป็นอักขระที่ท่องจำหรือลอกเลียนได้ยาก รหัสนี้ป้องกันไม่ให้ข้อมูลนักเรียนรั่วไหล และทำให้คุณเข้าถึงข้อมูลได้อย่างปลอดภัย"
   },
   "encryption-code-keep-safe": {
     "de": "Sie müssen diesen Code erneut eingeben, wenn Sie Gerät oder Browser wechseln oder Ihre Browserdaten löschen.",
@@ -10540,7 +10540,7 @@ export default {
     "pl": "Poprosimy o ponowne podanie tego kodu, gdy zmienisz urządzenie, przeglądarkę lub wyczyścisz dane przeglądania.",
     "pt": "Você precisará digitar este código novamente ao trocar de dispositivo ou navegador, ou limpar os dados de navegação.",
     "sk": "Budete požiadaní o opätovné zadanie tohto kódu, keď zmeníte zariadenie, prehliadač alebo vymažete údaje prehliadania.",
-    "th": "คุณจะต้องกรอกรหัสนี้อีกครั้งเมื่อคุณเปลี่ยนอุปกรณ์ เบราว์เซอร์ หรือล้างข้อมูลการท่องเว็บ"
+    "th": "คุณจะต้องใส่รหัสนี้ใหม่ ถ้าคุณเปลี่ยนอุปกรณ์ที่ใช้งาน เปลี่ยนเบราว์เซอร์ หรือล้างข้อมูลเบราว์เซอร์"
   },
   "sequence-circular-reference": {
     "de": "Diese Sequenz kann hier nicht angezeigt werden, weil sie eine zirkuläre Referenz erzeugt.",
@@ -10683,7 +10683,7 @@ export default {
     "pl": "Kod logowania PILA",
     "pt": "Código de login PILA",
     "sk": "Prihlasovací kód PILA",
-    "th": "รหัสเข้าสู่ระบบ PILA"
+    "th": "รหัสเข้าสู่ระบบ PILA ของบัญชีนี้"
   },
   "speak-to-your-teacher": {
     "de": "Sprich mit deiner Lehrkraft",
@@ -10878,7 +10878,7 @@ export default {
     "pl": "Nazwa A–Z",
     "pt": "Nome A–Z",
     "sk": "Názov A–Z",
-    "th": "ชื่อ A–Z"
+    "th": "ชื่อ ก–ฮ"
   },
   "name-z-a": {
     "de": "Name Z–A",
@@ -10891,7 +10891,7 @@ export default {
     "pl": "Nazwa Z–A",
     "pt": "Nome Z–A",
     "sk": "Názov Z–A",
-    "th": "ชื่อ Z–A"
+    "th": "ชื่อ ฮ–ก"
   },
   "print-codes": {
       "de": "Zugangscodes drucken",
