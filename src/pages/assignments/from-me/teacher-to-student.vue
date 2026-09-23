@@ -438,7 +438,7 @@
   import PreviewModal from '@/components/common/preview-modal.vue'
   import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
   import { useContentLibrary } from '@/utils/useContentLibrary.js'
-  import { getContentName, prefetchBatch, getCachedTagHierarchy, invalidateNames, hasCachedContentNameForLang } from '@/utils/content-cache.js'
+  import { getContentName, prefetchPageDetails, getCachedTagHierarchy, invalidateNames, hasCachedContentNameForLang } from '@/utils/content-cache.js'
   import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent, removeAssignmentContentId } from '@/utils/assignment-content.js'
@@ -518,12 +518,11 @@
     }
     const visibleIds = contentBrowserRef.value?.paginatedDisplayList
     if (visibleIds?.length) {
-      prefetchBatch(
+      prefetchPageDetails(
         visibleIds,
         lang,
         exploreTaxonomy(store.getters.tagPartition).partition,
         getCachedTagHierarchy()?.leafToCategory,
-        { priorityIds: visibleIds },
       ).catch(() => {})
     }
   })

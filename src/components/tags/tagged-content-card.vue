@@ -335,7 +335,12 @@
     return getCachedPreviewMeta(props.id)
   })
 
+  // Local title so a catalog-wide name batch (one sort at the end) does not
+  // leave mounted cards blank until every id in the list has resolved.
+  const fetchedTitle = ref('')
+
   const displayTitle = computed(() => {
+    if (fetchedTitle.value) return fetchedTitle.value
     void nameCacheVersion.value
     if (!props.id) return ''
     return (getCachedContentName(props.id, store.getters.language()) || '').trim()
@@ -348,9 +353,15 @@
 
   watch(
     () => [props.id, store.getters.language(), nameCacheVersion.value],
-    ([id, lang]) => {
+    async ([id, lang], prev) => {
+      const langChanged = prev && prev[1] !== lang
+      const idChanged = prev && prev[0] !== id
+      if (!id || langChanged || idChanged) fetchedTitle.value = ''
+      if (!id) return
       // Always resolve for current language (bare-id English must not block Thai/etc.).
-      if (id) void getContentName(id, lang)
+      const name = await getContentName(id, lang)
+      if (id !== props.id || lang !== store.getters.language()) return
+      fetchedTitle.value = (name || '').trim()
     },
     { immediate: true },
   )

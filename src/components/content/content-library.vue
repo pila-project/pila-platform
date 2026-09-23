@@ -501,10 +501,13 @@
   import TaggingModal from '@/components/tagging-modal.vue'
   import {
     nameCacheVersion, metadataCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
-    tagCache, getCachedTagHierarchy, prefetchBatch, invalidateNames, prefetchTagNames,
+    tagCache, getCachedTagHierarchy, prefetchBatch, prefetchPageDetails, prefetchTagNames,
     getContentMetadata, getContentType, getCachedPreviewMeta, patchPreviewMeta,
     setCachedContentName, loadExploreCache, persistSequencesPanelCache,
+    withCacheVersionBatch,
   } from '@/utils/content-cache.js'
+  import { mapPool } from '@/utils/teacher-home.js'
+  import { EXPLORE_FILL_CONCURRENCY, exploreSlot } from '@/utils/explore-catalog-fill.js'
   import { useContentLibrary, notifyTagIndexUpdated, registerMyContentItem } from '@/utils/useContentLibrary.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import {
@@ -574,7 +577,6 @@
     searchQuery: contentSearchQuery,
     contentPage,
     myContent,
-    currentContentList,
     filteredContentList,
     ensureLoaded,
   } = useContentLibrary(store)
@@ -1403,16 +1405,23 @@
     if (!silent && !mySequenceIds.value.length) sequencesLoading.value = true
     try {
       const ids = [...myContent]
-      const metas = await Promise.all(
-        ids.map(id => getContentMetadata(id).catch(() => null)),
-      )
+      const metas = await withCacheVersionBatch(() => (
+        mapPool(ids, EXPLORE_FILL_CONCURRENCY, id => exploreSlot(
+          () => getContentMetadata(id).catch(() => null),
+        ))
+      ))
       const sequenceIds = ids.filter(
         (_, i) => metas[i]?.active_type === 'application/json;type=sequence',
       )
 
       const [archivedIdSet, states] = await Promise.all([
         loadExploreArchivedSequenceIds(),
-        Promise.allSettled(sequenceIds.map(id => Agent.state(id))),
+        mapPool(sequenceIds, EXPLORE_FILL_CONCURRENCY, id => exploreSlot(() => (
+          Agent.state(id).then(
+            value => ({ status: 'fulfilled', value }),
+            reason => ({ status: 'rejected', reason }),
+          )
+        ))),
       ])
 
       const active = []
@@ -1437,7 +1446,15 @@
       persistSequenceList(sortedActive, sortedArchived)
 
       const hierarchy = getCachedTagHierarchy()?.leafToCategory
-      await prefetchBatch([...sortedActive, ...sortedArchived], store.getters.language(), taxonomy.partition, hierarchy)
+      const sequenceCardIds = [...sortedActive, ...sortedArchived]
+      if (sequenceCardIds.length) {
+        await prefetchPageDetails(
+          sequenceCardIds,
+          store.getters.language(),
+          taxonomy.partition,
+          hierarchy,
+        )
+      }
     } finally {
       if (token === loadSequencesToken) sequencesLoading.value = false
     }
@@ -1461,21 +1478,11 @@
     }
   }
 
-  // ── Invalidate content-name cache on language change; fetch tag names for the new lang key ──
+  // Names for the new language are refilled by useContentLibrary (current scope
+  // only, one sort at the end). Tag labels are the taxonomy, not the catalog.
   watch(() => store.getters.language(), async (newLang, oldLang) => {
     if (newLang && oldLang && newLang !== oldLang) {
-      invalidateNames()
-      notifyTagIndexUpdated()
-      const allIds = currentContentList.value
-      const tagNames = prefetchTagNames(newLang)
-      if (allIds.length) {
-        await Promise.allSettled([
-          prefetchBatch(allIds, newLang, taxonomy.partition, getCachedTagHierarchy()?.leafToCategory),
-          tagNames,
-        ])
-      } else {
-        await tagNames
-      }
+      await prefetchTagNames(newLang)
       notifyTagIndexUpdated()
     }
   })

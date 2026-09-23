@@ -3,6 +3,8 @@ import getName, { localizedNameFromValue, resolveTranslatedContentName } from '.
 import getImageFromContent from './image-ref-for-content.js'
 import { localCache } from './local-cache.js'
 import { getHardcodedTagTranslation } from './tag-name-translations.js'
+import { mapPool } from './teacher-home.js'
+import { EXPLORE_FILL_CONCURRENCY, exploreSlot } from './explore-catalog-fill.js'
 
 /** Disk cache TTL for explore lists, metadata maps, and image blobs. */
 const CONTENT_CACHE_TTL = 60 * 60 * 1000 // 1 hour
@@ -83,16 +85,74 @@ export const metadataCacheVersion = ref(0)
 /** Bumped when tagNameCache entries change so Explore filters/pills recompute. */
 export const tagNameCacheVersion = ref(0)
 
-function bumpNameCacheVersion() {
-  nameCacheVersion.value++
+/**
+ * Version bumps are not applied inside each successful fetch.
+ * A burst in the same frame collapses to one increment (one Explore re-sort).
+ * `withCacheVersionBatch` holds bumps and applies one increment per channel
+ * when the outermost batch finishes — the catalog name fill uses that so
+ * sortExploreIds runs once for the list, not once per arrival.
+ */
+let cacheVersionHold = 0
+const versionSlots = {
+  name: { dirty: false, scheduled: false, target: nameCacheVersion },
+  metadata: { dirty: false, scheduled: false, target: metadataCacheVersion },
+  tagName: { dirty: false, scheduled: false, target: tagNameCacheVersion },
 }
 
-function bumpMetadataCacheVersion() {
-  metadataCacheVersion.value++
+function flushVersionSlot(slot) {
+  if (!slot.scheduled) return
+  slot.scheduled = false
+  slot.target.value++
 }
 
-function bumpTagNameCacheVersion() {
-  tagNameCacheVersion.value++
+function scheduleVersionSlot(slot) {
+  if (slot.scheduled) return
+  slot.scheduled = true
+  const run = () => flushVersionSlot(slot)
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run)
+  else queueMicrotask(run)
+}
+
+function bumpVersionSlot(slot, { force = false } = {}) {
+  if (cacheVersionHold > 0 && !force) {
+    slot.dirty = true
+    return
+  }
+  scheduleVersionSlot(slot)
+}
+
+function bumpNameCacheVersion(options) {
+  bumpVersionSlot(versionSlots.name, options)
+}
+
+function bumpMetadataCacheVersion(options) {
+  bumpVersionSlot(versionSlots.metadata, options)
+}
+
+function bumpTagNameCacheVersion(options) {
+  bumpVersionSlot(versionSlots.tagName, options)
+}
+
+function releaseCacheVersionHold() {
+  cacheVersionHold -= 1
+  if (cacheVersionHold > 0) return
+  cacheVersionHold = 0
+  for (const slot of Object.values(versionSlots)) {
+    if (!slot.dirty) continue
+    slot.dirty = false
+    slot.scheduled = false
+    slot.target.value++
+  }
+}
+
+/** Hold name/metadata/tag-name version bumps until `fn` settles, then bump once. */
+export async function withCacheVersionBatch(fn) {
+  cacheVersionHold += 1
+  try {
+    return await fn()
+  } finally {
+    releaseCacheVersionHold()
+  }
 }
 
 function isEnglishLang(lang) {
@@ -127,14 +187,15 @@ export function hasCachedContentNameForLang(id, lang) {
 export function setCachedContentName(id, name, lang) {
   if (!id || !name) return
   nameCache.set(nameCacheKey(id, lang), name)
-  bumpNameCacheVersion()
+  // Explicit edits show on the next frame even while a catalog name batch is held.
+  bumpNameCacheVersion({ force: true })
 }
 
 /** Sequences / assignments store display names under bare id. */
 export function setCachedLegacyName(id, name) {
   if (!id || !name) return
   nameCache.set(id, name)
-  bumpNameCacheVersion()
+  bumpNameCacheVersion({ force: true })
 }
 
 /**
@@ -437,7 +498,12 @@ export async function prefetchTagNames(lang) {
     ids.push(cat.id)
     if (Array.isArray(cat.leafIds)) ids.push(...cat.leafIds)
   }
-  await Promise.allSettled(ids.map(id => getTagName(id, lang)))
+  const unique = [...new Set(ids.filter(Boolean))]
+  await withCacheVersionBatch(() => (
+    mapPool(unique, EXPLORE_FILL_CONCURRENCY, id => exploreSlot(
+      () => getTagName(id, lang).catch(() => ''),
+    ))
+  ))
 }
 
 // ── Tag hierarchy ──
@@ -485,26 +551,77 @@ export function getCachedTagHierarchy() {
 
 // ── Batch prefetch ──
 
-export async function prefetchBatch(ids, lang, partition, leafToCategory, { priorityIds = [] } = {}) {
-  const priority = new Set(priorityIds)
-  const ordered = [
-    ...ids.filter(id => priority.has(id)),
-    ...ids.filter(id => !priority.has(id)),
-  ]
+/**
+ * Names, and optionally metadata / tags / images, under EXPLORE_FILL_CONCURRENCY.
+ * Images default off: a catalog-sized call must not download or persist blobs.
+ * Page fill passes `includeImages: true` (see prefetchPageDetails).
+ * One version bump when the batch settles, not one per id.
+ */
+export async function prefetchBatch(ids, lang, partition, leafToCategory, {
+  priorityIds = [],
+  includeNames = true,
+  includeMetadata = true,
+  includeTags = true,
+  includeImages = false,
+  concurrency = EXPLORE_FILL_CONCURRENCY,
+} = {}) {
+  const ordered = [...new Set([
+    ...(priorityIds || []).filter(Boolean),
+    ...(ids || []).filter(Boolean),
+  ])]
+  if (!ordered.length) return
+  const tagsReady = includeTags && leafToCategory
+  await withCacheVersionBatch(() => mapPool(ordered, concurrency, (id) => exploreSlot(async () => {
+    const jobs = []
+    if (includeNames) jobs.push(getContentName(id, lang))
+    if (includeMetadata) jobs.push(getContentMetadata(id))
+    if (tagsReady) jobs.push(getContentTags(id, partition, leafToCategory))
+    if (includeImages) jobs.push(getContentImage(id))
+    if (jobs.length) await Promise.allSettled(jobs)
+  })))
+}
 
-  const prefetchOne = async (id) => {
-    await Promise.allSettled([
-      getContentName(id, lang),
-      getContentMetadata(id),
-      getContentImage(id),
-      getContentTags(id, partition, leafToCategory),
-    ])
-  }
+function nameFillSettled(id, lang) {
+  const key = nameCacheKey(id, lang)
+  return nameCache.has(key) || unresolvedLangKeys.has(key)
+}
 
-  if (priority.size) {
-    await Promise.allSettled(priorityIds.map(prefetchOne))
-  }
-  await Promise.allSettled(ordered.filter(id => !priority.has(id)).map(prefetchOne))
+/** One in-flight name job per id so a second browser does not take a second slot. */
+const nameFillJobs = new Map()
+
+/**
+ * Names only, for the current id list. No images, no per-id taggings-for-target.
+ * `shouldContinue` is checked before a slot is taken: a cancelled walk finishes
+ * the calls already inside `getContentName` and does not queue the rest.
+ */
+export async function prefetchContentNames(ids, lang, { shouldContinue = () => true } = {}) {
+  const ordered = [...new Set((ids || []).filter(Boolean))]
+  if (!ordered.length) return
+  await withCacheVersionBatch(() => mapPool(ordered, EXPLORE_FILL_CONCURRENCY, (id) => {
+    if (!shouldContinue()) return undefined
+    if (nameFillSettled(id, lang)) return undefined
+    const key = nameCacheKey(id, lang)
+    let job = nameFillJobs.get(key)
+    if (!job) {
+      job = exploreSlot(() => getContentName(id, lang))
+      nameFillJobs.set(key, job)
+      job.finally(() => {
+        if (nameFillJobs.get(key) === job) nameFillJobs.delete(key)
+      })
+    }
+    return job
+  }))
+}
+
+/** Visible page (or the next page). Includes images; never call this with the catalog. */
+export function prefetchPageDetails(ids, lang, partition, leafToCategory) {
+  return prefetchBatch(ids, lang, partition, leafToCategory, {
+    priorityIds: ids,
+    includeNames: true,
+    includeMetadata: true,
+    includeTags: true,
+    includeImages: true,
+  })
 }
 
 // ── Cache access (synchronous reads) ──
@@ -668,8 +785,8 @@ export function invalidate(id) {
   tagCache.delete(id)
   imageCache.delete(id)
   previewMetaCache.delete(id)
-  bumpNameCacheVersion()
-  bumpMetadataCacheVersion()
+  bumpNameCacheVersion({ force: true })
+  bumpMetadataCacheVersion({ force: true })
   previewMetaVersion.value++
 }
 
@@ -689,6 +806,7 @@ export function patchPreviewMeta(id, patch) {
 export function invalidateNames() {
   nameCache.clear()
   unresolvedLangKeys.clear()
+  bumpNameCacheVersion({ force: true })
 }
 
 export function invalidateAll() {

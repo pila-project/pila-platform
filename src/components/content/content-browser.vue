@@ -78,11 +78,12 @@
 </template>
 
 <script setup>
-import { computed, onActivated, onMounted, ref, watch } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-import { useContentLibrary } from '@/utils/useContentLibrary.js'
-import { prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
+import { notifyTagIndexUpdated, useContentLibrary } from '@/utils/useContentLibrary.js'
+import { getCachedTagHierarchy, prefetchPageDetails } from '@/utils/content-cache.js'
 import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
+import { scheduleIdle } from '@/utils/teacher-home.js'
 import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
 import NoResultsFound from '@/components/common/no-results-found.vue'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -124,7 +125,9 @@ const {
   myContentIds,
   isMyContent,
   ensureLoaded,
-} = useContentLibrary(store)
+  tagCategories,
+  tagFiltersPending,
+} = useContentLibrary(store, { fillDetails: true })
 
 contentPerPage.value = props.perPage
 
@@ -134,7 +137,9 @@ const displayList = computed(() => {
 })
 
 /** Spinner while fetching; keep showing cached grid during background revalidate. */
-const showGridLoading = computed(() => loading.value && !displayList.value.length)
+const showGridLoading = computed(() => (
+  (loading.value || tagFiltersPending.value) && !displayList.value.length
+))
 
 const perPageOptionsForPagination = computed(() => {
   const opts = props.perPageOptions?.length ? props.perPageOptions : [12, 24, 48]
@@ -165,16 +170,53 @@ watch(
   },
 )
 
-watch(paginatedDisplayList, (ids) => {
-  if (!ids.length || !props.useDiskCache) return
-  prefetchBatch(
-    ids,
-    store.getters.language(),
-    exploreTaxonomy(store.getters.tagPartition).partition,
-    getCachedTagHierarchy()?.leafToCategory,
-    { priorityIds: ids },
-  ).catch(() => {})
-}, { immediate: true })
+let stopLookahead = () => {}
+
+function pageDetailPlan() {
+  const pageIds = paginatedDisplayList.value || []
+  // "All" mounts every card; each card loads its own image. Do not also
+  // prefetch images for that whole list.
+  if (!pageIds.length || isAllPerPage(contentPerPage.value)) {
+    return { pageIds: [], nextIds: [] }
+  }
+  const list = displayList.value || []
+  const start = contentPage.value * contentPerPage.value
+  const nextIds = list.slice(start, start + contentPerPage.value)
+    .filter(id => !pageIds.includes(id))
+  return { pageIds, nextIds }
+}
+
+function fillPageDetails(ids) {
+  if (!ids.length) return Promise.resolve()
+  const lang = store.getters.language()
+  const partition = exploreTaxonomy(store.getters.tagPartition).partition
+  const leafToCategory = getCachedTagHierarchy()?.leafToCategory
+  return prefetchPageDetails(ids, lang, partition, leafToCategory)
+    .then(() => { notifyTagIndexUpdated() })
+}
+
+watch(
+  () => {
+    const { pageIds, nextIds } = pageDetailPlan()
+    const hierarchyReady = tagCategories.value.length
+    return `${store.getters.language()}|${hierarchyReady}|${pageIds.join(',')}|${nextIds.join(',')}`
+  },
+  () => {
+    stopLookahead()
+    if (!props.useDiskCache) return
+    const { pageIds, nextIds } = pageDetailPlan()
+    if (pageIds.length) fillPageDetails(pageIds).catch(() => {})
+    if (!nextIds.length) return
+    stopLookahead = scheduleIdle(() => {
+      fillPageDetails(nextIds).catch(() => {})
+    })
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  stopLookahead()
+})
 
 onMounted(() => ensureLoaded({ useDiskCache: props.useDiskCache }))
 

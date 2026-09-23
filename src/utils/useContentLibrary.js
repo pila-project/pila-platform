@@ -8,9 +8,15 @@ import {
   tagCache, tagNameCacheVersion,
   getCachedTagName, prefetchTagNames,
   loadTagHierarchy, getCachedTagHierarchy,
-  prefetchBatch, loadExploreCache, persistExploreCache,
-  restoreTagHierarchyFromCache, invalidateAll,
+  loadExploreCache, persistExploreCache,
+  restoreTagHierarchyFromCache, invalidateAll, invalidateNames,
+  prefetchContentNames,
 } from '@/utils/content-cache.js'
+import {
+  catalogTagIndexComplete,
+  fetchTagFilterMatch,
+  selectedFilterGroups,
+} from '@/utils/explore-catalog-fill.js'
 
 const PILA_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
 
@@ -83,13 +89,14 @@ function contentCountsForCategory(categoryId) {
   return counts
 }
 
-function gradeTagOptions(cat, lang) {
+function gradeTagOptions(cat, lang, countsComplete) {
   const counts = contentCountsForCategory(cat.id)
   return (cat.leafIds || [])
     .map(leafId => ({
       value: leafId,
       label: getCachedTagName(leafId, lang) || leafId.slice(0, 8),
-      count: counts[leafId] || 0,
+      // Partial tagCache under-counts. Hide the badge until every catalog id is indexed.
+      count: countsComplete ? (counts[leafId] || 0) : null,
     }))
     .sort((a, b) => {
       const keyA = gradeSortKey(a.label)
@@ -168,7 +175,7 @@ export function resetContentLibraryState() {
   invalidateAll()
 }
 
-export function useContentLibrary(store) {
+export function useContentLibrary(store, { fillDetails = false } = {}) {
   const catalogPartition = store.getters.tagPartition
   const taxonomy = exploreTaxonomy(catalogPartition)
   function t(slug) { return store.getters.t(slug) }
@@ -188,25 +195,43 @@ export function useContentLibrary(store) {
     { label: t('my-content'), key: 'mine' },
   ])
 
+  const catalogIds = computed(() => {
+    const pilaList = taggedContent.value.map(item => item.target)
+    return [...new Set([...pilaList, ...myContent])]
+  })
+
   // ── Filter definitions from tag hierarchy ──
   const filterDefinitions = computed(() => {
     void tagIndexVersion.value
     void tagNameCacheVersion.value
     const lang = store.getters.language()
+    const countsComplete = catalogTagIndexComplete(tagCache, catalogIds.value)
     return tagCategories.value.map(cat => {
       const label = getCachedTagName(cat.id, lang) || cat.name
       return {
         key: cat.id,
         label,
         options: isGradeFilterCategory(cat)
-          ? gradeTagOptions(cat, lang)
-          : uniqueTagValues(cat.id, lang),
+          ? gradeTagOptions(cat, lang, countsComplete)
+          : uniqueTagValues(cat, lang, countsComplete),
       }
     })
   })
 
-  function uniqueTagValues(categoryId, lang) {
-    const counts = contentCountsForCategory(categoryId)
+  function uniqueTagValues(cat, lang, countsComplete) {
+    const counts = contentCountsForCategory(cat.id)
+    // A full per-id tag index is no longer prefetched. Until one exists (disk
+    // restore), list every taxonomy leaf so the dropdown is not empty, and
+    // omit counts — a partial tagCache would show a lie.
+    if (!countsComplete) {
+      return (cat.leafIds || [])
+        .map(leafId => ({
+          value: leafId,
+          label: getCachedTagName(leafId, lang) || leafId.slice(0, 8),
+          count: null,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label))
+    }
     return Object.entries(counts)
       .map(([leafId, count]) => ({
         value: leafId,
@@ -233,10 +258,79 @@ export function useContentLibrary(store) {
     return [...new Set([...pilaList, ...myContent])]
   })
 
+  const selectedTagGroups = computed(() => selectedFilterGroups(activeFilters))
+
+  /** Server match for the active tag filters. null = no filter, or not ready. */
+  const tagMatch = ref(null)
+  const tagFiltersPending = ref(false)
+  const tagFilterFailed = ref(false)
+  let tagFilterToken = 0
+
+  watch(
+    () => JSON.stringify(selectedTagGroups.value),
+    () => {
+      const groups = selectedTagGroups.value
+      const token = ++tagFilterToken
+      tagFilterFailed.value = false
+      if (!groups.length) {
+        tagMatch.value = null
+        tagFiltersPending.value = false
+        return
+      }
+      // Drop the previous match immediately so a stale full list is not named.
+      tagMatch.value = null
+      tagFiltersPending.value = true
+      fetchTagFilterMatch(taxonomy.partition, groups)
+        .then((set) => {
+          if (token !== tagFilterToken) return
+          tagMatch.value = set
+        })
+        .catch((error) => {
+          console.warn('[useContentLibrary] taggings-intersection failed', error)
+          if (token !== tagFilterToken) return
+          tagFilterFailed.value = true
+          tagMatch.value = null
+        })
+        .finally(() => {
+          if (token === tagFilterToken) tagFiltersPending.value = false
+        })
+    },
+    { immediate: true },
+  )
+
+  function applyClientTagFilters(list) {
+    let next = list
+    for (const [key, selected] of Object.entries(activeFilters)) {
+      if (selected && selected.length) {
+        next = next.filter(id => {
+          const tags = tagCache.get(id)
+          if (!tags || !tags[key]) return false
+          const vals = Array.isArray(tags[key]) ? tags[key] : [tags[key]]
+          return selected.some(v => vals.includes(v))
+        })
+      }
+    }
+    return next
+  }
+
+  /**
+   * Tab list, clipped by taggings-intersection when filters are on.
+   * Search is NOT applied here — names are resolved for this set first.
+   */
+  const scopeContentList = computed(() => {
+    const list = currentContentList.value
+    const groups = selectedTagGroups.value
+    if (!groups.length) return list
+    if (tagFilterFailed.value) return list
+    if (tagFiltersPending.value || !tagMatch.value) return []
+    const match = tagMatch.value
+    return list.filter(id => match.has(id))
+  })
+
   const filteredContentList = computed(() => {
     void nameCacheVersion.value
     void tagIndexVersion.value
-    let list = currentContentList.value
+    let list = scopeContentList.value
     const lang = store.getters.language()
 
     if (searchQuery.value) {
@@ -247,15 +341,9 @@ export function useContentLibrary(store) {
       })
     }
 
-    for (const [key, selected] of Object.entries(activeFilters)) {
-      if (selected && selected.length) {
-        list = list.filter(id => {
-          const tags = tagCache.get(id)
-          if (!tags || !tags[key]) return false
-          const vals = Array.isArray(tags[key]) ? tags[key] : [tags[key]]
-          return selected.some(v => vals.includes(v))
-        })
-      }
+    // Intersection is the filter. Client tagCache runs only if that query fails.
+    if (tagFilterFailed.value && selectedTagGroups.value.length) {
+      list = applyClientTagFilters(list)
     }
 
     return list
@@ -270,6 +358,66 @@ export function useContentLibrary(store) {
   watch([searchQuery, activeShowTab, () => JSON.stringify(activeFilters)], () => {
     contentPage.value = 1
   })
+
+  // Language switch drops cached names before the scope watcher refills them.
+  watch(
+    () => store.getters.language(),
+    (lang, prev) => {
+      if (!prev || !lang || lang === prev) return
+      invalidateNames()
+    },
+    { flush: 'sync' },
+  )
+
+  async function persistCurrentExplore() {
+    try {
+      const env = await Agent.environment()
+      const userId = env?.auth?.user
+      if (!userId) return
+      const leafToCategory = getCachedTagHierarchy()?.leafToCategory
+      persistExploreCache(userId, {
+        taggedContent: taggedContent.value,
+        myContent: [...myContent],
+        tagCategories: tagCategories.value,
+        leafToCategory: leafToCategory ? [...leafToCategory] : [],
+      })
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // Only the visible browser fills names. Other useContentLibrary() callers
+  // (Explore page shell, sequence modal) share the id lists but keep their own
+  // empty filters — a second watcher would name the unfiltered catalog.
+  let nameFillToken = 0
+  if (fillDetails) {
+    watch(
+      () => {
+        if (!_loaded.value) return ''
+        const lang = store.getters.language()
+        return `${lang}\n${scopeContentList.value.join('\n')}`
+      },
+      () => {
+        if (!_loaded.value) return
+        const lang = store.getters.language()
+        const ids = scopeContentList.value
+        const token = ++nameFillToken
+        // Names for this id list only (tab, or tab ∩ intersection). One bump
+        // at the end. Images and per-id tags are the page fill in ContentBrowser.
+        void prefetchContentNames(ids, lang, {
+          shouldContinue: () => token === nameFillToken,
+        }).then(() => {
+          if (token !== nameFillToken) return
+          void persistCurrentExplore()
+        }).catch((error) => {
+          console.warn('[useContentLibrary] name fill failed', error)
+        })
+      },
+      // Pickers mount after Explore has already loaded. The watch must run
+      // for that scope or search only sees names the first browser filled.
+      { immediate: true },
+    )
+  }
 
   // ── Helpers ──
   function getItemTagLabels(id) {
@@ -355,30 +503,16 @@ export function useContentLibrary(store) {
       _loaded.value = true
       syncExploreLoading()
 
-      const allIds = [...new Set([
-        ...pilaContent.map(t => t.target),
-        ...myContentResult.map(t => t.target),
-      ])]
+      // Id lists only. Names for the current scope are filled by the watcher
+      // above (capped, one sort). Images and per-id tags are page-sized.
       const leafToCategory = getCachedTagHierarchy()?.leafToCategory
-
-      const persistAfterPrefetch = () => {
-        notifyTagIndexUpdated()
-        if (userId) {
-          persistExploreCache(userId, {
-            taggedContent: taggedContent.value,
-            myContent: [...myContent],
-            tagCategories: tagCategories.value,
-            leafToCategory: leafToCategory ? [...leafToCategory] : [],
-          })
-        }
-      }
-
-      const prefetch = prefetchBatch(allIds, lang, taxonomy.partition, leafToCategory)
-      if (usedCache) {
-        prefetch.then(persistAfterPrefetch).catch(() => {})
-      } else {
-        await prefetch
-        persistAfterPrefetch()
+      if (userId) {
+        persistExploreCache(userId, {
+          taggedContent: taggedContent.value,
+          myContent: [...myContent],
+          tagCategories: tagCategories.value,
+          leafToCategory: leafToCategory ? [...leafToCategory] : [],
+        })
       }
     } catch (e) {
       console.warn('[useContentLibrary] load error:', e)
@@ -407,8 +541,10 @@ export function useContentLibrary(store) {
     showTabs,
     filterDefinitions,
     currentContentList,
+    scopeContentList,
     filteredContentList,
     paginatedContentList,
+    tagFiltersPending,
 
     getItemTagLabels,
     isMyContent,

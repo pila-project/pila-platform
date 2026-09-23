@@ -169,7 +169,7 @@ import { openContentPreview } from '@/utils/open-content-preview.js'
 import ContentMetadataPanel from './content-metadata-panel.vue'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
 import { useContentLibrary } from '@/utils/useContentLibrary.js'
-import { prefetchBatch, getCachedTagHierarchy } from '@/utils/content-cache.js'
+import { prefetchPageDetails, getCachedTagHierarchy } from '@/utils/content-cache.js'
 import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
 import {
   normalizeSequenceItems,
@@ -283,12 +283,11 @@ async function loadItemDescription(itemId) {
 function prefetchItemMeta(ids) {
   if (!ids.length) return
   void ensureLoaded({ useDiskCache: true })
-  void prefetchBatch(
+  void prefetchPageDetails(
     ids,
     store.getters.language(),
     partition.value,
     getCachedTagHierarchy()?.leafToCategory,
-    { priorityIds: ids },
   ).catch(() => {})
   void Promise.allSettled(ids.map(id => loadItemDescription(id)))
 }
