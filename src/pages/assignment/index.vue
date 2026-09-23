@@ -17,13 +17,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
 import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
 import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
+import { SEQUENCE_SYNC_TIMEOUT_MS, withTimeout } from '@/utils/sequence-items.js'
+import {
+  contentOwnsSequencePerformance,
+  ensureLeafPerformance,
+  finishLeafPerformance,
+  leafPerformancePath,
+  tickLeafPerformance,
+} from '@/utils/leaf-performance.js'
 
 const route = useRoute()
 const store = useStore()
@@ -34,7 +42,69 @@ const addVariables = ref(null)
 const playableId = computed(() => primaryAssignmentContentId(assignment.value))
 
 const t = slug => store.getters.t(slug)
-const closeAssignment = () => Agent.close()
+
+let leafTimer = null
+let leafContentId = null
+let playClosed = false
+
+function stopLeafTimer() {
+  if (!leafTimer) return
+  clearInterval(leafTimer)
+  leafTimer = null
+}
+
+async function startLeafPerformance(contentId) {
+  if (!contentId) return
+  try {
+    const contentState = await Agent.state(contentId)
+    if (contentOwnsSequencePerformance(contentState)) return
+  } catch {
+    // Still record. A missing content document is not a matching sequence.
+  }
+  if (playClosed) {
+    try {
+      const perf = await Agent.state(leafPerformancePath(id, contentId))
+      finishLeafPerformance(perf, contentId)
+    } catch (e) {
+      console.warn('[Assignment] failed to record play', id, contentId, e)
+    }
+    return
+  }
+  leafContentId = contentId
+  try {
+    const perf = await Agent.state(leafPerformancePath(id, contentId))
+    if (playClosed) {
+      finishLeafPerformance(perf, contentId)
+      return
+    }
+    ensureLeafPerformance(perf, contentId)
+    leafTimer = setInterval(() => tickLeafPerformance(perf, contentId), 1000)
+  } catch (e) {
+    leafContentId = null
+    console.warn('[Assignment] failed to record play', id, contentId, e)
+  }
+}
+
+async function closeAssignment(info) {
+  playClosed = true
+  stopLeafTimer()
+  if (leafContentId) {
+    try {
+      const perf = await Agent.state(leafPerformancePath(id, leafContentId))
+      finishLeafPerformance(perf, leafContentId, info)
+      await withTimeout(
+        Agent.synced(),
+        SEQUENCE_SYNC_TIMEOUT_MS,
+        'leaf performance sync timed out',
+      )
+    } catch (e) {
+      console.warn('[Assignment] failed to record close', id, leafContentId, e)
+    }
+  }
+  Agent.close()
+}
+
+onBeforeUnmount(stopLeafTimer)
 
 onMounted(async () => {
   try {
@@ -47,6 +117,7 @@ onMounted(async () => {
     assignment.value = state
     const { owner: teacher } = await Agent.metadata(id)
     addVariables.value = await studyEnvironmentVariableProxy({}, teacher)
+    await startLeafPerformance(primaryAssignmentContentId(state))
   } catch (e) {
     console.error('[Assignment] failed to load', id, e)
   }
