@@ -62,12 +62,14 @@
           :disabled="currentIndex === 0"
           @click="currentIndex--"
         />
-        <PPageNumbers
-          v-if="seqState.items.length > 1"
-          :current-page="currentIndex + 1"
-          :total-pages="seqState.items.length"
-          @select="currentIndex = $event - 1"
-        />
+        <div class="preview-pages">
+          <PPageNumbers
+            v-if="seqState.items.length > 1"
+            :current-page="currentIndex + 1"
+            :total-pages="seqState.items.length"
+            @select="currentIndex = $event - 1"
+          />
+        </div>
         <PButton
           :variant="nested ? 'ghost' : 'primary'"
           :text="t('next')"
@@ -380,6 +382,11 @@ watch(
   border-top: 1px solid #e2e8f0;
   flex-shrink: 0;
   box-sizing: border-box;
+}
+
+.preview-pages {
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .spb-root-nested .preview-nav {
