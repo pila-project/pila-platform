@@ -1,5 +1,5 @@
 <template>
-  <div v-if="assignment && playableId && addVariables" class="wrapper">
+  <div v-if="playableId && addVariables" class="wrapper">
     <vueEmbedComponent
       :id="playableId"
       @close="closeAssignment"
@@ -8,7 +8,7 @@
       allow="camera;microphone;fullscreen"
     />
   </div>
-  <div v-else-if="assignment">
+  <div v-else-if="loadSettled">
     {{ t('there-is-an-issue-with-your-assignment-please-as') }}
   </div>
   <div v-else>
@@ -39,6 +39,7 @@ const store = useStore()
 const { id } = route.params
 const assignment = ref(null)
 const addVariables = ref(null)
+const loadSettled = ref(false)
 const playableId = computed(() => primaryAssignmentContentId(assignment.value))
 
 const t = slug => store.getters.t(slug)
@@ -114,12 +115,15 @@ onMounted(async () => {
       assignment.value = state
       return
     }
-    assignment.value = state
     const { owner: teacher } = await Agent.metadata(id)
-    addVariables.value = await studyEnvironmentVariableProxy({}, teacher)
+    const proxy = await studyEnvironmentVariableProxy({}, teacher)
+    assignment.value = state
+    addVariables.value = proxy
     await startLeafPerformance(primaryAssignmentContentId(state))
   } catch (e) {
     console.error('[Assignment] failed to load', id, e)
+  } finally {
+    loadSettled.value = true
   }
 })
 
