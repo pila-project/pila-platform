@@ -779,7 +779,7 @@
   }
 
   function assignmentContentGrades(id) {
-    return getItemTagLabels(id)
+    return getItemTagLabels(id, 4)
   }
 
   function onContentSelect(id) {

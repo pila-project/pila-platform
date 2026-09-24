@@ -63,7 +63,7 @@
               :order-index="i"
               :draggable="false"
               :source="isMyContent(itemId) ? 'mine' : 'pila'"
-              :grades="getItemTagLabels(itemId)"
+              :grades="getItemTagLabels(itemId, 4)"
               :description="itemDescriptions[itemId] || ''"
               @preview="openPreview(itemId)"
               @info="infoModalId = itemId"

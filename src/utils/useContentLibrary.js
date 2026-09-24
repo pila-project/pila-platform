@@ -420,7 +420,7 @@ export function useContentLibrary(store, { fillDetails = false } = {}) {
   }
 
   // ── Helpers ──
-  function getItemTagLabels(id) {
+  function getItemTagLabels(id, limit) {
     void tagIndexVersion.value
     void tagNameCacheVersion.value
     const lang = store.getters.language()
@@ -432,7 +432,7 @@ export function useContentLibrary(store, { fillDetails = false } = {}) {
         if (name) labels.push(name)
       }
     }
-    return labels
+    return Number.isFinite(limit) ? labels.slice(0, limit) : labels
   }
 
   function isMyContent(id) {
