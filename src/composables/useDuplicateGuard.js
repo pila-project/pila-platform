@@ -162,7 +162,7 @@ export function useDuplicateGuard({ getExistingNames, getExistingStudents } = {}
    * @param {string} [grade] - required for student grade-aware checks
    * @param {string} [excludeId] - skip this student (edit-self)
    */
-  function runWithGuard(name, proceed, grade, excludeId) {
+  async function runWithGuard(name, proceed, grade, excludeId) {
     const match = findDuplicate(name, grade, excludeId)
     if (match) {
       duplicatePrompt.value = {
@@ -175,14 +175,22 @@ export function useDuplicateGuard({ getExistingNames, getExistingStudents } = {}
       }
       return false
     }
-    proceed()
+    const result = proceed()
+    if (result && typeof result.then === 'function') {
+      await result
+    }
     return true
   }
 
-  function confirmDuplicateProceed() {
+  async function confirmDuplicateProceed() {
     const p = duplicatePrompt.value
     duplicatePrompt.value = null
-    if (p?.proceed) p.proceed()
+    if (!p?.proceed) return
+    try {
+      await p.proceed()
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   function cancelDuplicateProceed() {

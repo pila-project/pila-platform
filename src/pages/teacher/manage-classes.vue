@@ -1098,6 +1098,7 @@ import {
 } from '@/utils/status-filter.js'
 import { activeStudentCountInGroup, formatStudentCount } from '@/utils/group-student-counts.js'
 import { buildTeacherStudentRows } from '@/utils/teacher-student-rows.js'
+import { ensureTeacherUserRecord } from '@/utils/ensure-teacher-user-record.js'
 import {
   DECRYPT_USER_INFO_CONCURRENCY,
   clearDecryptQueue,
@@ -1276,7 +1277,7 @@ function getStudentExistingRoster() {
 }
 
 function runEditStudentDuplicateGuard(name, grade, proceed) {
-  runStudentWithGuard(name, proceed, grade, userModalUser.value)
+  return runStudentWithGuard(name, proceed, grade, userModalUser.value)
 }
 
 /** @deprecated name-only list — prefer getStudentExistingRoster */
@@ -1857,7 +1858,7 @@ function openGroupManageAfterCreate() {
 async function handleCreateGroup() {
   const name = newGroupName.value.trim()
   if (!name) return
-  runWithGuard(name, () => executeCreateGroup(name))
+  await runWithGuard(name, () => executeCreateGroup(name))
 }
 
 function openCreateGroupModal() {
@@ -1961,10 +1962,8 @@ async function executeArchiveStudent() {
 
 async function toggleArchiveStudent(item) {
   const usersState = await Agent.state('users')
-  if (usersState[item.id]) {
-    usersState[item.id].archived = !item.archived
-    await Agent.synced()
-  }
+  ensureTeacherUserRecord(usersState, item.id, { archived: !item.archived })
+  await Agent.synced()
 }
 
 const qrContainerRef = ref(null)
@@ -2130,7 +2129,7 @@ async function executeArchiveSelected() {
   }
   const usersState = await Agent.state('users')
   for (const s of toArchive) {
-    if (usersState[s.id]) usersState[s.id].archived = true
+    ensureTeacherUserRecord(usersState, s.id, { archived: true })
   }
   await Agent.synced()
   archiveSelectedConfirm.value = false
@@ -2146,7 +2145,7 @@ async function executeRestoreSelected() {
   }
   const usersState = await Agent.state('users')
   for (const s of toRestore) {
-    if (usersState[s.id]) usersState[s.id].archived = false
+    ensureTeacherUserRecord(usersState, s.id, { archived: false })
   }
   await Agent.synced()
   restoreSelectedConfirm.value = false
@@ -2230,7 +2229,7 @@ async function createStudentAccount() {
   if (!name) return
   const grade = newStudentGrade.value || ''
   // name + grade: hard dup confirm, soft (same name other grade) confirm, else create
-  runStudentWithGuard(name, () => executeCreateStudentAccount(), grade)
+  await runStudentWithGuard(name, () => executeCreateStudentAccount(), grade)
 }
 
 async function executeCreateStudentAccount() {

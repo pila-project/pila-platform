@@ -4,6 +4,8 @@
   import { generateKeyPair, decryptSymmetric } from '@/utils/encryption.js'
   import { createUser } from '@/utils/user-utils.js'
   import { invalidateDecryptUserInfo } from '@/utils/decrypt-user-info-cache.js'
+  import { ensureTeacherUserRecord } from '@/utils/ensure-teacher-user-record.js'
+  import { useToast } from '@/utils/useToast.js'
   import DecryptedName from '@/components/common/decrypted-name.vue'
   import { PModal, PButton, PInput, PSelect, PBadge } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -25,6 +27,7 @@
   const studentGrade = ref(usersState[props.id]?.grade || '')
   const studentStatus = ref(archived.value ? 'archived' : 'active')
   const saving = ref(false)
+  const { error: toastError } = useToast()
 
   const teacherOwnedUserAccount = !!userData.providerEncryptedKey
 
@@ -72,11 +75,12 @@
   async function save() {
     const commit = () => commitSave()
     if (typeof props.runDuplicateGuard === 'function') {
-      props.runDuplicateGuard(
+      const pending = props.runDuplicateGuard(
         (editUserInfo?.name || '').trim(),
         studentGrade.value || '',
         commit,
       )
+      if (pending && typeof pending.then === 'function') await pending
       return
     }
     await commit()
@@ -84,30 +88,31 @@
 
   async function commitSave() {
     saving.value = true
+    let saved = false
     try {
       if (teacherOwnedUserAccount && userSecret) {
         await createUser(userSecret, providerSecret, editUserInfo)
         invalidateDecryptUserInfo(props.id)
       }
 
-      // Save grade (and archived) to the top-level 'users' Agent state collection.
-      // We must await Agent.synced() so the write (including adding `grade` to
-      // legacy student records that never had the field) is flushed and visible
-      // to Agent.watch('users') listeners in manage-classes.vue etc.
-      if (usersState[props.id]) {
-        usersState[props.id].grade = studentGrade.value || undefined
-
-        // Update archived status based on dropdown
-        const shouldBeArchived = studentStatus.value === 'archived'
-        if (shouldBeArchived !== !!usersState[props.id]?.archived) {
-          usersState[props.id].archived = shouldBeArchived
-        }
-      }
+      // Grade and archived live on users[id]. Stub a missing record so
+      // joined-only students are not a silent no-op. Await synced so
+      // Agent.watch('users') sees the write.
+      ensureTeacherUserRecord(usersState, props.id, {
+        grade: studentGrade.value || undefined,
+        archived: studentStatus.value === 'archived',
+      })
 
       await Agent.synced()
+      saved = true
+    } catch (error) {
+      console.error(error)
+      toastError(t('something-went-wrong'))
     } finally {
       saving.value = false
     }
+
+    if (!saved) return
 
     open.value = false
     emit('saved', { id: props.id, info: editUserInfo })
