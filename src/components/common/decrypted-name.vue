@@ -18,6 +18,7 @@
   import { useRoute } from 'vue-router'
   import { useStore } from 'vuex'
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
+  import { decryptUserRevision } from '@/utils/decrypt-user-info-cache.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   import { PTruncatedText } from '@/components/ui'
 
@@ -74,7 +75,7 @@
 
   // Re-decrypt when the user changes OR when the encryption key changes
   watch(
-    [() => props.user, () => encryptionKey.value],
+    [() => props.user, () => encryptionKey.value, () => decryptUserRevision(props.user)],
     async () => {
       if (props.user) {
         await decrypt()

@@ -5,6 +5,8 @@ import {
   activeDecryptCountForTests,
   clearDecryptUserInfoCache,
   decryptUserInfoWithCache,
+  decryptUserRevision,
+  invalidateDecryptUserInfo,
   enqueueDecryptUserIds,
   getSkipExpensiveDecrypt,
   providerKeyFingerprint,
@@ -46,6 +48,43 @@ describe('decryptUserInfoWithCache', () => {
     assert.equal(calls, 1)
     assert.equal(a, b)
     assert.equal(a.name, 'Ada')
+  })
+
+  it('invalidateDecryptUserInfo drops one user and bumps that revision', async () => {
+    await decryptUserInfoWithCache({
+      userId: 'u1',
+      useAlias: false,
+      fingerprint: 'fp',
+      run: async () => ({ name: 'Ada' }),
+    })
+    await decryptUserInfoWithCache({
+      userId: 'u2',
+      useAlias: false,
+      fingerprint: 'fp',
+      run: async () => ({ name: 'Bea' }),
+    })
+    invalidateDecryptUserInfo('u1')
+    assert.equal(decryptUserRevision('u1'), 1)
+    assert.equal(decryptUserRevision('u2'), 0)
+    let calls = 0
+    const again = await decryptUserInfoWithCache({
+      userId: 'u1',
+      useAlias: false,
+      fingerprint: 'fp',
+      run: async () => {
+        calls += 1
+        return { name: 'Ada 2' }
+      },
+    })
+    assert.equal(calls, 1)
+    assert.equal(again.name, 'Ada 2')
+    const kept = await decryptUserInfoWithCache({
+      userId: 'u2',
+      useAlias: false,
+      fingerprint: 'fp',
+      run: async () => ({ name: 'should-not-run' }),
+    })
+    assert.equal(kept.name, 'Bea')
   })
 
   it('overlapping calls share one in-flight promise', async () => {

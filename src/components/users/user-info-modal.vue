@@ -3,6 +3,7 @@
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '@/utils/encryption.js'
   import { createUser } from '@/utils/user-utils.js'
+  import { invalidateDecryptUserInfo } from '@/utils/decrypt-user-info-cache.js'
   import DecryptedName from '@/components/common/decrypted-name.vue'
   import { PModal, PButton, PInput, PSelect, PBadge } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -86,6 +87,7 @@
     try {
       if (teacherOwnedUserAccount && userSecret) {
         await createUser(userSecret, providerSecret, editUserInfo)
+        invalidateDecryptUserInfo(props.id)
       }
 
       // Save grade (and archived) to the top-level 'users' Agent state collection.
@@ -108,7 +110,7 @@
     }
 
     open.value = false
-    emit('saved')
+    emit('saved', { id: props.id, info: editUserInfo })
     emit('close')
   }
 

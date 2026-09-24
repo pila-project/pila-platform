@@ -3,10 +3,13 @@
  * Cache key is (userId, useAlias, providerKeyFingerprint). Do not log the fingerprint.
  */
 
+import { reactive } from 'vue'
+
 export const DECRYPT_USER_INFO_CONCURRENCY = 4
 
 const results = new Map()
 const inflight = new Map()
+export const decryptRevision = reactive({})
 let skipExpensive = false
 let activeDecrypts = 0
 const waiters = []
@@ -41,6 +44,27 @@ export function shouldSkipNaclAfterPublicInfo(publicInfo) {
 export function clearDecryptUserInfoCache() {
   results.clear()
   inflight.clear()
+}
+
+function cacheKeyUserId(key) {
+  const parts = String(key).split('\u001f')
+  return parts[parts.length - 1] || ''
+}
+
+/** Drop one student's cached plaintext so open name components decrypt again. */
+export function invalidateDecryptUserInfo(userId) {
+  if (!userId) return
+  for (const key of results.keys()) {
+    if (cacheKeyUserId(key) === userId) results.delete(key)
+  }
+  for (const key of inflight.keys()) {
+    if (cacheKeyUserId(key) === userId) inflight.delete(key)
+  }
+  decryptRevision[userId] = (decryptRevision[userId] || 0) + 1
+}
+
+export function decryptUserRevision(userId) {
+  return decryptRevision[userId] || 0
 }
 
 export async function decryptUserInfoWithCache({ userId, useAlias, fingerprint, run }) {
@@ -177,6 +201,7 @@ async function pumpDecryptQueue() {
 export function resetDecryptUserInfoCacheForTests() {
   results.clear()
   inflight.clear()
+  for (const key of Object.keys(decryptRevision)) delete decryptRevision[key]
   skipExpensive = false
   activeDecrypts = 0
   waiters.length = 0

@@ -292,7 +292,7 @@
       :id="userModalUser"
       :run-duplicate-guard="runEditStudentDuplicateGuard"
       @close="userModalUser = null"
-      @saved="showSuccessDialog(t('student-updated-successfully'))"
+      @saved="onStudentInfoSaved"
       @open-login-code="openLoginCodeModal({ id: $event }); userModalUser = null"
     />
 
@@ -1282,6 +1282,14 @@ function runEditStudentDuplicateGuard(name, grade, proceed) {
 /** @deprecated name-only list — prefer getStudentExistingRoster */
 function getStudentExistingNames() {
   return getStudentExistingRoster().map(s => s.name)
+}
+
+function onStudentInfoSaved(payload) {
+  showSuccessDialog(t('student-updated-successfully'))
+  const id = payload?.id
+  if (!id || !payload?.info) return
+  cacheStudentDisplayName(id, payload.info)
+  flushDecryptedNamesNow()
 }
 
 function cacheStudentDisplayName(id, info) {
