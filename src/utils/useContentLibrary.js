@@ -432,7 +432,7 @@ export function useContentLibrary(store, { fillDetails = false } = {}) {
         if (name) labels.push(name)
       }
     }
-    return labels.slice(0, 4)
+    return labels
   }
 
   function isMyContent(id) {

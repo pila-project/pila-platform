@@ -1,6 +1,6 @@
 <template>
   <section class="selected-tags-section">
-    <div class="section-label">
+    <div v-if="showSectionLabel" class="section-label">
       <span class="tag-outline-icon">◇</span>
       {{ t('selected-competencies') }}:
     </div>
@@ -35,7 +35,7 @@
           <span class="tag-dot" />
 
           <span>
-            <template v-if="selection.categoryId">
+            <template v-if="selection.categoryId && !hideCategoryPrefix(selection.categoryId)">
               <TagTranslation :id="selection.categoryId" />
               =
             </template>
@@ -90,6 +90,8 @@
 
 <script>
 import TagTranslation from '@/components/tags/tag-translation.vue'
+import { getCachedTagHierarchy } from '@/utils/content-cache.js'
+import { OTHER_TAGS_HIERARCHY_ROOT } from '@/utils/explore-taxonomy.js'
 
 const TAGS_DOMAIN = 'tags.knowlearning.systems'
 
@@ -112,6 +114,16 @@ export default {
     selectedCompetencies: {
       type: Array,
       default: null,
+    },
+
+    showSectionLabel: {
+      type: Boolean,
+      default: true,
+    },
+
+    plainOtherTags: {
+      type: Boolean,
+      default: false,
     },
 
     /*
@@ -195,6 +207,13 @@ export default {
   methods: {
     t(slug) {
       return this.$store.getters.t(slug)
+    },
+
+    hideCategoryPrefix(categoryId) {
+      if (!this.plainOtherTags || !categoryId) return false
+      const categories = getCachedTagHierarchy()?.categories || []
+      const category = categories.find(entry => entry.id === categoryId)
+      return category?.rootId === OTHER_TAGS_HIERARCHY_ROOT
     },
 
     isCompetencyWorking(competencyId) {
@@ -393,7 +412,12 @@ button {
   border-radius: 6px;
   box-shadow: 0 1px 2px rgba(24, 35, 58, 0.04);
   font-size: 11px;
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.selected-tag > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .selected-tag--working {

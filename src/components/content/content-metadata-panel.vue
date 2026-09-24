@@ -20,6 +20,8 @@
         <TagViewer
           :target="props.id"
           :partition="props.partition"
+          :show-section-label="false"
+          plain-other-tags
         />
       </div>
     </section>
