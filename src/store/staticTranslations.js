@@ -1871,6 +1871,19 @@ export default {
     "sk": "duplicitné mená",
     "th": "ชื่อซ้ำ"
   },
+  "csv-rows-invalid-reason": {
+    "de": "ungültige Zeilen",
+    "en": "invalid rows",
+    "es": "filas no válidas",
+    "fr": "lignes non valides",
+    "km": "ជួរមិនត្រឹមត្រូវ",
+    "lv": "nederīgas rindas",
+    "nl": "ongeldige rijen",
+    "pl": "nieprawidłowe wiersze",
+    "pt": "linhas inválidas",
+    "sk": "neplatné riadky",
+    "th": "แถวไม่ถูกต้อง"
+  },
   "bulk-duplicate-soft-grade-note": {
     "de": "{count} Zeile(n) teilen einen Namen mit einem vorhandenen Schüler einer anderen Klassenstufe und werden trotzdem erstellt:",
     "en": "{count} row(s) share a name with an existing student at a different grade and will still be created:",

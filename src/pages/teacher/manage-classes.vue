@@ -2430,15 +2430,24 @@ function parseCSVLine(line) {
   return cols
 }
 
-function formatBulkCreateResultMessage(created, skipped) {
+function formatBulkCreateResultMessage(created, skipped, reason = t('bulk-duplicate-skipped-reason')) {
   if (skipped > 0) {
-    const reason = t('bulk-duplicate-skipped-reason')
     return t('n-students-created-skipped')
       .replace('{num}', String(created))
       .replace('{skipped}', String(skipped))
       .replace('{reason}', reason)
   }
   return t('n-students-created').replace('{num}', String(created))
+}
+
+function csvImportResultMessage(created, { invalidSkipped = 0, duplicateSkipped = 0, failed = 0 } = {}) {
+  const skipped = invalidSkipped + duplicateSkipped + failed
+  if (skipped === 0) return formatBulkCreateResultMessage(created, 0)
+  const onlyDuplicates = duplicateSkipped > 0 && invalidSkipped === 0 && failed === 0
+  const reason = onlyDuplicates
+    ? t('bulk-duplicate-skipped-reason')
+    : t('csv-rows-invalid-reason')
+  return formatBulkCreateResultMessage(created, skipped, reason)
 }
 
 function parseCSVStudentRows(lines) {
@@ -2485,8 +2494,7 @@ async function executeCSVImport(rows, duplicateSkipped, invalidSkipped = 0) {
     if (created > 0) await Agent.synced()
     showCSVUploadModal.value = false
     csvFile.value = null
-    const skipped = invalidSkipped + duplicateSkipped + failed
-    const msg = formatBulkCreateResultMessage(created, skipped)
+    const msg = csvImportResultMessage(created, { invalidSkipped, duplicateSkipped, failed })
     if (created > 0) {
       showSuccessDialog(msg)
     } else {
