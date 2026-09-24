@@ -420,7 +420,7 @@
       :archived="archivedSequenceIds.includes(sequenceToView)"
       :version="sequenceVersion"
       @close="sequenceToView = null"
-      @changed="sequenceVersion++"
+      @changed="onSequenceItemsChanged(sequenceToView)"
     />
 
     <!-- Copy & Modify Modal -->
@@ -1048,10 +1048,9 @@
       }
       const existing = getCachedPreviewMeta(id)
       const fresh = await Agent.state(id).catch(() => null)
-      const counted = countSequenceItemsFromState(fresh)
       patchPreviewMeta(id, {
         description,
-        itemCount: counted,
+        itemCount: fresh ? countSequenceItemsFromState(fresh) : (existing?.itemCount ?? 1),
         isSequence: existing?.isSequence ?? true,
         kind: existing?.kind ?? 'sequence',
       })
@@ -1233,6 +1232,7 @@
 
   async function refreshSequenceItemCount(sequenceId) {
     const fresh = await Agent.state(sequenceId).catch(() => null)
+    if (!fresh) return
     const existing = getCachedPreviewMeta(sequenceId)
     patchPreviewMeta(sequenceId, {
       itemCount: countSequenceItemsFromState(fresh),
