@@ -14,7 +14,7 @@
         <div>
           <h2 id="publish-modal-title">
             <span class="header-icon">◎</span>
-            {{ t('publish-to-explore') }}
+            {{ t('tags') }}
           </h2>
 
           <p>
@@ -281,8 +281,8 @@
 
       <!-- FOOTER -->
       <footer class="modal-footer">
-        <div class="publishing-title">
-          {{ t('publishing') }} “{{ contentTitle }}”
+        <div v-if="contentTitle" class="publishing-title">
+          {{ contentTitle }}
         </div>
 
         <div class="footer-actions">
@@ -301,7 +301,7 @@
                 ? t('loading-tags')
                 : hasPendingChanges
                 ? t('saving-changes')
-                : t('publish-content')
+                : t('done')
             }}
           </button>
         </div>
@@ -391,7 +391,7 @@ export default {
 
     contentTitle: {
       type: String,
-      default: 'Untitled Sequence',
+      default: '',
     },
   },
 
@@ -1394,6 +1394,7 @@ input {
 .modal-footer {
   display: flex;
   flex: 0 0 auto;
+  margin-top: auto;
   align-items: center;
   justify-content: space-between;
   gap: 16px;

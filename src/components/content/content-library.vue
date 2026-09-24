@@ -323,6 +323,7 @@
           v-if="taggingContentId && showTaggingIcons && selectedItems.size <= 1 && !isSequenceId(taggingContentId)"
           :id="taggingContentId"
           :roots="taxonomy.roots"
+          :content-title="getCachedContentName(taggingContentId, store.getters.language()) || ''"
           @close="closeTagging"
         />
       </div>
