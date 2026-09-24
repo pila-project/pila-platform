@@ -1025,7 +1025,10 @@ input {
   position: relative;
   display: flex;
   flex-direction: column;
+  align-self: center;
+  justify-self: center;
   width: min(780px, 100%);
+  height: auto;
   max-height: calc(100vh - 48px);
   overflow: hidden;
   color: #202737;
