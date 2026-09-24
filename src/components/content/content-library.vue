@@ -95,7 +95,7 @@
               @preview="sequenceToPreview = seqId"
               @view-content="openSequenceContent(seqId)"
               @add-to-assignment="handleAddSequenceToAssignment(seqId)"
-              @items-changed="sequenceVersion++"
+              @items-changed="onSequenceItemsChanged(seqId)"
               @drop-item="payload => onDropItemToSequence(seqId, payload)"
             />
             <div v-if="!displayedSequenceIds.length && !sequencesPanelLoading" class="text-xs text-slate-400 text-center py-4">
@@ -193,7 +193,7 @@
                 @preview="sequenceToPreview = seqId"
                 @view-content="openSequenceContent(seqId)"
                 @add-to-assignment="handleAddSequenceToAssignment(seqId)"
-                @items-changed="sequenceVersion++"
+                @items-changed="onSequenceItemsChanged(seqId)"
                 @drop-item="payload => onDropItemToSequence(seqId, payload)"
               />
               <div v-if="!displayedSequenceIds.length" class="text-xs text-slate-400 text-center py-6">
@@ -514,6 +514,7 @@
   import {
     appendItemsToSequence,
     isValidSequenceAgentState,
+    normalizeSequenceItems,
     partitionSequenceMemberIds,
     SEQUENCE_DRAG_MIME,
     isSequenceActiveType,
@@ -1045,9 +1046,11 @@
         setCachedContentName(id, name, store.getters.language())
       }
       const existing = getCachedPreviewMeta(id)
+      const fresh = await Agent.state(id).catch(() => null)
+      const counted = countSequenceItemsFromState(fresh)
       patchPreviewMeta(id, {
         description,
-        itemCount: existing?.itemCount ?? 1,
+        itemCount: counted,
         isSequence: existing?.isSequence ?? true,
         kind: existing?.kind ?? 'sequence',
       })
@@ -1218,6 +1221,26 @@
     }
   }
 
+  function countSequenceItemsFromState(state) {
+    return normalizeSequenceItems(state?.items).length
+  }
+
+  function onSequenceItemsChanged(sequenceId) {
+    sequenceVersion.value++
+    void refreshSequenceItemCount(sequenceId)
+  }
+
+  async function refreshSequenceItemCount(sequenceId) {
+    const fresh = await Agent.state(sequenceId).catch(() => null)
+    const existing = getCachedPreviewMeta(sequenceId)
+    patchPreviewMeta(sequenceId, {
+      itemCount: countSequenceItemsFromState(fresh),
+      isSequence: existing?.isSequence ?? true,
+      kind: existing?.kind ?? 'sequence',
+      description: existing?.description ?? String(fresh?.description || '').trim(),
+    })
+  }
+
   async function addItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {
     if (!sequenceId || !itemIds?.length || archivedSequenceIdSet.value.has(sequenceId)) return
     if (sequenceSavingId.value) return
@@ -1240,6 +1263,7 @@
       pendingAddItems.value = []
       deselectAll()
       sequenceVersion.value++
+      await refreshSequenceItemCount(sequenceId)
       showSuccessDialog(
         added === 1
           ? t('one-item-added-to-sequence')

@@ -295,14 +295,18 @@ export function getContentType(id) {
   return kindFromActiveType(cached.active_type)
 }
 
+function sequenceEntryId(entry) {
+  if (typeof entry === 'string' && entry) return entry
+  if (entry && typeof entry === 'object' && typeof entry.id === 'string' && entry.id) return entry.id
+  return ''
+}
+
+/** Same membership rules as normalizeSequenceItems, without importing it (that module imports this file). */
 function countSequenceItems(items) {
-  if (items == null) return 0
-  if (Array.isArray(items)) return items.filter(Boolean).length
-  if (typeof items !== 'object') return 0
+  if (items == null || typeof items !== 'object') return 0
   let n = 0
   for (const entry of Object.values(items)) {
-    if (typeof entry === 'string' && entry) n++
-    else if (entry && typeof entry === 'object' && typeof entry.id === 'string' && entry.id) n++
+    if (sequenceEntryId(entry)) n++
   }
   return n
 }
@@ -324,9 +328,10 @@ export function getContentPreviewMeta(id) {
     if (previewMetaCache.has(id)) return previewMetaCache.get(id)
     const kind = kindFromActiveType(meta?.active_type)
     const isSequence = kind === 'sequence'
+    const counted = countSequenceItems(state?.items)
     const entry = {
       description: String(state?.description || '').trim(),
-      itemCount: isSequence ? countSequenceItems(state?.items) : 1,
+      itemCount: isSequence || counted > 0 ? counted : 1,
       isSequence,
       kind,
     }
