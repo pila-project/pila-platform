@@ -41,7 +41,7 @@
             <LucideIcon name="folders" :size="12" />
           </span>
           <button
-            v-if="!showCopyModify && !assignmentPicker && showTaggingIcon && !isSequenceCard"
+            v-if="!showCopyModify && !assignmentPicker && showTaggingIcon && !sequenceTaggingBlocked"
             type="button"
             class="pcard-heart-btn"
             :aria-label="t('tag') || 'Tag'"
@@ -448,6 +448,13 @@
     return contentKind.value === 'sequence' || isSequenceContent()
   })
 
+  const isAdminUser = computed(
+    () => store.getters['roles/role']?.(store.state.user) === 'admin',
+  )
+  const sequenceTaggingBlocked = computed(
+    () => isSequenceCard.value && !isAdminUser.value,
+  )
+
   const canEdit = computed(() =>
     props.showCopyModify
     && props.source === 'mine'
@@ -459,7 +466,7 @@
   const canEditTags = computed(() =>
     props.showCopyModify
     && props.showTaggingIcon
-    && !isSequenceCard.value,
+    && !sequenceTaggingBlocked.value,
   )
 
   const orderLabel = computed(() => {
@@ -491,7 +498,7 @@
   const DRAG_BLOCK_SELECTOR = 'button, input, textarea, select, label, .pcheckbox, .pcard-actions, .p-menu-anchor, .pcard-grade-more, .pcard-tags-popup'
 
   function onTag() {
-    if (isSequenceCard.value) return
+    if (sequenceTaggingBlocked.value) return
     emit('tag')
   }
 

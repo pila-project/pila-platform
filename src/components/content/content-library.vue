@@ -293,7 +293,7 @@
               :source="source"
               :grades="grades"
               :favorited="favorites.has(id)"
-              :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1 && !isSequenceId(id) && !!taggingIconVisibility[id]"
+              :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1 && !sequenceTaggingBlocked(id) && !!taggingIconVisibility[id]"
               show-copy-modify
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
@@ -320,7 +320,7 @@
           @close="previewing = null"
         />
         <TaggingModal
-          v-if="taggingContentId && showTaggingIcons && selectedItems.size <= 1 && !isSequenceId(taggingContentId)"
+          v-if="taggingContentId && showTaggingIcons && selectedItems.size <= 1 && !sequenceTaggingBlocked(taggingContentId)"
           :id="taggingContentId"
           :roots="taxonomy.roots"
           :content-title="getCachedContentName(taggingContentId, store.getters.language()) || ''"
@@ -1152,8 +1152,16 @@
     return isCachedSequenceId(id)
   }
 
+  const isAdminUser = computed(
+    () => store.getters['roles/role']?.(store.state.user) === 'admin',
+  )
+
+  function sequenceTaggingBlocked(id) {
+    return isSequenceId(id) && !isAdminUser.value
+  }
+
   function openTagging(id) {
-    if (!id || isSequenceId(id)) return
+    if (!id || sequenceTaggingBlocked(id)) return
     taggingContentId.value = id
   }
 
