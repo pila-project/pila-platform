@@ -1884,6 +1884,19 @@ export default {
     "sk": "neplatné riadky",
     "th": "แถวไม่ถูกต้อง"
   },
+  "csv-rows-failed-reason": {
+    "de": "konnten nicht erstellt werden",
+    "en": "could not be created",
+    "es": "no se pudieron crear",
+    "fr": "n'ont pas pu être créées",
+    "km": "មិនអាចបង្កើតបាន",
+    "lv": "neizdevās izveidot",
+    "nl": "konden niet worden aangemaakt",
+    "pl": "nie udało się utworzyć",
+    "pt": "não foi possível criar",
+    "sk": "nepodarilo sa vytvoriť",
+    "th": "สร้างไม่สำเร็จ"
+  },
   "bulk-duplicate-soft-grade-note": {
     "de": "{count} Zeile(n) teilen einen Namen mit einem vorhandenen Schüler einer anderen Klassenstufe und werden trotzdem erstellt:",
     "en": "{count} row(s) share a name with an existing student at a different grade and will still be created:",

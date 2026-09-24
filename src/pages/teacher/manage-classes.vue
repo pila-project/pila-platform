@@ -2451,11 +2451,11 @@ function formatBulkCreateResultMessage(created, skipped, reason = t('bulk-duplic
 function csvImportResultMessage(created, { invalidSkipped = 0, duplicateSkipped = 0, failed = 0 } = {}) {
   const skipped = invalidSkipped + duplicateSkipped + failed
   if (skipped === 0) return formatBulkCreateResultMessage(created, 0)
-  const onlyDuplicates = duplicateSkipped > 0 && invalidSkipped === 0 && failed === 0
-  const reason = onlyDuplicates
-    ? t('bulk-duplicate-skipped-reason')
-    : t('csv-rows-invalid-reason')
-  return formatBulkCreateResultMessage(created, skipped, reason)
+  const reasons = []
+  if (invalidSkipped > 0) reasons.push(t('csv-rows-invalid-reason'))
+  if (duplicateSkipped > 0) reasons.push(t('bulk-duplicate-skipped-reason'))
+  if (failed > 0) reasons.push(t('csv-rows-failed-reason'))
+  return formatBulkCreateResultMessage(created, skipped, reasons.join(', '))
 }
 
 function parseCSVStudentRows(lines) {
