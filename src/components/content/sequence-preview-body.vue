@@ -376,12 +376,13 @@ watch(
   justify-content: space-between;
   width: 100%;
   gap: 12px;
-  padding-top: 12px;
+  padding: 12px 16px;
   border-top: 1px solid #e2e8f0;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .spb-root-nested .preview-nav {
-  padding-top: 8px;
+  padding: 8px 16px 12px;
 }
 </style>
