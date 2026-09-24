@@ -593,6 +593,7 @@
   const scheduledTime = ref('')
   /** Stored lifecycle status on the assignment item (after optional promote). */
   const storedStatus = ref(null)
+  const savedSchedule = ref({ date: null, time: null })
 
   watch(distributionOption, (value) => {
     if (value === 'schedule' && !scheduledTime.value) {
@@ -649,8 +650,10 @@
     isPublicationLocked(
       {
         status: storedStatus.value,
-        scheduledDate: scheduledDate.value,
-        scheduledTime: scheduledTime.value,
+        // The date and time inputs are not a saved publication. Feeding them
+        // in locks "today" to Publish immediately before a later time can be set.
+        scheduledDate: storedStatus.value === ASSIGNMENT_STATUS.SCHEDULED ? savedSchedule.value.date : null,
+        scheduledTime: storedStatus.value === ASSIGNMENT_STATUS.SCHEDULED ? savedSchedule.value.time : null,
       },
       { hasAssignedGroups: hasPersistedAssignedGroups.value },
     ),
@@ -1006,8 +1009,12 @@
     const locked = isPublicationLocked(
       {
         status: storedStatus.value || state.status,
-        scheduledDate: scheduledDate.value || state.scheduledDate,
-        scheduledTime: scheduledTime.value || state.scheduledTime,
+        scheduledDate: (storedStatus.value || state.status) === ASSIGNMENT_STATUS.SCHEDULED
+          ? (state.scheduledDate || null)
+          : null,
+        scheduledTime: (storedStatus.value || state.status) === ASSIGNMENT_STATUS.SCHEDULED
+          ? (state.scheduledTime || null)
+          : null,
       },
       { hasAssignedGroups: hasPersistedAssignedGroups.value },
     )
@@ -1086,6 +1093,10 @@
       if (state.showAnswers !== undefined) showAnswers.value = state.showAnswers
       if (state.teacherNotes) teacherNotes.value = state.teacherNotes
       storedStatus.value = state.status || null
+      savedSchedule.value = {
+        date: state.scheduledDate || null,
+        time: state.scheduledTime || null,
+      }
       if (state.status === ASSIGNMENT_STATUS.PUBLISHED) distributionOption.value = 'publish'
       else if (state.status === ASSIGNMENT_STATUS.SCHEDULED) distributionOption.value = 'schedule'
       else if (state.status === ASSIGNMENT_STATUS.DRAFT) distributionOption.value = 'draft'
