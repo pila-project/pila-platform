@@ -13,6 +13,8 @@ const CONTENT_CACHE_TTL = 60 * 60 * 1000 // 1 hour
 const nameCache = new Map()
 /** Lang keys that resolved only to English/canonical fallback (do not re-hit network). */
 const unresolvedLangKeys = new Set()
+/** Disk id:lang values with no English sibling. Resolved once, then trusted. */
+const unverifiedLangKeys = new Set()
 /**
  * Tag lang keys that resolved only to canonical fallback.
  * Parallel to unresolvedLangKeys — must not share that set (invalidateNames
@@ -207,14 +209,14 @@ export function setCachedLegacyName(id, name) {
  */
 export function getContentName(id, lang) {
   const key = nameCacheKey(id, lang)
-  if (nameCache.has(key)) return Promise.resolve(nameCache.get(key))
+  if (nameCache.has(key) && !unverifiedLangKeys.has(key)) return Promise.resolve(nameCache.get(key))
   if (unresolvedLangKeys.has(key)) {
     return Promise.resolve(
       nameCache.get(nameCacheKey(id, 'en')) ?? nameCache.get(id) ?? null
     )
   }
   return dedupedFetch(`name:${key}`, async () => {
-    if (nameCache.has(key)) return nameCache.get(key)
+    if (nameCache.has(key) && !unverifiedLangKeys.has(key)) return nameCache.get(key)
     if (unresolvedLangKeys.has(key)) {
       return nameCache.get(nameCacheKey(id, 'en')) ?? nameCache.get(id) ?? null
     }
@@ -229,16 +231,28 @@ export function getContentName(id, lang) {
       name = await getName(id, lang)
       exact = isEnglishLang(lang)
     }
-    if (nameCache.has(key)) return nameCache.get(key)
+    if (nameCache.has(key) && !unverifiedLangKeys.has(key)) return nameCache.get(key)
     if (!name) return name
 
     if (exact || isEnglishLang(lang)) {
+      const wasUnverified = unverifiedLangKeys.has(key)
       unresolvedLangKeys.delete(key)
+      unverifiedLangKeys.delete(key)
       nameCache.set(key, name)
       if (isEnglishLang(lang)) nameCache.set(id, name)
+      if (wasUnverified && !isEnglishLang(lang)) {
+        const state = await Agent.state(id).catch(() => null)
+        const canonical = typeof state?.name === 'string' ? state.name.trim() : ''
+        if (canonical && canonical !== name) {
+          nameCache.set(nameCacheKey(id, 'en'), canonical)
+          if (!nameCache.has(id)) nameCache.set(id, canonical)
+        }
+      }
       bumpNameCacheVersion()
     } else {
       // Do not poison id:lang with English — mark unresolved and seed en/bare.
+      unverifiedLangKeys.delete(key)
+      nameCache.delete(key)
       unresolvedLangKeys.add(key)
       const enKey = nameCacheKey(id, 'en')
       let seeded = false
@@ -642,7 +656,7 @@ export { nameCache, metadataCache, tagCache, imageCache, tagNameCache }
  * first-paints, while English-under-th poison from older builds is skipped
  * (UIUX-212 / RR-23).
  */
-function seedLangKeyedEntriesFromDisk(entries, targetMap) {
+function seedLangKeyedEntriesFromDisk(entries, targetMap, { trackUnverified = false } = {}) {
   const englishById = new Map()
   const pendingNonEn = []
   for (const [k, v] of entries) {
@@ -665,13 +679,16 @@ function seedLangKeyedEntriesFromDisk(entries, targetMap) {
   for (const [id, key, v] of pendingNonEn) {
     const english = englishById.get(id)
     if (english && v === english) continue
-    if (typeof v === 'string' && v.trim()) targetMap.set(key, v)
+    if (typeof v === 'string' && v.trim()) {
+      targetMap.set(key, v)
+      if (trackUnverified && !english) unverifiedLangKeys.add(key)
+    }
   }
 }
 
 export function seedNameCacheFromDisk(entries) {
   if (!entries) return
-  seedLangKeyedEntriesFromDisk(entries, nameCache)
+  seedLangKeyedEntriesFromDisk(entries, nameCache, { trackUnverified: true })
   bumpNameCacheVersion()
 }
 
@@ -786,6 +803,9 @@ export function invalidate(id) {
   for (const key of [...unresolvedLangKeys]) {
     if (key === id || key.startsWith(`${id}:`)) unresolvedLangKeys.delete(key)
   }
+  for (const key of [...unverifiedLangKeys]) {
+    if (key === id || key.startsWith(`${id}:`)) unverifiedLangKeys.delete(key)
+  }
   metadataCache.delete(id)
   tagCache.delete(id)
   imageCache.delete(id)
@@ -811,12 +831,14 @@ export function patchPreviewMeta(id, patch) {
 export function invalidateNames() {
   nameCache.clear()
   unresolvedLangKeys.clear()
+  unverifiedLangKeys.clear()
   bumpNameCacheVersion({ force: true })
 }
 
 export function invalidateAll() {
   nameCache.clear()
   unresolvedLangKeys.clear()
+  unverifiedLangKeys.clear()
   unresolvedTagLangKeys.clear()
   metadataCache.clear()
   bumpMetadataCacheVersion()

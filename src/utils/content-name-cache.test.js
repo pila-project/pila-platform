@@ -77,4 +77,29 @@ describe('seedNameCacheFromDisk (UIUX-212)', () => {
     assert.equal(hasCachedContentNameForLang(schoolyardId, 'th'), false)
     assert.equal(getCachedContentName(schoolyardId, 'th'), EN_SCHOOLYARD)
   })
+
+  it('re-resolves an id:th disk value that has no English sibling', async () => {
+    seedNameCacheFromDisk([[`${growthId}:th`, EN_GROWTH]])
+    let queries = 0
+    globalThis.Agent.state = async () => ({ name: EN_GROWTH })
+    globalThis.Agent.query = async () => {
+      queries += 1
+      return [{ is_fallback: false, path: [growthId, 'name'], value: TH_GROWTH }]
+    }
+    const name = await getContentName(growthId, 'th')
+    assert.equal(name, TH_GROWTH)
+    assert.equal(queries, 1)
+    assert.equal(nameCache.get(nameCacheKey(growthId, 'en')), EN_GROWTH)
+
+    invalidateNames()
+    seedNameCacheFromDisk([
+      [growthId, EN_GROWTH],
+      [`${growthId}:en`, EN_GROWTH],
+      [`${growthId}:th`, TH_GROWTH],
+    ])
+    queries = 0
+    const again = await getContentName(growthId, 'th')
+    assert.equal(again, TH_GROWTH)
+    assert.equal(queries, 0)
+  })
 })
