@@ -251,6 +251,29 @@ describe('assessAssignmentDashboards (Betty-only / Datawise-only / mixed / ordin
     assert.equal(hasLiveMonitoringCard(flags), true)
   })
 
+  it('Datawise host variant and a nested Datawise child stay app-only', async () => {
+    mockAgent({
+      states: {
+        'asg-host': { content: 'dw-host' },
+        'dw-host': { items: {} },
+        'asg-child': { content: 'seq-dw' },
+        'seq-dw': { id: 'wrapper', items: { 0: { id: 'dw-child' } } },
+        'dw-child': { items: {} },
+      },
+      metadata: {
+        'dw-host': { domain: 'https://www.datawise.accingo.co/player' },
+        'seq-dw': { domain: 'example.org' },
+        'dw-child': { domain: 'datawise.accingo.co' },
+      },
+    })
+    const host = await assessAssignmentDashboards('asg-host')
+    assert.equal(host.dashboardUrl, DATAWISE_DASHBOARD_URL)
+    assert.equal(host.hasLive, false)
+    const nested = await assessAssignmentDashboards('asg-child')
+    assert.equal(nested.dashboardUrl, DATAWISE_DASHBOARD_URL)
+    assert.equal(nested.hasLive, false)
+  })
+
   it('ordinary sequence → not app, live card stays', async () => {
     mockAgent({
       states: {

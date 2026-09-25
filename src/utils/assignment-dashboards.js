@@ -50,8 +50,25 @@ export function looksLikeBettyContent({ contentId, contentStateId, sequenceItemI
   return (sequenceItemIds || []).some(id => isBettyPlayerUrl(id) || idLooksLikeBetty(id))
 }
 
-export function appDashboardUrlFromProbe({ domain, referenceDashboard } = {}) {
-  if (domain === DATAWISE_DOMAIN) return DATAWISE_DASHBOARD_URL
+function normalizedHost(value) {
+  const raw = String(value || '').trim()
+  if (!raw) return ''
+  try {
+    const url = raw.includes('://') ? new URL(raw) : new URL(`https://${raw}`)
+    return url.hostname.replace(/\.$/, '').replace(/^www\./i, '').toLowerCase()
+  } catch {
+    return ''
+  }
+}
+
+function isDatawiseHost(value) {
+  return normalizedHost(value) === DATAWISE_DOMAIN
+}
+
+export function appDashboardUrlFromProbe({ domain, referenceDashboard, contentId } = {}) {
+  if (isDatawiseHost(domain) || isDatawiseHost(contentId) || isDatawiseHost(referenceDashboard)) {
+    return DATAWISE_DASHBOARD_URL
+  }
   if (!referenceDashboard) return null
   const host = String(referenceDashboard)
   if (host.startsWith('https://') || host.startsWith('http://')) return host
@@ -129,7 +146,22 @@ function probeHasDatawise(probe) {
 function probeHasNonDatawiseContent(probe) {
   if (!probe) return false
   if (probe.isBetty || probe.isGenAI || probe.candliGames?.length) return true
+  if (typeof probe.hasOther === 'boolean') return probe.hasOther
   return !probeHasDatawise(probe)
+}
+
+async function dashboardUrlForRecord(id, contentState) {
+  let domain = null
+  try {
+    domain = (await Agent.metadata(id))?.domain || null
+  } catch {
+    domain = null
+  }
+  return appDashboardUrlFromProbe({
+    domain,
+    contentId: contentState?.id || id,
+    referenceDashboard: contentState?.reference?.dashboard,
+  })
 }
 
 function sequenceItemsForCandliScan(contentState) {
@@ -220,17 +252,28 @@ export async function probeContentDashboards(contentId) {
   result.bettyLink = betty.bettyLink
   result.bettyModuleId = betty.bettyModuleId
 
-  let domain = null
-  try {
-    const meta = await Agent.metadata(contentId)
-    domain = meta?.domain
-  } catch {
-    domain = null
+  const ownUrl = await dashboardUrlForRecord(contentId, contentState)
+  const childIds = sequenceItemIds.filter(id => id && id !== contentId)
+  let anyDatawise = Boolean(ownUrl)
+  let anyOther = childIds.length ? false : !ownUrl
+  let dashboardUrl = ownUrl
+  for (const itemId of childIds) {
+    let itemState = null
+    try {
+      itemState = await Agent.state(itemId)
+    } catch {
+      itemState = null
+    }
+    const childUrl = await dashboardUrlForRecord(itemId, itemState)
+    if (childUrl) {
+      anyDatawise = true
+      if (!dashboardUrl) dashboardUrl = childUrl
+    } else {
+      anyOther = true
+    }
   }
-  result.dashboardUrl = appDashboardUrlFromProbe({
-    domain,
-    referenceDashboard: contentState?.reference?.dashboard,
-  })
+  result.dashboardUrl = dashboardUrl
+  result.hasOther = anyDatawise ? anyOther : true
 
   return result
 }
