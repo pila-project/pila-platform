@@ -730,7 +730,6 @@
   const sequenceToPreview = ref(null)
   const sequenceToView = ref(null)
   const sequenceToArchive = ref(null)
-  const sequenceToArchiveName = ref('')
   const archiveConfirmLoading = ref(false)
   const sequenceSearchQuery = ref('')
   const sequenceStatusFilters = ref(defaultActiveStatusFilters())
@@ -766,13 +765,7 @@
 
   const activeSequenceCount = computed(() => activeSequenceIds.value.length)
 
-  const archiveConfirmDescription = computed(() => {
-    const name = sequenceToArchiveName.value
-    if (name) {
-      return t('archive-sequence-named-confirm').replace('{name}', name)
-    }
-    return t('archive-sequence-confirm')
-  })
+  const archiveConfirmDescription = computed(() => t('archive-sequence-confirm'))
 
   const displayedSequenceIds = computed(() => {
     void nameCacheVersion.value
@@ -1081,7 +1074,6 @@
     try {
       await setExploreSequenceArchived(id, true)
       sequenceToArchive.value = null
-      sequenceToArchiveName.value = ''
       if (sequenceToView.value === id) sequenceToView.value = null
       await loadMySequences({ silent: true })
       showSuccessDialog(
@@ -1095,19 +1087,6 @@
       archiveConfirmLoading.value = false
     }
   }
-
-  watch(sequenceToArchive, async (id) => {
-    if (!id) {
-      sequenceToArchiveName.value = ''
-      return
-    }
-    try {
-      const state = await Agent.state(id)
-      sequenceToArchiveName.value = state?.name || ''
-    } catch {
-      sequenceToArchiveName.value = ''
-    }
-  })
 
   // ── Add to sequence/assignment ──
   function closeAddPicker() {

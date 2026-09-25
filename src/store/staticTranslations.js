@@ -270,7 +270,7 @@ export default {
     "pl": "Dodaj grupę",
     "pt": "Adicionar grupo",
     "sk": "Pridať skupinu",
-    "th": "เพิ่มกลุ่ม"
+    "th": "สร้างกลุ่ม"
   },
   "add-item-or-sequence": {
     "de": "Element oder Sequenz hinzufügen",
@@ -387,7 +387,7 @@ export default {
     "pl": "Dodaj uczniów",
     "pt": "Adicionar alunos",
     "sk": "Pridať žiakov",
-    "th": "เพิ่มนักเรียน"
+    "th": "สร้างบัญชีนักเรียน"
   },
   "add-students-to-group": {
     "de": "Schüler zur Gruppe hinzufügen",
@@ -634,7 +634,7 @@ export default {
     "pl": "Administrator",
     "pt": "Administrador",
     "sk": "Administrátor",
-    "th": "จัดการข้อมูล"
+    "th": "บัญชีนักเรียน"
   },
   "admin-role-required": {
     "de": "Administratorenrolle erforderlich",
@@ -2560,6 +2560,19 @@ export default {
     "sk": "Vytvoriť účet",
     "th": "สร้าง"
   },
+  "create-one-student": {
+    "de": "Erstellen",
+    "en": "Create",
+    "es": "Crear",
+    "fr": "Créer",
+    "km": "បង្កើត",
+    "lv": "Izveidot",
+    "nl": "Creëren",
+    "pl": "Utwórz",
+    "pt": "Criar",
+    "sk": "Vytvoriť",
+    "th": "สร้าง"
+  },
   "create-all-accounts": {
     "de": "Alle Konten erstellen",
     "en": "Create accounts",
@@ -2610,7 +2623,7 @@ export default {
     "pl": "Utwórz zadanie",
     "pt": "Criar tarefa",
     "sk": "Vytvoriť úlohu",
-    "th": "สร้างงานที่มอบหมาย"
+    "th": "มอบหมายงาน"
   },
   "create-bulk-accounts": {
     "de": "Massenkonten erstellen",
@@ -3689,7 +3702,7 @@ export default {
     "pl": "Eksploruj",
     "pt": "Explorar",
     "sk": "Preskúmajte",
-    "th": "ตรวจสอบกิจกรรมที่มีอยู่"
+    "th": "ค้นหากิจกรรมที่มีอยู่"
   },
   "explore-content-library": {
     "de": "Inhaltsbibliothek erkunden",
@@ -5067,7 +5080,7 @@ export default {
     "pl": "MOJE ZADANIA",
     "pt": "MINHAS ATRIBUIÇÕES",
     "sk": "MOJE ÚLOHY",
-    "th": "ระบบมอบหมายงานและติดตามผล"
+    "th": "งานที่มอบหมายไว้"
   },
   "my-classes": {
     "de": "MEINE KLASSEN",
@@ -5119,7 +5132,7 @@ export default {
     "pl": "MOI UCZNIOWIE",
     "pt": "MEUS ALUNOS",
     "sk": "MOJI ŽIACI",
-    "th": "รายชื่อนักเรียน"
+    "th": "ลิสต์บัญชีนักเรียน"
   },
   "my-teacher-groups": {
     "de": "MEINE LEHRKRÄFTEGRUPPEN",
@@ -6653,7 +6666,7 @@ export default {
     "pl": "Wymagane",
     "pt": "Obrigatório",
     "sk": "Povinné",
-    "th": "จำเป็น"
+    "th": "ต้องใส่"
   },
   "researcher": {
     "de": "Forscherin/Forscher",
@@ -6874,7 +6887,7 @@ export default {
     "pl": "Wiersze na stronę",
     "pt": "Linhas por página",
     "sk": "Riadky na stránku",
-    "th": "แถวต่อหน้า"
+    "th": "จำนวนแถวต่อ 1 หน้า"
   },
   "rows-selected-for-removal-summary": {
     "de": "Zusammenfassung der zum Entfernen ausgewählten Zeilen",
@@ -8252,7 +8265,7 @@ export default {
     "pl": "Wsparcie",
     "pt": "Suporte",
     "sk": "Podpora",
-    "th": "สนับสนุน"
+    "th": "ช่วยเหลือ"
   },
   "symbol-passphrase": {
     "de": "Symbol-Passwortsatz",
@@ -10098,7 +10111,7 @@ export default {
     "pl": "Oto, co dzieje się dziś w Twoich klasach",
     "pt": "Veja o que está acontecendo com suas turmas hoje",
     "sk": "Toto sa dnes deje vo vašich triedach",
-    "th": "สิ่งที่กำลังเกิดขึ้นกับชั้นเรียนของคุณวันนี้"
+    "th": "วันนี้คุณต้องการใช้ PILA ในการสอนอย่างไร"
   },
   "your-workspace-is-ready": {
     "de": "Ihr Arbeitsbereich ist bereit!",
@@ -10137,7 +10150,7 @@ export default {
     "pl": "Utwórz pierwsze zadanie",
     "pt": "Criar primeira tarefa",
     "sk": "Vytvoriť prvú úlohu",
-    "th": "สร้างงานมอบหมายชิ้นแรก"
+    "th": "มอบหมายงานชิ้นแรก"
   },
   "learn-about-pila": {
     "de": "Mehr über PILA erfahren",
@@ -10202,7 +10215,7 @@ export default {
     "pl": "Przypisz treści",
     "pt": "Atribuir conteúdo",
     "sk": "Priradiť obsah",
-    "th": "มอบหมายเนื้อหา"
+    "th": "งานที่มอบหมายไว้"
   },
   "recent-activity-log": {
     "de": "Letzte Aktivitäten",
@@ -10215,7 +10228,7 @@ export default {
     "pl": "Dziennik ostatniej aktywności",
     "pt": "Registro de atividade recente",
     "sk": "Záznam nedávnej aktivity",
-    "th": "บันทึกกิจกรรมล่าสุด"
+    "th": "สิ่งที่คุณทำไว้ล่าสุด"
   },
   "no-activity-yet": {
     "de": "Noch keine Aktivität",
@@ -10280,7 +10293,7 @@ export default {
     "pl": "Brak zadań",
     "pt": "Ainda não há tarefas",
     "sk": "Zatiaľ žiadne úlohy",
-    "th": "ยังไม่มีงานที่มอบหมาย"
+    "th": "ไม่มีงานที่มอบหมายไว้"
   },
   "create-your-first-assignment-by-browsing": {
     "de": "Erstellen Sie Ihre erste Aufgabe, indem Sie die Inhaltsbibliothek durchsuchen oder eigene Module anlegen.",
@@ -10306,7 +10319,7 @@ export default {
     "pl": "Przeglądaj treści",
     "pt": "Explorar conteúdo",
     "sk": "Prehliadať obsah",
-    "th": "เรียกดูเนื้อหา"
+    "th": "ค้นหากิจกรรมที่มีอยู่"
   },
   "published-assignment": {
     "de": "Veröffentlichte Aufgabe",
@@ -10540,7 +10553,7 @@ export default {
     "pl": "Wprowadź swój unikalny kod szyfrowania",
     "pt": "Insira seu código de criptografia exclusivo",
     "sk": "Zadajte svoj jedinečný šifrovací kód",
-    "th": "ป้อนรหัสเข้ารหัสที่ไม่ซ้ำกันของคุณ"
+    "th": "ใส่รหัสเพื่อเข้าถึงข้อมูล"
   },
   "encryption-code-intro": {
     "de": "Geben Sie unten Ihren eindeutigen Verschlüsselungscode (wie ein Passwort) ein, oder erstellen Sie einen, wenn Sie Erstbenutzer sind. Dieser Code schützt die Daten Ihrer Schülerinnen und Schüler und ermöglicht Ihnen den sicheren Zugriff.",

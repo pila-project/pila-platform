@@ -533,7 +533,7 @@
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showCreateStudentForm = false" />
         <PButton
           variant="primary"
-          :text="t('create-account')"
+          :text="t('create-one-student')"
           :disabled="!newStudentName.trim() || !newStudentGrade"
           :loading="creatingStudent"
           @click="createStudentAccount"
@@ -580,7 +580,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showCreateGroupModal = false" />
-        <PButton variant="primary" :text="t('create-account')" @click="handleCreateGroup" :disabled="!newGroupName.trim()" :loading="creatingGroup" />
+        <PButton variant="primary" :text="t('create')" @click="handleCreateGroup" :disabled="!newGroupName.trim()" :loading="creatingGroup" />
       </template>
     </PModal>
 
