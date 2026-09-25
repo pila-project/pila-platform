@@ -8,6 +8,7 @@ import {
   getContentName,
   invalidateNames,
   seedNameCacheFromDisk,
+  prefetchContentNames,
 } from './content-cache.js'
 
 const growthId = '78fadb08-2a81-4919-93bd-b0fa7c252a29'
@@ -101,5 +102,18 @@ describe('seedNameCacheFromDisk (UIUX-212)', () => {
     const again = await getContentName(growthId, 'th')
     assert.equal(again, TH_GROWTH)
     assert.equal(queries, 0)
+  })
+
+  it('catalog name fill re-resolves an unverified Thai title', async () => {
+    seedNameCacheFromDisk([[`${growthId}:th`, EN_GROWTH]])
+    let queries = 0
+    globalThis.Agent.state = async () => ({ name: EN_GROWTH })
+    globalThis.Agent.query = async () => {
+      queries += 1
+      return [{ is_fallback: false, path: [growthId, 'name'], value: TH_GROWTH }]
+    }
+    await prefetchContentNames([growthId], 'th')
+    assert.equal(queries, 1)
+    assert.equal(getCachedContentName(growthId, 'th'), TH_GROWTH)
   })
 })

@@ -228,11 +228,21 @@ export function getContentName(id, lang) {
       exact = !!resolved?.exact
     } catch {
       // Backward-compatible fallback if resolver throws
-      name = await getName(id, lang)
-      exact = isEnglishLang(lang)
+      try {
+        name = await getName(id, lang)
+        exact = isEnglishLang(lang)
+      } catch {
+        name = null
+      }
     }
     if (nameCache.has(key) && !unverifiedLangKeys.has(key)) return nameCache.get(key)
-    if (!name) return name
+    if (!name) {
+      if (unverifiedLangKeys.has(key)) {
+        unverifiedLangKeys.delete(key)
+        nameCache.delete(key)
+      }
+      return name
+    }
 
     if (exact || isEnglishLang(lang)) {
       const wasUnverified = unverifiedLangKeys.has(key)
@@ -602,6 +612,7 @@ export async function prefetchBatch(ids, lang, partition, leafToCategory, {
 
 function nameFillSettled(id, lang) {
   const key = nameCacheKey(id, lang)
+  if (unverifiedLangKeys.has(key)) return false
   return nameCache.has(key) || unresolvedLangKeys.has(key)
 }
 
