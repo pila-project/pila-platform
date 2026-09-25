@@ -9,6 +9,7 @@
       'pcard-no-drag': !isDraggable,
       'pcard-assignment-picker': assignmentPicker,
       'pcard-fixed': useFixedLayout,
+      'pcard-sequence': showCopyModify && isSequenceCard,
     }"
     :draggable="isDraggable || undefined"
     @click="onCardClick"
@@ -82,7 +83,7 @@
           <LucideIcon name="crown" :size="10" class="pcard-source-icon" />{{ t('pila-content') }}
         </span>
         <span
-          v-if="showCopyModify"
+          v-if="showCopyModify && exploreItemCount > 1"
           class="pcard-count-chip"
         >
           <LucideIcon name="layers" :size="11" class="pcard-count-icon" />
@@ -789,6 +790,10 @@
 }
 .pcard-fixed:hover {
   border-color: #cbd5e1;
+}
+.pcard-fixed.pcard-sequence,
+.pcard-fixed.pcard-sequence:hover {
+  border-color: #ffc343;
 }
 .pcard-dragging {
   cursor: grabbing;
