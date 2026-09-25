@@ -139,7 +139,7 @@ export default {
     }
   },
   actions: {
-    async load({ commit, dispatch, rootState }, poll) {
+    async load({ commit, dispatch, rootState }) {
       const userId = rootState.user
       let usedCache = false
 
@@ -182,25 +182,8 @@ export default {
         })
       }
 
-      if (firstLoad) dispatch('encryptMyUserInfo')
-
-      if (firstLoad || poll === 'do-it') {
-        const scheduleNext = () => {
-          setTimeout(() => {
-            if (document.visibilityState === 'hidden') {
-              const onVisible = () => {
-                document.removeEventListener('visibilitychange', onVisible)
-                dispatch('load', 'do-it')
-              }
-              document.addEventListener('visibilitychange', onVisible)
-            } else {
-              dispatch('load', 'do-it')
-            }
-          }, 15000 + Math.random() * 5000)
-        }
-        scheduleNext()
-        firstLoad = false
-      }
+      dispatch('encryptMyUserInfo')
+      firstLoad = false
     },
     async encryptMyUserInfo({ getters }) {
       const myEncryptedUserInfo = await Agent.state('encrypted-user-info')

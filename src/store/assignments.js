@@ -117,8 +117,7 @@ export default {
     },
   },
   actions: {
-    // ui-dev: localCache load + revalidation; keep polling cadence
-    async load({commit, dispatch, rootState}, poll) {
+    async load({commit, rootState}) {
       const userId = rootState.user
       let usedCache = false
 
@@ -142,23 +141,7 @@ export default {
         if (usedCache) endRevalidation()
       }
 
-      if (firstLoad || poll === 'do-it') {
-        const scheduleNext = () => {
-          setTimeout(() => {
-            if (document.visibilityState === 'hidden') {
-              const onVisible = () => {
-                document.removeEventListener('visibilitychange', onVisible)
-                dispatch('load', 'do-it')
-              }
-              document.addEventListener('visibilitychange', onVisible)
-            } else {
-              dispatch('load', 'do-it')
-            }
-          }, 15000 + Math.random() * 5000)
-        }
-        scheduleNext()
-        firstLoad = false
-      }
+      firstLoad = false
     },
     async assign(
       { getters, rootGetters, dispatch },

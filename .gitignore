@@ -39,3 +39,6 @@ local/
 *.njsproj
 *.sln
 *.sw?
+
+.*
+!.gitignore
