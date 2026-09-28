@@ -226,6 +226,94 @@ describe('assessAssignmentDashboards Candli competency detection', () => {
     assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
   })
 
+  for (const [label, legacyContent, innerItems] of [
+    ['array', ['inner-sequence'], gameItems],
+    ['single ID', 'inner-sequence', { 0: gameItems[0], 1: gameItems[1] }],
+  ]) {
+    it(`finds games through a first assignment item's legacy content ${label}`, async () => {
+      mockAgent({
+        states: {
+          'asg-nested': { content: ['legacy-wrapper', 'ordinary-content'] },
+          'legacy-wrapper': { content: legacyContent },
+          'inner-sequence': { items: innerItems },
+          ...gameStates,
+        },
+        metadata: gameMetadata,
+      })
+      const flags = await assessAssignmentDashboards('asg-nested')
+      assert.equal(flags.isCandli, true)
+      assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
+    })
+  }
+
+  it('recognizes hardcoded Candli sequences nested inside a legacy wrapper', async () => {
+    mockAgent({
+      states: {
+        'asg-nested': { content: ['legacy-wrapper'] },
+        'legacy-wrapper': { content: [CANDLI_ID] },
+        [CANDLI_ID]: { items: gameItems },
+        ...gameStates,
+      },
+      metadata: gameMetadata,
+    })
+    const flags = await assessAssignmentDashboards('asg-nested')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, CANDLI_SEQUENCES[CANDLI_ID])
+  })
+
+  it('preserves nested and direct game order and deduplicates across assignment items', async () => {
+    mockAgent({
+      states: {
+        'asg-mixed': { content: ['legacy-wrapper', 'candli-custom', 'candli-extra'] },
+        'legacy-wrapper': { content: ['inner-sequence', 'candli-embed'] },
+        'inner-sequence': { items: gameItems },
+        ...gameStates,
+      },
+      metadata: {
+        ...gameMetadata,
+        'candli-extra': { domain: 'customize-candli.pilaproject.org' },
+      },
+    })
+    const flags = await assessAssignmentDashboards('asg-mixed')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game', 'candli-extra'])
+  })
+
+  it('terminates sequence cycles while collecting reachable games', { timeout: 1000 }, async () => {
+    mockAgent({
+      states: {
+        'asg-cycle': { content: ['legacy-wrapper'] },
+        'legacy-wrapper': { content: ['inner-sequence', 'candli-embed'] },
+        'inner-sequence': { items: ['legacy-wrapper', 'candli-custom'] },
+        ...gameStates,
+      },
+      metadata: gameMetadata,
+    })
+    const flags = await assessAssignmentDashboards('asg-cycle')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
+  })
+
+  it('keeps games in valid nested siblings when a child cannot load', async () => {
+    mockAgent({
+      states: {
+        'asg-nested': { content: ['legacy-wrapper'] },
+        'legacy-wrapper': { content: ['unavailable-child', 'inner-sequence'] },
+        'inner-sequence': { items: gameItems },
+        ...gameStates,
+      },
+      metadata: gameMetadata,
+    })
+    const loadState = globalThis.Agent.state
+    globalThis.Agent.state = async id => {
+      if (id === 'unavailable-child') throw new Error('Unavailable content')
+      return loadState(id)
+    }
+    const flags = await assessAssignmentDashboards('asg-nested')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
+  })
+
   it('preserves hardcoded Candli sequence mappings', async () => {
     mockAgent({
       states: {

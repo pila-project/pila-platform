@@ -207,6 +207,35 @@ export async function resolveBettyDashboard({ contentId, contentState, sequenceI
   }
 }
 
+async function candliGamesForContent(contentId, contentState, visited = new Set()) {
+  if (!contentId || visited.has(contentId)) return []
+  visited.add(contentId)
+
+  if (CANDLI_SEQUENCES[contentId]) return [...CANDLI_SEQUENCES[contentId]]
+
+  if (contentState === undefined) {
+    try {
+      contentState = await Agent.state(contentId)
+    } catch {
+      contentState = null
+    }
+  }
+
+  const childIds = contentState?.items != null
+    ? normalizeSequenceItems(contentState.items)
+    : normalizeAssignmentContent(contentState?.content)
+
+  if (!childIds.length) {
+    return candliGamesForSequenceItems([{ id: contentId }])
+  }
+
+  const games = []
+  for (const childId of childIds) {
+    games.push(...await candliGamesForContent(childId, undefined, visited))
+  }
+  return games
+}
+
 export async function probeContentDashboards(contentId) {
   const result = {
     isBetty: false,
@@ -217,10 +246,6 @@ export async function probeContentDashboards(contentId) {
     candliGames: [],
   }
   if (!contentId) return result
-
-  if (CANDLI_SEQUENCES[contentId]) {
-    result.candliGames = [...CANDLI_SEQUENCES[contentId]]
-  }
 
   let contentState = null
   try {
@@ -233,15 +258,7 @@ export async function probeContentDashboards(contentId) {
     contentState?.items ?? contentState?.content,
   )
 
-  if (!result.candliGames.length) {
-    try {
-      result.candliGames = await candliGamesForSequenceItems(
-        (sequenceItemIds.length ? sequenceItemIds : [contentId]).map(id => ({ id })),
-      )
-    } catch {
-      result.candliGames = []
-    }
-  }
+  result.candliGames = await candliGamesForContent(contentId, contentState)
 
   const betty = await resolveBettyDashboard({ contentId, contentState, sequenceItemIds })
   result.isBetty = betty.isBetty
