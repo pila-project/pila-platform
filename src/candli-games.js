@@ -25,8 +25,8 @@ async function candliGameForSequenceItem(item, agent) {
   const { domain } = await agent.metadata(item.id)
 
   if (domain === CUSTOM_CANDLI_DOMAIN) {
-    const { game } = await agent.state(item.id)
-    return game || null
+    // customized candli games now write competencies with customized id suffix
+    return item.id
   }
   if (domain !== EMBED_DOMAIN) return null
   const { id } = await agent.state(item.id)
