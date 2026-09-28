@@ -179,6 +179,97 @@ describe('resolveBettyDashboard walks nested sequence items', () => {
   })
 })
 
+describe('assessAssignmentDashboards Candli competency detection', () => {
+  const gameIds = ['candli-custom', 'candli-embed']
+  const gameItems = gameIds.map(id => ({ id }))
+  const gameStates = {
+    'candli-custom': {},
+    'candli-embed': { id: 'https://pila.cand.li/pila-play.html?game=embedded-game' },
+  }
+  const gameMetadata = {
+    'candli-custom': { domain: 'customize-candli.pilaproject.org' },
+    'candli-embed': { domain: 'embed.knowlearning.systems' },
+  }
+
+  for (const [label, sequenceState] of [
+    ['ui-dev items map', { items: { 0: gameItems[0], 1: gameItems[1] } }],
+    ['legacy items ID array', { items: gameIds }],
+    ['legacy items object array', { items: gameItems }],
+    ['legacy content ID array', { content: gameIds }],
+    ['legacy content object array', { content: gameItems }],
+  ]) {
+    it(`detects customized and embedded Candli games in a ${label}`, async () => {
+      mockAgent({
+        states: {
+          'asg-candli': { content: ['seq-candli'] },
+          'seq-candli': sequenceState,
+          ...gameStates,
+        },
+        metadata: gameMetadata,
+      })
+      const flags = await assessAssignmentDashboards('asg-candli')
+      assert.equal(flags.isCandli, true)
+      assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
+    })
+  }
+
+  it('detects directly assigned customized and embedded Candli games', async () => {
+    mockAgent({
+      states: {
+        'asg-candli': { content: gameIds },
+        ...gameStates,
+      },
+      metadata: gameMetadata,
+    })
+    const flags = await assessAssignmentDashboards('asg-candli')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
+  })
+
+  it('preserves hardcoded Candli sequence mappings', async () => {
+    mockAgent({
+      states: {
+        'asg-candli': { content: [CANDLI_ID] },
+        [CANDLI_ID]: { items: gameItems },
+        ...gameStates,
+      },
+      metadata: gameMetadata,
+    })
+    const flags = await assessAssignmentDashboards('asg-candli')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, CANDLI_SEQUENCES[CANDLI_ID])
+  })
+
+  it('prefers an empty items map over legacy content', async () => {
+    mockAgent({
+      states: {
+        'asg-empty': { content: ['seq-empty'] },
+        'seq-empty': { items: {}, content: gameIds },
+        ...gameStates,
+      },
+      metadata: gameMetadata,
+    })
+    const flags = await assessAssignmentDashboards('asg-empty')
+    assert.equal(flags.isCandli, false)
+    assert.deepEqual(flags.candliGames, [])
+  })
+
+  it('does not classify ordinary standalone embeds as Candli', async () => {
+    mockAgent({
+      states: {
+        'asg-ordinary': { content: ['ordinary-embed'] },
+        'ordinary-embed': { id: 'https://example.org/game' },
+      },
+      metadata: {
+        'ordinary-embed': { domain: 'embed.knowlearning.systems' },
+      },
+    })
+    const flags = await assessAssignmentDashboards('asg-ordinary')
+    assert.equal(flags.isCandli, false)
+    assert.deepEqual(flags.candliGames, [])
+  })
+})
+
 describe('assessAssignmentDashboards (Betty-only / Datawise-only / mixed / ordinary)', () => {
   it('Betty-only → app AND live (237 union; open must not require URL)', async () => {
     mockAgent({

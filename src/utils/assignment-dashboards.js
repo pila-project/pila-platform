@@ -164,12 +164,6 @@ async function dashboardUrlForRecord(id, contentState) {
   })
 }
 
-function sequenceItemsForCandliScan(contentState) {
-  const rawItems = contentState?.items
-  if (Array.isArray(rawItems)) return rawItems
-  return normalizeSequenceItems(rawItems).map(id => ({ id }))
-}
-
 async function innerIdsFromSequenceItems(itemIds) {
   const extra = []
   let probes = 0
@@ -235,12 +229,14 @@ export async function probeContentDashboards(contentId) {
     contentState = null
   }
 
-  const sequenceItemIds = normalizeSequenceItems(contentState?.items)
+  const sequenceItemIds = normalizeSequenceItems(
+    contentState?.items ?? contentState?.content,
+  )
 
   if (!result.candliGames.length) {
     try {
       result.candliGames = await candliGamesForSequenceItems(
-        sequenceItemsForCandliScan(contentState),
+        (sequenceItemIds.length ? sequenceItemIds : [contentId]).map(id => ({ id })),
       )
     } catch {
       result.candliGames = []
