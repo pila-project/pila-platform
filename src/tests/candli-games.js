@@ -37,7 +37,7 @@ export default function candliGamesTests() {
       metadataResolvers.custom({ domain: domains.custom })
 
       expect(await gamesPromise).to.deep.equal([
-        'game-custom',
+        'custom',
         'game-modern',
         'candli_editor/incredible_machine0'
       ])
@@ -57,7 +57,18 @@ export default function candliGamesTests() {
         agent
       )
 
-      expect(games).to.deep.equal(['game-first', 'game-last'])
+      expect(games).to.deep.equal(['first', 'last'])
+    })
+
+    it('recognizes legacy customized games by their customized id', async function () {
+      const agent = {
+        metadata: async () => ({ domain: 'customize-candli.netlify.app' }),
+        state: async () => ({ game: 'base-game', configuration: { length: 5 } })
+      }
+
+      const games = await candliGamesForSequenceItems([{ id: 'legacy-custom' }], agent)
+
+      expect(games).to.deep.equal(['legacy-custom'])
     })
   })
 }

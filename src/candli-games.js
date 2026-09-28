@@ -1,4 +1,7 @@
-const CUSTOM_CANDLI_DOMAIN = 'customize-candli.pilaproject.org'
+const CUSTOM_CANDLI_DOMAINS = new Set([
+  'customize-candli.pilaproject.org',
+  'customize-candli.netlify.app'
+])
 const EMBED_DOMAIN = 'embed.knowlearning.systems'
 const CANDLI_EMBED_PREFIX = 'https://pila.cand.li/pila.html?'
 const CANDLI_EMBED_PREFIX_2 = 'https://pila.cand.li/pila-play.html?'
@@ -24,7 +27,7 @@ async function candliGameForSequenceItem(item, agent) {
 
   const { domain } = await agent.metadata(item.id)
 
-  if (domain === CUSTOM_CANDLI_DOMAIN) {
+  if (CUSTOM_CANDLI_DOMAINS.has(domain)) {
     // customized candli games now write state wuth customized game id prefix
     return item.id
   }

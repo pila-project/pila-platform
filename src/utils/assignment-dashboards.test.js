@@ -226,6 +226,57 @@ describe('assessAssignmentDashboards Candli competency detection', () => {
     assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
   })
 
+  it('detects the reported sequence containing a legacy-host customized Candli game', async () => {
+    const sequenceId = '4fbb4830-bb69-11f1-9b16-dffaae0e7166'
+    const customizedGameId = '1237f3b0-c406-11f0-b5c9-cfa2201501c5'
+    mockAgent({
+      states: {
+        'asg-reported': { content: [sequenceId] },
+        [sequenceId]: { items: [{ id: customizedGameId }] },
+        [customizedGameId]: {
+          game: '25a6ac35e1c25713b5fedd0008599a52',
+          configuration: {},
+        },
+      },
+      metadata: {
+        [sequenceId]: {
+          domain: 'create.pilaproject.org',
+          active_type: 'application/json;type=sequence',
+        },
+        [customizedGameId]: {
+          domain: 'customize-candli.netlify.app',
+          active_type: 'application/json',
+        },
+      },
+    })
+    const flags = await assessAssignmentDashboards('asg-reported')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, [customizedGameId])
+  })
+
+  it('keeps legacy and current customized game IDs in assignment order instead of their shared base game', async () => {
+    const legacyGameId = '1237f3b0-c406-11f0-b5c9-cfa2201501c5'
+    const currentGameId = 'candli-current-custom'
+    const customizedState = {
+      game: '25a6ac35e1c25713b5fedd0008599a52',
+      configuration: {},
+    }
+    mockAgent({
+      states: {
+        'asg-customized': { content: [legacyGameId, currentGameId, legacyGameId] },
+        [legacyGameId]: customizedState,
+        [currentGameId]: customizedState,
+      },
+      metadata: {
+        [legacyGameId]: { domain: 'customize-candli.netlify.app' },
+        [currentGameId]: { domain: 'customize-candli.pilaproject.org' },
+      },
+    })
+    const flags = await assessAssignmentDashboards('asg-customized')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, [legacyGameId, currentGameId])
+  })
+
   for (const [label, legacyContent, innerItems] of [
     ['array', ['inner-sequence'], gameItems],
     ['single ID', 'inner-sequence', { 0: gameItems[0], 1: gameItems[1] }],
