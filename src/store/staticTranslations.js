@@ -10970,5 +10970,9 @@ export default {
     "pt": "Acordo do professor",
     "sk": "Dohoda pre učiteľov",
     "th": "ข้อตกลงสำหรับครู"
+  },
+  "teacher-academy": {
+    "en": "Teacher Academy",
+    "th": "สถาบันครู"
   }
 }

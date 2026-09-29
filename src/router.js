@@ -12,6 +12,11 @@ import LoginMenu from '@/pages/login/index.vue'
 import CandliStates from '@/pages/candli-states.vue'
 import { isThailandTeacherHost } from '@/utils/constants.js'
 
+function allowThailandTeacher(_to, _from, next) {
+  if (isThailandTeacherHost()) next()
+  else next('/teacher')
+}
+
 const LOGIN_INTENT_KEY = 'pila-login-intent'
 const RETURN_PATH_KEY = 'pila-return-path'
 
@@ -191,6 +196,10 @@ const AssignmentsToMe = makeRouteShell(() => import('@/pages/assignments/to-me/a
 const ContentLibrary = makeRouteShell(() => import('@/components/content/content-library.vue'))
 const TeacherCreateTab = makeRouteShell(() => import('@/pages/teacher/teacher-create-tab.vue'))
 const TeacherResourcesPage = makeRouteShell(() => import('@/pages/teacher/resources-page.vue'))
+const AcademyLibrary = makeRouteShell(() => import('@/pages/teacher/academy/library.vue'))
+const AcademyLesson = makeRouteShell(() => import('@/pages/teacher/academy/lesson.vue'))
+const AcademyReview = makeRouteShell(() => import('@/pages/teacher/academy/review.vue'))
+const AcademyReflect = makeRouteShell(() => import('@/pages/teacher/academy/reflect.vue'))
 const TeacherTrainerPage = makeRouteShell(() => import('@/pages/teacher/trainer-page.vue'))
 const BugReport = makeRouteShell(() => import('@/components/common/bug-report.vue'))
 const TeacherStudyOptOut = makeRouteShell(() => import('@/pages/teacher/study-opt-out.vue'))
@@ -228,14 +237,16 @@ const router = createRouter({
         },
         { path: 'content', component: ContentLibrary },
         { path: 'create', component: TeacherCreateTab },
+        { path: 'academy', component: AcademyLibrary, beforeEnter: allowThailandTeacher },
+        { path: 'academy/series/:id', redirect: '/teacher/academy', beforeEnter: allowThailandTeacher },
+        { path: 'academy/module/:id/review', component: AcademyReview, beforeEnter: allowThailandTeacher },
+        { path: 'academy/module/:id', component: AcademyLesson, beforeEnter: allowThailandTeacher },
+        { path: 'academy/reflect/:kind/:id', component: AcademyReflect, beforeEnter: allowThailandTeacher },
         { path: 'resources', component: TeacherResourcesPage },
         {
           path: 'trainer',
           component: TeacherTrainerPage,
-          beforeEnter: (_to, _from, next) => {
-            if (isThailandTeacherHost()) next()
-            else next('/teacher')
-          },
+          beforeEnter: allowThailandTeacher,
         },
         { path: 'support', component: BugReport },
         { path: 'feedback', redirect: '/teacher/support' },

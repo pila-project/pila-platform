@@ -313,6 +313,7 @@
     { icon: 'list-checks', title: t('your-tasks'), to: '/teacher/tasks', show: isSimplifiedStudyDomain },
     { icon: 'search', title: t('explore'), to: '/teacher/content', show: true },
     { icon: 'folder-plus', title: t('create'), to: '/teacher/create', show: !isSimplifiedStudyDomain },
+    { icon: 'graduation-cap', title: t('teacher-academy'), to: '/teacher/academy', show: hasTeacherPermission.value && isThailandHost, preserveCase: true },
     { icon: 'file-text', title: t('resources'), to: '/teacher/resources', show: true },
     { icon: 'school', title: t('trainer'), to: '/teacher/trainer', show: userIsTrainer.value && isThailandHost },
   ])
