@@ -90,7 +90,7 @@
               :version="sequenceVersion"
               @toggle-favorite="toggleFavorite(seqId)"
               @edit="editSequence(seqId)"
-              @archive="sequenceToArchive = seqId"
+              @archive="openSingleArchive(seqId)"
               @restore="onRestoreSequence(seqId)"
               @preview="sequenceToPreview = seqId"
               @view-content="openSequenceContent(seqId)"
@@ -188,7 +188,7 @@
                 :version="sequenceVersion"
                 @toggle-favorite="toggleFavorite(seqId)"
                 @edit="editSequence(seqId)"
-                @archive="sequenceToArchive = seqId"
+                @archive="openSingleArchive(seqId)"
                 @restore="onRestoreSequence(seqId)"
                 @preview="sequenceToPreview = seqId"
                 @view-content="openSequenceContent(seqId)"
@@ -279,6 +279,15 @@
               />
               <span class="selection-count">{{ selectedItems.size }} {{ t('items-selected') }}</span>
               <div style="flex:1" />
+              <PButton
+                v-if="selectedArchivableSequenceIds.length"
+                variant="secondary"
+                size="sm"
+                icon="lucide:archive"
+                :text="`${t('archive')} (${selectedArchivableSequenceIds.length})`"
+                :disabled="archiveConfirmLoading"
+                @click="startArchiveSelected"
+              />
               <PButton variant="ghost" size="sm" :text="t('deselect-all')" @click="deselectAll" />
             </div>
 
@@ -295,6 +304,8 @@
               :favorited="favorites.has(id)"
               :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1 && !sequenceTaggingBlocked(id) && !!taggingIconVisibility[id]"
               show-copy-modify
+              :can-archive="activeSequenceIds.includes(id)"
+              @archive="openSingleArchive(id)"
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
               @toggle-favorite="toggleFavorite(id)"
@@ -331,6 +342,15 @@
 
     <!-- Mobile bottom action bar -->
     <div v-if="selectedItems.size" class="mobile-bottom-bar">
+      <PButton
+        v-if="selectedArchivableSequenceIds.length"
+        variant="secondary"
+        class="w-full"
+        icon="lucide:archive"
+        :text="`${t('archive')} (${selectedArchivableSequenceIds.length})`"
+        :disabled="archiveConfirmLoading"
+        @click="startArchiveSelected"
+      />
       <PButton
         variant="primary"
         class="w-full"
@@ -381,16 +401,16 @@
 
     <!-- Archive confirmation -->
     <PAlertDialog
-      v-if="sequenceToArchive"
+      v-if="sequenceToArchive || bulkArchiveIds.length"
       variant="warning"
       width="520px"
-      :title="t('archive-sequence')"
+      :title="bulkArchiveIds.length > 1 ? t('archive') : t('archive-sequence')"
       :description="archiveConfirmDescription"
       :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
       :confirm-loading="archiveConfirmLoading"
       @confirm="confirmArchiveSequence"
-      @cancel="sequenceToArchive = null"
+      @cancel="cancelArchive"
     />
 
     <!-- Success (Figma Explore: 520px, green icon circle, title + body, single Done) -->
@@ -765,7 +785,19 @@
 
   const activeSequenceCount = computed(() => activeSequenceIds.value.length)
 
-  const archiveConfirmDescription = computed(() => t('archive-sequence-confirm'))
+  const bulkArchiveIds = ref([])
+
+  const selectedArchivableSequenceIds = computed(() => {
+    const active = new Set(activeSequenceIds.value)
+    return [...selectedItems].filter(id => active.has(id))
+  })
+
+  const archiveConfirmDescription = computed(() => {
+    if (bulkArchiveIds.value.length > 1) {
+      return t('archive-sequences-confirm').replace('{n}', String(bulkArchiveIds.value.length))
+    }
+    return t('archive-sequence-confirm')
+  })
 
   const displayedSequenceIds = computed(() => {
     void nameCacheVersion.value
@@ -1067,21 +1099,49 @@
     })
   }
 
-  async function confirmArchiveSequence() {
-    const id = sequenceToArchive.value
+  function openSingleArchive(id) {
     if (!id || archiveConfirmLoading.value) return
+    bulkArchiveIds.value = []
+    sequenceToArchive.value = id
+  }
+
+  function startArchiveSelected() {
+    const ids = selectedArchivableSequenceIds.value
+    if (!ids.length || archiveConfirmLoading.value) return
+    if (ids.length === 1) {
+      openSingleArchive(ids[0])
+      return
+    }
+    sequenceToArchive.value = null
+    bulkArchiveIds.value = ids
+  }
+
+  function cancelArchive() {
+    sequenceToArchive.value = null
+    bulkArchiveIds.value = []
+  }
+
+  async function confirmArchiveSequence() {
+    const ids = bulkArchiveIds.value.length
+      ? [...bulkArchiveIds.value]
+      : (sequenceToArchive.value ? [sequenceToArchive.value] : [])
+    if (!ids.length || archiveConfirmLoading.value) return
     archiveConfirmLoading.value = true
     try {
-      await setExploreSequenceArchived(id, true)
+      for (const id of ids) {
+        await setExploreSequenceArchived(id, true)
+        if (sequenceToView.value === id) sequenceToView.value = null
+        selectedItems.delete(id)
+      }
       sequenceToArchive.value = null
-      if (sequenceToView.value === id) sequenceToView.value = null
+      bulkArchiveIds.value = []
       await loadMySequences({ silent: true })
       showSuccessDialog(
-        t('sequence-archived'),
-        t('sequence-archived-description'),
+        ids.length > 1 ? t('sequences-archived') : t('sequence-archived'),
+        ids.length > 1 ? t('sequences-archived-description') : t('sequence-archived-description'),
       )
     } catch (e) {
-      console.error('[Explore] archiveSequence failed', id, e)
+      console.error('[Explore] archiveSequence failed', ids, e)
       showError(t('something-went-wrong'))
     } finally {
       archiveConfirmLoading.value = false
@@ -1813,6 +1873,8 @@
 /* Mobile bottom action bar */
 .mobile-bottom-bar {
   display: none;
+  flex-direction: column;
+  gap: 8px;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -1951,7 +2013,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .mobile-bottom-bar {
-    display: block;
+    display: flex;
   }
   .selection-toolbar {
     display: none;

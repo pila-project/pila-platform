@@ -270,6 +270,12 @@
             prepend-icon="lucide:tags"
             @click="onTag"
           />
+          <PMenuItem
+            v-if="canArchive"
+            :title="t('archive')"
+            prepend-icon="lucide:archive"
+            @click="$emit('archive')"
+          />
         </PMenu>
       </div>
     </div>
@@ -385,12 +391,17 @@
       type: Boolean,
       default: false,
     },
+    /** Explore: this card is an active My content sequence the teacher can archive. */
+    canArchive: {
+      type: Boolean,
+      default: false,
+    },
   })
 
   const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
   const useFixedLayout = computed(() => !props.sequenceView)
 
-  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite', 'tag', 'edit'])
+  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite', 'tag', 'edit', 'archive'])
 
   const addDisabled = computed(() => props.inAssignment || props.inSequence)
 

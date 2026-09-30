@@ -1117,6 +1117,19 @@ export default {
     "sk": "Archivovať sekvenciu",
     "th": "เก็บถาวรลำดับ"
   },
+  "archive-sequences-confirm": {
+    "de": "{n} Sequenzen archivieren? Sie werden aus dem Sequenz-Builder entfernt und können später wiederhergestellt werden.",
+    "en": "Archive {n} sequences? They will be removed from 'Sequence Builder' and can be restored later.",
+    "es": "¿Archivar {n} secuencias? Se eliminarán del generador de secuencias y podrás restaurarlas más tarde.",
+    "fr": "Archiver {n} séquences ? Elles seront retirées du générateur de séquences et pourront être restaurées plus tard.",
+    "km": "ទុកលំដាប់ {n} ជាឯកសារ? ពួកវានឹងត្រូវបានដកចេញពីឧបករណ៍បង្កើតលំដាប់ ហើយអាចស្តារវិញបាននៅពេលក្រោយ។",
+    "lv": "Vai arhivēt {n} secības? Tās tiks noņemtas no secību veidotāja, un tās varēs atjaunot vēlāk.",
+    "nl": "{n} reeksen archiveren? Ze worden uit de reeksbouwer verwijderd en kunnen later worden hersteld.",
+    "pl": "Zarchiwizować {n} sekwencje? Zostaną usunięte z kreatora sekwencji i będzie można je później przywrócić.",
+    "pt": "Arquivar {n} sequências? Elas serão removidas do construtor de sequências e poderão ser restauradas depois.",
+    "sk": "Archivovať {n} sekvencie? Odstránia sa z tvorcu sekvencií a neskôr ich môžete obnoviť.",
+    "th": "เก็บถาวร {n} ลำดับหรือไม่? ลำดับเหล่านี้จะถูกนำออกจากตัวสร้างลำดับ และสามารถกู้คืนได้ภายหลัง"
+  },
   "archive-sequence-confirm": {
     "de": "Diese Sequenz archivieren? Sie wird aus Ihren aktiven Sequenzen entfernt. Sie können sie später wiederherstellen.",
     "en": "Archive this sequence? It will be removed from 'Sequence Builder' and can be restored later.",
@@ -7408,6 +7421,32 @@ export default {
     "pt": "Sequência",
     "sk": "Sekvencia",
     "th": "เรียงลำดับกิจกรรม"
+  },
+  "sequences-archived": {
+    "de": "Sequenzen archiviert",
+    "en": "Sequences archived",
+    "es": "Secuencias archivadas",
+    "fr": "Séquences archivées",
+    "km": "បានទុកលំដាប់ជាឯកសារ",
+    "lv": "Secības arhivētas",
+    "nl": "Reeksen gearchiveerd",
+    "pl": "Sekwencje zarchiwizowane",
+    "pt": "Sequências arquivadas",
+    "sk": "Sekvencie archivované",
+    "th": "เก็บถาวรลำดับแล้ว"
+  },
+  "sequences-archived-description": {
+    "de": "Diese Sequenzen liegen jetzt in Ihrer Archivliste. Sie erscheinen nicht mehr bei den aktiven Sequenzen und nicht beim Hinzufügen von Inhalten zu Aufgaben. Sie können sie jederzeit im Sequenzbereich wiederherstellen.",
+    "en": "These sequences have been moved to your archived list. They no longer appear among active sequences or when adding content to assignments. You can restore them anytime from the sequences panel.",
+    "es": "Estas secuencias están ahora en tu lista archivada. Ya no aparecen entre las secuencias activas ni al añadir contenido a las tareas. Puedes restaurarlas en cualquier momento desde el panel de secuencias.",
+    "fr": "Ces séquences sont maintenant dans votre liste archivée. Elles n’apparaissent plus parmi les séquences actives ni lors de l’ajout de contenu aux devoirs. Vous pouvez les restaurer à tout moment depuis le panneau des séquences.",
+    "km": "លំដាប់ទាំងនេះត្រូវបានផ្លាស់ទៅបញ្ជីទុកក្នុងប័ណ្ណសារ។ ពួកវាលែងបង្ហាញក្នុងលំដាប់សកម្ម ឬពេលបន្ថែមមាតិកាទៅកិច្ចការ។ អ្នកអាចស្តារពួកវាបានគ្រប់ពេលពីផ្ទាំងលំដាប់។",
+    "lv": "Šīs secības tagad ir jūsu arhīva sarakstā. Tās vairs neparādās starp aktīvajām secībām vai pievienojot saturu uzdevumiem. Tās varat atjaunot jebkurā laikā secību panelī.",
+    "nl": "Deze reeksen staan nu in uw archieflijst. Ze verschijnen niet meer bij de actieve reeksen of bij het toevoegen van inhoud aan opdrachten. U kunt ze altijd herstellen vanuit het reeksenpaneel.",
+    "pl": "Te sekwencje są teraz na liście archiwum. Nie pojawiają się już wśród aktywnych sekwencji ani przy dodawaniu treści do zadań. Możesz je w każdej chwili przywrócić z panelu sekwencji.",
+    "pt": "Estas sequências estão agora na sua lista de arquivo. Já não aparecem entre as sequências ativas nem ao adicionar conteúdo às tarefas. Pode restaurá-las a qualquer momento no painel de sequências.",
+    "sk": "Tieto sekvencie sú teraz v zozname archívu. Už sa nezobrazujú medzi aktívnymi sekvenciami ani pri pridávaní obsahu k úlohám. Môžete ich kedykoľvek obnoviť z panela sekvencií.",
+    "th": "ลำดับเหล่านี้ถูกย้ายไปยังรายการที่เก็บถาวรแล้ว ไม่แสดงในลำดับที่ใช้งานอยู่ หรือตอนเพิ่มเนื้อหาในงานมอบหมาย สามารถกู้คืนได้ทุกเมื่อจากแผงลำดับ"
   },
   "sequence-archived": {
     "de": "Sequenz archiviert",
