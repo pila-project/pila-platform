@@ -2547,6 +2547,19 @@ export default {
     "sk": "Vytvoriť",
     "th": "สร้างบทเรียนเอง"
   },
+  "create-group": {
+    "de": "Erstellen",
+    "en": "Create",
+    "es": "Crear",
+    "fr": "Créer",
+    "km": "បង្កើត",
+    "lv": "Izveidot",
+    "nl": "Creëren",
+    "pl": "Utwórz",
+    "pt": "Criar",
+    "sk": "Vytvoriť",
+    "th": "สร้าง"
+  },
   "create-a-copy-of": {
     "de": "Erstellen Sie eine Kopie von",
     "en": "Create a copy of",
@@ -10176,7 +10189,7 @@ export default {
     "pl": "PILA pomaga tworzyć, przypisywać i monitorować treści edukacyjne oparte na PISA. Zacznij od polecanych zasobów poniżej albo od razu utwórz pierwsze zadanie.",
     "pt": "O PILA ajuda você a criar, atribuir e acompanhar conteúdos de aprendizagem baseados no PISA. Comece pelos recursos recomendados abaixo ou crie agora sua primeira tarefa.",
     "sk": "PILA vám pomáha vytvárať, priraďovať a sledovať vzdelávací obsah založený na PISA. Začnite odporúčanými zdrojmi nižšie alebo hneď vytvorte svoju prvú úlohu.",
-    "th": "PILA ช่วยให้คุณสร้าง มอบหมาย และติดตามเนื้อหาการเรียนรู้ตามแนว PISA เริ่มต้นด้วยการสำรวจแหล่งข้อมูลที่แนะนำด้านล่าง หรือเริ่มสร้างงานมอบหมายชิ้นแรกได้เลย"
+    "th": "PILA คือสื่อการเรียนการสอนในหลักสูตร PISA ที่ให้คุณสร้างเนื้อหาการเรียน มอบหมายงานให้นักเรียนทำ และติดตามผลได้ เรียนรู้เกี่ยวกับ PILA หรือมอบหมายงานชิ้นแรกให้นักเรียนทำได้เลย"
   },
   "create-first-assignment": {
     "de": "Erste Aufgabe erstellen",

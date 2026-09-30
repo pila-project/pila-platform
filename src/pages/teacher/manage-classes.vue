@@ -580,7 +580,7 @@
       </template>
       <template #footer>
         <PButton variant="secondary" color="danger" :text="t('cancel')" @click="showCreateGroupModal = false" />
-        <PButton variant="primary" :text="t('create')" @click="handleCreateGroup" :disabled="!newGroupName.trim()" :loading="creatingGroup" />
+        <PButton variant="primary" :text="t('create-group')" @click="handleCreateGroup" :disabled="!newGroupName.trim()" :loading="creatingGroup" />
       </template>
     </PModal>
 
