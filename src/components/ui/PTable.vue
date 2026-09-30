@@ -76,6 +76,7 @@
                 v-for="header in headers"
                 :key="header.key"
                 class="table-cell"
+                :class="header.cellClass"
               >
                 <slot :name="`item.${header.key}`" :item="item" :index="index">
                   {{ item[header.key] }}

@@ -474,7 +474,9 @@
   import {
     ASSIGNMENT_STATUS,
     effectiveAssignmentStatus,
+    getPublicationDateTime,
     nextScheduledPublishAt,
+    publicationDateSource,
     tryPromoteScheduledAssignment,
   } from '@/utils/assignment-status.js'
   import {
@@ -791,6 +793,17 @@
       assignmentData[id] = snapshotAssignmentData(state)
       // Teacher-only: persist Scheduled → Published when due (idempotent)
       await promoteAssignmentIfDue(id)
+      // Display only. Do not write publishedAt while painting the row.
+      if (shouldLoadCreated(id)) {
+        try {
+          const meta = await Agent.metadata(id)
+          if (assignmentData[id] && !assignmentData[id].publishedAt) {
+            assignmentData[id].created = meta?.created || null
+          }
+        } catch {
+          // Column stays blank when metadata is unavailable.
+        }
+      }
     } catch {
       assignmentData[id] = { name: '', description: '' }
     }
@@ -808,8 +821,19 @@
       scheduledTime: state.scheduledTime || null,
       status: state.status || null,
       publishedAt: state.publishedAt || null,
+      created: null,
       archived: !!state.archived,
     }
+  }
+
+  function shouldLoadCreated(id) {
+    const data = assignmentData[id]
+    if (!data || data.publishedAt || data.created) return false
+    if (data.status === ASSIGNMENT_STATUS.DRAFT) return false
+    if (data.status === ASSIGNMENT_STATUS.SCHEDULED) return false
+    return effectiveAssignmentStatus(data, {
+      hasAssignedGroups: getAssignedGroups(id).length > 0,
+    }) === ASSIGNMENT_STATUS.PUBLISHED
   }
 
   async function promoteAssignmentIfDue(id) {
@@ -817,9 +841,7 @@
     if (!result.promoted) return false
     if (assignmentData[id]) {
       assignmentData[id].status = ASSIGNMENT_STATUS.PUBLISHED
-      if (!assignmentData[id].publishedAt) {
-        assignmentData[id].publishedAt = new Date().toISOString()
-      }
+      if (result.publishedAt) assignmentData[id].publishedAt = result.publishedAt
     }
     return true
   }
@@ -939,8 +961,8 @@
   const tableHeaders = computed(() => [
     { key: 'title', title: t('assignment-title') },
     { key: 'dueDate', title: t('due-date') },
-    { key: 'publicationDate', title: t('publication-date') },
-    { key: 'status', title: t('publication-status') },
+    { key: 'publicationDate', title: t('publication-date'), cellClass: 'assign-pub-cell' },
+    { key: 'status', title: t('publication-status'), cellClass: 'assign-status-cell' },
     { key: 'assignedTo', title: t('assigned-to'), sortable: false },
     { key: 'submissions', title: t('reporting-dashboard'), sortable: false },
     { key: 'actions', title: t('actions'), sortable: false },
@@ -999,23 +1021,40 @@
     return '-'
   }
 
-  // UIUX-214: column is "Publication date" — only real publishedAt.
-  // scheduledDate is intended future publish (shown via getScheduledSubline for Scheduled).
-  // Do not fall back to scheduledDate (misleading for drafts / not-yet-published).
-  function publicationDateValue(id) {
+  // publishedAt, else a still-Scheduled row's schedule, else document created
+  // when the row is published and never got a stamp. Drafts stay blank (UIUX-214).
+  function publicationSource(id) {
     const data = assignmentData[id]
-    return data?.publishedAt || null
+    if (!data) return null
+    return publicationDateSource(data, {
+      hasAssignedGroups: getAssignedGroups(id).length > 0,
+    })
   }
 
   function publicationDateSortValue(id) {
-    const value = publicationDateValue(id)
-    return value ? new Date(value).getTime() : 0
+    const source = publicationSource(id)
+    if (!source?.at) return 0
+    if (source.kind === 'scheduled') {
+      const at = getPublicationDateTime({
+        scheduledDate: source.at,
+        scheduledTime: source.time,
+      })
+      return at ? at.getTime() : 0
+    }
+    const parsed = new Date(source.at)
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime()
   }
 
   function getPublicationDate(id) {
-    const value = publicationDateValue(id)
-    if (value) return formatDate(value)
-    return '-'
+    const source = publicationSource(id)
+    if (!source?.at) return '-'
+    const date = formatDate(source.at)
+    if (!date || date === '--') return '-'
+    if (source.kind === 'scheduled' && source.time) {
+      const time = formatTime(source.time)
+      return time ? `${date} ${time}` : date
+    }
+    return date
   }
 
   function canViewSubmissions(id) {
@@ -1046,7 +1085,9 @@
   function formatDate(ts) {
     if (!ts) return '--'
     // Display locale (Thai BE year); stored due dates remain Gregorian ISO.
-    const formatted = formatDateForDisplay(ts, store.getters.language?.() || store.state.language || 'en')
+    const lang = store.getters.language?.() || store.state.language || 'en'
+    const value = typeof ts === 'number' ? new Date(ts) : ts
+    const formatted = formatDateForDisplay(value, lang)
     if (formatted) return formatted
     const d = new Date(ts)
     if (Number.isNaN(d.getTime())) return '--'
@@ -1595,6 +1636,13 @@
   font-size: 12px;
   font-weight: 500;
   color: #334155;
+}
+
+/* Publication date and the "Publishes on" status line wrap inside the row.
+   Global .table-cell stays nowrap. */
+:deep(.assign-pub-cell),
+:deep(.assign-status-cell) {
+  white-space: normal;
 }
 .assign-cell-text--muted {
   color: #94a3b8;

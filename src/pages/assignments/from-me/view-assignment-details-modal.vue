@@ -36,6 +36,10 @@
                   <span class="info-value">{{ data.dueDate ? formatDate(data.dueDate) : t('not-set') }}</span>
                 </div>
                 <div class="info-item">
+                  <span class="info-label">{{ t('publication-date') }}</span>
+                  <span class="info-value">{{ publicationDateLabel }}</span>
+                </div>
+                <div class="info-item">
                   <span class="info-label">{{ t('status') }}</span>
                   <span class="info-value" :class="statusClass">{{ t(status.toLowerCase()) }}</span>
                 </div>
@@ -142,7 +146,9 @@
   import SequencePreviewModal from '@/components/content/sequence-preview-modal.vue'
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import {
+    ASSIGNMENT_STATUS,
     effectiveAssignmentStatus,
+    publicationDateSource,
     tryPromoteScheduledAssignment,
   } from '@/utils/assignment-status.js'
   import { formatDateForDisplay } from '@/utils/iso-date.js'
@@ -201,9 +207,36 @@
 
   function formatDate(ts) {
     if (!ts) return '--'
-    const formatted = formatDateForDisplay(ts, store.getters.language?.() || store.state.language || 'en')
-    return formatted || '--'
+    const lang = store.getters.language?.() || store.state.language || 'en'
+    const value = typeof ts === 'number' ? new Date(ts) : ts
+    const formatted = formatDateForDisplay(value, lang)
+    if (formatted) return formatted
+    const d = new Date(ts)
+    if (Number.isNaN(d.getTime())) return '--'
+    return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   }
+
+  function formatTime(ts) {
+    if (!ts) return ''
+    if (typeof ts === 'string' && /^\d{1,2}:\d{2}/.test(ts)) return ts
+    const d = new Date(ts)
+    if (Number.isNaN(d.getTime())) return ''
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  }
+
+  const publicationDateLabel = computed(() => {
+    const source = publicationDateSource(data.value, {
+      hasAssignedGroups: assignedGroups.value.length > 0,
+    })
+    if (!source?.at) return '-'
+    const date = formatDate(source.at)
+    if (!date || date === '--') return '-'
+    if (source.kind === 'scheduled' && source.time) {
+      const time = formatTime(source.time)
+      return time ? `${date} ${time}` : date
+    }
+    return date
+  })
 
   function handleKeydown(e) {
     if (e.key === 'Escape') emit('close')
@@ -228,12 +261,27 @@
         scheduledDate: state.scheduledDate || null,
         scheduledTime: state.scheduledTime || null,
         publishedAt: state.publishedAt || null,
+        created: null,
         allowLate: state.allowLate,
         maxAttempts: state.maxAttempts || '1',
         feedbackTiming: state.feedbackTiming || 'At the end',
         shuffleQuestions: state.shuffleQuestions || false,
         showAnswers: state.showAnswers || false,
         teacherNotes: state.teacherNotes || '',
+      }
+      const needsCreated = !data.value.publishedAt
+        && data.value.status !== ASSIGNMENT_STATUS.DRAFT
+        && data.value.status !== ASSIGNMENT_STATUS.SCHEDULED
+        && effectiveAssignmentStatus(data.value, {
+          hasAssignedGroups: assignedGroups.value.length > 0,
+        }) === ASSIGNMENT_STATUS.PUBLISHED
+      if (needsCreated) {
+        try {
+          const meta = await Agent.metadata(props.id)
+          data.value = { ...data.value, created: meta?.created || null }
+        } catch {
+          // Date stays blank when metadata is unavailable.
+        }
       }
     } catch {
       data.value = { name: t('error-loading-assignment') }

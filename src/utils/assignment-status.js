@@ -139,8 +139,9 @@ export async function tryPromoteScheduledAssignment(id, opts = {}) {
   if (at.getTime() > now) return { promoted: false, reason: 'not-due' }
 
   state.status = ASSIGNMENT_STATUS.PUBLISHED
+  // The publication instant is the schedule that just came due, not "now".
   if (!state.publishedAt) {
-    state.publishedAt = new Date(now).toISOString()
+    state.publishedAt = at.toISOString()
   }
 
   try {
@@ -149,7 +150,43 @@ export async function tryPromoteScheduledAssignment(id, opts = {}) {
     // Status already mutated on the reactive doc; sync may retry later
   }
 
-  return { promoted: true, status: ASSIGNMENT_STATUS.PUBLISHED }
+  return {
+    promoted: true,
+    status: ASSIGNMENT_STATUS.PUBLISHED,
+    publishedAt: state.publishedAt,
+  }
+}
+
+/**
+ * What the Publication date column should show.
+ * publishedAt wins. A row that is still Scheduled (including due, before the
+ * promote write) shows its schedule. Drafts never show scheduledDate.
+ * A Published row with no stamp shows document created — display only.
+ *
+ * @param {{ status?: string|null, publishedAt?: string|number|null, scheduledDate?: string|null, scheduledTime?: string|null, created?: string|number|null }|null|undefined} data
+ * @param {{ hasAssignedGroups?: boolean, now?: number }} [opts]
+ * @returns {{ kind: 'published'|'scheduled'|'created', at: string|number, time?: string|null }|null}
+ */
+export function publicationDateSource(data, opts = {}) {
+  if (!data) return null
+  if (data.publishedAt) return { kind: 'published', at: data.publishedAt }
+
+  const raw = data.status || null
+  const effective = effectiveAssignmentStatus(data, opts)
+  const stillScheduled = raw === ASSIGNMENT_STATUS.SCHEDULED
+    || (!raw && effective === ASSIGNMENT_STATUS.SCHEDULED)
+  if (stillScheduled && data.scheduledDate) {
+    return {
+      kind: 'scheduled',
+      at: data.scheduledDate,
+      time: data.scheduledTime || null,
+    }
+  }
+
+  if (effective === ASSIGNMENT_STATUS.PUBLISHED && data.created) {
+    return { kind: 'created', at: data.created }
+  }
+  return null
 }
 
 /**

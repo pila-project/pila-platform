@@ -1034,9 +1034,15 @@
     if (state.status === ASSIGNMENT_STATUS.PUBLISHED && !state.publishedAt) {
       state.publishedAt = new Date().toISOString()
     }
+    // Keep a schedule only while this save is actually scheduling.
+    // Draft, publish-now, and a locked published row drop the old schedule.
+    // publishedAt stays; it is the date the column shows after publish.
     if (distributionOption.value === 'schedule' && !asDraft && !locked) {
       state.scheduledDate = scheduledDate.value || null
       state.scheduledTime = scheduledTime.value || DEFAULT_PUBLICATION_TIME
+    } else {
+      state.scheduledDate = null
+      state.scheduledTime = null
     }
     storedStatus.value = state.status
     state.pendingGroupId = pendingGroupId.value || null
