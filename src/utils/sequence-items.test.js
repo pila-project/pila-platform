@@ -7,7 +7,10 @@ import {
   applyNestedSequenceDragReject,
   createNestedSequenceRejectToast,
   partitionSequenceMemberIds,
+  appendItemsToSequence,
+  isValidSequenceAgentState,
   persistSequenceItems,
+  readSequenceItemIds,
   withTimeout,
 } from './sequence-items.js'
 
@@ -223,5 +226,40 @@ describe('persistSequenceItems Update path (UIUX-229)', () => {
     const next = await persistSequenceItems(HOST, [], { timeoutMs: 30 })
     assert.deepEqual(next, [])
     assert.equal(metaCalls, 0)
+  })
+})
+
+describe('player item shape', () => {
+  it('rewrites a saved map as an array on teacher save and keeps extra fields', async () => {
+    const doc = {
+      items: {
+        0: { id: LEAF, note: 'keep' },
+        1: { id: 'other-leaf' },
+      },
+    }
+    globalThis.Agent.metadata = async () => ({ active_type: 'application/json' })
+    globalThis.Agent.state = async (id) => (id === HOST ? doc : {})
+    const next = await persistSequenceItems(HOST, [LEAF])
+    assert.deepEqual(next, [LEAF])
+    assert.deepEqual(doc.items, [{ id: LEAF, note: 'keep' }])
+  })
+
+  it('appends onto an array-shaped sequence without turning it into a map', async () => {
+    const doc = { items: [{ id: LEAF }] }
+    globalThis.Agent.metadata = async () => ({ active_type: 'application/json' })
+    globalThis.Agent.state = async (id) => (id === HOST ? doc : {})
+    const result = await appendItemsToSequence(HOST, ['leaf-2'])
+    assert.equal(result.added, 1)
+    assert.deepEqual(doc.items, [{ id: LEAF }, { id: 'leaf-2' }])
+    assert.equal(isValidSequenceAgentState(doc), true)
+  })
+
+  it('does not rewrite a map when the sequence is only read', async () => {
+    const items = { 0: { id: LEAF } }
+    const doc = { items }
+    globalThis.Agent.state = async () => doc
+    const ids = await readSequenceItemIds(HOST)
+    assert.deepEqual(ids, [LEAF])
+    assert.equal(doc.items, items)
   })
 })

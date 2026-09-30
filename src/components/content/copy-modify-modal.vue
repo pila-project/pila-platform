@@ -300,7 +300,7 @@ import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import {
   normalizeSequenceItems,
-  createMapSequenceItems,
+  createArraySequenceItems,
   partitionSequenceMemberIds,
 } from '@/utils/sequence-items.js'
 import { getContentMetadata, invalidate } from '@/utils/content-cache.js'
@@ -487,7 +487,7 @@ function onTableSelectionChange(rows) {
 }
 
 function buildCopyItems() {
-  return createMapSequenceItems(sequenceItemIds.value)
+  return createArraySequenceItems(sequenceItemIds.value)
 }
 
 function openContentBrowser() {

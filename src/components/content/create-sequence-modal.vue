@@ -50,9 +50,8 @@ function t(slug) { return store.getters.t(slug) }
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
 import {
-  EMPTY_SEQUENCE_ITEMS,
-  isValidMapSequenceItems,
-  createMapSequenceItems,
+  isValidArraySequenceItems,
+  createArraySequenceItems,
   partitionSequenceMemberIds,
 } from '@/utils/sequence-items.js'
 
@@ -96,9 +95,7 @@ async function submit() {
     // UIUX-113: never seed nested sequences into a new sequence
     const rawSeed = (props.initialItemIds || []).filter(Boolean)
     const { allowed: seedIds } = await partitionSequenceMemberIds(rawSeed)
-    const initialItems = seedIds.length
-      ? createMapSequenceItems(seedIds)
-      : { ...EMPTY_SEQUENCE_ITEMS }
+    const initialItems = createArraySequenceItems(seedIds)
 
     const id = await Agent.create({
       active_type: 'application/json;type=sequence',
@@ -109,10 +106,8 @@ async function submit() {
       },
     })
     const state = await Agent.state(id)
-    if (!isValidMapSequenceItems(state.items)) {
-      state.items = seedIds.length
-        ? createMapSequenceItems(seedIds)
-        : { ...EMPTY_SEQUENCE_ITEMS }
+    if (!isValidArraySequenceItems(state.items)) {
+      state.items = createArraySequenceItems(seedIds)
       await Agent.synced()
     }
     await setTagging({ tag: MY_CONTENT_TAG, target: id, value: true })

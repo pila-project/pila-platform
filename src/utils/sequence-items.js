@@ -1,14 +1,14 @@
 /**
  * Sequence `items` field helpers.
  *
- * Write / mutate (canonical only):
- *   { "0": { id: "uuid" }, "1": { id: "uuid" }, ... }
- *   Empty sequence: `items: {}`
+ * The student sequence player reads an array and does items.map(el => el.id).
+ * Writes use that shape:
+ *   [ { id: "uuid" }, { id: "uuid" } ]
+ *   Empty sequence: `items: []`
  *
- * Read / preview also tolerates legacy shapes still present in catalog content:
- *   - string[]
- *   - { id }[]
- *   - object maps (including sparse / mixed entry forms)
+ * Reads also accept the map this app used to save, so those sequences can
+ * still be edited. The next teacher save rewrites that map as an array.
+ * Opening a sequence does not rewrite it.
  *
  * UIUX-113: sequence members must be leaf content only — never nested sequences.
  */
@@ -254,10 +254,16 @@ export function isValidMapSequenceItems(items) {
   return true
 }
 
-/** True when Agent sequence state is safe to mutate (map format only). */
+/** True when `items` is an array whose entries each have a content id. */
+export function isValidArraySequenceItems(items) {
+  if (!Array.isArray(items)) return false
+  return items.every(entry => entryContentId(entry))
+}
+
+/** True when Agent sequence state is safe to mutate (player array or saved map). */
 export function isValidSequenceAgentState(state) {
   if (!state || typeof state !== 'object') return false
-  return isValidMapSequenceItems(state.items)
+  return isValidArraySequenceItems(state.items) || isValidMapSequenceItems(state.items)
 }
 
 /**
@@ -285,32 +291,57 @@ export function normalizeSequenceItems(items) {
   return entries.map(([, entry]) => entryContentId(entry)).filter(Boolean)
 }
 
+function priorEntriesById(existingItems) {
+  const priorById = new Map()
+  if (!existingItems || typeof existingItems !== 'object') return priorById
+  for (const entry of Object.values(existingItems)) {
+    const eid = entryContentId(entry)
+    if (eid) priorById.set(eid, entry)
+  }
+  return priorById
+}
+
+function orderedItemIds(itemIds) {
+  if (Array.isArray(itemIds) && itemIds.every(id => typeof id === 'string')) {
+    return itemIds.filter(Boolean)
+  }
+  return normalizeSequenceItems(itemIds)
+}
+
+/** Player shape: ordered `{ id }` entries. Extra fields already stored on an entry are kept. */
+export function serializeArraySequenceItems(itemIds, existingItems) {
+  const priorById = priorEntriesById(existingItems)
+  return orderedItemIds(itemIds).map((id) => {
+    const prior = priorById.get(id)
+    if (prior && typeof prior === 'object') return { ...prior, id }
+    return { id }
+  })
+}
+
 /** Rebuild map with dense numeric keys; preserve extra fields on each entry. */
 export function serializeMapSequenceItems(itemIds, existingItems) {
-  const ids = Array.isArray(itemIds)
-    ? itemIds.filter(Boolean)
-    : normalizeSequenceItems(itemIds)
-
-  const priorById = new Map()
-  if (existingItems && typeof existingItems === 'object' && !Array.isArray(existingItems)) {
-    for (const entry of Object.values(existingItems)) {
-      const eid = typeof entry === 'string' ? entry : entry?.id
-      if (eid) priorById.set(eid, entry)
-    }
-  }
+  const ids = orderedItemIds(itemIds)
+  const priorById = priorEntriesById(
+    existingItems && !Array.isArray(existingItems) ? existingItems : null,
+  )
 
   return Object.fromEntries(
     ids.map((id, i) => {
       const prior = priorById.get(id)
-      const value = typeof prior === 'object' && prior !== null
+      const value = prior && typeof prior === 'object'
         ? { ...prior, id }
-        : (typeof prior === 'string' ? id : { id })
+        : { id }
       return [String(i), value]
     }),
   )
 }
 
-/** Create map-shaped items for Agent.create (optional initial ids). */
+/** Create array-shaped items for Agent.create (optional initial ids). */
+export function createArraySequenceItems(itemIds = []) {
+  return serializeArraySequenceItems(itemIds, null)
+}
+
+/** @deprecated Maps do not play in the student sequence player. Use createArraySequenceItems. */
 export function createMapSequenceItems(itemIds = []) {
   return serializeMapSequenceItems(itemIds, null)
 }
@@ -372,7 +403,7 @@ async function syncSequenceMutation(sequenceId) {
 export async function persistSequenceItems(sequenceId, itemIds, { knownSequenceIds, timeoutMs } = {}) {
   const { allowed } = await partitionSequenceMemberIds(itemIds, { knownSequenceIds, timeoutMs })
   const { state, rawItems } = await loadSequenceItemsState(sequenceId)
-  state.items = serializeMapSequenceItems(allowed, rawItems)
+  state.items = serializeArraySequenceItems(allowed, rawItems)
   await syncSequenceMutation(sequenceId)
   return readSequenceItemIds(sequenceId)
 }
@@ -421,7 +452,7 @@ export async function appendItemsToSequence(sequenceId, itemIds, {
   if (!added) return { added: 0, items: ids, rejectedSequences }
 
   // Replace the whole map — Agent does not reliably persist in-place key assignment.
-  state.items = serializeMapSequenceItems(ids, rawItems)
+  state.items = serializeArraySequenceItems(ids, rawItems)
 
   await syncSequenceMutation(sequenceId)
   const items = await readSequenceItemIds(sequenceId)
@@ -439,7 +470,7 @@ export async function removeItemFromSequence(sequenceId, index) {
   if (index < 0 || index >= ids.length) return { items: ids }
 
   ids.splice(index, 1)
-  state.items = serializeMapSequenceItems(ids, rawItems)
+  state.items = serializeArraySequenceItems(ids, rawItems)
 
   await syncSequenceMutation(sequenceId)
   return { items: await readSequenceItemIds(sequenceId) }
@@ -461,7 +492,7 @@ export async function reorderSequenceItems(sequenceId, fromIndex, toIndex) {
 
   const [moved] = ids.splice(fromIndex, 1)
   ids.splice(toIndex, 0, moved)
-  state.items = serializeMapSequenceItems(ids, rawItems)
+  state.items = serializeArraySequenceItems(ids, rawItems)
 
   await syncSequenceMutation(sequenceId)
   return { items: await readSequenceItemIds(sequenceId) }
