@@ -7,6 +7,9 @@ import {
   assessAssignmentDashboards,
   assignedStudentsForAssignment,
   bettyModuleIdFromUrl,
+  candliProgrammingDashboardUrl,
+  clearCandliProgrammingChildCache,
+  isCandliProgrammingContent,
   findBettyPlayerUrl,
   hasLiveMonitoringCard,
   idLooksLikeBetty,
@@ -39,7 +42,12 @@ function mockAgent({ states = {}, metadata = {} } = {}) {
   }
 }
 
+const PROGRAMMING_EXPERT = '68175e10-b26c-11f1-b7bc-a54c511d7554'
+const PROGRAMMING_EXPERT_2 = '67b6f920-b26d-11f1-b7bd-a54c511d7554'
+const PROGRAMMING_TRUNK = 'e6b4b836-c4b9-46b7-b4bd-6da86d4d6b21'
+
 beforeEach(() => {
+  clearCandliProgrammingChildCache()
   mockAgent()
 })
 
@@ -518,6 +526,95 @@ describe('assessAssignmentDashboards (Betty-only / Datawise-only / mixed / ordin
     assert.equal(flags.hasLive, true)
     assert.equal(hasLiveMonitoringCard(flags), true)
     assert.equal(primaryDashboardTypeFromFlags(flags), 'live-monitoring')
+  })
+
+  it('Candli programming sequences use the app card, not competency (UIUX-288)', async () => {
+    mockAgent({
+      states: {
+        'asg-prog': { content: PROGRAMMING_EXPERT },
+        [PROGRAMMING_EXPERT]: {
+          items: { 0: { id: 'embed-1' } },
+        },
+        'embed-1': { id: 'https://pila.cand.li/pila.html?game=level-a' },
+      },
+      metadata: {
+        'embed-1': { domain: 'embed.knowlearning.systems' },
+      },
+    })
+    const flags = await assessAssignmentDashboards('asg-prog')
+    assert.equal(flags.isProgramming, true)
+    assert.equal(flags.isApp, true)
+    assert.equal(flags.isCandli, false)
+    assert.equal(flags.candliGames.length, 0)
+    assert.equal(flags.dashboardUrl, null)
+    assert.equal(flags.hasLive, true)
+    assert.equal(primaryDashboardTypeFromFlags(flags), 'app')
+    assert.equal(
+      candliProgrammingDashboardUrl('config-1'),
+      'https://pila.cand.li/pila.html?dashboard&dashboard-config=config-1',
+    )
+  })
+
+  it('a sub-item or nested level of an expert sequence is programming content', async () => {
+    mockAgent({
+      states: {
+        'asg-child': { content: 'level-1' },
+        'asg-nested': { content: 'level-2' },
+        [PROGRAMMING_EXPERT]: { items: { 0: { id: 'level-1' }, 1: { id: 'inner-seq' } } },
+        'inner-seq': { items: { 0: { id: 'level-2' } } },
+        [PROGRAMMING_EXPERT_2]: { items: {} },
+      },
+    })
+    const child = await assessAssignmentDashboards('asg-child')
+    assert.equal(child.isProgramming, true)
+    assert.equal(child.isApp, true)
+    assert.equal(child.isCandli, false)
+    clearCandliProgrammingChildCache()
+    const nested = await assessAssignmentDashboards('asg-nested')
+    assert.equal(nested.isProgramming, true)
+    assert.equal(nested.isApp, true)
+    assert.equal(await isCandliProgrammingContent(PROGRAMMING_EXPERT_2), true)
+    assert.equal(await isCandliProgrammingContent('not-a-level'), false)
+  })
+
+  it('trunk programming ids stay exact and older competency sequences stay competency', async () => {
+    mockAgent({
+      states: {
+        'asg-trunk': { content: PROGRAMMING_TRUNK },
+        'asg-child': { content: 'trunk-child' },
+        'asg-chirpy': { content: CANDLI_ID },
+        'asg-mix': { content: [CANDLI_ID, PROGRAMMING_EXPERT] },
+        [PROGRAMMING_TRUNK]: { items: { 0: { id: 'trunk-child' } } },
+        'trunk-child': { id: 'https://pila.cand.li/pila.html?game=old' },
+        [CANDLI_ID]: { items: {} },
+        [PROGRAMMING_EXPERT]: { items: {} },
+        [PROGRAMMING_EXPERT_2]: { items: {} },
+      },
+      metadata: {
+        'trunk-child': { domain: 'embed.knowlearning.systems' },
+      },
+    })
+    const trunk = await assessAssignmentDashboards('asg-trunk')
+    assert.equal(trunk.isProgramming, true)
+    assert.equal(trunk.isApp, true)
+    assert.equal(trunk.isCandli, false)
+
+    clearCandliProgrammingChildCache()
+    const trunkChild = await assessAssignmentDashboards('asg-child')
+    assert.equal(trunkChild.isProgramming, false)
+    assert.equal(trunkChild.isApp, false)
+
+    const chirpy = await assessAssignmentDashboards('asg-chirpy')
+    assert.equal(chirpy.isCandli, true)
+    assert.equal(chirpy.isProgramming, false)
+    assert.equal(chirpy.isApp, false)
+    assert.ok(chirpy.candliGames.length > 0)
+
+    const mix = await assessAssignmentDashboards('asg-mix')
+    assert.equal(mix.isApp, true)
+    assert.equal(mix.isProgramming, true)
+    assert.equal(mix.isCandli, true)
+    assert.ok(mix.candliGames.length > 0)
   })
 
   it('assignment content that is itself a Betty player URL is app-specific and live', async () => {

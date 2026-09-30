@@ -41,9 +41,12 @@
   import BettyDashboard from './betty-dashboard.vue'
   import RCTDashboard from './rct-dashboard.vue'
   import UrlDashboard from './url-dashboard.vue'
+  import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import {
+    candliProgrammingDashboardUrl,
+    isCandliProgrammingContent,
     isLiveDashboardMode,
     resolveBettyDashboard,
     usersForDashboardEmbed,
@@ -91,14 +94,19 @@
     bettyModuleId = betty.bettyModuleId
     rctAssignment = await isRCTAssignment()
 
-    const candliDashboardContent = [
-      // '881f5110-a910-11f0-92ae-3f96e8a36c18'
-      'e6b4b836-c4b9-46b7-b4bd-6da86d4d6b21',
-      '2711888d-177e-4284-aa35-304275a487c5',
-      'bb1e41e0-082b-4488-b03e-1a3829094bce'
-    ]
+    // Trunk allowlist, extended to every assignment content id and to
+    // sub-items of the two expert sequences. A Datawise / reference URL
+    // still wins, matching the app card's existing UrlDashboard.
+    const contentIds = normalizeAssignmentContent(assignmentState?.content)
+    let programmingContent = false
+    for (const id of contentIds) {
+      if (await isCandliProgrammingContent(id)) {
+        programmingContent = true
+        break
+      }
+    }
 
-    if (candliDashboardContent.includes(content)) {
+    if (programmingContent && !props.url) {
       const dashboardConfigId = Agent.uuid()
       const dashboardConfig = await Agent.state(dashboardConfigId)
       dashboardConfig.placeholder = {
@@ -106,7 +114,7 @@
       }
       console.log('dashboard cofing!', dashboardConfig)
       await Agent.response()
-      customDashboardUrl.value = `https://pila.cand.li/pila.html?dashboard&dashboard-config=${dashboardConfigId}`
+      customDashboardUrl.value = candliProgrammingDashboardUrl(dashboardConfigId)
     }
   }
 

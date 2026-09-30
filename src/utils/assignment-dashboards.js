@@ -1,9 +1,11 @@
 /**
  * Shared assignment dashboard classification (UIUX-231 + UIUX-237).
  *
- * App-specific (231): Betty or Datawise / reference.dashboard.
+ * App-specific (231): Betty, Datawise / reference.dashboard, or a Candli
+ * programming sequence (trunk allowlist + UIUX-288).
  * Live-monitoring (237): any non-Datawise content (not Datawise-only).
  * Mixed Datawise + other → BOTH app and live. Betty-only → BOTH (not mutex).
+ * Candli programming sequences use the app card, not the competency card.
  */
 
 import { candliGamesForSequenceItems } from '../candli-games.js'
@@ -18,6 +20,93 @@ export const TEACHER_TO_STUDENT = 'teacher-to-student'
 
 /** Cap nested Agent.state probes when hunting a Betty player URL. */
 const MAX_NESTED_BETTY_PROBES = 16
+
+/**
+ * Trunk `dashboard/index.vue` allowlist. These open
+ * pila.cand.li `?dashboard&dashboard-config=`, not the competency dashboard.
+ * The two UIUX-288 expert sequences are included. Their direct children
+ * (and one nested sequence level) use the same dashboard.
+ */
+export const CANDLI_PROGRAMMING_CONTENT_IDS = [
+  // '881f5110-a910-11f0-92ae-3f96e8a36c18'
+  'e6b4b836-c4b9-46b7-b4bd-6da86d4d6b21',
+  '2711888d-177e-4284-aa35-304275a487c5',
+  'bb1e41e0-082b-4488-b03e-1a3829094bce',
+  '68175e10-b26c-11f1-b7bc-a54c511d7554',
+  '67b6f920-b26d-11f1-b7bd-a54c511d7554',
+]
+
+/** Only the UIUX-288 sequences match assigned sub-items. Trunk ids stay exact. */
+const CANDLI_PROGRAMMING_CHILD_ROOTS = [
+  '68175e10-b26c-11f1-b7bc-a54c511d7554',
+  '67b6f920-b26d-11f1-b7bd-a54c511d7554',
+]
+
+const MAX_PROGRAMMING_CHILD_PROBES = 32
+
+let programmingChildIndex = null
+
+export function clearCandliProgrammingChildCache() {
+  programmingChildIndex = null
+}
+
+export function candliProgrammingDashboardUrl(configId) {
+  return `https://pila.cand.li/pila.html?dashboard&dashboard-config=${configId}`
+}
+
+async function programmingChildIdSet(agent) {
+  if (!programmingChildIndex) {
+    programmingChildIndex = loadProgrammingChildIds(agent).catch((error) => {
+      programmingChildIndex = null
+      throw error
+    })
+  }
+  return programmingChildIndex
+}
+
+async function loadProgrammingChildIds(agent) {
+  const ids = new Set()
+  let loaded = false
+  for (const rootId of CANDLI_PROGRAMMING_CHILD_ROOTS) {
+    let rootState = null
+    try {
+      rootState = await agent.state(rootId)
+      loaded = true
+    } catch {
+      rootState = null
+    }
+    const children = normalizeSequenceItems(rootState?.items)
+    let probes = 0
+    for (const childId of children) {
+      if (!childId || childId === rootId) continue
+      ids.add(childId)
+      if (probes >= MAX_PROGRAMMING_CHILD_PROBES) continue
+      probes += 1
+      try {
+        const childState = await agent.state(childId)
+        for (const nestedId of normalizeSequenceItems(childState?.items)) {
+          if (nestedId && nestedId !== rootId) ids.add(nestedId)
+        }
+      } catch {
+        /* a leaf with no state still counts */
+      }
+    }
+  }
+  if (!loaded) throw new Error('Candli programming child index unavailable')
+  return ids
+}
+
+/** True for the trunk allowlist, the two expert sequences, and their sub-items. */
+export async function isCandliProgrammingContent(contentId, agent = globalThis.Agent) {
+  if (!contentId || typeof contentId !== 'string') return false
+  if (CANDLI_PROGRAMMING_CONTENT_IDS.includes(contentId)) return true
+  try {
+    const children = await programmingChildIdSet(agent)
+    return children.has(contentId)
+  } catch {
+    return false
+  }
+}
 
 export function isBettyPlayerUrl(value) {
   return typeof value === 'string' && value.startsWith(BETTY_PLAYER_PREFIX)
@@ -127,6 +216,7 @@ export function emptyDashboardAssessment() {
     isApp: false,
     isGenAI: false,
     isCandli: false,
+    isProgramming: false,
     candliGames: [],
     hasDatawise: false,
     hasNonDatawiseContent: false,
@@ -243,9 +333,12 @@ export async function probeContentDashboards(contentId) {
     bettyModuleId: null,
     dashboardUrl: null,
     isGenAI: Boolean(contentId && GEN_AI_SEQUENCES[contentId]),
+    isProgramming: false,
     candliGames: [],
   }
   if (!contentId) return result
+
+  result.isProgramming = await isCandliProgrammingContent(contentId)
 
   let contentState = null
   try {
@@ -258,7 +351,10 @@ export async function probeContentDashboards(contentId) {
     contentState?.items ?? contentState?.content,
   )
 
-  result.candliGames = await candliGamesForContent(contentId, contentState)
+  // Programming sequences use the app dashboard, not the competency card.
+  if (!result.isProgramming) {
+    result.candliGames = await candliGamesForContent(contentId, contentState)
+  }
 
   const betty = await resolveBettyDashboard({ contentId, contentState, sequenceItemIds })
   result.isBetty = betty.isBetty
@@ -320,6 +416,7 @@ export async function assessAssignmentDashboards(assignmentId) {
     if (probeHasDatawise(probe)) assessment.hasDatawise = true
     if (probeHasNonDatawiseContent(probe)) assessment.hasNonDatawiseContent = true
     if (probe.isGenAI) assessment.isGenAI = true
+    if (probe.isProgramming) assessment.isProgramming = true
     if (probe.candliGames?.length) {
       assessment.isCandli = true
       allGames.push(...probe.candliGames)
@@ -327,7 +424,7 @@ export async function assessAssignmentDashboards(assignmentId) {
   }
 
   assessment.candliGames = [...new Set(allGames.filter(Boolean))]
-  assessment.isApp = assessment.isBetty || Boolean(assessment.dashboardUrl)
+  assessment.isApp = assessment.isBetty || Boolean(assessment.dashboardUrl) || assessment.isProgramming
   assessment.hasLive = assessment.hasNonDatawiseContent
   return assessment
 }
