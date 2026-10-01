@@ -1030,7 +1030,7 @@ input {
   width: min(780px, 100%);
   height: auto;
   max-height: calc(100vh - 48px);
-  overflow: hidden;
+  overflow: clip;
   color: #202737;
   background: #ffffff;
   border: 1px solid #e0e5ee;
@@ -1258,6 +1258,7 @@ input {
 }
 
 .competency-option {
+  position: relative;
   display: flex;
   min-width: 0;
   align-items: flex-start;
@@ -1453,7 +1454,6 @@ input {
   .publish-modal {
     width: 100%;
     height: 100%;
-    max-height: none;
     border: 0;
     border-radius: 0;
   }
