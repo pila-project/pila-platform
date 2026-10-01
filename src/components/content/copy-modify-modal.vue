@@ -499,7 +499,7 @@ async function addContentToSequence(id) {
   // UIUX-113: sequences cannot be members of sequences
   const { allowed } = await partitionSequenceMemberIds([id])
   if (!allowed.length) {
-    showError(t('something-went-wrong'))
+    showError(t('sequences-cannot-be-nested'))
     return false
   }
   sequenceItemIds.value.push(id)
@@ -510,15 +510,14 @@ async function addContentToSequence(id) {
 async function onPickerAddItems(ids) {
   const { allowed, rejectedSequences } = await partitionSequenceMemberIds(ids || [])
   if (rejectedSequences.length && !allowed.length) {
-    showError(t('something-went-wrong'))
+    showError(t('sequences-cannot-be-nested'))
     return
   }
   for (const id of allowed) {
     await addContentToSequence(id)
   }
   if (rejectedSequences.length && allowed.length) {
-    // Mixed batch: leaf items added; nested sequences rejected without new copy
-    showError(t('something-went-wrong'))
+    showError(t('sequences-cannot-be-nested'))
   }
 }
 

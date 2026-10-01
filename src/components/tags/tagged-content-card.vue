@@ -23,8 +23,9 @@
         <span v-if="sequenceView" class="pcard-order-badge">{{ orderLabel }}</span>
         <span v-else class="pcard-checkbox-wrap">
           <PCheckbox
-            :modelValue="checked"
-            @update:modelValue="$emit('toggle-select')"
+            :modelValue="checked && (!nestingBlocked || inAssignment)"
+            :disabled="nestingBlocked"
+            @update:modelValue="onToggleSelect"
             size="sm"
             @click.stop
           />
@@ -288,7 +289,22 @@
         @click.stop="$emit('preview')"
         class="flex-1"
       />
+      <PTooltip
+        v-if="nestingBlocked"
+        class="pcard-nest-tip"
+        :text="t('sequences-cannot-be-nested')"
+      >
+        <PButton
+          variant="secondary"
+          size="sm"
+          icon="lucide:plus"
+          :text="t('add')"
+          disabled
+          class="w-full"
+        />
+      </PTooltip>
       <PButton
+        v-else
         :variant="addDisabled ? 'secondary' : 'primary'"
         size="sm"
         :icon="addDisabled ? 'lucide:check' : 'lucide:plus'"
@@ -396,6 +412,11 @@
       type: Boolean,
       default: false,
     },
+    /** Copy from Explore: a sequence cannot be added inside a sequence. */
+    nestingBlocked: {
+      type: Boolean,
+      default: false,
+    },
   })
 
   const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
@@ -487,7 +508,8 @@
   })
 
   function onAddClick() {
-    if (!addDisabled.value) emit('add')
+    if (props.nestingBlocked || addDisabled.value) return
+    emit('add')
   }
 
   function onPreviewClick(event) {
@@ -500,8 +522,13 @@
     emit('remove')
   }
 
+  function onToggleSelect() {
+    if (props.nestingBlocked) return
+    emit('toggle-select')
+  }
+
   function onCardClick() {
-    if (!props.assignmentPicker) return
+    if (!props.assignmentPicker || props.nestingBlocked) return
     emit('toggle-select')
   }
 
@@ -1238,6 +1265,12 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 12px;
+  min-width: 0;
+}
+
+.pcard-actions :deep(.pcard-nest-tip) {
+  flex: 1 1 auto;
+  display: flex;
   min-width: 0;
 }
 

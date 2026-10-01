@@ -17,10 +17,9 @@
             <p class="cb-section-desc">{{ t('discover-customise-and-add-content-to-your-assignments') }}</p>
           </div>
           <PButton
-            v-if="cbSelectedItems.size"
+            v-if="pickerNewSelectionCount > 0"
             variant="primary"
             icon="lucide:plus"
-            :disabled="pickerNewSelectionCount === 0"
             :text="addSelectedButtonLabel"
             @click="addSelected"
           />
@@ -37,6 +36,7 @@
                 :id="id"
                 :checked="isInCopy(id) || cbSelectedItems.has(id)"
                 :in-assignment="isInCopy(id)"
+                :nesting-blocked="isKnownSequence(id)"
                 :source="source"
                 :grades="grades"
                 @toggle-select="toggleSelection(id)"
@@ -75,7 +75,7 @@ const emit = defineEmits(['update:open', 'add', 'preview'])
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
-const { info: toastInfo } = useToast()
+const { info: toastInfo, error: toastError } = useToast()
 
 const cbSelectedItems = reactive(new Set())
 
@@ -85,8 +85,25 @@ watch(() => props.open, (isOpen) => {
   if (isOpen) cbSelectedItems.clear()
 })
 
+watch(metadataCacheVersion, () => {
+  for (const id of [...cbSelectedItems]) {
+    if (isKnownSequence(id)) cbSelectedItems.delete(id)
+  }
+})
+
 function isInCopy(id) {
   return existingIdSet.value.has(id)
+}
+
+function isKnownSequence(id) {
+  void metadataCacheVersion.value
+  return isSequenceActiveType(metadataCache.get(id)?.active_type)
+}
+
+function splitAddable(ids) {
+  return partitionKnownSequenceMemberIds(ids, {
+    isSequence: isKnownSequence,
+  })
 }
 
 function close() {
@@ -94,15 +111,11 @@ function close() {
 }
 
 const pickerNewSelectionCount = computed(() => {
-  void metadataCacheVersion.value
   const newIds = []
   for (const id of cbSelectedItems) {
     if (!existingIdSet.value.has(id)) newIds.push(id)
   }
-  const { allowed } = partitionKnownSequenceMemberIds(newIds, {
-    isSequence: (id) => isSequenceActiveType(metadataCache.get(id)?.active_type),
-  })
-  return allowed.length
+  return splitAddable(newIds).allowed.length
 })
 
 const addSelectedButtonLabel = computed(() => {
@@ -122,12 +135,16 @@ const addSelectedButtonLabel = computed(() => {
 })
 
 function toggleSelection(id) {
-  if (isInCopy(id)) return
+  if (isInCopy(id) || isKnownSequence(id)) return
   if (cbSelectedItems.has(id)) cbSelectedItems.delete(id)
   else cbSelectedItems.add(id)
 }
 
 function addOne(id) {
+  if (isKnownSequence(id)) {
+    toastError(t('sequences-cannot-be-nested'))
+    return
+  }
   if (isInCopy(id)) {
     toastInfo(t('already-in-sequence'))
     return
@@ -138,20 +155,24 @@ function addOne(id) {
 }
 
 function addSelected() {
-  const newIds = [...cbSelectedItems].filter(id => !existingIdSet.value.has(id))
-  const skipped = cbSelectedItems.size - newIds.length
-  if (!newIds.length) {
-    if (skipped > 0) {
+  const selected = [...cbSelectedItems]
+  const newIds = selected.filter(id => !existingIdSet.value.has(id))
+  const already = selected.filter(id => existingIdSet.value.has(id))
+  const { allowed, rejectedSequences } = splitAddable(newIds)
+  for (const id of rejectedSequences) cbSelectedItems.delete(id)
+  if (rejectedSequences.length) toastError(t('sequences-cannot-be-nested'))
+  if (!allowed.length) {
+    if (already.length && !rejectedSequences.length) {
       toastInfo(t('all-selected-already-in-sequence'))
     }
     return
   }
-  emit('add', newIds)
+  emit('add', allowed)
   cbSelectedItems.clear()
   close()
-  if (skipped > 0) {
+  if (already.length) {
     toastInfo(
-      `${newIds.length} ${t('items-added')}. ${skipped} ${t('already-in-sequence')}.`,
+      `${allowed.length} ${t('items-added')}. ${already.length} ${t('already-in-sequence')}.`,
     )
   }
 }
