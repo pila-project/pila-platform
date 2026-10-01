@@ -39,6 +39,7 @@
             v-else-if="currentItemIsSequence"
             :sequence-id="currentItemId"
             :ancestor-ids="childAncestorIds"
+            :environment-proxy="environmentProxy"
             nested
           />
           <vueEmbedComponent
@@ -47,9 +48,10 @@
             :key="currentItemId"
             :id="currentItemId"
             class="spb-embed"
-            namespace="preview"
-            :environmentProxy="addPreviewVariable"
+            :namespace="embedNamespaceValue"
+            :environmentProxy="environmentForEmbed"
             allow="camera;microphone;fullscreen"
+            @close="onItemClose"
           />
         </div>
       </div>
@@ -105,9 +107,15 @@ const props = defineProps({
   sequenceId: { type: String, required: true },
   nested: { type: Boolean, default: false },
   ancestorIds: { type: Array, default: () => [] },
+  /** Resume on a saved member. Teacher preview leaves this at the first item. */
+  startIndex: { type: Number, default: 0 },
+  /** Student play passes the assignment proxy. Preview keeps PREVIEW when absent. */
+  environmentProxy: { type: Function, default: null },
+  /** Student play scopes each activity under the assignment. Preview uses "preview". */
+  embedNamespace: { type: [String, Function], default: 'preview' },
 })
 
-const emit = defineEmits(['header'])
+const emit = defineEmits(['header', 'item-close'])
 
 const seqState = ref({ name: '', items: [] })
 const loaded = ref(false)
@@ -130,6 +138,25 @@ function patchEmbedFullscreenAllow() {
 let previewVarProxy = null
 
 const currentItemId = computed(() => seqState.value.items[currentIndex.value] || '')
+
+const embedNamespaceValue = computed(() => {
+  const namespace = props.embedNamespace
+  if (typeof namespace === 'function') return namespace(currentIndex.value, currentItemId.value)
+  return namespace
+})
+
+function environmentForEmbed(event) {
+  if (typeof props.environmentProxy === 'function') return props.environmentProxy(event)
+  return addPreviewVariable(event)
+}
+
+function onItemClose(info) {
+  emit('item-close', {
+    index: currentIndex.value,
+    itemId: currentItemId.value,
+    info,
+  })
+}
 
 const currentItemIsSequence = computed(
   () => !!currentItemId.value && itemIsSequence.value[currentItemId.value] === true,
@@ -225,7 +252,10 @@ async function loadSequence() {
       name: state?.name || '',
       items,
     }
-    currentIndex.value = 0
+    const start = Number(props.startIndex)
+    currentIndex.value = Number.isInteger(start) && start >= 0 && start < items.length
+      ? start
+      : 0
     await preloadItemTypes(items)
   } catch (e) {
     console.warn('[SequencePreviewBody] failed to load sequence', props.sequenceId, e)

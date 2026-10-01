@@ -1,8 +1,9 @@
 /**
  * Sequence `items` field helpers.
  *
- * The student sequence player reads an array and does items.map(el => el.id).
- * Writes use that shape:
+ * The matching sequence player reads an array and does items.map(el => el.id).
+ * A sequence stored on this app's host is played here, and that path accepts
+ * both shapes. Writes still use the array the matching player requires:
  *   [ { id: "uuid" }, { id: "uuid" } ]
  *   Empty sequence: `items: []`
  *

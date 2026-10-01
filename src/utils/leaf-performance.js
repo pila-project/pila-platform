@@ -47,6 +47,57 @@ export function finishLeafPerformance(state, contentId, info) {
   return state
 }
 
+/** Live-table cell for one member of a sequence: `{index}/{itemId}`. */
+export function sequencePerformanceItemKey(index, itemId) {
+  return `${index}/${itemId}`
+}
+
+/**
+ * Teacher dashboards read this shape from the matching sequence player.
+ * Same-host sequences never reach that player, so the assignment page writes it.
+ */
+export function ensureSequencePerformance(state, itemIds) {
+  if (!state || typeof state !== 'object') return state
+  if (!state.itemInfo || typeof state.itemInfo !== 'object') state.itemInfo = {}
+  for (let index = 0; index < (itemIds || []).length; index += 1) {
+    const itemId = itemIds[index]
+    if (!itemId) continue
+    const key = sequencePerformanceItemKey(index, itemId)
+    if (!state.itemInfo[key] || typeof state.itemInfo[key] !== 'object') {
+      state.itemInfo[key] = { time: 0, correct: null }
+    }
+  }
+  if (!Number.isFinite(Number(state.totalTime))) state.totalTime = 0
+  if (state.activeItemIndex == null || state.activeItemIndex === '') {
+    state.activeItemIndex = 0
+  }
+  return state
+}
+
+export function tickSequencePerformance(state, index, itemId) {
+  ensureSequencePerformance(state, [])
+  const key = sequencePerformanceItemKey(index, itemId)
+  if (!state.itemInfo[key] || typeof state.itemInfo[key] !== 'object') {
+    state.itemInfo[key] = { time: 0, correct: null }
+  }
+  state.totalTime = Number(state.totalTime) + 1
+  state.itemInfo[key].time = Number(state.itemInfo[key].time) + 1
+  state.activeItemIndex = index
+  return state
+}
+
+export function finishSequenceItemPerformance(state, index, itemId, info) {
+  ensureSequencePerformance(state, [])
+  const key = sequencePerformanceItemKey(index, itemId)
+  if (!state.itemInfo[key] || typeof state.itemInfo[key] !== 'object') {
+    state.itemInfo[key] = { time: 0, correct: null }
+  }
+  const correct = leafCloseCorrect(info)
+  if (correct === undefined) return state
+  state.itemInfo[key].correct = correct
+  return state
+}
+
 function leafCloseCorrect(info) {
   if (!info || typeof info !== 'object') return undefined
   if (info.competencies && typeof info.competencies === 'object') {

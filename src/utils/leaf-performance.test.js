@@ -3,10 +3,14 @@ import assert from 'node:assert/strict'
 import {
   contentOwnsSequencePerformance,
   ensureLeafPerformance,
+  ensureSequencePerformance,
   finishLeafPerformance,
+  finishSequenceItemPerformance,
   leafPerformanceItemKey,
   leafPerformancePath,
+  sequencePerformanceItemKey,
   tickLeafPerformance,
+  tickSequencePerformance,
 } from './leaf-performance.js'
 
 describe('leaf performance state for teacher dashboards', () => {
@@ -56,5 +60,39 @@ describe('leaf performance state for teacher dashboards', () => {
     state.itemInfo['0/game-1'].correct = true
     finishLeafPerformance(state, 'game-1', {})
     assert.equal(state.itemInfo['0/game-1'].correct, true)
+  })
+})
+
+describe('sequence performance state for same-host sequences', () => {
+  it('uses the dashboard cell key for each member', () => {
+    assert.equal(sequencePerformanceItemKey(0, 'leaf-a'), '0/leaf-a')
+    assert.equal(sequencePerformanceItemKey(1, 'leaf-b'), '1/leaf-b')
+    assert.equal(leafPerformancePath('asg-1', 'sequence-1'), 'asg-1/sequence-sequence-1')
+  })
+
+  it('fills missing cells without resetting time already recorded', () => {
+    const state = {
+      totalTime: 4,
+      activeItemIndex: 1,
+      itemInfo: { '1/leaf-b': { time: 4, correct: true } },
+    }
+    ensureSequencePerformance(state, ['leaf-a', 'leaf-b'])
+    assert.equal(state.totalTime, 4)
+    assert.equal(state.activeItemIndex, 1)
+    assert.deepEqual(state.itemInfo['0/leaf-a'], { time: 0, correct: null })
+    assert.deepEqual(state.itemInfo['1/leaf-b'], { time: 4, correct: true })
+  })
+
+  it('ticks the active member and records its close', () => {
+    const state = ensureSequencePerformance({}, ['leaf-a', 'leaf-b'])
+    tickSequencePerformance(state, 1, 'leaf-b')
+    assert.equal(state.totalTime, 1)
+    assert.equal(state.activeItemIndex, 1)
+    assert.equal(state.itemInfo['1/leaf-b'].time, 1)
+    assert.equal(state.itemInfo['0/leaf-a'].time, 0)
+    finishSequenceItemPerformance(state, 1, 'leaf-b', { success: true })
+    assert.equal(state.itemInfo['1/leaf-b'].correct, true)
+    finishSequenceItemPerformance(state, 0, 'leaf-a', {})
+    assert.equal(state.itemInfo['0/leaf-a'].correct, null)
   })
 })
