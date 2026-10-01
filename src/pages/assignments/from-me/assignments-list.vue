@@ -172,8 +172,12 @@
             <span :class="getStatusBadgeClass(item.id)">
               {{ archivedIds[item.id] ? t('archived') : t(getStatus(item.id).toLowerCase()) }}
             </span>
-            <div v-if="!archivedIds[item.id] && getScheduledSubline(item.id)" class="assign-cell-desc">
-              {{ getScheduledSubline(item.id) }}
+            <div
+              v-if="!archivedIds[item.id] && getScheduledWhen(item.id)"
+              class="assign-cell-desc assign-status-schedule"
+            >
+              <span>{{ t('publishes-on') }}</span>
+              <span class="assign-status-schedule-when">{{ getScheduledWhen(item.id) }}</span>
             </div>
           </template>
           <template #item.assignedTo="{ item }">
@@ -1102,13 +1106,13 @@
     return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
   }
 
-  function getScheduledSubline(id) {
+  function getScheduledWhen(id) {
     if (getStatus(id) !== ASSIGNMENT_STATUS.SCHEDULED) return ''
     const data = assignmentData[id]
     if (!data?.scheduledDate) return ''
     const parts = [formatDate(data.scheduledDate)]
     if (data.scheduledTime) parts.push(formatTime(data.scheduledTime))
-    return `${t('publishes-on')} ${parts.join(' ')}`
+    return parts.filter(Boolean).join(' ')
   }
 
   // ── CRUD actions ──
@@ -1621,6 +1625,17 @@
   color: #64748b;
   margin-top: 2px;
   line-height: 1.4;
+}
+
+.assign-status-schedule {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal;
+}
+
+.assign-status-schedule-when {
+  display: block;
 }
 
 /* Single-line ellipsis; full text via PTooltip only-if-overflow on this node only */
