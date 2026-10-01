@@ -11,6 +11,7 @@ import AssignmentView from '@/pages/assignment/index.vue'
 import LoginMenu from '@/pages/login/index.vue'
 import CandliStates from '@/pages/candli-states.vue'
 import { isThailandTeacherHost } from '@/utils/constants.js'
+import { skipSavedTeacherShellPath } from '@/utils/teacher-post-login.js'
 
 function allowThailandTeacher(_to, _from, next) {
   if (isThailandTeacherHost()) next()
@@ -82,8 +83,8 @@ function authRedirectFor(to, store) {
     }
     if (path.startsWith('/teacher')) {
       setSessionItem(LOGIN_INTENT_KEY, 'teacher')
-      // Preserve deep links (e.g. /teacher/classes); intent kept for aspiring teachers.
-      setSessionItem(RETURN_PATH_KEY, to.fullPath)
+      // Home is the first teacher tab. Do not restore Explore or another /teacher URL.
+      try { sessionStorage.removeItem(RETURN_PATH_KEY) } catch { /* private mode */ }
       return '/login'
     }
     if (isIntentionallyPublic(path)) return null
@@ -94,8 +95,10 @@ function authRedirectFor(to, store) {
   if (path === '/login') {
     const returnPath = getSessionItem(RETURN_PATH_KEY)
     const intent = getSessionItem(LOGIN_INTENT_KEY)
-    // Student tab overrides a stale /teacher* deep-link return path.
-    const skipTeacherReturn = intent === 'student' && returnPath?.startsWith('/teacher')
+    // Student tab, and teacher sign-in, both ignore a saved /teacher URL.
+    // Teacher intent is kept so an aspiring teacher still reaches RoleRequester.
+    const skipTeacherReturn = (intent === 'student' && returnPath?.startsWith('/teacher'))
+      || skipSavedTeacherShellPath(intent, returnPath)
     if (
       returnPath
       && !skipTeacherReturn
