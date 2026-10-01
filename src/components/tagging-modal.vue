@@ -319,8 +319,10 @@ import {
   tagCache,
   prefetchBatch,
   getCachedTagHierarchy,
+  getTagName,
 } from '@/utils/content-cache.js'
 import { notifyTagIndexUpdated } from '@/utils/useContentLibrary.js'
+import { competencyIdsForCategory } from '@/utils/tag-competency-filter.js'
 
 const TAGS_DOMAIN = 'tags.knowlearning.systems'
 const FAVORITE_TAG = '59d4b400-8d2e-11f1-8178-475d87d411d7'
@@ -628,11 +630,37 @@ export default {
                             TAGS_DOMAIN,
                           )
 
+                        const competencyIds =
+                          uniqueTargets(
+                            competencyTaggings,
+                          )
+                        const lang =
+                          this.$store?.getters?.language?.()
+                          || 'en'
+                        const nameIds = [
+                          categoryId,
+                          ...competencyIds,
+                        ]
+                        const names = new Map()
+                        await Promise.all(
+                          nameIds.map(async (tagId) => {
+                            const name = await Promise.race([
+                              getTagName(tagId, lang).catch(() => ''),
+                              new Promise((resolve) => {
+                                setTimeout(() => resolve(''), 4000)
+                              }),
+                            ])
+                            names.set(tagId, name)
+                          }),
+                        )
+
                         return {
                           id: categoryId,
                           competencies:
-                            uniqueTargets(
-                              competencyTaggings,
+                            competencyIdsForCategory(
+                              categoryId,
+                              competencyIds,
+                              names,
                             ),
                         }
                       },
