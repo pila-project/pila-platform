@@ -84,6 +84,7 @@
             :columns="2"
             :per-page="6"
             :per-page-options="assignmentGridPerPageOptions"
+            :extra-filter="withoutExploreArchived"
             use-disk-cache
           >
             <template #card="{ id, source, grades }">
@@ -322,7 +323,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { vueScopeComponent } from '@knowlearning/agents/vue.js'
 import NameOrTranslatedNameFromItemId from './name-or-translated-name-from-item-id.vue'
@@ -335,6 +336,7 @@ import { invalidateNames, getContentName, hasCachedContentNameForLang } from '@/
 import { PModal, PInput, PButton, PSelect, PDateField, PAlertDialog } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 import { gridPerPageOptions } from '@/utils/pagination-options.js'
+import { refreshExploreArchivedIds, withoutExploreArchived } from '@/utils/explore-sequence-archive.js'
 
 const store = useStore()
 function t(slug) { return store.getters.t(slug) }
@@ -347,6 +349,10 @@ const props = defineProps({
 const emit = defineEmits(['close', 'created'])
 
 const step = ref(1)
+
+onMounted(() => {
+  refreshExploreArchivedIds().catch(() => {})
+})
 const creating = ref(false)
 const previewingId = ref(null)
 const sequenceToPreview = ref(null)

@@ -240,6 +240,13 @@
         >
           <template #filter-sections>
             <PUnifiedFilterSection
+              id="content-status"
+              :label="t('show-archived')"
+              icon="badge-check"
+              :options="sequenceStatusFilterOptions"
+              v-model="contentStatusFilters"
+            />
+            <PUnifiedFilterSection
               id="content-type"
               :label="t('content-type')"
               icon="layers"
@@ -280,11 +287,11 @@
               <span class="selection-count">{{ selectedItems.size }} {{ t('items-selected') }}</span>
               <div style="flex:1" />
               <PButton
-                v-if="selectedArchivableSequenceIds.length"
+                v-if="selectedArchivableContentIds.length"
                 variant="secondary"
                 size="sm"
                 icon="lucide:archive"
-                :text="`${t('archive')} (${selectedArchivableSequenceIds.length})`"
+                :text="`${t('archive')} (${selectedArchivableContentIds.length})`"
                 :disabled="archiveConfirmLoading"
                 @click="startArchiveSelected"
               />
@@ -304,8 +311,11 @@
               :favorited="favorites.has(id)"
               :show-tagging-icon="showTaggingIcons && selectedItems.size <= 1 && !sequenceTaggingBlocked(id) && !!taggingIconVisibility[id]"
               show-copy-modify
-              :can-archive="activeSequenceIds.includes(id)"
+              :archived="exploreArchivedIdSet.has(id)"
+              :can-archive="myContent.includes(id) && !exploreArchivedIdSet.has(id)"
+              :can-restore="exploreArchivedIdSet.has(id)"
               @archive="openSingleArchive(id)"
+              @restore="onRestoreSequence(id)"
               @info="infoModalId = id"
               @toggle-select="toggleSelection(id)"
               @toggle-favorite="toggleFavorite(id)"
@@ -343,11 +353,11 @@
     <!-- Mobile bottom action bar -->
     <div v-if="selectedItems.size" class="mobile-bottom-bar">
       <PButton
-        v-if="selectedArchivableSequenceIds.length"
+        v-if="selectedArchivableContentIds.length"
         variant="secondary"
         class="w-full"
         icon="lucide:archive"
-        :text="`${t('archive')} (${selectedArchivableSequenceIds.length})`"
+        :text="`${t('archive')} (${selectedArchivableContentIds.length})`"
         :disabled="archiveConfirmLoading"
         @click="startArchiveSelected"
       />
@@ -404,7 +414,7 @@
       v-if="sequenceToArchive || bulkArchiveIds.length"
       variant="warning"
       width="520px"
-      :title="bulkArchiveIds.length > 1 ? t('archive') : t('archive-sequence')"
+      :title="archiveDialogTitle"
       :description="archiveConfirmDescription"
       :confirm-text="t('archive')"
       :cancel-text="t('cancel')"
@@ -542,7 +552,9 @@
   } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import {
-    loadExploreArchivedSequenceIds,
+    archivableMyContentIds,
+    exploreArchivedIdSet,
+    refreshExploreArchivedIds,
     setExploreSequenceArchived,
   } from '@/utils/explore-sequence-archive.js'
   import { loadExploreFavorites, toggleExploreFavorite } from '@/utils/explore-favorites.js'
@@ -753,6 +765,7 @@
   const archiveConfirmLoading = ref(false)
   const sequenceSearchQuery = ref('')
   const sequenceStatusFilters = ref(defaultActiveStatusFilters())
+  const contentStatusFilters = ref(defaultActiveStatusFilters())
   const sequenceFavoritesFilters = ref(defaultFavoritesFilters())
   const contentFavoritesFilters = ref(defaultFavoritesFilters())
   const contentTypeFilters = ref(defaultContentTypeFilters())
@@ -787,16 +800,34 @@
 
   const bulkArchiveIds = ref([])
 
-  const selectedArchivableSequenceIds = computed(() => {
-    const active = new Set(activeSequenceIds.value)
-    return [...selectedItems].filter(id => active.has(id))
+  const selectedArchivableContentIds = computed(() => (
+    archivableMyContentIds(selectedItems, myContent, exploreArchivedIdSet.value)
+  ))
+
+  const pendingArchiveIds = computed(() => {
+    if (bulkArchiveIds.value.length) return bulkArchiveIds.value
+    return sequenceToArchive.value ? [sequenceToArchive.value] : []
+  })
+
+  function idsAreSequences(ids) {
+    const sequences = mySequenceIdSet.value
+    return ids.length > 0 && ids.every(id => sequences.has(id))
+  }
+
+  const archiveDialogTitle = computed(() => {
+    const ids = pendingArchiveIds.value
+    if (ids.length > 1) return t('archive')
+    if (idsAreSequences(ids)) return t('archive-sequence')
+    return t('archive-content')
   })
 
   const archiveConfirmDescription = computed(() => {
-    if (bulkArchiveIds.value.length > 1) {
-      return t('archive-sequences-confirm').replace('{n}', String(bulkArchiveIds.value.length))
+    const ids = pendingArchiveIds.value
+    if (ids.length > 1) {
+      const slug = idsAreSequences(ids) ? 'archive-sequences-confirm' : 'archive-contents-confirm'
+      return t(slug).replace('{n}', String(ids.length))
     }
-    return t('archive-sequence-confirm')
+    return t(idsAreSequences(ids) ? 'archive-sequence-confirm' : 'archive-content-confirm')
   })
 
   const displayedSequenceIds = computed(() => {
@@ -973,8 +1004,11 @@
   function contentExploreFilter(list) {
     void nameCacheVersion.value
     void metadataCacheVersion.value
-    const archived = archivedSequenceIdSet.value
-    let result = list.filter(id => !archived.has(id))
+    const archived = exploreArchivedIdSet.value
+    let result = list.filter(id => matchesStatusFilter(
+      contentStatusFilters.value,
+      archived.has(id),
+    ))
     if (isSequencesOnlyFilterActive(contentTypeFilters.value)) {
       result = result.filter(id => matchesContentTypeFilter(
         contentTypeFilters.value,
@@ -989,6 +1023,10 @@
   }
 
   watch(contentSort, () => {
+    contentPage.value = 1
+  })
+
+  watch(contentStatusFilters, () => {
     contentPage.value = 1
   })
 
@@ -1106,7 +1144,7 @@
   }
 
   function startArchiveSelected() {
-    const ids = selectedArchivableSequenceIds.value
+    const ids = selectedArchivableContentIds.value
     if (!ids.length || archiveConfirmLoading.value) return
     if (ids.length === 1) {
       openSingleArchive(ids[0])
@@ -1135,10 +1173,15 @@
       }
       sequenceToArchive.value = null
       bulkArchiveIds.value = []
+      const sequencesOnly = idsAreSequences(ids)
       await loadMySequences({ silent: true })
       showSuccessDialog(
-        ids.length > 1 ? t('sequences-archived') : t('sequence-archived'),
-        ids.length > 1 ? t('sequences-archived-description') : t('sequence-archived-description'),
+        ids.length > 1
+          ? t(sequencesOnly ? 'sequences-archived' : 'contents-archived')
+          : t(sequencesOnly ? 'sequence-archived' : 'content-archived'),
+        ids.length > 1
+          ? t(sequencesOnly ? 'sequences-archived-description' : 'contents-archived-description')
+          : t(sequencesOnly ? 'sequence-archived-description' : 'content-archived-description'),
       )
     } catch (e) {
       console.error('[Explore] archiveSequence failed', ids, e)
@@ -1488,7 +1531,7 @@
       )
 
       const [archivedIdSet, states] = await Promise.all([
-        loadExploreArchivedSequenceIds(),
+        refreshExploreArchivedIds(),
         mapPool(sequenceIds, EXPLORE_FILL_CONCURRENCY, id => exploreSlot(() => (
           Agent.state(id).then(
             value => ({ status: 'fulfilled', value }),
@@ -1537,11 +1580,12 @@
     if (!id || archivingSequenceIds.has(id)) return
     archivingSequenceIds.add(id)
     try {
+      const wasSequence = mySequenceIdSet.value.has(id)
       await setExploreSequenceArchived(id, false)
       await loadMySequences({ silent: true })
       showSuccessDialog(
-        t('sequence-restored'),
-        t('sequence-restored-description'),
+        t(wasSequence ? 'sequence-restored' : 'content-restored'),
+        t(wasSequence ? 'sequence-restored-description' : 'content-restored-description'),
       )
     } catch (e) {
       console.error('[Explore] restoreSequence failed', id, e)

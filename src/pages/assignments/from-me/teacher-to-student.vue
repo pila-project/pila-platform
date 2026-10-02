@@ -386,6 +386,7 @@
             fill-height
             :columns="3"
             :per-page="12"
+            :extra-filter="withoutExploreArchived"
             use-disk-cache
           >
             <template #card="{ id, source, grades }">
@@ -432,7 +433,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch, nextTick } from 'vue'
+  import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import { vueScopeComponent } from '@knowlearning/agents/vue.js'
   import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
@@ -445,6 +446,7 @@
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent, removeAssignmentContentId } from '@/utils/assignment-content.js'
   import { useToast } from '@/utils/useToast.js'
+  import { refreshExploreArchivedIds, withoutExploreArchived } from '@/utils/explore-sequence-archive.js'
   import { PButton, PInput, PSelect, PDateField, PTooltip, PAlertDialog } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import {
@@ -481,6 +483,10 @@
   const store = useStore()
   function t(slug) { return store.getters.t(slug) }
   const { info: toastInfo, error: toastError } = useToast()
+
+  onMounted(() => {
+    refreshExploreArchivedIds().catch(() => {})
+  })
   const savingDraft = ref(false)
 
   // ── Wizard state ──

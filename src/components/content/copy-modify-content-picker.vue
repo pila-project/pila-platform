@@ -29,6 +29,7 @@
           <ContentBrowser
             :columns="3"
             :per-page="12"
+            :extra-filter="withoutExploreArchived"
             use-disk-cache
           >
             <template #card="{ id, source, grades }">
@@ -52,7 +53,7 @@
 </template>
 
 <script setup>
-import { reactive, computed, watch } from 'vue'
+import { reactive, computed, watch, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import ContentBrowser from '@/components/content/content-browser.vue'
 import TaggedContentCard from '@/components/tags/tagged-content-card.vue'
@@ -64,6 +65,7 @@ import {
   isSequenceActiveType,
   partitionKnownSequenceMemberIds,
 } from '@/utils/sequence-items.js'
+import { refreshExploreArchivedIds, withoutExploreArchived } from '@/utils/explore-sequence-archive.js'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -82,7 +84,13 @@ const cbSelectedItems = reactive(new Set())
 const existingIdSet = computed(() => new Set(props.existingItemIds))
 
 watch(() => props.open, (isOpen) => {
-  if (isOpen) cbSelectedItems.clear()
+  if (!isOpen) return
+  cbSelectedItems.clear()
+  refreshExploreArchivedIds().catch(() => {})
+})
+
+onMounted(() => {
+  if (props.open) refreshExploreArchivedIds().catch(() => {})
 })
 
 watch(metadataCacheVersion, () => {

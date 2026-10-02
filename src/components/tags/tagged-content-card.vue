@@ -10,6 +10,7 @@
       'pcard-assignment-picker': assignmentPicker,
       'pcard-fixed': useFixedLayout,
       'pcard-sequence': showCopyModify && isSequenceCard,
+      'pcard-archived': archived,
     }"
     :draggable="isDraggable || undefined"
     @click="onCardClick"
@@ -83,6 +84,7 @@
         <span v-else class="pcard-source pcard-source-pila">
           <LucideIcon name="crown" :size="10" class="pcard-source-icon" />{{ t('pila-content') }}
         </span>
+        <span v-if="archived" class="pcard-archived-badge">{{ t('archived') }}</span>
         <span
           v-if="showCopyModify && exploreItemCount > 1"
           class="pcard-count-chip"
@@ -225,14 +227,14 @@
             @click.stop="$emit('preview')"
           />
         </PTooltip>
-        <PTooltip :text="addDisabled ? (t('added') || t('add')) : t('add')">
+        <PTooltip :text="archived ? t('archived') : (addDisabled ? (t('added') || t('add')) : t('add'))">
           <PButton
-            :variant="addDisabled ? 'secondary' : 'primary'"
+            :variant="addDisabled || archived ? 'secondary' : 'primary'"
             size="sm"
-            :icon="addDisabled ? 'lucide:check' : 'lucide:plus'"
+            :icon="!archived && addDisabled ? 'lucide:check' : 'lucide:plus'"
             iconOnly
-            :disabled="addDisabled"
-            :aria-label="addDisabled ? (t('added') || t('add')) : t('add')"
+            :disabled="addDisabled || archived"
+            :aria-label="archived ? t('archived') : (addDisabled ? (t('added') || t('add')) : t('add'))"
             @click.stop="onAddClick"
           />
         </PTooltip>
@@ -276,6 +278,12 @@
             :title="t('archive')"
             prepend-icon="lucide:archive"
             @click="$emit('archive')"
+          />
+          <PMenuItem
+            v-if="canRestore"
+            :title="t('restore')"
+            prepend-icon="lucide:archive-restore"
+            @click="$emit('restore')"
           />
         </PMenu>
       </div>
@@ -407,8 +415,18 @@
       type: Boolean,
       default: false,
     },
-    /** Explore: this card is an active My content sequence the teacher can archive. */
+    /** Explore: this My content card can be archived. */
     canArchive: {
+      type: Boolean,
+      default: false,
+    },
+    /** Explore: this card is in the teacher's archive and can be restored. */
+    canRestore: {
+      type: Boolean,
+      default: false,
+    },
+    /** Explore: show the archived badge and block adding it to something new. */
+    archived: {
       type: Boolean,
       default: false,
     },
@@ -422,7 +440,7 @@
   const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
   const useFixedLayout = computed(() => !props.sequenceView)
 
-  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite', 'tag', 'edit', 'archive'])
+  const emit = defineEmits(['info', 'preview', 'remove', 'add', 'toggle-select', 'copy-modify', 'toggle-favorite', 'tag', 'edit', 'archive', 'restore'])
 
   const addDisabled = computed(() => props.inAssignment || props.inSequence)
 
@@ -508,7 +526,7 @@
   })
 
   function onAddClick() {
-    if (props.nestingBlocked || addDisabled.value) return
+    if (props.archived || props.nestingBlocked || addDisabled.value) return
     emit('add')
   }
 
@@ -1133,6 +1151,21 @@
   background: #eff6ff;
   color: #2563eb;
   border: 1px solid #93c5fd;
+}
+
+.pcard-archived-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #fff7ed;
+  border: 1px solid #ea580c;
+  color: #ea580c;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 14px;
 }
 
 /* Title */
