@@ -1,11 +1,12 @@
 <template>
   <div v-if="playMode === 'sequence' && localSequenceId && addVariables" class="wrapper sequence-play">
     <div class="sequence-bar">
-      <button type="button" class="sequence-leave" @click="closeAssignment()">
+      <button type="button" class="sequence-leave" @click="endCurrentContent()">
         {{ t('close') }}
       </button>
     </div>
     <SequencePreviewBody
+      :key="contentIndex + ':' + localSequenceId"
       :sequence-id="localSequenceId"
       :start-index="sequenceStartIndex"
       :focus-index="sequenceFocusIndex"
@@ -32,12 +33,31 @@
   </div>
   <div v-else-if="playMode === 'embed' && playableId && addVariables" class="wrapper">
     <vueEmbedComponent
+      :key="contentIndex + ':' + playableId"
       :id="playableId"
-      @close="closeAssignment"
+      @close="endCurrentContent"
       :namespace="route.params.id"
       :environmentProxy="addVariables"
       allow="camera;microphone;fullscreen"
     />
+  </div>
+  <div v-else-if="playMode === 'continuation'" class="wrapper">
+    <div class="sequence-end-card">
+      <div class="sequence-end-panel">
+        <p class="sequence-end-lead">{{ t('next-sequence-prompt') }}</p>
+        <div class="sequence-end-actions">
+          <button type="button" class="sequence-end-next" @click="continueToNextContent">
+            {{ t('continue') }}
+          </button>
+          <button type="button" class="sequence-end-leave" @click="leaveAssignment">
+            {{ t('leave') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-else-if="playMode === 'loading' || playMode === 'switching' || playMode === 'closing'">
+    ... {{ t('loading') }} ...
   </div>
   <div v-else-if="loadSettled">
     {{ t('there-is-an-issue-with-your-assignment-please-as') }}
@@ -53,7 +73,7 @@ import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
-import { primaryAssignmentContentId } from '@/utils/dashboard-sequence-items.js'
+import { assignmentContentEndAction, normalizeAssignmentContent } from '@/utils/assignment-content.js'
 import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 import { SEQUENCE_SYNC_TIMEOUT_MS, normalizeSequenceItems, withTimeout } from '@/utils/sequence-items.js'
 import { shouldPlaySameHostSequence } from '@/utils/same-host-sequence.js'
@@ -81,7 +101,9 @@ const localSequenceId = ref('')
 const sequenceStartIndex = ref(0)
 const sequenceFocusIndex = ref(null)
 const competencyCard = ref(null)
-const playableId = computed(() => primaryAssignmentContentId(assignment.value))
+const contentIds = ref([])
+const contentIndex = ref(0)
+const playableId = computed(() => contentIds.value[contentIndex.value] || '')
 
 const t = slug => store.getters.t(slug)
 
@@ -91,6 +113,8 @@ let playClosed = false
 let sequencePerf = null
 let sequenceItemIds = []
 let sequenceIndex = 0
+let playGeneration = 0
+let endingContent = false
 
 function stopLeafTimer() {
   if (!leafTimer) return
@@ -211,7 +235,20 @@ async function startLeafPerformance(contentId) {
   }
 }
 
-async function closeAssignment(info) {
+function resetPlayRecord() {
+  stopLeafTimer()
+  playClosed = false
+  sequencePerf = null
+  sequenceItemIds = []
+  sequenceIndex = 0
+  leafContentId = null
+  competencyCard.value = null
+  sequenceFocusIndex.value = null
+  sequenceStartIndex.value = 0
+  localSequenceId.value = ''
+}
+
+async function finishCurrentContent(info) {
   playClosed = true
   stopLeafTimer()
   try {
@@ -233,6 +270,75 @@ async function closeAssignment(info) {
   } catch (e) {
     console.warn('[Assignment] failed to record close', id, leafContentId || localSequenceId.value, e)
   }
+}
+
+async function openContentAt(index) {
+  const generation = ++playGeneration
+  resetPlayRecord()
+  contentIndex.value = index
+  const contentId = contentIds.value[index] || ''
+  if (!contentId) {
+    playMode.value = 'unavailable'
+    return
+  }
+  playMode.value = 'switching'
+  let mode = 'embed'
+  try {
+    mode = await contentPlaysHere(contentId) ? 'sequence' : 'embed'
+  } catch (e) {
+    console.warn('[Assignment] content play check failed', contentId, e)
+    mode = 'embed'
+  }
+  if (generation !== playGeneration) return
+  if (mode === 'sequence') {
+    localSequenceId.value = contentId
+    try {
+      await startSequencePerformance(contentId)
+    } catch (e) {
+      console.warn('[Assignment] failed to record sequence play', id, contentId, e)
+    }
+  } else {
+    await startLeafPerformance(contentId)
+  }
+  if (generation !== playGeneration) return
+  playMode.value = mode
+}
+
+async function endCurrentContent(info) {
+  if (
+    endingContent
+    || playMode.value === 'continuation'
+    || playMode.value === 'closing'
+    || playMode.value === 'switching'
+  ) return
+  endingContent = true
+  const action = assignmentContentEndAction(contentIds.value.length, contentIndex.value)
+  try {
+    await finishCurrentContent(info)
+    if (action === 'choose') {
+      playMode.value = 'continuation'
+      return
+    }
+    playMode.value = 'closing'
+    Agent.close()
+  } finally {
+    endingContent = false
+  }
+}
+
+async function continueToNextContent() {
+  if (playMode.value !== 'continuation') return
+  const next = contentIndex.value + 1
+  if (next >= contentIds.value.length) {
+    playMode.value = 'closing'
+    Agent.close()
+    return
+  }
+  await openContentAt(next)
+}
+
+function leaveAssignment() {
+  playMode.value = 'closing'
   Agent.close()
 }
 
@@ -244,35 +350,18 @@ onMounted(async () => {
     // `to` membership already implies a class record; still hide Draft / not-due Scheduled.
     if (!isStudentVisibleAssignment(state, { hasAssignedGroups: true })) {
       assignment.value = state
+      playMode.value = 'unavailable'
       return
     }
     const { owner: teacher } = await Agent.metadata(id)
     const proxy = await studyEnvironmentVariableProxy({}, teacher)
     assignment.value = state
     addVariables.value = proxy
-    const contentId = primaryAssignmentContentId(state)
-    let mode = 'embed'
-    if (contentId) {
-      try {
-        mode = await contentPlaysHere(contentId) ? 'sequence' : 'embed'
-      } catch (e) {
-        console.warn('[Assignment] content play check failed', contentId, e)
-        mode = 'embed'
-      }
-    }
-    if (mode === 'sequence') {
-      localSequenceId.value = contentId
-      try {
-        await startSequencePerformance(contentId)
-      } catch (e) {
-        console.warn('[Assignment] failed to record sequence play', id, contentId, e)
-      }
-    } else {
-      await startLeafPerformance(contentId)
-    }
-    playMode.value = mode
+    contentIds.value = normalizeAssignmentContent(state?.content)
+    await openContentAt(0)
   } catch (e) {
     console.error('[Assignment] failed to load', id, e)
+    playMode.value = 'unavailable'
   } finally {
     loadSettled.value = true
   }
@@ -342,6 +431,17 @@ onMounted(async () => {
   border-bottom: 1px solid #e2e8f0;
 }
 
+.sequence-end-lead {
+  margin: 0;
+}
+
+.sequence-end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
 .sequence-end-next {
   margin-top: 16px;
   border: 0;
@@ -353,9 +453,29 @@ onMounted(async () => {
   cursor: pointer;
 }
 
+.sequence-end-actions .sequence-end-next {
+  margin-top: 0;
+}
+
+.sequence-end-leave {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  font: inherit;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
 @media (max-width: 767px) {
   .sequence-play :deep(.preview-sidebar) {
     display: none;
+  }
+
+  .sequence-end-actions .sequence-end-next,
+  .sequence-end-leave {
+    flex: 1 1 8rem;
+    min-height: 44px;
   }
 }
 </style>

@@ -5407,6 +5407,10 @@ export default {
     "sk": "Nasledujúce",
     "th": "ถัดไป"
   },
+  "next-sequence-prompt": {
+    "en": "This assignment has another sequence.",
+    "th": "งานนี้มีลำดับถัดไป"
+  },
   "nickname": {
     "de": "Spitzname",
     "en": "Nickname",

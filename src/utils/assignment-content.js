@@ -15,6 +15,20 @@ export function normalizeAssignmentContent(content) {
   return []
 }
 
+/**
+ * What to do when the student finishes the content at `contentIndex`.
+ * One piece of content closes the assignment. A later piece waits for the
+ * student to continue or leave. The page never opens the next piece on its own.
+ */
+export function assignmentContentEndAction(contentCount, contentIndex) {
+  const count = Number(contentCount)
+  const index = Number(contentIndex)
+  if (!Number.isInteger(count) || !Number.isInteger(index)) return 'close'
+  if (count < 1 || index < 0 || index >= count) return 'close'
+  if (index + 1 < count) return 'choose'
+  return 'close'
+}
+
 /** Drop one id from any legacy content shape; always returns a dense string[]. */
 export function removeAssignmentContentId(content, id) {
   if (!id) return normalizeAssignmentContent(content)
