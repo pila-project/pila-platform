@@ -23,7 +23,7 @@ import {
 import {
   decryptUserInfoWithCache,
   providerKeyFingerprint,
-  shouldSkipNaclAfterPublicInfo,
+  shouldSkipExpensiveDecrypt,
 } from '@/utils/decrypt-user-info-cache.js'
 
 export default {
@@ -110,11 +110,6 @@ export default {
       for (const user of userIds) {
         if (attempted >= maxAttempts) break
         if (!user) continue
-
-        try {
-          const publicInfo = await Agent.state('user-info', user)
-          if (publicInfo?.name) continue
-        } catch { /* ignore */ }
 
         // Teacher-created accounts (symmetric) — same keys as decryptUserInfo
         try {
@@ -259,15 +254,14 @@ async function decryptUserInfoUncached(state, getters, user, useAlias) {
     return { name: 'PILA Expert', picture: null }
   }
 
-  const userInfo = await Agent.state('user-info', user)
-  if (userInfo?.name) return userInfo
-
   const anonymousInfo = () => ({
     name: `${getters.t('anonymous')}_${user.slice(0, 4)}`,
     picture: null,
   })
 
-  if (shouldSkipNaclAfterPublicInfo(userInfo)) return anonymousInfo()
+  // Open user-info is not a name source. SSO profiles used to be stored there
+  // in the clear, and a wrong key must not reveal them.
+  if (shouldSkipExpensiveDecrypt()) return anonymousInfo()
 
   const key = localStorage.getItem(`zkek-${state.user}`)
   const providerKeys = teacherProviderKeys(state)
@@ -283,6 +277,7 @@ async function decryptUserInfoUncached(state, getters, user, useAlias) {
   }
 
   if (createdUserInfo) return createdUserInfo
+  if (!key) return anonymousInfo()
 
   let info = anonymousInfo()
   const encryptedUserInfo = await Agent.state('encrypted-user-info', user)

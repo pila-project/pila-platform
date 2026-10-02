@@ -12,7 +12,7 @@ import {
   providerKeyFingerprint,
   resetDecryptUserInfoCacheForTests,
   setSkipExpensiveDecrypt,
-  shouldSkipNaclAfterPublicInfo,
+  shouldSkipExpensiveDecrypt,
 } from './decrypt-user-info-cache.js'
 
 function delay(ms = 20) {
@@ -140,7 +140,7 @@ describe('skipExpensive decrypt', () => {
     setSkipExpensiveDecrypt(true)
     let naclCalls = 0
     const run = async () => {
-      if (shouldSkipNaclAfterPublicInfo({})) return { name: 'anon_u1xx' }
+      if (shouldSkipExpensiveDecrypt()) return { name: 'anon_u1xx' }
       naclCalls += 1
       return { name: 'Real' }
     }
@@ -157,41 +157,50 @@ describe('skipExpensive decrypt', () => {
     assert.equal(naclCalls, 1)
   })
 
-  it('public info still wins; anonymous fallback does not call nacl stub', async () => {
+  it('an open profile name does not bypass a missing or rejected key', async () => {
     setSkipExpensiveDecrypt(true)
     assert.equal(getSkipExpensiveDecrypt(), true)
-    assert.equal(shouldSkipNaclAfterPublicInfo({ name: 'Ada' }), false)
-    assert.equal(shouldSkipNaclAfterPublicInfo({}), true)
-    assert.equal(shouldSkipNaclAfterPublicInfo(null), true)
+    assert.equal(shouldSkipExpensiveDecrypt(), true)
 
     let naclCalls = 0
-    const publicHit = await decryptUserInfoWithCache({
+    const openProfile = await decryptUserInfoWithCache({
       userId: 'pub',
       useAlias: false,
       fingerprint: '',
       run: async () => {
-        const publicInfo = { name: 'Ada', picture: null }
-        if (publicInfo?.name) return publicInfo
-        if (shouldSkipNaclAfterPublicInfo(publicInfo)) return { name: 'anon_pub' }
+        if (shouldSkipExpensiveDecrypt()) return { name: 'anon_pub' }
         naclCalls += 1
-        return { name: 'secret' }
+        return { name: 'Ada' }
       },
     })
-    const skipped = await decryptUserInfoWithCache({
+    const noProfile = await decryptUserInfoWithCache({
       userId: 'enc',
       useAlias: false,
       fingerprint: '',
       run: async () => {
-        const publicInfo = {}
-        if (publicInfo?.name) return publicInfo
-        if (shouldSkipNaclAfterPublicInfo(publicInfo)) return { name: 'anon_encx' }
+        if (shouldSkipExpensiveDecrypt()) return { name: 'anon_encx' }
         naclCalls += 1
         return { name: 'secret' }
       },
     })
-    assert.equal(publicHit.name, 'Ada')
-    assert.equal(skipped.name, 'anon_encx')
+    assert.equal(openProfile.name, 'anon_pub')
+    assert.equal(noProfile.name, 'anon_encx')
     assert.equal(naclCalls, 0)
+
+    setSkipExpensiveDecrypt(false)
+    clearDecryptUserInfoCache()
+    const opened = await decryptUserInfoWithCache({
+      userId: 'pub',
+      useAlias: false,
+      fingerprint: '',
+      run: async () => {
+        if (shouldSkipExpensiveDecrypt()) return { name: 'anon_pub' }
+        naclCalls += 1
+        return { name: 'Ada' }
+      },
+    })
+    assert.equal(opened.name, 'Ada')
+    assert.equal(naclCalls, 1)
   })
 })
 
