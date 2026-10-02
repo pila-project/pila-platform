@@ -154,6 +154,29 @@ function isDatawiseHost(value) {
   return normalizedHost(value) === DATAWISE_DOMAIN
 }
 
+/**
+ * Datawise's dashboard shell calls Agent.state(game) and requires that
+ * document's appId. A sequence id has no appId, so the game is the Datawise
+ * activity. A direct activity is already that id.
+ */
+export async function datawiseDashboardGameId(contentId, contentState) {
+  if (!contentId) return null
+  const ownUrl = await dashboardUrlForRecord(contentId, contentState)
+  if (ownUrl === DATAWISE_DASHBOARD_URL) return contentId
+  for (const itemId of normalizeSequenceItems(contentState?.items)) {
+    if (!itemId || itemId === contentId) continue
+    let itemState = null
+    try {
+      itemState = await Agent.state(itemId)
+    } catch {
+      itemState = null
+    }
+    const childUrl = await dashboardUrlForRecord(itemId, itemState)
+    if (childUrl === DATAWISE_DASHBOARD_URL) return itemId
+  }
+  return contentId
+}
+
 export function appDashboardUrlFromProbe({ domain, referenceDashboard, contentId } = {}) {
   if (isDatawiseHost(domain) || isDatawiseHost(contentId) || isDatawiseHost(referenceDashboard)) {
     return DATAWISE_DASHBOARD_URL

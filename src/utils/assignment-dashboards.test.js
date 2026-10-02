@@ -5,6 +5,7 @@ import {
   DATAWISE_DASHBOARD_URL,
   appDashboardUrlFromProbe,
   assessAssignmentDashboards,
+  datawiseDashboardGameId,
   assignedStudentsForAssignment,
   bettyModuleIdFromUrl,
   candliProgrammingDashboardUrl,
@@ -487,6 +488,35 @@ describe('assessAssignmentDashboards (Betty-only / Datawise-only / mixed / ordin
     assert.equal(flags.isCandli, true)
     assert.equal(flags.hasLive, true)
     assert.equal(hasLiveMonitoringCard(flags), true)
+  })
+
+  it('Datawise dashboard game is the activity, not the sequence that contains it', async () => {
+    mockAgent({
+      states: {
+        'seq-dw': { items: [{ id: 'dw-child' }, { id: 'dw-other' }] },
+        'dw-child': {},
+        'dw-other': {},
+        'dw-direct': {},
+        'seq-ord': { items: [{ id: 'leaf-a' }] },
+      },
+      metadata: {
+        'seq-dw': { domain: 'thailand.pilaproject.org' },
+        'dw-child': { domain: 'datawise.accingo.co' },
+        'dw-other': { domain: 'datawise.accingo.co' },
+        'dw-direct': { domain: 'datawise.accingo.co' },
+        'seq-ord': { domain: 'thailand.pilaproject.org' },
+        'leaf-a': { domain: 'example.org' },
+      },
+    })
+    assert.equal(await datawiseDashboardGameId('dw-direct', {}), 'dw-direct')
+    assert.equal(
+      await datawiseDashboardGameId('seq-dw', { items: [{ id: 'dw-child' }, { id: 'dw-other' }] }),
+      'dw-child',
+    )
+    assert.equal(
+      await datawiseDashboardGameId('seq-ord', { items: [{ id: 'leaf-a' }] }),
+      'seq-ord',
+    )
   })
 
   it('Datawise host variant and a nested Datawise child stay app-only', async () => {

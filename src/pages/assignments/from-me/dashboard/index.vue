@@ -11,7 +11,7 @@
       :url="props.url"
       :users="users"
       :assignment="props.assignment"
-      :module="content"
+      :module="dashboardModule"
     />
     <RCTDashboard
       v-else-if="!liveMode && rctAssignment"
@@ -46,6 +46,8 @@
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import {
     candliProgrammingDashboardUrl,
+    DATAWISE_DASHBOARD_URL,
+    datawiseDashboardGameId,
     isCandliProgrammingContent,
     isLiveDashboardMode,
     resolveBettyDashboard,
@@ -62,6 +64,7 @@
 
   const assignmentState = await Agent.state(props.assignment)
   const content = primaryAssignmentContentId(assignmentState)
+  let dashboardModule = content
   let contentState = null
   const customDashboardUrl = ref(null)
   let bettyModuleId = null
@@ -93,6 +96,9 @@
     })
     bettyModuleId = betty.bettyModuleId
     rctAssignment = await isRCTAssignment()
+    if (props.url === DATAWISE_DASHBOARD_URL && content) {
+      dashboardModule = await datawiseDashboardGameId(content, contentState) || content
+    }
 
     // Trunk allowlist, extended to every assignment content id and to
     // sub-items of the two expert sequences. A Datawise / reference URL

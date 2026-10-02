@@ -113,6 +113,8 @@ const props = defineProps({
   environmentProxy: { type: Function, default: null },
   /** Student play scopes each activity under the assignment. Preview uses "preview". */
   embedNamespace: { type: [String, Function], default: 'preview' },
+  /** Student play moves here after a competency end card. Preview leaves this unset. */
+  focusIndex: { type: Number, default: null },
 })
 
 const emit = defineEmits(['header', 'item-close'])
@@ -272,6 +274,16 @@ watch(currentIndex, async () => {
   emitHeader()
   patchEmbedFullscreenAllow()
 })
+
+watch(
+  () => props.focusIndex,
+  (next) => {
+    const index = Number(next)
+    if (!Number.isInteger(index) || index < 0 || index >= seqState.value.items.length) return
+    if (index === currentIndex.value) return
+    currentIndex.value = index
+  },
+)
 
 watch(currentItemId, () => {
   patchEmbedFullscreenAllow()

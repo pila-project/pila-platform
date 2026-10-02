@@ -8,11 +8,27 @@
     <SequencePreviewBody
       :sequence-id="localSequenceId"
       :start-index="sequenceStartIndex"
+      :focus-index="sequenceFocusIndex"
       :environment-proxy="addVariables"
       :embed-namespace="sequenceEmbedNamespace"
       @header="onSequenceHeader"
       @item-close="onSequenceItemClose"
     />
+    <div v-if="competencyCard" class="sequence-end-card">
+      <div class="sequence-end-panel">
+        <div
+          v-for="(row, key) in competencyCard.rows"
+          :key="key"
+          class="sequence-end-row"
+        >
+          <span>{{ key }}</span>
+          <span>{{ row[0] }} / {{ row[1] }}</span>
+        </div>
+        <button type="button" class="sequence-end-next" @click="dismissCompetencyCard">
+          {{ competencyCard.advance ? t('next') : t('close') }}
+        </button>
+      </div>
+    </div>
   </div>
   <div v-else-if="playMode === 'embed' && playableId && addVariables" class="wrapper">
     <vueEmbedComponent
@@ -63,6 +79,8 @@ const loadSettled = ref(false)
 const playMode = ref('loading')
 const localSequenceId = ref('')
 const sequenceStartIndex = ref(0)
+const sequenceFocusIndex = ref(null)
+const competencyCard = ref(null)
 const playableId = computed(() => primaryAssignmentContentId(assignment.value))
 
 const t = slug => store.getters.t(slug)
@@ -80,15 +98,13 @@ function stopLeafTimer() {
   leafTimer = null
 }
 
-function sequenceEmbedNamespace(index) {
-  return {
-    prefix: `${id}/sequence-${localSequenceId.value}-item-${index}`,
-    allow: [
-      'pila/competencies',
-      'pila/latest_competencies',
-      'my-',
-    ],
-  }
+// The Datawise teacher dashboard watches
+// `{assignment}/activity/{version}/{app}/{activityId}` inside namespace = assignment id.
+// The competency dashboard watches `{assignment}/pila/competencies/...` the same way.
+// An item prefix, or an allow list with no outer assignment frame, stores those
+// writes where neither dashboard reads them. Direct activities already use this id.
+function sequenceEmbedNamespace() {
+  return id
 }
 
 async function contentPlaysHere(contentId) {
@@ -131,12 +147,36 @@ function onSequenceHeader(header) {
   if (sequencePerf) sequencePerf.activeItemIndex = index
 }
 
+function competencyRows(competencies) {
+  const scores = { ...competencies }
+  delete scores['general:attempts']
+  return Object.fromEntries(
+    Object.entries(scores).filter(([, row]) => Array.isArray(row)),
+  )
+}
+
 function onSequenceItemClose(payload) {
   if (!sequencePerf || !payload) return
   const index = Number(payload.index)
   const itemId = payload.itemId || sequenceItemIds[index]
   if (!Number.isInteger(index) || !itemId) return
   finishSequenceItemPerformance(sequencePerf, index, itemId, payload.info)
+  const info = payload.info
+  if (!info?.competencies || typeof info.competencies !== 'object') return
+  const key = `${index}/${itemId}`
+  competencyCard.value = {
+    index,
+    rows: competencyRows(info.competencies),
+    advance: sequencePerf.itemInfo?.[key]?.correct === true
+      && index + 1 < sequenceItemIds.length,
+  }
+}
+
+function dismissCompetencyCard() {
+  const card = competencyCard.value
+  competencyCard.value = null
+  if (!card?.advance) return
+  sequenceFocusIndex.value = card.index + 1
 }
 
 async function startLeafPerformance(contentId) {
@@ -274,6 +314,43 @@ onMounted(async () => {
 .sequence-play :deep(.spb-root) {
   flex: 1;
   min-height: 0;
+}
+
+.sequence-end-card {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.sequence-end-panel {
+  width: min(420px, calc(100% - 32px));
+  padding: 20px;
+  border-radius: 12px;
+  background: #fff;
+  color: #334155;
+}
+
+.sequence-end-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sequence-end-next {
+  margin-top: 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #fff;
+  font: inherit;
+  padding: 8px 14px;
+  cursor: pointer;
 }
 
 @media (max-width: 767px) {
