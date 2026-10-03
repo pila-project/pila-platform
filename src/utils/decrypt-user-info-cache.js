@@ -35,11 +35,9 @@ export function getSkipExpensiveDecrypt() {
   return skipExpensive
 }
 
-/**
- * A missing or rejected key skips nacl and shows the anonymous label.
- * An open profile name does not unlock anyone.
- */
-export function shouldSkipExpensiveDecrypt() {
+/** Public user-info still wins; skip nacl only when there is no public name. */
+export function shouldSkipNaclAfterPublicInfo(publicInfo) {
+  if (publicInfo?.name) return false
   return skipExpensive
 }
 

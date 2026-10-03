@@ -110,7 +110,7 @@ export default {
 
       const { auth: { user } } = await Agent.environment()
       if (getters.role(user) !== 'student') {
-        await clearPublicUserInfo()
+        await storeUserInfo()
       }
     },
     async loadRequests({ commit }) {
@@ -133,7 +133,7 @@ export default {
       const state = await Agent.state('requested-role')
       state.role = role
       state.trainer = trainer
-      await clearPublicUserInfo()
+      await storeUserInfo()
       await Agent.synced()
       await dispatch('loadRequests')
     },
@@ -148,9 +148,9 @@ export default {
   }
 }
 
-async function clearPublicUserInfo() {
+async function storeUserInfo() {
+  const { auth: { user, info: { name, picture } } } = await Agent.environment()
   const myUserInfo = await Agent.state('user-info')
-  if (!myUserInfo?.name && !myUserInfo?.picture) return
-  myUserInfo.name = null
-  myUserInfo.picture = null
+  myUserInfo.name = name || null
+  myUserInfo.picture = picture || null
 }
