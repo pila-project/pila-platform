@@ -49,7 +49,7 @@ export default {
       }
 
       const userInfo = await Agent.state('user-info', user)
-      if (userInfo?.name) return userInfo
+      if (userInfo?.name) return { ...userInfo, picture: null }
 
       const key = localStorage.getItem(`zkek-${state.user}`)
       const providerKeys = [
@@ -67,7 +67,7 @@ export default {
         }
       }
 
-      if (createdUserInfo) return createdUserInfo
+      if (createdUserInfo) return { ...createdUserInfo, picture: null }
 
       let info = { name: `${getters.t('anonymous')}_${user.slice(0,4)}`, picture: null }
       const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
@@ -89,7 +89,7 @@ export default {
           success = true
         } catch (error) { console.warn(error) }
       }
-      return info
+      return { ...info, picture: null }
     }
   },
   mutations: {

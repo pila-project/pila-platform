@@ -14,8 +14,8 @@
       >
 
         <template v-slot:prepend>
-          <v-avatar
-            :image="userInfo.picture"
+          <NameAvatar
+            :name="userInfo.name"
             @click.shift="alertUserName"
             class="mx-2"
           />
@@ -115,6 +115,7 @@
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
   import Navbar from '../Navbar.vue'
+  import NameAvatar from '../../components/name-avatar.vue'
   import RoleManager from './roles.vue'
   import AdminContent from './content.vue'
   import AdminAssign from './assign.vue'

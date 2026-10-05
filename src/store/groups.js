@@ -132,7 +132,8 @@ export default {
     },
     async encryptMyUserInfo({ getters }) {
       const myEncryptedUserInfo = await Agent.state('encrypted-user-info')
-      const serializedInfo = JSON.stringify((await Agent.environment()).auth.info)
+      const { auth: { info } } = await Agent.environment()
+      const serializedInfo = JSON.stringify({ ...info, picture: null })
       const { publicKey, secretKey: myEphemeralSecretKey } = await generateKeyPair()
       getters
         .myTeachers()

@@ -15,9 +15,9 @@
         nav
       >
         <template v-slot:prepend>
-          <v-avatar
+          <NameAvatar
             @click.shift="alertUserName"
-            :image="userInfo.picture"
+            :name="userInfo.name"
           />
         </template>
       </v-list-item>
@@ -53,6 +53,7 @@
 
 <script>
   import Navbar from '../Navbar.vue'
+  import NameAvatar from '../../components/name-avatar.vue'
   import StudentAgreement from './student-agreement.vue'
   import StudentAssignments from './student-assignments.vue'
   import IconButton from '../../components/icon-button.vue'
@@ -61,6 +62,7 @@
   export default {
     components: {
       Navbar,
+      NameAvatar,
       StudentAgreement,
       StudentAssignments,
       IconButton,

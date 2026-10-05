@@ -39,8 +39,8 @@
       >
 
         <template v-slot:prepend>
-          <v-avatar
-            :image="userInfo.picture || '/mascotte.png'"
+          <NameAvatar
+            :name="userInfo.name"
             class="mx-2"
             @click.shift="alertUserName"
           />
@@ -177,6 +177,7 @@
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import Navbar from '../Navbar.vue'
+  import NameAvatar from '../../components/name-avatar.vue'
   import TeacherAgreement from './teacher-agreement.vue'
   import RoleRequester from '../../components/roles/requester.vue'
   import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS } from '../../constants.js'
