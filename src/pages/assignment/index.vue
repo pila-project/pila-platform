@@ -8,10 +8,10 @@
       allow="camera;microphone;fullscreen"
     />
   </div>
-  <div v-else-if="assignment">
+  <div v-else-if="assignment" class="wrapper message">
     {{ t('there-is-an-issue-with-your-assignment-please-as') }}
   </div>
-  <div v-else>
+  <div v-else class="wrapper message">
     ... {{ t('loading') }} ...
   </div>
 </template>
@@ -48,5 +48,14 @@ function t(slug) {
   height: calc(var(--vh, 1vh) * 100);
   top: 0;
   left: 0;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  box-sizing: border-box;
 }
 </style>
