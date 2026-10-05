@@ -105,7 +105,7 @@ export default {
       Agent
         .environment()
         .then(({ variables }) => {
-          variables.LANGUAGES?.unshift(val)
+          variables?.LANGUAGES?.unshift(val)
         })
     }
   },
@@ -120,7 +120,17 @@ export default {
         commit('language', language)
       }
 
-      const { auth } = await Agent.environment()
+      const { auth, variables } = await Agent.environment()
+      if (Agent.embedded) {
+        // Embedded stores do not load persisted state, so inherit the parent's language.
+        const inheritedLanguage = variables?.LANGUAGES
+          ?.map(lang => lang.split('-')[0])
+          .find(lang => languageChoices.includes(lang))
+        const language = inheritedLanguage
+          || HOST_TO_FIRST_LOAD_LANGUAGE[window.location.host]
+          || matchNavigatorLanguage(languageChoices)
+        commit('language', language)
+      }
       commit('load', auth)
 
       if (state.user && state.provider !== 'anonymous') {
