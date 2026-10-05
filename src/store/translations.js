@@ -12,7 +12,7 @@ export default {
       const slugTranslations = translations[slug]
       const lang = rootState.language
       if (!slugTranslations || !slugTranslations[lang]) {
-        console.warn('MISSING TRANSLATION', slug)
+        console.warn('MISSING TRANSLATION', slug, 'LANG', lang)
         return `no translation ${slug}`
       }
       return slugTranslations[lang]
