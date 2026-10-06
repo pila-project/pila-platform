@@ -73,7 +73,12 @@ import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
-import { assignmentContentEndAction, normalizeAssignmentContent } from '@/utils/assignment-content.js'
+import {
+  assignmentContentEndAction,
+  competencyCardDismissFollowUp,
+  normalizeAssignmentContent,
+  sequenceItemCloseFollowUp,
+} from '@/utils/assignment-content.js'
 import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 import { SEQUENCE_SYNC_TIMEOUT_MS, normalizeSequenceItems, withTimeout } from '@/utils/sequence-items.js'
 import { shouldPlaySameHostSequence } from '@/utils/same-host-sequence.js'
@@ -180,27 +185,46 @@ function competencyRows(competencies) {
 }
 
 function onSequenceItemClose(payload) {
-  if (!sequencePerf || !payload) return
+  if (!payload) return
   const index = Number(payload.index)
   const itemId = payload.itemId || sequenceItemIds[index]
   if (!Number.isInteger(index) || !itemId) return
-  finishSequenceItemPerformance(sequencePerf, index, itemId, payload.info)
   const info = payload.info
-  if (!info?.competencies || typeof info.competencies !== 'object') return
-  const key = `${index}/${itemId}`
-  competencyCard.value = {
-    index,
-    rows: competencyRows(info.competencies),
-    advance: sequencePerf.itemInfo?.[key]?.correct === true
-      && index + 1 < sequenceItemIds.length,
+  if (sequencePerf) {
+    finishSequenceItemPerformance(sequencePerf, index, itemId, info)
   }
+  const hasCompetencies = !!(info?.competencies && typeof info.competencies === 'object')
+  const followUp = sequenceItemCloseFollowUp({
+    itemCount: sequenceItemIds.length,
+    itemIndex: index,
+    hasCompetencies,
+  })
+  if (followUp === 'card') {
+    const key = `${index}/${itemId}`
+    competencyCard.value = {
+      index,
+      rows: competencyRows(info.competencies),
+      advance: sequencePerf?.itemInfo?.[key]?.correct === true
+        && index + 1 < sequenceItemIds.length,
+    }
+    return
+  }
+  if (followUp === 'end-content') void endCurrentContent(info)
 }
 
 function dismissCompetencyCard() {
   const card = competencyCard.value
   competencyCard.value = null
-  if (!card?.advance) return
-  sequenceFocusIndex.value = card.index + 1
+  const followUp = competencyCardDismissFollowUp({
+    itemCount: sequenceItemIds.length,
+    itemIndex: card?.index,
+    advance: !!card?.advance,
+  })
+  if (followUp === 'next-item') {
+    sequenceFocusIndex.value = card.index + 1
+    return
+  }
+  if (followUp === 'end-content') void endCurrentContent()
 }
 
 async function startLeafPerformance(contentId) {
