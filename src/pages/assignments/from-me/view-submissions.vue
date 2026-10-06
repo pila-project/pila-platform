@@ -834,7 +834,7 @@
 
   async function proxyEnvironmentCall(user) {
     if (user) {
-      const info = await store.getters.decryptUserInfo(user)
+      const info = await store.getters.decryptUserInfo(user, false, 'roster')
       return { auth: { user, info } }
     }
     return Agent.environment()
@@ -947,7 +947,7 @@
     if (!userId) return
     if (!force && studentInfoCache[userId]) return
     try {
-      const info = await store.getters.decryptUserInfo(userId)
+      const info = await store.getters.decryptUserInfo(userId, false, 'roster')
       studentInfoCache[userId] = info
     } catch {
       studentInfoCache[userId] = { name: t('unknown') }

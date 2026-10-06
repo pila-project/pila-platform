@@ -1,6 +1,6 @@
 /**
  * Single-flight + result cache + concurrency cap for decryptUserInfo.
- * Cache key is (userId, useAlias, providerKeyFingerprint). Do not log the fingerprint.
+ * Cache key is (userId, useAlias, providerKeyFingerprint, source). Do not log the fingerprint.
  */
 
 import { reactive } from 'vue'
@@ -23,8 +23,22 @@ export function providerKeyFingerprint(keys) {
   return (keys || []).filter(Boolean).join('\u001f')
 }
 
-export function makeDecryptCacheKey(userId, useAlias, fingerprint) {
-  return `${useAlias ? 'a' : 'n'}\u001f${fingerprint || ''}\u001f${userId || ''}`
+export function normalizeUserInfoSource(source) {
+  return source === 'roster' ? 'roster' : 'directory'
+}
+
+/** Directory (trainers, admins, role requests) may use public user-info. Roster may not. */
+export function shouldUsePublicUserInfo(source) {
+  return normalizeUserInfoSource(source) !== 'roster'
+}
+
+export function resolvePublicUserInfo(userInfo, source) {
+  if (shouldUsePublicUserInfo(source) && userInfo?.name) return userInfo
+  return null
+}
+
+export function makeDecryptCacheKey(userId, useAlias, fingerprint, source) {
+  return `${useAlias ? 'a' : 'n'}\u001f${fingerprint || ''}\u001f${normalizeUserInfoSource(source)}\u001f${userId || ''}`
 }
 
 export function setSkipExpensiveDecrypt(value) {
@@ -35,9 +49,13 @@ export function getSkipExpensiveDecrypt() {
   return skipExpensive
 }
 
-/** Public user-info still wins; skip nacl only when there is no public name. */
-export function shouldSkipNaclAfterPublicInfo(publicInfo) {
-  if (publicInfo?.name) return false
+/**
+ * Skip nacl when skipExpensive is on.
+ * Directory still returns a public name first (caller short-circuits).
+ * Roster skips nacl even when a public name exists, so class lists stay anonymous without a key.
+ */
+export function shouldSkipNaclAfterPublicInfo(publicInfo, source) {
+  if (shouldUsePublicUserInfo(source) && publicInfo?.name) return false
   return skipExpensive
 }
 
@@ -67,8 +85,8 @@ export function decryptUserRevision(userId) {
   return decryptRevision[userId] || 0
 }
 
-export async function decryptUserInfoWithCache({ userId, useAlias, fingerprint, run }) {
-  const key = makeDecryptCacheKey(userId, useAlias, fingerprint)
+export async function decryptUserInfoWithCache({ userId, useAlias, fingerprint, source, run }) {
+  const key = makeDecryptCacheKey(userId, useAlias, fingerprint, source)
   if (results.has(key)) return results.get(key)
   if (inflight.has(key)) return inflight.get(key)
 

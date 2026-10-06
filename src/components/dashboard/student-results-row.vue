@@ -6,7 +6,7 @@
           class="status-pip"
           :class="{ 'status-pip--active': userIsActive }"
         />
-        <DecryptedName :user="user" />
+        <DecryptedName :user="user" source="roster" />
       </span>
     </td>
     <td>

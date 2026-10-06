@@ -22,8 +22,11 @@ import {
 } from '@/utils/user-agreements.js'
 import {
   decryptUserInfoWithCache,
+  normalizeUserInfoSource,
   providerKeyFingerprint,
+  resolvePublicUserInfo,
   shouldSkipNaclAfterPublicInfo,
+  shouldUsePublicUserInfo,
 } from '@/utils/decrypt-user-info-cache.js'
 
 export default {
@@ -52,13 +55,16 @@ export default {
     language: state => () => state.language,
     hasAcceptedStudentAgreement: state => () => state.hasAcceptedStudentAgreement,
     hasAcceptedTeacherAgreement: state => () => state.hasAcceptedTeacherAgreement,
-    decryptUserInfo: (state, getters) => async (user, useAlias) => {
+    // source: 'directory' (default, public user-info) | 'roster' (skip public names)
+    decryptUserInfo: (state, getters) => async (user, useAlias, source = 'directory') => {
       const fingerprint = providerKeyFingerprint(teacherProviderKeys(state))
+      const infoSource = normalizeUserInfoSource(source)
       return decryptUserInfoWithCache({
         userId: user,
         useAlias: !!useAlias,
         fingerprint,
-        run: () => decryptUserInfoUncached(state, getters, user, useAlias),
+        source: infoSource,
+        run: () => decryptUserInfoUncached(state, getters, user, useAlias, infoSource),
       })
     },
 
@@ -110,11 +116,6 @@ export default {
       for (const user of userIds) {
         if (attempted >= maxAttempts) break
         if (!user) continue
-
-        try {
-          const publicInfo = await Agent.state('user-info', user)
-          if (publicInfo?.name) continue
-        } catch { /* ignore */ }
 
         // Teacher-created accounts (symmetric) — same keys as decryptUserInfo
         try {
@@ -254,20 +255,24 @@ export default {
   ]
 }
 
-async function decryptUserInfoUncached(state, getters, user, useAlias) {
+async function decryptUserInfoUncached(state, getters, user, useAlias, source = 'directory') {
   if (useAlias && EXPERT_LIST.includes(user)) {
     return { name: 'PILA Expert', picture: null }
   }
-
-  const userInfo = await Agent.state('user-info', user)
-  if (userInfo?.name) return userInfo
 
   const anonymousInfo = () => ({
     name: `${getters.t('anonymous')}_${user.slice(0, 4)}`,
     picture: null,
   })
 
-  if (shouldSkipNaclAfterPublicInfo(userInfo)) return anonymousInfo()
+  let userInfo = null
+  if (shouldUsePublicUserInfo(source)) {
+    userInfo = await Agent.state('user-info', user)
+    const publicInfo = resolvePublicUserInfo(userInfo, source)
+    if (publicInfo) return publicInfo
+  }
+
+  if (shouldSkipNaclAfterPublicInfo(userInfo, source)) return anonymousInfo()
 
   const key = localStorage.getItem(`zkek-${state.user}`)
   const providerKeys = teacherProviderKeys(state)

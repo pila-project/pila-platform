@@ -10,7 +10,7 @@
         class="login-code-card"
       >
         <div class="login-code-card-header">
-          <DecryptedName :user="id" />
+          <DecryptedName :user="id" source="roster" />
         </div>
         <div class="login-code-card-body">
           <QRCodeDisplay

@@ -621,7 +621,7 @@
           run: async (id) => {
             if (decryptedNames.has(id)) return
             try {
-              const info = await store.getters.decryptUserInfo(id, false)
+              const info = await store.getters.decryptUserInfo(id, false, 'roster')
               decryptedNames.set(id, formatStudentPreferredName(info) || '')
             } catch {
               decryptedNames.set(id, '')

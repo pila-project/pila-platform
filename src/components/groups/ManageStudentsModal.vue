@@ -97,7 +97,7 @@
               </label>
               <div class="panel-student-name-cell">
                 <span class="panel-student-name">
-                  <DecryptedName :user="student.id" />
+                  <DecryptedName :user="student.id" source="roster" />
                 </span>
                 <PBadge
                   v-if="student.archived"
@@ -185,7 +185,7 @@
                 />
               </label>
               <span class="panel-student-name">
-                <DecryptedName :user="student.id" />
+                <DecryptedName :user="student.id" source="roster" />
               </span>
               <PButton variant="icon" size="xsm" icon="lucide:trash-2" iconOnly :title="t('remove')" @click="removeFromGroup(student.id)" />
               <span class="panel-drag-handle" :title="t('remove')">
@@ -276,7 +276,7 @@ const sortNameMap = reactive({})
 async function loadStudentNameSearchMap() {
   for (const student of props.students) {
     try {
-      const info = await store.getters.decryptUserInfo(student.id, false)
+      const info = await store.getters.decryptUserInfo(student.id, false, 'roster')
       nameMap[student.id] = studentNameSearchText(info)
       sortNameMap[student.id] = (formatStudentPreferredName(info) || '').trim()
     } catch {

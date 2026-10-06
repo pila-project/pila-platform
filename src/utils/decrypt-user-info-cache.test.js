@@ -9,10 +9,14 @@ import {
   invalidateDecryptUserInfo,
   enqueueDecryptUserIds,
   getSkipExpensiveDecrypt,
+  makeDecryptCacheKey,
+  normalizeUserInfoSource,
   providerKeyFingerprint,
   resetDecryptUserInfoCacheForTests,
+  resolvePublicUserInfo,
   setSkipExpensiveDecrypt,
   shouldSkipNaclAfterPublicInfo,
+  shouldUsePublicUserInfo,
 } from './decrypt-user-info-cache.js'
 
 function delay(ms = 20) {
@@ -220,6 +224,123 @@ describe('decrypt concurrency cap', () => {
     await Promise.all(jobs)
     assert.ok(max <= DECRYPT_USER_INFO_CONCURRENCY, `max in-flight ${max} exceeded cap`)
     assert.equal(max, DECRYPT_USER_INFO_CONCURRENCY)
+  })
+})
+
+describe('user-info source', () => {
+  it('normalizeUserInfoSource treats only exact roster as roster', () => {
+    assert.equal(normalizeUserInfoSource(), 'directory')
+    assert.equal(normalizeUserInfoSource(undefined), 'directory')
+    assert.equal(normalizeUserInfoSource(null), 'directory')
+    assert.equal(normalizeUserInfoSource('directory'), 'directory')
+    assert.equal(normalizeUserInfoSource('roster'), 'roster')
+    assert.equal(normalizeUserInfoSource('Roster'), 'directory')
+    assert.equal(normalizeUserInfoSource('other'), 'directory')
+  })
+
+  it('shouldUsePublicUserInfo is true for directory only', () => {
+    assert.equal(shouldUsePublicUserInfo('directory'), true)
+    assert.equal(shouldUsePublicUserInfo(), true)
+    assert.equal(shouldUsePublicUserInfo('roster'), false)
+  })
+
+  it('resolvePublicUserInfo returns public name for directory only', () => {
+    const info = { name: 'Ada', picture: 'x' }
+    assert.equal(resolvePublicUserInfo(info, 'directory'), info)
+    assert.equal(resolvePublicUserInfo(info), info)
+    assert.equal(resolvePublicUserInfo(info, 'roster'), null)
+    assert.equal(resolvePublicUserInfo({}, 'directory'), null)
+    assert.equal(resolvePublicUserInfo(null, 'directory'), null)
+  })
+
+  it('roster skipExpensive anonymizes even with a public name', () => {
+    setSkipExpensiveDecrypt(true)
+    assert.equal(shouldSkipNaclAfterPublicInfo({ name: 'Ada' }, 'directory'), false)
+    assert.equal(shouldSkipNaclAfterPublicInfo({ name: 'Ada' }, 'roster'), true)
+    assert.equal(shouldSkipNaclAfterPublicInfo({}, 'roster'), true)
+    assert.equal(shouldSkipNaclAfterPublicInfo({}, 'directory'), true)
+    setSkipExpensiveDecrypt(false)
+    assert.equal(shouldSkipNaclAfterPublicInfo({ name: 'Ada' }, 'roster'), false)
+  })
+
+  it('cache key last segment stays userId so invalidate still matches', () => {
+    const key = makeDecryptCacheKey('u1', false, 'zkek\u001fadmin', 'roster')
+    assert.equal(key.endsWith('\u001fu1'), true)
+    assert.ok(key.includes('\u001froster\u001f'))
+  })
+
+  it('directory and roster cache keys do not share a hit', async () => {
+    let calls = 0
+    const dir = await decryptUserInfoWithCache({
+      userId: 'u1',
+      useAlias: false,
+      fingerprint: 'fp',
+      source: 'directory',
+      run: async () => {
+        calls += 1
+        return { name: 'Public Ada' }
+      },
+    })
+    const roster = await decryptUserInfoWithCache({
+      userId: 'u1',
+      useAlias: false,
+      fingerprint: 'fp',
+      source: 'roster',
+      run: async () => {
+        calls += 1
+        return { name: 'anon_u1xx' }
+      },
+    })
+    assert.equal(calls, 2)
+    assert.equal(dir.name, 'Public Ada')
+    assert.equal(roster.name, 'anon_u1xx')
+    const dirAgain = await decryptUserInfoWithCache({
+      userId: 'u1',
+      useAlias: false,
+      fingerprint: 'fp',
+      source: 'directory',
+      run: async () => {
+        calls += 1
+        return { name: 'should-not-run' }
+      },
+    })
+    assert.equal(calls, 2)
+    assert.equal(dirAgain.name, 'Public Ada')
+  })
+
+  it('omitted source shares the directory cache', async () => {
+    let calls = 0
+    const run = async () => {
+      calls += 1
+      return { name: 'Ada' }
+    }
+    await decryptUserInfoWithCache({ userId: 'u1', useAlias: false, fingerprint: 'fp', run })
+    await decryptUserInfoWithCache({
+      userId: 'u1', useAlias: false, fingerprint: 'fp', source: 'directory', run,
+    })
+    assert.equal(calls, 1)
+  })
+
+  it('invalidateDecryptUserInfo drops both roster and directory keys', async () => {
+    await decryptUserInfoWithCache({
+      userId: 'u1', useAlias: false, fingerprint: 'fp', source: 'directory',
+      run: async () => ({ name: 'Ada' }),
+    })
+    await decryptUserInfoWithCache({
+      userId: 'u1', useAlias: false, fingerprint: 'fp', source: 'roster',
+      run: async () => ({ name: 'anon' }),
+    })
+    invalidateDecryptUserInfo('u1')
+    let calls = 0
+    await decryptUserInfoWithCache({
+      userId: 'u1', useAlias: false, fingerprint: 'fp', source: 'directory',
+      run: async () => { calls += 1; return { name: 'Ada 2' } },
+    })
+    await decryptUserInfoWithCache({
+      userId: 'u1', useAlias: false, fingerprint: 'fp', source: 'roster',
+      run: async () => { calls += 1; return { name: 'anon 2' } },
+    })
+    assert.equal(calls, 2)
   })
 })
 

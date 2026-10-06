@@ -53,6 +53,15 @@
     preferNickname: {
       type: Boolean,
       default: undefined
+    },
+    /**
+     * directory: public user-info names (trainers, admins, role requests).
+     * roster: student PII — pad blob / SSO box / Anonymous only.
+     */
+    source: {
+      type: String,
+      default: 'directory',
+      validator: val => ['directory', 'roster'].includes(val)
     }
   })
 
@@ -65,7 +74,7 @@
     info.name = '...'
     info.nickname = undefined
     try {
-      const i = await store.getters.decryptUserInfo(props.user, props.alias)
+      const i = await store.getters.decryptUserInfo(props.user, props.alias, props.source)
       Object.assign(info, i || { name: '...' })
     } catch (e) {
       info.name = '...'
@@ -75,7 +84,7 @@
 
   // Re-decrypt when the user changes OR when the encryption key changes
   watch(
-    [() => props.user, () => encryptionKey.value, () => decryptUserRevision(props.user)],
+    [() => props.user, () => encryptionKey.value, () => decryptUserRevision(props.user), () => props.source],
     async () => {
       if (props.user) {
         await decrypt()

@@ -66,7 +66,7 @@
         			@click="handleAddRemove($event, member)"
         		/>
         	</td>
-         	<td style="text-align: left;"><DecryptedName :user="member" name /></td>
+         	<td style="text-align: left;"><DecryptedName :user="member" name source="roster" /></td>
         </tr>
         <tr
           v-for="n in Math.max(0, 6 - filteredStudentList.length)"

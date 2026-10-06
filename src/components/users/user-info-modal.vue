@@ -176,7 +176,7 @@
         </button>
       </div>
       <div v-else>
-        <DecryptedName :user="id" />
+        <DecryptedName :user="id" source="roster" />
       </div>
     </template>
     <template #footer>

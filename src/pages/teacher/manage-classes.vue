@@ -134,7 +134,7 @@
           >
             <template #item.displayName="{ item }">
               <div class="student-name-cell">
-                <DecryptedName :user="item.id" />
+                <DecryptedName :user="item.id" source="roster" />
                 <PBadge
                   v-if="item.archived"
                   variant="warning"
@@ -996,7 +996,7 @@
       <template #body>
         <div class="login-code-modal-body">
           <div class="login-code-student-name">
-            <span><DecryptedName :user="loginCodeStudent.id" /></span>
+            <span><DecryptedName :user="loginCodeStudent.id" source="roster" /></span>
           </div>
           <div class="login-code-qr" ref="qrContainerRef">
             <Suspense v-if="loginCodeQrPayload">
@@ -1327,7 +1327,7 @@ async function ensureDecryptedStudentNames() {
     const chunk = pending.slice(i, i + cap)
     await Promise.all(chunk.map(async (id) => {
       try {
-        const info = await store.getters.decryptUserInfo(id, false)
+        const info = await store.getters.decryptUserInfo(id, false, 'roster')
         cacheStudentDisplayName(id, info)
       } catch {
         decryptedNames.set(id, '')
@@ -1522,7 +1522,7 @@ async function decryptManageClassesStudent(id) {
   const gen = decryptGeneration
   if (decryptedNames.has(id)) return
   try {
-    const info = await store.getters.decryptUserInfo(id, false)
+    const info = await store.getters.decryptUserInfo(id, false, 'roster')
     if (gen !== decryptGeneration) return
     cacheStudentDisplayName(id, info)
   } catch {
@@ -1755,7 +1755,7 @@ async function openStudentProfile(studentId) {
   profileCreatedDate.value = null
   // Decrypt student info for profile display
   try {
-    const info = await store.getters.decryptUserInfo(studentId, false)
+    const info = await store.getters.decryptUserInfo(studentId, false, 'roster')
     profileStudentInfo.value = info
   } catch (e) {
     profileStudentInfo.value = { name: '...' }
@@ -2055,7 +2055,7 @@ async function resolveLoginCodeStudentName(student) {
   if (cached && cached !== '…') return cached
 
   try {
-    const info = await store.getters.decryptUserInfo(student.id, false)
+    const info = await store.getters.decryptUserInfo(student.id, false, 'roster')
     cacheStudentDisplayName(student.id, info)
     return formatStudentPreferredName(info) || ''
   } catch {

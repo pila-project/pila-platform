@@ -29,7 +29,7 @@
 
   async function proxyEnvironmentCall(user) {
     if (user) {
-      const info = await store.getters.decryptUserInfo(user)
+      const info = await store.getters.decryptUserInfo(user, false, 'roster')
       return { auth: { user, info } }
     }
     else return Agent.environment()
