@@ -2,6 +2,8 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   assignmentContentEndAction,
+  closeHasScoreRows,
+  closePayload,
   competencyCardDismissFollowUp,
   isLastSequenceItem,
   normalizeAssignmentContent,
@@ -47,12 +49,42 @@ describe('isLastSequenceItem', () => {
   })
 })
 
+describe('closeHasScoreRows', () => {
+  it('is true only when a close includes a score row', () => {
+    assert.equal(closeHasScoreRows({ success: true, competencies: {} }), false)
+    assert.equal(closeHasScoreRows({ success: true }), false)
+    assert.equal(closeHasScoreRows({
+      competencies: { 'general:attempts': [2, 2] },
+    }), false)
+    assert.equal(closeHasScoreRows({
+      competencies: { 'compute:addition': [3, 3] },
+    }), true)
+    assert.equal(closeHasScoreRows({
+      type: 'close',
+      info: { success: true, competencies: { 'compute:addition': [3, 3] } },
+    }), true)
+    assert.equal(closeHasScoreRows({
+      type: 'close',
+      info: { success: true, competencies: {} },
+    }), false)
+  })
+
+  it('unwraps the embed close message and leaves a plain payload alone', () => {
+    const plain = { success: true, competencies: { 'compute:addition': [1, 3] } }
+    assert.equal(closePayload(plain), plain)
+    assert.deepEqual(
+      closePayload({ type: 'close', info: plain }).competencies['compute:addition'],
+      [1, 3],
+    )
+  })
+})
+
 describe('sequenceItemCloseFollowUp', () => {
   it('shows a competency card before ending the last item', () => {
     assert.equal(sequenceItemCloseFollowUp({
       itemCount: 2,
       itemIndex: 1,
-      hasCompetencies: true,
+      hasScoreRows: true,
     }), 'card')
   })
 
@@ -60,12 +92,12 @@ describe('sequenceItemCloseFollowUp', () => {
     assert.equal(sequenceItemCloseFollowUp({
       itemCount: 2,
       itemIndex: 1,
-      hasCompetencies: false,
+      hasScoreRows: false,
     }), 'end-content')
     assert.equal(sequenceItemCloseFollowUp({
       itemCount: 1,
       itemIndex: 0,
-      hasCompetencies: false,
+      hasScoreRows: false,
     }), 'end-content')
   })
 
@@ -73,7 +105,7 @@ describe('sequenceItemCloseFollowUp', () => {
     assert.equal(sequenceItemCloseFollowUp({
       itemCount: 2,
       itemIndex: 0,
-      hasCompetencies: false,
+      hasScoreRows: false,
     }), 'stay')
   })
 })
@@ -114,7 +146,7 @@ describe('sequence then another assignment content', () => {
     assert.equal(sequenceItemCloseFollowUp({
       itemCount: 2,
       itemIndex: 1,
-      hasCompetencies: false,
+      hasScoreRows: false,
     }), 'end-content')
     assert.equal(assignmentContentEndAction(2, 0), 'choose')
   })
@@ -123,7 +155,7 @@ describe('sequence then another assignment content', () => {
     assert.equal(sequenceItemCloseFollowUp({
       itemCount: 3,
       itemIndex: 2,
-      hasCompetencies: false,
+      hasScoreRows: false,
     }), 'end-content')
     assert.equal(assignmentContentEndAction(1, 0), 'close')
   })

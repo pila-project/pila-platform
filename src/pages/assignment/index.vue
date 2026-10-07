@@ -15,21 +15,6 @@
       @header="onSequenceHeader"
       @item-close="onSequenceItemClose"
     />
-    <div v-if="competencyCard" class="sequence-end-card">
-      <div class="sequence-end-panel">
-        <div
-          v-for="(row, key) in competencyCard.rows"
-          :key="key"
-          class="sequence-end-row"
-        >
-          <span>{{ key }}</span>
-          <span>{{ row[0] }} / {{ row[1] }}</span>
-        </div>
-        <button type="button" class="sequence-end-next" @click="dismissCompetencyCard">
-          {{ competencyCard.advance ? t('next') : t('close') }}
-        </button>
-      </div>
-    </div>
   </div>
   <div v-else-if="playMode === 'embed' && playableId && addVariables" class="wrapper">
     <vueEmbedComponent
@@ -65,6 +50,24 @@
   <div v-else>
     ... {{ t('loading') }} ...
   </div>
+  <div
+    v-if="competencyCard && (playMode === 'sequence' || playMode === 'embed')"
+    class="sequence-end-card"
+  >
+    <div class="sequence-end-panel">
+      <div
+        v-for="(row, key) in competencyCard.rows"
+        :key="key"
+        class="sequence-end-row"
+      >
+        <span>{{ key }}</span>
+        <span>{{ row[0] }} / {{ row[1] }}</span>
+      </div>
+      <button type="button" class="sequence-end-next" @click="dismissCompetencyCard">
+        {{ competencyCard.advance ? t('next') : t('close') }}
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -75,15 +78,22 @@ import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
 import {
   assignmentContentEndAction,
+  closeHasScoreRows,
+  closePayload,
   competencyCardDismissFollowUp,
   normalizeAssignmentContent,
   sequenceItemCloseFollowUp,
 } from '@/utils/assignment-content.js'
+import { candliGamesForSequenceItems } from '@/candli-games.js'
 import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 import { SEQUENCE_SYNC_TIMEOUT_MS, normalizeSequenceItems, withTimeout } from '@/utils/sequence-items.js'
 import { shouldPlaySameHostSequence } from '@/utils/same-host-sequence.js'
 import SequencePreviewBody from '@/components/content/sequence-preview-body.vue'
 import {
+  competencyMet,
+  competencyScoreRows,
+  competencyScoreSignature,
+  competencyWatchUpdate,
   contentOwnsSequencePerformance,
   ensureLeafPerformance,
   ensureSequencePerformance,
@@ -120,6 +130,11 @@ let sequenceItemIds = []
 let sequenceIndex = 0
 let playGeneration = 0
 let endingContent = false
+let stopCompetencyWatch = null
+let competencyWatchGeneration = 0
+let watchedContentId = ''
+let scoreCardArmed = false
+let lastScoreSignature = ''
 
 function stopLeafTimer() {
   if (!leafTimer) return
@@ -174,14 +189,77 @@ function onSequenceHeader(header) {
   if (!Number.isInteger(index) || index < 0 || index >= sequenceItemIds.length) return
   sequenceIndex = index
   if (sequencePerf) sequencePerf.activeItemIndex = index
+  void watchCompetencyScores(sequenceItemIds[index])
 }
 
-function competencyRows(competencies) {
-  const scores = { ...competencies }
-  delete scores['general:attempts']
-  return Object.fromEntries(
-    Object.entries(scores).filter(([, row]) => Array.isArray(row)),
-  )
+function stopScoreWatch() {
+  competencyWatchGeneration += 1
+  if (typeof stopCompetencyWatch === 'function') stopCompetencyWatch()
+  stopCompetencyWatch = null
+  watchedContentId = ''
+  scoreCardArmed = false
+  lastScoreSignature = ''
+}
+
+function presentScoreCard(rows, { pendingEnd = false } = {}) {
+  const sequenceCard = playMode.value === 'sequence' && !pendingEnd
+  scoreCardArmed = true
+  lastScoreSignature = competencyScoreSignature(rows)
+  competencyCard.value = {
+    index: sequenceCard ? sequenceIndex : null,
+    rows,
+    advance: sequenceCard
+      && competencyMet(rows) === true
+      && sequenceIndex + 1 < sequenceItemIds.length,
+    pendingEnd: !sequenceCard,
+  }
+}
+
+function applyWatchedScores(competencies) {
+  const decision = competencyWatchUpdate({
+    armed: scoreCardArmed,
+    previousSignature: lastScoreSignature,
+    competencies,
+  })
+  if (decision.action === 'show') presentScoreCard(decision.rows)
+  else if (!scoreCardArmed) lastScoreSignature = decision.signature
+}
+
+// Chirpy writes the kept-best score here and does not send a second close on Replay.
+async function watchCompetencyScores(contentId) {
+  if (!contentId || contentId === watchedContentId) return
+  stopScoreWatch()
+  const generation = competencyWatchGeneration
+  watchedContentId = contentId
+  let gameId = null
+  try {
+    const games = await candliGamesForSequenceItems([{ id: contentId }])
+    gameId = games[0] || null
+  } catch (e) {
+    console.warn('[Assignment] failed to resolve competency game', contentId, e)
+    return
+  }
+  if (generation !== competencyWatchGeneration || !gameId) return
+  let primed = false
+  try {
+    stopCompetencyWatch = Agent.watch(`${id}/pila/competencies/${gameId}`, (payload) => {
+      if (generation !== competencyWatchGeneration) return
+      const doc = payload && typeof payload === 'object' && 'state' in payload
+        ? payload.state
+        : payload
+      if (!primed) {
+        primed = true
+        // A card can already be up before the first snapshot. An empty
+        // snapshot must not replace the rows the close just showed.
+        if (scoreCardArmed) applyWatchedScores(doc)
+        else lastScoreSignature = competencyScoreSignature(competencyScoreRows(doc))
+        return
+      }
+      applyWatchedScores(doc)
+    })
+  } catch (e) {
+    console.warn('[Assignment] failed to watch competency scores', contentId, e)
+  }
 }
 
 function onSequenceItemClose(payload) {
@@ -189,24 +267,19 @@ function onSequenceItemClose(payload) {
   const index = Number(payload.index)
   const itemId = payload.itemId || sequenceItemIds[index]
   if (!Number.isInteger(index) || !itemId) return
-  const info = payload.info
+  const info = closePayload(payload.info)
   if (sequencePerf) {
     finishSequenceItemPerformance(sequencePerf, index, itemId, info)
   }
-  const hasCompetencies = !!(info?.competencies && typeof info.competencies === 'object')
+  const rows = competencyScoreRows(info?.competencies)
   const followUp = sequenceItemCloseFollowUp({
     itemCount: sequenceItemIds.length,
     itemIndex: index,
-    hasCompetencies,
+    hasScoreRows: Object.keys(rows).length > 0,
   })
   if (followUp === 'card') {
-    const key = `${index}/${itemId}`
-    competencyCard.value = {
-      index,
-      rows: competencyRows(info.competencies),
-      advance: sequencePerf?.itemInfo?.[key]?.correct === true
-        && index + 1 < sequenceItemIds.length,
-    }
+    sequenceIndex = index
+    presentScoreCard(rows)
     return
   }
   if (followUp === 'end-content') void endCurrentContent(info)
@@ -215,6 +288,10 @@ function onSequenceItemClose(payload) {
 function dismissCompetencyCard() {
   const card = competencyCard.value
   competencyCard.value = null
+  if (card?.pendingEnd) {
+    void endCurrentContent()
+    return
+  }
   const followUp = competencyCardDismissFollowUp({
     itemCount: sequenceItemIds.length,
     itemIndex: card?.index,
@@ -267,6 +344,7 @@ function resetPlayRecord() {
   sequenceIndex = 0
   leafContentId = null
   competencyCard.value = null
+  stopScoreWatch()
   sequenceFocusIndex.value = null
   sequenceStartIndex.value = 0
   localSequenceId.value = ''
@@ -323,6 +401,7 @@ async function openContentAt(index) {
     }
   } else {
     await startLeafPerformance(contentId)
+    void watchCompetencyScores(contentId)
   }
   if (generation !== playGeneration) return
   playMode.value = mode
@@ -335,10 +414,18 @@ async function endCurrentContent(info) {
     || playMode.value === 'closing'
     || playMode.value === 'switching'
   ) return
+  const close = closePayload(info)
+  // A second close while the card is up must not leave the assignment.
+  // Chirpy only closes once; Replay writes the saved score instead.
+  if (playMode.value === 'embed' && competencyCard.value) return
+  if (playMode.value === 'embed' && closeHasScoreRows(close)) {
+    presentScoreCard(competencyScoreRows(close.competencies), { pendingEnd: true })
+    return
+  }
   endingContent = true
   const action = assignmentContentEndAction(contentIds.value.length, contentIndex.value)
   try {
-    await finishCurrentContent(info)
+    await finishCurrentContent(close)
     if (action === 'choose') {
       playMode.value = 'continuation'
       return
@@ -366,7 +453,10 @@ function leaveAssignment() {
   Agent.close()
 }
 
-onBeforeUnmount(stopLeafTimer)
+onBeforeUnmount(() => {
+  stopLeafTimer()
+  stopScoreWatch()
+})
 
 onMounted(async () => {
   try {
@@ -430,7 +520,7 @@ onMounted(async () => {
 }
 
 .sequence-end-card {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 5;
   display: flex;

@@ -109,11 +109,51 @@ function leafCloseCorrect(info) {
   return undefined
 }
 
+function asScoreRow(value) {
+  if (Array.isArray(value)) return value.length ? value.slice() : null
+  if (!value || typeof value !== 'object') return null
+  if (!Object.prototype.hasOwnProperty.call(value, '0')) return null
+  const row = []
+  for (let i = 0; Object.prototype.hasOwnProperty.call(value, String(i)); i += 1) {
+    row.push(value[String(i)])
+  }
+  return row.length ? row : null
+}
+
+/** Score rows from a Candli close or from `pila/competencies`. Drops attempt counts. */
+export function competencyScoreRows(competencies) {
+  if (!competencies || typeof competencies !== 'object') return {}
+  const rows = {}
+  for (const [key, value] of Object.entries(competencies)) {
+    if (key === 'general:attempts') continue
+    const row = asScoreRow(value)
+    if (row) rows[key] = row
+  }
+  return rows
+}
+
+export function competencyScoreSignature(rows) {
+  const source = rows && typeof rows === 'object' ? rows : {}
+  return JSON.stringify(Object.keys(source).sort().map((key) => [key, source[key]]))
+}
+
+/**
+ * A later write of the saved best score. The first close arms this.
+ * Writes before that, and an empty document, do not open the card.
+ */
+export function competencyWatchUpdate({ armed, previousSignature, competencies } = {}) {
+  const rows = competencyScoreRows(competencies)
+  const signature = competencyScoreSignature(rows)
+  if (!armed) return { action: 'store', signature, rows }
+  if (!Object.keys(rows).length || signature === previousSignature) {
+    return { action: 'ignore', signature: previousSignature, rows }
+  }
+  return { action: 'show', signature, rows }
+}
+
 /** Same 0.85 bar the matching sequence player uses for a Candli close payload. */
-function competencyMet(competencies) {
-  const scores = { ...competencies }
-  delete scores['general:attempts']
-  const rows = Object.values(scores).filter((row) => Array.isArray(row))
+export function competencyMet(competencies) {
+  const rows = Object.values(competencyScoreRows(competencies))
   if (!rows.length) return null
   const numerator = rows.reduce((sum, row) => sum + Number(row[0] || 0), 0)
   const denominator = rows.reduce((sum, row) => sum + Number(row[1] || 0), 0)
