@@ -5437,6 +5437,19 @@ export default {
     "sk": "Nie",
     "th": "ไม่"
   },
+  "no-pila-login-code": {
+    "de": "Dieses Konto hat keinen PILA-Anmeldecode.",
+    "en": "This account has no PILA login code.",
+    "es": "Esta cuenta no tiene un código de inicio de sesión de PILA.",
+    "fr": "Ce compte n’a pas de code de connexion PILA.",
+    "km": "គណនីនេះមិនមានលេខកូដចូល PILA ទេ។",
+    "lv": "Šim kontam nav PILA pieteikšanās koda.",
+    "nl": "Dit account heeft geen PILA-inlogcode.",
+    "pl": "To konto nie ma kodu logowania PILA.",
+    "pt": "Esta conta não tem um código de login PILA.",
+    "sk": "Tento účet nemá prihlasovací kód PILA.",
+    "th": "บัญชีนี้ไม่มีรหัสเข้าสู่ระบบ PILA"
+  },
   "no-active-users-with-login-codes": {
     "de": "Keine aktiven Benutzer mit Login-Codes.",
     "en": "No active users with login codes.",

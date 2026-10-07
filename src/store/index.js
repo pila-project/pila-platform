@@ -24,6 +24,7 @@ import {
   decryptUserInfoWithCache,
   normalizeUserInfoSource,
   providerKeyFingerprint,
+  providerKeysForNameLookup,
   resolvePublicUserInfo,
   shouldSkipNaclAfterPublicInfo,
   shouldUsePublicUserInfo,
@@ -275,7 +276,11 @@ async function decryptUserInfoUncached(state, getters, user, useAlias, source = 
   if (shouldSkipNaclAfterPublicInfo(userInfo, source)) return anonymousInfo()
 
   const key = localStorage.getItem(`zkek-${state.user}`)
-  const providerKeys = teacherProviderKeys(state)
+  const providerKeys = providerKeysForNameLookup(
+    source,
+    key,
+    state.user ? getStoredAdminCredentialSecret(state.user) : ''
+  )
 
   let createdUserInfo = null
   for (const providerKey of providerKeys) {
@@ -288,6 +293,7 @@ async function decryptUserInfoUncached(state, getters, user, useAlias, source = 
   }
 
   if (createdUserInfo) return createdUserInfo
+  if (!key || !key.trim()) return anonymousInfo()
 
   let info = anonymousInfo()
   const encryptedUserInfo = await Agent.state('encrypted-user-info', user)

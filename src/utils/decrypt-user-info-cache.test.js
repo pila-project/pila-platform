@@ -12,6 +12,7 @@ import {
   makeDecryptCacheKey,
   normalizeUserInfoSource,
   providerKeyFingerprint,
+  providerKeysForNameLookup,
   resetDecryptUserInfoCacheForTests,
   resolvePublicUserInfo,
   setSkipExpensiveDecrypt,
@@ -251,6 +252,27 @@ describe('user-info source', () => {
     assert.equal(resolvePublicUserInfo(info, 'roster'), null)
     assert.equal(resolvePublicUserInfo({}, 'directory'), null)
     assert.equal(resolvePublicUserInfo(null, 'directory'), null)
+  })
+
+  it('roster ignores the admin credential until the teacher key is present', () => {
+    assert.deepEqual(providerKeysForNameLookup('roster', '', 'admin-secret'), [])
+    assert.deepEqual(providerKeysForNameLookup('roster', '   ', 'admin-secret'), [])
+    assert.deepEqual(providerKeysForNameLookup('roster', null, 'admin-secret'), [])
+    assert.deepEqual(
+      providerKeysForNameLookup('roster', 'teacher-key', 'admin-secret'),
+      ['teacher-key', 'admin-secret']
+    )
+    assert.deepEqual(providerKeysForNameLookup('roster', 'teacher-key', ''), ['teacher-key'])
+    assert.deepEqual(providerKeysForNameLookup('roster', 'same', 'same'), ['same'])
+  })
+
+  it('directory still uses a public profile and the admin credential with no teacher key', () => {
+    assert.deepEqual(
+      providerKeysForNameLookup('directory', '', 'admin-secret'),
+      ['admin-secret']
+    )
+    assert.deepEqual(providerKeysForNameLookup(undefined, '', 'admin-secret'), ['admin-secret'])
+    assert.deepEqual(providerKeysForNameLookup('directory', 'teacher-key', ''), ['teacher-key'])
   })
 
   it('roster skipExpensive anonymizes even with a public name', () => {

@@ -37,6 +37,25 @@ export function resolvePublicUserInfo(userInfo, source) {
   return null
 }
 
+function presentEncryptionKey(value) {
+  if (typeof value !== 'string' || !value.trim()) return ''
+  return value
+}
+
+/**
+ * Keys that may open a name.
+ * Directory may use the teacher key and the admin credential.
+ * A student roster uses neither until the teacher key itself is present,
+ * so the admin credential cannot reveal a class list while that key is empty.
+ * Once the teacher key is present, both are tried.
+ */
+export function providerKeysForNameLookup(source, teacherKey, adminKey) {
+  const teacher = presentEncryptionKey(teacherKey)
+  const admin = presentEncryptionKey(adminKey)
+  if (normalizeUserInfoSource(source) === 'roster' && !teacher) return []
+  return [teacher, admin].filter((value, index, values) => value && values.indexOf(value) === index)
+}
+
 export function makeDecryptCacheKey(userId, useAlias, fingerprint, source) {
   return `${useAlias ? 'a' : 'n'}\u001f${fingerprint || ''}\u001f${normalizeUserInfoSource(source)}\u001f${userId || ''}`
 }

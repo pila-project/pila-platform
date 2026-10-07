@@ -998,15 +998,17 @@
           <div class="login-code-student-name">
             <span><DecryptedName :user="loginCodeStudent.id" source="roster" /></span>
           </div>
-          <div class="login-code-qr" ref="qrContainerRef">
-            <Suspense v-if="loginCodeQrPayload">
+          <div v-if="loginCodeQrPayload" class="login-code-qr" ref="qrContainerRef">
+            <Suspense>
               <QRCodeDisplay :data="loginCodeQrPayload" size="200px" />
               <template #fallback>
                 <div class="qr-placeholder">{{ t('loading') }}...</div>
               </template>
             </Suspense>
           </div>
-          <div class="login-code-passphrase">
+          <p v-else-if="loginCodeLookup === 'loading'" class="login-code-missing">{{ t('loading') }}...</p>
+          <p v-else-if="loginCodeLookup === 'missing'" class="login-code-missing">{{ t('no-pila-login-code') }}</p>
+          <div v-if="loginCodeQrPayload" class="login-code-passphrase">
             <div class="passphrase-icons" :aria-label="t('pila-login-code')">
               <i
                 v-for="(char, index) in loginCodePassphraseIcons"
@@ -1969,28 +1971,34 @@ async function toggleArchiveStudent(item) {
 const qrContainerRef = ref(null)
 
 const recoveredLoginSecret = ref('')
+const loginCodeLookup = ref('idle')
 let loginSecretGen = 0
 
 watch(
   () => [
     loginCodeStudent.value?.id || '',
     loginCodeStudent.value?.id ? (users[loginCodeStudent.value.id]?.secret || '') : '',
+    namePassword.value || '',
   ],
   async ([id, named]) => {
     const gen = ++loginSecretGen
     if (!id) {
       recoveredLoginSecret.value = ''
+      loginCodeLookup.value = 'idle'
       return
     }
     const fromNamed = namedStudentLoginSecret(named)
     if (fromNamed) {
       recoveredLoginSecret.value = fromNamed
+      loginCodeLookup.value = 'ready'
       return
     }
     recoveredLoginSecret.value = ''
+    loginCodeLookup.value = 'loading'
     const secret = await resolveStudentLoginSecret('', id, store.getters.decryptUserSecret)
     if (gen !== loginSecretGen) return
     recoveredLoginSecret.value = secret
+    loginCodeLookup.value = secret ? 'ready' : 'missing'
   },
 )
 
@@ -3473,6 +3481,14 @@ function openLoginCodesPage(studentIds) {
   align-items: center;
   justify-content: center;
   color: var(--color-slate-400);
+}
+
+.login-code-missing {
+  margin: 0;
+  max-width: 360px;
+  text-align: center;
+  color: var(--color-slate-600, #475569);
+  line-height: 1.5;
 }
 
 .login-code-passphrase {
