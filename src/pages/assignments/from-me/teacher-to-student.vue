@@ -331,7 +331,8 @@
           :text="props.editing ? (t('save-changes')) : t('create-assignment')"
           icon="lucide:arrow-right"
           :icon-right="true"
-          :disabled="!canSave"
+          :loading="saving"
+          :disabled="!canSave || saving"
           @click="saveAndClose"
         />
       </PTooltip>
@@ -488,6 +489,7 @@
     refreshExploreArchivedIds().catch(() => {})
   })
   const savingDraft = ref(false)
+  const saving = ref(false)
 
   // ── Wizard state ──
   const loading = ref(true)
@@ -1072,14 +1074,19 @@
   }
 
   async function saveAndClose() {
-    if (!canSave.value) return
-    await saveSettings()
-    if (storedStatus.value !== ASSIGNMENT_STATUS.DRAFT) {
-      await applyPendingGroupAssignments()
+    if (!canSave.value || saving.value) return
+    saving.value = true
+    try {
+      await saveSettings()
+      if (storedStatus.value !== ASSIGNMENT_STATUS.DRAFT) {
+        await applyPendingGroupAssignments()
+      }
+      await Agent.synced()
+      emit('saved', { asDraft: distributionOption.value === 'draft' })
+      emit('close')
+    } finally {
+      saving.value = false
     }
-    await Agent.synced()
-    emit('saved', { asDraft: distributionOption.value === 'draft' })
-    emit('close')
   }
 
   // ── Load assignment data ──

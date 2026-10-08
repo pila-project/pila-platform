@@ -10,6 +10,13 @@ const TEACHER_TO_STUDENT = 'teacher-to-student'
 
 let firstLoad = true
 
+// Two Create clicks can both pass isAssigned before the first row is loaded.
+const assignInFlight = new Set()
+
+function assignFlightKey(group_id, item_id, assignment_type) {
+  return `${assignment_type}:${group_id}:${item_id}`
+}
+
 /** Trunk xAPI side-effect: never throw into assign/unassign UX. */
 async function writeAssignmentXapi(
   itemId,
@@ -158,32 +165,40 @@ export default {
 
       if (getters.isAssigned(group_id, item_id, assignment_type)) return
 
-      const assignedClassIds = classIdsAfterChange(
-        getters,
-        item_id,
-        assignment_type,
-        group_id,
-        true
-      )
-      const numberOfStudentsAssigned = countAssignedStudents(
-        assignedClassIds,
-        classId => rootGetters['groups/members'](classId)
-      )
+      const flightKey = assignFlightKey(group_id, item_id, assignment_type)
+      if (assignInFlight.has(flightKey)) return
+      assignInFlight.add(flightKey)
 
-      await Agent.create({
-        active_type: ASSIGNMENTS_TYPE,
-        active: { group_id, item_id, assignment_type }
-      })
-
-      await Agent.synced()
-      if (assignment_type === TEACHER_TO_STUDENT) {
-        await writeAssignmentXapi(
+      try {
+        const assignedClassIds = classIdsAfterChange(
+          getters,
           item_id,
-          assignedClassIds,
-          numberOfStudentsAssigned
+          assignment_type,
+          group_id,
+          true
         )
+        const numberOfStudentsAssigned = countAssignedStudents(
+          assignedClassIds,
+          classId => rootGetters['groups/members'](classId)
+        )
+
+        await Agent.create({
+          active_type: ASSIGNMENTS_TYPE,
+          active: { group_id, item_id, assignment_type }
+        })
+
+        await Agent.synced()
+        if (assignment_type === TEACHER_TO_STUDENT) {
+          await writeAssignmentXapi(
+            item_id,
+            assignedClassIds,
+            numberOfStudentsAssigned
+          )
+        }
+        await dispatch('load')
+      } finally {
+        assignInFlight.delete(flightKey)
       }
-      await dispatch('load')
     },
     async unassign({ getters, rootGetters, commit, dispatch }, assignment_id) {
       const state = await Agent.state(assignment_id)
