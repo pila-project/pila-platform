@@ -32,6 +32,20 @@ export function isSequenceActiveType(activeType) {
   return activeType === SEQUENCE_ACTIVE_TYPE
 }
 
+/**
+ * Library cards use the gold sequence border only when the document is a
+ * sequence of more than one item. A count of 1 is a single activity. An
+ * unknown count stays a sequence until preview metadata arrives. An empty
+ * sequence stays a sequence.
+ */
+export function shownAsSequence(isSequence, itemCount) {
+  if (!isSequence) return false
+  if (itemCount == null || itemCount === '') return true
+  const count = Number(itemCount)
+  if (!Number.isFinite(count)) return true
+  return count !== 1
+}
+
 function toIdSet(knownSequenceIds) {
   if (!knownSequenceIds) return null
   if (knownSequenceIds instanceof Set) return knownSequenceIds

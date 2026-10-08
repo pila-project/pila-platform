@@ -11,6 +11,7 @@ import {
   isValidSequenceAgentState,
   persistSequenceItems,
   readSequenceItemIds,
+  shownAsSequence,
   withTimeout,
 } from './sequence-items.js'
 
@@ -261,5 +262,20 @@ describe('player item shape', () => {
     const ids = await readSequenceItemIds(HOST)
     assert.deepEqual(ids, [LEAF])
     assert.equal(doc.items, items)
+  })
+})
+
+describe('shownAsSequence', () => {
+  it('treats a one-item sequence as a single activity', () => {
+    assert.equal(shownAsSequence(true, 1), false)
+    assert.equal(shownAsSequence(true, '1'), false)
+  })
+
+  it('keeps a real sequence, an empty sequence, and an unknown count', () => {
+    assert.equal(shownAsSequence(true, 2), true)
+    assert.equal(shownAsSequence(true, 0), true)
+    assert.equal(shownAsSequence(true, null), true)
+    assert.equal(shownAsSequence(true, undefined), true)
+    assert.equal(shownAsSequence(false, 3), false)
   })
 })

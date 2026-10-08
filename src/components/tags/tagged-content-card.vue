@@ -9,7 +9,7 @@
       'pcard-no-drag': !isDraggable,
       'pcard-assignment-picker': assignmentPicker,
       'pcard-fixed': useFixedLayout,
-      'pcard-sequence': showCopyModify && isSequenceCard,
+      'pcard-sequence': showSequenceMark && showSequenceChrome,
       'pcard-archived': archived,
     }"
     :draggable="isDraggable || undefined"
@@ -86,7 +86,7 @@
         </span>
         <span v-if="archived" class="pcard-archived-badge">{{ t('archived') }}</span>
         <span
-          v-if="showCopyModify && exploreItemCount > 1"
+          v-if="showSequenceMark && exploreItemCount > 1"
           class="pcard-count-chip"
         >
           <LucideIcon name="layers" :size="11" class="pcard-count-icon" />
@@ -368,6 +368,7 @@
   import {
     SEQUENCE_DRAG_MIME,
     isSequenceActiveType,
+    shownAsSequence,
   } from '@/utils/sequence-items.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
   import { PCheckbox, PButton, PTooltip, PMenu, PMenuItem } from '@/components/ui/index.js'
@@ -437,6 +438,8 @@
     },
   })
 
+  const showSequenceMark = computed(() => props.showCopyModify || props.nestingBlocked)
+
   const isDraggable = computed(() => !props.assignmentPicker && props.draggable)
   const useFixedLayout = computed(() => !props.sequenceView)
 
@@ -446,7 +449,7 @@
 
   const explorePreviewMeta = computed(() => {
     void previewMetaVersion.value
-    if (!props.id || !props.showCopyModify) return null
+    if (!props.id || !showSequenceMark.value) return null
     return getCachedPreviewMeta(props.id)
   })
 
@@ -497,6 +500,14 @@
     void previewMetaVersion.value
     void metadataCacheVersion.value
     return contentKind.value === 'sequence' || isSequenceContent()
+  })
+
+  // Copy picker keeps the gold mark on every stored sequence (Add stays
+  // disabled). Library cards drop it once preview shows exactly one item.
+  const showSequenceChrome = computed(() => {
+    if (!isSequenceCard.value) return false
+    if (props.nestingBlocked) return true
+    return shownAsSequence(true, exploreItemCount.value)
   })
 
   const isAdminUser = computed(
@@ -757,7 +768,7 @@
     window.addEventListener('scroll', onWindowChange, true)
     window.addEventListener('resize', onWindowChange)
 
-    if (props.showCopyModify && props.id) {
+    if (showSequenceMark.value && props.id) {
       void getContentPreviewMeta(props.id)
     }
 
@@ -773,9 +784,9 @@
   )
 
   watch(
-    () => [props.id, props.showCopyModify, previewMetaVersion.value],
-    ([id, explore]) => {
-      if (explore && id && !getCachedPreviewMeta(id)) void getContentPreviewMeta(id)
+    () => [props.id, showSequenceMark.value, previewMetaVersion.value],
+    ([id, mark]) => {
+      if (mark && id && !getCachedPreviewMeta(id)) void getContentPreviewMeta(id)
     },
   )
 
