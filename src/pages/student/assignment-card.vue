@@ -13,8 +13,17 @@
         {{ name }}
       </span>
       <p class="text-xs text-slate-500 mt-0.5">
-        {{ (new Date(assignmentMetadata.created)).toLocaleDateString() }}
+        {{ displayDate }}
       </p>
+      <button
+        v-if="instructions"
+        type="button"
+        class="assignment-instructions"
+        :class="{ expanded: instructionsOpen }"
+        @click.stop="instructionsOpen = !instructionsOpen"
+      >
+        {{ instructions }}
+      </button>
     </template>
     <template #text>
       <div class="image-container">
@@ -39,6 +48,7 @@
   import { validate as isUUID } from 'uuid'
   import getName, { localizedNameFromValue } from '@/utils/name-and-translation-for-content.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
+  import { formatDateForDisplay } from '@/utils/iso-date.js'
   import { PCard, PButton } from '@/components/ui/index.js'
   const store = useStore()
 
@@ -47,7 +57,12 @@
   const assignmentItem = await Agent.state(assignment.item_id)
   const assignmentMetadata = await Agent.metadata(props.assignment)
   const name = ref('')
+  const instructionsOpen = ref(false)
   const selectedLanguage = computed(() => store.getters.language())
+  const instructions = computed(() => String(assignmentItem?.description || '').trim())
+  const displayDate = computed(() => (
+    formatDateForDisplay(new Date(assignmentMetadata.created), selectedLanguage.value)
+  ))
   let nameLoadRun = 0
   const contentId = normalizeAssignmentContent(assignmentItem?.content).find(id => typeof id === 'string' && id) || null
   let content = {}
@@ -106,5 +121,29 @@
   justify-content: center;
   align-items: center;
   height: 80px;
+}
+.assignment-instructions {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--color-slate-600, #475569);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.assignment-instructions.expanded {
+  display: block;
+  -webkit-line-clamp: unset;
 }
 </style>
