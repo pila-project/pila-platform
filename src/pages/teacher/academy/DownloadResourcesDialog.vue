@@ -16,9 +16,9 @@
     />
     <p v-if="!filtered.length" class="academy-muted">{{ emptyLabel }}</p>
     <ul v-else class="download-list">
-      <li v-for="file in filtered" :key="file.url">
+      <li v-for="file in filtered" :key="fileKey(file)">
         <label class="download-row">
-          <input type="checkbox" :checked="selected.has(file.url)" @change="toggle(file.url)" />
+          <input type="checkbox" :checked="selected.has(fileKey(file))" @change="toggle(fileKey(file))" />
           <span>
             <strong>{{ file.name }}</strong>
             <small>{{ file.kind }}</small>
@@ -58,28 +58,32 @@ const props = defineProps({
 
 const emit = defineEmits(['cancel', 'download'])
 const query = ref('')
-const selected = ref(new Set(props.files.map((file) => file.url)))
+function fileKey(file) {
+  return file?.url || file?.id || file?.name || ''
+}
+
+const selected = ref(new Set(props.files.map((file) => fileKey(file))))
 
 const filtered = computed(() => {
   const term = query.value.trim().toLowerCase()
   if (!term) return props.files
   return props.files.filter((file) => file.name.toLowerCase().includes(term) || file.kind.toLowerCase().includes(term))
 })
-const allSelected = computed(() => props.files.length > 0 && props.files.every((file) => selected.value.has(file.url)))
+const allSelected = computed(() => props.files.length > 0 && props.files.every((file) => selected.value.has(fileKey(file))))
 
-function toggle(url) {
+function toggle(key) {
   const next = new Set(selected.value)
-  if (next.has(url)) next.delete(url)
-  else next.add(url)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
   selected.value = next
 }
 
 function toggleAll(event) {
-  selected.value = event.target.checked ? new Set(props.files.map((file) => file.url)) : new Set()
+  selected.value = event.target.checked ? new Set(props.files.map((file) => fileKey(file))) : new Set()
 }
 
 function download() {
-  const files = props.files.filter((file) => selected.value.has(file.url))
+  const files = props.files.filter((file) => selected.value.has(fileKey(file)))
   if (!files.length) return
   emit('download', files)
 }

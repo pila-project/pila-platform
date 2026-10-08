@@ -2,6 +2,15 @@
  * Teacher Academy contract, catalog join, progress, and public statements.
  * Pure: no Agent and no Vue. Pages and the IO module call these functions.
  */
+import {
+  accingoBlocked,
+  accingoBreakdown,
+  accingoNeedsReview,
+  accingoProgress,
+  accingoScore,
+  readAccingoModule,
+  readStoredAnswer,
+} from './accingo-module.js'
 
 export const TEACHER_ACADEMY_CONTENT_TAG = 'b40aa310-9aff-11f1-acd7-69003406037b'
 
@@ -347,8 +356,10 @@ export function emptySnapshot() {
 export function emptyRunstate() {
   return {
     sectionIndex: 0,
+    maxSectionIndex: 0,
     continued: {},
     answers: {},
+    checkedSections: {},
     retakeCount: 0,
     reflectionText: '',
     reflectionOption: null,
@@ -419,7 +430,12 @@ function gradedAnswers(moduleDoc, runstate) {
   return rows
 }
 
+function isAccingo(moduleDoc) {
+  return moduleDoc?.format === 'accingo'
+}
+
 export function scoreFields(moduleDoc, runstate) {
+  if (isAccingo(moduleDoc)) return accingoScore(moduleDoc, runstate)
   const rows = gradedAnswers(moduleDoc, runstate)
   if (!rows.length) {
     return { scoreRaw: null, scoreMin: null, scoreMax: null, scoreScaled: null }
@@ -437,11 +453,43 @@ export function scoreFields(moduleDoc, runstate) {
 }
 
 export function needsReview(moduleDoc, runstate) {
+  if (isAccingo(moduleDoc)) return accingoNeedsReview(moduleDoc, runstate)
   for (const row of gradedAnswers(moduleDoc, runstate)) {
     if (row.index == null) continue
     if (row.options[row.index]?.correct !== true) return true
   }
   return false
+}
+
+export function reviewBreakdown(moduleDoc, runstate) {
+  if (isAccingo(moduleDoc)) return accingoBreakdown(moduleDoc, runstate)
+  const rows = []
+  for (const key of orderedKeys(moduleDoc?.sections)) {
+    const section = moduleDoc.sections[key]
+    const checks = section?.checks?.length
+      ? section.checks.map((check) => ({ ...check, answerKey: check.id }))
+      : (section?.check ? [{ ...section.check, answerKey: key }] : [])
+    for (const check of checks) {
+      const index = runstate?.answers?.[check.answerKey]
+      if (index == null) continue
+      rows.push({
+        prompt: check.prompt,
+        correct: check.options?.[index]?.correct === true,
+        poll: false,
+      })
+    }
+  }
+  return rows
+}
+
+export function sectionAdvanceError(moduleDoc, sectionKey, runstate) {
+  if (isAccingo(moduleDoc)) return accingoBlocked(moduleDoc, sectionKey, runstate)
+  const section = moduleDoc?.sections?.[sectionKey]
+  if (!section) return 'unknown-section'
+  const waiting = Array.isArray(section.checks) && section.checks.length
+    ? section.checks.some((check) => runstate?.answers?.[check.id] == null)
+    : Boolean(section.check) && runstate?.answers?.[sectionKey] == null
+  return waiting ? 'check-required' : null
 }
 
 export function openModule(snapshot, moduleId, now) {
@@ -485,7 +533,107 @@ function publicSlice(entry) {
   }
 }
 
-export function answerCheck({ snapshot, runstate, module, moduleId, sectionKey, optionIndex, checkId, now }) {
+function sameStored(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
+
+function withSectionCursor(runstate, sectionIndex) {
+  const index = Number.isFinite(sectionIndex) && sectionIndex >= 0 ? sectionIndex : 0
+  const prevMax = Number(runstate?.maxSectionIndex)
+  const maxSectionIndex = Math.max(
+    Number.isFinite(prevMax) ? prevMax : 0,
+    Number(runstate?.sectionIndex) || 0,
+    index,
+  )
+  return { sectionIndex: index, maxSectionIndex }
+}
+
+export function acceptAcademyRecord(raw, activeType) {
+  if (readAccingoModule(raw, raw?.state?.uuid || raw?.uuid || '')) return 'accingo'
+  if (activeType === ACADEMY_MODULE_TYPE && raw && typeof raw === 'object') return 'native'
+  return null
+}
+
+function accingoTarget(section, checkId) {
+  const checks = section?.checks || []
+  if (!checkId) {
+    if (!section?.check?.fqn) return null
+    return { key: section.check.fqn, check: section.check }
+  }
+  const quiz = checks.find((item) => item.fqn === checkId || item.id === checkId)
+  if (quiz) return { key: quiz.fqn, check: quiz }
+  const interaction = (section?.interactions || []).find((item) => item.fqn === checkId || item.id === checkId)
+  if (interaction) return { key: interaction.fqn, check: null }
+  return null
+}
+
+function accingoStoredValue(check, optionIndex, optionIndexes, value) {
+  if (!check || check.kind !== 'choice') return value
+  const count = check.options?.length || 0
+  if (check.multi) {
+    const indexes = Array.isArray(optionIndexes) ? optionIndexes : []
+    if (!indexes.length || indexes.some((index) => !Number.isInteger(index) || index < 0 || index >= count)) return undefined
+    return indexes
+  }
+  if (!Number.isInteger(optionIndex) || optionIndex < 0 || optionIndex >= count) return undefined
+  return optionIndex
+}
+
+function answerAccingo({ snapshot, runstate, module, moduleId, sectionKey, optionIndex, optionIndexes, value, checkId, now }) {
+  const section = module?.sections?.[sectionKey]
+  const target = accingoTarget(section, checkId)
+  if (!target) return { ok: false, error: 'no-check', snapshot, runstate }
+  const stored = accingoStoredValue(target.check, optionIndex, optionIndexes, value)
+  if (stored === undefined) return { ok: false, error: 'bad-option', snapshot, runstate }
+  const prevAnswer = readStoredAnswer(runstate, target.key, target.check?.legacyKeys)
+  if (sameStored(prevAnswer, stored)) {
+    const current = cloneSnapshot(snapshot)
+    return {
+      ok: true,
+      unchanged: true,
+      snapshot: current,
+      runstate,
+      publicEntry: current.modules[moduleId] || null,
+    }
+  }
+  const retakeCount = (runstate?.retakeCount || 0) + (prevAnswer == null ? 0 : 1)
+  const checkedSections = { ...(runstate?.checkedSections || {}) }
+  if (module?.correctnessFeedback === 'onDemand') delete checkedSections[sectionKey]
+  const cursor = withSectionCursor(runstate, orderedKeys(module.sections).indexOf(sectionKey))
+  const nextRun = {
+    ...emptyRunstate(),
+    ...runstate,
+    answers: { ...(runstate?.answers || {}), [target.key]: stored },
+    checkedSections,
+    retakeCount,
+    sectionIndex: cursor.sectionIndex,
+    maxSectionIndex: cursor.maxSectionIndex,
+  }
+  const prev = cloneSnapshot(snapshot).modules[moduleId] || freshEntry(now)
+  const entry = publicSlice({
+    ...prev,
+    ...scoreFields(module, nextRun),
+    status: prev.status === 'completed' ? 'completed' : 'in-progress',
+    progress: accingoProgress(module, nextRun),
+    sectionIndex: cursor.sectionIndex,
+    retakeCount,
+    lastOpenedAt: prev.lastOpenedAt || now,
+    lastProgressAt: now,
+    completedAt: prev.status === 'completed' ? prev.completedAt : null,
+    source: 'shell',
+  })
+  return {
+    ok: true,
+    snapshot: patchModule(snapshot, moduleId, entry),
+    runstate: nextRun,
+    publicEntry: entry,
+  }
+}
+
+export function answerCheck({ snapshot, runstate, module, moduleId, sectionKey, optionIndex, optionIndexes, value, checkId, now }) {
+  if (isAccingo(module)) {
+    return answerAccingo({ snapshot, runstate, module, moduleId, sectionKey, optionIndex, optionIndexes, value, checkId, now })
+  }
   const section = module?.sections?.[sectionKey]
   const listed = checkId ? (section?.checks || []).find((item) => item.id === checkId) : null
   if (checkId && !listed) return { ok: false, error: 'no-check', snapshot, runstate }
@@ -534,30 +682,44 @@ export function answerCheck({ snapshot, runstate, module, moduleId, sectionKey, 
   }
 }
 
+export function revealSection({ snapshot, runstate, module, moduleId, sectionKey, now }) {
+  const current = cloneSnapshot(snapshot)
+  const nextRun = {
+    ...emptyRunstate(),
+    ...runstate,
+    checkedSections: { ...(runstate?.checkedSections || {}), [sectionKey]: true },
+  }
+  const prev = current.modules[moduleId] || freshEntry(now)
+  return {
+    ok: true,
+    snapshot: current,
+    runstate: nextRun,
+    publicEntry: prev,
+  }
+}
+
 export function continueSection({ snapshot, runstate, module, moduleId, sectionKey, now }) {
   const keys = orderedKeys(module?.sections)
   const index = keys.indexOf(sectionKey)
   if (index < 0) return { ok: false, error: 'unknown-section', snapshot, runstate }
-  const section = module.sections[sectionKey]
-  const waiting = Array.isArray(section.checks) && section.checks.length
-    ? section.checks.some((check) => runstate?.answers?.[check.id] == null)
-    : Boolean(section.check) && runstate?.answers?.[sectionKey] == null
-  if (waiting) {
-    return { ok: false, error: 'check-required', snapshot, runstate }
-  }
+  const blocked = sectionAdvanceError(module, sectionKey, runstate)
+  if (blocked) return { ok: false, error: blocked, snapshot, runstate }
   const continued = { ...(runstate?.continued || {}), [sectionKey]: true }
   const doneCount = keys.filter((key) => continued[key]).length
-  const progress = keys.length ? doneCount / keys.length : 0
+  const fraction = keys.length ? doneCount / keys.length : 0
   const nextIndex = Math.min(index + 1, keys.length - 1)
   const prev = cloneSnapshot(snapshot).modules[moduleId] || freshEntry(now)
   const finishing = doneCount === keys.length
   const alreadyDone = prev.status === 'completed'
+  const cursor = withSectionCursor(runstate, finishing || alreadyDone ? index : nextIndex)
   const entry = publicSlice({
     ...prev,
     ...scoreFields(module, { ...runstate, continued }),
     status: alreadyDone || finishing ? 'completed' : 'in-progress',
-    progress: alreadyDone ? Math.max(prev.progress ?? 0, progress) : progress,
-    sectionIndex: finishing ? index : nextIndex,
+    progress: alreadyDone
+      ? Math.max(prev.progress ?? 0, isAccingo(module) ? accingoProgress(module, { ...runstate, continued, sectionIndex: cursor.sectionIndex, maxSectionIndex: cursor.maxSectionIndex }) : fraction)
+      : (isAccingo(module) ? accingoProgress(module, { ...runstate, continued, sectionIndex: cursor.sectionIndex, maxSectionIndex: cursor.maxSectionIndex }) : fraction),
+    sectionIndex: cursor.sectionIndex,
     retakeCount: runstate?.retakeCount || 0,
     lastOpenedAt: prev.lastOpenedAt || now,
     lastProgressAt: now,
@@ -568,7 +730,8 @@ export function continueSection({ snapshot, runstate, module, moduleId, sectionK
     ...emptyRunstate(),
     ...runstate,
     continued,
-    sectionIndex: finishing || alreadyDone ? index : nextIndex,
+    sectionIndex: cursor.sectionIndex,
+    maxSectionIndex: cursor.maxSectionIndex,
     retakeCount: runstate?.retakeCount || 0,
   }
   return {

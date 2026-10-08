@@ -11,6 +11,7 @@ import {
   TEACHER_ACADEMY_CONTENT_TAG,
   academyPlayNamespace,
   academyStatement,
+  acceptAcademyRecord,
   activeTypeFor,
   assertOwnAcademyWrite,
   canMutateAcademyDoc,
@@ -63,11 +64,12 @@ export async function loadAcademyDocument(store, id) {
   actorOrRefuse(store)
   const meta = await Agent.metadata(id)
   const raw = await Agent.state(id)
-  const published = readAccingoModule(raw, id)
-  if (published) return { id, kind: 'module', doc: published, owner: meta?.owner || null }
-  const kind = kindFromType(meta?.active_type)
-  if (kind !== 'module' || !raw || typeof raw !== 'object') return null
-  return { id, kind: 'module', doc: raw, owner: meta?.owner || null }
+  const accepted = acceptAcademyRecord(raw, meta?.active_type)
+  if (accepted === 'accingo') {
+    return { id, kind: 'module', doc: readAccingoModule(raw, id), owner: meta?.owner || null }
+  }
+  if (accepted === 'native') return { id, kind: 'module', doc: raw, owner: meta?.owner || null }
+  return null
 }
 
 export async function loadCatalogIds(store, hostPartition) {
@@ -188,8 +190,10 @@ export async function savePlay(store, id, runstate, publicEntry) {
   if (runstate) {
     state.runstate = {
       sectionIndex: runstate.sectionIndex ?? 0,
+      maxSectionIndex: runstate.maxSectionIndex ?? runstate.sectionIndex ?? 0,
       continued: { ...(runstate.continued || {}) },
       answers: { ...(runstate.answers || {}) },
+      checkedSections: { ...(runstate.checkedSections || {}) },
       retakeCount: runstate.retakeCount || 0,
       reflectionText: runstate.reflectionText || '',
       reflectionOption: runstate.reflectionOption ?? null,

@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
+import { readAccingoModule } from './accingo-module.js'
 import {
   ACADEMY_EXT,
   ACADEMY_MODULE_TYPE,
@@ -7,6 +8,7 @@ import {
   ACADEMY_VERBS,
   academyPlayNamespace,
   academyStatement,
+  acceptAcademyRecord,
   answerCheck,
   assertOwnAcademyWrite,
   canMutateAcademyDoc,
@@ -15,6 +17,7 @@ import {
   continueSection,
   emptyRunstate,
   emptySnapshot,
+  scoreFields,
   joinAcademyCatalog,
   needsReview,
   openModule,
@@ -422,6 +425,95 @@ describe('academy progress', () => {
     assert.equal(retake.publicEntry.scoreScaled, 0.5)
     assert.equal(retake.publicEntry.retakeCount, 1)
     assert.equal(needsReview(noReflection, retake.runstate), true)
+  })
+
+  it('scores one point per native check and rates only Accingo quizzes', () => {
+    const native = validateAcademyDocument('module', moduleDoc({
+      sections: {
+        0: {
+          title: lang('One'),
+          blocks: [{ type: 'figure', url: 'https://cdn.example/images/figure.png', caption: lang('Figure') }],
+          check: { ...check('One'), rate: 4 },
+        },
+        1: {
+          title: lang('Two'),
+          blocks: [],
+          check: { ...check('Two'), rate: 9 },
+        },
+      },
+    })).value
+    assert.equal(native.sections['0'].blocks[0].url, 'https://cdn.example/images/figure.png')
+    assert.equal(native.sections['0'].check.rate, undefined)
+    let snapshot = openModule(emptySnapshot(), MOD, now).snapshot
+    let runstate = emptyRunstate()
+    for (const key of ['0', '1']) {
+      const answered = answerCheck({
+        snapshot, runstate, module: native, moduleId: MOD, sectionKey: key, optionIndex: 0, now,
+      })
+      snapshot = answered.snapshot
+      runstate = answered.runstate
+    }
+    assert.equal(snapshot.modules[MOD].scoreRaw, 2)
+    assert.equal(snapshot.modules[MOD].scoreMax, 2)
+    assert.equal(snapshot.modules[MOD].scoreScaled, 1)
+    assert.deepEqual(scoreFields(native, runstate), {
+      scoreRaw: 2, scoreMin: 0, scoreMax: 2, scoreScaled: 1,
+    })
+
+    const accingo = readAccingoModule({
+      config: {
+        sections: [{
+          id: 's',
+          estimatedMinutes: 2,
+          columns: [{
+            id: 'c',
+            width: 12,
+            widgets: [
+              {
+                id: 'poll',
+                type: 'multipleChoice',
+                props: {
+                  question: 'Poll',
+                  correctAnswer: null,
+                  rate: 0,
+                  feedback: 'Thanks',
+                  options: [{ id: 'a', displayName: 'A' }, { id: 'b', displayName: 'B' }],
+                },
+              },
+              {
+                id: 'graded',
+                type: 'multipleChoice',
+                props: {
+                  question: 'Graded',
+                  correctAnswer: 'a',
+                  rate: 3,
+                  options: [{ id: 'a', displayName: 'A' }, { id: 'b', displayName: 'B' }],
+                },
+              },
+            ],
+          }],
+        }],
+      },
+    }, 'accingo-rate')
+    const graded = accingo.sections['0'].checks.find((item) => item.id === 'graded')
+    const poll = accingo.sections['0'].checks.find((item) => item.id === 'poll')
+    const fields = scoreFields(accingo, { answers: { [graded.fqn]: 0, [poll.fqn]: 1 } })
+    assert.equal(fields.scoreRaw, 3)
+    assert.equal(fields.scoreMax, 3)
+    assert.equal(fields.scoreScaled, 1)
+    assert.equal(needsReview(accingo, { answers: { [poll.fqn]: 1 } }), false)
+  })
+
+  it('keeps a native academy module and skips a tagged non-module', () => {
+    const native = validateAcademyDocument('module', moduleDoc()).value
+    assert.equal(acceptAcademyRecord(native, ACADEMY_MODULE_TYPE), 'native')
+    assert.equal(acceptAcademyRecord({}, null), null)
+    assert.equal(acceptAcademyRecord({ state: {} }, null), null)
+    assert.equal(acceptAcademyRecord({
+      name: 'Generative AI (I)',
+      state: { appId: 'embed' },
+    }, null), null)
+    assert.equal(native.sections['0'].check.options.length, 2)
   })
 
   it('submits a series reflection only when every module is complete', () => {

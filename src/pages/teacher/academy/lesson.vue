@@ -60,19 +60,24 @@
             <KnowledgeCheck
               v-if="section.check"
               class="lesson-check lesson-check-mobile"
-              :q-label="`Q${questionNumber}`"
-              :heading="copy('knowledgeCheck')"
-              :lead="copy('answerFirst')"
+              :q-label="text(section.check.badge) || `Q${questionNumber}`"
+              :heading="text(section.check.title) || copy('knowledgeCheck')"
+              :lead="text(section.check.subtitle) || copy('answerFirst')"
               :prompt="text(section.check.prompt)"
               :options="optionLabels"
               :selected="shownSelected"
               :correct-index="correctIndex"
               :revealed="revealed"
               :show-result="showResult"
+              :feedback="checkFeedback"
+              :allow-change="doc.format === 'accingo'"
+              :multiple="section.check.multi === true"
+              :graded="checkGraded"
+              :correct-indexes="correctIndexes"
               :check-label="copy('checkAnswer')"
               :continue-label="primaryLabel"
               :show-previous="index > 0"
-              :previous-label="copy('previous')"
+              :previous-label="previousLabel"
               @select="pick"
               @check="checkAnswer"
               @continue="onPrimary"
@@ -88,7 +93,7 @@
               @click="goTo(index - 1)"
             >
               <LucideIcon name="arrow-left" :size="16" />
-              {{ copy('previous') }}
+              {{ previousLabel }}
             </button>
             <div class="lesson-pages">
               <button
@@ -100,7 +105,7 @@
                 :disabled="!canOpen(page)"
                 @click="goTo(page)"
               >
-                {{ page + 1 }}
+                {{ pageLabel(page) }}
               </button>
             </div>
             <button
@@ -117,19 +122,24 @@
           <KnowledgeCheck
             v-if="section.check"
             class="lesson-check lesson-check-desktop"
-            :q-label="`Q${questionNumber}`"
-            :heading="copy('knowledgeCheck')"
-            :lead="copy('answerFirst')"
+            :q-label="text(section.check.badge) || `Q${questionNumber}`"
+            :heading="text(section.check.title) || copy('knowledgeCheck')"
+            :lead="text(section.check.subtitle) || copy('answerFirst')"
             :prompt="text(section.check.prompt)"
             :options="optionLabels"
             :selected="shownSelected"
             :correct-index="correctIndex"
             :revealed="revealed"
             :show-result="showResult"
+            :feedback="checkFeedback"
+            :allow-change="doc.format === 'accingo'"
+            :multiple="section.check.multi === true"
+            :graded="checkGraded"
+            :correct-indexes="correctIndexes"
             :check-label="copy('checkAnswer')"
             :continue-label="primaryLabel"
             :show-previous="index > 0"
-            :previous-label="copy('previous')"
+            :previous-label="previousLabel"
             @select="pick"
             @check="checkAnswer"
             @continue="onPrimary"
@@ -163,6 +173,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import { quizStatus } from '@/utils/accingo-module.js'
 import {
   answerCheck,
   continueSection,
@@ -170,6 +181,8 @@ import {
   localizedText,
   openModule,
   orderedKeys,
+  revealSection,
+  sectionAdvanceError,
 } from '@/utils/teacher-academy.js'
 import { loadAcademyDocument, loadRunstate, loadSnapshot, savePlay, saveSnapshot } from '@/utils/teacher-academy-io.js'
 import { fixtureRecord, isAcademyFixture, readFixtureRun, readFixtureSnapshot, writeFixtureRun, writeFixtureSnapshot } from './fixtures.js'
@@ -203,35 +216,81 @@ const index = computed(() => {
 const sectionKey = computed(() => sectionKeys.value[index.value])
 const section = computed(() => doc.value?.sections?.[sectionKey.value] || null)
 const percent = computed(() => Math.round((snapshot.value?.modules?.[moduleId.value]?.progress || 0) * 100))
-const selected = computed(() => {
-  const value = runstate.value.answers?.[sectionKey.value]
-  return value == null ? null : value
+const savedSelection = computed(() => {
+  const check = section.value?.check
+  if (!check) return null
+  const answers = runstate.value.answers || {}
+  if (check.fqn && answers[check.fqn] != null) return answers[check.fqn]
+  if (answers[sectionKey.value] != null) return answers[sectionKey.value]
+  if (check.id && answers[check.id] != null) return answers[check.id]
+  return null
 })
 const correctIndex = computed(() => (
   section.value?.check?.options?.findIndex((option) => option.correct) ?? -1
+))
+const correctIndexes = computed(() => (
+  (section.value?.check?.options || []).map((option, optionIndex) => (option.correct ? optionIndex : -1)).filter((optionIndex) => optionIndex >= 0)
 ))
 const optionLabels = computed(() => (section.value?.check?.options || []).map((option) => text(option.text)))
 const questionNumber = computed(() => {
   const keys = sectionKeys.value.filter((key) => doc.value?.sections?.[key]?.check)
   return Math.max(1, keys.indexOf(sectionKey.value) + 1)
 })
-const primaryLabel = computed(() => copy('continueNext'))
-const showResult = computed(() => doc.value?.correctnessFeedback !== 'summaryOnly')
+const needsSectionCheck = computed(() => (
+  !section.value?.check
+  && doc.value?.format === 'accingo'
+  && doc.value.correctnessFeedback === 'onDemand'
+  && section.value?.needsReveal === true
+  && runstate.value.checkedSections?.[sectionKey.value] !== true
+))
+const primaryLabel = computed(() => (
+  needsSectionCheck.value ? copy('checkAnswer') : (text(section.value?.nextLabel) || copy('continueNext'))
+))
+const previousLabel = computed(() => text(section.value?.previousLabel) || copy('previous'))
+const showResult = computed(() => {
+  if (doc.value?.format !== 'accingo') return doc.value?.correctnessFeedback !== 'summaryOnly'
+  const mode = doc.value.correctnessFeedback || 'summaryOnly'
+  if (mode === 'immediate') return true
+  if (mode === 'onDemand') return runstate.value.checkedSections?.[sectionKey.value] === true
+  return false
+})
 const minuteCount = computed(() => {
   const sectionMinutes = section.value?.estimatedMinutes
   if (sectionMinutes != null && Number.isFinite(Number(sectionMinutes))) return Number(sectionMinutes)
   return doc.value?.durationMinutes ?? null
 })
-const checksPending = computed(() => (
-  (section.value?.checks || []).some((check) => runstate.value.answers?.[check.id] == null)
+const advanceError = computed(() => (
+  doc.value ? sectionAdvanceError(doc.value, sectionKey.value, runstate.value) : null
 ))
-const downloadFiles = computed(() => (doc.value?.downloads || []).map((file) => describeDownload(file, text)))
-const revealed = computed(() => (
-  Boolean(section.value?.check) && runstate.value.answers?.[sectionKey.value] != null
-))
+const checksPending = computed(() => {
+  const error = advanceError.value
+  return error === 'check-required' || error === 'interaction-required'
+})
+const revealed = computed(() => {
+  if (!section.value?.check || savedSelection.value == null) return false
+  if (doc.value?.format !== 'accingo') return true
+  if (pending.value != null) return false
+  if (doc.value.correctnessFeedback === 'onDemand') {
+    return runstate.value.checkedSections?.[sectionKey.value] === true
+  }
+  return true
+})
 const shownSelected = computed(() => (
-  revealed.value ? selected.value : pending.value
+  pending.value != null ? pending.value : savedSelection.value
 ))
+const checkGraded = computed(() => (
+  showResult.value && savedSelection.value != null && pending.value == null
+))
+const checkFeedback = computed(() => {
+  const check = section.value?.check
+  if (!check || doc.value?.format !== 'accingo' || savedSelection.value == null || pending.value != null) return ''
+  const status = quizStatus(check, savedSelection.value)
+  if (status === 'unanswered') return ''
+  if (!showResult.value || check.hasCorrect !== true) return text(check.feedback)
+  if (status === 'completed') return text(check.successFeedback) || text(check.feedback)
+  return text(check.failureFeedback) || text(check.feedback)
+})
+const downloadFiles = computed(() => (doc.value?.downloads || []).map((file) => describeDownload(file, text)))
 
 watch(sectionKey, () => {
   pending.value = null
@@ -242,6 +301,19 @@ onBeforeUnmount(clearToast)
 
 function text(value) {
   return localizedText(value, lang.value)
+}
+
+function pageLabel(page) {
+  const key = sectionKeys.value[page]
+  const label = text(doc.value?.sections?.[key]?.label)
+  return label || String(page + 1)
+}
+
+function advanceMessage(code) {
+  if (code === 'interaction-required') return copy('interactionRequired')
+  if (code === 'reveal-required') return copy('revealRequired')
+  if (code === 'check-required') return copy('checkRequired')
+  return copy('playFailed')
 }
 
 function saveDownloads(files) {
@@ -279,19 +351,47 @@ function showToast(kind) {
 }
 
 function pick(optionIndex) {
-  if (revealed.value) return
+  if (revealed.value && doc.value?.format !== 'accingo') return
   pending.value = optionIndex
 }
 
 async function checkAnswer() {
-  if (pending.value == null || revealed.value) return
-  const optionIndex = pending.value
-  const saved = await choose(optionIndex)
+  if (pending.value == null) return
+  if (doc.value?.format !== 'accingo' && revealed.value) return
+  const selection = pending.value
+  const saved = await choose(selection)
   if (!saved) return
-  if (showResult.value) showToast(optionIndex === correctIndex.value ? 'ok' : 'bad')
+  pending.value = null
+  if (doc.value?.format === 'accingo' && doc.value.correctnessFeedback === 'onDemand') {
+    const revealedRun = revealSection({
+      snapshot: snapshot.value,
+      runstate: runstate.value,
+      module: doc.value,
+      moduleId: moduleId.value,
+      sectionKey: sectionKey.value,
+      now: Date.now(),
+    })
+    try {
+      await persist(revealedRun)
+    } catch (err) {
+      if (err?.code === 'forbidden') router.replace('/')
+      else playError.value = copy('playFailed')
+      return
+    }
+  }
+  if (!showResult.value) return
+  const check = section.value?.check
+  if (doc.value?.format === 'accingo') {
+    if (!check?.hasCorrect) return
+    const status = quizStatus(check, selection)
+    if (status === 'unanswered') return
+    showToast(status === 'completed' ? 'ok' : 'bad')
+    return
+  }
+  showToast(selection === correctIndex.value ? 'ok' : 'bad')
 }
 
-async function answerWidget({ id, optionIndex }) {
+async function answerWidget(payload) {
   playError.value = ''
   const result = answerCheck({
     snapshot: snapshot.value,
@@ -299,16 +399,27 @@ async function answerWidget({ id, optionIndex }) {
     module: doc.value,
     moduleId: moduleId.value,
     sectionKey: sectionKey.value,
-    checkId: id,
-    optionIndex,
+    checkId: payload.fqn || payload.id,
+    optionIndex: payload.optionIndex,
+    optionIndexes: payload.optionIndexes,
+    value: payload.value,
     now: Date.now(),
   })
   if (!result.ok || result.unchanged) return
   try {
     await persist(result)
     if (!showResult.value) return
-    const check = (section.value?.checks || []).find((item) => item.id === id)
-    const correct = check?.options?.[optionIndex]?.correct === true
+    if (doc.value?.format === 'accingo') {
+      const check = (section.value?.checks || []).find((item) => item.fqn === payload.fqn || item.id === payload.id)
+      if (!check?.hasCorrect) return
+      const stored = payload.optionIndexes ?? payload.optionIndex ?? payload.value
+      const status = quizStatus(check, stored)
+      if (status === 'unanswered') return
+      showToast(status === 'completed' ? 'ok' : 'bad')
+      return
+    }
+    const check = (section.value?.checks || []).find((item) => item.id === payload.id)
+    const correct = check?.options?.[payload.optionIndex]?.correct === true
     showToast(correct ? 'ok' : 'bad')
   } catch (err) {
     if (err?.code === 'forbidden') router.replace('/')
@@ -316,15 +427,18 @@ async function answerWidget({ id, optionIndex }) {
   }
 }
 
-async function choose(optionIndex) {
+async function choose(selection) {
   playError.value = ''
+  const payload = Array.isArray(selection)
+    ? { optionIndexes: selection }
+    : { optionIndex: selection }
   const result = answerCheck({
     snapshot: snapshot.value,
     runstate: runstate.value,
     module: doc.value,
     moduleId: moduleId.value,
     sectionKey: sectionKey.value,
-    optionIndex,
+    ...payload,
     now: Date.now(),
   })
   if (!result.ok) return false
@@ -345,6 +459,28 @@ function onPrimary() {
 
 async function advance() {
   playError.value = ''
+  if (needsSectionCheck.value) {
+    const blocked = advanceError.value
+    if (blocked && blocked !== 'reveal-required') {
+      playError.value = advanceMessage(blocked)
+      return
+    }
+    const revealedRun = revealSection({
+      snapshot: snapshot.value,
+      runstate: runstate.value,
+      module: doc.value,
+      moduleId: moduleId.value,
+      sectionKey: sectionKey.value,
+      now: Date.now(),
+    })
+    try {
+      await persist(revealedRun)
+    } catch (err) {
+      if (err?.code === 'forbidden') router.replace('/')
+      else playError.value = copy('playFailed')
+    }
+    return
+  }
   const result = continueSection({
     snapshot: snapshot.value,
     runstate: runstate.value,
@@ -353,7 +489,10 @@ async function advance() {
     sectionKey: sectionKey.value,
     now: Date.now(),
   })
-  if (!result.ok) return
+  if (!result.ok) {
+    playError.value = advanceMessage(result.error)
+    return
+  }
   try {
     await persist(result)
     if (result.publicEntry.status === 'completed') {
@@ -367,7 +506,8 @@ async function advance() {
 
 async function goTo(page) {
   if (!canOpen(page) || page === index.value) return
-  runstate.value = { ...runstate.value, sectionIndex: page }
+  const maxSectionIndex = Math.max(runstate.value.maxSectionIndex || 0, runstate.value.sectionIndex || 0, page)
+  runstate.value = { ...runstate.value, sectionIndex: page, maxSectionIndex }
   try {
     if (isAcademyFixture(moduleId.value)) writeFixtureRun(moduleId.value, runstate.value)
     else await savePlay(store, moduleId.value, runstate.value, null)

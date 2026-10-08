@@ -20,8 +20,8 @@ function column(id, width, widgets) {
   return { id, width, widgets }
 }
 
-function section(id, minutes, columns) {
-  return { id, estimatedMinutes: minutes, columns }
+function section(id, minutes, columns, extra) {
+  return { id, estimatedMinutes: minutes, columns, ...(extra || {}) }
 }
 
 function choice(id, question, correctId, options) {
@@ -38,7 +38,7 @@ function envelope(id, name, config) {
     picture: COVER,
     state: {
       uuid: id,
-      appId: 'pila-teacher-academy',
+      appId: 'module',
       picture: COVER,
       name,
       version: '0.1.0',
@@ -161,7 +161,7 @@ const datawise = envelope(DATAWISE_MODULE_ID, 'Using the PILA DATAWISE Customize
           caption: 'Optional. Only you see this when you review the module.',
         }),
       ]),
-    ]),
+    ], { isSummary: true }),
   ],
 })
 

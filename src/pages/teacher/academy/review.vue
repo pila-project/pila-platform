@@ -55,7 +55,7 @@
           <h3>{{ copy('questionBreakdown') }}</h3>
           <ol class="review-breakdown">
             <li v-for="(row, rowIndex) in breakdown" :key="rowIndex">
-              <span :class="row.correct ? 'is-correct' : 'is-open'">{{ row.correct ? copy('answerCorrect') : copy('answerIncorrect') }}</span>
+              <span :class="row.correct ? 'is-correct' : (row.poll ? '' : 'is-open')">{{ row.poll ? copy('answerRecorded') : (row.correct ? copy('answerCorrect') : copy('answerIncorrect')) }}</span>
               <p>{{ row.prompt }}</p>
             </li>
           </ol>
@@ -122,7 +122,7 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
-import { allSectionsContinued, emptyRunstate, localizedText, needsReview, orderedKeys, submitModuleReflection } from '@/utils/teacher-academy.js'
+import { allSectionsContinued, emptyRunstate, localizedText, needsReview, reviewBreakdown, submitModuleReflection } from '@/utils/teacher-academy.js'
 import { loadAcademyDocument, loadRunstate, loadSnapshot, savePlay, saveSnapshot } from '@/utils/teacher-academy-io.js'
 import { fixtureRecord, isAcademyFixture, readFixtureRun, readFixtureSnapshot, writeFixtureRun, writeFixtureSnapshot } from './fixtures.js'
 import ReflectionDialog from './ReflectionDialog.vue'
@@ -175,24 +175,13 @@ const summaryLead = computed(() => {
     .trim()
   return raw || copy('reviewLead')
 })
-const breakdown = computed(() => {
-  const rows = []
-  for (const key of orderedKeys(doc.value?.sections)) {
-    const section = doc.value.sections[key]
-    const checks = section.checks?.length
-      ? section.checks.map((check) => ({ ...check, answerKey: check.id }))
-      : (section.check ? [{ ...section.check, answerKey: key }] : [])
-    for (const check of checks) {
-      const index = run.value?.answers?.[check.answerKey]
-      if (index == null) continue
-      rows.push({
-        prompt: text(check.prompt),
-        correct: check.options?.[index]?.correct === true,
-      })
-    }
-  }
-  return rows
-})
+const breakdown = computed(() => (
+  reviewBreakdown(doc.value, run.value).map((row) => ({
+    prompt: text(row.prompt),
+    correct: row.correct === true,
+    poll: row.poll === true,
+  }))
+))
 const downloadFiles = computed(() => (doc.value?.downloads || []).map((file) => describeDownload(file, text)))
 const showFinishPrompt = computed(() => (
   snap.value?.status === 'completed'

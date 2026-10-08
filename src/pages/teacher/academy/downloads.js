@@ -8,6 +8,7 @@ export function describeDownload(file, text) {
   return {
     name: text(file?.name) || file?.id || url,
     url,
+    id: file?.id || '',
     kind,
     size: file?.size || '',
   }
@@ -16,5 +17,6 @@ export function describeDownload(file, text) {
 export function openDownloads(files) {
   for (const file of files || []) {
     if (file?.url) window.open(file.url, '_blank', 'noopener')
+    else if (file?.id && typeof Agent !== 'undefined' && Agent.download) Agent.download(file.id).direct()
   }
 }

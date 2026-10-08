@@ -30,7 +30,7 @@
         />
       </PUnifiedFilter>
 
-      <p class="academy-count">{{ countLabel }}</p>
+      <p v-if="!loading && !error" class="academy-count">{{ countLabel }}</p>
       <p v-if="loading" class="academy-muted">{{ copy('loading') }}</p>
       <p v-else-if="error" class="academy-error">{{ error }}</p>
       <p v-else-if="!cards.length" class="academy-muted">{{ query || hasFilters ? copy('emptySearch') : copy('emptyLibrary') }}</p>
