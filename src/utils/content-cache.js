@@ -316,11 +316,13 @@ export function peekContentMetadata(id) {
 }
 
 export function getContentMetadata(id) {
-  if (metadataCache.has(id)) return Promise.resolve(metadataCache.get(id))
+  const cached = metadataCache.get(id)
+  if (cached && Object.prototype.hasOwnProperty.call(cached, 'name')) return Promise.resolve(cached)
   return dedupedFetch(`meta:${id}`, async () => {
     try {
       const meta = await Agent.metadata(id)
       const entry = {
+        name: typeof meta.name === 'string' ? meta.name.trim() : '',
         active_type: meta.active_type,
         owner: meta.owner,
         created: meta.created,
@@ -331,7 +333,7 @@ export function getContentMetadata(id) {
       bumpMetadataCacheVersion()
       return entry
     } catch {
-      return null
+      return cached || null
     }
   })
 }

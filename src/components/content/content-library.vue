@@ -1376,6 +1376,7 @@
       owner: meta?.owner,
       created: meta?.created,
       updated: new Date().toISOString(),
+      name: meta?.name ?? '',
     })
     metadataCacheVersion.value++
   }
@@ -1425,6 +1426,7 @@
     metadataCache.set(id, {
       active_type: 'application/json;type=sequence',
       updated: new Date().toISOString(),
+      name: '',
     })
   }
 
