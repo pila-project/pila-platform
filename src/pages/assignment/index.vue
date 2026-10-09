@@ -56,12 +56,22 @@
   >
     <div class="sequence-end-panel">
       <div
-        v-for="(row, key) in competencyCard.rows"
-        :key="key"
-        class="sequence-end-row"
+        v-for="row in cardRows"
+        :key="row.key"
+        class="score-skill"
       >
-        <span>{{ key }}</span>
-        <span>{{ row[0] }} / {{ row[1] }}</span>
+        <div class="score-skill-label">
+          <span>{{ row.label }}</span>
+          <span>{{ row.fraction }}</span>
+        </div>
+        <div class="score-steps" role="img" :aria-label="`${row.label} ${row.fraction}`">
+          <span
+            v-for="n in row.total"
+            :key="n"
+            class="score-step"
+            :class="{ done: n <= row.filled }"
+          />
+        </div>
       </div>
       <button type="button" class="sequence-end-next" @click="dismissCompetencyCard">
         {{ competencyCard.advance ? t('next') : t('close') }}
@@ -89,6 +99,10 @@ import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 import { SEQUENCE_SYNC_TIMEOUT_MS, normalizeSequenceItems, withTimeout } from '@/utils/sequence-items.js'
 import { shouldPlaySameHostSequence } from '@/utils/same-host-sequence.js'
 import SequencePreviewBody from '@/components/content/sequence-preview-body.vue'
+import {
+  competencyScoreLabel,
+  competencyScoreSections,
+} from '@/utils/competency-score-label.js'
 import {
   competencyMet,
   competencyScoreRows,
@@ -119,6 +133,19 @@ const competencyCard = ref(null)
 const contentIds = ref([])
 const contentIndex = ref(0)
 const playableId = computed(() => contentIds.value[contentIndex.value] || '')
+const cardRows = computed(() => {
+  const rows = competencyCard.value?.rows || {}
+  return Object.entries(rows).map(([key, row]) => {
+    const sections = competencyScoreSections(row)
+    return {
+      key,
+      label: competencyScoreLabel(key, store.state.language),
+      fraction: `${Number(row?.[0]) || 0} / ${Number(row?.[1]) || 0}`,
+      filled: sections.filled,
+      total: sections.total,
+    }
+  })
+})
 
 const t = slug => store.getters.t(slug)
 
@@ -531,18 +558,40 @@ onMounted(async () => {
 
 .sequence-end-panel {
   width: min(420px, calc(100% - 32px));
-  padding: 20px;
-  border-radius: 12px;
+  padding: 22px 22px 18px;
+  border-radius: 16px;
   background: #fff;
-  color: #334155;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
 }
 
-.sequence-end-row {
+.score-skill + .score-skill {
+  margin-top: 16px;
+}
+
+.score-steps {
+  display: flex;
+  gap: 6px;
+  height: 10px;
+}
+
+.score-step {
+  flex: 1;
+  border-radius: 999px;
+  background: var(--color-slate-200, #e2e8f0);
+}
+
+.score-step.done {
+  background: var(--color-primary-600, #2563eb);
+}
+
+.score-skill-label {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 6px 0;
-  border-bottom: 1px solid #e2e8f0;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--color-slate-600, #475569);
 }
 
 .sequence-end-lead {
