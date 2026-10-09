@@ -57,8 +57,38 @@ async function loadImageBlobFromDisk(userId, id) {
   }
 }
 
+/**
+ * fetch() for the image blob cache requires CORS.
+ * Same-origin URLs and KL file hosts (signed GCS URLs, *.knowlearning.systems)
+ * send Access-Control-Allow-Origin. Other covers are shown with <img> and must not be fetched.
+ * Relative, blob:, and data: URLs are not persisted (unchanged from the previous skip).
+ */
+export function canPersistImageBlob(url, origin = globalThis.location?.origin) {
+  if (typeof url !== 'string' || !url) return false
+  let parsed
+  try {
+    parsed = new URL(url)
+  } catch {
+    return false
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false
+  const host = parsed.hostname
+  if (
+    parsed.protocol === 'https:' &&
+    (host === 'storage.googleapis.com' || host.endsWith('.knowlearning.systems'))
+  ) {
+    return true
+  }
+  if (origin == null || origin === '') return false
+  try {
+    return parsed.origin === new URL(origin).origin
+  } catch {
+    return false
+  }
+}
+
 function persistImageBlob(userId, id, url) {
-  if (!userId || !url || url.startsWith('/') || url.startsWith('blob:') || url.startsWith('data:')) return
+  if (!userId || !canPersistImageBlob(url)) return
   fetch(url)
     .then(res => res.blob())
     .then(blob => localCache.set(userId, 'content-images', id, blob))
