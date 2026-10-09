@@ -820,6 +820,11 @@
 .pcard-fixed .pcard-image {
   height: 144px;
 }
+/* Inner radius = 16px card − 1px border. Root overflow stays visible for tooltips. Picker rule below keeps 14px for its 2px border. */
+.pcard-fixed .pcard-image-area {
+  overflow: hidden;
+  border-radius: 15px 15px 0 0;
+}
 .pcard-fixed .pcard-content {
   flex: 0 0 auto;
   gap: 4px;
