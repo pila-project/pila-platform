@@ -2872,6 +2872,19 @@ export default {
     "sk": "Kreatívne myslenie",
     "th": "ความคิดสร้างสรรค์"
   },
+  "csv-names-unreadable-save-utf8": {
+    "de": "Einige Namen konnten nicht gelesen werden. Wählen Sie in Excel Speichern unter > \"CSV UTF-8 (Comma delimited)\" und laden Sie die Datei erneut hoch.",
+    "en": "Some names could not be read. In Excel, choose Save As > \"CSV UTF-8 (Comma delimited)\" and upload the file again.",
+    "es": "No se pudieron leer algunos nombres. En Excel, elija Guardar como > \"CSV UTF-8 (Comma delimited)\" y vuelva a cargar el archivo.",
+    "fr": "Certains noms n'ont pas pu être lus. Dans Excel, choisissez Enregistrer sous > \"CSV UTF-8 (Comma delimited)\", puis importez le fichier à nouveau.",
+    "km": "ឈ្មោះខ្លះមិនអាចអានបានទេ។ ក្នុង Excel សូមជ្រើស រក្សាទុកជា > \"CSV UTF-8 (Comma delimited)\" រួចផ្ទុកឯកសារឡើងម្តងទៀត។",
+    "lv": "Dažus vārdus neizdevās nolasīt. Programmā Excel izvēlieties Saglabāt kā > \"CSV UTF-8 (Comma delimited)\" un augšupielādējiet failu vēlreiz.",
+    "nl": "Sommige namen konden niet worden gelezen. Kies in Excel Opslaan als > \"CSV UTF-8 (Comma delimited)\" en upload het bestand opnieuw.",
+    "pl": "Nie udało się odczytać niektórych imion i nazwisk. W programie Excel wybierz Zapisz jako > \"CSV UTF-8 (Comma delimited)\" i prześlij plik ponownie.",
+    "pt": "Não foi possível ler alguns nomes. No Excel, escolha Salvar como > \"CSV UTF-8 (Comma delimited)\" e envie o arquivo novamente.",
+    "sk": "Niektoré mená sa nepodarilo prečítať. V Exceli vyberte Uložiť ako > \"CSV UTF-8 (Comma delimited)\" a nahrajte súbor znova.",
+    "th": "อ่านชื่อบางชื่อไม่ได้ ใน Excel ให้เลือก บันทึกเป็น > \"CSV UTF-8 (Comma delimited)\" แล้วอัปโหลดไฟล์อีกครั้ง"
+  },
   "csv-required-columns": {
     "de": "Erforderliche CSV-Spalten",
     "en": "Required columns for CSV upload",
@@ -2884,6 +2897,19 @@ export default {
     "pt": "Colunas obrigatórias do CSV",
     "sk": "Povinné stĺpce CSV",
     "th": "คอลัมน์ CSV ที่จำเป็น"
+  },
+  "csv-save-utf8-grade-hint": {
+    "de": "Als \"CSV UTF-8\" speichern. Die Klassenstufe muss K oder 1–12 sein.",
+    "en": "Save as \"CSV UTF-8\". Grade must be K or 1–12.",
+    "es": "Guarde como \"CSV UTF-8\". El grado debe ser K o 1–12.",
+    "fr": "Enregistrez au format \"CSV UTF-8\". Le niveau doit être K ou 1–12.",
+    "km": "រក្សាទុកជា \"CSV UTF-8\"។ ថ្នាក់ត្រូវតែជា K ឬ 1–12។",
+    "lv": "Saglabājiet kā \"CSV UTF-8\". Klasei jābūt K vai 1–12.",
+    "nl": "Sla op als \"CSV UTF-8\". Het leerjaar moet K of 1–12 zijn.",
+    "pl": "Zapisz jako \"CSV UTF-8\". Poziom musi być K lub 1–12.",
+    "pt": "Salve como \"CSV UTF-8\". O ano deve ser K ou 1–12.",
+    "sk": "Uložte ako \"CSV UTF-8\". Ročník musí byť K alebo 1–12.",
+    "th": "บันทึกเป็น \"CSV UTF-8\" ระดับชั้นต้องเป็น K หรือ 1–12"
   },
   "current-item-sequence": {
     "de": "Aktuelles Element/Sequenz",

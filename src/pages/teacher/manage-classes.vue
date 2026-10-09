@@ -812,6 +812,10 @@
             <LucideIcon name="info" :size="14" />
             <span>{{ t('csv-required-columns') }}: {{ t('name') }} ({{ t('required') }}), {{ t('nickname') }}, {{ t('grade') }} ({{ t('required') }})</span>
           </div>
+          <div class="csv-info-text">
+            <LucideIcon name="info" :size="14" />
+            <span>{{ t('csv-save-utf8-grade-hint') }}</span>
+          </div>
         </div>
       </template>
       <template #footer>
@@ -1101,6 +1105,15 @@ import {
 import { activeStudentCountInGroup, formatStudentCount } from '@/utils/group-student-counts.js'
 import { buildTeacherStudentRows } from '@/utils/teacher-student-rows.js'
 import { ensureTeacherUserRecord } from '@/utils/ensure-teacher-user-record.js'
+import {
+  decodeCsvBytes,
+  splitCsvLines,
+  detectCsvDelimiter,
+  parseCsvLine,
+  isUnreadableName,
+  isCsvHeaderRow,
+} from '@/utils/csv-import.js'
+import staticTranslations from '@/store/staticTranslations.js'
 import {
   DECRYPT_USER_INFO_CONCURRENCY,
   clearDecryptQueue,
@@ -2417,34 +2430,6 @@ const validBulkRows = computed(() =>
   bulkEntryRows.value.some(r => isBulkRowComplete(r))
 )
 
-function parseCSVLine(line) {
-  const cols = []
-  let current = ''
-  let inQuotes = false
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i]
-    if (inQuotes) {
-      if (ch === '"' && line[i + 1] === '"') {
-        current += '"'
-        i++
-      } else if (ch === '"') {
-        inQuotes = false
-      } else {
-        current += ch
-      }
-    } else if (ch === '"') {
-      inQuotes = true
-    } else if (ch === ',') {
-      cols.push(current.trim())
-      current = ''
-    } else {
-      current += ch
-    }
-  }
-  cols.push(current.trim())
-  return cols
-}
-
 function formatBulkCreateResultMessage(created, skipped, reason = t('bulk-duplicate-skipped-reason')) {
   if (skipped > 0) {
     return t('n-students-created-skipped')
@@ -2465,31 +2450,39 @@ function csvImportResultMessage(created, { invalidSkipped = 0, duplicateSkipped 
   return formatBulkCreateResultMessage(created, skipped, reasons.join(', '))
 }
 
+function csvColumnLabels(slug, english) {
+  return [...Object.values(staticTranslations[slug] || {}), english, t(slug)]
+}
+
 function parseCSVStudentRows(lines) {
-  const header = lines[0].toLowerCase()
-  const localizedName = String(t('name') || '').toLowerCase()
-  const hasHeader = header.includes('name') || (localizedName && header.includes(localizedName))
-  const dataLines = hasHeader ? lines.slice(1) : lines
+  const delimiter = detectCsvDelimiter(lines[0])
+  const rows = lines.map(line => parseCsvLine(line, delimiter))
+  const hasHeader = isCsvHeaderRow(rows[0], {
+    nameLabels: csvColumnLabels('name', 'name'),
+    gradeLabels: csvColumnLabels('grade', 'grade'),
+  })
+  const dataRows = hasHeader ? rows.slice(1) : rows
   const candidateRows = []
   let invalidSkipped = 0
+  let unreadableNames = 0
 
-  for (const line of dataLines) {
-    const cols = parseCSVLine(line)
+  for (const cols of dataRows) {
     const name = cols[0] || ''
     const nickname = cols[1] || ''
     const grade = cols[2] || ''
+    if (isUnreadableName(name)) unreadableNames++
     if (!name.trim()) {
       invalidSkipped++
       continue
     }
-    if (grade && !validGrades.has(grade)) {
+    if (!grade || !validGrades.has(grade)) {
       invalidSkipped++
       continue
     }
     candidateRows.push({ name, nickname, grade })
   }
 
-  return { candidateRows, invalidSkipped }
+  return { candidateRows, invalidSkipped, unreadableNames }
 }
 
 async function executeCSVImport(rows, duplicateSkipped, invalidSkipped = 0) {
@@ -2546,13 +2539,20 @@ async function handleCSVImport() {
       )
       return
     }
-    const text = await csvFile.value.text()
-    const lines = text.split(/\r?\n/).filter(l => l.trim())
+    const lang = store.getters.language()
+    const { text } = decodeCsvBytes(await csvFile.value.arrayBuffer(), {
+      fallbackEncoding: lang === 'th' ? 'windows-874' : 'windows-1252',
+    })
+    const lines = splitCsvLines(text)
     if (lines.length < 2) {
       toastError(t('something-went-wrong'))
       return
     }
-    const { candidateRows, invalidSkipped } = parseCSVStudentRows(lines)
+    const { candidateRows, invalidSkipped, unreadableNames } = parseCSVStudentRows(lines)
+    if (unreadableNames > 0) {
+      toastError(t('csv-names-unreadable-save-utf8'))
+      return
+    }
     await ensureDecryptedStudentNames()
     const partition = partitionBulkStudentRows(candidateRows, getStudentExistingRoster())
     promptBulkDuplicates(partition, (toCreate, duplicateSkipped) =>
@@ -2620,8 +2620,9 @@ async function handleBulkCreate() {
 }
 
 function downloadCSVTemplate() {
-  const csv = `${t('name')},${t('nickname')},${t('grade')}\n`
-  const blob = new Blob([csv], { type: 'text/csv' })
+  const header = `${t('name')},${t('nickname')},${t('grade')}`
+  const csv = '\uFEFF' + header + '\r\n'
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
