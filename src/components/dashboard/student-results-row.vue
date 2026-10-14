@@ -19,12 +19,11 @@
     <td
       v-for="(id, i) in props.sequenceItems"
       :key="`cell-${id}-${i}`"
-      :class="{
-        'item-cell' : true,
-        'active' : userIsActive && performance.activeItemIndex === i
-      }"
+      class="item-cell"
     >
       <ItemInfo
+        :active="userIsActive && performance.activeItemIndex === i"
+        :quizMode="activeItemInfoArray?.[i]?.quizMode"
         :info="{
           isCorrect: activeItemInfoArray?.[i]?.correct,
           timeOnTask: activeItemInfoArray?.[i]?.time || 0
@@ -49,7 +48,9 @@
   })
 
   const userIsActive = ref(null)
+  const activeSequenceId = ref(null)
   const performanceBySeq = reactive({})
+  const quizModeBySeq = reactive({})
 
   const groups = (
     Array.isArray(props.sequenceGroups) && props.sequenceGroups.length
@@ -67,6 +68,9 @@
 
   if (uniqueSeqIds.length) {
     await Promise.all(uniqueSeqIds.map(seqId => new Promise(r => {
+      Agent.state(seqId).then(state => {
+        quizModeBySeq[seqId] = state?.quizMode === true
+      }).catch(() => {})
       let initialLoad = true
       const resolveInitial = () => {
         if (!initialLoad) return
@@ -75,13 +79,14 @@
       }
       Agent.watch(
         `${props.assignment}/sequence-${seqId}`,
-        ({ state }) => {
+        ({ state, patch }) => {
           performanceBySeq[seqId] = state
           clearTimeout(countdown)
           countdown = startCountdown()
           if (initialLoad) {
             resolveInitial()
-          } else {
+          } else if (patch !== null) {
+            activeSequenceId.value = seqId
             userIsActive.value = true
           }
         },
@@ -99,7 +104,7 @@
       const state = performanceBySeq[group.sequenceId]
       if (!state) continue
       totalTime += Number(state.totalTime) || 0
-      if (state.activeItemIndex != null && state.activeItemIndex !== '') {
+      if (group.sequenceId === activeSequenceId.value && state.activeItemIndex != null && state.activeItemIndex !== '') {
         const localId = group.itemIds?.[state.activeItemIndex]
         const unionIndex = (props.sequenceItems || []).indexOf(localId)
         if (unionIndex !== -1) activeItemIndex = unionIndex
@@ -115,7 +120,7 @@
         const localIndex = group.itemIds?.indexOf(itemId)
         if (localIndex == null || localIndex === -1) continue
         const info = performanceBySeq[group.sequenceId]?.itemInfo?.[`${localIndex}/${itemId}`]
-        if (info) return info
+        if (info) return { ...info, quizMode: quizModeBySeq[group.sequenceId] }
       }
       return { correct: null, time: 0 }
     })
@@ -153,8 +158,5 @@
 }
 .status-pip--active {
   background: limegreen;
-}
-td.active {
-  background: rgba(255, 255, 0, 0.3);;
 }
 </style>
