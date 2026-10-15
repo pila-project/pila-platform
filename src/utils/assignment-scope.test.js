@@ -212,7 +212,7 @@ describe('assignment scope copy', () => {
         assert.equal(typeof staticTranslations[slug][lang], 'string', `${slug}.${lang}`)
         assert.ok(staticTranslations[slug][lang].trim().length > 0, `${slug}.${lang} empty`)
       }
-      assert.equal(staticTranslations[slug].th.endsWith('.'), true, `${slug}.th`)
+      assert.equal(staticTranslations[slug].th.endsWith('.'), false, `${slug}.th`)
     }
   })
 })
