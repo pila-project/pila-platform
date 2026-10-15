@@ -10,6 +10,7 @@ import {
   accingoScore,
   readAccingoModule,
   readStoredAnswer,
+  resolveLocalizedAssetId,
 } from './accingo-module.js'
 
 export const TEACHER_ACADEMY_CONTENT_TAG = 'b40aa310-9aff-11f1-acd7-69003406037b'
@@ -80,13 +81,7 @@ export function canMutateAcademyDoc(meta, actorId) {
 }
 
 export function localizedText(value, lang = 'en') {
-  if (typeof value === 'string') return value
-  if (!value || typeof value !== 'object') return ''
-  const short = String(lang || 'en').split(/[-_]/)[0].toLowerCase() || 'en'
-  if (typeof value[short] === 'string' && value[short].trim()) return value[short]
-  if (typeof value.en === 'string') return value.en
-  const first = Object.values(value).find((entry) => typeof entry === 'string' && entry.trim())
-  return first || ''
+  return resolveLocalizedAssetId(value, lang)
 }
 
 function fail(errors) {

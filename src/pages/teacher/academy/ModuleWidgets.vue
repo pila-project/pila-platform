@@ -14,10 +14,13 @@
         </div>
         <p>{{ text(widget.description) }}</p>
       </aside>
-      <figure v-else-if="widget.type === 'image' && imageUrl(widget)" class="academy-figure">
-        <img :src="imageUrl(widget)" :alt="text(widget.alt) || title" />
-        <figcaption v-if="text(widget.caption) || text(widget.alt)">{{ text(widget.caption) || text(widget.alt) }}</figcaption>
-      </figure>
+      <template v-else-if="widget.type === 'image' && (imageUrl(widget) || text(widget.header) || text(widget.caption))">
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
+        <figure v-if="imageUrl(widget)" class="academy-figure">
+          <img :src="imageUrl(widget)" :alt="text(widget.alt) || ''" :style="imageSize(widget)" />
+          <figcaption v-if="text(widget.caption)">{{ text(widget.caption) }}</figcaption>
+        </figure>
+      </template>
       <template v-else-if="widget.type === 'iframe' && frameSrc(widget)">
         <iframe
           class="academy-frame"
@@ -53,6 +56,8 @@
         </div>
       </div>
       <div v-else-if="widget.type === 'accordion'" class="academy-accordion">
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
+        <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
         <details v-for="item in widget.items" :key="item.id" @toggle.stop="markViewed(widget, item.id, $event)">
           <summary>{{ text(item.title) }}</summary>
           <figure v-if="itemImage(item)" class="academy-figure">
@@ -72,6 +77,8 @@
         </details>
       </div>
       <div v-else-if="widget.type === 'flipCard'" class="academy-carousel">
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
+        <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
         <article v-if="flipItem(widget)" class="academy-carousel-card">
           <figure v-if="itemImage(flipItem(widget))" class="academy-figure">
             <img :src="itemImage(flipItem(widget))" alt="" />
@@ -93,6 +100,7 @@
       </div>
       <div v-else-if="widget.type === 'carousel'" class="academy-carousel">
         <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
+        <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
         <p v-if="(widget.items || []).length" class="academy-widget-label">{{ chrome('step', { current: carouselIndex(widget) + 1, total: widget.items.length }) }}</p>
         <article v-if="carouselItem(widget)" class="academy-carousel-card">
           <figure v-if="itemImage(carouselItem(widget))" class="academy-figure">
@@ -117,7 +125,9 @@
         </div>
       </div>
       <div v-else-if="widget.type === 'feedbackLoop' || widget.type === 'causalChain'" class="academy-carousel">
-        <p v-if="text(widget.header) || text(widget.prompt)" class="academy-widget-label">{{ text(widget.header) || text(widget.prompt) }}</p>
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
+        <p v-if="text(widget.prompt)" class="academy-widget-label">{{ text(widget.prompt) }}</p>
+        <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
         <div class="academy-chain-row">
           <template v-for="(item, index) in widget.items" :key="item.id">
             <span v-if="widget.type === 'causalChain' && index > 0" class="academy-chain-arrow" aria-hidden="true">→</span>
@@ -149,7 +159,10 @@
         </article>
       </div>
       <div v-else-if="widget.type === 'checklist'" class="academy-write">
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
         <p v-if="text(widget.prompt)" class="academy-widget-label">{{ text(widget.prompt) }}</p>
+        <p v-if="text(widget.subtitle)" class="academy-widget-label">{{ text(widget.subtitle) }}</p>
+        <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
         <label v-for="item in widget.items" :key="item.id">
           <input
             type="checkbox"
@@ -160,7 +173,9 @@
         </label>
       </div>
       <div v-else-if="widget.type === 'pairUp'">
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
         <p v-if="text(widget.prompt)" class="academy-widget-label">{{ text(widget.prompt) }}</p>
+        <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
         <ul class="academy-pills">
           <li v-for="item in widget.leftItems" :key="item.id">{{ text(item.title) }}</li>
         </ul>
@@ -176,7 +191,9 @@
         </label>
       </div>
       <div v-else-if="widget.type === 'dropIntoPlace'">
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
         <p v-if="text(widget.prompt)" class="academy-widget-label">{{ text(widget.prompt) }}</p>
+        <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
         <label v-for="(item, slot) in widget.items" :key="item.id" class="academy-write">
           <span>{{ chrome('target', { n: slot + 1 }) }}</span>
           <select :value="slotValue(widget, slot)" @change="setSlot(widget, slot, $event.target.value)">
@@ -269,7 +286,7 @@ import { reactive, ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
-import { iframeAttributes, iframeSrc, prefixAccingoImage, resolveLocalizedAssetId } from '@/utils/accingo-module.js'
+import { iframeAttributes, iframeSrc, mascotAssetPath, prefixAccingoImage, resolveLocalizedAssetId } from '@/utils/accingo-module.js'
 import { localizedText } from '@/utils/teacher-academy.js'
 import KnowledgeCheck from './KnowledgeCheck.vue'
 
@@ -311,23 +328,28 @@ function assetId(value) {
   return resolveLocalizedAssetId(value, props.lang).trim()
 }
 
+function fileUrl(id, fallback) {
+  const resolved = assetId(id)
+  if (resolved) return images.value[resolved] || ''
+  return prefixAccingoImage(text(fallback))
+}
+
 function imageUrl(widget) {
-  const id = assetId(widget?.uuid)
-  if (id && images.value[id]) return images.value[id]
-  return prefixAccingoImage(text(widget?.url))
+  return fileUrl(widget?.uuid, widget?.url)
 }
 
 function itemImage(item) {
-  const id = assetId(item?.imageUuid)
-  if (id && images.value[id]) return images.value[id]
-  return prefixAccingoImage(text(item?.imageUrl))
+  return fileUrl(item?.imageUuid, item?.imageUrl)
+}
+
+function imageSize(widget) {
+  const width = Number(widget?.maxWidth)
+  if (!Number.isFinite(width) || width <= 0) return undefined
+  return { display: 'block', width: `min(100%, ${width}px)`, maxWidth: '100%' }
 }
 
 function mascotSrc(widget) {
-  const variant = widget?.variant === 2 ? 2 : 1
-  const position = widget?.bubblePosition || 'right'
-  const facing = position === 'left' || position === 'top-left' ? 'left' : 'right'
-  return prefixAccingoImage(`/images/mascot-${facing}-variant${variant}.png`)
+  return prefixAccingoImage(mascotAssetPath(widget))
 }
 
 function queueDownload(rawId) {

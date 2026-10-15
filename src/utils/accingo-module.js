@@ -93,33 +93,57 @@ export function iframeAttributes(attributes) {
   return out
 }
 
-function plain(value, lang = 'en') {
-  if (typeof value === 'string') return value
-  if (!value || typeof value !== 'object') return ''
-  const short = String(lang || 'en').split(/[-_]/)[0].toLowerCase()
-  if (typeof value[short] === 'string' && value[short].trim()) return value[short]
-  if (typeof value.en === 'string') return value.en
-  const first = Object.values(value).find((entry) => typeof entry === 'string' && entry.trim())
-  return first || ''
-}
+const MASCOT_BUBBLE_POSITIONS = new Set(['left', 'top-left', 'top-center', 'top-right', 'right'])
 
 /**
- * File id or URL after localize() has wrapped a string into {en, th}.
- * A string passes through. Otherwise the current language, then th, then en.
+ * Same order as trunk localizedNameFromValue: the requested language
+ * (full tag, then the part before "-" or "_"), then default, blank, en,
+ * then any other stored language. Explore's Nikki player uses that
+ * requested language when it is one of en/th/az/tr/fr/es, and English
+ * otherwise, so a missing translation must not prefer Thai.
  */
 export function resolveLocalizedAssetId(value, lang = 'en') {
-  if (typeof value === 'string') return value
+  if (typeof value === 'string') return value.trim()
+  if (typeof value === 'number') return String(value)
   if (!value || typeof value !== 'object' || Array.isArray(value)) return ''
-  const short = String(lang || 'en').split(/[-_]/)[0].toLowerCase() || 'en'
-  const pick = (key) => (typeof value[key] === 'string' && value[key].trim() ? value[key] : '')
-  const current = pick(short)
-  if (current) return current
-  const thai = pick('th')
-  if (thai) return thai
-  const english = pick('en')
-  if (english) return english
-  const first = Object.values(value).find((entry) => typeof entry === 'string' && entry.trim())
-  return first || ''
+  const normalized = typeof lang === 'string' ? lang.trim() : ''
+  const base = normalized.split(/[-_]/)[0]
+  const exactKeys = [normalized, base, normalized.toLowerCase(), base.toLowerCase()].filter(Boolean)
+  const pick = (key) => {
+    const text = value[key]
+    return typeof text === 'string' && text.trim() ? text.trim() : ''
+  }
+  for (const key of [...new Set(exactKeys)]) {
+    const found = pick(key)
+    if (found) return found
+  }
+  const fallbackKeys = ['default', '', 'en', ...Object.keys(value)]
+  for (const key of [...new Set(fallbackKeys)]) {
+    const found = pick(key)
+    if (found) return found
+  }
+  return ''
+}
+
+function plain(value, lang = 'en') {
+  return resolveLocalizedAssetId(value, lang)
+}
+
+/** Nikki mascot chrome: top/bottom become top-center; mascotSide right puts the bubble on the left. */
+export function mascotBubblePosition(props) {
+  const raw = props?.bubblePosition
+  if (raw === 'top' || raw === 'bottom') return 'top-center'
+  if (typeof raw === 'string' && MASCOT_BUBBLE_POSITIONS.has(raw)) return raw
+  if (props?.mascotSide === 'right') return 'left'
+  return 'right'
+}
+
+/** Nikki file name: right and top-right face right; every other bubble faces left. */
+export function mascotAssetPath(props) {
+  const position = mascotBubblePosition(props)
+  const variant = props?.variant === 2 ? 2 : 1
+  const side = position === 'right' || position === 'top-right' ? 'right' : 'left'
+  return `/images/mascot-${side}-variant${variant}.png`
 }
 
 function prefixLocalized(value) {
@@ -341,14 +365,17 @@ function normalizeWidget(raw, prefix) {
     return { id, fqn, type, title: props.title || '', description: props.description || '', kind, level }
   }
   if (type === 'image') {
+    const maxWidth = Number(props.maxWidth)
     return {
       id,
       fqn,
       type,
       url: prefixLocalized(props.url || ''),
       alt: props.alt || '',
+      header: props.header || '',
       caption: props.caption || '',
       uuid: props.uuid || '',
+      maxWidth: Number.isFinite(maxWidth) && maxWidth > 0 ? maxWidth : null,
     }
   }
   if (type === 'iframe') {
@@ -363,14 +390,13 @@ function normalizeWidget(raw, prefix) {
     }
   }
   if (type === 'mascot') {
-    const position = props.bubblePosition || 'right'
     return {
       id,
       fqn,
       type,
       message: props.message || '',
       variant: props.variant === 2 ? 2 : 1,
-      bubblePosition: position,
+      bubblePosition: mascotBubblePosition(props),
     }
   }
   if (type === 'shortAnswer') {
@@ -398,8 +424,10 @@ function normalizeWidget(raw, prefix) {
       id,
       fqn,
       type,
+      header: props.header || '',
       prompt: props.title || props.prompt || '',
       subtitle: props.subtitle || '',
+      caption: props.caption || '',
       items,
       requireInteraction: chrome.requireInteraction,
     }
@@ -433,7 +461,9 @@ function normalizeWidget(raw, prefix) {
       id,
       fqn,
       type,
+      header: props.header || '',
       prompt: props.prompt || props.question || props.title || '',
+      caption: props.caption || '',
       leftItems: left.length ? left : fromItems,
       rightItems: right,
       correctAnswer: Array.isArray(props.correctAnswer) ? props.correctAnswer : null,
@@ -446,7 +476,9 @@ function normalizeWidget(raw, prefix) {
       id,
       fqn,
       type,
-      prompt: props.prompt || props.question || props.title || '',
+      header: props.header || props.title || '',
+      prompt: props.prompt || props.question || '',
+      caption: props.caption || '',
       requireInteraction: chrome.requireInteraction,
       items: itemWidgets(props.items || props.steps || props.nodes, fqn, normalizeWidget),
     }

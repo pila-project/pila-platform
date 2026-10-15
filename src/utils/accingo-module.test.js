@@ -11,6 +11,7 @@ import {
   isPublishedAccingoModule,
   prefixAccingoImage,
   quizStatus,
+  mascotAssetPath,
   readAccingoModule,
   readStoredAnswer,
   resolveLocalizedAssetId,
@@ -702,11 +703,15 @@ describe('localized image ids', () => {
   const EN = '9ad98460-b26a-11f1-9915-57af69fcf0fe'
   const TH = '75a73170-b11f-11f1-9cb8-bb8f35c130f8'
 
-  it('passes a string id through and falls back th then en', () => {
+  it('passes a string id through and uses trunk fallback order', () => {
     assert.equal(resolveLocalizedAssetId(EN, 'th'), EN)
+    assert.equal(resolveLocalizedAssetId(`  ${EN}  `, 'en'), EN)
     assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'th'), TH)
     assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'en'), EN)
     assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'th-TH'), TH)
+    assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'fr'), EN)
+    assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'pl'), EN)
+    assert.equal(resolveLocalizedAssetId({ default: 'canon', en: EN, th: TH }, 'km'), 'canon')
     assert.equal(resolveLocalizedAssetId({ en: EN }, 'th'), EN)
     assert.equal(resolveLocalizedAssetId({ th: TH }, 'en'), TH)
     assert.equal(resolveLocalizedAssetId({ en: '  ', th: '' }, 'fr'), '')
@@ -766,12 +771,61 @@ describe('localized image ids', () => {
     const mascot = widgets.find((widget) => widget.type === 'mascot')
     assert.equal(mascot.variant, 2)
     assert.equal(mascot.bubblePosition, 'top-left')
+    assert.equal(mascotAssetPath(mascot), '/images/mascot-left-variant2.png')
+    assert.equal(mascotAssetPath({ bubblePosition: 'top-right', variant: 1 }), '/images/mascot-right-variant1.png')
+    assert.equal(mascotAssetPath({ bubblePosition: 'top-center' }), '/images/mascot-left-variant1.png')
+    assert.equal(mascotAssetPath({ bubblePosition: 'top', variant: 2 }), '/images/mascot-left-variant2.png')
+    assert.equal(mascotAssetPath({ mascotSide: 'right' }), '/images/mascot-left-variant1.png')
+    assert.equal(image.maxWidth, null)
     const flip = widgets.find((widget) => widget.type === 'flipCard')
     assert.equal(flip.items[0].imageUrl, '/images/front.png')
     assert.equal(flip.items[0].imageUuid, EN)
     const loop = widgets.find((widget) => widget.type === 'feedbackLoop')
     assert.equal(resolveLocalizedAssetId(loop.items[0].imageUuid, 'th'), TH)
     assert.equal(resolveLocalizedAssetId(loop.items[0].imageUrl, 'en'), '/images/en.png')
+  })
+
+  it('keeps Nikki header, caption, and image maxWidth', () => {
+    const doc = publish([
+      lesson('s', 2, [
+        column('c', 12, [
+          { id: 'photo', type: 'image', props: { url: '/images/diagram.png', alt: 'Diagram', maxWidth: 180 } },
+          {
+            id: 'chain',
+            type: 'causalChain',
+            props: { header: 'Causal Chain', caption: 'Click each step.', items: [{ id: 'a', title: 'Cause', widgets: [] }] },
+          },
+          {
+            id: 'pairs',
+            type: 'pairUp',
+            props: {
+              header: 'Pair Up',
+              caption: 'Connect each concept to its match.',
+              leftItems: [{ id: 'l', label: 'Left' }],
+              rightItems: [{ id: 'r', label: 'Right' }],
+            },
+          },
+          {
+            id: 'drop',
+            type: 'dropIntoPlace',
+            props: { header: 'Drop Into Place', caption: 'Arrange each card.', items: [{ id: 'card', title: 'Card', widgets: [] }] },
+          },
+        ]),
+      ]),
+    ])
+    const widgets = doc.sections['0'].widgets
+    const image = widgets.find((widget) => widget.type === 'image')
+    assert.equal(image.maxWidth, 180)
+    assert.equal(image.url, `${ACCINGO_ASSET_ORIGIN}/images/diagram.png`)
+    const chain = widgets.find((widget) => widget.type === 'causalChain')
+    assert.equal(chain.header, 'Causal Chain')
+    assert.equal(chain.caption, 'Click each step.')
+    const pairs = widgets.find((widget) => widget.type === 'pairUp')
+    assert.equal(pairs.header, 'Pair Up')
+    assert.equal(pairs.caption, 'Connect each concept to its match.')
+    const drop = widgets.find((widget) => widget.type === 'dropIntoPlace')
+    assert.equal(drop.header, 'Drop Into Place')
+    assert.equal(drop.caption, 'Arrange each card.')
   })
 })
 
