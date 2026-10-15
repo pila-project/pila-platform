@@ -964,7 +964,7 @@
   // ── PTable config ──
   const tableHeaders = computed(() => [
     { key: 'title', title: t('assignment-title') },
-    { key: 'dueDate', title: t('due-date') },
+    { key: 'dueDate', title: t('due-date'), cellClass: 'assign-due-cell' },
     { key: 'publicationDate', title: t('publication-date'), cellClass: 'assign-pub-cell' },
     { key: 'status', title: t('publication-status'), cellClass: 'assign-status-cell' },
     { key: 'assignedTo', title: t('assigned-to'), sortable: false },
@@ -1653,8 +1653,9 @@
   color: #334155;
 }
 
-/* Publication date and the "Publishes on" status line wrap inside the row.
+/* Due date, publication date, and the "Publishes on" status line wrap inside the row.
    Global .table-cell stays nowrap. */
+:deep(.assign-due-cell),
 :deep(.assign-pub-cell),
 :deep(.assign-status-cell) {
   white-space: normal;
