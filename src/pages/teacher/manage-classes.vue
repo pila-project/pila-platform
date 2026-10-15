@@ -464,6 +464,7 @@
 
           <!-- Card 3: Share join link so existing students can link to this teacher (/join/:teacher) -->
           <div
+            v-if="SHOW_SSO_LINK_OPTION"
             class="add-student-card add-student-card--short"
             :class="{ 'add-student-card--selected': selectedPickerOption === 'sso' }"
           >
@@ -1149,6 +1150,8 @@ const viewProfileUser = ref(null)
 
 const showAcceptStudentAgreementModal = ref(false)
 const showLinkStudentModal = ref(false)
+// Hidden 15 Oct 2026 per UIUX-302: SSO link option removed until after workshops; set true to restore.
+const SHOW_SSO_LINK_OPTION = false
 const showAddStudentPicker = ref(false)
 const selectedPickerOption = ref(null)
 const showCreateStudentForm = ref(false)
