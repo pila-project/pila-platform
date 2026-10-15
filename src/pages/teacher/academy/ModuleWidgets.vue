@@ -16,7 +16,7 @@
       </aside>
       <figure v-else-if="widget.type === 'image' && imageUrl(widget)" class="academy-figure">
         <img :src="imageUrl(widget)" :alt="text(widget.alt) || title" />
-        <figcaption v-if="text(widget.alt)">{{ text(widget.alt) }}</figcaption>
+        <figcaption v-if="text(widget.caption) || text(widget.alt)">{{ text(widget.caption) || text(widget.alt) }}</figcaption>
       </figure>
       <template v-else-if="widget.type === 'iframe' && frameSrc(widget)">
         <iframe
@@ -28,7 +28,10 @@
         />
         <p v-if="text(widget.caption)" class="academy-widget-label">{{ text(widget.caption) }}</p>
       </template>
-      <p v-else-if="widget.type === 'mascot'" class="academy-mascot">{{ text(widget.message) }}</p>
+      <div v-else-if="widget.type === 'mascot'" class="academy-mascot-row">
+        <img :src="mascotSrc(widget)" alt="" />
+        <div v-if="text(widget.message)" class="academy-mascot academy-markdown" v-html="html(widget.message)" />
+      </div>
       <div v-else-if="widget.type === 'columns'" class="academy-widget-columns">
         <div
           v-for="column in widget.columns"
@@ -49,9 +52,12 @@
           />
         </div>
       </div>
-      <div v-else-if="widget.type === 'accordion' || widget.type === 'flipCard'" class="academy-accordion">
+      <div v-else-if="widget.type === 'accordion'" class="academy-accordion">
         <details v-for="item in widget.items" :key="item.id" @toggle.stop="markViewed(widget, item.id, $event)">
           <summary>{{ text(item.title) }}</summary>
+          <figure v-if="itemImage(item)" class="academy-figure">
+            <img :src="itemImage(item)" alt="" />
+          </figure>
           <ModuleWidgets
             :widgets="item.widgets"
             :lang="lang"
@@ -65,20 +71,72 @@
           />
         </details>
       </div>
-      <div v-else-if="widget.type === 'carousel' || widget.type === 'feedbackLoop'" class="academy-carousel">
-        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
-        <article
-          v-for="item in widget.items"
-          :key="item.id"
-          class="academy-carousel-card"
-          :role="widget.requireInteraction ? 'button' : undefined"
-          :tabindex="widget.requireInteraction ? 0 : undefined"
-          @click="markViewed(widget, item.id)"
-          @keydown.enter.prevent="markViewed(widget, item.id)"
-        >
-          <h3 v-if="text(item.title)">{{ text(item.title) }}</h3>
+      <div v-else-if="widget.type === 'flipCard'" class="academy-carousel">
+        <article v-if="flipItem(widget)" class="academy-carousel-card">
+          <figure v-if="itemImage(flipItem(widget))" class="academy-figure">
+            <img :src="itemImage(flipItem(widget))" alt="" />
+          </figure>
+          <h3 v-if="text(flipItem(widget).title)">{{ text(flipItem(widget).title) }}</h3>
           <ModuleWidgets
-            :widgets="item.widgets"
+            :widgets="flipItem(widget).widgets"
+            :lang="lang"
+            :answers="answers"
+            :show-result="showResult"
+            :insight-label="insightLabel"
+            :tip-label="tipLabel"
+            :check-label="checkLabel"
+            :continue-label="continueLabel"
+            @answer="$emit('answer', $event)"
+          />
+        </article>
+        <button v-if="(widget.items || []).length" type="button" class="academy-step-btn" @click="flip(widget)">{{ chrome('flip') }}</button>
+      </div>
+      <div v-else-if="widget.type === 'carousel'" class="academy-carousel">
+        <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
+        <p v-if="(widget.items || []).length" class="academy-widget-label">{{ chrome('step', { current: carouselIndex(widget) + 1, total: widget.items.length }) }}</p>
+        <article v-if="carouselItem(widget)" class="academy-carousel-card">
+          <figure v-if="itemImage(carouselItem(widget))" class="academy-figure">
+            <img :src="itemImage(carouselItem(widget))" alt="" />
+          </figure>
+          <h3 v-if="text(carouselItem(widget).title)">{{ text(carouselItem(widget).title) }}</h3>
+          <ModuleWidgets
+            :widgets="carouselItem(widget).widgets"
+            :lang="lang"
+            :answers="answers"
+            :show-result="showResult"
+            :insight-label="insightLabel"
+            :tip-label="tipLabel"
+            :check-label="checkLabel"
+            :continue-label="continueLabel"
+            @answer="$emit('answer', $event)"
+          />
+        </article>
+        <div v-if="(widget.items || []).length > 1" class="academy-step-row">
+          <button type="button" class="academy-step-btn" @click="goCarousel(widget, carouselIndex(widget) - 1)">{{ chrome('previous') }}</button>
+          <button type="button" class="academy-step-btn" @click="goCarousel(widget, carouselIndex(widget) + 1)">{{ chrome('next') }}</button>
+        </div>
+      </div>
+      <div v-else-if="widget.type === 'feedbackLoop' || widget.type === 'causalChain'" class="academy-carousel">
+        <p v-if="text(widget.header) || text(widget.prompt)" class="academy-widget-label">{{ text(widget.header) || text(widget.prompt) }}</p>
+        <div class="academy-chain-row">
+          <template v-for="(item, index) in widget.items" :key="item.id">
+            <span v-if="widget.type === 'causalChain' && index > 0" class="academy-chain-arrow" aria-hidden="true">→</span>
+            <button
+              type="button"
+              class="academy-step-btn"
+              :aria-expanded="openIndex(widget) === index"
+              @click="toggleNode(widget, index)"
+            >
+              {{ text(item.title) || chrome('item', { n: index + 1 }) }}
+            </button>
+          </template>
+        </div>
+        <article v-if="openItem(widget)" class="academy-carousel-card">
+          <figure v-if="itemImage(openItem(widget))" class="academy-figure">
+            <img :src="itemImage(openItem(widget))" alt="" />
+          </figure>
+          <ModuleWidgets
+            :widgets="openItem(widget).widgets"
             :lang="lang"
             :answers="answers"
             :show-result="showResult"
@@ -90,20 +148,6 @@
           />
         </article>
       </div>
-      <ul v-else-if="widget.type === 'causalChain'" class="academy-chain">
-        <li v-if="text(widget.prompt)" class="academy-widget-label">{{ text(widget.prompt) }}</li>
-        <li
-          v-for="(item, index) in widget.items"
-          :key="item.id"
-          :role="widget.requireInteraction ? 'button' : undefined"
-          :tabindex="widget.requireInteraction ? 0 : undefined"
-          @click="markViewed(widget, item.id)"
-          @keydown.enter.prevent="markViewed(widget, item.id)"
-        >
-          <span>{{ index + 1 }}</span>
-          {{ text(item.title) }}
-        </li>
-      </ul>
       <div v-else-if="widget.type === 'checklist'" class="academy-write">
         <p v-if="text(widget.prompt)" class="academy-widget-label">{{ text(widget.prompt) }}</p>
         <label v-for="item in widget.items" :key="item.id">
@@ -134,12 +178,30 @@
       <div v-else-if="widget.type === 'dropIntoPlace'">
         <p v-if="text(widget.prompt)" class="academy-widget-label">{{ text(widget.prompt) }}</p>
         <label v-for="(item, slot) in widget.items" :key="item.id" class="academy-write">
-          <span>{{ text(item.title) || slot + 1 }}</span>
+          <span>{{ chrome('target', { n: slot + 1 }) }}</span>
           <select :value="slotValue(widget, slot)" @change="setSlot(widget, slot, $event.target.value)">
             <option value="">—</option>
-            <option v-for="(card, cardIndex) in widget.items" :key="card.id" :value="String(cardIndex)">{{ text(card.title) }}</option>
+            <option v-for="(card, cardIndex) in widget.items" :key="card.id" :value="String(cardIndex)">{{ text(card.title) || chrome('card', { n: cardIndex + 1 }) }}</option>
           </select>
         </label>
+        <article v-if="dropCard(widget)" class="academy-carousel-card">
+          <figure v-if="itemImage(dropCard(widget))" class="academy-figure">
+            <img :src="itemImage(dropCard(widget))" alt="" />
+          </figure>
+          <h3 v-if="text(dropCard(widget).title)">{{ text(dropCard(widget).title) }}</h3>
+          <ModuleWidgets
+            :widgets="dropCard(widget).widgets"
+            :lang="lang"
+            :answers="answers"
+            :show-result="showResult"
+            :insight-label="insightLabel"
+            :tip-label="tipLabel"
+            :check-label="checkLabel"
+            :continue-label="continueLabel"
+            @answer="$emit('answer', $event)"
+          />
+        </article>
+        <p v-for="note in dropNotes(widget)" :key="note.id" class="academy-widget-label">{{ note.note }}</p>
       </div>
       <label v-else-if="widget.type === 'shortAnswer'" class="academy-write">
         <span>{{ text(widget.prompt) }}</span>
@@ -207,7 +269,7 @@ import { reactive, ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
-import { iframeAttributes, iframeSrc } from '@/utils/accingo-module.js'
+import { iframeAttributes, iframeSrc, prefixAccingoImage, resolveLocalizedAssetId } from '@/utils/accingo-module.js'
 import { localizedText } from '@/utils/teacher-academy.js'
 import KnowledgeCheck from './KnowledgeCheck.vue'
 
@@ -226,30 +288,73 @@ const props = defineProps({
 const emit = defineEmits(['answer'])
 const pending = reactive({})
 const images = ref({})
+const localUi = reactive({})
+
+const CHROME = {
+  flip: { en: 'Flip card', th: 'พลิกการ์ด' },
+  previous: { en: 'Previous step', th: 'ขั้นตอนก่อนหน้า' },
+  next: { en: 'Next step', th: 'ขั้นตอนถัดไป' },
+  step: { en: 'Step {current} of {total}', th: 'ขั้นตอนที่ {current} จาก {total}' },
+  target: { en: 'Target {n}', th: 'เป้าหมาย {n}' },
+  card: { en: 'Card {n}', th: 'การ์ด {n}' },
+  item: { en: 'Item {n}', th: 'รายการ {n}' },
+}
+
+function chrome(key, vars) {
+  const short = String(props.lang || 'en').split(/[-_]/)[0].toLowerCase()
+  let value = CHROME[key]?.[short] || CHROME[key]?.en || ''
+  for (const [name, entry] of Object.entries(vars || {})) value = value.replaceAll(`{${name}}`, String(entry))
+  return value
+}
+
+function assetId(value) {
+  return resolveLocalizedAssetId(value, props.lang).trim()
+}
 
 function imageUrl(widget) {
-  if (widget.uuid && images.value[widget.uuid]) return images.value[widget.uuid]
-  return text(widget.url) || widget.url || ''
+  const id = assetId(widget?.uuid)
+  if (id && images.value[id]) return images.value[id]
+  return prefixAccingoImage(text(widget?.url))
+}
+
+function itemImage(item) {
+  const id = assetId(item?.imageUuid)
+  if (id && images.value[id]) return images.value[id]
+  return prefixAccingoImage(text(item?.imageUrl))
+}
+
+function mascotSrc(widget) {
+  const variant = widget?.variant === 2 ? 2 : 1
+  const position = widget?.bubblePosition || 'right'
+  const facing = position === 'left' || position === 'top-left' ? 'left' : 'right'
+  return prefixAccingoImage(`/images/mascot-${facing}-variant${variant}.png`)
+}
+
+function queueDownload(rawId) {
+  const id = assetId(rawId)
+  if (!id || images.value[id] != null) return
+  images.value = { ...images.value, [id]: '' }
+  const agent = typeof Agent === 'undefined' ? null : Agent
+  const pendingDownload = agent?.download?.(id)?.url?.()
+  if (pendingDownload && typeof pendingDownload.then === 'function') {
+    pendingDownload.then((url) => {
+      if (typeof url === 'string' && url) images.value = { ...images.value, [id]: url }
+    }).catch(() => {})
+  }
 }
 
 function collectImages(list) {
   for (const widget of list || []) {
-    if (widget.type === 'image' && widget.uuid && images.value[widget.uuid] == null) {
-      images.value = { ...images.value, [widget.uuid]: '' }
-      const agent = typeof Agent === 'undefined' ? null : Agent
-      const pending = agent?.download?.(widget.uuid)?.url?.()
-      if (pending && typeof pending.then === 'function') {
-        pending.then((url) => {
-          if (typeof url === 'string' && url) images.value = { ...images.value, [widget.uuid]: url }
-        }).catch(() => {})
-      }
-    }
+    if (widget.type === 'image') queueDownload(widget.uuid)
     for (const column of widget.columns || []) collectImages(column.widgets)
-    for (const item of widget.items || []) collectImages(item.widgets)
+    for (const item of widget.items || []) {
+      queueDownload(item.imageUuid)
+      collectImages(item.widgets)
+    }
   }
 }
 
-watch(() => props.widgets, collectImages, { immediate: true })
+watch(() => [props.widgets, props.lang], () => collectImages(props.widgets), { immediate: true })
 
 function text(value) {
   return localizedText(value, props.lang)
@@ -362,9 +467,48 @@ function slotValue(widget, slot) {
 
 function setSlot(widget, slot, cardIndex) {
   const next = { ...objectAnswer(widget) }
-  if (cardIndex === '') delete next[String(slot)]
-  else next[String(slot)] = Number(cardIndex)
+  if (cardIndex === '') {
+    delete next[String(slot)]
+    delete next.selectedCardIndex
+  } else {
+    const chosen = Number(cardIndex)
+    for (const key of Object.keys(next)) {
+      if (key === 'selectedCardIndex') continue
+      if (Number(next[key]) === chosen) delete next[key]
+    }
+    next[String(slot)] = chosen
+    next.selectedCardIndex = chosen
+  }
   emitValue(widget, next)
+}
+
+function dropCard(widget) {
+  const answer = objectAnswer(widget)
+  let index = Number.isInteger(answer.selectedCardIndex) ? answer.selectedCardIndex : null
+  if (index == null) {
+    const slots = widget.items || []
+    for (let slot = slots.length - 1; slot >= 0; slot -= 1) {
+      const value = answer[String(slot)]
+      if (value != null && value !== '') {
+        index = Number(value)
+        break
+      }
+    }
+  }
+  return Number.isInteger(index) ? widget.items?.[index] || null : null
+}
+
+function dropNotes(widget) {
+  if (!props.showResult || !widget.hasCorrect) return []
+  const answer = objectAnswer(widget)
+  const pairs = widget.correctAnswer || []
+  return (widget.items || []).flatMap((item, cardIndex) => {
+    const slot = Object.keys(answer).find((key) => key !== 'selectedCardIndex' && Number(answer[key]) === cardIndex)
+    if (slot == null) return []
+    const match = pairs.some((pair) => String(pair.leftId) === String(slot) && String(pair.rightId) === String(cardIndex))
+    const note = match ? text(item.successFeedback) : text(item.failureFeedback)
+    return note ? [{ id: item.id, note }] : []
+  })
 }
 
 function blankParts(widget) {
@@ -396,22 +540,97 @@ function setBlank(widget, blankId, value) {
   emitValue(widget, { ...objectAnswer(widget), [blankId]: value })
 }
 
+function uiKey(widget) {
+  return widget.fqn || widget.id
+}
+
+function remembered(widget, field, fallback) {
+  const local = localUi[uiKey(widget)]
+  if (local && Object.prototype.hasOwnProperty.call(local, field)) return local[field]
+  const stored = objectAnswer(widget)
+  if (Object.prototype.hasOwnProperty.call(stored, field)) return stored[field]
+  return fallback
+}
+
+function remember(widget, patch) {
+  const key = uiKey(widget)
+  localUi[key] = { ...(localUi[key] || {}), ...patch }
+}
+
 function markViewed(widget, itemId, event) {
   if (!widget?.requireInteraction || !itemId) return
   if (event && event.target && event.currentTarget && event.target !== event.currentTarget) return
   if (event?.newState === 'closed') return
   const current = objectAnswer(widget)
-  if (widget.type === 'flipCard') {
-    const seen = new Set(Array.isArray(current.openedIds) ? current.openedIds : [])
-    if (seen.has(itemId)) return
-    seen.add(itemId)
-    const flipped = Math.max(seen.size, Number(current.flipped) || 0)
-    emitValue(widget, { flipped, openedIds: [...seen] })
-    return
-  }
   const viewedIds = new Set(Array.isArray(current.viewedItemIds) ? current.viewedItemIds : [])
   viewedIds.add(itemId)
   emitValue(widget, { viewedItemIds: [...viewedIds], currentId: itemId })
+}
+
+function flipCount(widget) {
+  const value = remembered(widget, 'flipped', 0)
+  return Number.isFinite(Number(value)) ? Number(value) : 0
+}
+
+function flipItem(widget) {
+  const items = widget.items || []
+  if (!items.length) return null
+  return items[flipCount(widget) % items.length]
+}
+
+function flip(widget) {
+  const next = flipCount(widget) + 1
+  remember(widget, { flipped: next })
+  if (widget.requireInteraction) emitValue(widget, { flipped: next })
+}
+
+function carouselIndex(widget) {
+  const count = widget.items?.length || 0
+  if (!count) return 0
+  const raw = Number(remembered(widget, 'activeIndex', 0)) || 0
+  return ((raw % count) + count) % count
+}
+
+function carouselItem(widget) {
+  return widget.items?.[carouselIndex(widget)] || null
+}
+
+function goCarousel(widget, nextIndex) {
+  const items = widget.items || []
+  if (!items.length) return
+  const current = carouselIndex(widget)
+  const next = ((nextIndex % items.length) + items.length) % items.length
+  remember(widget, { activeIndex: next })
+  if (!widget.requireInteraction) return
+  const viewed = new Set(objectAnswer(widget).viewedItemIds || [])
+  if (items[current]?.id) viewed.add(items[current].id)
+  if (items[next]?.id) viewed.add(items[next].id)
+  emitValue(widget, { activeIndex: next, viewedItemIds: [...viewed], currentId: items[next]?.id })
+}
+
+function openIndex(widget) {
+  const value = remembered(widget, 'openItemIndex', null)
+  return Number.isInteger(value) ? value : null
+}
+
+function openItem(widget) {
+  const index = openIndex(widget)
+  if (index == null) return null
+  return widget.items?.[index] || null
+}
+
+function toggleNode(widget, index) {
+  const items = widget.items || []
+  const open = openIndex(widget) === index ? null : index
+  remember(widget, { openItemIndex: open })
+  if (!widget.requireInteraction) return
+  const viewed = new Set(objectAnswer(widget).viewedItemIds || [])
+  if (open != null && items[open]?.id) viewed.add(items[open].id)
+  emitValue(widget, {
+    openItemIndex: open,
+    viewedItemIds: [...viewed],
+    currentId: open == null ? null : items[open]?.id,
+  })
 }
 
 function scale(widget) {

@@ -13,6 +13,7 @@ import {
   quizStatus,
   readAccingoModule,
   readStoredAnswer,
+  resolveLocalizedAssetId,
 } from './accingo-module.js'
 import {
   DATAWISE_MODULE_ID,
@@ -694,6 +695,83 @@ describe('accingo quizzes, gates, and minutes', () => {
     const back = accingoProgress(doc, { ...moved.runstate, sectionIndex: 0 })
     assert.equal(back, forward)
     assert.equal(back, moved.publicEntry.progress)
+  })
+})
+
+describe('localized image ids', () => {
+  const EN = '9ad98460-b26a-11f1-9915-57af69fcf0fe'
+  const TH = '75a73170-b11f-11f1-9cb8-bb8f35c130f8'
+
+  it('passes a string id through and falls back th then en', () => {
+    assert.equal(resolveLocalizedAssetId(EN, 'th'), EN)
+    assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'th'), TH)
+    assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'en'), EN)
+    assert.equal(resolveLocalizedAssetId({ en: EN, th: TH }, 'th-TH'), TH)
+    assert.equal(resolveLocalizedAssetId({ en: EN }, 'th'), EN)
+    assert.equal(resolveLocalizedAssetId({ th: TH }, 'en'), TH)
+    assert.equal(resolveLocalizedAssetId({ en: '  ', th: '' }, 'fr'), '')
+    assert.equal(resolveLocalizedAssetId(null, 'en'), '')
+  })
+
+  it('keeps both language uuids on images and imageUrl/imageUuid on flip and loop items', () => {
+    const doc = publish([
+      lesson('s', 2, [
+        column('c', 12, [
+          { id: 'photo', type: 'image', props: { url: '', uuid: EN, alt: 'Diagram', caption: 'Figure 1' } },
+          {
+            id: 'buddy',
+            type: 'mascot',
+            props: { message: 'Hello', variant: 2, bubblePosition: 'top-left' },
+          },
+          {
+            id: 'cards',
+            type: 'flipCard',
+            props: {
+              items: [{ id: 'face', title: 'Front', imageUrl: '/images/front.png', imageUuid: EN, widgets: [] }],
+            },
+          },
+          {
+            id: 'loop',
+            type: 'feedbackLoop',
+            props: {
+              items: [{ id: 'node', title: 'Use', imageUrl: { en: '/images/en.png', th: '/images/th.png' }, imageUuid: { en: EN, th: TH }, widgets: [] }],
+            },
+          },
+        ]),
+      ]),
+    ], {
+      translations: {
+        th: {
+          sections: {
+            s: {
+              columns: {
+                c: {
+                  widgets: {
+                    photo: { props: { uuid: TH, alt: 'แผนภาพ' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const widgets = doc.sections['0'].widgets
+    const image = widgets.find((widget) => widget.type === 'image')
+    assert.deepEqual(image.uuid, { en: EN, th: TH })
+    assert.equal(resolveLocalizedAssetId(image.uuid, 'th'), TH)
+    assert.equal(resolveLocalizedAssetId(image.uuid, 'en'), EN)
+    assert.equal(image.alt.th, 'แผนภาพ')
+    assert.equal(image.caption, 'Figure 1')
+    const mascot = widgets.find((widget) => widget.type === 'mascot')
+    assert.equal(mascot.variant, 2)
+    assert.equal(mascot.bubblePosition, 'top-left')
+    const flip = widgets.find((widget) => widget.type === 'flipCard')
+    assert.equal(flip.items[0].imageUrl, '/images/front.png')
+    assert.equal(flip.items[0].imageUuid, EN)
+    const loop = widgets.find((widget) => widget.type === 'feedbackLoop')
+    assert.equal(resolveLocalizedAssetId(loop.items[0].imageUuid, 'th'), TH)
+    assert.equal(resolveLocalizedAssetId(loop.items[0].imageUrl, 'en'), '/images/en.png')
   })
 })
 

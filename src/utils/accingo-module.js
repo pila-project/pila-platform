@@ -103,6 +103,25 @@ function plain(value, lang = 'en') {
   return first || ''
 }
 
+/**
+ * File id or URL after localize() has wrapped a string into {en, th}.
+ * A string passes through. Otherwise the current language, then th, then en.
+ */
+export function resolveLocalizedAssetId(value, lang = 'en') {
+  if (typeof value === 'string') return value
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return ''
+  const short = String(lang || 'en').split(/[-_]/)[0].toLowerCase() || 'en'
+  const pick = (key) => (typeof value[key] === 'string' && value[key].trim() ? value[key] : '')
+  const current = pick(short)
+  if (current) return current
+  const thai = pick('th')
+  if (thai) return thai
+  const english = pick('en')
+  if (english) return english
+  const first = Object.values(value).find((entry) => typeof entry === 'string' && entry.trim())
+  return first || ''
+}
+
 function prefixLocalized(value) {
   if (typeof value === 'string') return prefixAccingoImage(value)
   if (!value || typeof value !== 'object' || Array.isArray(value)) return value || ''
@@ -285,6 +304,10 @@ function itemWidgets(items, prefix, normalize) {
   return list.map((item) => ({
     id: String(item.id || ''),
     title: item.title || item.label || '',
+    imageUrl: item.imageUrl || '',
+    imageUuid: item.imageUuid || '',
+    successFeedback: item.successFeedback || '',
+    failureFeedback: item.failureFeedback || '',
     widgets: (Array.isArray(item.widgets) ? item.widgets : []).map((widget) => (
       normalize(widget, joinFqn(prefix, item.id))
     )).filter(Boolean),
@@ -318,7 +341,15 @@ function normalizeWidget(raw, prefix) {
     return { id, fqn, type, title: props.title || '', description: props.description || '', kind, level }
   }
   if (type === 'image') {
-    return { id, fqn, type, url: prefixLocalized(props.url || ''), alt: props.alt || '', uuid: props.uuid || '' }
+    return {
+      id,
+      fqn,
+      type,
+      url: prefixLocalized(props.url || ''),
+      alt: props.alt || '',
+      caption: props.caption || '',
+      uuid: props.uuid || '',
+    }
   }
   if (type === 'iframe') {
     return {
@@ -331,7 +362,17 @@ function normalizeWidget(raw, prefix) {
       attributes: Array.isArray(props.attributes) ? props.attributes : [],
     }
   }
-  if (type === 'mascot') return { id, fqn, type, message: props.message || '' }
+  if (type === 'mascot') {
+    const position = props.bubblePosition || 'right'
+    return {
+      id,
+      fqn,
+      type,
+      message: props.message || '',
+      variant: props.variant === 2 ? 2 : 1,
+      bubblePosition: position,
+    }
+  }
   if (type === 'shortAnswer') {
     return { ...chrome, id, fqn, type, kind: 'text', hasCorrect: false, prompt: props.question || props.prompt || '' }
   }
@@ -635,6 +676,12 @@ export function interactionDone(spec, answer) {
   if (!spec.itemIds.length) return true
   const viewed = new Set(Array.isArray(answer?.viewedItemIds) ? answer.viewedItemIds : (Array.isArray(answer) ? answer : []))
   if (answer?.currentId) viewed.add(answer.currentId)
+  if (spec.type === 'carousel') {
+    const index = Number.isInteger(answer?.activeIndex) ? answer.activeIndex : 0
+    const count = spec.itemIds.length
+    const current = spec.itemIds[((index % count) + count) % count]
+    if (current) viewed.add(current)
+  }
   return spec.itemIds.every((id) => viewed.has(id))
 }
 

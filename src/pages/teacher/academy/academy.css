@@ -1783,6 +1783,45 @@ button.cat-toggle,
   font: 500 14px/20px 'Geist', 'Inter', sans-serif;
 }
 
+.academy-mascot-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.academy-mascot-row img {
+  width: 96px;
+  height: auto;
+  flex: none;
+}
+
+.academy-step-row,
+.academy-chain-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.academy-chain-arrow {
+  color: #64748b;
+}
+
+.academy-step-btn {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  font: 600 14px/20px 'Geist', 'Inter', sans-serif;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.academy-step-btn[aria-expanded='true'] {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
 .academy-widget-columns {
   display: flex;
   gap: 16px;
