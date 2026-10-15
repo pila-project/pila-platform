@@ -1,6 +1,7 @@
 import { describe, it, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { invalidateAll } from './content-cache.js'
+import { PETHEMATICIANS_SINGLE_ITEM_IDS } from './constants.js'
 import { SEQUENCE_ACTIVE_TYPE, partitionSequenceMemberIds } from './sequence-items.js'
 import staticTranslations from '../store/staticTranslations.js'
 import {
@@ -24,7 +25,9 @@ beforeEach(() => {
   invalidateAll()
   globalThis.Agent = {
     metadata: async (id) => ({
-      active_type: String(id).startsWith('seq-') ? SEQUENCE_ACTIVE_TYPE : 'application/json',
+      active_type: String(id).startsWith('seq-') || PETHEMATICIANS_SINGLE_ITEM_IDS.has(id)
+        ? SEQUENCE_ACTIVE_TYPE
+        : 'application/json',
     }),
     state: async () => ({}),
     synced: async () => {},
@@ -58,32 +61,27 @@ describe('assignmentScopeFromMembers', () => {
     assert.equal(scope.reason, ASSIGNMENT_SCOPE_MIXED)
   })
 
-  it('counts a one-item sequence as an item and keeps an unknown count as a sequence', () => {
-    const one = assignmentScopeFromMembers([SEQ_A], [LEAF_A], { [SEQ_A]: 1 })
+  it('counts Pethematicians ids as items and every other sequence as a sequence', () => {
+    const pet = '7f7e8490-7e99-11f1-aeea-6d97e63b96db'
+    const one = assignmentScopeFromMembers([pet], [LEAF_A])
     assert.equal(one.ok, true)
     assert.deepEqual(one.sequences, [])
-    assert.deepEqual(one.items, [SEQ_A, LEAF_A])
+    assert.deepEqual(one.items, [pet, LEAF_A])
 
-    const both = assignmentScopeFromMembers([SEQ_A, SEQ_B], [], { [SEQ_A]: 1, [SEQ_B]: '1' })
-    assert.equal(both.ok, true)
-    assert.deepEqual(both.items, [SEQ_A, SEQ_B])
+    const pets = assignmentScopeFromMembers([...PETHEMATICIANS_SINGLE_ITEM_IDS], [])
+    assert.equal(pets.ok, true)
+    assert.deepEqual(pets.sequences, [])
+    assert.equal(pets.items.length, PETHEMATICIANS_SINGLE_ITEM_IDS.size)
 
-    const unknown = assignmentScopeFromMembers([SEQ_A], [LEAF_A], {})
-    assert.equal(unknown.reason, ASSIGNMENT_SCOPE_MIXED)
-    assert.deepEqual(unknown.sequences, [SEQ_A])
-    assert.deepEqual(unknown.items, [LEAF_A])
+    const seq = assignmentScopeFromMembers([SEQ_A], [LEAF_A])
+    assert.equal(seq.reason, ASSIGNMENT_SCOPE_MIXED)
+    assert.deepEqual(seq.sequences, [SEQ_A])
+    assert.deepEqual(seq.items, [LEAF_A])
 
-    const failed = assignmentScopeFromMembers([SEQ_A], [], { [SEQ_A]: null })
-    assert.deepEqual(failed.sequences, [SEQ_A])
-
-    const empty = assignmentScopeFromMembers([SEQ_A], [], { [SEQ_A]: 0 })
-    assert.deepEqual(empty.sequences, [SEQ_A])
-    assert.equal(empty.ok, true)
-
-    const mixed = assignmentScopeFromMembers([SEQ_A, SEQ_B], [], { [SEQ_A]: 2, [SEQ_B]: 1 })
+    const mixed = assignmentScopeFromMembers([SEQ_A, pet], [])
     assert.equal(mixed.reason, ASSIGNMENT_SCOPE_MIXED)
     assert.deepEqual(mixed.sequences, [SEQ_A])
-    assert.deepEqual(mixed.items, [SEQ_B])
+    assert.deepEqual(mixed.items, [pet])
   })
 })
 
@@ -124,27 +122,31 @@ describe('assessAssignmentContentScope', () => {
     assert.equal(calls, 1)
   })
 
-  it('counts a one-item sequence as an item and does not read counts for leaves', async () => {
+  it('counts Pethematicians ids as items and does not read item counts', async () => {
     const stateIds = []
     globalThis.Agent.state = async (id) => {
       stateIds.push(id)
-      if (id === SEQ_A) return { items: [{ id: LEAF_A }] }
-      if (id === SEQ_B) return { items: { 0: { id: 'a' }, 1: { id: 'b' } } }
-      return { items: [] }
+      return { items: [{ id: LEAF_A }] }
     }
+    const pet = 'e7bd0050-1bb1-11f0-a107-d7050efaf0bb'
     const one = await assessAssignmentContentScope([SEQ_A, LEAF_B])
-    assert.equal(one.ok, true)
-    assert.deepEqual(one.sequences, [])
-    assert.deepEqual(one.items, [SEQ_A, LEAF_B])
-    assert.deepEqual(stateIds, [SEQ_A])
+    assert.equal(one.reason, ASSIGNMENT_SCOPE_MIXED)
+    assert.deepEqual(one.sequences, [SEQ_A])
+    assert.deepEqual(one.items, [LEAF_B])
 
-    const mixed = await assessAssignmentContentScope([SEQ_A, SEQ_B])
-    assert.equal(mixed.reason, ASSIGNMENT_SCOPE_MIXED)
-    assert.deepEqual(mixed.sequences, [SEQ_B])
-    assert.deepEqual(mixed.items, [SEQ_A])
+    const asItem = await assessAssignmentContentScope([pet, LEAF_B])
+    assert.equal(asItem.ok, true)
+    assert.deepEqual(asItem.sequences, [])
+    assert.deepEqual(asItem.items, [pet, LEAF_B])
+
+    const allPets = await assessAssignmentContentScope([...PETHEMATICIANS_SINGLE_ITEM_IDS])
+    assert.equal(allPets.ok, true)
+    assert.deepEqual(allPets.sequences, [])
+    assert.equal(allPets.items.length, PETHEMATICIANS_SINGLE_ITEM_IDS.size)
+    assert.deepEqual(stateIds, [])
   })
 
-  it('keeps a sequence when the item count cannot be read', async () => {
+  it('keeps a sequence when state cannot be read', async () => {
     globalThis.Agent.state = async () => {
       throw new Error('state failed')
     }
@@ -152,11 +154,6 @@ describe('assessAssignmentContentScope', () => {
     assert.equal(failed.reason, ASSIGNMENT_SCOPE_MIXED)
     assert.deepEqual(failed.sequences, [SEQ_A])
     assert.deepEqual(failed.items, [LEAF_A])
-
-    globalThis.Agent.state = () => new Promise(() => {})
-    const hung = await assessAssignmentContentScope([SEQ_A], { timeoutMs: 20 })
-    assert.deepEqual(hung.sequences, [SEQ_A])
-    assert.deepEqual(hung.items, [])
   })
 
   it('does not classify a known sequence as a leaf when metadata hangs', async () => {
@@ -174,17 +171,23 @@ describe('assessAssignmentContentScope', () => {
     assert.equal(scope.reason, ASSIGNMENT_SCOPE_MIXED)
     assert.deepEqual(scope.sequences, [SEQ_A])
     assert.deepEqual(scope.items, [hungLeaf])
-    assert.deepEqual(stateIds, [SEQ_A])
+    assert.deepEqual(stateIds, [])
   })
 
-  it('leaves nesting on active_type for a one-item sequence', async () => {
+  it('leaves nesting on active_type and keeps a one-item sequence as a sequence', async () => {
     globalThis.Agent.state = async () => ({ items: [{ id: LEAF_A }] })
-    const nested = await partitionSequenceMemberIds([SEQ_A, LEAF_A])
-    assert.deepEqual(nested.rejectedSequences, [SEQ_A])
+    const pet = 'f73759d0-24d1-11f0-a6bf-e576da95b533'
+    const nested = await partitionSequenceMemberIds([SEQ_A, pet, LEAF_A])
+    assert.deepEqual(nested.rejectedSequences, [SEQ_A, pet])
     assert.deepEqual(nested.allowed, [LEAF_A])
     const scope = await assessAssignmentContentScope([SEQ_A, LEAF_A])
-    assert.equal(scope.ok, true)
-    assert.deepEqual(scope.items, [SEQ_A, LEAF_A])
+    assert.equal(scope.reason, ASSIGNMENT_SCOPE_MIXED)
+    assert.deepEqual(scope.sequences, [SEQ_A])
+    assert.deepEqual(scope.items, [LEAF_A])
+    const petScope = await assessAssignmentContentScope([pet, LEAF_A])
+    assert.equal(petScope.ok, true)
+    assert.deepEqual(petScope.sequences, [])
+    assert.deepEqual(petScope.items, [pet, LEAF_A])
   })
 })
 

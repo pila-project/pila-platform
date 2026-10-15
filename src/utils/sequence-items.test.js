@@ -1,6 +1,7 @@
 import { describe, it, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { invalidateAll, getCachedPreviewMeta, patchPreviewMeta, metadataCache } from './content-cache.js'
+import { invalidateAll, metadataCache } from './content-cache.js'
+import { CANDLI_SEQUENCES, PETHEMATICIANS_SINGLE_ITEM_IDS } from './constants.js'
 import {
   SEQUENCE_ACTIVE_TYPE,
   SEQUENCE_DRAG_MIME,
@@ -13,7 +14,6 @@ import {
   readSequenceItemIds,
   shownAsSequence,
   listedAsSequence,
-  sequenceItemCountAfterRead,
   filterSequenceIdsForList,
   sequenceTypedIdsSeen,
   cachedSequenceTypedIds,
@@ -325,104 +325,72 @@ describe('shownAsSequence', () => {
 
 describe('listedAsSequence (UIUX-294)', () => {
   const SEQUENCE = 'application/json;type=sequence'
+  const pet = '7f7e8490-7e99-11f1-aeea-6d97e63b96db'
 
-  it('drops a one-item sequence and keeps empty, unknown, and multi-item sequences', () => {
-    assert.equal(listedAsSequence(SEQUENCE, 1), false)
-    assert.equal(listedAsSequence(SEQUENCE, '1'), false)
-    assert.equal(listedAsSequence(SEQUENCE, 0), true)
-    assert.equal(listedAsSequence(SEQUENCE, 2), true)
-    assert.equal(listedAsSequence(SEQUENCE, null), true)
-    assert.equal(listedAsSequence(SEQUENCE, undefined), true)
-    assert.equal(listedAsSequence('application/json', 3), false)
+  it('treats only Pethematicians ids as single items', () => {
+    assert.equal(PETHEMATICIANS_SINGLE_ITEM_IDS.size, 3)
+    for (const id of PETHEMATICIANS_SINGLE_ITEM_IDS) {
+      assert.ok(CANDLI_SEQUENCES[id], id)
+      assert.equal(listedAsSequence(id, SEQUENCE), false)
+      assert.equal(listedAsSequence(id, SEQUENCE, { assumeSequence: true }), false)
+    }
+    const one = 'one-item-seq'
+    assert.equal(listedAsSequence(one, SEQUENCE), true)
+    assert.equal(listedAsSequence(one, SEQUENCE, { assumeSequence: true }), true)
+    assert.equal(listedAsSequence('leaf', 'application/json'), false)
+    assert.equal(listedAsSequence(undefined, SEQUENCE), true)
+    assert.deepEqual(filterSequenceIdsForList(['', one], { assumeSequence: true }), [one])
   })
 
-  it('filters sequence lists and still leaves nesting to active_type', async () => {
+  it('keeps a one-item sequence in lists and still leaves nesting to active_type', async () => {
     const one = 'one-item'
     const empty = 'empty-seq'
     const multi = 'multi-seq'
     const leaf = 'leaf-item'
-    const ids = filterSequenceIdsForList([one, empty, multi, leaf, ''], {
+    const ids = filterSequenceIdsForList([one, pet, empty, multi, leaf, ''], {
       activeType: {
         [one]: SEQUENCE,
+        [pet]: SEQUENCE,
         [empty]: SEQUENCE,
         [multi]: SEQUENCE,
         [leaf]: 'application/json',
       },
-      itemCount: { [one]: 1, [empty]: 0, [multi]: 3, [leaf]: 1 },
     })
-    assert.deepEqual(ids, [empty, multi])
+    assert.deepEqual(ids, [one, empty, multi])
 
-    const assumed = filterSequenceIdsForList([one, multi], {
-      assumeSequence: true,
-      itemCount: (id) => (id === one ? 1 : undefined),
-    })
-    assert.deepEqual(assumed, [multi])
+    const assumed = filterSequenceIdsForList([one, pet, multi], { assumeSequence: true })
+    assert.deepEqual(assumed, [one, multi])
 
     globalThis.Agent.metadata = async (id) => ({
-      active_type: id === one ? SEQUENCE : 'application/json',
+      active_type: id === one || id === pet ? SEQUENCE : 'application/json',
     })
-    const nested = await partitionSequenceMemberIds([one, leaf], { timeoutMs: 50 })
-    assert.deepEqual(nested.rejectedSequences, [one])
+    const nested = await partitionSequenceMemberIds([one, pet, leaf], { timeoutMs: 50 })
+    assert.deepEqual(nested.rejectedSequences, [one, pet])
     assert.deepEqual(nested.allowed, [leaf])
 
-    const seen = sequenceTypedIdsSeen([one, empty, multi, leaf], {
+    const seen = sequenceTypedIdsSeen([one, pet, empty, multi, leaf], {
       [one]: SEQUENCE,
+      [pet]: SEQUENCE,
       [empty]: SEQUENCE,
       [multi]: SEQUENCE,
       [leaf]: 'application/json',
     })
-    assert.deepEqual(seen, [one, empty, multi])
+    assert.deepEqual(seen, [one, pet, empty, multi])
   })
 
   it('keeps a cached one-item sequence in the nesting id set', () => {
     metadataCache.set('one-item', { active_type: SEQUENCE })
+    metadataCache.set(pet, { active_type: SEQUENCE })
     metadataCache.set('multi', { active_type: SEQUENCE })
     metadataCache.set('leaf', { active_type: 'application/json' })
     const ids = cachedSequenceTypedIds()
-    assert.deepEqual(ids.filter(id => id === 'one-item' || id === 'multi' || id === 'leaf').sort(), ['multi', 'one-item'])
-    assert.deepEqual(filterSequenceIdsForList(['one-item', 'multi'], {
-      assumeSequence: true,
-      itemCount: { 'one-item': 1, multi: 2 },
-    }), ['multi'])
-  })
-})
-
-describe('sequenceItemCountAfterRead (UIUX-294)', () => {
-  const SEQUENCE = 'application/json;type=sequence'
-
-  it('keeps the previous count when the state read fails and never invents 1', () => {
-    assert.equal(sequenceItemCountAfterRead(4, null), 4)
-    assert.equal(sequenceItemCountAfterRead(4, undefined), 4)
-    assert.equal(sequenceItemCountAfterRead(0, null), 0)
-    assert.equal(sequenceItemCountAfterRead(1, null), 1)
-    assert.equal(sequenceItemCountAfterRead(undefined, null), null)
-    assert.equal(sequenceItemCountAfterRead(null, null), null)
-    assert.equal(sequenceItemCountAfterRead('', null), null)
-    assert.notEqual(sequenceItemCountAfterRead(undefined, null), 1)
-  })
-
-  it('uses the read count when the state read succeeds', () => {
-    assert.equal(sequenceItemCountAfterRead(4, 1), 1)
-    assert.equal(sequenceItemCountAfterRead(1, 3), 3)
-    assert.equal(sequenceItemCountAfterRead(undefined, 0), 0)
-  })
-
-  it('does not cache a failed read as a single item', () => {
-    const id = 'seq-failed-state-read'
-    const itemCount = sequenceItemCountAfterRead(undefined, null)
-    patchPreviewMeta(id, {
-      description: 'renamed',
-      itemCount,
-      isSequence: true,
-      kind: 'sequence',
-    })
-    const cached = getCachedPreviewMeta(id)
-    assert.equal(cached.itemCount, null)
-    assert.equal(listedAsSequence(SEQUENCE, cached.itemCount), true)
-
-    patchPreviewMeta(id, { itemCount: sequenceItemCountAfterRead(5, null) })
-    assert.equal(getCachedPreviewMeta(id).itemCount, 5)
-    assert.equal(listedAsSequence(SEQUENCE, 5), true)
-    assert.equal(listedAsSequence(SEQUENCE, sequenceItemCountAfterRead(5, 1)), false)
+    assert.deepEqual(
+      ids.filter(id => id === 'one-item' || id === pet || id === 'multi' || id === 'leaf').sort(),
+      [pet, 'multi', 'one-item'].sort(),
+    )
+    assert.deepEqual(
+      filterSequenceIdsForList(['one-item', pet, 'multi'], { assumeSequence: true }),
+      ['one-item', 'multi'],
+    )
   })
 })

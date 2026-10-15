@@ -74,6 +74,17 @@ export const CANDLI_SEQUENCES = {
   ],
 }
 
+/**
+ * UIUX-294: only these Pethematicians sequence documents are a single item.
+ * Every other sequence stays a sequence, including a sequence of one item.
+ * The ids are the Pethematicians entries in CANDLI_SEQUENCES.
+ */
+export const PETHEMATICIANS_SINGLE_ITEM_IDS = new Set([
+  '7f7e8490-7e99-11f1-aeea-6d97e63b96db',
+  'e7bd0050-1bb1-11f0-a107-d7050efaf0bb',
+  'f73759d0-24d1-11f0-a6bf-e576da95b533',
+])
+
 export const GEN_AI_SEQUENCES = {
   '085f62f0-87a4-11ef-861e-a9ea128200f7': true
 }

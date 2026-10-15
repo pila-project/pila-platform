@@ -118,17 +118,9 @@ export function getAssignmentDueAt(data) {
   return Number.isNaN(dt.getTime()) ? toEpochMs(data.dueDate) : dt.getTime()
 }
 
-export function isSequenceMetadata(meta, itemCount) {
-  return listedAsSequence(meta?.active_type, itemCount)
-}
-
-/**
- * A sequence id list is safe to persist only when every id has a count.
- * A missing count stays a sequence and must not rewrite the recent snapshot.
- */
-export function sequenceCountsAuthoritative(ids, counts) {
-  if (!counts || typeof counts.has !== 'function') return false
-  return (ids || []).every(id => counts.has(id))
+/** UIUX-294: Pethematicians ids are items. Every other sequence type stays a sequence. */
+export function isSequenceMetadata(meta, id) {
+  return listedAsSequence(id, meta?.active_type)
 }
 
 /**

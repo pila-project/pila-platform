@@ -365,6 +365,7 @@
     imageCache,
     metadataCache,
   } from '@/utils/content-cache.js'
+  import { PETHEMATICIANS_SINGLE_ITEM_IDS } from '@/utils/constants.js'
   import {
     SEQUENCE_DRAG_MIME,
     isSequenceActiveType,
@@ -496,21 +497,21 @@
     return isSequenceActiveType(meta?.active_type)
   }
 
-  const isStoredSequence = computed(() => {
+  const isSequenceCard = computed(() => {
     void previewMetaVersion.value
     void metadataCacheVersion.value
+    // UIUX-294: Pethematicians is one item, so it is taggable. Every other
+    // sequence stays a sequence card. The gold border is shownAsSequence.
+    if (PETHEMATICIANS_SINGLE_ITEM_IDS.has(props.id)) return false
     return contentKind.value === 'sequence' || isSequenceContent()
   })
 
-  // Count 1 is a single item (taggable, no sequence chrome). Unknown or empty
-  // stays a sequence. Copy picker still marks every stored sequence.
-  const isSequenceCard = computed(() => (
-    shownAsSequence(isStoredSequence.value, exploreItemCount.value)
-  ))
-
+  // Copy picker keeps the gold mark on every stored sequence (Add stays
+  // disabled). Library cards drop it once preview shows exactly one item.
   const showSequenceChrome = computed(() => {
-    if (props.nestingBlocked && isStoredSequence.value) return true
-    return isSequenceCard.value
+    if (!isSequenceCard.value) return false
+    if (props.nestingBlocked) return true
+    return shownAsSequence(true, exploreItemCount.value)
   })
 
   const isAdminUser = computed(

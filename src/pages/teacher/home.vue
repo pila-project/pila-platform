@@ -341,7 +341,7 @@ import {
 } from '@/utils/assignment-dashboards.js'
 import { tablePerPageOptions } from '@/utils/pagination-options.js'
 import { formatDateForDisplay } from '@/utils/iso-date.js'
-import { getContentMetadata, peekContentMetadata, getCachedContentName, getCachedPreviewMeta, getContentPreviewMeta, loadExploreCache } from '@/utils/content-cache.js'
+import { getContentMetadata, peekContentMetadata, getCachedContentName, loadExploreCache } from '@/utils/content-cache.js'
 import { loadExploreArchivedSequenceIds } from '@/utils/explore-sequence-archive.js'
 import {
   LEARN_ABOUT_PILA_URL,
@@ -356,7 +356,6 @@ import {
   nextAssignmentDueAt,
   delayUntil,
   isSequenceMetadata,
-  sequenceCountsAuthoritative,
   activitySequencesStorageKey,
   parseActivitySequenceCache,
   readLocalJson,
@@ -613,76 +612,29 @@ async function hydrateAssignmentActivityMeta() {
   activityMetaGen.value++
 }
 
-async function sequenceItemCounts(ids) {
-  const counts = new Map()
-  await mapPool(ids, ACTIVITY_FETCH_CONCURRENCY, async (id) => {
-    const cached = getCachedPreviewMeta(id)
-    if (
-      cached
-      && (cached.isSequence || cached.kind === 'sequence')
-      && cached.itemCount != null
-      && cached.itemCount !== ''
-    ) {
-      counts.set(id, cached.itemCount)
-      return
-    }
-    const preview = await getContentPreviewMeta(id).catch(() => null)
-    if (
-      preview
-      && (preview.isSequence || preview.kind === 'sequence')
-      && preview.itemCount != null
-      && preview.itemCount !== ''
-    ) {
-      counts.set(id, preview.itemCount)
-    }
-  })
-  return counts
-}
-
-function listedSequenceIds(ids, counts, { assumeSequence = false } = {}) {
-  return filterSequenceIdsForList(ids, {
-    assumeSequence,
-    activeType: (id) => peekContentMetadata(id)?.active_type,
-    itemCount: (id) => (counts.has(id) ? counts.get(id) : undefined),
-  })
-}
-
 async function resolveSequenceIds(userId, cached) {
   if (cached?.sequences?.active) {
-    const ids = [...cached.sequences.active]
-    const counts = await sequenceItemCounts(ids)
-    // A full count is safe to persist. A failed count stays a sequence and
-    // must not wipe the local snapshot.
     return {
-      ids: listedSequenceIds(ids, counts, { assumeSequence: true }),
-      authoritative: sequenceCountsAuthoritative(ids, counts),
+      ids: filterSequenceIdsForList(cached.sequences.active, { assumeSequence: true }),
+      authoritative: true,
     }
   }
 
   const mine = Array.isArray(cached?.myContent) ? cached.myContent.filter(Boolean) : []
   if (mine.length) {
-    const known = mine.filter(id => isSequenceMetadata(peekContentMetadata(id)))
-    if (known.length) {
-      const counts = await sequenceItemCounts(known)
-      return { ids: listedSequenceIds(known, counts), authoritative: true }
-    }
+    const known = mine.filter(id => isSequenceMetadata(peekContentMetadata(id), id))
+    if (known.length) return { ids: known, authoritative: true }
     await mapPool(mine, ACTIVITY_FETCH_CONCURRENCY, id => getContentMetadata(id).catch(() => null))
-    const typed = mine.filter(id => isSequenceMetadata(peekContentMetadata(id)))
-    const counts = await sequenceItemCounts(typed)
     return {
-      ids: listedSequenceIds(typed, counts),
+      ids: mine.filter(id => isSequenceMetadata(peekContentMetadata(id), id)),
       authoritative: true,
     }
   }
 
   if (sequenceSnapshots.value.length) {
-    const ids = sequenceSnapshots.value.map(row => row.id)
-    const counts = await sequenceItemCounts(ids)
-    // A full count is safe to persist. A failed count stays a sequence and
-    // must not wipe the local snapshot.
     return {
-      ids: listedSequenceIds(ids, counts, { assumeSequence: true }),
-      authoritative: sequenceCountsAuthoritative(ids, counts),
+      ids: filterSequenceIdsForList(sequenceSnapshots.value.map(row => row.id), { assumeSequence: true }),
+      authoritative: false,
     }
   }
 
@@ -694,10 +646,8 @@ async function resolveSequenceIds(userId, cached) {
   if (!tagged) return { ids: [], authoritative: false }
   const allIds = tagged.map(row => row.target).filter(Boolean)
   await mapPool(allIds, ACTIVITY_FETCH_CONCURRENCY, id => getContentMetadata(id).catch(() => null))
-  const typed = allIds.filter(id => isSequenceMetadata(peekContentMetadata(id)))
-  const counts = await sequenceItemCounts(typed)
   return {
-    ids: listedSequenceIds(typed, counts),
+    ids: allIds.filter(id => isSequenceMetadata(peekContentMetadata(id), id)),
     authoritative: true,
   }
 }

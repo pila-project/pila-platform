@@ -535,7 +535,6 @@
     nameCacheVersion, metadataCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
     tagCache, getCachedTagHierarchy, prefetchBatch, prefetchPageDetails, prefetchTagNames,
     getContentMetadata, getContentType, getCachedPreviewMeta, patchPreviewMeta,
-    previewMetaVersion,
     setCachedContentName, loadExploreCache, persistSequencesPanelCache,
     withCacheVersionBatch,
   } from '@/utils/content-cache.js'
@@ -551,7 +550,6 @@
     SEQUENCE_DRAG_MIME,
     isSequenceActiveType,
     listedAsSequence,
-    sequenceItemCountAfterRead,
     filterSequenceIdsForList,
     cachedSequenceTypedIds,
   } from '@/utils/sequence-items.js'
@@ -801,7 +799,7 @@
 
   const archivedSequenceIdSet = computed(() => new Set(archivedSequenceIds.value))
   const mySequenceIdSet = computed(() => new Set(mySequenceIds.value))
-  // Nesting checks. Display lists drop a count of 1; this set does not.
+  // Nesting checks. Display lists omit Pethematicians; this set does not.
   const sequenceTypedIds = ref([])
   const sequenceTypedIdSet = computed(() => {
     const set = new Set(sequenceTypedIds.value)
@@ -944,10 +942,9 @@
   async function onCopyModifyCreated(id) {
     await ensureSequenceMetadataCached(id)
     registerMyContentItem(id)
+    promoteActiveSequence(id)
     newestSequenceId.value = id
-    // Count decides membership. Promoting first writes a one-item copy into
-    // My Sequences and the explore disk cache before loadMySequences can drop it.
-    await refreshSequenceItemCount(id)
+    await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
     copyModifyId.value = null
   }
 
@@ -1127,13 +1124,10 @@
   }
 
   async function onSequenceCreated(id) {
-    const seededCount = createSequenceInitialItemIds.value.length
-    const seededFromPicker = seededCount > 0
+    const seededFromPicker = createSequenceInitialItemIds.value.length > 0
     await ensureSequenceMetadataCached(id)
     registerMyContentItem(id)
-    if (listedAsSequence('application/json;type=sequence', seededCount)) {
-      promoteActiveSequence(id)
-    }
+    promoteActiveSequence(id)
     newestSequenceId.value = id
     await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
     closeCreateSequenceModal()
@@ -1160,26 +1154,22 @@
       }
       const existing = getCachedPreviewMeta(id)
       const fresh = await Agent.state(id).catch(() => null)
-      const itemCount = sequenceItemCountAfterRead(
-        existing?.itemCount,
-        fresh ? countSequenceItemsFromState(fresh) : null,
-      )
       patchPreviewMeta(id, {
         description,
-        itemCount,
+        itemCount: fresh ? countSequenceItemsFromState(fresh) : (existing?.itemCount ?? 1),
         isSequence: existing?.isSequence ?? true,
         kind: existing?.kind ?? 'sequence',
       })
       touchSequenceUpdated(id)
+      // UIUX-294: Pethematicians is an item, so an edit must not put it in My Sequences.
+      if (listedAsSequence(id, metadataCache.get(id)?.active_type || 'application/json;type=sequence')) {
+        promoteActiveSequence(id)
+        await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
+      } else {
+        dropFromSequenceLists(id)
+      }
       sequenceVersion.value++
       showSuccessDialog(t('sequence-updated'))
-      // A failed state read must not insert or drop the id. A successful
-      // read follows refreshSequenceItemCount: list it, or drop a count of 1.
-      if (fresh) {
-        const activeType = metadataCache.get(id)?.active_type || 'application/json;type=sequence'
-        if (listedAsSequence(activeType, itemCount)) ensureInSequenceLists(id)
-        else dropFromSequenceLists(id)
-      }
       return
     }
     sequenceVersion.value++
@@ -1283,30 +1273,22 @@
     return isSequenceActiveType(metadataCache.get(id)?.active_type)
   }
 
-  function cachedListedItemCount(id) {
-    const preview = getCachedPreviewMeta(id)
-    if (!preview || preview.itemCount == null || preview.itemCount === '') return undefined
-    return preview.itemCount
-  }
-
   function listedSequenceIdsFromMetadata(ids) {
     return filterSequenceIdsForList(ids, {
       activeType: (id) => metadataCache.get(id)?.active_type,
-      itemCount: (id) => cachedListedItemCount(id),
     })
   }
 
   function isSequenceId(id) {
     void metadataCacheVersion.value
-    void previewMetaVersion.value
     if (!id) return false
     const stored = mySequenceIdSet.value.has(id)
       || getContentType(id) === 'sequence'
       || getCachedPreviewMeta(id)?.kind === 'sequence'
       || isCachedSequenceId(id)
     if (!stored) return false
-    // Count 1 is one item (taggable). Unknown or empty stays a sequence.
-    return listedAsSequence('application/json;type=sequence', cachedListedItemCount(id))
+    // UIUX-294: Pethematicians is taggable. A one-item sequence of any other id is not.
+    return listedAsSequence(id, 'application/json;type=sequence')
   }
 
   const isAdminUser = computed(
@@ -1412,32 +1394,16 @@
     void persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
   }
 
-  function ensureInSequenceLists(id) {
-    if (mySequenceIds.value.includes(id)) return
-    if (exploreArchivedIdSet.value.has(id)) {
-      archivedSequenceIds.value = [id, ...archivedSequenceIds.value.filter(x => x !== id)]
-      mySequenceIds.value = [...activeSequenceIds.value, ...archivedSequenceIds.value]
-    } else {
-      promoteActiveSequence(id)
-    }
-    void persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
-  }
-
   async function refreshSequenceItemCount(sequenceId) {
-    rememberSequenceTypedIds([sequenceId])
     const fresh = await Agent.state(sequenceId).catch(() => null)
     if (!fresh) return
     const existing = getCachedPreviewMeta(sequenceId)
-    const count = countSequenceItemsFromState(fresh)
     patchPreviewMeta(sequenceId, {
-      itemCount: count,
+      itemCount: countSequenceItemsFromState(fresh),
       isSequence: existing?.isSequence ?? true,
       kind: existing?.kind ?? 'sequence',
       description: existing?.description ?? String(fresh?.description || '').trim(),
     })
-    const activeType = metadataCache.get(sequenceId)?.active_type || 'application/json;type=sequence'
-    if (listedAsSequence(activeType, count)) ensureInSequenceLists(sequenceId)
-    else dropFromSequenceLists(sequenceId)
   }
 
   async function addItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {
@@ -1577,10 +1543,9 @@
       const cached = await loadExploreCache(userId)
       const seq = cached?.sequences
       if (!seq?.active?.length && !seq?.archived?.length) return false
-      const countOf = (id) => cachedListedItemCount(id)
       applySequenceLists(
-        filterSequenceIdsForList(seq.active || [], { assumeSequence: true, itemCount: countOf }),
-        filterSequenceIdsForList(seq.archived || [], { assumeSequence: true, itemCount: countOf }),
+        filterSequenceIdsForList(seq.active || [], { assumeSequence: true }),
+        filterSequenceIdsForList(seq.archived || [], { assumeSequence: true }),
       )
       rememberCachedSequenceTypes()
       return true
@@ -1601,7 +1566,10 @@
       rememberCachedSequenceTypes()
       const active = listedSequenceIdsFromMetadata(ids)
       if (!active.length) return false
-      applySequenceLists(active, cached?.sequences?.archived || archivedSequenceIds.value)
+      applySequenceLists(
+        active,
+        filterSequenceIdsForList(cached?.sequences?.archived || archivedSequenceIds.value, { assumeSequence: true }),
+      )
       return true
     } catch {
       return false
@@ -1637,7 +1605,7 @@
       const sequenceIds = ids.filter(
         (_, i) => metas[i]?.active_type === 'application/json;type=sequence',
       )
-      // Keep one-item sequences for nesting after the display filter drops them.
+      // Nesting stays type-based, including Pethematicians ids omitted from the list.
       rememberSequenceTypedIds(sequenceIds)
 
       const [archivedIdSet, states] = await Promise.all([
@@ -1660,8 +1628,8 @@
         const result = states[i]
         const state = result.status === 'fulfilled' ? result.value : null
         if (!isValidSequenceAgentState(state)) return
-        const count = normalizeSequenceItems(state.items).length
-        if (!listedAsSequence('application/json;type=sequence', count)) return
+        // UIUX-294: keep the id in sequenceTypedIds (above) but not in the list.
+        if (!listedAsSequence(id, 'application/json;type=sequence')) return
         if (state.name) setCachedLegacyName(id, state.name)
         if (archivedIdSet.has(id) || state.archived) archived.push(id)
         else active.push(id)

@@ -9,19 +9,14 @@
  * stays a leaf, matching that helper. Pass knownSequenceIds so a metadata
  * timeout cannot classify a known sequence as a leaf.
  *
- * UIUX-294: a sequence whose item count is exactly 1 counts as an item
- * (listedAsSequence). The count is read from Agent.state items only for ids
- * partitionSequenceMemberIds already proved are sequences. An unknown or
- * failed count stays a sequence. Nesting stays on active_type.
+ * UIUX-294: a Pethematicians id counts as an item. Every other sequence
+ * counts as a sequence, at any item count. Nesting stays on active_type.
  */
 
 import {
   SEQUENCE_ACTIVE_TYPE,
-  SEQUENCE_SYNC_TIMEOUT_MS,
   listedAsSequence,
-  normalizeSequenceItems,
   partitionSequenceMemberIds,
-  withTimeout,
 } from './sequence-items.js'
 
 export const ASSIGNMENT_SCOPE_OK = 'ok'
@@ -45,29 +40,19 @@ function dedupe(ids) {
   return out
 }
 
-function storedCount(itemCounts, id) {
-  if (!itemCounts) return undefined
-  if (typeof itemCounts.get === 'function') {
-    return itemCounts.has(id) ? itemCounts.get(id) : undefined
-  }
-  return Object.prototype.hasOwnProperty.call(itemCounts, id) ? itemCounts[id] : undefined
-}
-
 /**
  * @param {string[]} sequenceIds proven sequence ids
  * @param {string[]} itemIds non-sequence ids
- * @param {Map<string, number>|Record<string, number|string|null>} [itemCounts]
- *        Counts for sequence ids. Exactly 1 counts as an item. Missing counts stay sequences.
  * @returns {{ ok: boolean, reason: string, sequences: string[], items: string[] }}
  */
-export function assignmentScopeFromMembers(sequenceIds, itemIds, itemCounts) {
+export function assignmentScopeFromMembers(sequenceIds, itemIds) {
   const sequences = []
   const countedAsItems = []
   const seen = new Set()
   for (const id of sequenceIds || []) {
     if (!id || seen.has(id)) continue
     seen.add(id)
-    if (listedAsSequence(SEQUENCE_ACTIVE_TYPE, storedCount(itemCounts, id))) sequences.push(id)
+    if (listedAsSequence(id, SEQUENCE_ACTIVE_TYPE)) sequences.push(id)
     else countedAsItems.push(id)
   }
   const sequenceSet = new Set(sequences)
@@ -92,20 +77,6 @@ export function assignmentScopeAlertKey(reason) {
   return null
 }
 
-/** Item count for a proven sequence. Null when the state read fails or times out. */
-async function readProvenSequenceItemCount(id, timeoutMs) {
-  try {
-    const state = await withTimeout(
-      Agent.state(id),
-      timeoutMs ?? SEQUENCE_SYNC_TIMEOUT_MS,
-      'Sequence item count timed out',
-    )
-    return normalizeSequenceItems(state?.items).length
-  } catch {
-    return null
-  }
-}
-
 /**
  * Classify assignment content ids. Does not drop ids from the caller.
  * @param {string[]} itemIds
@@ -114,10 +85,5 @@ async function readProvenSequenceItemCount(id, timeoutMs) {
 export async function assessAssignmentContentScope(itemIds, opts) {
   const ids = dedupe(itemIds)
   const { allowed, rejectedSequences } = await partitionSequenceMemberIds(ids, opts)
-  const itemCounts = new Map()
-  await Promise.all(rejectedSequences.map(async (id) => {
-    const count = await readProvenSequenceItemCount(id, opts?.timeoutMs)
-    if (count != null) itemCounts.set(id, count)
-  }))
-  return assignmentScopeFromMembers(rejectedSequences, allowed, itemCounts)
+  return assignmentScopeFromMembers(rejectedSequences, allowed)
 }

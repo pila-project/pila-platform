@@ -15,6 +15,7 @@
  */
 
 import { getContentMetadata, metadataCache } from './content-cache.js'
+import { PETHEMATICIANS_SINGLE_ITEM_IDS } from './constants.js'
 
 /** Empty sequence items (Agent create). */
 export const EMPTY_SEQUENCE_ITEMS = Object.freeze({})
@@ -47,49 +48,33 @@ export function shownAsSequence(isSequence, itemCount) {
 }
 
 /**
- * UIUX-294: list, tag, and count a document as a sequence using
- * shownAsSequence. Count 1 is a single item. Count 0 or unknown stays a
- * sequence. Nesting still uses active_type in partitionSequenceMemberIds.
+ * UIUX-294: list, tag, and assign a sequence as a sequence unless its id is
+ * in PETHEMATICIANS_SINGLE_ITEM_IDS. Item count is not used. Nesting still
+ * uses active_type in partitionSequenceMemberIds.
+ * Pass assumeSequence when every id is already a sequence and type may be missing.
  */
-export function listedAsSequence(activeType, itemCount) {
-  return shownAsSequence(String(activeType || '').includes('type=sequence'), itemCount)
-}
-
-/**
- * Item count to cache after a sequence name or description save.
- * A failed state read (`readCount == null`) keeps the previous count.
- * Never invent 1: that count means a single item, so a failed read would
- * make a multi-item sequence taggable.
- */
-export function sequenceItemCountAfterRead(previousCount, readCount) {
-  if (readCount != null && readCount !== '') return readCount
-  if (previousCount != null && previousCount !== '') return previousCount
-  return null
+export function listedAsSequence(id, activeType, { assumeSequence = false } = {}) {
+  if (id && PETHEMATICIANS_SINGLE_ITEM_IDS.has(id)) return false
+  if (assumeSequence) return Boolean(id)
+  return String(activeType || '').includes('type=sequence')
 }
 
 /**
  * Ids that should appear in My Sequences or recent sequences.
- * `itemCount(id)` may be omitted (unknown stays a sequence).
+ * Pethematicians ids are omitted. Every other sequence id is kept.
  * Pass assumeSequence when every id is already a sequence and type may be missing.
  */
 export function filterSequenceIdsForList(ids, {
   activeType,
-  itemCount,
   assumeSequence = false,
 } = {}) {
   const typeOf = typeof activeType === 'function' ? activeType : (id) => activeType?.[id]
-  const countOf = typeof itemCount === 'function' ? itemCount : (id) => itemCount?.[id]
-  return (ids || []).filter((id) => {
-    if (!id) return false
-    let type = typeOf(id)
-    if (!type && assumeSequence) type = SEQUENCE_ACTIVE_TYPE
-    return listedAsSequence(type, countOf(id))
-  })
+  return (ids || []).filter((id) => id && listedAsSequence(id, typeOf(id), { assumeSequence }))
 }
 
 /**
- * Every id whose active_type is a sequence, including a one-item sequence.
- * Display lists use filterSequenceIdsForList, which drops a count of 1.
+ * Every id whose active_type is a sequence, including Pethematicians.
+ * Display lists use filterSequenceIdsForList, which drops those ids.
  * Nesting checks still need these ids in knownSequenceIds.
  */
 export function sequenceTypedIdsSeen(ids, activeType) {
