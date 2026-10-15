@@ -317,7 +317,7 @@
 
 .academy-cover {
   position: relative;
-  height: 148px;
+  aspect-ratio: 686 / 296;
   background: #eef2f7 center/cover no-repeat;
 }
 
