@@ -172,6 +172,24 @@ export function isThailandTeacherHost(host = typeof window !== 'undefined' ? win
 }
 
 /**
+ * Teacher Academy routes and nav only.
+ * Thailand hosts, ui-dev, and the local Vite host (port 9898) including the
+ * expert localhost already used for local dev. Does not change partition,
+ * consent, login, or the trainer gate.
+ */
+export const ACADEMY_HOSTS = [
+  ...THAILAND_TEACHER_HOSTS,
+  'ui-dev.pilaproject.org',
+  'localhost:9898',
+  '127.0.0.1:9898',
+  'f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898',
+]
+
+export function isAcademyHost(host = typeof window !== 'undefined' ? window.location.host : '') {
+  return ACADEMY_HOSTS.includes(host)
+}
+
+/**
  * PILA International (non-RCT, non-Thailand) hosts for Emma student/teacher
  * consent copy. Expert localhost is included when HOST_TO_TITLE maps it to
  * International (same pattern as partition / first-load language).

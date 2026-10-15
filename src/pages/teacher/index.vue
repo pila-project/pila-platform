@@ -187,7 +187,7 @@
   import RoleRequester from '@/components/roles/role-requester.vue'
   import { PAvatar, PButton, PMenu, PMenuItem } from '@/components/ui/index.js'
   import LucideIcon from '@/components/ui/LucideIcon.vue'
-  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS, isThailandTeacherHost } from '@/utils/constants.js'
+  import { TRAINER_TAG, SIMPLIFIED_STUDY_DOMAINS, DOMAIN_DATA_PROTECTION_LINKS, isAcademyHost, isThailandTeacherHost } from '@/utils/constants.js'
   import languageChoices from '@/store/language-choices.js'
   import { persistUiLanguage } from '@/store/ui-language.js'
   import { languageMenuLabel } from '@/utils/language-labels.js'
@@ -198,6 +198,7 @@
 
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
   const isThailandHost = isThailandTeacherHost()
+  const showAcademy = isAcademyHost()
   const showEncryptionKeyModal = ref(false)
   const store = useStore()
   const route = useRoute()
@@ -313,7 +314,7 @@
     { icon: 'list-checks', title: t('your-tasks'), to: '/teacher/tasks', show: isSimplifiedStudyDomain },
     { icon: 'search', title: t('explore'), to: '/teacher/content', show: true },
     { icon: 'folder-plus', title: t('create'), to: '/teacher/create', show: !isSimplifiedStudyDomain },
-    { icon: 'graduation-cap', title: t('teacher-academy'), to: '/teacher/academy', show: hasTeacherPermission.value && isThailandHost, preserveCase: true },
+    { icon: 'graduation-cap', title: t('teacher-academy'), to: '/teacher/academy', show: hasTeacherPermission.value && showAcademy, preserveCase: true },
     { icon: 'file-text', title: t('resources'), to: '/teacher/resources', show: true },
     { icon: 'school', title: t('trainer'), to: '/teacher/trainer', show: userIsTrainer.value && isThailandHost },
   ])

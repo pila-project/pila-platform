@@ -10,11 +10,16 @@ import JoinTeacherView from '@/pages/student/join-teacher.vue'
 import AssignmentView from '@/pages/assignment/index.vue'
 import LoginMenu from '@/pages/login/index.vue'
 import CandliStates from '@/pages/candli-states.vue'
-import { isThailandTeacherHost } from '@/utils/constants.js'
+import { isAcademyHost, isThailandTeacherHost } from '@/utils/constants.js'
 import { skipSavedTeacherShellPath } from '@/utils/teacher-post-login.js'
 
 function allowThailandTeacher(_to, _from, next) {
   if (isThailandTeacherHost()) next()
+  else next('/teacher')
+}
+
+function allowAcademy(_to, _from, next) {
+  if (isAcademyHost()) next()
   else next('/teacher')
 }
 
@@ -240,11 +245,11 @@ const router = createRouter({
         },
         { path: 'content', component: ContentLibrary },
         { path: 'create', component: TeacherCreateTab },
-        { path: 'academy', component: AcademyLibrary, beforeEnter: allowThailandTeacher },
-        { path: 'academy/series/:id', redirect: '/teacher/academy', beforeEnter: allowThailandTeacher },
-        { path: 'academy/module/:id/review', component: AcademyReview, beforeEnter: allowThailandTeacher },
-        { path: 'academy/module/:id', component: AcademyLesson, beforeEnter: allowThailandTeacher },
-        { path: 'academy/reflect/:kind/:id', component: AcademyReflect, beforeEnter: allowThailandTeacher },
+        { path: 'academy', component: AcademyLibrary, beforeEnter: allowAcademy },
+        { path: 'academy/series/:id', redirect: '/teacher/academy', beforeEnter: allowAcademy },
+        { path: 'academy/module/:id/review', component: AcademyReview, beforeEnter: allowAcademy },
+        { path: 'academy/module/:id', component: AcademyLesson, beforeEnter: allowAcademy },
+        { path: 'academy/reflect/:kind/:id', component: AcademyReflect, beforeEnter: allowAcademy },
         { path: 'resources', component: TeacherResourcesPage },
         {
           path: 'trainer',

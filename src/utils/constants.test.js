@@ -1,10 +1,12 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  ACADEMY_HOSTS,
   INTERNATIONAL_HOSTS,
   THAILAND_TEACHER_HOSTS,
   SIMPLIFIED_STUDY_DOMAINS,
   HOST_TO_TITLE,
+  isAcademyHost,
   isInternationalHost,
   isThailandTeacherHost,
   consentCopyVariant,
@@ -116,6 +118,30 @@ describe('UIUX-245 admin chrome host gates', () => {
     assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes('app.pilaproject.org'), false)
     assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes('ui-dev.pilaproject.org'), false)
     assert.equal(SIMPLIFIED_STUDY_DOMAINS.includes('testing.pilaproject.org'), false)
+  })
+})
+
+describe('isAcademyHost', () => {
+  it('opens academy on Thailand hosts, ui-dev, and the local dev host only', () => {
+    for (const host of THAILAND_TEACHER_HOSTS) {
+      assert.equal(isAcademyHost(host), true, host)
+    }
+    assert.equal(isAcademyHost('ui-dev.pilaproject.org'), true)
+    assert.equal(isAcademyHost('localhost:9898'), true)
+    assert.equal(isAcademyHost('127.0.0.1:9898'), true)
+    assert.equal(isAcademyHost('f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'), true)
+    assert.equal(isAcademyHost('app.pilaproject.org'), false)
+    assert.equal(isAcademyHost('testing.pilaproject.org'), false)
+    assert.equal(ACADEMY_HOSTS.includes('ui-dev.pilaproject.org'), true)
+  })
+
+  it('does not treat ui-dev or localhost as a Thailand host', () => {
+    assert.equal(isThailandTeacherHost('ui-dev.pilaproject.org'), false)
+    assert.equal(isThailandTeacherHost('localhost:9898'), false)
+    assert.equal(isThailandTeacherHost('f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'), false)
+    assert.equal(consentCopyVariant('ui-dev.pilaproject.org'), 'international')
+    assert.equal(consentCopyVariant('localhost:9898'), 'legacy')
+    assert.equal(consentCopyVariant('f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:9898'), 'international')
   })
 })
 
