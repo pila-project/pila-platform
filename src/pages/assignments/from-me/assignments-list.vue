@@ -117,7 +117,7 @@
           clickableRows
           :rowClass="assignmentRowClass"
           @click:row="(_, { item }) => handleRowClick(item.id)"
-          :noDataText="hasActiveFilters ? t('no-assignments-match-filters') : t('no-data-available')"
+          :noDataText="hasActiveFilters ? t('no-assignments-match-filters') : t('no-assignments-available')"
           :itemsPerPage="10"
           :itemsPerPageText="t('rows-per-page')"
           :itemsPerPageOptions="assignmentTablePerPageOptions"

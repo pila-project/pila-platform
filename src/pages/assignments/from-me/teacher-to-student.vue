@@ -958,12 +958,12 @@
     const newCount = pickerNewSelectionCount.value
     const total = cbSelectedItems.size
     if (newCount > 0 && newCount < total) {
-      return `${t('add-selected')} (${newCount} ${t('new')})${nameSuffix}`
+      return `${t('add-selected-content')} (${newCount} ${t('new')})${nameSuffix}`
     }
     if (newCount > 0) {
-      return `${t('add-selected')} (${newCount})${nameSuffix}`
+      return `${t('add-selected-content')} (${newCount})${nameSuffix}`
     }
-    return `${t('add-selected')} (${total})${nameSuffix}`
+    return `${t('add-selected-content')} (${total})${nameSuffix}`
   })
 
   function toggleModalContent(id) {

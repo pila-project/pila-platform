@@ -1325,7 +1325,7 @@
   }
 
   const addSelectedButtonLabel = computed(() => {
-    return `${t('add-selected')} (${selectedItems.size})`
+    return `${t('add-selected-content')} (${selectedItems.size})`
   })
 
   async function navigateToCreateAssignment() {

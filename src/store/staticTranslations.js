@@ -363,6 +363,19 @@ export default {
     "sk": "Pridať vybraté",
     "th": "เพิ่มที่เลือก"
   },
+  "add-selected-content": {
+    "de": "Auswahl hinzufügen",
+    "en": "Add selected",
+    "es": "Añadir selección",
+    "fr": "Ajouter la sélection",
+    "km": "បន្ថែមដែលបានជ្រើស",
+    "lv": "Pievienot atlasīto",
+    "nl": "Selectie toevoegen",
+    "pl": "Dodaj zaznaczone",
+    "pt": "Adicionar selecionados",
+    "sk": "Pridať vybraté",
+    "th": "เพิ่มเนื้อหา/กิจกรรมที่เลือก"
+  },
   "add-student": {
     "de": "Schülerin/Schüler hinzufügen",
     "en": "Add student",
@@ -946,7 +959,7 @@ export default {
     "pl": "Wybierz sposób archiwizacji „{name}”. Nic nie zostanie trwale usunięte — możesz później przywrócić to z zarchiwizowanych zadań.",
     "pt": "Escolha como arquivar \"{name}\". Nada é excluído permanentemente – você pode restaurá-lo mais tarde a partir de tarefas arquivadas.",
     "sk": "Vyberte spôsob archivácie „{name}“. Nič sa natrvalo neodstráni – môžete to neskôr obnoviť z archivovaných úloh.",
-    "th": "เลือกวิธีเก็บถาวร \"{name}\" ไม่มีการลบถาวร — คุณสามารถกู้คืนได้ในภายหลังจากงานที่มอบหมายที่เก็บถาวร"
+    "th": "คุณไม่สามารถลบงาน \"{name}\" ทิ้งแบบถาวรได้ แต่จัดเก็บได้เพื่อซ่อนไม่ให้แสดงในลิสต์ ถ้าต้องการให้งานที่ถูกจัดเก็บกลับมาแสดงในลิสต์ ให้กด ‘แสดงงานที่ถูกจัดเก็บ’ แล้วเลือกงานนั้นๆ"
   },
   "archive-assignment-confirm-title": {
     "de": "Diese Aufgabe archivieren?",
@@ -5501,6 +5514,19 @@ export default {
     "pt": "Nenhum usuário ativo com códigos de login.",
     "sk": "Žiadni aktívni používatelia s prihlasovacími kódmi.",
     "th": "ไม่มีผู้ใช้ที่ใช้งานพร้อมรหัสเข้าสู่ระบบ"
+  },
+  "no-assignments-available": {
+    "de": "Keine Daten verfügbar",
+    "en": "No Data Available",
+    "es": "No hay datos disponibles",
+    "fr": "Aucune donnée disponible",
+    "km": "គ្មានទិន្នន័យ",
+    "lv": "Dati nav pieejami",
+    "nl": "Geen gegevens beschikbaar",
+    "pl": "Brak dostępnych danych",
+    "pt": "Nenhum dado disponível",
+    "sk": "Nie sú k dispozícii žiadne údaje",
+    "th": "ไม่มีงานที่ร่างหรือมอบหมายไว้"
   },
   "no-assignments-match-filters": {
     "de": "Keine Aufgaben entsprechen den Filtern",

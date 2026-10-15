@@ -131,15 +131,15 @@ const addSelectedButtonLabel = computed(() => {
   const selectedTotal = cbSelectedItems.size
   const titleSuffix = props.copyTitle ? ` ${t('to')} "${props.copyTitle}"` : ''
   if (newCount < selectedTotal) {
-    return `${t('add-selected')} (${newCount} ${t('of')} ${selectedTotal})${titleSuffix}`
+    return `${t('add-selected-content')} (${newCount} ${t('of')} ${selectedTotal})${titleSuffix}`
   }
   if (newCount > 0 && props.existingItemIds.length > 0) {
-    return `${t('add-selected')} (${newCount} ${t('new')})${titleSuffix}`
+    return `${t('add-selected-content')} (${newCount} ${t('new')})${titleSuffix}`
   }
   if (newCount > 0) {
-    return `${t('add-selected')} (${newCount})${titleSuffix}`
+    return `${t('add-selected-content')} (${newCount})${titleSuffix}`
   }
-  return `${t('add-selected')} (${selectedTotal})${titleSuffix}`
+  return `${t('add-selected-content')} (${selectedTotal})${titleSuffix}`
 })
 
 function toggleSelection(id) {
