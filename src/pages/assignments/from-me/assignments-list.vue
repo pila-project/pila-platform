@@ -106,6 +106,7 @@
       <!-- Data table -->
       <div class="assign-table-wrapper">
         <PTable
+          v-model:page="assignmentTablePage"
           :headers="tableHeaders"
           :items="tableItems"
           itemKey="id"
@@ -445,7 +446,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+  import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, onActivated } from 'vue'
   import { useStore } from 'vuex'
   import { useRouter, onBeforeRouteLeave } from 'vue-router'
   import { v4 as uuid } from 'uuid'
@@ -574,6 +575,14 @@
 
   const decryptedNames = reactive(new Map())
   const ASSIGN_DECRYPT_OWNER = 'assign-filter'
+
+  const assignmentTablePage = ref(1)
+
+  // KeepAlive keeps this route mounted. Match Explore: table opens on page 1 again.
+  // Filters, search, and PTable sort / rows-per-page stay as the teacher left them.
+  onActivated(() => {
+    assignmentTablePage.value = 1
+  })
 
   onMounted(() => {
     window.addEventListener('pagehide', handlePageHide)

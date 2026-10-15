@@ -120,7 +120,7 @@
             selectable
             :selected="selectedStudents"
             @update:selected="setSelectedStudents"
-            @update:page="studentTablePage = $event"
+            v-model:page="studentTablePage"
             @update:items-per-page="studentTablePerPage = $event"
             @update:visible-ids="studentTableVisibleIds = $event"
             :row-class="studentRowClass"
@@ -1063,7 +1063,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, onActivated, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { PButton, PTable, PBadge, PAvatar, PModal, PMenu, PMenuItem, PDivider, PAlert, PAlertDialog, PInput, PSelect, PMultiSelect, PUnifiedFilter, PUnifiedFilterSection, PFileUpload, PTooltip, PCheckbox, PPagination } from '@/components/ui/index.js'
@@ -1508,6 +1508,13 @@ let decryptGeneration = 0
 const studentTablePage = ref(1)
 const studentTablePerPage = ref(25)
 const studentTableVisibleIds = ref([])
+
+// KeepAlive keeps this route mounted. Match Explore: lists open on page 1 again.
+// Filters, search, and sort stay as the teacher left them.
+onActivated(() => {
+  studentTablePage.value = 1
+  groupListPage.value = 1
+})
 
 // Class groups MUST be declared before `students`. That computed is watched
 // immediately; EDU PILA (joined students already in Vuex) used to crash with

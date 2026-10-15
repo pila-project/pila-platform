@@ -208,6 +208,15 @@ const props = defineProps({
     type: Number,
     default: 10
   },
+  /**
+   * Optional controlled page (1-based). Omit it and the table keeps its own page.
+   * Parent lists under KeepAlive pass this so onActivated can return to page 1
+   * without remounting (remount would also clear sort and rows-per-page).
+   */
+  page: {
+    type: Number,
+    default: undefined,
+  },
   itemsPerPageOptions: {
     type: Array,
     default: () => [
@@ -259,6 +268,12 @@ const emit = defineEmits([
 
 const currentPage = ref(1)
 const currentPerPage = ref(props.itemsPerPage)
+
+watch(() => props.page, (page) => {
+  if (page == null || page === '') return
+  const next = Math.max(1, Number(page) || 1)
+  if (currentPage.value !== next) currentPage.value = next
+})
 const sortKey = ref(null)
 const sortOrder = ref('asc')
 const expandedRows = ref(new Set())
