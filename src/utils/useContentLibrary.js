@@ -17,6 +17,7 @@ import {
   fetchTagFilterMatch,
   selectedFilterGroups,
 } from '@/utils/explore-catalog-fill.js'
+import { competencyTagOptions } from '@/utils/competency-tag-options.js'
 
 const PILA_TAG = '1a53db50-e248-11ee-ab5f-07f4a7408770'
 
@@ -219,26 +220,15 @@ export function useContentLibrary(store, { fillDetails = false } = {}) {
   })
 
   function uniqueTagValues(cat, lang, countsComplete) {
-    const counts = contentCountsForCategory(cat.id)
-    // A full per-id tag index is no longer prefetched. Until one exists (disk
-    // restore), list every taxonomy leaf so the dropdown is not empty, and
-    // omit counts — a partial tagCache would show a lie.
-    if (!countsComplete) {
-      return (cat.leafIds || [])
-        .map(leafId => ({
-          value: leafId,
-          label: getCachedTagName(leafId, lang) || leafId.slice(0, 8),
-          count: null,
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label))
-    }
-    return Object.entries(counts)
-      .map(([leafId, count]) => ({
-        value: leafId,
-        label: getCachedTagName(leafId, lang) || leafId.slice(0, 8),
-        count,
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label))
+    // Same leaf list as gradeTagOptions. A complete index with no catalog hits
+    // still offers every taxonomy leaf (count 0). Selection still queries
+    // taggings-intersection; a local 0 does not hide the leaf.
+    return competencyTagOptions(
+      cat.leafIds,
+      contentCountsForCategory(cat.id),
+      countsComplete,
+      leafId => getCachedTagName(leafId, lang) || leafId.slice(0, 8),
+    )
   }
 
   function initFilters() {
