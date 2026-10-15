@@ -509,15 +509,12 @@ async function addContentToSequence(id) {
 
 async function onPickerAddItems(ids) {
   const { allowed, rejectedSequences } = await partitionSequenceMemberIds(ids || [])
-  if (rejectedSequences.length && !allowed.length) {
+  if (rejectedSequences.length) {
     showError(t('sequences-cannot-be-nested'))
     return
   }
   for (const id of allowed) {
     await addContentToSequence(id)
-  }
-  if (rejectedSequences.length && allowed.length) {
-    showError(t('sequences-cannot-be-nested'))
   }
 }
 
@@ -630,6 +627,11 @@ async function createCopy() {
   saving.value = true
 
   try {
+    const { rejectedSequences } = await partitionSequenceMemberIds(sequenceItemIds.value)
+    if (rejectedSequences.length) {
+      showError(t('sequences-cannot-be-nested'))
+      return
+    }
     const items = buildCopyItems()
     const id = await Agent.create({
       active_type: 'application/json;type=sequence',

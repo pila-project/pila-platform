@@ -446,6 +446,8 @@
   import { exploreTaxonomy } from '@/utils/explore-taxonomy.js'
   import { openContentPreview } from '@/utils/open-content-preview.js'
   import { normalizeAssignmentContent, removeAssignmentContentId } from '@/utils/assignment-content.js'
+  import { assessAssignmentContentScope, assignmentScopeAlertKey } from '@/utils/assignment-scope.js'
+  import { cachedSequenceTypedIds } from '@/utils/sequence-items.js'
   import { useToast } from '@/utils/useToast.js'
   import { refreshExploreArchivedIds, withoutExploreArchived } from '@/utils/explore-sequence-archive.js'
   import { PButton, PInput, PSelect, PDateField, PTooltip, PAlertDialog } from '@/components/ui/index.js'
@@ -977,9 +979,29 @@
     cbSelectedItems.add(id)
   }
 
-  function addSelectedContent() {
+  function alertAssignmentScope(scope) {
+    const key = assignmentScopeAlertKey(scope?.reason)
+    if (key) toastError(t(key))
+  }
+
+  /** True when content is one sequence or only activities. Does not remove ids. */
+  async function assignmentContentInScope(ids) {
+    const knownSequenceIds = cachedSequenceTypedIds()
+    const scope = await assessAssignmentContentScope(ids, (
+      knownSequenceIds.length ? { knownSequenceIds } : undefined
+    ))
+    if (scope.ok) return true
+    alertAssignmentScope(scope)
+    return false
+  }
+
+  async function addSelectedContent() {
     const newIds = [...cbSelectedItems].filter(id => !assignmentContentIdSet.value.has(id))
     const skipped = cbSelectedItems.size - newIds.length
+    if (newIds.length) {
+      const allowed = await assignmentContentInScope([...contentList.value, ...newIds])
+      if (!allowed) return
+    }
     let added = 0
     for (const id of newIds) {
       if (onContentSelect(id)) added++
@@ -999,6 +1021,8 @@
 
   // ── Save all settings to backend ──
   async function saveSettings({ asDraft = false } = {}) {
+    // Legacy rows that already mix sequences stay intact. Save refuses them.
+    if (!(await assignmentContentInScope(contentList.value))) return false
     const state = await Agent.state(props.id)
     state.name = assignment.value.name || ''
     state.description = assignment.value.description || ''
@@ -1054,13 +1078,15 @@
     }
     storedStatus.value = state.status
     state.pendingGroupId = pendingGroupId.value || null
+    return true
   }
 
   async function saveDraft() {
     if (!canSaveDraft.value || savingDraft.value) return
     savingDraft.value = true
     try {
-      await saveSettings({ asDraft: true })
+      const wrote = await saveSettings({ asDraft: true })
+      if (!wrote) return
       // Do not create group assignment records for Draft — students would see them.
       await Agent.synced()
       emit('saved', { asDraft: true })
@@ -1077,7 +1103,8 @@
     if (!canSave.value || saving.value) return
     saving.value = true
     try {
-      await saveSettings()
+      const wrote = await saveSettings()
+      if (!wrote) return
       if (storedStatus.value !== ASSIGNMENT_STATUS.DRAFT) {
         await applyPendingGroupAssignments()
       }
@@ -1135,6 +1162,11 @@
     }
 
     loading.value = false
+    if (contentList.value.length) {
+      void assignmentContentInScope(contentList.value).catch((e) => {
+        console.warn('[TeacherToStudent] assignment scope check failed', e)
+      })
+    }
   }
 
   init()

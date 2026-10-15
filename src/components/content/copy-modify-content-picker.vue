@@ -167,10 +167,13 @@ function addSelected() {
   const newIds = selected.filter(id => !existingIdSet.value.has(id))
   const already = selected.filter(id => existingIdSet.value.has(id))
   const { allowed, rejectedSequences } = splitAddable(newIds)
-  for (const id of rejectedSequences) cbSelectedItems.delete(id)
-  if (rejectedSequences.length) toastError(t('sequences-cannot-be-nested'))
+  // Any sequence blocks the whole selection. Leaves are not added.
+  if (rejectedSequences.length) {
+    toastError(t('sequences-cannot-be-nested'))
+    return
+  }
   if (!allowed.length) {
-    if (already.length && !rejectedSequences.length) {
+    if (already.length) {
       toastInfo(t('all-selected-already-in-sequence'))
     }
     return

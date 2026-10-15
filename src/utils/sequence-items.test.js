@@ -1,6 +1,6 @@
 import { describe, it, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { invalidateAll, getCachedPreviewMeta, patchPreviewMeta } from './content-cache.js'
+import { invalidateAll, getCachedPreviewMeta, patchPreviewMeta, metadataCache } from './content-cache.js'
 import {
   SEQUENCE_ACTIVE_TYPE,
   SEQUENCE_DRAG_MIME,
@@ -15,6 +15,8 @@ import {
   listedAsSequence,
   sequenceItemCountAfterRead,
   filterSequenceIdsForList,
+  sequenceTypedIdsSeen,
+  cachedSequenceTypedIds,
   withTimeout,
 } from './sequence-items.js'
 
@@ -258,6 +260,44 @@ describe('player item shape', () => {
     assert.equal(isValidSequenceAgentState(doc), true)
   })
 
+  it('refuses the whole append when any selected id is a sequence', async () => {
+    const doc = { items: [{ id: LEAF }] }
+    let synced = 0
+    let stateReads = 0
+    globalThis.Agent.metadata = async (id) => ({
+      active_type: id === SEQ ? SEQUENCE_ACTIVE_TYPE : 'application/json',
+    })
+    globalThis.Agent.state = async (id) => {
+      stateReads++
+      return id === HOST ? doc : {}
+    }
+    globalThis.Agent.synced = async () => { synced++ }
+    const result = await appendItemsToSequence(HOST, ['leaf-2', SEQ])
+    assert.equal(result.added, 0)
+    assert.deepEqual(result.rejectedSequences, [SEQ])
+    assert.deepEqual(doc.items, [{ id: LEAF }])
+    assert.equal(synced, 0)
+    assert.equal(stateReads, 0)
+  })
+
+  it('refuses a known one-item sequence without a metadata read', async () => {
+    const one = 'one-item'
+    const doc = { items: [{ id: LEAF }] }
+    let metaCalls = 0
+    globalThis.Agent.metadata = async () => {
+      metaCalls++
+      return never()
+    }
+    globalThis.Agent.state = async (id) => (id === HOST ? doc : {})
+    const result = await appendItemsToSequence(HOST, [one], {
+      knownSequenceIds: [one],
+    })
+    assert.deepEqual(result.rejectedSequences, [one])
+    assert.equal(result.added, 0)
+    assert.equal(metaCalls, 0)
+    assert.deepEqual(doc.items, [{ id: LEAF }])
+  })
+
   it('does not rewrite a map when the sequence is only read', async () => {
     const items = { 0: { id: LEAF } }
     const doc = { items }
@@ -324,6 +364,26 @@ describe('listedAsSequence (UIUX-294)', () => {
     const nested = await partitionSequenceMemberIds([one, leaf], { timeoutMs: 50 })
     assert.deepEqual(nested.rejectedSequences, [one])
     assert.deepEqual(nested.allowed, [leaf])
+
+    const seen = sequenceTypedIdsSeen([one, empty, multi, leaf], {
+      [one]: SEQUENCE,
+      [empty]: SEQUENCE,
+      [multi]: SEQUENCE,
+      [leaf]: 'application/json',
+    })
+    assert.deepEqual(seen, [one, empty, multi])
+  })
+
+  it('keeps a cached one-item sequence in the nesting id set', () => {
+    metadataCache.set('one-item', { active_type: SEQUENCE })
+    metadataCache.set('multi', { active_type: SEQUENCE })
+    metadataCache.set('leaf', { active_type: 'application/json' })
+    const ids = cachedSequenceTypedIds()
+    assert.deepEqual(ids.filter(id => id === 'one-item' || id === 'multi' || id === 'leaf').sort(), ['multi', 'one-item'])
+    assert.deepEqual(filterSequenceIdsForList(['one-item', 'multi'], {
+      assumeSequence: true,
+      itemCount: { 'one-item': 1, multi: 2 },
+    }), ['multi'])
   })
 })
 

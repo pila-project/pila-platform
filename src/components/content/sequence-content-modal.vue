@@ -452,6 +452,13 @@ async function onUpdate() {
   if (!dirty.value || props.archived || saving.value) return
   saving.value = true
   try {
+    // persistSequenceItems strips nested sequences. Refuse first so a legacy
+    // member list is not rewritten without the teacher removing those rows.
+    const { rejectedSequences } = await partitionSequenceMemberIds(draftIds.value)
+    if (rejectedSequences.length) {
+      showError(t('sequences-cannot-be-nested'))
+      return
+    }
     const next = await persistSequenceItems(props.id, draftIds.value)
     savedIds.value = [...next]
     draftIds.value = [...next]

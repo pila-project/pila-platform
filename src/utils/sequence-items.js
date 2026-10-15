@@ -14,7 +14,7 @@
  * UIUX-113: sequence members must be leaf content only — never nested sequences.
  */
 
-import { getContentMetadata } from './content-cache.js'
+import { getContentMetadata, metadataCache } from './content-cache.js'
 
 /** Empty sequence items (Agent create). */
 export const EMPTY_SEQUENCE_ITEMS = Object.freeze({})
@@ -85,6 +85,24 @@ export function filterSequenceIdsForList(ids, {
     if (!type && assumeSequence) type = SEQUENCE_ACTIVE_TYPE
     return listedAsSequence(type, countOf(id))
   })
+}
+
+/**
+ * Every id whose active_type is a sequence, including a one-item sequence.
+ * Display lists use filterSequenceIdsForList, which drops a count of 1.
+ * Nesting checks still need these ids in knownSequenceIds.
+ */
+export function sequenceTypedIdsSeen(ids, activeType) {
+  const typeOf = typeof activeType === 'function' ? activeType : (id) => activeType?.[id]
+  return (ids || []).filter((id) => id && isSequenceActiveType(typeOf(id)))
+}
+
+/** Sequence-typed ids already in the metadata cache. No network read. */
+export function cachedSequenceTypedIds() {
+  return sequenceTypedIdsSeen(
+    [...metadataCache.keys()],
+    (id) => metadataCache.get(id)?.active_type,
+  )
 }
 
 function toIdSet(knownSequenceIds) {
@@ -482,6 +500,11 @@ export async function appendItemsToSequence(sequenceId, itemIds, {
   const { allowed, rejectedSequences } = await partitionSequenceMemberIds(itemIds, {
     knownSequenceIds,
   })
+
+  // A sequence anywhere in the selection blocks the whole append.
+  if (rejectedSequences.length) {
+    return { added: 0, items: [], rejectedSequences }
+  }
 
   const { state, rawItems, ids } = await loadSequenceItemsState(sequenceId)
 

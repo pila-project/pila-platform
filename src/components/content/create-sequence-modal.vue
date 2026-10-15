@@ -45,15 +45,18 @@ import { ref, onMounted, computed } from 'vue'
 import { useStore } from 'vuex'
 import { PModal, PInput, PButton } from '@/components/ui/index.js'
 
-const store = useStore()
-function t(slug) { return store.getters.t(slug) }
 import setTagging from '@/utils/set-tagging.js'
 import { MY_CONTENT_TAG } from '@/utils/constants.js'
+import { useToast } from '@/utils/useToast.js'
 import {
   isValidArraySequenceItems,
   createArraySequenceItems,
   partitionSequenceMemberIds,
 } from '@/utils/sequence-items.js'
+
+const store = useStore()
+function t(slug) { return store.getters.t(slug) }
+const { error: toastError } = useToast()
 
 const props = defineProps({
   id: String, // if set, we're editing
@@ -92,9 +95,14 @@ async function submit() {
       description: description.value.trim(),
     })
   } else {
-    // UIUX-113: never seed nested sequences into a new sequence
+    // UIUX-113: never seed nested sequences into a new sequence.
+    // A seed that still contains a sequence is blocked outright so members are not dropped quietly.
     const rawSeed = (props.initialItemIds || []).filter(Boolean)
-    const { allowed: seedIds } = await partitionSequenceMemberIds(rawSeed)
+    const { allowed: seedIds, rejectedSequences } = await partitionSequenceMemberIds(rawSeed)
+    if (rejectedSequences.length) {
+      toastError(t('sequences-cannot-be-nested'))
+      return
+    }
     const initialItems = createArraySequenceItems(seedIds)
 
     const id = await Agent.create({

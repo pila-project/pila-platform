@@ -553,8 +553,10 @@
     listedAsSequence,
     sequenceItemCountAfterRead,
     filterSequenceIdsForList,
+    cachedSequenceTypedIds,
   } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
+  import { assessAssignmentContentScope, assignmentScopeAlertKey } from '@/utils/assignment-scope.js'
   import {
     archivableMyContentIds,
     exploreArchivedIdSet,
@@ -799,6 +801,31 @@
 
   const archivedSequenceIdSet = computed(() => new Set(archivedSequenceIds.value))
   const mySequenceIdSet = computed(() => new Set(mySequenceIds.value))
+  // Nesting checks. Display lists drop a count of 1; this set does not.
+  const sequenceTypedIds = ref([])
+  const sequenceTypedIdSet = computed(() => {
+    const set = new Set(sequenceTypedIds.value)
+    for (const id of mySequenceIds.value) set.add(id)
+    return set
+  })
+
+  function rememberSequenceTypedIds(ids) {
+    if (!ids?.length) return
+    const known = new Set(sequenceTypedIds.value)
+    const extra = []
+    for (const id of ids) {
+      if (!id || known.has(id)) continue
+      known.add(id)
+      extra.push(id)
+    }
+    if (extra.length) sequenceTypedIds.value = sequenceTypedIds.value.concat(extra)
+  }
+
+  function rememberCachedSequenceTypes() {
+    rememberSequenceTypedIds(cachedSequenceTypedIds())
+  }
+
+  watch(metadataCacheVersion, rememberCachedSequenceTypes)
 
   const activeSequenceCount = computed(() => activeSequenceIds.value.length)
 
@@ -944,9 +971,23 @@
     try {
       const state = await Agent.state(assignmentId)
       const content = normalizeAssignmentContent(state.content)
-      let added = 0
+      const incoming = []
       for (const id of itemIds) {
         if (!id || content.includes(id)) continue
+        incoming.push(id)
+      }
+      if (incoming.length) {
+        const scope = await assessAssignmentContentScope([...content, ...incoming], {
+          knownSequenceIds: mySequenceIdSet.value,
+        })
+        if (!scope.ok) {
+          const key = assignmentScopeAlertKey(scope.reason)
+          if (key) showError(t(key))
+          return
+        }
+      }
+      let added = 0
+      for (const id of incoming) {
         content.push(id)
         added++
       }
@@ -1305,8 +1346,16 @@
     return `${t('add-selected')} (${selectedItems.size})`
   })
 
-  function navigateToCreateAssignment() {
+  async function navigateToCreateAssignment() {
     const contentIds = [...pendingAddItems.value]
+    const scope = await assessAssignmentContentScope(contentIds, {
+      knownSequenceIds: mySequenceIdSet.value,
+    })
+    if (!scope.ok) {
+      const key = assignmentScopeAlertKey(scope.reason)
+      if (key) showError(t(key))
+      return
+    }
     closeAddPicker()
     createAssignmentContentIds.value = contentIds
     createAssignmentId.value = uuid()
@@ -1316,15 +1365,16 @@
     if (addPickerAssignmentOnly.value) return
     const { allowed, rejectedSequences } = await partitionSequenceMemberIds(
       pendingAddItems.value,
-      { knownSequenceIds: mySequenceIdSet.value },
+      { knownSequenceIds: sequenceTypedIdSet.value },
     )
-    // UIUX-182/113: block pure-sequence selection; seed mixed picks with leaves only
+    // UIUX-182/113: do not drop members. Any sequence in the selection blocks create.
     if (!allowed.length) {
       showError(t('sequences-cannot-be-nested'))
       return
     }
     if (rejectedSequences.length) {
-      // Mixed selection: still create with leaf items only
+      showError(t('sequences-cannot-be-nested'))
+      return
     }
     closeAddPicker()
     createSequenceInitialItemIds.value = allowed
@@ -1374,6 +1424,7 @@
   }
 
   async function refreshSequenceItemCount(sequenceId) {
+    rememberSequenceTypedIds([sequenceId])
     const fresh = await Agent.state(sequenceId).catch(() => null)
     if (!fresh) return
     const existing = getCachedPreviewMeta(sequenceId)
@@ -1396,15 +1447,14 @@
     try {
       const { added, rejectedSequences } = await appendItemsToSequence(sequenceId, itemIds, {
         insertIndex,
-        knownSequenceIds: mySequenceIdSet.value,
+        knownSequenceIds: sequenceTypedIdSet.value,
       })
+      if (rejectedSequences?.length) {
+        showError(t('sequences-cannot-be-nested'))
+        return
+      }
       if (!added) {
-        // Nested sequence(s) only, or already present
-        showError(
-          rejectedSequences?.length
-            ? t('sequences-cannot-be-nested')
-            : t('all-selected-already-in-sequence'),
-        )
+        showError(t('all-selected-already-in-sequence'))
         return
       }
       showAddPicker.value = false
@@ -1514,6 +1564,7 @@
   }
 
   function seedSequencesFromMetadataCache() {
+    rememberCachedSequenceTypes()
     const active = listedSequenceIdsFromMetadata(myContent)
     if (active.length) applySequenceLists(active, archivedSequenceIds.value)
   }
@@ -1531,6 +1582,7 @@
         filterSequenceIdsForList(seq.active || [], { assumeSequence: true, itemCount: countOf }),
         filterSequenceIdsForList(seq.archived || [], { assumeSequence: true, itemCount: countOf }),
       )
+      rememberCachedSequenceTypes()
       return true
     } catch {
       return false
@@ -1546,6 +1598,7 @@
       const cached = await loadExploreCache(userId)
       const ids = cached?.myContent
       if (!ids?.length) return false
+      rememberCachedSequenceTypes()
       const active = listedSequenceIdsFromMetadata(ids)
       if (!active.length) return false
       applySequenceLists(active, cached?.sequences?.archived || archivedSequenceIds.value)
@@ -1584,6 +1637,8 @@
       const sequenceIds = ids.filter(
         (_, i) => metas[i]?.active_type === 'application/json;type=sequence',
       )
+      // Keep one-item sequences for nesting after the display filter drops them.
+      rememberSequenceTypedIds(sequenceIds)
 
       const [archivedIdSet, states] = await Promise.all([
         refreshExploreArchivedIds(),

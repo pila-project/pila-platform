@@ -857,6 +857,19 @@ export default {
     "sk": "Už odhlásený/á",
     "th": "ได้ยกเลิกแล้ว"
   },
+  "an-assignment-can-include-one-sequence-or-several-single-activities-but-not-both": {
+    "de": "Eine Aufgabe kann eine Sequenz oder mehrere einzelne Aktivitäten enthalten, aber nicht beides.",
+    "en": "An assignment can include one sequence, or several single activities, but not both.",
+    "es": "Una tarea puede incluir una secuencia o varias actividades individuales, pero no ambas.",
+    "fr": "Un devoir peut inclure une séquence ou plusieurs activités individuelles, mais pas les deux.",
+    "km": "កិច្ចការអាចមានលំដាប់មួយ ឬសកម្មភាពនីមួយៗច្រើន ប៉ុន្តែមិនអាចមានទាំងពីរបានទេ។",
+    "lv": "Uzdevumā var būt viena secība vai vairākas atsevišķas aktivitātes, bet ne abi.",
+    "nl": "Een opdracht kan één reeks of meerdere losse activiteiten bevatten, maar niet allebei.",
+    "pl": "Zadanie może zawierać jedną sekwencję albo kilka pojedynczych aktywności, ale nie jedno i drugie.",
+    "pt": "Uma tarefa pode incluir uma sequência ou várias atividades individuais, mas não ambas.",
+    "sk": "Úloha môže obsahovať jednu sekvenciu alebo viacero samostatných aktivít, ale nie oboje.",
+    "th": "งานที่มอบหมายสามารถมีลำดับได้หนึ่งลำดับ หรือกิจกรรมเดี่ยวหลายรายการ แต่ไม่สามารถมีทั้งสองอย่างพร้อมกัน."
+  },
   "anonymous": {
     "de": "Anonym",
     "en": "Anonymous",
@@ -9583,6 +9596,19 @@ export default {
     "pt": "Agora você pode adicionar alunos a este grupo",
     "sk": "Teraz môžete do tejto skupiny pridať žiakov",
     "th": "คุณสามารถเพิ่มนักเรียนเข้ากลุ่มนี้ได้แล้ว"
+  },
+  "you-can-only-add-one-sequence-to-an-assignment": {
+    "de": "Sie können einer Aufgabe nur eine Sequenz hinzufügen.",
+    "en": "You can only add one sequence to an assignment.",
+    "es": "Solo puedes añadir una secuencia a una tarea.",
+    "fr": "Vous ne pouvez ajouter qu'une seule séquence à un devoir.",
+    "km": "អ្នកអាចបន្ថែមលំដាប់បានតែមួយទៅក្នុងកិច្ចការ។",
+    "lv": "Uzdevumam var pievienot tikai vienu secību.",
+    "nl": "Je kunt maar één reeks aan een opdracht toevoegen.",
+    "pl": "Do zadania można dodać tylko jedną sekwencję.",
+    "pt": "Você só pode adicionar uma sequência a uma tarefa.",
+    "sk": "Do úlohy môžete pridať len jednu sekvenciu.",
+    "th": "คุณสามารถเพิ่มลำดับได้เพียงหนึ่งลำดับในงานที่มอบหมาย."
   },
   "you-can-request-to-opt-back-in-later-by-contacti": {
     "de": "Sie können die erneute Anmeldung später beantragen, indem Sie den Support kontaktieren oder das Abmelden-Tag entfernen",
