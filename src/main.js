@@ -18,8 +18,10 @@ import '@fortawesome/fontawesome-free/css/all.css'
 
 mathVirtualKeyboard.targetOrigin = '*' // for math input support for RCT content
 
-
-if (window.location.pathname === '/test') runTests()
+// Gated by index.html inline /auth/ handoff; skip boot if that redirect ran.
+if (window.__PILA_AUTH_REDIRECT) {
+  // no-op: token already in localStorage; navigation in progress
+} else if (window.location.pathname === '/test') runTests()
 else if (window.location.pathname === '/login/pila') {
   const secret = secretFromLoginScan(window.location.hash)
   if (isCompleteLoginCode(secret)) {

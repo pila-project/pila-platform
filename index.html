@@ -8,9 +8,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai+Looped:wght@400;700&family=Noto+Serif+Thai&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Platform for Innovative Learning Assessments</title>
+    <!--
+      Auth callback handoff (before module bundle / @knowlearning/agents).
+      Mirrors agents/browser/auth.js /auth/ parsing exactly:
+        pathname /auth/VERIFICATION_STATE/PROVIDER_TOKEN
+        state = first path segment; origin = localStorage[state]; token = rest
+        setItem('token', token); navigate to stored origin URL
+      KL does not remove the state key — we do not either.
+      location.replace (same target as KL's location.href) avoids a back-button
+      trap on /auth/ and stops this document before Agent getToken() can burn
+      the one-shot token. If localStorage[state] is missing, fall through and
+      let the bundle run (same as KL when origin is absent).
+    -->
+    <script>
+      (function () {
+        try {
+          if (!window.location.pathname.startsWith('/auth/')) return
+          var state_token = window.location.pathname.slice(6)
+          var state = state_token.split('/', 1)[0]
+          var origin = window.localStorage.getItem(state)
+          if (!origin) return
+          var token = state_token.slice(state.length + 1)
+          window.localStorage.setItem('token', token)
+          window.__PILA_AUTH_REDIRECT = true
+          window.location.replace(origin)
+        } catch (e) {
+          /* fall through to bundle */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module">
+      if (!window.__PILA_AUTH_REDIRECT) {
+        import('/src/main.js')
+      }
+    </script>
   </body>
 </html>
