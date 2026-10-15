@@ -16,8 +16,8 @@
       </aside>
       <template v-else-if="widget.type === 'image' && (imageUrl(widget) || text(widget.header) || text(widget.caption))">
         <p v-if="text(widget.header)" class="academy-widget-label">{{ text(widget.header) }}</p>
-        <figure v-if="imageUrl(widget)" class="academy-figure">
-          <img :src="imageUrl(widget)" :alt="text(widget.alt) || ''" :style="imageSize(widget)" />
+        <figure v-if="imageUrl(widget)" class="academy-figure" :class="figureClass(widget)" :style="imageSize(widget)">
+          <img :src="imageUrl(widget)" :alt="text(widget.alt) || ''" />
           <figcaption v-if="text(widget.caption)">{{ text(widget.caption) }}</figcaption>
         </figure>
       </template>
@@ -40,7 +40,7 @@
           v-for="column in widget.columns"
           :key="column.id"
           class="academy-widget-column"
-          :style="{ flexGrow: column.width || 1 }"
+          :style="columnStyle(column)"
         >
           <ModuleWidgets
             :widgets="column.widgets"
@@ -342,10 +342,24 @@ function itemImage(item) {
   return fileUrl(item?.imageUuid, item?.imageUrl)
 }
 
+function figureClass(widget) {
+  const width = Number(widget?.maxWidth)
+  return {
+    'academy-figure-capped': Number.isFinite(width) && width > 0,
+    'academy-figure-center': widget?.style?.horizontalAlignment === 'center',
+  }
+}
+
 function imageSize(widget) {
   const width = Number(widget?.maxWidth)
   if (!Number.isFinite(width) || width <= 0) return undefined
-  return { display: 'block', width: `min(100%, ${width}px)`, maxWidth: '100%' }
+  return { '--academy-img-max': `${width}px` }
+}
+
+function columnStyle(column) {
+  const span = Number(column?.width)
+  const units = Number.isFinite(span) && span > 0 ? Math.min(span, 12) : 12
+  return { '--academy-col': String(units) }
 }
 
 function mascotSrc(widget) {
