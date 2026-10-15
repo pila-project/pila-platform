@@ -1,6 +1,6 @@
 import { describe, it, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { invalidateAll } from './content-cache.js'
+import { invalidateAll, getCachedPreviewMeta, patchPreviewMeta } from './content-cache.js'
 import {
   SEQUENCE_ACTIVE_TYPE,
   SEQUENCE_DRAG_MIME,
@@ -12,6 +12,9 @@ import {
   persistSequenceItems,
   readSequenceItemIds,
   shownAsSequence,
+  listedAsSequence,
+  sequenceItemCountAfterRead,
+  filterSequenceIdsForList,
   withTimeout,
 } from './sequence-items.js'
 
@@ -277,5 +280,89 @@ describe('shownAsSequence', () => {
     assert.equal(shownAsSequence(true, null), true)
     assert.equal(shownAsSequence(true, undefined), true)
     assert.equal(shownAsSequence(false, 3), false)
+  })
+})
+
+describe('listedAsSequence (UIUX-294)', () => {
+  const SEQUENCE = 'application/json;type=sequence'
+
+  it('drops a one-item sequence and keeps empty, unknown, and multi-item sequences', () => {
+    assert.equal(listedAsSequence(SEQUENCE, 1), false)
+    assert.equal(listedAsSequence(SEQUENCE, '1'), false)
+    assert.equal(listedAsSequence(SEQUENCE, 0), true)
+    assert.equal(listedAsSequence(SEQUENCE, 2), true)
+    assert.equal(listedAsSequence(SEQUENCE, null), true)
+    assert.equal(listedAsSequence(SEQUENCE, undefined), true)
+    assert.equal(listedAsSequence('application/json', 3), false)
+  })
+
+  it('filters sequence lists and still leaves nesting to active_type', async () => {
+    const one = 'one-item'
+    const empty = 'empty-seq'
+    const multi = 'multi-seq'
+    const leaf = 'leaf-item'
+    const ids = filterSequenceIdsForList([one, empty, multi, leaf, ''], {
+      activeType: {
+        [one]: SEQUENCE,
+        [empty]: SEQUENCE,
+        [multi]: SEQUENCE,
+        [leaf]: 'application/json',
+      },
+      itemCount: { [one]: 1, [empty]: 0, [multi]: 3, [leaf]: 1 },
+    })
+    assert.deepEqual(ids, [empty, multi])
+
+    const assumed = filterSequenceIdsForList([one, multi], {
+      assumeSequence: true,
+      itemCount: (id) => (id === one ? 1 : undefined),
+    })
+    assert.deepEqual(assumed, [multi])
+
+    globalThis.Agent.metadata = async (id) => ({
+      active_type: id === one ? SEQUENCE : 'application/json',
+    })
+    const nested = await partitionSequenceMemberIds([one, leaf], { timeoutMs: 50 })
+    assert.deepEqual(nested.rejectedSequences, [one])
+    assert.deepEqual(nested.allowed, [leaf])
+  })
+})
+
+describe('sequenceItemCountAfterRead (UIUX-294)', () => {
+  const SEQUENCE = 'application/json;type=sequence'
+
+  it('keeps the previous count when the state read fails and never invents 1', () => {
+    assert.equal(sequenceItemCountAfterRead(4, null), 4)
+    assert.equal(sequenceItemCountAfterRead(4, undefined), 4)
+    assert.equal(sequenceItemCountAfterRead(0, null), 0)
+    assert.equal(sequenceItemCountAfterRead(1, null), 1)
+    assert.equal(sequenceItemCountAfterRead(undefined, null), null)
+    assert.equal(sequenceItemCountAfterRead(null, null), null)
+    assert.equal(sequenceItemCountAfterRead('', null), null)
+    assert.notEqual(sequenceItemCountAfterRead(undefined, null), 1)
+  })
+
+  it('uses the read count when the state read succeeds', () => {
+    assert.equal(sequenceItemCountAfterRead(4, 1), 1)
+    assert.equal(sequenceItemCountAfterRead(1, 3), 3)
+    assert.equal(sequenceItemCountAfterRead(undefined, 0), 0)
+  })
+
+  it('does not cache a failed read as a single item', () => {
+    const id = 'seq-failed-state-read'
+    const itemCount = sequenceItemCountAfterRead(undefined, null)
+    patchPreviewMeta(id, {
+      description: 'renamed',
+      itemCount,
+      isSequence: true,
+      kind: 'sequence',
+    })
+    const cached = getCachedPreviewMeta(id)
+    assert.equal(cached.itemCount, null)
+    assert.equal(listedAsSequence(SEQUENCE, cached.itemCount), true)
+
+    patchPreviewMeta(id, { itemCount: sequenceItemCountAfterRead(5, null) })
+    assert.equal(getCachedPreviewMeta(id).itemCount, 5)
+    assert.equal(listedAsSequence(SEQUENCE, 5), true)
+    assert.equal(listedAsSequence(SEQUENCE, sequenceItemCountAfterRead(5, 1)), false)
   })
 })

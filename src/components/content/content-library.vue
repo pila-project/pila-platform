@@ -535,6 +535,7 @@
     nameCacheVersion, metadataCacheVersion, getCachedContentName, setCachedLegacyName, metadataCache, invalidate,
     tagCache, getCachedTagHierarchy, prefetchBatch, prefetchPageDetails, prefetchTagNames,
     getContentMetadata, getContentType, getCachedPreviewMeta, patchPreviewMeta,
+    previewMetaVersion,
     setCachedContentName, loadExploreCache, persistSequencesPanelCache,
     withCacheVersionBatch,
   } from '@/utils/content-cache.js'
@@ -549,6 +550,9 @@
     partitionSequenceMemberIds,
     SEQUENCE_DRAG_MIME,
     isSequenceActiveType,
+    listedAsSequence,
+    sequenceItemCountAfterRead,
+    filterSequenceIdsForList,
   } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
   import {
@@ -913,9 +917,10 @@
   async function onCopyModifyCreated(id) {
     await ensureSequenceMetadataCached(id)
     registerMyContentItem(id)
-    promoteActiveSequence(id)
     newestSequenceId.value = id
-    await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
+    // Count decides membership. Promoting first writes a one-item copy into
+    // My Sequences and the explore disk cache before loadMySequences can drop it.
+    await refreshSequenceItemCount(id)
     copyModifyId.value = null
   }
 
@@ -1081,10 +1086,13 @@
   }
 
   async function onSequenceCreated(id) {
-    const seededFromPicker = createSequenceInitialItemIds.value.length > 0
+    const seededCount = createSequenceInitialItemIds.value.length
+    const seededFromPicker = seededCount > 0
     await ensureSequenceMetadataCached(id)
     registerMyContentItem(id)
-    promoteActiveSequence(id)
+    if (listedAsSequence('application/json;type=sequence', seededCount)) {
+      promoteActiveSequence(id)
+    }
     newestSequenceId.value = id
     await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
     closeCreateSequenceModal()
@@ -1111,17 +1119,26 @@
       }
       const existing = getCachedPreviewMeta(id)
       const fresh = await Agent.state(id).catch(() => null)
+      const itemCount = sequenceItemCountAfterRead(
+        existing?.itemCount,
+        fresh ? countSequenceItemsFromState(fresh) : null,
+      )
       patchPreviewMeta(id, {
         description,
-        itemCount: fresh ? countSequenceItemsFromState(fresh) : (existing?.itemCount ?? 1),
+        itemCount,
         isSequence: existing?.isSequence ?? true,
         kind: existing?.kind ?? 'sequence',
       })
       touchSequenceUpdated(id)
-      promoteActiveSequence(id)
       sequenceVersion.value++
       showSuccessDialog(t('sequence-updated'))
-      await persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
+      // A failed state read must not insert or drop the id. A successful
+      // read follows refreshSequenceItemCount: list it, or drop a count of 1.
+      if (fresh) {
+        const activeType = metadataCache.get(id)?.active_type || 'application/json;type=sequence'
+        if (listedAsSequence(activeType, itemCount)) ensureInSequenceLists(id)
+        else dropFromSequenceLists(id)
+      }
       return
     }
     sequenceVersion.value++
@@ -1225,13 +1242,30 @@
     return isSequenceActiveType(metadataCache.get(id)?.active_type)
   }
 
+  function cachedListedItemCount(id) {
+    const preview = getCachedPreviewMeta(id)
+    if (!preview || preview.itemCount == null || preview.itemCount === '') return undefined
+    return preview.itemCount
+  }
+
+  function listedSequenceIdsFromMetadata(ids) {
+    return filterSequenceIdsForList(ids, {
+      activeType: (id) => metadataCache.get(id)?.active_type,
+      itemCount: (id) => cachedListedItemCount(id),
+    })
+  }
+
   function isSequenceId(id) {
     void metadataCacheVersion.value
+    void previewMetaVersion.value
     if (!id) return false
-    if (mySequenceIdSet.value.has(id)) return true
-    if (getContentType(id) === 'sequence') return true
-    if (getCachedPreviewMeta(id)?.kind === 'sequence') return true
-    return isCachedSequenceId(id)
+    const stored = mySequenceIdSet.value.has(id)
+      || getContentType(id) === 'sequence'
+      || getCachedPreviewMeta(id)?.kind === 'sequence'
+      || isCachedSequenceId(id)
+    if (!stored) return false
+    // Count 1 is one item (taggable). Unknown or empty stays a sequence.
+    return listedAsSequence('application/json;type=sequence', cachedListedItemCount(id))
   }
 
   const isAdminUser = computed(
@@ -1320,16 +1354,39 @@
     void refreshSequenceItemCount(sequenceId)
   }
 
+  function dropFromSequenceLists(id) {
+    if (!mySequenceIds.value.includes(id)) return
+    activeSequenceIds.value = activeSequenceIds.value.filter(x => x !== id)
+    archivedSequenceIds.value = archivedSequenceIds.value.filter(x => x !== id)
+    mySequenceIds.value = [...activeSequenceIds.value, ...archivedSequenceIds.value]
+    void persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
+  }
+
+  function ensureInSequenceLists(id) {
+    if (mySequenceIds.value.includes(id)) return
+    if (exploreArchivedIdSet.value.has(id)) {
+      archivedSequenceIds.value = [id, ...archivedSequenceIds.value.filter(x => x !== id)]
+      mySequenceIds.value = [...activeSequenceIds.value, ...archivedSequenceIds.value]
+    } else {
+      promoteActiveSequence(id)
+    }
+    void persistSequenceList(activeSequenceIds.value, archivedSequenceIds.value)
+  }
+
   async function refreshSequenceItemCount(sequenceId) {
     const fresh = await Agent.state(sequenceId).catch(() => null)
     if (!fresh) return
     const existing = getCachedPreviewMeta(sequenceId)
+    const count = countSequenceItemsFromState(fresh)
     patchPreviewMeta(sequenceId, {
-      itemCount: countSequenceItemsFromState(fresh),
+      itemCount: count,
       isSequence: existing?.isSequence ?? true,
       kind: existing?.kind ?? 'sequence',
       description: existing?.description ?? String(fresh?.description || '').trim(),
     })
+    const activeType = metadataCache.get(sequenceId)?.active_type || 'application/json;type=sequence'
+    if (listedAsSequence(activeType, count)) ensureInSequenceLists(sequenceId)
+    else dropFromSequenceLists(sequenceId)
   }
 
   async function addItemsToSequence(sequenceId, itemIds, { insertIndex = -1 } = {}) {
@@ -1457,11 +1514,7 @@
   }
 
   function seedSequencesFromMetadataCache() {
-    const active = []
-    for (const id of myContent) {
-      const meta = metadataCache.get(id)
-      if (meta?.active_type === 'application/json;type=sequence') active.push(id)
-    }
+    const active = listedSequenceIdsFromMetadata(myContent)
     if (active.length) applySequenceLists(active, archivedSequenceIds.value)
   }
 
@@ -1473,7 +1526,11 @@
       const cached = await loadExploreCache(userId)
       const seq = cached?.sequences
       if (!seq?.active?.length && !seq?.archived?.length) return false
-      applySequenceLists(seq.active || [], seq.archived || [])
+      const countOf = (id) => cachedListedItemCount(id)
+      applySequenceLists(
+        filterSequenceIdsForList(seq.active || [], { assumeSequence: true, itemCount: countOf }),
+        filterSequenceIdsForList(seq.archived || [], { assumeSequence: true, itemCount: countOf }),
+      )
       return true
     } catch {
       return false
@@ -1489,11 +1546,7 @@
       const cached = await loadExploreCache(userId)
       const ids = cached?.myContent
       if (!ids?.length) return false
-      const active = []
-      for (const id of ids) {
-        const meta = metadataCache.get(id)
-        if (meta?.active_type === 'application/json;type=sequence') active.push(id)
-      }
+      const active = listedSequenceIdsFromMetadata(ids)
       if (!active.length) return false
       applySequenceLists(active, cached?.sequences?.archived || archivedSequenceIds.value)
       return true
@@ -1552,6 +1605,8 @@
         const result = states[i]
         const state = result.status === 'fulfilled' ? result.value : null
         if (!isValidSequenceAgentState(state)) return
+        const count = normalizeSequenceItems(state.items).length
+        if (!listedAsSequence('application/json;type=sequence', count)) return
         if (state.name) setCachedLegacyName(id, state.name)
         if (archivedIdSet.has(id) || state.archived) archived.push(id)
         else active.push(id)

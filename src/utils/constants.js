@@ -48,12 +48,16 @@ export const CANDLI_SEQUENCES = {
     "93690465d42f52058c92404e329651be",
     "ba07adc0589f5f3a990f995cc54b8efd"
   ],
-  // Pethematicians
+  // Pethematicians. Keep this id: existing assignments still reference it.
   "e7bd0050-1bb1-11f0-a107-d7050efaf0bb": [
     "97c9ab96e9c75cd485d50d0c51fa7004"
   ],
-  // Thai Pethematicians
+  // Thai Pethematicians. Keep this id: existing assignments still reference it.
   "f73759d0-24d1-11f0-a6bf-e576da95b533": [
+    "97c9ab96e9c75cd485d50d0c51fa7004"
+  ],
+  // Republished Pethematicians (UIUX-294). Same game as the ids above.
+  "7f7e8490-7e99-11f1-aeea-6d97e63b96db": [
     "97c9ab96e9c75cd485d50d0c51fa7004"
   ],
   // Incredible Machines

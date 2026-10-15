@@ -374,6 +374,26 @@ describe('assessAssignmentDashboards Candli competency detection', () => {
     assert.deepEqual(flags.candliGames, ['candli-custom', 'embedded-game'])
   })
 
+  it('maps republished Pethematicians without using its items (UIUX-294)', async () => {
+    const id = '7f7e8490-7e99-11f1-aeea-6d97e63b96db'
+    const previous = 'e7bd0050-1bb1-11f0-a107-d7050efaf0bb'
+    mockAgent({
+      states: {
+        'asg-pethematicians': { content: [id] },
+      },
+    })
+    const loadState = globalThis.Agent.state
+    globalThis.Agent.state = async (contentId) => {
+      if (contentId === id) throw new Error('do not read republished sequence')
+      return loadState(contentId)
+    }
+    const flags = await assessAssignmentDashboards('asg-pethematicians')
+    assert.equal(flags.isCandli, true)
+    assert.deepEqual(flags.candliGames, ['97c9ab96e9c75cd485d50d0c51fa7004'])
+    assert.deepEqual(CANDLI_SEQUENCES[id], CANDLI_SEQUENCES[previous])
+    assert.deepEqual(CANDLI_SEQUENCES['f73759d0-24d1-11f0-a6bf-e576da95b533'], CANDLI_SEQUENCES[previous])
+  })
+
   it('preserves hardcoded Candli sequence mappings', async () => {
     mockAgent({
       states: {

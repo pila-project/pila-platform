@@ -46,6 +46,47 @@ export function shownAsSequence(isSequence, itemCount) {
   return count !== 1
 }
 
+/**
+ * UIUX-294: list, tag, and count a document as a sequence using
+ * shownAsSequence. Count 1 is a single item. Count 0 or unknown stays a
+ * sequence. Nesting still uses active_type in partitionSequenceMemberIds.
+ */
+export function listedAsSequence(activeType, itemCount) {
+  return shownAsSequence(String(activeType || '').includes('type=sequence'), itemCount)
+}
+
+/**
+ * Item count to cache after a sequence name or description save.
+ * A failed state read (`readCount == null`) keeps the previous count.
+ * Never invent 1: that count means a single item, so a failed read would
+ * make a multi-item sequence taggable.
+ */
+export function sequenceItemCountAfterRead(previousCount, readCount) {
+  if (readCount != null && readCount !== '') return readCount
+  if (previousCount != null && previousCount !== '') return previousCount
+  return null
+}
+
+/**
+ * Ids that should appear in My Sequences or recent sequences.
+ * `itemCount(id)` may be omitted (unknown stays a sequence).
+ * Pass assumeSequence when every id is already a sequence and type may be missing.
+ */
+export function filterSequenceIdsForList(ids, {
+  activeType,
+  itemCount,
+  assumeSequence = false,
+} = {}) {
+  const typeOf = typeof activeType === 'function' ? activeType : (id) => activeType?.[id]
+  const countOf = typeof itemCount === 'function' ? itemCount : (id) => itemCount?.[id]
+  return (ids || []).filter((id) => {
+    if (!id) return false
+    let type = typeOf(id)
+    if (!type && assumeSequence) type = SEQUENCE_ACTIVE_TYPE
+    return listedAsSequence(type, countOf(id))
+  })
+}
+
 function toIdSet(knownSequenceIds) {
   if (!knownSequenceIds) return null
   if (knownSequenceIds instanceof Set) return knownSequenceIds

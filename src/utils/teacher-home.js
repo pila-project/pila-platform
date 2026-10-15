@@ -1,4 +1,5 @@
 import { ASSIGNMENT_STATUS, effectiveAssignmentStatus } from './assignment-status.js'
+import { listedAsSequence } from './sequence-items.js'
 
 export const LEARN_ABOUT_PILA_URL = 'https://pilaproject.org'
 export const HOME_LAYOUT_KEY = 'pila-home-layout'
@@ -117,8 +118,17 @@ export function getAssignmentDueAt(data) {
   return Number.isNaN(dt.getTime()) ? toEpochMs(data.dueDate) : dt.getTime()
 }
 
-export function isSequenceMetadata(meta) {
-  return String(meta?.active_type || '').includes('type=sequence')
+export function isSequenceMetadata(meta, itemCount) {
+  return listedAsSequence(meta?.active_type, itemCount)
+}
+
+/**
+ * A sequence id list is safe to persist only when every id has a count.
+ * A missing count stays a sequence and must not rewrite the recent snapshot.
+ */
+export function sequenceCountsAuthoritative(ids, counts) {
+  if (!counts || typeof counts.has !== 'function') return false
+  return (ids || []).every(id => counts.has(id))
 }
 
 /**

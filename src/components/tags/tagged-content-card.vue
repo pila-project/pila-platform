@@ -496,18 +496,21 @@
     return isSequenceActiveType(meta?.active_type)
   }
 
-  const isSequenceCard = computed(() => {
+  const isStoredSequence = computed(() => {
     void previewMetaVersion.value
     void metadataCacheVersion.value
     return contentKind.value === 'sequence' || isSequenceContent()
   })
 
-  // Copy picker keeps the gold mark on every stored sequence (Add stays
-  // disabled). Library cards drop it once preview shows exactly one item.
+  // Count 1 is a single item (taggable, no sequence chrome). Unknown or empty
+  // stays a sequence. Copy picker still marks every stored sequence.
+  const isSequenceCard = computed(() => (
+    shownAsSequence(isStoredSequence.value, exploreItemCount.value)
+  ))
+
   const showSequenceChrome = computed(() => {
-    if (!isSequenceCard.value) return false
-    if (props.nestingBlocked) return true
-    return shownAsSequence(true, exploreItemCount.value)
+    if (props.nestingBlocked && isStoredSequence.value) return true
+    return isSequenceCard.value
   })
 
   const isAdminUser = computed(
