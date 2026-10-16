@@ -173,7 +173,7 @@ function extractContentId(input) {
   if (!trimmed) return null
   if (trimmed.startsWith('https://bettysbrain.knowlearning.systems/bb/')) {
     const possibleModuleId = trimmed.slice(44, 80)
-    return isUUID(possibleModuleId) ? possibleModuleId : null
+    return isUUID(possibleModuleId) ? trimmed : null
   }
   if (isUUID(trimmed)) return trimmed
   const match = trimmed.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)
