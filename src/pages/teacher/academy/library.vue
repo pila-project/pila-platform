@@ -73,6 +73,7 @@
 
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { PPagination, PUnifiedFilter, PUnifiedFilterSection } from '@/components/ui/index.js'
 import { gridPerPageOptions, isAllPerPage } from '@/utils/pagination-options.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
@@ -83,8 +84,10 @@ import { joinAcademyCatalog } from '@/utils/teacher-academy.js'
 import { loadAcademyDocument, loadCatalogIds, loadSnapshot } from '@/utils/teacher-academy-io.js'
 import { fixtureCatalogRecords, isAcademyFixture, mergeFixtureSnapshot, readFixtureSnapshot } from './fixtures.js'
 import AcademyCard from './AcademyCard.vue'
+import { shouldUseAcademyKlPlayer } from './kl-player.js'
 import { reloadWhenShown, useAcademyPage } from './useAcademyPage.js'
 
+const route = useRoute()
 const { store, router, lang, copy } = useAcademyPage()
 
 const query = ref('')
@@ -185,7 +188,19 @@ function chipLabels(card) {
 
 function actionFor(card) {
   if (card.status === 'completed') {
-    return { label: copy('review'), icon: 'lucide:eye', to: `/teacher/academy/module/${card.id}/review` }
+    const entry = snapshot.value?.modules?.[card.id]
+    const openLesson = entry?.source === 'kl-player' && shouldUseAcademyKlPlayer({
+      id: card.id,
+      fixture: isAcademyFixture(card.id),
+      queryValue: route.query.klplayer,
+    })
+    return {
+      label: copy('review'),
+      icon: 'lucide:eye',
+      to: openLesson
+        ? `/teacher/academy/module/${card.id}`
+        : `/teacher/academy/module/${card.id}/review`,
+    }
   }
   if (!card.isNew) {
     return { label: copy('resume'), icon: 'lucide:play', to: `/teacher/academy/module/${card.id}` }

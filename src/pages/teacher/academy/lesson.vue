@@ -1,8 +1,8 @@
 <template>
-  <div class="lesson-page">
+  <div class="lesson-page" :class="{ 'lesson-page-kl': showKlPlayer }">
     <p v-if="loading" class="academy-muted">{{ copy('loading') }}</p>
     <p v-else-if="error" class="academy-error">{{ error }}</p>
-    <template v-else-if="doc && section">
+    <template v-else-if="doc && (showKlPlayer || section)">
       <section class="lesson-sheet">
         <header class="lesson-nav">
           <div class="lesson-nav-title">
@@ -27,7 +27,18 @@
           </div>
         </header>
 
-        <div class="lesson-columns" :class="{ 'no-check': !section.check }">
+        <div v-if="showKlPlayer" class="lesson-kl-player">
+          <vueEmbedComponent
+            ref="klEmbedRef"
+            :id="moduleId"
+            :key="klEmbedKey"
+            class="lesson-kl-embed"
+            :namespace="klNamespace"
+            :environmentProxy="addAcademyVariables"
+          />
+          <p v-if="playError" class="academy-error">{{ playError }}</p>
+        </div>
+        <div v-else class="lesson-columns" :class="{ 'no-check': !section.check }">
           <div class="lesson-scroll">
             <div class="lesson-chips">
               <span class="lesson-chip">{{ copy('sectionOf', { n: index + 1, m: sectionKeys.length }) }}</span>
@@ -170,9 +181,11 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
+import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
 import { quizStatus } from '@/utils/accingo-module.js'
 import {
   answerCheck,
@@ -191,11 +204,20 @@ import KnowledgeCheck from './KnowledgeCheck.vue'
 import ModuleWidgets from './ModuleWidgets.vue'
 import DownloadResourcesDialog from './DownloadResourcesDialog.vue'
 import { describeDownload, openDownloads } from './downloads.js'
+import { languagesWithPageFirst, shouldUseAcademyKlPlayer } from './kl-player.js'
+import {
+  KL_PROGRESS_WRITE_DELAY_MS,
+  klActivityScope,
+  klModuleWrite,
+  projectAcademyKlProgress,
+  readKlModuleSource,
+} from './kl-progress.js'
 import { reloadWhenShown, useAcademyPage } from './useAcademyPage.js'
 
 const route = useRoute()
 const { store, router, lang, copy } = useAcademyPage()
 const moduleId = computed(() => route.params.id)
+const ownedPath = route.path
 const doc = ref(null)
 const snapshot = ref(null)
 const runstate = ref(emptyRunstate())
@@ -207,6 +229,80 @@ const toast = ref('')
 const showDownloads = ref(false)
 const backTo = '/teacher/academy'
 let toastTimer = 0
+let academyVarProxy = null
+
+const klPlayerAllowed = computed(() => shouldUseAcademyKlPlayer({
+  id: moduleId.value,
+  fixture: isAcademyFixture(moduleId.value),
+  queryValue: route.query.klplayer,
+}))
+// Only Accingo modules (Nikki's player) play through KL. Native Academy modules keep the built-in renderer.
+const klPlayer = computed(() => klPlayerAllowed.value && doc.value?.format === 'accingo')
+const showKlPlayer = computed(() => klPlayer.value && !loading.value && !error.value && !!doc.value)
+const klEmbedKey = computed(() => `${moduleId.value}:${lang.value || 'en'}`)
+const klNamespace = computed(() => `academy-kl-player/${moduleId.value}`)
+const klEmbedRef = ref(null)
+let stopKlWatch = null
+let klWriteTimer = 0
+let klFlush = Promise.resolve()
+let pendingKl = null
+let klWriteFailed = false
+let klLoadToken = 0
+let klPageActive = true
+let klAllowObserver = null
+let klEmbedEl = null
+
+/**
+ * No module retake or restart is reachable from this page. Review's retake
+ * sentence is about answering a shell question again. KL mode does not mount
+ * that player, and it does not clear Nikki's activity document.
+ *
+ * vueEmbed's root iframe is hard-coded allow="camera;microphone". Patch that
+ * attribute on load, and again if a re-render puts it back.
+ * The inner frame in accingo/pila-teacher-academy-published src/components/pila/embedInPilaFrame.ts
+ * sets allowFullscreen and does not set allow="fullscreen". This observer
+ * cannot reach that frame.
+ */
+const KL_IFRAME_ALLOW = 'camera;microphone;fullscreen'
+
+function patchKlFullscreenNow() {
+  const el = klEmbedRef.value?.$el
+  if (!el || el.tagName !== 'IFRAME') return
+  if (el.getAttribute('allow') !== KL_IFRAME_ALLOW) el.setAttribute('allow', KL_IFRAME_ALLOW)
+  if (!el.hasAttribute('allowfullscreen')) el.setAttribute('allowfullscreen', '')
+}
+
+function unbindKlFullscreen() {
+  if (klAllowObserver) {
+    klAllowObserver.disconnect()
+    klAllowObserver = null
+  }
+  if (klEmbedEl) {
+    klEmbedEl.removeEventListener('load', patchKlFullscreenNow)
+    klEmbedEl = null
+  }
+}
+
+function bindKlFullscreen() {
+  nextTick(() => {
+    unbindKlFullscreen()
+    if (!klPageActive || route.path !== ownedPath) return
+    const el = klEmbedRef.value?.$el
+    if (!el || el.tagName !== 'IFRAME') return
+    klEmbedEl = el
+    el.addEventListener('load', patchKlFullscreenNow)
+    patchKlFullscreenNow()
+    klAllowObserver = new MutationObserver(() => {
+      patchKlFullscreenNow()
+    })
+    klAllowObserver.observe(el, { attributes: true, attributeFilter: ['allow'] })
+  })
+}
+
+watch([showKlPlayer, klEmbedKey], () => {
+  if (showKlPlayer.value && klPageActive && route.path === ownedPath) bindKlFullscreen()
+  else unbindKlFullscreen()
+})
 
 const sectionKeys = computed(() => orderedKeys(doc.value?.sections))
 const index = computed(() => {
@@ -297,10 +393,173 @@ watch(sectionKey, () => {
   clearToast()
 })
 
-onBeforeUnmount(clearToast)
+function cancelKlWatch() {
+  if (stopKlWatch) {
+    stopKlWatch()
+    stopKlWatch = null
+  }
+}
+
+function stillWatching(token, watchedId) {
+  return token === klLoadToken && route.params.id === watchedId && route.path === ownedPath
+}
+
+function showKlPlayError() {
+  if (klPageActive && route.path === ownedPath) playError.value = copy('playFailed')
+}
+
+async function commitKlWrite() {
+  const current = pendingKl
+  if (!current) return
+  const { watchedId, derived } = current
+  const fresh = isAcademyFixture(watchedId) ? readFixtureSnapshot() : await loadSnapshot(store)
+  const write = klModuleWrite(fresh, watchedId, derived, Date.now())
+  if (write.changed) {
+    if (isAcademyFixture(watchedId)) writeFixtureSnapshot(write.snapshot)
+    else await saveSnapshot(store, write.snapshot)
+  }
+  if (pendingKl === current) pendingKl = null
+  if (snapshot.value && route.params.id === watchedId) {
+    snapshot.value = {
+      schemaVersion: snapshot.value.schemaVersion || 1,
+      modules: { ...(snapshot.value.modules || {}), [watchedId]: write.entry },
+      series: { ...(snapshot.value.series || {}) },
+    }
+  }
+}
+
+function enqueueKlWrite() {
+  const run = klFlush.then(async () => {
+    const pending = pendingKl
+    if (!pending) return
+    try {
+      await commitKlWrite()
+      klWriteFailed = false
+      if (klPageActive && route.path === ownedPath) playError.value = ''
+    } catch (err) {
+      klWriteFailed = true
+      if (err?.code === 'forbidden') router.replace('/')
+      else showKlPlayError()
+      if (pendingKl && !klWriteTimer) {
+        klWriteTimer = setTimeout(() => {
+          klWriteTimer = 0
+          if (pendingKl) enqueueKlWrite()
+        }, KL_PROGRESS_WRITE_DELAY_MS)
+      }
+    }
+  })
+  klFlush = run.then(() => {}, () => {})
+  return run
+}
+
+function scheduleKlSnapshot(derived, watchedId) {
+  pendingKl = { derived, watchedId }
+  clearTimeout(klWriteTimer)
+  klWriteTimer = setTimeout(() => {
+    klWriteTimer = 0
+    if (pendingKl) enqueueKlWrite()
+  }, KL_PROGRESS_WRITE_DELAY_MS)
+}
+
+async function flushKlSnapshot() {
+  clearTimeout(klWriteTimer)
+  klWriteTimer = 0
+  if (pendingKl) await enqueueKlWrite()
+  else await klFlush
+  return !klWriteFailed
+}
+
+function applyKlActivity(moduleDoc, activityDoc, watchedId) {
+  if (route.params.id !== watchedId || route.path !== ownedPath) return
+  const projected = projectAcademyKlProgress({
+    snapshot: snapshot.value,
+    moduleId: watchedId,
+    moduleDoc,
+    activityDoc,
+    now: Date.now(),
+  })
+  const derived = projected.derived
+  if (!projected.ok || projected.unchanged) return
+  if (snapshot.value) {
+    snapshot.value = {
+      schemaVersion: snapshot.value.schemaVersion || 1,
+      modules: { ...(snapshot.value.modules || {}), [watchedId]: projected.entry },
+      series: { ...(snapshot.value.series || {}) },
+    }
+  }
+  scheduleKlSnapshot(projected.derived, watchedId)
+}
+
+async function watchKlProgress(moduleDoc, watchedId) {
+  cancelKlWatch()
+  if (route.params.id !== watchedId || route.path !== ownedPath) return
+  const source = readKlModuleSource(moduleDoc)
+  const scope = klActivityScope(watchedId, source.version, source.appId || 'module')
+  // scope.mismatch: the published config's version differs from her player's
+  // data version. Her player still writes under KL_MODULE_DATA_VERSION, so watch that.
+  const token = klLoadToken
+  stopKlWatch = Agent.watch(scope.scope, ({ state }) => {
+    if (token !== klLoadToken) return
+    if (route.params.id !== watchedId || route.path !== ownedPath) return
+    applyKlActivity(moduleDoc, state, watchedId)
+  })
+}
+
+function stopKlSession() {
+  klPageActive = false
+  klLoadToken += 1
+  unbindKlFullscreen()
+  cancelKlWatch()
+  flushKlSnapshot()
+}
+
+onDeactivated(() => {
+  stopKlSession()
+})
+
+onActivated(() => {
+  klPageActive = true
+  if (showKlPlayer.value && route.path === ownedPath) bindKlFullscreen()
+})
+
+onBeforeUnmount(() => {
+  clearToast()
+  stopKlSession()
+})
+
+watch(
+  () => [
+    moduleId.value,
+    Array.isArray(route.query.klplayer) ? route.query.klplayer[route.query.klplayer.length - 1] : route.query.klplayer,
+  ],
+  (next, prev) => {
+    if (!klPageActive || route.path !== ownedPath) return
+    if (prev && next[0] === prev[0] && next[1] === prev[1]) return
+    loadLesson()
+  },
+)
 
 function text(value) {
   return localizedText(value, lang.value)
+}
+
+function academyVariableProxy() {
+  if (!academyVarProxy) academyVarProxy = studyEnvironmentVariableProxy()
+  return academyVarProxy
+}
+
+async function addAcademyVariables(event) {
+  const apply = await academyVariableProxy()
+  const env = await apply(event)
+  if (!env) return env
+  const variables = env.variables && typeof env.variables === 'object' ? env.variables : {}
+  return {
+    ...env,
+    variables: {
+      ...variables,
+      LANGUAGES: languagesWithPageFirst(variables.LANGUAGES, lang.value),
+    },
+  }
 }
 
 function pageLabel(page) {
@@ -328,6 +587,7 @@ function canOpen(page) {
 }
 
 async function persist(result) {
+  if (klPlayer.value) return
   snapshot.value = result.snapshot
   runstate.value = result.runstate
   if (isAcademyFixture(moduleId.value)) {
@@ -458,6 +718,7 @@ function onPrimary() {
 }
 
 async function advance() {
+  if (klPlayer.value) return
   playError.value = ''
   if (needsSectionCheck.value) {
     const blocked = advanceError.value
@@ -505,6 +766,7 @@ async function advance() {
 }
 
 async function goTo(page) {
+  if (klPlayer.value) return
   if (!canOpen(page) || page === index.value) return
   const maxSectionIndex = Math.max(runstate.value.maxSectionIndex || 0, runstate.value.sectionIndex || 0, page)
   runstate.value = { ...runstate.value, sectionIndex: page, maxSectionIndex }
@@ -518,38 +780,74 @@ async function goTo(page) {
 }
 
 async function loadLesson() {
+  const watchedId = moduleId.value
+  const useKl = klPlayerAllowed.value
+  const token = ++klLoadToken
+  cancelKlWatch()
+  const saved = await flushKlSnapshot()
+  if (!stillWatching(token, watchedId)) return
+  if (saved) playError.value = ''
   try {
-    if (isAcademyFixture(moduleId.value)) {
-      const sample = fixtureRecord(moduleId.value)
+    if (isAcademyFixture(watchedId)) {
+      const sample = fixtureRecord(watchedId)
       if (!sample || sample.kind !== 'module') {
         error.value = copy('notFound')
         return
       }
       doc.value = sample.doc
       snapshot.value = readFixtureSnapshot()
-      runstate.value = readFixtureRun(moduleId.value) || emptyRunstate()
-      const opened = openModule(snapshot.value, moduleId.value, Date.now())
+      runstate.value = readFixtureRun(watchedId) || emptyRunstate()
+      const opened = openModule(snapshot.value, watchedId, Date.now())
       snapshot.value = opened.snapshot
-      writeFixtureSnapshot(opened.snapshot)
+      writeFixtureSnapshot({
+        schemaVersion: 1,
+        modules: { [watchedId]: opened.snapshot.modules[watchedId] },
+        series: {},
+      })
       return
     }
-    const loaded = await loadAcademyDocument(store, moduleId.value)
+    const loaded = await loadAcademyDocument(store, watchedId)
+    if (!stillWatching(token, watchedId)) return
     if (!loaded || loaded.kind !== 'module') {
       error.value = copy('notFound')
       return
     }
     doc.value = loaded.doc
+    if (useKl && loaded.doc?.format === 'accingo') {
+      // Answers stay on her activity document. Do not read or write play runstate.
+      const fresh = await loadSnapshot(store)
+      if (!stillWatching(token, watchedId)) return
+      const opened = openModule(fresh, watchedId, Date.now())
+      const entry = opened.snapshot.modules[watchedId]
+      snapshot.value = opened.snapshot
+      await saveSnapshot(store, { schemaVersion: 1, modules: { [watchedId]: entry }, series: {} })
+      if (!stillWatching(token, watchedId)) return
+      let moduleDoc = null
+      try {
+        moduleDoc = await Agent.state(watchedId)
+      } catch {
+        // Without the module document there is no section count, so progress is not projected.
+      }
+      if (!stillWatching(token, watchedId)) return
+      if (moduleDoc) await watchKlProgress(moduleDoc, watchedId)
+      if (showKlPlayer.value) bindKlFullscreen()
+      return
+    }
+    unbindKlFullscreen()
     snapshot.value = await loadSnapshot(store)
-    runstate.value = await loadRunstate(store, moduleId.value) || emptyRunstate()
-    const opened = openModule(snapshot.value, moduleId.value, Date.now())
+    if (!stillWatching(token, watchedId)) return
+    runstate.value = await loadRunstate(store, watchedId) || emptyRunstate()
+    if (!stillWatching(token, watchedId)) return
+    const opened = openModule(snapshot.value, watchedId, Date.now())
     snapshot.value = opened.snapshot
     await saveSnapshot(store, opened.snapshot)
-    if (opened.created) await savePlay(store, moduleId.value, runstate.value, opened.publicEntry)
+    if (opened.created) await savePlay(store, watchedId, runstate.value, opened.publicEntry)
   } catch (err) {
+    if (!stillWatching(token, watchedId)) return
     if (err?.code === 'forbidden') router.replace('/')
     else error.value = copy('notFound')
   } finally {
-    loading.value = false
+    if (token === klLoadToken) loading.value = false
   }
 }
 
