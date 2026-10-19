@@ -493,6 +493,12 @@
   import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
   import { normalizeSequenceItems } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
+  import { klWrapperDashboardGroup } from '@/utils/assignment-kl-wrapper.js'
+  import { loadAssignmentDashboardSequenceItems } from '@/utils/dashboard-sequence-items.js'
+  import {
+    isRealItemInfoCell,
+    mergeLiveMonitoringPerformance,
+  } from '@/utils/kl-wrapper-progress.js'
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
   import {
     assessAssignmentDashboards,
@@ -524,6 +530,9 @@
   const viewMode = ref('overview')
   const assignmentName = ref('')
   const contentId = ref(null)
+  /** Set whenever klWrapper.id exists. Progress is merged with legacy groups by item id. */
+  const klWrapperId = ref(null)
+  let submissionGroups = []
   /** All assignment content ids for the overview list (not used by In Progress). */
   const contentItems = ref([])
   const previewing = ref(null)
@@ -676,37 +685,79 @@
    * Infer "started" from live-dashboard performance state.
    * Agent.state(`${assignment}/sequence-${content}`, studentId)
    */
-  function performanceIndicatesStarted(state) {
+  function performanceIndicatesStarted(state, { ignorePlaceholders = false } = {}) {
     if (!state || typeof state !== 'object') return false
     if (Number(state.totalTime) > 0) return true
     if (state.activeItemIndex != null && state.activeItemIndex !== '') return true
     const info = state.itemInfo
     if (!info || typeof info !== 'object') return false
     for (const entry of Object.values(info)) {
-      if (!entry || typeof entry !== 'object') continue
-      if (Number(entry.time) > 0) return true
-      if (entry.correct === true || entry.correct === false) return true
+      if (isRealItemInfoCell(entry)) return true
     }
+    if (ignorePlaceholders) return false
     return Object.keys(info).length > 0
+  }
+
+  function performanceFromGroups(groups, bySeq, itemIds) {
+    const merged = mergeLiveMonitoringPerformance({
+      groups,
+      performanceBySeq: bySeq,
+      sequenceItems: itemIds,
+    })
+    const itemInfo = {}
+    ;(itemIds || []).forEach((itemId, index) => {
+      const cell = merged.activeItemInfoArray[index]
+      if (!isRealItemInfoCell(cell)) return
+      itemInfo[`${index}/${itemId}`] = cell
+    })
+    return {
+      itemInfo,
+      totalTime: merged.totalTime,
+      activeItemIndex: merged.activeItemIndex,
+    }
   }
 
   async function loadStudentActivityProgress() {
     const list = students.value
     const seqId = contentId.value
+    const wrapperId = klWrapperId.value
     // Reset
     Object.keys(studentStartedCache).forEach(k => delete studentStartedCache[k])
-    if (!list.length || !seqId) {
+    if (!list.length || (!seqId && !wrapperId)) {
       activityProgressLoading.value = false
       return
     }
 
     activityProgressLoading.value = true
-    const path = `${props.assignmentId}/sequence-${seqId}`
+    const legacyPath = seqId ? `${props.assignmentId}/sequence-${seqId}` : null
+    const wrapperPath = wrapperId ? `${props.assignmentId}/sequence-${wrapperId}` : null
     try {
       await Promise.all(list.map(async (sid) => {
         try {
-          // Agent.state(id, user) — same scope as live monitoring dashboard rows
-          const state = await Agent.state(path, sid)
+          // totalTime on a wrapper doc counts as started. Placeholder cells alone fall through.
+          if (wrapperPath) {
+            const groupIds = [...new Set(submissionGroups.map(group => group.sequenceId).filter(Boolean))]
+            let started = false
+            for (const seqId of groupIds) {
+              try {
+                const seqState = await Agent.state(`${props.assignmentId}/sequence-${seqId}`, sid)
+                const real = performanceIndicatesStarted(seqState, { ignorePlaceholders: true })
+                if (real) {
+                  started = true
+                  break
+                }
+              } catch {
+                // Next group.
+              }
+            }
+            studentStartedCache[sid] = started
+            return
+          }
+          if (!legacyPath) {
+            studentStartedCache[sid] = false
+            return
+          }
+          const state = await Agent.state(legacyPath, sid)
           studentStartedCache[sid] = performanceIndicatesStarted(state)
         } catch {
           studentStartedCache[sid] = false
@@ -904,24 +955,61 @@
     }
 
     const userId = currentStudentId.value
-    if (!userId || !contentId.value) return
+    if (!userId || (!contentId.value && !klWrapperId.value)) return
 
     performanceData.value = null
+    const bucket = { legacy: null }
+    const bySeq = {}
+    const paths = []
+    if (klWrapperId.value && submissionGroups.length) {
+      for (const seqId of [...new Set(submissionGroups.map(group => group.sequenceId).filter(Boolean))]) {
+        paths.push({
+          key: 'group',
+          seqId,
+          path: `${props.assignmentId}/sequence-${seqId}`,
+        })
+      }
+    } else if (contentId.value) {
+      paths.push({
+        key: 'legacy',
+        path: `${props.assignmentId}/sequence-${contentId.value}`,
+      })
+    }
 
     try {
       await new Promise((resolve) => {
+        let left = paths.length
         let resolved = false
-        Agent.watch(
-          `${props.assignmentId}/sequence-${contentId.value}`,
-          ({ state }) => {
-            performanceData.value = state
-            if (!resolved) {
-              resolved = true
-              resolve()
-            }
-          },
-          userId
-        )
+        const seen = new Set()
+        const finish = (path) => {
+          if (resolved || seen.has(path)) return
+          seen.add(path)
+          left -= 1
+          if (left <= 0) {
+            resolved = true
+            resolve()
+          }
+        }
+        for (const entry of paths) {
+          Agent.watch(
+            entry.path,
+            ({ state }) => {
+              if (entry.key === 'group') {
+                bySeq[entry.seqId] = state
+                performanceData.value = performanceFromGroups(
+                  submissionGroups,
+                  bySeq,
+                  sequenceItems.value,
+                )
+              } else {
+                bucket.legacy = state
+                performanceData.value = state
+              }
+              finish(entry.path)
+            },
+            userId
+          )
+        }
         // Timeout fallback
         setTimeout(() => {
           if (!resolved) {
@@ -970,6 +1058,9 @@
     assignmentName.value = assignState.name || t('assignment')
     contentId.value = Array.isArray(assignState.content) ? assignState.content[0] : assignState.content
     contentItems.value = normalizeAssignmentContent(assignState.content)
+    const wrapperGroup = klWrapperDashboardGroup(assignState)
+    klWrapperId.value = wrapperGroup?.sequenceId || null
+    submissionGroups = []
     maxAttempts.value = assignState.maxAttempts || '1'
 
     if (assignState.dueDate) {
@@ -983,7 +1074,11 @@
     assignmentContainsAppDashboard.value = flags.isApp
     assignmentContainsLiveDashboard.value = hasLiveMonitoringCard(flags)
 
-    if (contentId.value) {
+    if (wrapperGroup) {
+      const loaded = await loadAssignmentDashboardSequenceItems(assignState)
+      sequenceItems.value = loaded.items
+      submissionGroups = loaded.groups
+    } else if (contentId.value) {
       try {
         const seqState = await Agent.state(contentId.value)
         sequenceItems.value = normalizeSequenceItems(seqState.items)

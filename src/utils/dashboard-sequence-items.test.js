@@ -76,4 +76,40 @@ describe('loadAssignmentDashboardSequenceItems (UIUX-237 union)', () => {
     assert.deepEqual(items, ['shared', 'only-a', 'only-b'])
     assert.deepEqual(groups[1].itemIds, ['shared', 'only-b'])
   })
+
+  it('includes a kl wrapper group even when its items differ from content', async () => {
+    mockAgent({
+      states: {
+        'leaf-a': { items: {} },
+      },
+    })
+    const { items, groups } = await loadAssignmentDashboardSequenceItems({
+      content: ['leaf-a'],
+      klWrapper: { id: 'wrap-1', items: ['leaf-b', 'leaf-a'] },
+    })
+    assert.deepEqual(items, ['leaf-a'])
+    assert.equal(groups[0].klWrapper, true)
+    assert.equal(groups[0].sequenceId, 'wrap-1')
+    assert.deepEqual(groups[0].itemIds, ['leaf-b', 'leaf-a'])
+    assert.deepEqual(groups[1], { sequenceId: 'leaf-a', itemIds: ['leaf-a'] })
+  })
+
+  it('puts a matching kl wrapper group first and keeps per-leaf groups', async () => {
+    mockAgent({
+      states: {
+        'leaf-a': { items: {} },
+        'leaf-b': { items: {} },
+      },
+    })
+    const { items, groups } = await loadAssignmentDashboardSequenceItems({
+      content: ['leaf-a', 'leaf-b'],
+      klWrapper: { id: 'wrap-1', items: ['leaf-a', 'leaf-b'] },
+    })
+    assert.deepEqual(items, ['leaf-a', 'leaf-b'])
+    assert.deepEqual(groups, [
+      { sequenceId: 'wrap-1', itemIds: ['leaf-a', 'leaf-b'], klWrapper: true },
+      { sequenceId: 'leaf-a', itemIds: ['leaf-a'] },
+      { sequenceId: 'leaf-b', itemIds: ['leaf-b'] },
+    ])
+  })
 })

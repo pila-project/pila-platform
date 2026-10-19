@@ -38,6 +38,7 @@
   import ItemInfo from './item-info.vue'
   import StudentSummary from './student-summary.vue'
   import DecryptedName from '@/components/common/decrypted-name.vue'
+  import { mergeLiveMonitoringPerformance } from '@/utils/kl-wrapper-progress.js'
 
   const props = defineProps({
     user: String,
@@ -97,34 +98,22 @@
     })))
   }
 
-  const performance = computed(() => {
-    let totalTime = 0
-    let activeItemIndex = null
-    for (const group of groups) {
-      const state = performanceBySeq[group.sequenceId]
-      if (!state) continue
-      totalTime += Number(state.totalTime) || 0
-      if (group.sequenceId === activeSequenceId.value && state.activeItemIndex != null && state.activeItemIndex !== '') {
-        const localId = group.itemIds?.[state.activeItemIndex]
-        const unionIndex = (props.sequenceItems || []).indexOf(localId)
-        if (unionIndex !== -1) activeItemIndex = unionIndex
-      }
-    }
-    return { totalTime, activeItemIndex }
-  })
+  // Cells merge by item id. Placeholders are skipped, and totalTime is not
+  // double-counted, only when a wrapper group is in sequenceGroups.
+  const mergedPerformance = computed(() => mergeLiveMonitoringPerformance({
+    groups,
+    performanceBySeq,
+    sequenceItems: props.sequenceItems,
+    activeSequenceId: activeSequenceId.value,
+    quizModeBySeq,
+  }))
 
-  // Look up itemInfo by item id + that content's local index, not unioned column index.
-  const activeItemInfoArray = computed(() => {
-    return (props.sequenceItems || []).map((itemId) => {
-      for (const group of groups) {
-        const localIndex = group.itemIds?.indexOf(itemId)
-        if (localIndex == null || localIndex === -1) continue
-        const info = performanceBySeq[group.sequenceId]?.itemInfo?.[`${localIndex}/${itemId}`]
-        if (info) return { ...info, quizMode: quizModeBySeq[group.sequenceId] }
-      }
-      return { correct: null, time: 0 }
-    })
-  })
+  const performance = computed(() => ({
+    totalTime: mergedPerformance.value.totalTime,
+    activeItemIndex: mergedPerformance.value.activeItemIndex,
+  }))
+
+  const activeItemInfoArray = computed(() => mergedPerformance.value.activeItemInfoArray)
 
   const numItems = computed(() => activeItemInfoArray.value.length)
   const numCorrect = computed(() => activeItemInfoArray.value.filter(obj => obj?.correct).length)

@@ -1,5 +1,22 @@
 <template>
-  <div v-if="playMode === 'sequence' && localSequenceId && addVariables" class="wrapper sequence-play">
+  <div v-if="klEmbed && playMode === 'embed' && playableId && addVariables" class="wrapper sequence-play">
+    <div class="sequence-bar">
+      <button type="button" class="sequence-leave" @click="endCurrentContent()">
+        {{ t('close') }}
+      </button>
+    </div>
+    <div class="kl-embed-host">
+      <vueEmbedComponent
+        :key="contentIndex + ':' + playableId"
+        :id="playableId"
+        @close="endCurrentContent"
+        :namespace="route.params.id"
+        :environmentProxy="addVariables"
+        allow="camera;microphone;fullscreen"
+      />
+    </div>
+  </div>
+  <div v-else-if="playMode === 'sequence' && localSequenceId && addVariables" class="wrapper sequence-play">
     <div class="sequence-bar">
       <button type="button" class="sequence-leave" @click="endCurrentContent()">
         {{ t('close') }}
@@ -98,6 +115,7 @@ import { candliGamesForSequenceItems } from '@/candli-games.js'
 import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 import { SEQUENCE_SYNC_TIMEOUT_MS, normalizeSequenceItems, withTimeout } from '@/utils/sequence-items.js'
 import { shouldPlaySameHostSequence } from '@/utils/same-host-sequence.js'
+import { planKlAssignmentPlay } from '@/utils/kl-assignment-play.js'
 import SequencePreviewBody from '@/components/content/sequence-preview-body.vue'
 import {
   competencyScoreLabel,
@@ -162,6 +180,8 @@ let competencyWatchGeneration = 0
 let watchedContentId = ''
 let scoreCardArmed = false
 let lastScoreSignature = ''
+// One Know Learning player URL. That frame writes sequence progress. This page does not.
+const klEmbed = ref(false)
 
 function stopLeafTimer() {
   if (!leafTimer) return
@@ -411,6 +431,13 @@ async function openContentAt(index) {
     return
   }
   playMode.value = 'switching'
+  // The URL is create.pilaproject.org/{id}. Know Learning writes the sequence
+  // doc. Skip contentPlaysHere, performance ticks, and the competency watch.
+  if (klEmbed.value) {
+    if (generation !== playGeneration) return
+    playMode.value = 'embed'
+    return
+  }
   let mode = 'embed'
   try {
     mode = await contentPlaysHere(contentId) ? 'sequence' : 'embed'
@@ -435,6 +462,24 @@ async function openContentAt(index) {
 }
 
 async function endCurrentContent(info) {
+  if (klEmbed.value) {
+    if (endingContent || playMode.value === 'closing') return
+    endingContent = true
+    playMode.value = 'closing'
+    try {
+      await withTimeout(
+        Agent.synced(),
+        SEQUENCE_SYNC_TIMEOUT_MS,
+        'KL embed sync timed out',
+      )
+    } catch (e) {
+      console.warn('[Assignment] failed to sync KL embed', id, e)
+    } finally {
+      Agent.close()
+      endingContent = false
+    }
+    return
+  }
   if (
     endingContent
     || playMode.value === 'continuation'
@@ -499,6 +544,20 @@ onMounted(async () => {
     assignment.value = state
     addVariables.value = proxy
     contentIds.value = normalizeAssignmentContent(state?.content)
+    klEmbed.value = false
+    try {
+      const plan = await planKlAssignmentPlay({
+        assignmentId: id,
+        assignmentState: state,
+      })
+      if (plan.kind === 'kl' && plan.playableId) {
+        contentIds.value = [plan.playableId]
+        klEmbed.value = true
+      }
+    } catch (e) {
+      console.warn('[Assignment] KL player plan failed', id, e)
+      klEmbed.value = false
+    }
     await openContentAt(0)
   } catch (e) {
     console.error('[Assignment] failed to load', id, e)
@@ -541,9 +600,21 @@ onMounted(async () => {
   cursor: pointer;
 }
 
-.sequence-play :deep(.spb-root) {
+.sequence-play :deep(.spb-root),
+.kl-embed-host {
   flex: 1;
   min-height: 0;
+}
+
+.kl-embed-host {
+  position: relative;
+}
+
+.kl-embed-host :deep(iframe) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .sequence-end-card {

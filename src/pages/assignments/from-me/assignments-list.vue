@@ -471,6 +471,7 @@
     resultsDashboardTitleSlug,
     resultsDashboardUrlForType,
   } from '@/utils/assignment-dashboards.js'
+  import { applyAssignmentKlWrapper, prepareAssignmentKlWrapper } from '@/utils/assignment-kl-wrapper.js'
   import {
     STATUS_FILTER,
     defaultActiveStatusFilters,
@@ -1203,6 +1204,8 @@
     newState.status = 'Draft'
     newState.scheduledDate = null
     newState.scheduledTime = null
+    // Never copy klWrapper.id onto the new assignment. A teacher copy creates
+    // its own wrapper after newId exists.
   }
 
   async function confirmDuplicate() {
@@ -1214,10 +1217,24 @@
 
     try {
       const sourceState = await Agent.state(sourceId)
-      const newState = await Agent.state(newId)
       const title = duplicateNewTitle.value.trim()
-
+      const newState = await Agent.state(newId)
       copyAssignmentState(sourceState, newState, title)
+      if (props.assignable_item_type === 'teacher-created') {
+        // Owner and domain are not on the doc until the copy has synced.
+        await Agent.synced()
+        let preparedWrapper = { keep: true }
+        try {
+          preparedWrapper = await prepareAssignmentKlWrapper(newId, newState.content, null, {
+            teacherToStudent: true,
+            name: title,
+          })
+        } catch (e) {
+          console.error('[assignments-list] kl wrapper sync failed', newId, e)
+          preparedWrapper = { keep: true }
+        }
+        applyAssignmentKlWrapper(newState, preparedWrapper)
+      }
 
       await Agent.synced()
       await store.dispatch('pila_tags/tag', {

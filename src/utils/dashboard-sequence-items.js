@@ -1,4 +1,5 @@
 import { normalizeAssignmentContent } from './assignment-content.js'
+import { klWrapperDashboardGroup } from './assignment-kl-wrapper.js'
 import { normalizeSequenceItems } from './sequence-items.js'
 
 /** Primary content id for dashboards (sequence / module) from assignment Agent state. */
@@ -42,6 +43,12 @@ export async function loadAssignmentDashboardSequenceItems(assignmentState) {
       items.push(id)
     }
   }
+
+  // Wrapper progress is `{assignment}/sequence-{wrapperId}` with `{i}/{leafId}`.
+  // Any stored klWrapper id is included, stale or not. Columns stay the content
+  // leaves. Cells merge by item id, so wrapper order can differ from the columns.
+  const wrapperGroup = klWrapperDashboardGroup(assignmentState)
+  if (wrapperGroup) groups.unshift({ ...wrapperGroup, klWrapper: true })
 
   return { items, groups }
 }

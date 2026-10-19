@@ -71,6 +71,16 @@ describe('shouldPlaySameHostSequence', () => {
     }), false)
   })
 
+  it('embeds a local sequence that names the Know Learning player', () => {
+    assert.equal(shouldPlaySameHostSequence({
+      host: 'x.localhost:9898',
+      domain: 'x.localhost:9898',
+      player: 'create.pilaproject.org',
+      activeType: SEQUENCE,
+      itemCount: 2,
+    }), false)
+  })
+
   it('shows an empty same-host sequence instead of the assignment error', () => {
     assert.equal(shouldPlaySameHostSequence({
       host: HOST,

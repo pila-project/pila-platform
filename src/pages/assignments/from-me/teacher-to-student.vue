@@ -448,6 +448,7 @@
   import { normalizeAssignmentContent, removeAssignmentContentId } from '@/utils/assignment-content.js'
   import { assessAssignmentContentScope, assignmentScopeAlertKey } from '@/utils/assignment-scope.js'
   import { cachedSequenceTypedIds } from '@/utils/sequence-items.js'
+  import { applyAssignmentKlWrapper, prepareAssignmentKlWrapper } from '@/utils/assignment-kl-wrapper.js'
   import { useToast } from '@/utils/useToast.js'
   import { refreshExploreArchivedIds, withoutExploreArchived } from '@/utils/explore-sequence-archive.js'
   import { PButton, PInput, PSelect, PDateField, PTooltip, PAlertDialog } from '@/components/ui/index.js'
@@ -1023,10 +1024,20 @@
   async function saveSettings({ asDraft = false } = {}) {
     // Legacy rows that already mix sequences stay intact. Save refuses them.
     if (!(await assignmentContentInScope(contentList.value))) return false
+    const nextContent = [...contentList.value]
     const state = await Agent.state(props.id)
+    let preparedWrapper = { keep: true }
+    try {
+      preparedWrapper = await prepareAssignmentKlWrapper(props.id, nextContent, state.klWrapper, {
+        teacherToStudent: true,
+        name: assignment.value.name || '',
+      })
+    } catch (e) {
+      console.error('[TeacherToStudent] kl wrapper sync failed', props.id, e)
+      preparedWrapper = { keep: true }
+    }
     state.name = assignment.value.name || ''
     state.description = assignment.value.description || ''
-    state.content = [...contentList.value]
     state.assignmentType = normalizeAssignmentType(assignmentType.value) || assignmentType.value || 'Assignment'
     state.dueDate = dueDate.value || null
     state.dueTime = dueDate.value ? DEFAULT_DUE_TIME : null
@@ -1078,6 +1089,9 @@
     }
     storedStatus.value = state.status
     state.pendingGroupId = pendingGroupId.value || null
+    // Content and klWrapper leave together.
+    state.content = nextContent
+    applyAssignmentKlWrapper(state, preparedWrapper)
     return true
   }
 

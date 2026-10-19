@@ -23,6 +23,8 @@ export const EMPTY_SEQUENCE_ITEMS = Object.freeze({})
 /** Agent active_type for sequence documents. */
 export const SEQUENCE_ACTIVE_TYPE = 'application/json;type=sequence'
 
+export const KL_SEQUENCE_PLAYER_HOST = 'create.pilaproject.org'
+
 /**
  * Drag MIME set on sequence content cards so drop targets can refuse nesting
  * before write-time (UIUX-113). Write path still fail-closed without this.

@@ -554,6 +554,7 @@
     cachedSequenceTypedIds,
   } from '@/utils/sequence-items.js'
   import { normalizeAssignmentContent } from '@/utils/assignment-content.js'
+  import { applyAssignmentKlWrapper, prepareAssignmentKlWrapper } from '@/utils/assignment-kl-wrapper.js'
   import { assessAssignmentContentScope, assignmentScopeAlertKey } from '@/utils/assignment-scope.js'
   import {
     archivableMyContentIds,
@@ -989,7 +990,18 @@
         added++
       }
       if (added > 0) {
+        let preparedWrapper = { keep: true }
+        try {
+          preparedWrapper = await prepareAssignmentKlWrapper(assignmentId, content, state.klWrapper, {
+            teacherToStudent: true,
+            name: typeof state.name === 'string' ? state.name : '',
+          })
+        } catch (e) {
+          console.error('[Explore] kl wrapper sync failed', assignmentId, e)
+          preparedWrapper = { keep: true }
+        }
         state.content = content
+        applyAssignmentKlWrapper(state, preparedWrapper)
         await Agent.synced()
         deselectAll()
       }
