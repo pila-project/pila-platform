@@ -25,7 +25,7 @@
           icon="tag"
           searchable
           :options="section.options"
-          :model-value="filters[section.id] || []"
+          :model-value="filters[section.id] ?? NO_FILTER"
           @update:model-value="(values) => setFilter(section.id, values)"
         />
       </PUnifiedFilter>
@@ -91,6 +91,8 @@ const route = useRoute()
 const { store, router, lang, copy } = useAcademyPage()
 
 const query = ref('')
+// A stable empty array avoids the PUnifiedFilter re-render loop.
+const NO_FILTER = Object.freeze([])
 const filters = ref({})
 const records = ref([])
 const snapshot = ref({ schemaVersion: 1, modules: {}, series: {} })

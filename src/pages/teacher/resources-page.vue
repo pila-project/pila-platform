@@ -26,7 +26,7 @@
           icon="tag"
           searchable
           :options="section.options"
-          :model-value="tagFilters[section.id] || []"
+          :model-value="tagFilters[section.id] ?? NO_FILTER"
           @update:model-value="(values) => setTagFilter(section.id, values)"
         />
       </PUnifiedFilter>
@@ -104,6 +104,8 @@ const loading = ref(true)
 const loadError = ref(false)
 const query = ref('')
 const statusFilter = ref([])
+// A stable empty array avoids the PUnifiedFilter re-render loop.
+const NO_FILTER = Object.freeze([])
 const tagFilters = ref({})
 const selected = ref([])
 const categoryNames = ref({})
