@@ -205,7 +205,7 @@ export default {
     "pl": "Dodaj element treści lub sekwencję",
     "pt": "Adicionar item de conteúdo ou sequência",
     "sk": "Pridať položku obsahu alebo sekvenciu",
-    "th": "เลือกเนื้อหา/กิจกรรม"
+    "th": "เลือกเนื้อหาหรือลำดับเนื้อหา"
   },
   "add-content-item-sequence-cta-title": {
     "de": "Inhaltselement/Sequenz hinzufügen",
@@ -374,7 +374,7 @@ export default {
     "pl": "Dodaj zaznaczone",
     "pt": "Adicionar selecionados",
     "sk": "Pridať vybraté",
-    "th": "เพิ่มเนื้อหา/กิจกรรมที่เลือก"
+    "th": "เพิ่มเนื้อหาที่เลือก"
   },
   "add-student": {
     "de": "Schülerin/Schüler hinzufügen",
@@ -725,7 +725,7 @@ export default {
     "pl": "Cała treść",
     "pt": "Todo o conteúdo",
     "sk": "Všetok obsah",
-    "th": "เนื้อหา/กิจกรรมทั้งหมด"
+    "th": "เนื้อหาทั้งหมด"
   },
   "all-saved-versions-of-your-answers-and-solutions": {
     "de": "alle gespeicherten Versionen Deiner Antworten und Lösungen",
@@ -1804,7 +1804,7 @@ export default {
     "pl": "Przeglądaj i wybieraj treści z biblioteki",
     "pt": "Navegue e selecione conteúdo da biblioteca",
     "sk": "Prehliadajte a vyberte obsah z knižnice",
-    "th": "ค้นหาและเลือกจากคลังเนื้อหา/กิจกรรม"
+    "th": "ค้นหาและเลือกจากคลังเนื้อหา"
   },
   "bug-description": {
     "de": "Fehlerbeschreibung",
@@ -2714,7 +2714,7 @@ export default {
     "pl": "Utwórz zadanie",
     "pt": "Criar tarefa",
     "sk": "Vytvoriť úlohu",
-    "th": "มอบหมายงาน"
+    "th": "มอบหมายงานใหม่"
   },
   "create-bulk-accounts": {
     "de": "Massenkonten erstellen",
@@ -2948,7 +2948,7 @@ export default {
     "pl": "Bieżący element/sekwencja",
     "pt": "Item/sequência atual",
     "sk": "Aktuálna položka/sekvencia",
-    "th": "เนื้อหา/กิจกรรมที่เลือก"
+    "th": "เนื้อหา/ลำดับเนื้อหาที่เลือก"
   },
   "current-item-sequence-count": {
     "de": "Aktuelles Element/aktuelle Sequenz ({count})",
@@ -2961,7 +2961,7 @@ export default {
     "pl": "Bieżący element/sekwencja ({count})",
     "pt": "Item/sequência atual ({count})",
     "sk": "Aktuálna položka/sekvencia ({count})",
-    "th": "เนื้อหา/กิจกรรมที่เลือก ({count})"
+    "th": "เนื้อหา/ลำดับเนื้อหาที่เลือก ({count})"
   },
   "customised-items": {
     "de": "Angepasste Items",
@@ -3208,7 +3208,7 @@ export default {
     "pl": "Odkrywaj, dostosowuj i dodawaj treści do zadań",
     "pt": "Descubra, personalize e adicione conteúdo às suas tarefas",
     "sk": "Objavujte, prispôsobujte a pridávajte obsah do svojich úloh",
-    "th": "ค้นหา ปรับแต่ง และเลือกเนื้อหา/กิจกรรม สำหรับงานที่จะมอบหมาย"
+    "th": "ค้นหา ปรับแต่ง และเลือกเนื้อหา สำหรับงานที่จะมอบหมาย"
   },
   "display-correct-answers-after-submission": {
     "de": "Richtige Antworten nach Abgabe anzeigen",
@@ -3819,7 +3819,7 @@ export default {
     "pl": "Eksploruj",
     "pt": "Explorar",
     "sk": "Preskúmajte",
-    "th": "ค้นหาเนื้อหา/กิจกรรม"
+    "th": "ค้นหาเนื้อหา"
   },
   "explore-content-library": {
     "de": "Inhaltsbibliothek erkunden",
@@ -3832,7 +3832,7 @@ export default {
     "pl": "Przeglądaj bibliotekę treści",
     "pt": "Explorar biblioteca de conteúdo",
     "sk": "Preskúmať knižnicu obsahu",
-    "th": "ค้นหากิจกรรมที่มีอยู่"
+    "th": "คลังเนื้อหา"
   },
   "favorites": {
     "de": "Favoriten",
@@ -5223,7 +5223,7 @@ export default {
     "pl": "Moja treść",
     "pt": "Meu conteúdo",
     "sk": "Môj obsah",
-    "th": "เนื้อหา/กิจกรรมของฉัน"
+    "th": "เนื้อหาที่ฉันปรับแต่ง"
   },
   "my-sequences": {
     "de": "Meine Sequenzen",
@@ -5236,7 +5236,7 @@ export default {
     "pl": "Moje sekwencje",
     "pt": "As minhas sequências",
     "sk": "Moje sekvencie",
-    "th": "ลำดับของฉัน"
+    "th": "ลำดับเนื้อหา"
   },
   "my-students": {
     "de": "MEINE SCHÜLERINNEN UND SCHÜLER",
@@ -5431,7 +5431,7 @@ export default {
     "pl": "Nowa sekwencja",
     "pt": "Nova sequência",
     "sk": "Nová sekvencia",
-    "th": "ลำดับใหม่"
+    "th": "ลำดับเนื้อหาใหม่"
   },
   "new-title": {
     "de": "Neuer Titel",
@@ -5825,7 +5825,7 @@ export default {
     "pl": "Brak sekwencji",
     "pt": "Ainda sem sequências",
     "sk": "Zatiaľ žiadne sekvencie",
-    "th": "ยังไม่มีลำดับ"
+    "th": "ยังไม่มีลำดับเนื้อหา"
   },
   "no-students-found": {
     "de": "Keine Schüler gefunden",
@@ -6072,7 +6072,7 @@ export default {
     "pl": "Organizuj treści w sekwencje nauczania",
     "pt": "Organizar conteúdo em sequências de aprendizagem",
     "sk": "Organizovať obsah do vzdelávacích sekvencií",
-    "th": "จัดเนื้อหาเป็นลำดับการเรียนรู้"
+    "th": "สร้างกลุ่มและจัดลำดับให้เนื้อหา"
   },
   "other-classes": {
     "de": "Andere Klassen",
@@ -6215,7 +6215,7 @@ export default {
     "pl": "Treści PILA",
     "pt": "Conteúdo PILA",
     "sk": "Obsah PILA",
-    "th": "เนื้อหา/กิจกรรม PILA"
+    "th": "เนื้อหา PILA"
   },
   "pila-create": {
     "de": "PILA ERSTELLEN",
@@ -7320,7 +7320,7 @@ export default {
     "pl": "Szukaj treści",
     "pt": "Pesquisar conteúdo",
     "sk": "Hľadať obsah",
-    "th": "ค้นหาเนื้อหา/กิจกรรม"
+    "th": "ค้นหาเนื้อหา"
   },
   "search-group": {
     "de": "Gruppe suchen",
@@ -7372,7 +7372,7 @@ export default {
     "pl": "Szukaj sekwencji",
     "pt": "Pesquisar sequências",
     "sk": "Hľadať sekvencie",
-    "th": "ค้นหาลำดับ"
+    "th": "ค้นหาลำดับเนื้อหา"
   },
   "search-student": {
     "de": "Schüler suchen",
@@ -8165,7 +8165,7 @@ export default {
     "pl": "Krok 2 z 3: dodaj treść",
     "pt": "Passo 2 de 3: adicionar conteúdo",
     "sk": "Krok 2 z 3: pridať obsah",
-    "th": "ขั้นตอน 2 จาก 3: เลือกเนื้อหา/กิจกรรม"
+    "th": "ขั้นตอน 2 จาก 3: เลือกเนื้อหา"
   },
   "step-3-of-3-assign-publish": {
     "de": "Schritt 3 von 3: Zuweisen und veröffentlichen",
@@ -10193,7 +10193,7 @@ export default {
     "pl": "Treść zadania",
     "pt": "Conteúdo da tarefa",
     "sk": "Obsah úlohy",
-    "th": "เนื้อหา/กิจกรรม"
+    "th": "เนื้อหาของงานที่มอบหมาย"
   },
   "favourites": {
     "de": "Favoriten",
