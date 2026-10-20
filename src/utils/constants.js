@@ -205,6 +205,19 @@ export function isAcademyHost(host = typeof window !== 'undefined' ? window.loca
 }
 
 /**
+ * Teacher Academy catalogue partition per host. Staging reads Thailand's
+ * real Academy modules; hosts without an entry use their own partition.
+ * Academy only: resources, library and assignments keep HOST_TO_PARTITION.
+ */
+export const ACADEMY_PARTITION_OVERRIDES = {
+  'ui-dev.pilaproject.org': 'PILA Thailand',
+}
+
+export function academyPartition(hostPartition, host = typeof window !== 'undefined' ? window.location.host : '') {
+  return ACADEMY_PARTITION_OVERRIDES[host] || hostPartition
+}
+
+/**
  * PILA International (non-RCT, non-Thailand) hosts for Emma student/teacher
  * consent copy. Expert localhost is included when HOST_TO_TITLE maps it to
  * International (same pattern as partition / first-load language).

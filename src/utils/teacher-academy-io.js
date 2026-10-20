@@ -3,6 +3,7 @@
  * Every write goes through the pure access gate and the signed-in teacher only.
  */
 import setTagging from '@/utils/set-tagging.js'
+import { academyPartition } from './constants.js'
 import { readAccingoModule } from './accingo-module.js'
 import {
   ACADEMY_MODULE_TYPE,
@@ -76,7 +77,7 @@ export async function loadCatalogIds(store, hostPartition) {
   actorOrRefuse(store)
   const rows = await Agent.query(
     'taggings-intersection',
-    [hostPartition, [TEACHER_ACADEMY_CONTENT_TAG]],
+    [academyPartition(hostPartition), [TEACHER_ACADEMY_CONTENT_TAG]],
     'tags.knowlearning.systems',
   ).catch(() => [])
   return [...new Set((rows || []).map((row) => row?.target).filter(Boolean))]
@@ -85,7 +86,7 @@ export async function loadCatalogIds(store, hostPartition) {
 async function setMembership(id, hostPartition, value) {
   await setTagging(
     { tag: TEACHER_ACADEMY_CONTENT_TAG, target: id, value },
-    hostPartition,
+    academyPartition(hostPartition),
   )
 }
 
