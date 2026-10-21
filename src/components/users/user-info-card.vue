@@ -2,6 +2,7 @@
   import { ref, reactive } from 'vue'
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '@/utils/encryption.js'
+  import { isEmptyEncryptionSecret } from '@/utils/publish-derived-public-key.js'
   import QRCode from '@/components/common/qrcode.vue'
   import codeCharToIcon from '@/utils/code-char-to-icon.js'
 
@@ -23,11 +24,14 @@
   } = userData
 
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-  const providerKeyPair = await generateKeyPair(providerSecret)
+  const providerKeyPair = isEmptyEncryptionSecret(providerSecret)
+    ? null
+    : await generateKeyPair(providerSecret)
 
   let info, userSecret
 
   try {
+    if (!providerKeyPair) throw new Error('missing provider secret')
     info = JSON.parse(decryptSymmetric(
       providerKeyPair.secretKey,
       providerEncryptedInfo

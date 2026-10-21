@@ -10949,6 +10949,14 @@ export default {
     "sk": "Budete požiadaní o opätovné zadanie tohto kódu, keď zmeníte zariadenie, prehliadač alebo vymažete údaje prehliadania.",
     "th": "คุณจะต้องใส่รหัสนี้ใหม่ ถ้าคุณเปลี่ยนอุปกรณ์ที่ใช้งาน เปลี่ยนเบราว์เซอร์ หรือล้างข้อมูลเบราว์เซอร์"
   },
+  "hide-encryption-code": {
+    "en": "Hide encryption code",
+    "th": "ซ่อนรหัสเพื่อเข้าถึงข้อมูล"
+  },
+  "show-encryption-code": {
+    "en": "Show encryption code",
+    "th": "แสดงรหัสเพื่อเข้าถึงข้อมูล"
+  },
   "sequence-circular-reference": {
     "de": "Diese Sequenz kann hier nicht angezeigt werden, weil sie eine zirkuläre Referenz erzeugt.",
     "en": "This sequence can't be previewed here because it creates a circular reference.",

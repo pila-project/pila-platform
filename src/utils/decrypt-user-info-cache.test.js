@@ -4,18 +4,26 @@ import {
   DECRYPT_USER_INFO_CONCURRENCY,
   activeDecryptCountForTests,
   clearDecryptUserInfoCache,
+  configureKeyPairDerivation,
   decryptUserInfoWithCache,
   decryptUserRevision,
   invalidateDecryptUserInfo,
   enqueueDecryptUserIds,
   getSkipExpensiveDecrypt,
+  isAnonymousInfo,
   makeDecryptCacheKey,
+  markAnonymousInfo,
+  memoizedKeyPair,
+  NEGATIVE_DECRYPT_TTL_MS,
+  notifyTeacherDecryptSuccess,
   normalizeUserInfoSource,
   providerKeyFingerprint,
   providerKeysForNameLookup,
   resetDecryptUserInfoCacheForTests,
   resolvePublicUserInfo,
+  setDecryptCacheNowForTests,
   setSkipExpensiveDecrypt,
+  subscribeTeacherDecryptSuccess,
   shouldSkipNaclAfterPublicInfo,
   shouldUsePublicUserInfo,
 } from './decrypt-user-info-cache.js'
@@ -141,6 +149,9 @@ describe('decryptUserInfoWithCache', () => {
 })
 
 describe('skipExpensive decrypt', () => {
+  // The flag itself still skips nacl when set. Callers must set it only for
+  // key status 'missing'. A probe result of 'invalid' used to set it and hid
+  // every roster row; that is no longer the case (see useEncryptionKey.test.js).
   it('skip-path anonymous stays cached under the same fingerprint until clear', async () => {
     setSkipExpensiveDecrypt(true)
     let naclCalls = 0
@@ -374,5 +385,97 @@ describe('enqueueDecryptUserIds', () => {
     enqueueDecryptUserIds(['low-1', 'low-2'], { owner: 'test', priority: 'low', run })
     await delay(80)
     assert.deepEqual(order, ['high-1', 'low-1', 'low-2'])
+  })
+})
+
+describe('anonymous decrypt TTL', () => {
+  it('marks anonymous results and expires only those', async () => {
+    const anon = markAnonymousInfo({ name: 'Anonymous_abcd', picture: null })
+    assert.equal(isAnonymousInfo(anon), true)
+    assert.equal(isAnonymousInfo({ name: 'Anonymous_abcd', picture: null }), false)
+    assert.equal(isAnonymousInfo(null), false)
+
+    let now = 1_000_000
+    setDecryptCacheNowForTests(() => now)
+    let calls = 0
+    const run = async () => {
+      calls += 1
+      return calls === 1 ? anon : { name: 'Nok' }
+    }
+    const args = { userId: 'u1', useAlias: false, fingerprint: 'fp', run }
+    const first = await decryptUserInfoWithCache(args)
+    const cached = await decryptUserInfoWithCache(args)
+    assert.equal(calls, 1)
+    assert.equal(first, cached)
+    assert.equal(isAnonymousInfo(cached), true)
+
+    now += NEGATIVE_DECRYPT_TTL_MS - 1
+    const still = await decryptUserInfoWithCache(args)
+    assert.equal(calls, 1)
+    assert.equal(still, anon)
+
+    now += 1
+    const retried = await decryptUserInfoWithCache(args)
+    assert.equal(calls, 2)
+    assert.equal(retried.name, 'Nok')
+    assert.equal(isAnonymousInfo(retried), false)
+
+    const kept = await decryptUserInfoWithCache(args)
+    assert.equal(calls, 2)
+    assert.equal(kept.name, 'Nok')
+    now += NEGATIVE_DECRYPT_TTL_MS * 10
+    const stillKept = await decryptUserInfoWithCache(args)
+    assert.equal(calls, 2)
+    assert.equal(stillKept.name, 'Nok')
+  })
+})
+
+describe('memoizedKeyPair', () => {
+  beforeEach(() => {
+    let n = 0
+    configureKeyPairDerivation(async (code) => ({ code, n: ++n }))
+  })
+
+  it('reuses a code and drops the memo when the decrypt cache clears', async () => {
+    const first = memoizedKeyPair('same-code')
+    const second = memoizedKeyPair('same-code')
+    assert.equal(first, second)
+    const pair = await first
+    assert.equal(pair.code, 'same-code')
+    clearDecryptUserInfoCache()
+    const third = memoizedKeyPair('same-code')
+    assert.notEqual(third, first)
+    const againPair = await third
+    assert.notEqual(againPair.n, pair.n)
+  })
+
+  it('keeps at most four codes', async () => {
+    const oldest = memoizedKeyPair('code-0')
+    memoizedKeyPair('code-1')
+    memoizedKeyPair('code-2')
+    memoizedKeyPair('code-3')
+    const newest = memoizedKeyPair('code-4')
+    const again = memoizedKeyPair('code-0')
+    assert.notEqual(again, oldest)
+    assert.equal(memoizedKeyPair('code-4'), newest)
+  })
+
+  it('does not derive a key from an empty or whitespace code', async () => {
+    await assert.rejects(() => memoizedKeyPair(''), /empty/)
+    await assert.rejects(() => memoizedKeyPair('   '), /empty/)
+    await assert.rejects(() => memoizedKeyPair(null), /empty/)
+  })
+})
+
+describe('teacher decrypt success', () => {
+  it('notifies the current listener and ignores an empty code', () => {
+    const seen = []
+    const stop = subscribeTeacherDecryptSuccess((code) => { seen.push(code) })
+    notifyTeacherDecryptSuccess('teacher-code')
+    notifyTeacherDecryptSuccess('')
+    notifyTeacherDecryptSuccess('   ')
+    stop()
+    notifyTeacherDecryptSuccess('after-stop')
+    assert.deepEqual(seen, ['teacher-code'])
   })
 })

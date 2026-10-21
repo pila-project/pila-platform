@@ -158,8 +158,9 @@
       </nav>
 
       <EncryptionKeyModal
-        v-if="showEncryptionKeyModal"
-        @close="showEncryptionKeyModal = false"
+        v-if="showEncryptionKeyModal || encryptionDialogHold"
+        :required="isEncryptionKeyMissing"
+        @close="closeEncryptionKeyDialog"
       />
 
       <!-- Main content -->
@@ -200,6 +201,8 @@
   const isThailandHost = isThailandTeacherHost()
   const showAcademy = isAcademyHost()
   const showEncryptionKeyModal = ref(false)
+  // Stays true through Done so the dialog is not torn down mid-save when the code lands.
+  const encryptionDialogHold = ref(false)
   const store = useStore()
   const route = useRoute()
   const router = useRouter()
@@ -231,6 +234,16 @@
     isEncryptionKeyMissing,
     isEncryptionKeyInvalid,
   } = useEncryptionKey(store)
+
+  watch(isEncryptionKeyMissing, (missing) => {
+    if (missing) encryptionDialogHold.value = true
+  }, { immediate: true })
+
+  function closeEncryptionKeyDialog() {
+    if (isEncryptionKeyMissing.value) return
+    encryptionDialogHold.value = false
+    showEncryptionKeyModal.value = false
+  }
 
   const encryptionAttentionTitle = computed(() => {
     if (isEncryptionKeyInvalid.value) return t('encryption-key-invalid-badge')

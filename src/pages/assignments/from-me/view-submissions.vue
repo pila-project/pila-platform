@@ -1031,22 +1031,29 @@
     await loadGradingData()
   })
 
+  let studentInfoGen = 0
+
   async function loadStudentInfo(userId, force = false) {
+    const gen = studentInfoGen
     if (!userId) return
     if (!force && studentInfoCache[userId]) return
     try {
       const info = await store.getters.decryptUserInfo(userId, false, 'roster')
+      if (gen !== studentInfoGen) return
       studentInfoCache[userId] = info
     } catch {
+      if (gen !== studentInfoGen) return
       studentInfoCache[userId] = { name: t('unknown') }
     }
   }
 
-  // Re-fetch student info when the encryption key changes
-  watch(encryptionKey, (newKey) => {
-    if (newKey) {
-      Object.keys(studentInfoCache).forEach(k => delete studentInfoCache[k])
-    }
+  // Drop names from the previous code and load them again, including a cleared code.
+  watch(encryptionKey, () => {
+    studentInfoGen += 1
+    const ids = new Set(Object.keys(studentInfoCache))
+    if (currentStudentId.value) ids.add(currentStudentId.value)
+    for (const id of Object.keys(studentInfoCache)) delete studentInfoCache[id]
+    for (const id of ids) void loadStudentInfo(id, true)
   })
 
   // ── Init ──

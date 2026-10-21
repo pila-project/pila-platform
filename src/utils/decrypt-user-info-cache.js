@@ -4,13 +4,24 @@
  */
 
 import { reactive } from 'vue'
+import { isEmptyEncryptionSecret } from './publish-derived-public-key.js'
 
 export const DECRYPT_USER_INFO_CONCURRENCY = 4
+/** Failed (anonymous) decrypts are retried after this. Successful plaintext stays cached. */
+export const NEGATIVE_DECRYPT_TTL_MS = 60000
+const KEY_PAIR_MEMO_MAX = 4
 
 const results = new Map()
 const inflight = new Map()
+/** code string -> Promise<keyPair>. Not logged. Cleared with the decrypt cache. */
+const keyPairMemo = new Map()
+/** Injected so this module does not import tweetnacl (node:test loads it directly). */
+let deriveKeyPair = null
+let anonymousInfos = new WeakSet()
 export const decryptRevision = reactive({})
 let skipExpensive = false
+let teacherDecryptSuccessListener = null
+let decryptCacheNow = () => Date.now()
 let activeDecrypts = 0
 const waiters = []
 
@@ -60,6 +71,68 @@ export function makeDecryptCacheKey(userId, useAlias, fingerprint, source) {
   return `${useAlias ? 'a' : 'n'}\u001f${fingerprint || ''}\u001f${normalizeUserInfoSource(source)}\u001f${userId || ''}`
 }
 
+export function markAnonymousInfo(info) {
+  if (info && typeof info === 'object') anonymousInfos.add(info)
+  return info
+}
+
+export function isAnonymousInfo(info) {
+  return !!info && typeof info === 'object' && anonymousInfos.has(info)
+}
+
+/**
+ * Fired when a roster/directory decrypt opens with the teacher code itself
+ * (not the admin credential). The listener must not log the code.
+ */
+export function subscribeTeacherDecryptSuccess(listener) {
+  teacherDecryptSuccessListener = typeof listener === 'function' ? listener : null
+  return () => {
+    if (teacherDecryptSuccessListener === listener) teacherDecryptSuccessListener = null
+  }
+}
+
+export function notifyTeacherDecryptSuccess(code) {
+  if (isEmptyEncryptionSecret(code)) return
+  teacherDecryptSuccessListener?.(code)
+}
+
+/** App startup passes generateKeyPair. Tests pass a fake. Empty codes never call it. */
+export function configureKeyPairDerivation(derive) {
+  deriveKeyPair = typeof derive === 'function' ? derive : null
+}
+
+/**
+ * SHA-256 + scalar mult once per code string (roster-sized).
+ * Empty/whitespace never reaches the derivation function.
+ */
+export function memoizedKeyPair(code) {
+  if (isEmptyEncryptionSecret(code)) {
+    return Promise.reject(new Error('Refusing to derive a key from an empty encryption code'))
+  }
+  if (typeof deriveKeyPair !== 'function') {
+    return Promise.reject(new Error('Key pair derivation is not configured'))
+  }
+  const hit = keyPairMemo.get(code)
+  if (hit) {
+    keyPairMemo.delete(code)
+    keyPairMemo.set(code, hit)
+    return hit
+  }
+  const derive = deriveKeyPair
+  const pending = Promise.resolve()
+    .then(() => derive(code))
+    .catch((error) => {
+      if (keyPairMemo.get(code) === pending) keyPairMemo.delete(code)
+      throw error
+    })
+  keyPairMemo.set(code, pending)
+  while (keyPairMemo.size > KEY_PAIR_MEMO_MAX) {
+    const oldest = keyPairMemo.keys().next().value
+    keyPairMemo.delete(oldest)
+  }
+  return pending
+}
+
 export function setSkipExpensiveDecrypt(value) {
   skipExpensive = !!value
 }
@@ -81,6 +154,23 @@ export function shouldSkipNaclAfterPublicInfo(publicInfo, source) {
 export function clearDecryptUserInfoCache() {
   results.clear()
   inflight.clear()
+  keyPairMemo.clear()
+}
+
+function rememberResult(key, value, now = decryptCacheNow()) {
+  const expiresAt = isAnonymousInfo(value) ? now + NEGATIVE_DECRYPT_TTL_MS : null
+  results.set(key, { value, expiresAt })
+  return value
+}
+
+function cachedResult(key, now = decryptCacheNow()) {
+  const entry = results.get(key)
+  if (!entry) return undefined
+  if (entry.expiresAt != null && now >= entry.expiresAt) {
+    results.delete(key)
+    return undefined
+  }
+  return entry.value
 }
 
 function cacheKeyUserId(key) {
@@ -106,14 +196,18 @@ export function decryptUserRevision(userId) {
 
 export async function decryptUserInfoWithCache({ userId, useAlias, fingerprint, source, run }) {
   const key = makeDecryptCacheKey(userId, useAlias, fingerprint, source)
-  if (results.has(key)) return results.get(key)
+  if (results.has(key)) {
+    const cached = cachedResult(key)
+    if (cached !== undefined) return cached
+  }
   if (inflight.has(key)) return inflight.get(key)
 
   const promise = (async () => {
     await acquireDecryptSlot()
     try {
       const value = await run()
-      results.set(key, value)
+      // A clear/invalidate during run must not put the stale value back.
+      if (inflight.get(key) === promise) rememberResult(key, value)
       return value
     } finally {
       releaseDecryptSlot()
@@ -238,6 +332,10 @@ async function pumpDecryptQueue() {
 export function resetDecryptUserInfoCacheForTests() {
   results.clear()
   inflight.clear()
+  keyPairMemo.clear()
+  anonymousInfos = new WeakSet()
+  teacherDecryptSuccessListener = null
+  decryptCacheNow = () => Date.now()
   for (const key of Object.keys(decryptRevision)) delete decryptRevision[key]
   skipExpensive = false
   activeDecrypts = 0
@@ -250,6 +348,10 @@ export function resetDecryptUserInfoCacheForTests() {
 
 export function decryptCacheSizeForTests() {
   return results.size
+}
+
+export function setDecryptCacheNowForTests(fn) {
+  decryptCacheNow = typeof fn === 'function' ? fn : () => Date.now()
 }
 
 export function activeDecryptCountForTests() {

@@ -1,13 +1,31 @@
-import * as encryption from './encryption.js'
 import naclUtil from 'tweetnacl-util'
 
 export function isEmptyEncryptionSecret(val) {
   return typeof val !== 'string' || !val.trim()
 }
 
+/** RR-18: never mint a key pair from an empty or whitespace provider secret. */
+export function assertNonEmptyProviderSecret(providerSecret) {
+  if (isEmptyEncryptionSecret(providerSecret)) {
+    throw new Error('Refusing to derive a key from an empty provider secret')
+  }
+}
+
+/**
+ * Code to encrypt a new student with.
+ * Both copies must be present and identical. Whitespace is not a code.
+ * Returns '' when the caller should open the encryption dialog instead.
+ */
+export function matchingEncryptionCode(stored, inMemory) {
+  if (isEmptyEncryptionSecret(stored) || isEmptyEncryptionSecret(inMemory)) return ''
+  if (stored !== inMemory) return ''
+  return stored
+}
+
 /** Publish a password-derived teacher public key. Empty/whitespace is a no-op (must not mint a random pair). */
 export async function publishDerivedPublicKey(secret, agent = globalThis.Agent) {
   if (isEmptyEncryptionSecret(secret)) return false
+  const encryption = await import('./encryption.js')
   const publicKeys = await agent.state('user-info-public-keys')
   const { publicKey: publicKeyBuffer } = await encryption.generateKeyPair(secret)
   publicKeys.public = naclUtil.encodeBase64(publicKeyBuffer)

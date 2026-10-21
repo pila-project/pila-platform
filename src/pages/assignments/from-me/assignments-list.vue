@@ -493,6 +493,7 @@
   import { tablePerPageOptions } from '@/utils/pagination-options.js'
   import { formatStudentPreferredName } from '@/utils/student-display-name.js'
   import { clearDecryptQueue, enqueueDecryptUserIds } from '@/utils/decrypt-user-info-cache.js'
+  import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 
   const props = defineProps({
     assignable_item_type: String,
@@ -576,6 +577,8 @@
 
   const decryptedNames = reactive(new Map())
   const ASSIGN_DECRYPT_OWNER = 'assign-filter'
+  const { namePassword } = useEncryptionKey(store)
+  let assignDecryptGen = 0
 
   const assignmentTablePage = ref(1)
 
@@ -620,28 +623,43 @@
     return [...ids]
   })
 
+  function enqueueAssignmentStudentNames(ids) {
+    enqueueDecryptUserIds(
+      (ids || []).filter(id => id && !decryptedNames.has(id)),
+      {
+        owner: ASSIGN_DECRYPT_OWNER,
+        priority: 'low',
+        run: async (id) => {
+          const gen = assignDecryptGen
+          if (decryptedNames.has(id)) return
+          try {
+            const info = await store.getters.decryptUserInfo(id, false, 'roster')
+            if (gen !== assignDecryptGen) return
+            decryptedNames.set(id, formatStudentPreferredName(info) || '')
+          } catch {
+            if (gen !== assignDecryptGen) return
+            decryptedNames.set(id, '')
+          }
+        },
+      },
+    )
+  }
+
   watch(
     activeStudentIdsForFilter,
     (ids) => {
-      enqueueDecryptUserIds(
-        (ids || []).filter(id => id && !decryptedNames.has(id)),
-        {
-          owner: ASSIGN_DECRYPT_OWNER,
-          priority: 'low',
-          run: async (id) => {
-            if (decryptedNames.has(id)) return
-            try {
-              const info = await store.getters.decryptUserInfo(id, false, 'roster')
-              decryptedNames.set(id, formatStudentPreferredName(info) || '')
-            } catch {
-              decryptedNames.set(id, '')
-            }
-          },
-        },
-      )
+      enqueueAssignmentStudentNames(ids)
     },
     { immediate: true },
   )
+
+  // This page kept decrypted names across a code change.
+  watch(namePassword, () => {
+    assignDecryptGen += 1
+    clearDecryptQueue(ASSIGN_DECRYPT_OWNER)
+    decryptedNames.clear()
+    enqueueAssignmentStudentNames(activeStudentIdsForFilter.value)
+  })
 
   const assignedToOptions = computed(() => {
     const groupEntries = activeGroupIds.value

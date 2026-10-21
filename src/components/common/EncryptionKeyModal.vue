@@ -1,6 +1,7 @@
 <template>
   <PModal
     @close="handleClose"
+    :dismissible="!required"
     :show-close-button="!isSaving"
     width="600px"
     :title="t('create-unique-encryption-code')"
@@ -20,7 +21,27 @@
           <LucideIcon name="circle-alert" :size="16" class="encryption-key-attention-icon" />
           <span>{{ t('encryption-code-keep-safe') }}</span>
         </div>
-        <input v-model="localKey" class="input encryption-key-input" :disabled="isSaving" />
+        <div class="encryption-key-field">
+          <input
+            v-model="localKey"
+            class="input encryption-key-input"
+            :type="codeVisible ? 'text' : 'password'"
+            :disabled="isSaving"
+            autocapitalize="off"
+            :autocorrect.attr="'off'"
+            spellcheck="false"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="encryption-key-reveal"
+            :aria-label="codeVisible ? t('hide-encryption-code') : t('show-encryption-code')"
+            :disabled="isSaving"
+            @click="codeVisible = !codeVisible"
+          >
+            <LucideIcon :name="codeVisible ? 'eye-off' : 'eye'" :size="18" />
+          </button>
+        </div>
       </div>
     </template>
 
@@ -43,6 +64,11 @@ import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
 import { PModal, PButton } from '@/components/ui/index.js'
 import LucideIcon from '@/components/ui/LucideIcon.vue'
 
+const props = defineProps({
+  /** Missing code: the dialog cannot be dismissed until a code is saved. */
+  required: { type: Boolean, default: false },
+})
+
 const emit = defineEmits(['close'])
 
 const store = useStore()
@@ -50,11 +76,13 @@ function t(slug) { return store.getters.t(slug) }
 
 const {
   namePassword,
+  setEncryptionCode,
   isEncryptionKeyInvalid,
   revalidateEncryptionKey,
 } = useEncryptionKey(store)
 
 const localKey = ref(namePassword.value)
+const codeVisible = ref(false)
 const isSaving = ref(false)
 const keyWasUpdated = ref(false)
 const canCommitKey = computed(() => typeof localKey.value === 'string' && !!localKey.value.trim())
@@ -80,10 +108,7 @@ watch(localKey, (val) => {
 async function handleDone() {
   if (!canCommitKey.value) return
 
-  const previousKey = namePassword.value
-
-  if (localKey.value !== previousKey) {
-    namePassword.value = localKey.value
+  if (await setEncryptionCode(localKey.value)) {
     keyWasUpdated.value = true
   }
 
@@ -99,6 +124,7 @@ async function handleDone() {
 }
 
 function handleClose() {
+  if (props.required) return
   emitClose()
 }
 
@@ -126,12 +152,38 @@ function emitClose() {
   line-height: 1.5;
 }
 
+.encryption-key-field {
+  position: relative;
+  margin-top: 16px;
+}
+
 .encryption-key-input {
   display: block;
   width: 100%;
   box-sizing: border-box;
   text-align: center;
-  margin-top: 16px;
+  margin-top: 0;
+  padding-right: 44px;
+}
+
+.encryption-key-reveal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+}
+
+.encryption-key-reveal:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 
 .encryption-key-attention {

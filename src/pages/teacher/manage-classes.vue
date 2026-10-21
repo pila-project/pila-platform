@@ -1095,6 +1095,7 @@ import {
 import { useBulkSelection } from '@/composables/useBulkSelection.js'
 import { useDuplicateGuard, partitionBulkStudentRows, findDuplicateName } from '@/composables/useDuplicateGuard.js'
 import { useEncryptionKey } from '@/utils/useEncryptionKey.js'
+import { isEmptyEncryptionSecret, matchingEncryptionCode } from '@/utils/publish-derived-public-key.js'
 import EncryptionKeyModal from '@/components/common/EncryptionKeyModal.vue'
 import {
   defaultActiveStatusFilters,
@@ -1119,6 +1120,9 @@ import {
   DECRYPT_USER_INFO_CONCURRENCY,
   clearDecryptQueue,
   enqueueDecryptUserIds,
+  NEGATIVE_DECRYPT_TTL_MS,
+  invalidateDecryptUserInfo,
+  isAnonymousInfo,
   yieldToMain,
 } from '@/utils/decrypt-user-info-cache.js'
 
@@ -1314,6 +1318,8 @@ function onStudentInfoSaved(payload) {
 function cacheStudentDisplayName(id, info) {
   decryptedNames.set(id, formatStudentPreferredName(info) || '')
   decryptedLegalNames.set(id, String(info?.name ?? '').trim())
+  if (isAnonymousInfo(info)) anonymousNameIds.add(id)
+  else anonymousNameIds.delete(id)
   scheduleDecryptedNamesFlush()
 }
 
@@ -1468,14 +1474,15 @@ const addingToGroups = ref(false)
 const {
   namePassword,
   hasEncryptionKey,
+  keyStatus,
   needsEncryptionAttention,
   isEncryptionKeyInvalid,
   revalidateEncryptionKey,
   showEncryptionKeyModal: showNamePasswordModal,
   closeEncryptionKeyModal: closeNamePasswordModal,
 } = useEncryptionKey(store)
-// Auto-open only when key is empty (not when wrong — soft signal uses banner)
-showNamePasswordModal.value = !hasEncryptionKey.value
+// Missing-code dialog is mounted on the teacher shell so it covers every
+// /teacher route. Opening a second copy here stacked two modals.
 // Session-only dismiss — resets on full page reload
 const encryptionBannerDismissed = ref(false)
 
@@ -1505,9 +1512,13 @@ onBeforeUnmount(() => {
 const MANAGE_CLASSES_DECRYPT_OWNER = 'manage-classes'
 const decryptedNames = new Map()
 const decryptedLegalNames = new Map()
+const anonymousNameIds = new Set()
 const decryptedNamesVersion = ref(0)
 let decryptedNamesFlushScheduled = false
 let decryptGeneration = 0
+let anonymousRetryEpoch = 0
+let retryAnonymousStudentNames = () => {}
+let lastAnonymousRetryAt = 0
 const studentTablePage = ref(1)
 const studentTablePerPage = ref(25)
 const studentTableVisibleIds = ref([])
@@ -1517,6 +1528,8 @@ const studentTableVisibleIds = ref([])
 onActivated(() => {
   studentTablePage.value = 1
   groupListPage.value = 1
+  // Throttled: tab switches must not re-fetch a large all-anonymous roster each time.
+  if (Date.now() - lastAnonymousRetryAt >= NEGATIVE_DECRYPT_TTL_MS) retryAnonymousStudentNames()
 })
 
 // Class groups MUST be declared before `students`. That computed is watched
@@ -1545,15 +1558,25 @@ const students = computed(() => {
 
 async function decryptManageClassesStudent(id) {
   const gen = decryptGeneration
+  const epoch = anonymousRetryEpoch
   if (decryptedNames.has(id)) return
   try {
     const info = await store.getters.decryptUserInfo(id, false, 'roster')
     if (gen !== decryptGeneration) return
+    // A retry started while this was in flight. Run it again rather than
+    // keep a result from before the retry (or drop the row entirely).
+    if (isAnonymousInfo(info) && epoch !== anonymousRetryEpoch) {
+      invalidateDecryptUserInfo(id)
+      enqueueManageClassesDecrypt([id], 'low')
+      return
+    }
+    if (decryptedNames.has(id) && isAnonymousInfo(info)) return
     cacheStudentDisplayName(id, info)
   } catch {
     if (gen !== decryptGeneration) return
     decryptedNames.set(id, '')
     decryptedLegalNames.set(id, '')
+    anonymousNameIds.delete(id)
     scheduleDecryptedNamesFlush()
   }
 }
@@ -1578,6 +1601,26 @@ function enqueueManageClassesDecrypt(ids, priority) {
   })
 }
 
+retryAnonymousStudentNames = () => {
+  if (!anonymousNameIds.size) return
+  lastAnonymousRetryAt = Date.now()
+  anonymousRetryEpoch += 1
+  const ids = [...anonymousNameIds]
+  // Do not clear the queue: ids still waiting for their first decrypt must stay queued.
+  for (const id of ids) {
+    decryptedNames.delete(id)
+    decryptedLegalNames.delete(id)
+    anonymousNameIds.delete(id)
+    invalidateDecryptUserInfo(id)
+  }
+  flushDecryptedNamesNow()
+  const visible = new Set(highPriorityStudentIds(students.value.map(s => s.id)))
+  const high = ids.filter(id => visible.has(id))
+  const highSet = new Set(high)
+  enqueueManageClassesDecrypt(high, 'high')
+  enqueueManageClassesDecrypt(ids.filter(id => !highSet.has(id)), 'low')
+}
+
 watch(
   () => students.value.map(s => s.id).join('\u001f'),
   (key) => {
@@ -1599,23 +1642,31 @@ watch(
   },
 )
 
-// Re-fetch decrypted names when the encryption key is set or changed
+// Re-fetch decrypted names when the encryption key is set or changed.
+// A status flip to 'ok' only retries anonymous rows (see the keyStatus watcher).
 watch(namePassword, async (newKey) => {
   const currentIds = students.value.map(s => s.id)
-  if (newKey) {
-    decryptGeneration += 1
-    clearDecryptQueue(MANAGE_CLASSES_DECRYPT_OWNER)
-    decryptedNames.clear()
-    decryptedLegalNames.clear()
-    flushDecryptedNamesNow()
+  anonymousRetryEpoch += 1
+  anonymousNameIds.clear()
+  decryptGeneration += 1
+  clearDecryptQueue(MANAGE_CLASSES_DECRYPT_OWNER)
+  decryptedNames.clear()
+  decryptedLegalNames.clear()
+  flushDecryptedNamesNow()
+  if (!isEmptyEncryptionSecret(newKey)) {
     const high = highPriorityStudentIds(currentIds)
     const highSet = new Set(high)
     enqueueManageClassesDecrypt(high, 'high')
     enqueueManageClassesDecrypt(currentIds.filter(id => !highSet.has(id)), 'low')
-    await revalidateEncryptionKey(currentIds)
-  } else {
-    await revalidateEncryptionKey(currentIds)
   }
+  await revalidateEncryptionKey(currentIds)
+})
+
+// Only a flip to 'ok' (a real decrypt opened a student with this code) can
+// change the result for rows that already failed. unknown -> invalid cannot,
+// so it does not re-run a large anonymous roster.
+watch(keyStatus, (status, prev) => {
+  if (status === 'ok' && prev !== 'ok') retryAnonymousStudentNames()
 })
 
 function applyStudentListFilters(items) {
@@ -2227,13 +2278,19 @@ function handlePickerNext() {
   }
 }
 
+function encryptionCodeForCreate() {
+  const stored = localStorage.getItem(`zkek-${store.state.user}`)
+  const code = matchingEncryptionCode(stored, namePassword.value)
+  if (code) return code
+  // The teacher shell already shows a blocking dialog while the code is missing.
+  if (keyStatus.value !== 'missing') showNamePasswordModal.value = true
+  return null
+}
+
 async function handleAddStudentIndividual() {
   showAddStudentPicker.value = false
   selectedPickerOption.value = null
-  if (!hasEncryptionKey.value) {
-    showNamePasswordModal.value = true
-    return
-  }
+  if (!encryptionCodeForCreate()) return
   // Always show consent step before create (not once-per-teacher)
   pendingAfterAgreement.value = 'individual'
   showAcceptStudentAgreementModal.value = true
@@ -2247,10 +2304,7 @@ function openCreateStudentForm() {
 }
 
 async function handleAddStudent() {
-  if (!hasEncryptionKey.value) {
-    showNamePasswordModal.value = true
-    return
-  }
+  if (!encryptionCodeForCreate()) return
   await createUserAndLaunchModal()
 }
 
@@ -2264,9 +2318,10 @@ async function createStudentAccount() {
 }
 
 async function executeCreateStudentAccount() {
+  const providerSecret = encryptionCodeForCreate()
+  if (!providerSecret) return
   creatingStudent.value = true
   try {
-    const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
     const userSecret = randomString(8, codeCharacterSet)
     const info = {
       name: newStudentName.value.trim(),
@@ -2332,7 +2387,8 @@ function onAgreementModalClose() {
 // ── Bulk / SSO handlers ──
 
 async function createSingleStudent(name, nickname, grade) {
-  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
+  const providerSecret = encryptionCodeForCreate()
+  if (!providerSecret) throw new Error('encryption code unavailable')
   const userSecret = randomString(8, codeCharacterSet)
   const info = {
     name: name.trim(),
@@ -2528,10 +2584,8 @@ async function executeCSVImport(rows, duplicateSkipped, invalidSkipped = 0) {
 
 async function handleCSVImport() {
   if (!csvFile.value) return
-  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-  if (!providerSecret) {
+  if (!encryptionCodeForCreate()) {
     showCSVUploadModal.value = false
-    showNamePasswordModal.value = true
     return
   }
   // Always require consent for this import (unless we just accepted for this action)
@@ -2611,10 +2665,8 @@ async function handleBulkCreate() {
     return
   }
 
-  const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-  if (!providerSecret) {
+  if (!encryptionCodeForCreate()) {
     showBulkEntryModal.value = false
-    showNamePasswordModal.value = true
     return
   }
   // Always require consent for this bulk create (unless we just accepted for this action)

@@ -1,4 +1,4 @@
-import { generateKeyPair, encrypt, decrypt, decryptSymmetric } from '@/utils/encryption.js'
+import { encrypt, decrypt, decryptSymmetric, generateKeyPair } from '@/utils/encryption.js'
 import { encodeBase64, decodeBase64, encodeUTF8 } from 'tweetnacl-util'
 
 import roles from './roles.js'
@@ -21,14 +21,26 @@ import {
   persistTeacherAgreement,
 } from '@/utils/user-agreements.js'
 import {
+  configureKeyPairDerivation,
   decryptUserInfoWithCache,
+  markAnonymousInfo,
+  memoizedKeyPair,
   normalizeUserInfoSource,
+  notifyTeacherDecryptSuccess,
   providerKeyFingerprint,
   providerKeysForNameLookup,
   resolvePublicUserInfo,
   shouldSkipNaclAfterPublicInfo,
   shouldUsePublicUserInfo,
 } from '@/utils/decrypt-user-info-cache.js'
+import { isEmptyEncryptionSecret } from '@/utils/publish-derived-public-key.js'
+import {
+  PROBE_MAX_ATTEMPTS,
+  classifyProbeAttempt,
+  probeUserIdsNewestFirst,
+} from '@/utils/probe-encryption-key.js'
+
+configureKeyPairDerivation(generateKeyPair)
 
 export default {
   modules: {
@@ -112,52 +124,43 @@ export default {
 
       const zkek = localStorage.getItem(`zkek-${state.user}`)
       let attempted = 0
-      const maxAttempts = 12
 
-      for (const user of userIds) {
-        if (attempted >= maxAttempts) break
-        if (!user) continue
+      // Newest first: a code reset leaves openable students at the end of the roster.
+      for (const user of probeUserIdsNewestFirst(userIds)) {
+        if (attempted >= PROBE_MAX_ATTEMPTS) break
 
-        // Teacher-created accounts (symmetric) — same keys as decryptUserInfo
+        let providerEncryptedInfo = null
         try {
-          const { providerEncryptedInfo } = await Agent.state(user)
-          if (providerEncryptedInfo) {
-            attempted++
-            let opened = false
-            for (const providerKey of providerKeys) {
-              try {
-                const secretKey = await generateKeyPair(providerKey).then(p => p.secretKey)
-                decryptSymmetric(secretKey, providerEncryptedInfo)
-                opened = true
-                break
-              } catch {
-                // try next provider key
-              }
-            }
-            if (opened) return 'ok'
-            continue
+          const userState = await Agent.state(user)
+          if (userState?.providerEncryptedInfo) {
+            providerEncryptedInfo = userState.providerEncryptedInfo
           }
         } catch { /* ignore */ }
 
-        // Linked / multi-teacher encrypted blobs — zkek-derived box key
-        if (!zkek) continue
-        try {
-          const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
-          const blobs = Object.values(encryptedUserInfo || {})
-          if (!blobs.length) continue
-          attempted++
-          const { secretKey: mySecretKey } = await generateKeyPair(zkek)
-          for (const { publicKey: theirPublicKey, encryptedInfo } of blobs) {
-            try {
-              decrypt(
-                mySecretKey,
-                decodeBase64(theirPublicKey),
-                decodeBase64(encryptedInfo)
-              )
-              return 'ok'
-            } catch { /* try next blob */ }
-          }
-        } catch { /* ignore */ }
+        if (providerEncryptedInfo) {
+          const providerOpened = await providerInfoOpens(providerEncryptedInfo, providerKeys)
+          // Re-encrypted copy under the new public key. Same attempt as the symmetric miss.
+          const boxResult = providerOpened
+            ? 'absent'
+            : await probeEncryptedUserInfoBoxes(user, zkek)
+          const decision = classifyProbeAttempt({
+            hasProviderInfo: true,
+            providerOpened,
+            boxResult,
+          })
+          if (decision.attempt) attempted += 1
+          if (decision.stop === 'ok') return 'ok'
+          continue
+        }
+
+        const boxResult = await probeEncryptedUserInfoBoxes(user, zkek)
+        const decision = classifyProbeAttempt({
+          hasProviderInfo: false,
+          providerOpened: false,
+          boxResult,
+        })
+        if (decision.attempt) attempted += 1
+        if (decision.stop === 'ok') return 'ok'
       }
 
       if (attempted === 0) return 'unknown'
@@ -261,7 +264,7 @@ async function decryptUserInfoUncached(state, getters, user, useAlias, source = 
     return { name: 'PILA Expert', picture: null }
   }
 
-  const anonymousInfo = () => ({
+  const anonymousInfo = () => markAnonymousInfo({
     name: `${getters.t('anonymous')}_${user.slice(0, 4)}`,
     picture: null,
   })
@@ -286,7 +289,11 @@ async function decryptUserInfoUncached(state, getters, user, useAlias, source = 
   for (const providerKey of providerKeys) {
     try {
       createdUserInfo = await getTeacherCreatedUserInfo(user, providerKey)
-      if (createdUserInfo) break
+      if (createdUserInfo) {
+        // Admin credential can open a name without proving the teacher code.
+        if (providerKey === key) notifyTeacherDecryptSuccess(key)
+        break
+      }
     } catch {
       // key may belong to a different account-creation role / wrong key — fall through
     }
@@ -297,7 +304,7 @@ async function decryptUserInfoUncached(state, getters, user, useAlias, source = 
 
   let info = anonymousInfo()
   const encryptedUserInfo = await Agent.state('encrypted-user-info', user)
-  const { secretKey: mySecretKey } = await generateKeyPair(key)
+  const { secretKey: mySecretKey } = await memoizedKeyPair(key)
   const toTry = Object.values(encryptedUserInfo || {})
   let success = false
   while (toTry.length && !success) {
@@ -313,8 +320,9 @@ async function decryptUserInfoUncached(state, getters, user, useAlias, source = 
         )
       )
       success = true
+      notifyTeacherDecryptSuccess(key)
     } catch {
-      // blob mismatch — skip nacl + negative-cache the anonymous fallback
+      // blob mismatch — negative-cache the anonymous fallback
     }
   }
   return info
@@ -325,26 +333,70 @@ function teacherProviderKeys(state) {
   return [
     key,
     state.user ? getStoredAdminCredentialSecret(state.user) : ''
-  ].filter((value, index, values) => value && values.indexOf(value) === index)
+  ].filter((value, index, values) => (
+    !isEmptyEncryptionSecret(value) && values.indexOf(value) === index
+  ))
 }
 
 async function decryptProviderEncryptedLoginSecret(encryptedKey, providerKey) {
-  if (!encryptedKey || !providerKey) return ''
-  const { secretKey } = await generateKeyPair(providerKey)
+  if (!encryptedKey || isEmptyEncryptionSecret(providerKey)) return ''
+  const { secretKey } = await memoizedKeyPair(providerKey)
   return decryptSymmetric(secretKey, encryptedKey)
 }
 
 async function getTeacherCreatedUserInfo(id, key) {
+  if (isEmptyEncryptionSecret(key)) return
   const { providerEncryptedInfo } = await Agent.state(id)
 
   if (!providerEncryptedInfo) return
 
+  const { secretKey } = await memoizedKeyPair(key)
   const { info } = JSON.parse(
-    decryptSymmetric(
-      await generateKeyPair(key).then(p => p.secretKey),
-      providerEncryptedInfo
-    )
+    decryptSymmetric(secretKey, providerEncryptedInfo)
   )
 
   return info
+}
+
+async function providerInfoOpens(providerEncryptedInfo, providerKeys) {
+  for (const providerKey of providerKeys) {
+    try {
+      const { secretKey } = await memoizedKeyPair(providerKey)
+      decryptSymmetric(secretKey, providerEncryptedInfo)
+      return true
+    } catch {
+      // try next provider key
+    }
+  }
+  return false
+}
+
+/** 'ok' | 'fail' | 'absent' — absent means there was nothing to try. */
+async function probeEncryptedUserInfoBoxes(user, zkek) {
+  if (isEmptyEncryptionSecret(zkek)) return 'absent'
+  let encryptedUserInfo
+  try {
+    encryptedUserInfo = await Agent.state('encrypted-user-info', user)
+  } catch {
+    return 'absent'
+  }
+  const blobs = Object.values(encryptedUserInfo || {})
+  if (!blobs.length) return 'absent'
+  try {
+    const { secretKey: mySecretKey } = await memoizedKeyPair(zkek)
+    for (const { publicKey: theirPublicKey, encryptedInfo } of blobs) {
+      if (!theirPublicKey || !encryptedInfo) continue
+      try {
+        decrypt(
+          mySecretKey,
+          decodeBase64(theirPublicKey),
+          decodeBase64(encryptedInfo)
+        )
+        return 'ok'
+      } catch { /* try next blob */ }
+    }
+  } catch {
+    return 'fail'
+  }
+  return 'fail'
 }

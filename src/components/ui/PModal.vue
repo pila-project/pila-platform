@@ -34,7 +34,15 @@
               :aria-label="isFullscreen ? 'Exit fullscreen' : 'Fullscreen'"
               @click="toggleFullscreen"
             />
-            <PButton variant="icon" size="sm" icon="lucide:x" iconOnly aria-label="Close" @click="close('top-x')" />
+            <PButton
+              v-if="dismissible"
+              variant="icon"
+              size="sm"
+              icon="lucide:x"
+              iconOnly
+              aria-label="Close"
+              @click="close('top-x')"
+            />
           </div>
         </div>
 
@@ -74,6 +82,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import PButton from './PButton.vue'
 import { Z_LAYER_VARS } from '@/design-system/z-layers.js'
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/body-scroll-lock.js'
+import { modalCloseAllowed } from './modal-dismiss.js'
 
 defineOptions({ inheritAttrs: false })
 
@@ -93,6 +102,14 @@ const props = defineProps({
     default: 'Close'
   },
   persistent: Boolean,
+  /**
+   * When false, hide the header X and ignore every close reason
+   * (outside click, Escape, header X, footer close). Default true.
+   */
+  dismissible: {
+    type: Boolean,
+    default: true,
+  },
   noPadBody: Boolean,
   /** Show maximize control; uses Fullscreen API on the modal panel (UIUX-221). */
   enableFullscreen: Boolean,
@@ -158,7 +175,11 @@ async function toggleFullscreen() {
 }
 
 function close(reason) {
-  if (props.persistent && reason === 'outside') return
+  if (!modalCloseAllowed({
+    dismissible: props.dismissible,
+    persistent: props.persistent,
+    reason,
+  })) return
   emit('close', reason)
 }
 

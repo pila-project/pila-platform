@@ -273,13 +273,18 @@ const { namePassword: encryptionKey } = useEncryptionKey(store)
 const nameMap = reactive({})
 const sortNameMap = reactive({})
 
+let nameSearchGen = 0
+
 async function loadStudentNameSearchMap() {
+  const gen = nameSearchGen
   for (const student of props.students) {
     try {
       const info = await store.getters.decryptUserInfo(student.id, false, 'roster')
+      if (gen !== nameSearchGen) return
       nameMap[student.id] = studentNameSearchText(info)
       sortNameMap[student.id] = (formatStudentPreferredName(info) || '').trim()
     } catch {
+      if (gen !== nameSearchGen) return
       nameMap[student.id] = ''
       sortNameMap[student.id] = ''
     }
@@ -290,13 +295,12 @@ onMounted(() => {
   void loadStudentNameSearchMap()
 })
 
-// Re-decrypt student names when the encryption key is updated
-watch(encryptionKey, (newKey) => {
-  if (newKey) {
-    Object.keys(nameMap).forEach(k => delete nameMap[k])
-    Object.keys(sortNameMap).forEach(k => delete sortNameMap[k])
-    void loadStudentNameSearchMap()
-  }
+// Re-decrypt when the code changes, including when it is cleared.
+watch(encryptionKey, () => {
+  nameSearchGen += 1
+  Object.keys(nameMap).forEach(k => delete nameMap[k])
+  Object.keys(sortNameMap).forEach(k => delete sortNameMap[k])
+  void loadStudentNameSearchMap()
 })
 
 // Drag state

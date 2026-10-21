@@ -1,10 +1,12 @@
 import { v4 as uuid, v5 as uuidv5 } from 'uuid'
 import { encodeBase64, decodeBase64, decodeUTF8 } from 'tweetnacl-util'
 import { encrypt, generateKeyPair, encryptSymmetric } from './encryption.js'
+import { assertNonEmptyProviderSecret } from './publish-derived-public-key.js'
 
 const BASE64_PUBLIC_KEY_NAMESPACE = '1b4555f2-a89c-4633-834a-a064c195ab22'
 
 export async function resetUserSecret(userId, newSecret, providerSecret, info) {
+  assertNonEmptyProviderSecret(providerSecret)
   const { serverPublicKey } = await Agent.environment()
   const newKeyPair = await generateKeyPair(newSecret)
   const providerKeyPair = await generateKeyPair(providerSecret)
@@ -43,6 +45,7 @@ export async function resetUserSecret(userId, newSecret, providerSecret, info) {
 }
 
 export async function createUser(userSecret, providerSecret, info) {
+  assertNonEmptyProviderSecret(providerSecret)
   const { serverPublicKey } = await Agent.environment()
   const userKeyPair = await generateKeyPair(userSecret)
   const providerKeyPair = await generateKeyPair(providerSecret)

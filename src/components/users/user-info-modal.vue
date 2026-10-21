@@ -2,6 +2,7 @@
   import { ref, reactive, computed } from 'vue'
   import { useStore } from 'vuex'
   import { generateKeyPair, decryptSymmetric } from '@/utils/encryption.js'
+  import { isEmptyEncryptionSecret } from '@/utils/publish-derived-public-key.js'
   import { createUser } from '@/utils/user-utils.js'
   import { invalidateDecryptUserInfo } from '@/utils/decrypt-user-info-cache.js'
   import { ensureTeacherUserRecord } from '@/utils/ensure-teacher-user-record.js'
@@ -32,11 +33,14 @@
   const teacherOwnedUserAccount = !!userData.providerEncryptedKey
 
   const providerSecret = localStorage.getItem(`zkek-${store.state.user}`)
-  const providerKeyPair = await generateKeyPair(providerSecret)
+  const providerKeyPair = isEmptyEncryptionSecret(providerSecret)
+    ? null
+    : await generateKeyPair(providerSecret)
 
   let editUserInfo, userSecret
 
   try {
+    if (!providerKeyPair) throw new Error('missing provider secret')
     editUserInfo = reactive(JSON.parse(decryptSymmetric(
       providerKeyPair.secretKey,
       userData.providerEncryptedInfo
