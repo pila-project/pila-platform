@@ -1,5 +1,6 @@
 <template>
   <PModal :title="title" width="480px" @close="$emit('cancel')">
+    <div class="academy-theme">
     <p class="academy-muted">{{ lead }}</p>
     <div class="download-toolbar">
       <label class="download-check">
@@ -27,7 +28,9 @@
         </label>
       </li>
     </ul>
+    </div>
     <template #footer>
+      <div class="academy-theme">
       <PButton variant="outline" color="danger" :text="cancelLabel" @click="$emit('cancel')" />
       <PButton
         variant="primary"
@@ -36,6 +39,7 @@
         :disabled="!selected.size"
         @click="download"
       />
+      </div>
     </template>
   </PModal>
 </template>

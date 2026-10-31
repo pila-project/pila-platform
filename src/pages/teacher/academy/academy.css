@@ -1,3 +1,46 @@
+.academy,
+.academy-library,
+.lesson-page,
+.review-page,
+.academy-theme {
+  --academy-accent: #ff6c1f;
+  --academy-accent-strong: #c24300;
+  --academy-accent-strong-hover: #a63a00;
+  --academy-accent-50: #fff4ed;
+  --academy-accent-100: #ffe4d3;
+  --academy-accent-200: #ffc8a6;
+  --academy-accent-300: #ffb084;
+  --academy-accent-400: #ff8f4d;
+  --academy-yellow: #ffc343;
+  --academy-yellow-50: #fff8e6;
+  --academy-yellow-100: #ffefc2;
+  --color-primary-50: var(--academy-accent-50);
+  --color-primary-100: var(--academy-accent-100);
+  --color-primary-200: var(--academy-accent-200);
+  --color-primary-300: var(--academy-accent-300);
+  --color-primary-400: var(--academy-accent-400);
+  --color-primary-500: var(--academy-accent);
+  --color-primary-600: var(--academy-accent-strong);
+  --color-primary-700: var(--academy-accent-strong-hover);
+}
+
+.academy-theme {
+  display: contents;
+}
+
+.academy input[type='checkbox'],
+.academy input[type='radio'],
+.academy-library input[type='checkbox'],
+.academy-library input[type='radio'],
+.lesson-page input[type='checkbox'],
+.lesson-page input[type='radio'],
+.review-page input[type='checkbox'],
+.review-page input[type='radio'],
+.academy-theme input[type='checkbox'],
+.academy-theme input[type='radio'] {
+  accent-color: var(--academy-accent-strong);
+}
+
 .academy {
   min-height: 100%;
   padding: 20px 24px 48px;
@@ -113,8 +156,8 @@
 }
 
 .academy-status-new {
-  background: #e8f1ff;
-  color: #2563eb;
+  background: var(--academy-accent-50, #e8f1ff);
+  color: var(--academy-accent-strong, #2563eb);
 }
 
 .academy-status-required {
@@ -192,9 +235,9 @@
   height: 32px;
   padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--academy-accent-200, #bfdbfe);
   background: #fff;
-  color: #2563eb;
+  color: var(--academy-accent-strong, #2563eb);
   font-family: 'Geist', 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -212,7 +255,7 @@
 
 .series-back:hover,
 .series-download:hover {
-  background: #eff6ff;
+  background: var(--academy-accent-50, #eff6ff);
 }
 
 .series-title {
@@ -286,7 +329,7 @@
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: #2563eb;
+  background: var(--academy-accent, #2563eb);
 }
 
 .academy-meter-value {
@@ -599,7 +642,7 @@ button.cat-toggle,
 .lesson-download,
 .lesson-pager-side {
   background: #fff;
-  color: #2563eb;
+  color: var(--academy-accent-strong, #2563eb);
 }
 
 .lesson-back,
@@ -619,14 +662,14 @@ button.cat-toggle,
 .lesson-download {
   height: 32px;
   padding: 6px 8px;
-  border: 1px solid #2563eb;
+  border: 1px solid var(--academy-accent, #2563eb);
   flex-shrink: 0;
 }
 
 .lesson-back:hover,
 .lesson-download:hover,
 .lesson-pager-side:hover:not(:disabled) {
-  background: #eff6ff;
+  background: var(--academy-accent-50, #eff6ff);
 }
 
 .lesson-module-title {
@@ -672,7 +715,7 @@ button.cat-toggle,
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: #2563eb;
+  background: var(--academy-accent, #2563eb);
 }
 
 .lesson-columns {
@@ -768,11 +811,11 @@ button.cat-toggle,
   margin: 0;
   padding: 12px 10px;
   border-radius: 6px;
-  background: #eff6ff;
+  background: var(--academy-accent-50, #eff6ff);
 }
 
 .academy-callout.tip {
-  background: #fffbeb;
+  background: var(--academy-yellow-50, #fffbeb);
 }
 
 .academy-callout-head {
@@ -998,8 +1041,8 @@ button.cat-toggle,
 }
 
 .academy-option.picked {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: var(--academy-accent, #2563eb);
+  background: var(--academy-accent-50, #eff6ff);
 }
 
 .academy-option.correct {
@@ -1035,7 +1078,7 @@ button.cat-toggle,
   padding: 8px 12px;
   border: 0;
   border-radius: 12px;
-  background: #2563eb;
+  background: var(--academy-accent-strong, #2563eb);
   color: #f8fafc;
   font-family: 'Geist', 'Inter', sans-serif;
   font-weight: 500;
@@ -1062,7 +1105,7 @@ button.cat-toggle,
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   background: #fff;
-  color: #2563eb;
+  color: var(--academy-accent-strong, #2563eb);
   font-family: 'Geist', 'Inter', sans-serif;
   font-weight: 500;
   font-size: 14px;
@@ -1071,7 +1114,7 @@ button.cat-toggle,
 }
 
 .academy-previous:hover {
-  background: #eff6ff;
+  background: var(--academy-accent-50, #eff6ff);
 }
 
 .lesson-actions .academy-previous {
@@ -1128,7 +1171,7 @@ button.cat-toggle,
   height: 36px;
   padding: 8px 12px;
   border: 0;
-  background: #2563eb;
+  background: var(--academy-accent-strong, #2563eb);
   color: #f8fafc;
 }
 
@@ -1467,10 +1510,10 @@ button.cat-toggle,
   gap: 4px;
   height: 24px;
   padding: 0 10px;
-  border: 1px solid #2563eb;
+  border: 1px solid var(--academy-accent, #2563eb);
   border-radius: 8px;
   background: #fff;
-  color: #2563eb;
+  color: var(--academy-accent-strong, #2563eb);
   font-family: 'Geist', 'Inter', sans-serif;
   font-weight: 500;
   font-size: 12px;
@@ -1526,14 +1569,14 @@ button.cat-toggle,
 
 .review-view-all,
 .review-back {
-  border: 1px solid #2563eb;
+  border: 1px solid var(--academy-accent, #2563eb);
   background: #fff;
-  color: #2563eb;
+  color: var(--academy-accent-strong, #2563eb);
 }
 
 .review-view-all:hover,
 .review-back:hover {
-  background: #eff6ff;
+  background: var(--academy-accent-50, #eff6ff);
 }
 
 .review-resources,
@@ -1626,7 +1669,7 @@ button.cat-toggle,
 .review-complete {
   margin-top: auto;
   border: 0;
-  background: #2563eb;
+  background: var(--academy-accent-strong, #2563eb);
   color: #f8fafc;
 }
 
@@ -1645,12 +1688,12 @@ button.cat-toggle,
 }
 
 .review-tool-icon.blue {
-  background: #dbeafe;
-  color: #2563eb;
+  background: var(--academy-accent-100, #dbeafe);
+  color: var(--academy-accent-strong, #2563eb);
 }
 
 .review-tool-icon.yellow {
-  background: #fef9c3;
+  background: var(--academy-yellow-100, #fef9c3);
   color: #ca8a04;
 }
 
@@ -1880,8 +1923,8 @@ button.cat-toggle,
 }
 
 .academy-step-btn[aria-expanded='true'] {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: var(--academy-accent, #2563eb);
+  background: var(--academy-accent-50, #eff6ff);
 }
 
 .academy-widget-columns {
@@ -1943,8 +1986,8 @@ button.cat-toggle,
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--academy-accent-50, #eff6ff);
+  color: var(--academy-accent-strong, #2563eb);
   font: 600 12px/16px 'Geist', 'Inter', sans-serif;
 }
 

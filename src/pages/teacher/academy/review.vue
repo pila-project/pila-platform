@@ -28,7 +28,7 @@
 
       <div class="review-body">
         <div class="review-hero">
-          <LucideIcon name="target" :size="32" color="#f97316" />
+          <LucideIcon name="target" :size="32" color="#ff6c1f" />
           <h2>{{ copy('moduleReview') }}</h2>
           <p>{{ summaryLead }}</p>
         </div>

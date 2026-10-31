@@ -1,5 +1,6 @@
 <template>
   <PModal :title="title" width="560px" @close="$emit('cancel')">
+    <div class="academy-theme">
     <p class="academy-muted">{{ lead }}</p>
     <div v-if="resourceName" class="academy-reflection-resource">
       <LucideIcon name="file-text" :size="18" />
@@ -36,9 +37,12 @@
         <span class="academy-muted">{{ characters }}</span>
       </div>
     </template>
+    </div>
     <template #footer>
+      <div class="academy-theme">
       <PButton variant="outline" color="danger" :text="cancelLabel" @click="$emit('cancel')" />
       <PButton variant="primary" :text="submitLabel" :disabled="!canSubmit" :loading="submitting" @click="submit" />
+      </div>
     </template>
   </PModal>
 </template>
