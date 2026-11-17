@@ -414,6 +414,7 @@ postgres:
     student-teacher-class-ids:
       domains:
       - export.knowlearning.systems
+      - "*.pilaproject.org"
       - f74e9cb3-2b53-4c85-9b0c-f1d61b032b3f.localhost:5656
       external:
         all_teachers:
