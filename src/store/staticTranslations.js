@@ -10455,6 +10455,19 @@ export default {
     "sk": "Domov",
     "th": "หน้าหลัก"
   },
+  "welcome-named": {
+    "de": "Willkommen, {name}",
+    "en": "Welcome, {name}",
+    "es": "Bienvenido, {name}",
+    "fr": "Bienvenue, {name}",
+    "km": "សូមស្វាគមន៍ {name}",
+    "lv": "Laipni lūdzam, {name}",
+    "nl": "Welkom, {name}",
+    "pl": "Witamy, {name}",
+    "pt": "Bem-vindo, {name}",
+    "sk": "Vitajte, {name}",
+    "th": "สวัสดี {name}"
+  },
   "welcome-back-named": {
     "de": "Willkommen zurück, {name}",
     "en": "Welcome back, {name}",

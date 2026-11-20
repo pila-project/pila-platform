@@ -366,6 +366,7 @@ import {
   currentAssignmentPreview,
   toEpochMs,
 } from '@/utils/teacher-home.js'
+import { readTeacherHomeVisited, markTeacherHomeVisited } from '@/utils/teacher-home-visit.js'
 
 const store = useStore()
 const router = useRouter()
@@ -407,6 +408,7 @@ onMounted(() => {
     if (raw) Object.assign(homeLayout, parseHomeLayout(JSON.parse(raw)))
   } catch { /* private mode / invalid JSON */ }
   queueActivityHydration()
+  decideGreeting()
 })
 
 onUnmounted(() => {
@@ -433,9 +435,26 @@ const greetingName = computed(() =>
   greetingFirstName(userInfo.value?.name, t('teacher')),
 )
 
+// Default to "welcome back" until decided so returning teachers never flash "Welcome".
+const isReturningVisit = ref(true)
+let greetingDecided = false
+
 const greeting = computed(() =>
-  formatWelcomeBack(t('welcome-back-named'), greetingName.value),
+  formatWelcomeBack(
+    t(isReturningVisit.value ? 'welcome-back-named' : 'welcome-named'),
+    greetingName.value,
+  ),
 )
+
+async function decideGreeting() {
+  if (greetingDecided) return
+  const visited = await readTeacherHomeVisited()
+  if (visited === null) return
+  const hasAssignments = store.getters['pila_tags/withTag']('teacher-created').length > 0
+  isReturningVisit.value = !!(visited || hasAssignments)
+  greetingDecided = true
+  markTeacherHomeVisited()
+}
 
 const assignableIds = computed(() => store.getters['pila_tags/withTag']('teacher-created'))
 
