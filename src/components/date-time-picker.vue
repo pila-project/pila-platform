@@ -61,6 +61,8 @@
 
 <script setup>
   import { computed, ref, watch } from 'vue'
+  import { useStore } from 'vuex'
+  import { dateDisplayLocale } from '@/utils/iso-date.js'
 
   const props = defineProps({
     modelValue: {
@@ -76,6 +78,7 @@
 
   const emit = defineEmits(['update:modelValue'])
 
+  const store = useStore()
   const menuOpen = ref(false)
   const draftDate = ref('')
   const draftTime = ref('')
@@ -84,7 +87,7 @@
     if (!props.modelValue) return ''
     const date = new Date(props.modelValue)
     if (Number.isNaN(date.getTime())) return props.modelValue
-    return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+    return date.toLocaleString(dateDisplayLocale(store.getters.language?.() || store.state.language || 'en'), { dateStyle: 'medium', timeStyle: 'short' })
   })
 
   const pickerDate = computed({

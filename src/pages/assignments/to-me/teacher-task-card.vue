@@ -45,6 +45,7 @@
   import { useStore } from 'vuex'
   import NameOrTranslatedNameFromItemId from '@/components/content/name-or-translated-name-from-item-id.vue'
   import { getContentImage } from '@/utils/content-cache.js'
+  import { dateDisplayLocale } from '@/utils/iso-date.js'
 
   const props = defineProps({
     assignment: {
@@ -86,7 +87,7 @@
   function formatDate(value) {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return 'Not set'
-    return date.toLocaleString()
+    return date.toLocaleString(dateDisplayLocale(store.getters.language?.() || store.state.language || 'en'), { dateStyle: 'medium', timeStyle: 'short' })
   }
 </script>
 

@@ -335,6 +335,7 @@
     storeAdminCredentialSecret,
     writeTeacherLoginCredentialRecord,
   } from '@/teacher-login-credentials.js'
+  import { formatDateForDisplay } from '@/utils/iso-date.js'
 
   const store = useStore()
   const isSimplifiedStudyDomain = SIMPLIFIED_STUDY_DOMAINS.includes(window.location.host)
@@ -736,7 +737,7 @@
   function formatDate(date) {
     if (!date) return ''
     const parsed = new Date(date)
-    return Number.isNaN(parsed.getTime()) ? date : parsed.toLocaleDateString()
+    return Number.isNaN(parsed.getTime()) ? date : formatDateForDisplay(parsed, store.getters.language?.() || store.state.language || 'en')
   }
 </script>
 

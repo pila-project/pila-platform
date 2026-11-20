@@ -1125,6 +1125,7 @@ import {
   isAnonymousInfo,
   yieldToMain,
 } from '@/utils/decrypt-user-info-cache.js'
+import { dateDisplayLocale, formatDateForDisplay } from '@/utils/iso-date.js'
 
 const store = useStore()
 const groupsExpanded = ref(false)
@@ -1731,7 +1732,7 @@ function formatLastLogin(id) {
   const ts = getLastLoginTimestamp(id)
   if (!ts) return '—'
   const d = new Date(ts)
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString(dateDisplayLocale(store.getters.language()), { dateStyle: 'medium', timeStyle: 'short' })
 }
 
 const studentHeaders = computed(() => [
@@ -1840,7 +1841,7 @@ async function openStudentProfile(studentId) {
   try {
     const meta = await Agent.metadata(studentId)
     if (meta?.created) {
-      profileCreatedDate.value = new Date(meta.created).toLocaleDateString()
+      profileCreatedDate.value = formatDateForDisplay(new Date(meta.created), store.getters.language())
     }
   } catch (e) { /* metadata not available */ }
 }
