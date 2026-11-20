@@ -4,7 +4,7 @@ import { GEN_AI_SEQUENCES, PETHEMATICIANS_SINGLE_ITEM_IDS } from './constants.js
 import { clearCandliProgrammingChildCache } from './assignment-dashboards.js'
 import { KL_SEQUENCE_PLAYER_HOST } from './sequence-items.js'
 import { leafPerformancePath } from './leaf-performance.js'
-import { planKlAssignmentPlay } from './kl-assignment-play.js'
+import { klSequencePlayable, planKlAssignmentPlay } from './kl-assignment-play.js'
 
 const A = '11111111-1111-4111-8111-111111111111'
 const B = '22222222-2222-4222-8222-222222222222'
@@ -502,6 +502,108 @@ describe('planKlAssignmentPlay', () => {
       assignmentState: { content: [A, PET], klWrapper: { id: 'wrap-2', items: [A, PET] } },
     })
     assert.deepEqual(plan, { kind: 'kl', playableId: `https://${KL_SEQUENCE_PLAYER_HOST}/wrap-2` })
+  })
+})
+
+describe('klSequencePlayable', () => {
+  it('is true for a PILA sequence whose leaves are allowed', async () => {
+    install({
+      [SEQ]: {
+        meta: { domain: HOST, active_type: 'application/json;type=sequence' },
+        state: { items: [{ id: A }, { id: B }] },
+      },
+      [A]: {
+        meta: { domain: KL_SEQUENCE_PLAYER_HOST, active_type: 'application/json;type=matching' },
+        state: {},
+      },
+      [B]: {
+        meta: { domain: KL_SEQUENCE_PLAYER_HOST, active_type: 'application/json;type=true-false' },
+        state: {},
+      },
+    })
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), true)
+
+    install({
+      [SEQ]: {
+        meta: { domain: HOST, active_type: 'application/json;type=sequence' },
+        state: {
+          items: [{ id: A }],
+          reference: { player: `https://${KL_SEQUENCE_PLAYER_HOST}/` },
+        },
+      },
+      [A]: {
+        meta: { domain: KL_SEQUENCE_PLAYER_HOST, active_type: 'application/json;type=matching' },
+        state: {},
+      },
+    })
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), true)
+  })
+
+  it('is false when the student would stay on today', async () => {
+    install()
+    assert.equal(await klSequencePlayable({}), false)
+    assert.equal(await klSequencePlayable({ sequenceId: '' }), false)
+    assert.equal(await klSequencePlayable({ sequenceId: 'https://example.com/activity' }), false)
+    assert.equal(await klSequencePlayable({ sequenceId: GEN }), false)
+
+    install({
+      [SEQ]: {
+        meta: { domain: KL_SEQUENCE_PLAYER_HOST, active_type: 'application/json;type=sequence' },
+        state: { items: [{ id: A }] },
+      },
+    })
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), false)
+
+    install({
+      [SEQ]: {
+        meta: { domain: HOST, active_type: 'application/json;type=multiple-choice' },
+        state: { items: [{ id: A }] },
+      },
+    })
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), false)
+
+    install({
+      [SEQ]: {
+        meta: { domain: HOST, active_type: 'application/json;type=sequence' },
+        state: {
+          items: [{ id: A }],
+          reference: { player: 'expert.example.org' },
+        },
+      },
+    })
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), false)
+
+    install({
+      [SEQ]: {
+        meta: { domain: HOST, active_type: 'application/json;type=sequence' },
+        state: { items: { 0: { id: A } } },
+      },
+    })
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), false)
+
+    install({
+      [SEQ]: {
+        meta: { domain: HOST, active_type: 'application/json;type=sequence' },
+        state: { items: [{ id: A }] },
+      },
+      [A]: {
+        meta: { domain: 'datawise.accingo.co', active_type: 'application/json' },
+        state: {},
+      },
+    })
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), false)
+
+    install({
+      [SEQ]: {
+        meta: { domain: HOST, active_type: 'application/json;type=sequence' },
+        state: { items: [{ id: A }] },
+      },
+    })
+    globalThis.Agent.metadata = async (id) => {
+      if (id === A) throw new Error('metadata down')
+      return { domain: HOST, active_type: 'application/json;type=sequence' }
+    }
+    assert.equal(await klSequencePlayable({ sequenceId: SEQ }), false)
   })
 })
 

@@ -165,12 +165,29 @@ async function legacyProgressBeatsWrapper(agent, assignmentId, contentIds, wrapp
   return false
 }
 
-async function planSingleSequencePlay({ assignmentId, sequenceId, agent, timeoutMs }) {
-  if (!sequenceId) return { kind: 'today' }
+/**
+ * Whether a student would get Know Learning's sequence player for this id.
+ * Same checks as the single-sequence branch of planKlAssignmentPlay, without
+ * progress seeding. Sequences already hosted on Know Learning
+ * (`meta.domain === KL_SEQUENCE_PLAYER_HOST`) return false; they play through
+ * today's embed of the sequence id.
+ */
+export async function klSequencePlayable({
+  sequenceId,
+  agent = globalThis.Agent,
+  timeoutMs = SEQUENCE_SYNC_TIMEOUT_MS,
+} = {}) {
+  const assessment = await assessKlSequencePlayable({ sequenceId, agent, timeoutMs })
+  return assessment.playable
+}
+
+async function assessKlSequencePlayable({ sequenceId, agent, timeoutMs }) {
+  const no = { playable: false }
+  if (!sequenceId) return no
   // A raw URL, or any other non-UUID in an array, keeps today's path.
   // Play does not wrap it; only a stored klWrapper does that.
-  if (!isUuid(sequenceId)) return { kind: 'today' }
-  if (GEN_AI_SEQUENCES[sequenceId]) return { kind: 'today' }
+  if (!isUuid(sequenceId)) return no
+  if (GEN_AI_SEQUENCES[sequenceId]) return no
 
   let meta = null
   let contentState = null
@@ -180,13 +197,13 @@ async function planSingleSequencePlay({ assignmentId, sequenceId, agent, timeout
       withTimeout(agent.state(sequenceId), timeoutMs, 'Sequence state timed out'),
     ])
   } catch {
-    return { kind: 'today' }
+    return no
   }
 
-  if (meta?.domain === KL_SEQUENCE_PLAYER_HOST) return { kind: 'today' }
-  if (!isSequenceActiveType(meta?.active_type)) return { kind: 'today' }
-  if (usesForeignPlayer(contentState)) return { kind: 'today' }
-  if (!isKlPlayableShape(contentState)) return { kind: 'today' }
+  if (meta?.domain === KL_SEQUENCE_PLAYER_HOST) return no
+  if (!isSequenceActiveType(meta?.active_type)) return no
+  if (usesForeignPlayer(contentState)) return no
+  if (!isKlPlayableShape(contentState)) return no
 
   const leaves = sequenceLeaves(contentState)
   let verdict = 'unknown'
@@ -195,7 +212,14 @@ async function planSingleSequencePlay({ assignmentId, sequenceId, agent, timeout
   } catch {
     verdict = 'unknown'
   }
-  if (verdict !== 'kl') return { kind: 'today' }
+  if (verdict !== 'kl') return no
+
+  return { playable: true, leaves }
+}
+
+async function planSingleSequencePlay({ assignmentId, sequenceId, agent, timeoutMs }) {
+  const { playable, leaves } = await assessKlSequencePlayable({ sequenceId, agent, timeoutMs })
+  if (!playable) return { kind: 'today' }
 
   try {
     await seedExistingKlProgress(agent, assignmentId, sequenceId, leaves, timeoutMs)
