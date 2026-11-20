@@ -42,6 +42,7 @@
             <LucideIcon :name="codeVisible ? 'eye-off' : 'eye'" :size="18" />
           </button>
         </div>
+        <p class="encryption-key-copy encryption-key-switch">{{ t('encryption-code-switch') }}</p>
       </div>
     </template>
 
@@ -150,6 +151,12 @@ function emitClose() {
   margin: 0 0 12px;
   text-align: left;
   line-height: 1.5;
+}
+
+.encryption-key-switch {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .encryption-key-field {
