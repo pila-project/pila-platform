@@ -459,9 +459,19 @@ postgres:
           grouped_students.timestamp,
           COALESCE(grouped_students.member_removed, FALSE) AS member_removed,
           teachers.teacher_id = ANY(COALESCE($treatment_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS treatment,
-          teachers.teacher_id = ANY(COALESCE($control_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS control
+          teachers.teacher_id = ANY(COALESCE($control_teacher_ids::TEXT[], ARRAY[]::TEXT[])) AS control,
+          teacher_users.id AS teacher_users_id
         FROM UNNEST(COALESCE($all_teachers::TEXT[], ARRAY[]::TEXT[])) AS teachers(teacher_id)
         LEFT JOIN grouped_students ON grouped_students.teacher_id = teachers.teacher_id
+        LEFT JOIN LATERAL (
+          SELECT id
+          FROM metadata
+          WHERE name = 'users'
+            AND owner = teachers.teacher_id
+            AND domain = $DOMAIN
+          ORDER BY created DESC
+          LIMIT 1
+        ) AS teacher_users ON TRUE
     assignment-report: |
       SELECT
         COUNT(assignments.id) as "num-groups-assigned",
