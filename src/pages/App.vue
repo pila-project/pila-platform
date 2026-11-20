@@ -77,7 +77,7 @@
             // show RoleRequester instead of ejecting them as a student.
             if (hasTeacher) sessionStorage.removeItem('pila-login-intent')
           } else {
-            if (onTeacherPath) this.$router.push('/')
+            if (onTeacherPath && !hasTeacher) this.$router.push('/')
             sessionStorage.removeItem('pila-login-intent')
           }
         } catch { /* ignore */ }

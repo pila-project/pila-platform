@@ -67,10 +67,11 @@ function isIntentionallyPublic(path) {
 
 function postLoginHome(store) {
   const intent = getSessionItem(LOGIN_INTENT_KEY)
-  // Student tab must win over hasTeacher (admins/teachers also have teacher perm).
-  if (intent === 'student') return '/'
   const hasTeacher = store.getters['roles/hasPermission'](store.state.user, 'teacher')
-  if (intent === 'teacher' || hasTeacher) return '/teacher'
+  // Teacher role wins over login-tab intent so a teacher who used the Student
+  // tab (or opened "/" while signed out) still lands on Teacher Home.
+  if (hasTeacher) return '/teacher'
+  if (intent === 'teacher') return '/teacher'
   return '/'
 }
 
