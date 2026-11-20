@@ -12,12 +12,14 @@ import {
  * the original player. Their dashboards read the student's app data under the
  * assignment, but Know Learning's sequence player saves each item's data under
  * `sequence-{id}-item-{i}/`, so the dashboard would show no students. Verified live
- * for Datawise and Betty's Brain (2026-10-19). RCT has the same kind of dashboard.
+ * for Datawise and Betty's Brain (2026-10-19). RCT, 3DTV, and Karel have the same kind of dashboard.
  */
 export const CUSTOM_DASHBOARD_APP_HOSTS = Object.freeze({
   'datawise.accingo.co': 'Datawise',
   'bettysbrain.knowlearning.systems': "Betty's Brain",
   'rct-problem-creator.pilaproject.org': 'RCT',
+  'thaipilacreate.eef.or.th': '3DTV',
+  'the-karel-project.netlify.app': 'Karel',
 })
 
 /** Why a leaf cannot play inside Know Learning's sequence player. */

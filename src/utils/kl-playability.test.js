@@ -82,6 +82,8 @@ describe('classifyLeaves', () => {
       'datawise.accingo.co',
       'bettysbrain.knowlearning.systems',
       'rct-problem-creator.pilaproject.org',
+      'thaipilacreate.eef.or.th',
+      'the-karel-project.netlify.app',
     ])
     const calls = install()
     assert.equal(await classifyLeaves([]), 'fallback')
@@ -248,10 +250,40 @@ describe('classifyLeaves', () => {
     assert.equal(await classifyLeaves([LEAF, PET]), 'kl')
   })
 
-  it('allows karel, kl-json-form, Candli programming, an embed-host item, and an unknown host', async () => {
+  it('denies Karel by domain and 3DTV by domain or reference.dashboard', async () => {
     install({
       docs: {
-        [LEAF]: question(LEAF, { active_type: 'application/json;type=karel-task&version=1.0.1' }),
+        [LEAF]: question(LEAF, {
+          domain: 'the-karel-project.netlify.app',
+          active_type: 'application/json;type=karel-task&version=1.0.1',
+        }),
+      },
+    })
+    assert.deepEqual(await classifyLeafDetailed(LEAF), { verdict: 'deny', rule: 'custom-dashboard' })
+    assert.equal(await classifyLeaves([LEAF]), 'fallback')
+
+    install({
+      docs: {
+        [LEAF]: question(LEAF, { domain: 'thaipilacreate.eef.or.th' }),
+      },
+    })
+    assert.deepEqual(await classifyLeafDetailed(LEAF), { verdict: 'deny', rule: 'custom-dashboard' })
+    assert.equal(await classifyLeaves([LEAF]), 'fallback')
+
+    install({
+      docs: {
+        [LEAF]: question(LEAF, {
+          state: { reference: { dashboard: 'thaipilacreate.eef.or.th/live-monitor' } },
+        }),
+      },
+    })
+    assert.deepEqual(await classifyLeafDetailed(LEAF), { verdict: 'deny', rule: 'custom-dashboard' })
+    assert.equal(await classifyLeaves([LEAF]), 'fallback')
+  })
+
+  it('allows kl-json-form, Candli programming, an embed-host item, and an unknown host', async () => {
+    install({
+      docs: {
         [LEAF_B]: question(LEAF_B, { active_type: 'application/json;type=kl-json-form&version=1.0.1' }),
         [PROGRAMMING]: question(PROGRAMMING),
         [LEAF_C]: question(LEAF_C, {
@@ -264,13 +296,12 @@ describe('classifyLeaves', () => {
         }),
       },
     })
-    assert.equal(await classifyLeaves([LEAF]), 'kl')
     assert.equal(await classifyLeaves([LEAF_B]), 'kl')
     assert.equal(await classifyLeaves([PROGRAMMING]), 'kl')
     assert.notEqual(LEAF_C, GEN)
     assert.equal(await classifyLeaves([LEAF_C]), 'kl')
     assert.equal(await classifyLeaves([SEQ]), 'kl')
-    assert.equal((await classifyLeafDetailed(LEAF)).rule, null)
+    assert.equal((await classifyLeafDetailed(LEAF_B)).rule, null)
   })
 
   it('allows a plain https URL without reading metadata, a KL question, and a Candli game', async () => {
