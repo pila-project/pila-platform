@@ -181,8 +181,17 @@ function formatUpdated(value) {
   return new Intl.DateTimeFormat(lang, { month: 'short', day: 'numeric', year: 'numeric' }).format(date)
 }
 
-function onRow(_event, { item }) {
+async function onRow(_event, { item }) {
+  const tab = window.open('', '_blank')
+  if (tab) tab.opener = null
   Agent.download(item.id).direct()
+  try {
+    const url = await Agent.download(item.id).url()
+    if (tab) tab.location.href = url
+  } catch (e) {
+    tab?.close()
+    console.warn('[resources] failed to open file', item.id, e)
+  }
 }
 
 function cacheKey() {

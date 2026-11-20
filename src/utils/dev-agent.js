@@ -85,7 +85,7 @@ export default {
   response() { return Promise.resolve() },
   uuid() { return crypto.randomUUID() },
   login() {},
-  download() { return { direct() {} } }
+  download() { return { direct() {}, url() { return Promise.resolve('https://example.com/file.pdf') } } }
 }
 
 const ACADEMY_TAG = 'b40aa310-9aff-11f1-acd7-69003406037b'
