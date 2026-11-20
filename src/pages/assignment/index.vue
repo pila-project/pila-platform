@@ -26,7 +26,6 @@
       :key="contentIndex + ':' + localSequenceId"
       :sequence-id="localSequenceId"
       :start-index="sequenceStartIndex"
-      :focus-index="sequenceFocusIndex"
       :environment-proxy="addVariables"
       :embed-namespace="sequenceEmbedNamespace"
       @header="onSequenceHeader"
@@ -67,34 +66,6 @@
   <div v-else>
     ... {{ t('loading') }} ...
   </div>
-  <div
-    v-if="competencyCard && (playMode === 'sequence' || playMode === 'embed')"
-    class="sequence-end-card"
-  >
-    <div class="sequence-end-panel">
-      <div
-        v-for="row in cardRows"
-        :key="row.key"
-        class="score-skill"
-      >
-        <div class="score-skill-label">
-          <span>{{ row.label }}</span>
-          <span>{{ row.fraction }}</span>
-        </div>
-        <div class="score-steps" role="img" :aria-label="`${row.label} ${row.fraction}`">
-          <span
-            v-for="n in row.total"
-            :key="n"
-            class="score-step"
-            :class="{ done: n <= row.filled }"
-          />
-        </div>
-      </div>
-      <button type="button" class="sequence-end-next" @click="dismissCompetencyCard">
-        {{ competencyCard.advance ? t('next') : t('close') }}
-      </button>
-    </div>
-  </div>
 </template>
 
 <script setup>
@@ -105,27 +76,16 @@ import { vueEmbedComponent } from '@knowlearning/agents/vue.js'
 import studyEnvironmentVariableProxy from '@/utils/study-environment-variable-proxy.js'
 import {
   assignmentContentEndAction,
-  closeHasScoreRows,
   closePayload,
-  competencyCardDismissFollowUp,
+  isLastSequenceItem,
   normalizeAssignmentContent,
-  sequenceItemCloseFollowUp,
 } from '@/utils/assignment-content.js'
-import { candliGamesForSequenceItems } from '@/candli-games.js'
 import { isStudentVisibleAssignment } from '@/utils/assignment-status.js'
 import { SEQUENCE_SYNC_TIMEOUT_MS, normalizeSequenceItems, withTimeout } from '@/utils/sequence-items.js'
 import { shouldPlaySameHostSequence } from '@/utils/same-host-sequence.js'
 import { planKlAssignmentPlay } from '@/utils/kl-assignment-play.js'
 import SequencePreviewBody from '@/components/content/sequence-preview-body.vue'
 import {
-  competencyScoreLabel,
-  competencyScoreSections,
-} from '@/utils/competency-score-label.js'
-import {
-  competencyMet,
-  competencyScoreRows,
-  competencyScoreSignature,
-  competencyWatchUpdate,
   contentOwnsSequencePerformance,
   ensureLeafPerformance,
   ensureSequencePerformance,
@@ -146,24 +106,9 @@ const loadSettled = ref(false)
 const playMode = ref('loading')
 const localSequenceId = ref('')
 const sequenceStartIndex = ref(0)
-const sequenceFocusIndex = ref(null)
-const competencyCard = ref(null)
 const contentIds = ref([])
 const contentIndex = ref(0)
 const playableId = computed(() => contentIds.value[contentIndex.value] || '')
-const cardRows = computed(() => {
-  const rows = competencyCard.value?.rows || {}
-  return Object.entries(rows).map(([key, row]) => {
-    const sections = competencyScoreSections(row)
-    return {
-      key,
-      label: competencyScoreLabel(key, store.state.language),
-      fraction: `${Number(row?.[0]) || 0} / ${Number(row?.[1]) || 0}`,
-      filled: sections.filled,
-      total: sections.total,
-    }
-  })
-})
 
 const t = slug => store.getters.t(slug)
 
@@ -175,11 +120,6 @@ let sequenceItemIds = []
 let sequenceIndex = 0
 let playGeneration = 0
 let endingContent = false
-let stopCompetencyWatch = null
-let competencyWatchGeneration = 0
-let watchedContentId = ''
-let scoreCardArmed = false
-let lastScoreSignature = ''
 // One Know Learning player URL. That frame writes sequence progress. This page does not.
 const klEmbed = ref(false)
 
@@ -236,77 +176,6 @@ function onSequenceHeader(header) {
   if (!Number.isInteger(index) || index < 0 || index >= sequenceItemIds.length) return
   sequenceIndex = index
   if (sequencePerf) sequencePerf.activeItemIndex = index
-  void watchCompetencyScores(sequenceItemIds[index])
-}
-
-function stopScoreWatch() {
-  competencyWatchGeneration += 1
-  if (typeof stopCompetencyWatch === 'function') stopCompetencyWatch()
-  stopCompetencyWatch = null
-  watchedContentId = ''
-  scoreCardArmed = false
-  lastScoreSignature = ''
-}
-
-function presentScoreCard(rows, { pendingEnd = false } = {}) {
-  const sequenceCard = playMode.value === 'sequence' && !pendingEnd
-  scoreCardArmed = true
-  lastScoreSignature = competencyScoreSignature(rows)
-  competencyCard.value = {
-    index: sequenceCard ? sequenceIndex : null,
-    rows,
-    advance: sequenceCard
-      && competencyMet(rows) === true
-      && sequenceIndex + 1 < sequenceItemIds.length,
-    pendingEnd: !sequenceCard,
-  }
-}
-
-function applyWatchedScores(competencies) {
-  const decision = competencyWatchUpdate({
-    armed: scoreCardArmed,
-    previousSignature: lastScoreSignature,
-    competencies,
-  })
-  if (decision.action === 'show') presentScoreCard(decision.rows)
-  else if (!scoreCardArmed) lastScoreSignature = decision.signature
-}
-
-// Chirpy writes the kept-best score here and does not send a second close on Replay.
-async function watchCompetencyScores(contentId) {
-  if (!contentId || contentId === watchedContentId) return
-  stopScoreWatch()
-  const generation = competencyWatchGeneration
-  watchedContentId = contentId
-  let gameId = null
-  try {
-    const games = await candliGamesForSequenceItems([{ id: contentId }])
-    gameId = games[0] || null
-  } catch (e) {
-    console.warn('[Assignment] failed to resolve competency game', contentId, e)
-    return
-  }
-  if (generation !== competencyWatchGeneration || !gameId) return
-  let primed = false
-  try {
-    stopCompetencyWatch = Agent.watch(`${id}/pila/competencies/${gameId}`, (payload) => {
-      if (generation !== competencyWatchGeneration) return
-      const doc = payload && typeof payload === 'object' && 'state' in payload
-        ? payload.state
-        : payload
-      if (!primed) {
-        primed = true
-        // A card can already be up before the first snapshot. An empty
-        // snapshot must not replace the rows the close just showed.
-        if (scoreCardArmed) applyWatchedScores(doc)
-        else lastScoreSignature = competencyScoreSignature(competencyScoreRows(doc))
-        return
-      }
-      applyWatchedScores(doc)
-    })
-  } catch (e) {
-    console.warn('[Assignment] failed to watch competency scores', contentId, e)
-  }
 }
 
 function onSequenceItemClose(payload) {
@@ -318,37 +187,7 @@ function onSequenceItemClose(payload) {
   if (sequencePerf) {
     finishSequenceItemPerformance(sequencePerf, index, itemId, info)
   }
-  const rows = competencyScoreRows(info?.competencies)
-  const followUp = sequenceItemCloseFollowUp({
-    itemCount: sequenceItemIds.length,
-    itemIndex: index,
-    hasScoreRows: Object.keys(rows).length > 0,
-  })
-  if (followUp === 'card') {
-    sequenceIndex = index
-    presentScoreCard(rows)
-    return
-  }
-  if (followUp === 'end-content') void endCurrentContent(info)
-}
-
-function dismissCompetencyCard() {
-  const card = competencyCard.value
-  competencyCard.value = null
-  if (card?.pendingEnd) {
-    void endCurrentContent()
-    return
-  }
-  const followUp = competencyCardDismissFollowUp({
-    itemCount: sequenceItemIds.length,
-    itemIndex: card?.index,
-    advance: !!card?.advance,
-  })
-  if (followUp === 'next-item') {
-    sequenceFocusIndex.value = card.index + 1
-    return
-  }
-  if (followUp === 'end-content') void endCurrentContent()
+  if (isLastSequenceItem(sequenceItemIds.length, index)) void endCurrentContent(info)
 }
 
 async function startLeafPerformance(contentId) {
@@ -390,9 +229,6 @@ function resetPlayRecord() {
   sequenceItemIds = []
   sequenceIndex = 0
   leafContentId = null
-  competencyCard.value = null
-  stopScoreWatch()
-  sequenceFocusIndex.value = null
   sequenceStartIndex.value = 0
   localSequenceId.value = ''
 }
@@ -432,7 +268,7 @@ async function openContentAt(index) {
   }
   playMode.value = 'switching'
   // The URL is create.pilaproject.org/{id}. Know Learning writes the sequence
-  // doc. Skip contentPlaysHere, performance ticks, and the competency watch.
+  // doc. Skip contentPlaysHere and performance ticks.
   if (klEmbed.value) {
     if (generation !== playGeneration) return
     playMode.value = 'embed'
@@ -455,7 +291,6 @@ async function openContentAt(index) {
     }
   } else {
     await startLeafPerformance(contentId)
-    void watchCompetencyScores(contentId)
   }
   if (generation !== playGeneration) return
   playMode.value = mode
@@ -487,13 +322,6 @@ async function endCurrentContent(info) {
     || playMode.value === 'switching'
   ) return
   const close = closePayload(info)
-  // A second close while the card is up must not leave the assignment.
-  // Chirpy only closes once; Replay writes the saved score instead.
-  if (playMode.value === 'embed' && competencyCard.value) return
-  if (playMode.value === 'embed' && closeHasScoreRows(close)) {
-    presentScoreCard(competencyScoreRows(close.competencies), { pendingEnd: true })
-    return
-  }
   endingContent = true
   const action = assignmentContentEndAction(contentIds.value.length, contentIndex.value)
   try {
@@ -527,7 +355,6 @@ function leaveAssignment() {
 
 onBeforeUnmount(() => {
   stopLeafTimer()
-  stopScoreWatch()
 })
 
 onMounted(async () => {
@@ -634,35 +461,6 @@ onMounted(async () => {
   background: #fff;
   color: var(--color-slate-700, #334155);
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
-}
-
-.score-skill + .score-skill {
-  margin-top: 16px;
-}
-
-.score-steps {
-  display: flex;
-  gap: 6px;
-  height: 10px;
-}
-
-.score-step {
-  flex: 1;
-  border-radius: 999px;
-  background: var(--color-slate-200, #e2e8f0);
-}
-
-.score-step.done {
-  background: var(--color-primary-600, #2563eb);
-}
-
-.score-skill-label {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: var(--color-slate-600, #475569);
 }
 
 .sequence-end-lead {

@@ -132,25 +132,6 @@ export function competencyScoreRows(competencies) {
   return rows
 }
 
-export function competencyScoreSignature(rows) {
-  const source = rows && typeof rows === 'object' ? rows : {}
-  return JSON.stringify(Object.keys(source).sort().map((key) => [key, source[key]]))
-}
-
-/**
- * A later write of the saved best score. The first close arms this.
- * Writes before that, and an empty document, do not open the card.
- */
-export function competencyWatchUpdate({ armed, previousSignature, competencies } = {}) {
-  const rows = competencyScoreRows(competencies)
-  const signature = competencyScoreSignature(rows)
-  if (!armed) return { action: 'store', signature, rows }
-  if (!Object.keys(rows).length || signature === previousSignature) {
-    return { action: 'ignore', signature: previousSignature, rows }
-  }
-  return { action: 'show', signature, rows }
-}
-
 /** Same 0.85 bar the matching sequence player uses for a Candli close payload. */
 export function competencyMet(competencies) {
   const rows = Object.values(competencyScoreRows(competencies))

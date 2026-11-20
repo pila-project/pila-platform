@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import {
   competencyMet,
   competencyScoreRows,
-  competencyWatchUpdate,
   contentOwnsSequencePerformance,
   ensureLeafPerformance,
   ensureSequencePerformance,
@@ -88,37 +87,6 @@ describe('competency score rows', () => {
     assert.equal(competencyMet({ 'compute:addition': [3, 3] }), true)
     assert.equal(competencyMet({ 'compute:addition': [1, 3] }), null)
     assert.equal(competencyMet({}), null)
-  })
-
-  it('opens the card again only after a close, when the saved rows change', () => {
-    const first = competencyWatchUpdate({
-      armed: false,
-      previousSignature: '',
-      competencies: { 'compute:addition': [1, 3] },
-    })
-    assert.equal(first.action, 'store')
-
-    const same = competencyWatchUpdate({
-      armed: true,
-      previousSignature: first.signature,
-      competencies: { 'compute:addition': [1, 3] },
-    })
-    assert.equal(same.action, 'ignore')
-
-    const better = competencyWatchUpdate({
-      armed: true,
-      previousSignature: first.signature,
-      competencies: { 'compute:addition': [3, 3], 'compute:subtraction': [3, 3] },
-    })
-    assert.equal(better.action, 'show')
-    assert.deepEqual(better.rows['compute:addition'], [3, 3])
-
-    const empty = competencyWatchUpdate({
-      armed: true,
-      previousSignature: better.signature,
-      competencies: {},
-    })
-    assert.equal(empty.action, 'ignore')
   })
 })
 

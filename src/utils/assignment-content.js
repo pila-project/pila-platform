@@ -1,5 +1,3 @@
-import { competencyScoreRows } from './leaf-performance.js'
-
 /** Normalize assignment `content` from Agent state (ids, legacy single value, or object map). */
 export function normalizeAssignmentContent(content) {
   if (!content) return []
@@ -51,38 +49,6 @@ export function closePayload(info) {
     && typeof info.info === 'object'
   ) return info.info
   return info
-}
-
-/** True when a close payload has at least one score row. An empty object does not. */
-export function closeHasScoreRows(info) {
-  const payload = closePayload(info)
-  return Object.keys(competencyScoreRows(payload?.competencies)).length > 0
-}
-
-/**
- * Same-host sequence item close: show a competency card, end this assignment
- * piece after the last activity, or stay so the student can use Next.
- * `hasScoreRows` is closeHasScoreRows(info), not merely "competencies is an object".
- */
-export function sequenceItemCloseFollowUp({
-  itemCount,
-  itemIndex,
-  hasScoreRows,
-} = {}) {
-  if (hasScoreRows) return 'card'
-  if (isLastSequenceItem(itemCount, itemIndex)) return 'end-content'
-  return 'stay'
-}
-
-/** Competency card Close/Next: next item, end this assignment piece, or stay. */
-export function competencyCardDismissFollowUp({
-  itemCount,
-  itemIndex,
-  advance,
-} = {}) {
-  if (advance) return 'next-item'
-  if (isLastSequenceItem(itemCount, itemIndex)) return 'end-content'
-  return 'stay'
 }
 
 /** Drop one id from any legacy content shape; always returns a dense string[]. */
